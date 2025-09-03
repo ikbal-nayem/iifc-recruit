@@ -25,9 +25,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Briefcase, MapPin, Clock, ArrowRight } from 'lucide-react';
+import { Briefcase, MapPin, Clock, ArrowRight, Building } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { Job } from '@/lib/types';
 import { jobs as allJobs } from '@/lib/data';
@@ -35,13 +34,10 @@ import { useToast } from '@/hooks/use-toast';
 
 export function JobListings() {
   const [jobs, setJobs] = React.useState<Job[]>(allJobs.filter(j => j.status === 'Open'));
-  const [searchTerm, setSearchTerm] = React.useState('');
   const { toast } = useToast();
   const router = useRouter();
 
   const handleApply = (jobTitle: string) => {
-    // In a real app, you'd check for authentication here.
-    // For this prototype, we'll just redirect to login.
     toast({
         title: "Login Required",
         description: `Please log in to apply for the ${jobTitle} position.`,
@@ -50,68 +46,36 @@ export function JobListings() {
     router.push('/login');
   }
 
-  const filteredJobs = jobs.filter(job => 
-    job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    job.department.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input 
-            placeholder="Search by title or department..." 
-            className="pl-10" 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+    <div className="space-y-8">
+        <div className="text-center">
+            <h2 className="text-3xl font-headline font-bold">Recent Job Openings</h2>
+            <p className="text-muted-foreground mt-2">Explore the latest opportunities from top companies.</p>
         </div>
-        <div className="flex gap-4">
-          <Select>
-            <SelectTrigger className="w-full md:w-[180px]">
-              <SelectValue placeholder="Location" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="remote">Remote</SelectItem>
-              <SelectItem value="ny">New York, NY</SelectItem>
-              <SelectItem value="austin">Austin, TX</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select>
-            <SelectTrigger className="w-full md:w-[180px]">
-              <SelectValue placeholder="Job Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="full-time">Full-time</SelectItem>
-              <SelectItem value="part-time">Part-time</SelectItem>
-              <SelectItem value="contract">Contract</SelectItem>
-              <SelectItem value="internship">Internship</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {filteredJobs.map((job) => (
+        {jobs.map((job) => (
           <Dialog key={job.id}>
-            <Card className="flex flex-col glassmorphism">
+            <Card className="flex flex-col group hover:border-primary transition-all">
               <CardHeader>
-                <CardTitle className="font-headline">{job.title}</CardTitle>
-                <CardDescription>{job.salaryRange}</CardDescription>
+                <div className="flex justify-between items-start">
+                    <div>
+                        <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">{job.title}</CardTitle>
+                        <CardDescription className="flex items-center gap-2 pt-2">
+                            <Building className="h-4 w-4" /> {job.department}
+                        </CardDescription>
+                    </div>
+                     <Badge variant={job.type === 'Full-time' ? 'default' : 'secondary'}>{job.type}</Badge>
+                </div>
               </CardHeader>
               <CardContent className="flex-grow space-y-4">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Briefcase className="h-4 w-4" /> <span>{job.department}</span>
+                 <p className="text-sm text-foreground/80 line-clamp-2">{job.description}</p>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {job.location}</span>
+                    <span className="flex items-center gap-2"><Clock className="h-4 w-4" /> Posted {job.postedDate}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4" /> <span>{job.location}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4" /> <span>{job.type}</span>
-                </div>
-                <p className="text-sm text-foreground/80 pt-2 line-clamp-3">{job.description}</p>
               </CardContent>
-              <CardFooter>
+              <CardFooter className="flex justify-between items-center">
+                <span className="font-semibold text-primary">{job.salaryRange}</span>
                 <DialogTrigger asChild>
                   <Button variant="link" className="p-0 h-auto">
                     View Details
@@ -153,6 +117,9 @@ export function JobListings() {
             </DialogContent>
           </Dialog>
         ))}
+      </div>
+       <div className="text-center">
+          <Button variant="outline">Load More Jobs</Button>
       </div>
     </div>
   );
