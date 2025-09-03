@@ -28,7 +28,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Search, Briefcase, MapPin, Clock, ArrowRight } from 'lucide-react';
-
+import { useRouter } from 'next/navigation';
 import type { Job } from '@/lib/types';
 import { jobs as allJobs } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
@@ -37,12 +37,17 @@ export function JobListings() {
   const [jobs, setJobs] = React.useState<Job[]>(allJobs.filter(j => j.status === 'Open'));
   const [searchTerm, setSearchTerm] = React.useState('');
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleApply = (jobTitle: string) => {
+    // In a real app, you'd check for authentication here.
+    // For this prototype, we'll just redirect to login.
     toast({
-        title: "Application Submitted!",
-        description: `You have successfully applied for the ${jobTitle} position.`,
+        title: "Login Required",
+        description: `Please log in to apply for the ${jobTitle} position.`,
+        variant: "destructive"
     })
+    router.push('/');
   }
 
   const filteredJobs = jobs.filter(job => 
