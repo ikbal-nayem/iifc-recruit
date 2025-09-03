@@ -31,7 +31,7 @@ const adminNav = [
 
 const candidateNav = [
   { href: '/candidate', label: 'My Profile', icon: FileText },
-  { href: '/candidate/jobs', label: 'Job Listings', icon: Briefcase },
+  { href: '/', label: 'Job Listings', icon: Briefcase },
 ];
 
 const evaluatorNav = [
@@ -69,7 +69,7 @@ export default function SidebarNav() {
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
-                isActive={pathname.startsWith(item.href) && (item.href !== '/candidate' || pathname === '/candidate')}
+                isActive={pathname === item.href}
                 tooltip={item.label}
               >
                 <Link href={item.href}>

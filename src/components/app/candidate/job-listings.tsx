@@ -47,7 +47,7 @@ export function JobListings() {
         description: `Please log in to apply for the ${jobTitle} position.`,
         variant: "destructive"
     })
-    router.push('/');
+    router.push('/login');
   }
 
   const filteredJobs = jobs.filter(job => 

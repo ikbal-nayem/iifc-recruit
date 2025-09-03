@@ -1,22 +1,17 @@
 import { Building2 } from 'lucide-react';
-import LoginForm from '@/components/app/login-form';
+import { JobListings } from '@/components/app/candidate/job-listings';
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md">
-        <div className="flex flex-col items-center justify-center space-y-4 mb-8">
-          <div className="bg-primary p-3 rounded-full text-primary-foreground">
-             <Building2 className="h-8 w-8" />
-          </div>
-          <h1 className="text-3xl font-headline font-bold text-center">
-            IIFC Recruit
-          </h1>
-          <p className="text-muted-foreground text-center">
-            Welcome back! Please select your role and sign in.
+    <main className="container mx-auto px-4 py-8">
+       <div className="space-y-8 max-w-7xl mx-auto">
+        <div>
+          <h1 className="text-3xl font-headline font-bold">Find Your Next Opportunity</h1>
+          <p className="text-muted-foreground">
+            Browse and apply for open positions that match your skills.
           </p>
         </div>
-        <LoginForm />
+        <JobListings />
       </div>
     </main>
   );

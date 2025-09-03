@@ -19,12 +19,12 @@ export default function PublicHeader() {
         <span>IIFC Recruit</span>
       </Link>
       <nav className="flex-1 flex justify-center items-center">
-         <Link href="/jobs" className={cn("text-sm font-medium transition-colors hover:text-primary", pathname === '/jobs' ? 'text-primary' : 'text-muted-foreground')}>
+         <Link href="/" className={cn("text-sm font-medium transition-colors hover:text-primary", pathname === '/' ? 'text-primary' : 'text-muted-foreground')}>
             Job Listings
           </Link>
       </nav>
       <Button asChild>
-        <Link href="/">
+        <Link href="/login">
           <LogIn className="mr-2 h-4 w-4" />
           Login
         </Link>
