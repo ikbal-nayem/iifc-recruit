@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import PublicHeader from '@/components/app/public-header';
 import PublicFooter from '@/components/app/public-footer';
+import { TopLoader } from '@/components/ui/top-loader';
 
 export const metadata: Metadata = {
   title: 'IIFC Recruit',
@@ -24,6 +25,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased flex flex-col min-h-screen">
+        <TopLoader />
         <PublicHeader />
         <main className="flex-1 bg-background">
             {children}
