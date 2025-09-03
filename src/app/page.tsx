@@ -1,4 +1,3 @@
-import { Building2 } from 'lucide-react';
 import { JobListings } from '@/components/app/candidate/job-listings';
 
 export default function Home() {
