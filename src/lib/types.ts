@@ -1,10 +1,18 @@
 export type UserRole = 'candidate' | 'admin';
 
+export type Address = {
+    line1: string;
+    upazila: string;
+    district: string;
+    division: string;
+};
+
 export type PersonalInfo = {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
-  location: string;
+  address: Address;
   avatar: string;
   headline: string;
 };
@@ -13,6 +21,7 @@ export type AcademicInfo = {
   degree: string;
   institution: string;
   graduationYear: number;
+  certificateUrls?: string[];
 };
 
 export type ProfessionalInfo = {

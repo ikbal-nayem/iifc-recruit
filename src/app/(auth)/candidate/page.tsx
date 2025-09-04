@@ -1,21 +1,20 @@
-import { ProfileForm } from '@/components/app/candidate/profile-form';
+import { ProfileCompletion } from '@/components/app/candidate/profile-completion';
 import { candidates } from '@/lib/data';
 
-export default function CandidateProfilePage() {
-  // In a real app, this would come from a session.
+export default function CandidateDashboardPage() {
   const candidate = candidates[0];
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-headline font-bold">
-          Welcome, {candidate.personalInfo.name}!
+          Welcome, {candidate.personalInfo.firstName}!
         </h1>
         <p className="text-muted-foreground">
-          Keep your profile updated to attract the best opportunities.
+          Here's an overview of your profile and applications.
         </p>
       </div>
-      <ProfileForm candidate={candidate} />
+      <ProfileCompletion candidate={candidate} />
     </div>
   );
 }

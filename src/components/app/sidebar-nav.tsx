@@ -10,6 +10,7 @@ import {
   Users,
   Building2,
   Settings,
+  UserCog,
 } from 'lucide-react';
 import {
   SidebarHeader,
@@ -28,7 +29,8 @@ const adminNav = [
 ];
 
 const candidateNav = [
-  { href: '/candidate', label: 'My Profile', icon: FileText },
+  { href: '/candidate', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/candidate/profile', label: 'Edit Profile', icon: UserCog },
   { href: '/', label: 'Job Listings', icon: Briefcase },
 ];
 

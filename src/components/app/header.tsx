@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Building2, LogOut, PanelLeft, User } from 'lucide-react';
+import { Building2, LogOut, PanelLeft, User, UserCog } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,7 +37,7 @@ export default function Header() {
     // In a real app, you'd get user data from a session.
     // Here we just pick a user based on role for demonstration.
     const role = pathname.split('/')[1] || 'guest';
-    let user = { name: 'Admin', email: 'admin@iifc.com', avatar: 'https://picsum.photos/seed/admin/100/100' };
+    let user = { firstName: 'Admin', lastName: 'User', email: 'admin@iifc.com', avatar: 'https://picsum.photos/seed/admin/100/100' };
     if (role === 'candidate') {
         user = candidates[0].personalInfo;
     } 
@@ -64,15 +64,15 @@ export default function Header() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-9 w-9 rounded-full">
             <Avatar>
-              <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+              <AvatarImage src={user.avatar} alt={`${user.firstName} ${user.lastName}`} />
+              <AvatarFallback>{user.firstName.charAt(0)}</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">{user.name}</p>
+              <p className="text-sm font-medium leading-none">{user.firstName} {user.lastName}</p>
               <p className="text-xs leading-none text-muted-foreground">
                 {user.email}
               </p>
@@ -81,7 +81,11 @@ export default function Header() {
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => router.push(`/${role}`)}>
             <User className="mr-2 h-4 w-4" />
-            <span>Profile</span>
+            <span>Dashboard</span>
+          </DropdownMenuItem>
+           <DropdownMenuItem onClick={() => router.push(`/${role}/profile`)}>
+            <UserCog className="mr-2 h-4 w-4" />
+            <span>Edit Profile</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => router.push('/')}>

@@ -5,10 +5,16 @@ export const candidates: Candidate[] = [
   {
     id: 'c1',
     personalInfo: {
-      name: 'Alice Johnson',
+      firstName: 'Alice',
+      lastName: 'Johnson',
       email: 'alice.j@example.com',
       phone: '123-456-7890',
-      location: 'San Francisco, CA',
+      address: {
+        line1: '123 Tech Avenue',
+        upazila: 'Gulshan',
+        district: 'Dhaka',
+        division: 'Dhaka',
+      },
       avatar: 'https://picsum.photos/seed/alice/100/100',
       headline: 'Senior Frontend Developer with 8+ years of experience',
     },
@@ -17,6 +23,7 @@ export const candidates: Candidate[] = [
         degree: 'B.S. in Computer Science',
         institution: 'Stanford University',
         graduationYear: 2016,
+        certificateUrls: ['/certs/cert1.pdf', '/certs/cert2.pdf']
       },
     ],
     professionalInfo: [
@@ -52,10 +59,16 @@ export const candidates: Candidate[] = [
   {
     id: 'c2',
     personalInfo: {
-      name: 'Bob Smith',
+      firstName: 'Bob',
+      lastName: 'Smith',
       email: 'bob.s@example.com',
       phone: '234-567-8901',
-      location: 'New York, NY',
+       address: {
+        line1: '456 Innovation Drive',
+        upazila: 'Chittagong Sadar',
+        district: 'Chittagong',
+        division: 'Chittagong',
+      },
       avatar: 'https://picsum.photos/seed/bob/100/100',
       headline: 'Product Manager driving innovation and growth',
     },
@@ -84,10 +97,16 @@ export const candidates: Candidate[] = [
   {
     id: 'c3',
     personalInfo: {
-      name: 'Charlie Brown',
+      firstName: 'Charlie',
+      lastName: 'Brown',
       email: 'charlie.b@example.com',
       phone: '345-678-9012',
-      location: 'Austin, TX',
+      address: {
+        line1: '789 ML Lane',
+        upazila: 'Sylhet Sadar',
+        district: 'Sylhet',
+        division: 'Sylhet',
+      },
       avatar: 'https://picsum.photos/seed/charlie/100/100',
       headline: 'Data Scientist passionate about machine learning',
     },
@@ -116,10 +135,16 @@ export const candidates: Candidate[] = [
     {
     id: 'c4',
     personalInfo: {
-      name: 'Diana Prince',
+      firstName: 'Diana',
+      lastName: 'Prince',
       email: 'diana.p@example.com',
       phone: '456-789-0123',
-      location: 'Chicago, IL',
+      address: {
+        line1: '101 Design Street',
+        upazila: 'Rajshahi Sadar',
+        district: 'Rajshahi',
+        division: 'Rajshahi',
+      },
       avatar: 'https://picsum.photos/seed/diana/100/100',
       headline: 'UX/UI Designer creating intuitive user experiences',
     },
