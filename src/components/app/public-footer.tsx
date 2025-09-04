@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 
 export default function PublicFooter() {
   return (
-    <footer className="bg-muted">
+    <footer className="bg-background border-t">
       <div className="container mx-auto py-12 px-4 md:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="lg:col-span-1">

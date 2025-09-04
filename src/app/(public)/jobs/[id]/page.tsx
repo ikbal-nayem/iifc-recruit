@@ -1,7 +1,7 @@
 // src/app/(public)/jobs/[id]/page.tsx
 import { jobs as allJobs } from '@/lib/data';
 import { Job } from '@/lib/types';
-import { notFound, useRouter } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Briefcase, MapPin, Clock, ArrowRight, Building, DollarSign } from 'lucide-react';
