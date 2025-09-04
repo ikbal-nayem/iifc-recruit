@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Building2, LogIn, Plus } from 'lucide-react';
+import { Building2, LogIn, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -18,22 +18,17 @@ export default function PublicHeader() {
         </div>
         <span>IIFC Recruit</span>
       </Link>
-      <nav className="flex-1 flex justify-center items-center gap-6">
-         <Link href="/" className={cn("text-base font-medium transition-colors hover:text-primary", pathname === '/' ? 'text-primary' : 'text-muted-foreground')}>
-            Find a Job
-          </Link>
-      </nav>
-      <div className="flex items-center gap-2">
-        <Button variant="outline" asChild>
-            <Link href="/login">
-                <Plus className="mr-2 h-4 w-4" />
-                Post a Job
-            </Link>
-        </Button>
-        <Button asChild>
+      <div className="ml-auto flex items-center gap-2">
+        <Button asChild variant="ghost">
             <Link href="/login">
             <LogIn className="mr-2 h-4 w-4" />
             Sign In
+            </Link>
+        </Button>
+        <Button asChild>
+            <Link href="/signup">
+            <UserPlus className="mr-2 h-4 w-4" />
+            Sign Up
             </Link>
         </Button>
       </div>

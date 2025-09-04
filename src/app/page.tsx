@@ -1,5 +1,5 @@
 import { JobListings } from '@/components/app/candidate/job-listings';
-import { Search, MapPin, Briefcase } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -16,25 +16,17 @@ export default function Home() {
               Search through thousands of open positions in your field. Your dream job is waiting.
             </p>
           </div>
-          <div className="max-w-4xl mx-auto mt-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-2 p-2 rounded-lg bg-background shadow-lg border">
+          <div className="max-w-2xl mx-auto mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 p-2 rounded-lg bg-background shadow-lg border">
               <div className="relative md:col-span-2">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   type="text"
-                  placeholder="Job title, keywords, or company"
+                  placeholder="Job title or keywords"
                   className="w-full h-12 pl-12 text-base border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
               </div>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Location"
-                   className="w-full h-12 pl-12 text-base border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-              </div>
-              <Button size="lg" className="w-full h-12 text-base font-bold">
+              <Button size="lg" className="w-full h-12 text-base font-bold md:col-span-1">
                 <Search className="mr-2 h-5 w-5" />
                 Find Jobs
               </Button>

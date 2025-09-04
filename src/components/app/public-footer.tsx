@@ -1,30 +1,41 @@
 // src/components/app/public-footer.tsx
 import Link from 'next/link';
-import { Building2 } from 'lucide-react';
+import { Building2, Github, Twitter, Linkedin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function PublicFooter() {
   return (
     <footer className="bg-muted">
       <div className="container mx-auto py-12 px-4 md:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="md:col-span-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="lg:col-span-1">
                  <Link href="/" className="flex items-center gap-2 font-headline text-2xl font-bold mb-4">
                     <div className="bg-primary p-2 rounded-lg text-primary-foreground">
                     <Building2 className="h-7 w-7" />
                     </div>
                     <span>IIFC Recruit</span>
                 </Link>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-sm mb-4">
                     Connecting talent with opportunity. Find your dream job or your next star hire with us.
                 </p>
+                <div className="flex space-x-2">
+                    <Button variant="ghost" size="icon" asChild>
+                        <Link href="#"><Twitter className="h-5 w-5"/></Link>
+                    </Button>
+                    <Button variant="ghost" size="icon" asChild>
+                        <Link href="#"><Github className="h-5 w-5"/></Link>
+                    </Button>
+                    <Button variant="ghost" size="icon" asChild>
+                        <Link href="#"><Linkedin className="h-5 w-5"/></Link>
+                    </Button>
+                </div>
             </div>
             <div>
                 <h4 className="font-semibold mb-4">For Candidates</h4>
                 <nav className="flex flex-col gap-2">
-                    <Link href="#" className="text-sm hover:text-primary transition-colors text-muted-foreground">Find a Job</Link>
+                    <Link href="/" className="text-sm hover:text-primary transition-colors text-muted-foreground">Find a Job</Link>
                     <Link href="/login" className="text-sm hover:text-primary transition-colors text-muted-foreground">Candidate Login</Link>
-                    <Link href="#" className="text-sm hover:text-primary transition-colors text-muted-foreground">Resume Builder</Link>
+                    <Link href="/signup" className="text-sm hover:text-primary transition-colors text-muted-foreground">Candidate Sign Up</Link>
                 </nav>
             </div>
             <div>
@@ -32,7 +43,6 @@ export default function PublicFooter() {
                 <nav className="flex flex-col gap-2">
                     <Link href="/login" className="text-sm hover:text-primary transition-colors text-muted-foreground">Post a Job</Link>
                     <Link href="/login" className="text-sm hover:text-primary transition-colors text-muted-foreground">Employer Login</Link>
-                    <Link href="#" className="text-sm hover:text-primary transition-colors text-muted-foreground">Pricing</Link>
                 </nav>
             </div>
             <div>
