@@ -34,6 +34,19 @@ export const candidates: Candidate[] = [
       },
     ],
     skills: ['React', 'TypeScript', 'Next.js', 'GraphQL', 'Node.js', 'Figma'],
+    certifications: [
+        { name: 'Certified Kubernetes Application Developer', issuingOrganization: 'The Linux Foundation', issueDate: '2022-01-15' },
+    ],
+    languages: [
+        { name: 'English', proficiency: 'Native' },
+        { name: 'Spanish', proficiency: 'Advanced' },
+    ],
+    publications: [
+        { title: 'The Rise of Server-Side Rendering', publisher: 'Smashing Magazine', publicationDate: '2023-05-20', url: 'https://example.com' },
+    ],
+    awards: [
+        { name: 'Developer of the Year', awardingBody: 'TechCorp', dateReceived: '2021-12-20' },
+    ],
     status: 'Active',
   },
   {
@@ -62,6 +75,10 @@ export const candidates: Candidate[] = [
       },
     ],
     skills: ['Product Management', 'Agile', 'JIRA', 'Market Research', 'Roadmap Planning'],
+    certifications: [],
+    languages: [{ name: 'English', proficiency: 'Native' }],
+    publications: [],
+    awards: [],
     status: 'Passive',
   },
   {
@@ -90,6 +107,10 @@ export const candidates: Candidate[] = [
       },
     ],
     skills: ['Python', 'TensorFlow', 'PyTorch', 'SQL', 'Tableau', 'Machine Learning'],
+    certifications: [],
+    languages: [{ name: 'English', proficiency: 'Native' }],
+    publications: [],
+    awards: [],
     status: 'Active',
   },
     {
@@ -118,6 +139,10 @@ export const candidates: Candidate[] = [
       },
     ],
     skills: ['Figma', 'Sketch', 'Adobe XD', 'User Research', 'Prototyping'],
+    certifications: [],
+    languages: [{ name: 'English', proficiency: 'Native' }],
+    publications: [],
+    awards: [],
     status: 'Hired',
   },
 ];

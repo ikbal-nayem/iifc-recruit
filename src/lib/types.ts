@@ -22,12 +22,42 @@ export type ProfessionalInfo = {
   responsibilities: string[];
 };
 
+export type Certification = {
+    name: string;
+    issuingOrganization: string;
+    issueDate: string;
+    proofUrl?: string;
+};
+
+export type Language = {
+    name: string;
+    proficiency: 'Beginner' | 'Intermediate' | 'Advanced' | 'Native';
+};
+
+export type Publication = {
+    title: string;
+    publisher: string;
+    publicationDate: string;
+    url: string;
+};
+
+export type Award = {
+    name: string;
+    awardingBody: string;
+    dateReceived: string;
+};
+
+
 export type Candidate = {
   id: string;
   personalInfo: PersonalInfo;
   academicInfo: AcademicInfo[];
   professionalInfo: ProfessionalInfo[];
   skills: string[];
+  certifications: Certification[];
+  languages: Language[];
+  publications: Publication[];
+  awards: Award[];
   resumeUrl?: string;
   status: 'Active' | 'Passive' | 'Hired';
 };
