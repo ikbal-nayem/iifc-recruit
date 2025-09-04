@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Building2, LogOut, PanelLeft, User } from 'lucide-react';
@@ -35,13 +36,11 @@ export default function Header() {
     
     // In a real app, you'd get user data from a session.
     // Here we just pick a user based on role for demonstration.
-    const role = pathname.split('/')[1];
+    const role = pathname.split('/')[1] || 'guest';
     let user = { name: 'Admin', email: 'admin@iifc.com', avatar: 'https://picsum.photos/seed/admin/100/100' };
     if (role === 'candidate') {
         user = candidates[0].personalInfo;
-    } else if (role === 'evaluator') {
-        user = { name: 'Evaluator', email: 'eval@iifc.com', avatar: 'https://picsum.photos/seed/evaluator/100/100' };
-    }
+    } 
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6">

@@ -10,8 +10,6 @@ import {
   Users,
   Building2,
   Settings,
-  GraduationCap,
-  GanttChartSquare,
 } from 'lucide-react';
 import {
   SidebarHeader,
@@ -34,12 +32,6 @@ const candidateNav = [
   { href: '/', label: 'Job Listings', icon: Briefcase },
 ];
 
-const evaluatorNav = [
-  { href: '/evaluator', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/evaluator/assignments', label: 'Assignments', icon: GanttChartSquare },
-];
-
-
 export default function SidebarNav() {
   const pathname = usePathname();
   const role = pathname.split('/')[1];
@@ -49,8 +41,6 @@ export default function SidebarNav() {
     navItems = adminNav;
   } else if (role === 'candidate') {
     navItems = candidateNav;
-  } else if (role === 'evaluator') {
-    navItems = evaluatorNav;
   }
 
   return (

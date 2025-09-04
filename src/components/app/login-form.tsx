@@ -5,18 +5,10 @@ import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import {
-  Briefcase,
-  GraduationCap,
-  LogIn,
-  Mail,
-  ShieldCheck,
-} from 'lucide-react';
+import { LogIn, Mail } from 'lucide-react';
 
-import type { UserRole } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Card,
   CardContent,
@@ -32,7 +24,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
 
 const loginSchema = z.object({
@@ -40,9 +31,6 @@ const loginSchema = z.object({
   password: z
     .string()
     .min(8, { message: 'Password must be at least 8 characters long.' }),
-  role: z.enum(['candidate', 'admin', 'evaluator'], {
-    required_error: 'You need to select a role.',
-  }),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -57,7 +45,6 @@ export default function LoginForm() {
     defaultValues: {
       email: '',
       password: '',
-      role: 'candidate',
     },
   });
 
@@ -69,87 +56,31 @@ export default function LoginForm() {
     setTimeout(() => {
       toast({
         title: 'Login Successful',
-        description: `Redirecting to ${data.role} dashboard...`,
+        description: 'Redirecting to your dashboard...',
       });
 
-      // In a real app, you'd get a token and user data here.
-      // We'll just redirect based on the selected role.
-      router.push(`/${data.role}`);
+      // In a real app, you'd get a token and user data here to determine role.
+      // We'll just redirect to the admin dashboard for demonstration.
+      if (data.email.includes('admin')) {
+        router.push('/admin');
+      } else {
+        router.push('/candidate');
+      }
       setIsLoading(false);
     }, 1000);
   };
 
   return (
-    <Card className="glassmorphism">
+    <Card className="glassmorphism w-full">
       <CardHeader>
         <CardTitle>Sign In</CardTitle>
         <CardDescription>
-          Choose your role and enter your credentials to access your dashboard.
+          Enter your credentials to access your dashboard.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="role"
-              render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel>Select your role</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="grid grid-cols-1 md:grid-cols-3 gap-4"
-                    >
-                      <FormItem>
-                        <Label
-                          htmlFor="candidate"
-                          className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                        >
-                          <RadioGroupItem
-                            value="candidate"
-                            id="candidate"
-                            className="sr-only"
-                          />
-                          <Briefcase className="mb-3 h-6 w-6" />
-                          Candidate
-                        </Label>
-                      </FormItem>
-                      <FormItem>
-                        <Label
-                          htmlFor="admin"
-                          className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                        >
-                          <RadioGroupItem
-                            value="admin"
-                            id="admin"
-                            className="sr-only"
-                          />
-                          <ShieldCheck className="mb-3 h-6 w-6" />
-                          Admin
-                        </Label>
-                      </FormItem>
-                      <FormItem>
-                        <Label
-                          htmlFor="evaluator"
-                          className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                        >
-                          <RadioGroupItem
-                            value="evaluator"
-                            id="evaluator"
-                            className="sr-only"
-                          />
-                          <GraduationCap className="mb-3 h-6 w-6" />
-                          Evaluator
-                        </Label>
-                      </FormItem>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <FormField
               control={form.control}
               name="email"

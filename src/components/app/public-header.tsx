@@ -22,9 +22,6 @@ export default function PublicHeader() {
          <Link href="/" className={cn("text-base font-medium transition-colors hover:text-primary", pathname === '/' ? 'text-primary' : 'text-muted-foreground')}>
             Find a Job
           </Link>
-          <Link href="#" className={cn("text-base font-medium transition-colors hover:text-primary", pathname === '/companies' ? 'text-primary' : 'text-muted-foreground')}>
-            Companies
-          </Link>
       </nav>
       <div className="flex items-center gap-2">
         <Button variant="outline" asChild>
