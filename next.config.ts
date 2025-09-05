@@ -26,12 +26,6 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
-      {
-        protocol: 'https',
-        hostname: 'iifc.gov.bd',
-        port: '',
-        pathname: '/**',
-      }
     ],
   },
 };

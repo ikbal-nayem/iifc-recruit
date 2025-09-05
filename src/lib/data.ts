@@ -305,3 +305,5 @@ export const activities: Activity[] = [
     timestamp: format(subDays(new Date(), 2), 'yyyy-MM-dd HH:mm'),
   }
 ];
+
+export const iifcLogoUrl = "/iifc-logo.png";
