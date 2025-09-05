@@ -1,8 +1,10 @@
+
 import {
   Briefcase,
   LayoutDashboard,
   Users,
   UserCog,
+  FileText,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -47,6 +49,11 @@ export const candidateNavLinks: NavLink[] = [
             { href: '/candidate/profile/publications', label: 'Publications', icon: UserCog },
             { href: '/candidate/profile/awards', label: 'Awards', icon: UserCog },
         ]
+    },
+    { 
+        href: '/candidate/applications', 
+        label: 'My Applications', 
+        icon: FileText 
     },
     { 
         href: '/', 
