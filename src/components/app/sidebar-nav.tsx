@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -47,12 +48,10 @@ export default function SidebarNav() {
   const pathname = usePathname();
   const role = pathname.split('/')[1];
   const { state } = useSidebar();
-  const [isProfileOpen, setProfileOpen] = React.useState(false);
+  const [isProfileOpen, setProfileOpen] = React.useState(pathname.startsWith('/candidate/profile'));
 
   React.useEffect(() => {
-    if (pathname.startsWith('/candidate/profile')) {
-      setProfileOpen(true);
-    }
+    setProfileOpen(pathname.startsWith('/candidate/profile'));
   }, [pathname]);
   
    React.useEffect(() => {
@@ -106,6 +105,8 @@ export default function SidebarNav() {
                         onClick={() => {
                             if (state === 'expanded') {
                                 setProfileOpen(prev => !prev)
+                            } else {
+                                 router.push('/candidate/profile');
                             }
                         }}
                         isActive={pathname.startsWith('/candidate/profile')} 
