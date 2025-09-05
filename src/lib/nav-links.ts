@@ -48,6 +48,7 @@ export const candidateNavLinks: NavLink[] = [
             { href: '/candidate/profile/languages', label: 'Languages', icon: UserCog },
             { href: '/candidate/profile/publications', label: 'Publications', icon: UserCog },
             { href: '/candidate/profile/awards', label: 'Awards', icon: UserCog },
+            { href: '/candidate/profile/resume', label: 'Resume', icon: UserCog },
         ]
     },
     { 

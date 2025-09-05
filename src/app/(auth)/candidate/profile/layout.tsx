@@ -9,17 +9,9 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { candidateNavLinks } from '@/lib/nav-links';
 
-const profileTabs = [
-    { value: 'personal', label: 'Personal Info', href: '/candidate/profile' },
-    { value: 'academic', label: 'Academic', href: '/candidate/profile/academic' },
-    { value: 'professional', label: 'Professional', href: '/candidate/profile/professional' },
-    { value: 'skills', label: 'Skills', href: '/candidate/profile/skills' },
-    { value: 'certifications', label: 'Certifications', href: '/candidate/profile/certifications' },
-    { value: 'languages', label: 'Languages', href: '/candidate/profile/languages' },
-    { value: 'publications', label: 'Publications', href: '/candidate/profile/publications' },
-    { value: 'awards', label: 'Awards', href: '/candidate/profile/awards' },
-];
+const profileTabs = candidateNavLinks.find(item => item.label === 'Edit Profile')?.submenu || [];
 
 
 export default function CandidateProfileLayout({
@@ -33,10 +25,13 @@ export default function CandidateProfileLayout({
   const getCurrentTab = () => {
     const segments = pathname.split('/');
     const lastSegment = segments[segments.length - 1];
-    if (lastSegment === 'profile') return 'personal';
-    return profileTabs.find(tab => tab.href === pathname)?.value || 'personal';
+    // if lastSegment is not in profileTabs values, default to personal
+    if (lastSegment === 'profile' || !profileTabs.some(tab => tab.href.endsWith(lastSegment))) {
+        return 'profile';
+    }
+    return lastSegment;
   }
-
+  
   const [activeTab, setActiveTab] = React.useState(getCurrentTab());
   
   React.useEffect(() => {
@@ -44,11 +39,12 @@ export default function CandidateProfileLayout({
   }, [pathname]);
 
   const handleTabChange = (value: string) => {
-    const href = profileTabs.find(tab => tab.value === value)?.href;
-    if (href) {
-        router.push(href);
+    const tab = profileTabs.find(tab => (tab.href.split('/').pop() || 'profile') === value);
+    if (tab) {
+        router.push(tab.href);
     }
   };
+
 
   return (
      <div className="space-y-8">
@@ -61,17 +57,20 @@ export default function CandidateProfileLayout({
         </p>
       </div>
        <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <ScrollArea className="w-full whitespace-nowrap rounded-md border">
-            <TabsList className="bg-background">
-                {profileTabs.map(tab => (
-                    <TabsTrigger key={tab.value} value={tab.value} asChild>
-                        <Link href={tab.href}>{tab.label}</Link>
-                    </TabsTrigger>
-                ))}
+        <ScrollArea className="w-full whitespace-nowrap">
+            <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0">
+                {profileTabs.map(tab => {
+                     const value = tab.href.split('/').pop() || 'profile';
+                    return (
+                        <TabsTrigger key={value} value={value} asChild>
+                            <Link href={tab.href}>{tab.label}</Link>
+                        </TabsTrigger>
+                    )
+                })}
             </TabsList>
-            <ScrollBar orientation="horizontal" />
+            <ScrollBar orientation="horizontal" className="invisible"/>
         </ScrollArea>
-        <div className="mt-4">
+        <div className="mt-6">
              {children}
         </div>
         </Tabs>
