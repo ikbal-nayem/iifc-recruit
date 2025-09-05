@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Building2, LogOut, PanelLeft, User, UserCog } from 'lucide-react';
+import { Building2, LogOut, User, UserCog } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -64,7 +64,7 @@ export default function Header() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-9 w-9 rounded-full">
             <Avatar>
-              <AvatarImage src={user.avatar} alt={`${user.firstName} ${user.lastName}`} />
+              <AvatarImage src={user.avatar} alt={`${user.firstName} ${user.lastName}`} data-ai-hint="avatar" />
               <AvatarFallback>{user.firstName.charAt(0)}</AvatarFallback>
             </Avatar>
           </Button>
@@ -88,7 +88,7 @@ export default function Header() {
             <span>Edit Profile</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => router.push('/')}>
+          <DropdownMenuItem onClick={() => router.push('/login')}>
             <LogOut className="mr-2 h-4 w-4" />
             <span>Log out</span>
           </DropdownMenuItem>

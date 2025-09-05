@@ -48,26 +48,24 @@ export default function LoginForm() {
     },
   });
 
-  const onSubmit = (data: LoginFormValues) => {
+  const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
-    console.log(data);
 
     // Simulate API call
-    setTimeout(() => {
-      toast({
-        title: 'Login Successful',
-        description: 'Redirecting to your dashboard...',
-      });
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-      // In a real app, you'd get a token and user data here to determine role.
-      // We'll just redirect to the admin dashboard for demonstration.
-      if (data.email.includes('admin')) {
-        router.push('/admin');
-      } else {
-        router.push('/candidate');
-      }
-      setIsLoading(false);
-    }, 1000);
+    toast({
+      title: 'Login Successful',
+      description: 'Redirecting to your dashboard...',
+    });
+
+    if (data.email.includes('admin')) {
+      router.push('/admin');
+    } else {
+      router.push('/candidate');
+    }
+    
+    setIsLoading(false);
   };
 
   return (

@@ -1,6 +1,4 @@
-// src/app/(public)/jobs/[id]/page.tsx
 import { jobs as allJobs } from '@/lib/data';
-import { Job } from '@/lib/types';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -71,7 +69,7 @@ export default function JobDetailsPage({ params }: { params: { id: string } }) {
             <h3 className="text-xl font-bold font-headline">Similar Jobs</h3>
             {similarJobs.length > 0 ? (
               similarJobs.map((similarJob) => (
-                <Card key={similarJob.id} className="group hover:border-primary transition-all">
+                <Card key={similarJob.id} className="group hover:border-primary transition-all glassmorphism">
                    <CardHeader>
                      <CardTitle className="font-headline text-lg group-hover:text-primary transition-colors">{similarJob.title}</CardTitle>
                      <CardDescription className="flex items-center gap-2 pt-1">

@@ -27,7 +27,7 @@ export function JobListings() {
         </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {jobs.map((job) => (
-            <Card key={job.id} className="flex flex-col group hover:border-primary transition-all">
+            <Card key={job.id} className="flex flex-col group glassmorphism hover:border-primary transition-all">
               <CardHeader>
                 <div className="flex justify-between items-start">
                     <div>

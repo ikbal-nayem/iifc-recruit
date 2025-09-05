@@ -1,4 +1,3 @@
-// src/components/app/signup-form.tsx
 'use client';
 
 import * as React from 'react';
@@ -51,22 +50,20 @@ export default function SignupForm() {
     },
   });
 
-  const onSubmit = (data: SignupFormValues) => {
+  const onSubmit = async (data: SignupFormValues) => {
     setIsLoading(true);
-    console.log(data);
 
     // Simulate API call
-    setTimeout(() => {
-      toast({
-        title: 'Signup Successful',
-        description: 'Redirecting to your dashboard...',
-      });
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-      // For demonstration, we'll just redirect to the candidate dashboard
-      router.push('/candidate');
-      
-      setIsLoading(false);
-    }, 1000);
+    toast({
+      title: 'Signup Successful',
+      description: 'Redirecting to your dashboard...',
+    });
+
+    router.push('/candidate');
+    
+    setIsLoading(false);
   };
 
   return (

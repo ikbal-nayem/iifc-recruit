@@ -71,7 +71,7 @@ export function CandidateManagement() {
         return (
           <div className="flex items-center gap-3">
             <Avatar>
-              <AvatarImage src={avatar} alt={name} />
+              <AvatarImage src={avatar} alt={name} data-ai-hint="avatar" />
               <AvatarFallback>{name.charAt(0)}</AvatarFallback>
             </Avatar>
             <div>

@@ -3,7 +3,6 @@ import {
   DollarSign,
   Users,
   Briefcase,
-  BarChart,
 } from 'lucide-react';
 import {
   Card,
@@ -92,7 +91,7 @@ export default function AdminDashboard() {
               {activities.map((activity) => (
                 <div key={activity.id} className="flex items-start">
                   <Avatar className="h-9 w-9">
-                    <AvatarImage src={activity.user.avatar} alt="Avatar" />
+                    <AvatarImage src={activity.user.avatar} alt="Avatar" data-ai-hint="avatar" />
                     <AvatarFallback>{activity.user.name.charAt(0)}</AvatarFallback>
                   </Avatar>
                   <div className="ml-4 space-y-1">
