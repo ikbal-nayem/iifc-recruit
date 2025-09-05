@@ -6,8 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Phone, MapPin } from 'lucide-react';
-import Image from 'next/image';
+import { Mail, Phone, MapPin, Printer } from 'lucide-react';
 
 export default function ContactPage() {
   const { toast } = useToast();
@@ -87,18 +86,21 @@ export default function ContactPage() {
                    <div className="flex items-start gap-4">
                       <Phone className="h-6 w-6 text-primary mt-1"/>
                       <div>
-                          <h4 className="font-semibold text-foreground">Call Us</h4>
-                          <a href="tel:+88029889244" className="hover:text-primary">(+8802) 9889244</a>
+                          <h4 className="font-semibold text-foreground">Telephone</h4>
+                          <p>
+                            <a href="tel:+88029889244" className="hover:text-primary">(+8802) 9889244</a>, <a href="tel:+88029889255" className="hover:text-primary">9889255</a>
+                          </p>
+                      </div>
+                  </div>
+                   <div className="flex items-start gap-4">
+                      <Printer className="h-6 w-6 text-primary mt-1"/>
+                      <div>
+                          <h4 className="font-semibold text-foreground">Fax</h4>
+                          <p>(+8802) 9889233</p>
                       </div>
                   </div>
               </div>
             </div>
-             <div>
-                <h3 className="text-2xl font-bold font-headline mb-4">Our Location</h3>
-                <div className="aspect-video w-full rounded-lg overflow-hidden border">
-                    <Image src="https://picsum.photos/seed/map/800/600" alt="Map" layout="fill" objectFit="cover" data-ai-hint="city map" />
-                </div>
-             </div>
           </div>
         </div>
       </section>
