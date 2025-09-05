@@ -2,15 +2,10 @@
 'use client';
 
 import * as React from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  Briefcase,
-  LayoutDashboard,
-  Users,
-  Building2,
   Settings,
-  UserCog,
 } from 'lucide-react';
 import {
   SidebarHeader,
@@ -26,47 +21,88 @@ import {
   SidebarMenuSubButton,
 } from '@/components/ui/sidebar';
 import Image from 'next/image';
+import { NavLink, adminNavLinks, candidateNavLinks } from '@/lib/nav-links';
 
-const adminNav = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/jobs', label: 'Job Management', icon: Briefcase },
-  { href: '/admin/candidates', label: 'Candidates', icon: Users },
-];
 
-const candidateProfileSubNav = [
-    { href: '/candidate/profile#personal', label: 'Personal Info' },
-    { href: '/candidate/profile#academic', label: 'Academic' },
-    { href: '/candidate/profile#professional', label: 'Professional' },
-    { href: '/candidate/profile#skills', label: 'Skills' },
-    { href: '/candidate/profile#certifications', label: 'Certifications' },
-    { href: '/candidate/profile#languages', label: 'Languages' },
-    { href: '/candidate/profile#publications', label: 'Publications' },
-    { href: '/candidate/profile#awards', label: 'Awards' },
-]
+const NavMenu = ({ item, isSubmenuOpen, setOpenSubmenu }: { item: NavLink, isSubmenuOpen: boolean, setOpenSubmenu: (label: string) => void }) => {
+    const pathname = usePathname();
+    const { state } = useSidebar();
+    const router = useRouter();
+
+    const hasSubmenu = item.submenu && item.submenu.length > 0;
+    const isActive = item.isActive ? item.isActive(pathname, window.location.hash) : pathname.startsWith(item.href);
+
+    const handleMenuClick = () => {
+        if (state !== 'expanded' && hasSubmenu) {
+            router.push(item.href);
+        } else {
+            setOpenSubmenu(item.label);
+        }
+    };
+    
+    return (
+        <SidebarMenuItem>
+            <SidebarMenuButton
+                asChild={!hasSubmenu || state !== 'expanded'}
+                onClick={handleMenuClick}
+                isActive={isActive}
+                tooltip={item.label}
+                data-state={isSubmenuOpen && hasSubmenu ? 'open' : 'closed'}
+            >
+                <Link href={item.href}>
+                    <item.icon />
+                    <span>{item.label}</span>
+                </Link>
+            </SidebarMenuButton>
+            {isSubmenuOpen && state === 'expanded' && hasSubmenu && (
+                <SidebarMenuSub>
+                    {item.submenu?.map(subItem => (
+                        <SidebarMenuSubItem key={subItem.href}>
+                            <SidebarMenuSubButton 
+                                asChild 
+                                isActive={subItem.isActive ? subItem.isActive(pathname, window.location.hash) : (pathname + window.location.hash) === subItem.href}
+                            >
+                                <Link href={subItem.href}>{subItem.label}</Link>
+                            </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                    ))}
+                </SidebarMenuSub>
+            )}
+        </SidebarMenuItem>
+    );
+};
+
 
 export default function SidebarNav() {
   const pathname = usePathname();
   const role = pathname.split('/')[1];
   const { state } = useSidebar();
-  const [isProfileOpen, setProfileOpen] = React.useState(pathname.startsWith('/candidate/profile'));
+  const [openSubmenu, setOpenSubmenuState] = React.useState('');
 
-  React.useEffect(() => {
-    setProfileOpen(pathname.startsWith('/candidate/profile'));
-  }, [pathname]);
+  const navItems = role === 'admin' ? adminNavLinks : role === 'candidate' ? candidateNavLinks : [];
+
+  const setOpenSubmenu = (label: string) => {
+    setOpenSubmenuState(prev => prev === label ? '' : label);
+  };
   
-   React.useEffect(() => {
+  React.useEffect(() => {
     if (state === 'collapsed') {
-      setProfileOpen(false);
+      setOpenSubmenuState('');
     }
   }, [state]);
 
+  React.useEffect(() => {
+    const activeParent = navItems.find(item => item.isActive && item.isActive(pathname));
+    if (activeParent && activeParent.submenu) {
+      setOpenSubmenuState(activeParent.label);
+    } else if (!pathname.startsWith(openSubmenu.toLowerCase().replace(' ', '-'))) {
+        const activeItem = navItems.find(item => item.isActive && item.isActive(pathname));
+        if (!activeItem?.submenu) {
+            setOpenSubmenuState('');
+        }
+    }
+  }, [pathname, navItems]);
 
-  let navItems = [];
-  if (role === 'admin') {
-    navItems = adminNav;
-  } else if (role === 'candidate') {
-    // This is a placeholder, the candidate nav is custom rendered below
-  }
 
   return (
     <>
@@ -78,65 +114,14 @@ export default function SidebarNav() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {role === 'admin' && adminNav.map((item) => (
-            <SidebarMenuItem key={item.href}>
-              <SidebarMenuButton
-                asChild
-                isActive={pathname === item.href}
-                tooltip={item.label}
-              >
-                <Link href={item.href}>
-                  <item.icon />
-                  <span>{item.label}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-           {role === 'candidate' && (
-            <>
-                 <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={pathname === '/candidate'} tooltip="Dashboard">
-                        <Link href="/candidate"><LayoutDashboard /><span>Dashboard</span></Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-                 <SidebarMenuItem>
-                    <SidebarMenuButton 
-                        asChild={state !== 'expanded'}
-                        onClick={() => {
-                            if (state === 'expanded') {
-                                setProfileOpen(prev => !prev)
-                            } else {
-                                 router.push('/candidate/profile');
-                            }
-                        }}
-                        isActive={pathname.startsWith('/candidate/profile')} 
-                        tooltip="Edit Profile"
-                        data-state={isProfileOpen ? 'open' : 'closed'}
-                    >
-                        <Link href="/candidate/profile">
-                            <UserCog />
-                            <span>Edit Profile</span>
-                        </Link>
-                    </SidebarMenuButton>
-                    {isProfileOpen && state === 'expanded' && (
-                        <SidebarMenuSub>
-                            {candidateProfileSubNav.map(item => (
-                                <SidebarMenuSubItem key={item.href}>
-                                    <SidebarMenuSubButton asChild isActive={pathname + (typeof window !== 'undefined' ? window.location.hash : '') === item.href}>
-                                        <Link href={item.href}>{item.label}</Link>
-                                    </SidebarMenuSubButton>
-                                </SidebarMenuSubItem>
-                            ))}
-                        </SidebarMenuSub>
-                    )}
-                </SidebarMenuItem>
-                 <SidebarMenuItem>
-                     <SidebarMenuButton asChild isActive={pathname === '/'} tooltip="Job Listings">
-                        <Link href="/"><Briefcase /><span>Job Listings</span></Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            </>
-           )}
+            {navItems.map((item) => (
+              <NavMenu 
+                key={item.href} 
+                item={item} 
+                isSubmenuOpen={openSubmenu === item.label} 
+                setOpenSubmenu={setOpenSubmenu}
+              />
+            ))}
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
