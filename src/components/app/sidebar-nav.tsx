@@ -60,7 +60,7 @@ const NavMenu = ({ item, isSubmenuOpen, setOpenSubmenu }: { item: NavLink, isSub
                         <SidebarMenuSubItem key={subItem.href}>
                             <SidebarMenuSubButton 
                                 asChild 
-                                isActive={subItem.isActive ? subItem.isActive(pathname, window.location.hash) : (pathname + window.location.hash) === subItem.href}
+                                isActive={subItem.isActive ? subItem.isActive(pathname) : pathname === subItem.href}
                             >
                                 <Link href={subItem.href}>{subItem.label}</Link>
                             </SidebarMenuSubButton>
@@ -92,13 +92,17 @@ export default function SidebarNav() {
   }, [state]);
 
   React.useEffect(() => {
-    const activeParent = navItems.find(item => item.isActive && item.isActive(pathname, window.location.hash));
-    if (activeParent && activeParent.submenu) {
-      setOpenSubmenuState(activeParent.label);
-    } else if (!navItems.some(item => item.submenu && item.isActive && item.isActive(pathname, window.location.hash))) {
-      setOpenSubmenuState('');
+    const activeParent = navItems.find(item => item.isActive && item.isActive(pathname));
+    if (activeParent?.submenu) {
+        if (openSubmenu !== activeParent.label) {
+            setOpenSubmenuState(activeParent.label);
+        }
+    } else {
+        if (openSubmenu && !navItems.find(item => item.label === openSubmenu && item.isActive?.(pathname))) {
+             setOpenSubmenuState('');
+        }
     }
-  }, [pathname, navItems]);
+  }, [pathname, navItems, openSubmenu]);
 
 
   return (

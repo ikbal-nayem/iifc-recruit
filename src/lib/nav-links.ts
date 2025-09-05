@@ -38,14 +38,14 @@ export const candidateNavLinks: NavLink[] = [
         icon: UserCog,
         isActive: (pathname) => pathname.startsWith('/candidate/profile'),
         submenu: [
-            { href: '/candidate/profile#personal', label: 'Personal Info', icon: UserCog },
-            { href: '/candidate/profile#academic', label: 'Academic', icon: UserCog },
-            { href: '/candidate/profile#professional', label: 'Professional', icon: UserCog },
-            { href: '/candidate/profile#skills', label: 'Skills', icon: UserCog },
-            { href: '/candidate/profile#certifications', label: 'Certifications', icon: UserCog },
-            { href: '/candidate/profile#languages', label: 'Languages', icon: UserCog },
-            { href: '/candidate/profile#publications', label: 'Publications', icon: UserCog },
-            { href: '/candidate/profile#awards', label: 'Awards', icon: UserCog },
+            { href: '/candidate/profile', label: 'Personal Info', icon: UserCog, isActive: (pathname) => pathname === '/candidate/profile' },
+            { href: '/candidate/profile/academic', label: 'Academic', icon: UserCog },
+            { href: '/candidate/profile/professional', label: 'Professional', icon: UserCog },
+            { href: '/candidate/profile/skills', label: 'Skills', icon: UserCog },
+            { href: '/candidate/profile/certifications', label: 'Certifications', icon: UserCog },
+            { href: '/candidate/profile/languages', label: 'Languages', icon: UserCog },
+            { href: '/candidate/profile/publications', label: 'Publications', icon: UserCog },
+            { href: '/candidate/profile/awards', label: 'Awards', icon: UserCog },
         ]
     },
     { 
