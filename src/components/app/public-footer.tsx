@@ -1,7 +1,9 @@
-// src/components/app/public-footer.tsx
+'use client';
+
 import Link from 'next/link';
 import { Building2, Github, Twitter, Linkedin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 
 export default function PublicFooter() {
   return (
@@ -9,10 +11,8 @@ export default function PublicFooter() {
       <div className="container mx-auto py-12 px-4 md:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="lg:col-span-1">
-                 <Link href="/" className="flex items-center gap-2 font-headline text-2xl font-bold mb-4">
-                    <div className="bg-primary p-2 rounded-lg text-primary-foreground">
-                    <Building2 className="h-7 w-7" />
-                    </div>
+                 <Link href="/" className="flex items-center gap-3 font-headline text-2xl font-bold mb-4">
+                    <Image src="https://iifc.gov.bd/images/iifc-logo.jpg" alt="IIFC Logo" width={40} height={40} className="h-10 w-auto" />
                     <span>IIFC Recruit</span>
                 </Link>
                 <p className="text-muted-foreground text-sm mb-4">

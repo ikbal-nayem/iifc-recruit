@@ -6,7 +6,6 @@ import Link from 'next/link';
 import {
   Briefcase,
   LayoutDashboard,
-  FileText,
   Users,
   Building2,
   Settings,
@@ -19,8 +18,13 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
-  SidebarSeparator
+  SidebarSeparator,
+  useSidebar,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
 } from '@/components/ui/sidebar';
+import Image from 'next/image';
 
 const adminNav = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -28,36 +32,54 @@ const adminNav = [
   { href: '/admin/candidates', label: 'Candidates', icon: Users },
 ];
 
-const candidateNav = [
-  { href: '/candidate', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/candidate/profile', label: 'Edit Profile', icon: UserCog },
-  { href: '/', label: 'Job Listings', icon: Briefcase },
-];
+const candidateProfileSubNav = [
+    { href: '/candidate/profile#personal', label: 'Personal Info' },
+    { href: '/candidate/profile#academic', label: 'Academic' },
+    { href: '/candidate/profile#professional', label: 'Professional' },
+    { href: '/candidate/profile#skills', label: 'Skills' },
+    { href: '/candidate/profile#certifications', label: 'Certifications' },
+    { href: '/candidate/profile#languages', label: 'Languages' },
+    { href: '/candidate/profile#publications', label: 'Publications' },
+    { href: '/candidate/profile#awards', label: 'Awards' },
+]
 
 export default function SidebarNav() {
   const pathname = usePathname();
   const role = pathname.split('/')[1];
+  const { state } = useSidebar();
+  const [isProfileOpen, setProfileOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    if (pathname.startsWith('/candidate/profile')) {
+      setProfileOpen(true);
+    }
+  }, [pathname]);
+  
+   React.useEffect(() => {
+    if (state === 'collapsed') {
+      setProfileOpen(false);
+    }
+  }, [state]);
+
 
   let navItems = [];
   if (role === 'admin') {
     navItems = adminNav;
   } else if (role === 'candidate') {
-    navItems = candidateNav;
+    // This is a placeholder, the candidate nav is custom rendered below
   }
 
   return (
     <>
       <SidebarHeader>
-        <div className="flex items-center gap-2">
-            <div className="bg-primary p-2 rounded-lg text-primary-foreground">
-                <Building2 className="h-6 w-6" />
-            </div>
+        <Link href="/" className="flex items-center gap-2">
+            <Image src="https://iifc.gov.bd/images/iifc-logo.jpg" alt="IIFC Logo" width={32} height={32} className="h-8 w-auto" />
             <span className="font-headline text-xl font-bold">IIFC Recruit</span>
-        </div>
+        </Link>
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {navItems.map((item) => (
+          {role === 'admin' && adminNav.map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
@@ -71,6 +93,42 @@ export default function SidebarNav() {
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
+           {role === 'candidate' && (
+            <>
+                 <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={pathname === '/candidate'} tooltip="Dashboard">
+                        <Link href="/candidate"><LayoutDashboard /><span>Dashboard</span></Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+                 <SidebarMenuItem>
+                    <SidebarMenuButton 
+                        onClick={() => state === 'expanded' && setProfileOpen(prev => !prev)}
+                        isActive={pathname.startsWith('/candidate/profile')} 
+                        tooltip="Edit Profile"
+                        data-state={isProfileOpen ? 'open' : 'closed'}
+                    >
+                        <UserCog />
+                        <span>Edit Profile</span>
+                    </SidebarMenuButton>
+                    {isProfileOpen && state === 'expanded' && (
+                        <SidebarMenuSub>
+                            {candidateProfileSubNav.map(item => (
+                                <SidebarMenuSubItem key={item.href}>
+                                    <SidebarMenuSubButton asChild isActive={pathname + (typeof window !== 'undefined' ? window.location.hash : '') === item.href}>
+                                        <Link href={item.href}>{item.label}</Link>
+                                    </SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
+                            ))}
+                        </SidebarMenuSub>
+                    )}
+                </SidebarMenuItem>
+                 <SidebarMenuItem>
+                     <SidebarMenuButton asChild isActive={pathname === '/'} tooltip="Job Listings">
+                        <Link href="/"><Briefcase /><span>Job Listings</span></Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            </>
+           )}
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>

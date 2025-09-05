@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { usePathname } from 'next/navigation';
 import {
   Tabs,
   TabsContent,
@@ -37,8 +38,27 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ candidate }: ProfileFormProps) {
+  const pathname = usePathname();
+  const [activeTab, setActiveTab] = React.useState('personal');
+
+  React.useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash) {
+        setActiveTab(hash);
+      }
+    };
+
+    handleHashChange(); // Set initial tab based on hash
+    window.addEventListener('hashchange', handleHashChange);
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
+
   return (
-    <Tabs defaultValue="personal">
+    <Tabs value={activeTab} onValueChange={setActiveTab}>
       <ScrollArea className="w-full whitespace-nowrap">
         <TabsList>
           <TabsTrigger value="personal">Personal Info</TabsTrigger>
