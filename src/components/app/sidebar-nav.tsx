@@ -92,14 +92,11 @@ export default function SidebarNav() {
   }, [state]);
 
   React.useEffect(() => {
-    const activeParent = navItems.find(item => item.isActive && item.isActive(pathname));
+    const activeParent = navItems.find(item => item.isActive && item.isActive(pathname, window.location.hash));
     if (activeParent && activeParent.submenu) {
       setOpenSubmenuState(activeParent.label);
-    } else if (!pathname.startsWith(openSubmenu.toLowerCase().replace(' ', '-'))) {
-        const activeItem = navItems.find(item => item.isActive && item.isActive(pathname));
-        if (!activeItem?.submenu) {
-            setOpenSubmenuState('');
-        }
+    } else if (!navItems.some(item => item.submenu && item.isActive && item.isActive(pathname, window.location.hash))) {
+      setOpenSubmenuState('');
     }
   }, [pathname, navItems]);
 

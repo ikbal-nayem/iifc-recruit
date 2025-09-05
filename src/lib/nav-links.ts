@@ -15,7 +15,12 @@ export interface NavLink {
 }
 
 export const adminNavLinks: NavLink[] = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { 
+    href: '/admin', 
+    label: 'Dashboard', 
+    icon: LayoutDashboard,
+    isActive: (pathname) => pathname === '/admin',
+  },
   { href: '/admin/jobs', label: 'Job Management', icon: Briefcase },
   { href: '/admin/candidates', label: 'Candidates', icon: Users },
 ];
