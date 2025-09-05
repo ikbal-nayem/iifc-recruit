@@ -5,9 +5,12 @@ import Image from 'next/image';
 
 export default function AboutUsPage() {
   const teamMembers = [
-    { name: 'John Doe', role: 'CEO & Founder', avatar: 'https://picsum.photos/seed/john/100/100' },
-    { name: 'Jane Smith', role: 'Head of Product', avatar: 'https://picsum.photos/seed/jane/100/100' },
-    { name: 'Peter Jones', role: 'Lead Engineer', avatar: 'https://picsum.photos/seed/peter/100/100' },
+    { name: 'Mr. Shahriar Kader Siddiky', role: 'Chairman', avatar: 'https://iifc.gov.bd/images/management/shahriar_kader_siddiky.jpg' },
+    { name: 'Mr. Md. Habibur Rahman', role: 'Director', avatar: 'https://iifc.gov.bd/images/management/habibur_rahman.jpg' },
+    { name: 'Mr. Abul Kalam Azad', role: 'Director', avatar: 'https://iifc.gov.bd/images/management/abul_kalam_azad.jpg' },
+    { name: 'Ms. Nihad Kabir', role: 'Director', avatar: 'https://iifc.gov.bd/images/management/nihad_kabir.jpg' },
+    { name: 'Mr. A. K. M. Hamidur Rahman', role: 'Managing Director & CEO', avatar: 'https://iifc.gov.bd/images/management/akm_hamidur_rahman.jpg' },
+
   ];
 
   return (
@@ -16,10 +19,10 @@ export default function AboutUsPage() {
         <div className="container mx-auto px-4 md:px-6 text-center">
           <div className="max-w-3xl mx-auto">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-headline font-bold mb-4">
-              About IIFC Recruit
+              About IIFC
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground">
-              Connecting Bangladesh's brightest minds with exceptional opportunities. We are dedicated to building the future of talent acquisition.
+             Infrastructure Investment Facilitation Company (IIFC) is a government-owned company providing advisory services for private sector investment in infrastructure.
             </p>
           </div>
         </div>
@@ -30,10 +33,10 @@ export default function AboutUsPage() {
           <div>
             <h2 className="text-3xl font-headline font-bold mb-4">Our Mission</h2>
             <p className="text-muted-foreground mb-4">
-              Our mission is to streamline the recruitment process by leveraging cutting-edge technology to connect top-tier talent with the nation's leading infrastructure and finance projects. We aim to foster growth, innovation, and excellence within the industries we serve.
+              The mission of IIFC is to facilitate private sector investment in infrastructure in Bangladesh. We provide a wide range of advisory services to both public and private sector clients, from project conceptualization to financial closure.
             </p>
              <p className="text-muted-foreground">
-              We believe in creating a transparent and efficient platform where both candidates and employers can thrive. By simplifying the hiring journey, we empower organizations to build formidable teams and professionals to build rewarding careers.
+              Our vision is to be the leading facilitator of private sector infrastructure investment in Bangladesh, contributing to the country's economic growth and development. We are committed to providing high-quality, professional, and independent advice to our clients.
             </p>
           </div>
           <div className="relative h-80 rounded-lg overflow-hidden">
@@ -97,7 +100,7 @@ export default function AboutUsPage() {
                         <CardContent className="flex flex-col items-center">
                             <Avatar className="h-24 w-24 mb-4">
                                 <AvatarImage src={member.avatar} alt={member.name} data-ai-hint="portrait" />
-                                <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+                                <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                             </Avatar>
                             <h3 className="font-bold text-lg">{member.name}</h3>
                             <p className="text-primary">{member.role}</p>

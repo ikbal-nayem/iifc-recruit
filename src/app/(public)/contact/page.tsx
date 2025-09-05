@@ -74,21 +74,21 @@ export default function ContactPage() {
                       <MapPin className="h-6 w-6 text-primary mt-1"/>
                       <div>
                           <h4 className="font-semibold text-foreground">Our Office</h4>
-                          <p>123 IIFC Tower, Gulshan Avenue, Dhaka 1212, Bangladesh</p>
+                          <p>Ede-II, 6/B, 147, Mohakhali, Dhaka-1212</p>
                       </div>
                   </div>
                    <div className="flex items-start gap-4">
                       <Mail className="h-6 w-6 text-primary mt-1"/>
                       <div>
                           <h4 className="font-semibold text-foreground">Email Us</h4>
-                          <a href="mailto:contact@iifcrecruit.com" className="hover:text-primary">contact@iifcrecruit.com</a>
+                          <a href="mailto:info@iifc.gov.bd" className="hover:text-primary">info@iifc.gov.bd</a>
                       </div>
                   </div>
                    <div className="flex items-start gap-4">
                       <Phone className="h-6 w-6 text-primary mt-1"/>
                       <div>
                           <h4 className="font-semibold text-foreground">Call Us</h4>
-                          <a href="tel:+880123456789" className="hover:text-primary">+880 123 456 789</a>
+                          <a href="tel:+88029889244" className="hover:text-primary">(+8802) 9889244</a>
                       </div>
                   </div>
               </div>
