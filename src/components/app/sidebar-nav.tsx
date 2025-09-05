@@ -72,7 +72,7 @@ export default function SidebarNav() {
   return (
     <>
       <SidebarHeader>
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-3">
             <Image src="https://iifc.gov.bd/images/iifc-logo.jpg" alt="IIFC Logo" width={32} height={32} className="h-8 w-auto" />
             <span className="font-headline text-xl font-bold">IIFC Recruit</span>
         </Link>
@@ -102,13 +102,20 @@ export default function SidebarNav() {
                 </SidebarMenuItem>
                  <SidebarMenuItem>
                     <SidebarMenuButton 
-                        onClick={() => state === 'expanded' && setProfileOpen(prev => !prev)}
+                        asChild={state !== 'expanded'}
+                        onClick={() => {
+                            if (state === 'expanded') {
+                                setProfileOpen(prev => !prev)
+                            }
+                        }}
                         isActive={pathname.startsWith('/candidate/profile')} 
                         tooltip="Edit Profile"
                         data-state={isProfileOpen ? 'open' : 'closed'}
                     >
-                        <UserCog />
-                        <span>Edit Profile</span>
+                        <Link href="/candidate/profile">
+                            <UserCog />
+                            <span>Edit Profile</span>
+                        </Link>
                     </SidebarMenuButton>
                     {isProfileOpen && state === 'expanded' && (
                         <SidebarMenuSub>

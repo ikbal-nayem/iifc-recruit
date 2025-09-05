@@ -38,7 +38,6 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ candidate }: ProfileFormProps) {
-  const pathname = usePathname();
   const [activeTab, setActiveTab] = React.useState('personal');
 
   React.useEffect(() => {
@@ -46,10 +45,12 @@ export function ProfileForm({ candidate }: ProfileFormProps) {
       const hash = window.location.hash.replace('#', '');
       if (hash) {
         setActiveTab(hash);
+      } else {
+        setActiveTab('personal');
       }
     };
 
-    handleHashChange(); // Set initial tab based on hash
+    handleHashChange();
     window.addEventListener('hashchange', handleHashChange);
 
     return () => {
@@ -57,10 +58,15 @@ export function ProfileForm({ candidate }: ProfileFormProps) {
     };
   }, []);
 
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    window.location.hash = value;
+  };
+
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab}>
-      <ScrollArea className="w-full whitespace-nowrap">
-        <TabsList>
+    <Tabs value={activeTab} onValueChange={handleTabChange}>
+      <ScrollArea className="w-full whitespace-nowrap rounded-md border">
+        <TabsList className="bg-background">
           <TabsTrigger value="personal">Personal Info</TabsTrigger>
           <TabsTrigger value="academic">Academic</TabsTrigger>
           <TabsTrigger value="professional">Professional</TabsTrigger>
@@ -217,7 +223,7 @@ export function ProfileForm({ candidate }: ProfileFormProps) {
                 </div>
                  <div className="space-y-2 mt-2">
                     <Label>Responsibilities</Label>
-                    <Textarea defaultValue={info.responsibilities.join('\n')} />
+                    <Textarea defaultValue={info.responsibilities.join('\\n')} />
                 </div>
                 <Button variant="ghost" size="icon" className="absolute top-2 right-2"><Trash className="h-4 w-4 text-destructive"/></Button>
               </div>
