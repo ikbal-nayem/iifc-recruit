@@ -48,8 +48,8 @@ export default function PublicFooter() {
             <div>
                 <h4 className="font-semibold mb-4">Company</h4>
                 <nav className="flex flex-col gap-2">
-                    <Link href="#" className="text-sm hover:text-primary transition-colors text-muted-foreground">About Us</Link>
-                    <Link href="#" className="text-sm hover:text-primary transition-colors text-muted-foreground">Contact</Link>
+                    <Link href="/about" className="text-sm hover:text-primary transition-colors text-muted-foreground">About Us</Link>
+                    <Link href="/contact" className="text-sm hover:text-primary transition-colors text-muted-foreground">Contact</Link>
                     <Link href="#" className="text-sm hover:text-primary transition-colors text-muted-foreground">Privacy Policy</Link>
                 </nav>
             </div>
