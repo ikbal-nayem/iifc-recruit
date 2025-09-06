@@ -1,4 +1,3 @@
-
 import {
   Briefcase,
   LayoutDashboard,
@@ -7,6 +6,7 @@ import {
   FileText,
   Search,
   PlusCircle,
+  UserCircle,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -44,6 +44,11 @@ export const candidateNavLinks: NavLink[] = [
         label: 'Dashboard', 
         icon: LayoutDashboard,
         isActive: (pathname) => pathname === '/candidate'
+    },
+    {
+        href: '/candidate/profile-view',
+        label: 'My Profile',
+        icon: UserCircle,
     },
     {
         href: '/candidate/profile',

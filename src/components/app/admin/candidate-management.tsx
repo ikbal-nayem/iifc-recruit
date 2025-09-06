@@ -29,6 +29,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -37,11 +46,14 @@ import { MoreHorizontal, FileText, Star, Send } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { Candidate } from '@/lib/types';
 import { candidates as initialCandidates } from '@/lib/data';
+import { CandidateProfileView } from '@/components/app/candidate-profile-view';
+
 
 export function CandidateManagement() {
   const [data, setData] = React.useState<Candidate[]>(initialCandidates);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [selectedCandidate, setSelectedCandidate] = React.useState<Candidate | null>(null);
 
   const columns: ColumnDef<Candidate>[] = [
     {
@@ -107,28 +119,31 @@ export function CandidateManagement() {
     },
     {
       id: 'actions',
-      cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>
-              <FileText className="mr-2 h-4 w-4" /> View Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Star className="mr-2 h-4 w-4" /> Shortlist
-            </DropdownMenuItem>
-             <DropdownMenuItem>
-              <Send className="mr-2 h-4 w-4" /> Contact
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
+      cell: ({ row }) => {
+        const candidate = row.original;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => setSelectedCandidate(candidate)}>
+                <FileText className="mr-2 h-4 w-4" /> View Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Star className="mr-2 h-4 w-4" /> Shortlist
+              </DropdownMenuItem>
+               <DropdownMenuItem>
+                <Send className="mr-2 h-4 w-4" /> Contact
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
+      },
     },
   ];
 
@@ -228,6 +243,13 @@ export function CandidateManagement() {
           Next
         </Button>
       </div>
+       <Dialog open={!!selectedCandidate} onOpenChange={(isOpen) => !isOpen && setSelectedCandidate(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          {selectedCandidate && (
+             <CandidateProfileView candidate={selectedCandidate} />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
