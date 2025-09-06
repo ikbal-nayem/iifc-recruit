@@ -2,7 +2,7 @@ import { jobs as allJobs } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, MapPin, Clock, ArrowRight, Building, DollarSign } from 'lucide-react';
+import { Briefcase, MapPin, Clock, ArrowRight, Building, DollarSign, Send } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import Link from 'next/link';
 import { JobDetailClient } from '@/components/app/candidate/job-detail-client';
