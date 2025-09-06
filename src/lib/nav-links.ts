@@ -57,9 +57,8 @@ export const candidateNavLinks: NavLink[] = [
         icon: FileText 
     },
     { 
-        href: '/', 
+        href: '/jobs', 
         label: 'Job Listings', 
         icon: Briefcase,
-        isActive: (pathname) => pathname === '/'
     },
 ];
