@@ -6,7 +6,7 @@ import Link from 'next/link';
 export default function SignupPage() {
   return (
     <div className="w-full min-h-screen grid grid-cols-1 lg:grid-cols-2">
-      <div className="hidden lg:flex flex-col items-center justify-between p-12 bg-no-repeat bg-cover bg-center" style={{ backgroundImage: "url('/signup-bg.png')" }}>
+      <div className="hidden lg:flex flex-col items-center justify-between p-12 bg-no-repeat bg-cover bg-center" style={{ backgroundImage: "url('/login-bg.jpg')" }}>
         <div className="self-start">
             <Link href="/" className="flex items-center gap-3 font-headline text-2xl font-bold text-white">
                 <Image src="/iifc-logo-white.png" alt="IIFC Logo" width={40} height={40} className="h-10 w-auto" />
