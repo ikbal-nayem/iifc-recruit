@@ -7,6 +7,7 @@ import {
   Search,
   PlusCircle,
   UserCircle,
+  FileSignature,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -36,6 +37,7 @@ export const adminNavLinks: NavLink[] = [
     ]
   },
   { href: '/admin/candidates', label: 'Candidates', icon: Users },
+  { href: '/admin/applications', label: 'Applications', icon: FileSignature },
 ];
 
 export const candidateNavLinks: NavLink[] = [

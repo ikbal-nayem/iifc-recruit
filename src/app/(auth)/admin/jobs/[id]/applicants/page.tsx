@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -32,30 +33,56 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MoreHorizontal, FileText, Star, Send } from 'lucide-react';
+import { MoreHorizontal, FileText, UserCheck, UserX, Star } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
-import type { Candidate } from '@/lib/types';
-import { candidates as initialCandidates } from '@/lib/data';
+import type { Candidate, Application, Job } from '@/lib/types';
+import { candidates as allCandidates, applications as allApplications, jobs } from '@/lib/data';
 import { CandidateProfileView } from '@/components/app/candidate-profile-view';
+import { notFound, useParams } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
 
+type Applicant = Candidate & { application: Application };
 
-export function CandidateManagement() {
-  const [data, setData] = React.useState<Candidate[]>(initialCandidates);
+export default function JobApplicantsPage() {
+  const params = useParams();
+  const { toast } = useToast();
+  const jobId = params.id as string;
+  
+  const job = jobs.find(j => j.id === jobId);
+
+  const applicantsForJob = React.useMemo(() => {
+    const appIds = allApplications.filter(app => app.jobId === jobId).map(app => app.candidateId);
+    return allCandidates
+      .filter(candidate => appIds.includes(candidate.id))
+      .map(candidate => ({
+        ...candidate,
+        application: allApplications.find(app => app.jobId === jobId && app.candidateId === candidate.id)!,
+      }));
+  }, [jobId]);
+
+  const [data, setData] = React.useState<Applicant[]>(applicantsForJob);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [selectedCandidate, setSelectedCandidate] = React.useState<Candidate | null>(null);
 
-  const columns: ColumnDef<Candidate>[] = [
+  const handleStatusChange = (applicationId: string, candidateName: string, newStatus: Application['status']) => {
+    setData(prevData => prevData.map(applicant => 
+        applicant.application.id === applicationId 
+        ? { ...applicant, application: { ...applicant.application, status: newStatus } }
+        : applicant
+    ));
+    toast({
+        title: 'Status Updated',
+        description: `${candidateName}'s status has been updated to ${newStatus}.`
+    })
+  }
+
+  const columns: ColumnDef<Applicant>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -95,32 +122,28 @@ export function CandidateManagement() {
       },
     },
     {
-      accessorKey: 'skills',
-      header: 'Top Skills',
-      cell: ({ row }) => {
-        const skills = row.getValue('skills') as string[];
-        return (
-          <div className="flex flex-wrap gap-1">
-            {skills.slice(0, 3).map((skill) => (
-              <Badge key={skill} variant="secondary">{skill}</Badge>
-            ))}
-          </div>
-        );
-      },
+       accessorKey: 'application.applicationDate',
+       header: 'Date Applied'
     },
     {
-      accessorKey: 'status',
+      accessorKey: 'application.status',
       header: 'Status',
-       cell: ({ row }) => {
-        const status = row.getValue('status') as string;
-        const variant = status === 'Active' ? 'default' : status === 'Hired' ? 'outline' : 'secondary';
+      cell: ({ row }) => {
+        const status = row.original.application.status;
+        const variant = 
+            status === 'Hired' ? 'default' : 
+            status === 'Interview' ? 'default' : 
+            status === 'Offered' ? 'default' :
+            status === 'Shortlisted' ? 'default' :
+            status === 'Rejected' ? 'destructive' :
+            'secondary';
         return <Badge variant={variant as any}>{status}</Badge>;
       },
     },
     {
       id: 'actions',
       cell: ({ row }) => {
-        const candidate = row.original;
+        const applicant = row.original;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -131,14 +154,18 @@ export function CandidateManagement() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => setSelectedCandidate(candidate)}>
+              <DropdownMenuItem onClick={() => setSelectedCandidate(applicant)}>
                 <FileText className="mr-2 h-4 w-4" /> View Profile
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Star className="mr-2 h-4 w-4" /> Shortlist
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => handleStatusChange(applicant.application.id, applicant.personalInfo.name, 'Shortlisted')}>
+                <UserCheck className="mr-2 h-4 w-4" /> Shortlist
               </DropdownMenuItem>
-               <DropdownMenuItem>
-                <Send className="mr-2 h-4 w-4" /> Contact
+              <DropdownMenuItem onClick={() => handleStatusChange(applicant.application.id, applicant.personalInfo.name, 'Interview')}>
+                <Star className="mr-2 h-4 w-4" /> Schedule Interview
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-red-500" onClick={() => handleStatusChange(applicant.application.id, applicant.personalInfo.name, 'Rejected')}>
+                <UserX className="mr-2 h-4 w-4" /> Reject
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -161,19 +188,18 @@ export function CandidateManagement() {
       columnFilters,
     },
   });
+  
+  if (!job) {
+    return notFound();
+  }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <Input
-          placeholder="Filter by candidate name..."
-          value={(table.getColumn('personalInfo')?.getFilterValue() as string) ?? ''}
-          onChange={(event) =>
-            table.getColumn('personalInfo')?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-         <Button variant="outline">Advanced Filters</Button>
+    <div className="space-y-8">
+       <div>
+        <h1 className="text-3xl font-headline font-bold">Applicants for {job.title}</h1>
+        <p className="text-muted-foreground">
+          Manage candidates who applied for this position.
+        </p>
       </div>
       <div className="rounded-md border glassmorphism">
         <Table>
@@ -218,7 +244,7 @@ export function CandidateManagement() {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  No applicants for this job yet.
                 </TableCell>
               </TableRow>
             )}

@@ -3,14 +3,15 @@
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Mail, Phone, MapPin, Building, Briefcase, GraduationCap, Award, BookOpen, Languages, Star, FileText } from 'lucide-react';
+import { Mail, Phone, MapPin, Building, Briefcase, GraduationCap, Award, BookOpen, Languages, Star, FileText, Download } from 'lucide-react';
 import type { Candidate } from '@/lib/types';
+import { Button } from '../ui/button';
+import Link from 'next/link';
 
 interface CandidateProfileViewProps {
     candidate: Candidate;
@@ -45,6 +46,15 @@ export function CandidateProfileView({ candidate }: CandidateProfileViewProps) {
                     <span className="flex items-center gap-2"><Phone className="h-4 w-4"/> {personalInfo.phone}</span>
                     <span className="flex items-center gap-2"><MapPin className="h-4 w-4"/> {personalInfo.address.district}, {personalInfo.address.division}</span>
                 </div>
+            </div>
+             <div className="flex-shrink-0">
+                {resumeUrl && (
+                    <Button asChild>
+                        <Link href={resumeUrl} target="_blank" download>
+                            <Download className="mr-2 h-4 w-4" /> Download CV
+                        </Link>
+                    </Button>
+                )}
             </div>
         </div>
 

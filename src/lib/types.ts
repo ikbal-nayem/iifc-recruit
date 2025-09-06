@@ -10,6 +10,7 @@ export type Address = {
 export type PersonalInfo = {
   firstName: string;
   lastName: string;
+  name: string;
   email: string;
   phone: string;
   address: Address;
@@ -90,7 +91,7 @@ export type Application = {
   id: string;
   jobId: string;
   candidateId: string;
-  status: 'Applied' | 'Screening' | 'Interview' | 'Offered' | 'Rejected' | 'Hired';
+  status: 'Applied' | 'Screening' | 'Interview' | 'Offered' | 'Rejected' | 'Hired' | 'Shortlisted';
   applicationDate: string;
 };
 

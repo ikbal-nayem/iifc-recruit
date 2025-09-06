@@ -7,6 +7,7 @@ export const candidates: Candidate[] = [
     personalInfo: {
       firstName: 'Alice',
       lastName: 'Johnson',
+      name: 'Alice Johnson',
       email: 'alice.j@example.com',
       phone: '123-456-7890',
       address: {
@@ -54,6 +55,7 @@ export const candidates: Candidate[] = [
     awards: [
         { name: 'Developer of the Year', awardingBody: 'TechCorp', dateReceived: '2021-12-20' },
     ],
+    resumeUrl: '/resumes/alice_johnson_resume.pdf',
     status: 'Active',
   },
   {
@@ -61,6 +63,7 @@ export const candidates: Candidate[] = [
     personalInfo: {
       firstName: 'Bob',
       lastName: 'Smith',
+      name: 'Bob Smith',
       email: 'bob.s@example.com',
       phone: '234-567-8901',
        address: {
@@ -92,6 +95,7 @@ export const candidates: Candidate[] = [
     languages: [{ name: 'English', proficiency: 'Native' }],
     publications: [],
     awards: [],
+    resumeUrl: '/resumes/bob_smith_resume.pdf',
     status: 'Passive',
   },
   {
@@ -99,6 +103,7 @@ export const candidates: Candidate[] = [
     personalInfo: {
       firstName: 'Charlie',
       lastName: 'Brown',
+      name: 'Charlie Brown',
       email: 'charlie.b@example.com',
       phone: '345-678-9012',
       address: {
@@ -130,6 +135,7 @@ export const candidates: Candidate[] = [
     languages: [{ name: 'English', proficiency: 'Native' }],
     publications: [],
     awards: [],
+    resumeUrl: '/resumes/charlie_brown_resume.pdf',
     status: 'Active',
   },
     {
@@ -137,6 +143,7 @@ export const candidates: Candidate[] = [
     personalInfo: {
       firstName: 'Diana',
       lastName: 'Prince',
+      name: 'Diana Prince',
       email: 'diana.p@example.com',
       phone: '456-789-0123',
       address: {
@@ -168,6 +175,7 @@ export const candidates: Candidate[] = [
     languages: [{ name: 'English', proficiency: 'Native' }],
     publications: [],
     awards: [],
+    resumeUrl: '/resumes/diana_prince_resume.pdf',
     status: 'Hired',
   },
 ];
@@ -462,6 +470,8 @@ export const applications: Application[] = [
     { id: 'app4', jobId: 'j1', candidateId: 'c3', status: 'Screening', applicationDate: format(subDays(new Date(), 1), 'yyyy-MM-dd') },
     { id: 'app5', jobId: 'j5', candidateId: 'c1', status: 'Offered', applicationDate: format(subDays(new Date(), 3), 'yyyy-MM-dd') },
     { id: 'app6', jobId: 'j6', candidateId: 'c2', status: 'Rejected', applicationDate: format(subDays(new Date(), 14), 'yyyy-MM-dd') },
+    { id: 'app7', jobId: 'j1', candidateId: 'c2', status: 'Shortlisted', applicationDate: format(subDays(new Date(), 2), 'yyyy-MM-dd') },
+    { id: 'app8', jobId: 'j1', candidateId: 'c4', status: 'Applied', applicationDate: format(subDays(new Date(), 3), 'yyyy-MM-dd') },
 ];
 
 

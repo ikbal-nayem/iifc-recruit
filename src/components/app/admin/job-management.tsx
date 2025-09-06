@@ -52,7 +52,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
-import { MoreHorizontal, PlusCircle, Trash, Edit, FileText } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Trash, Edit, FileText, Users } from 'lucide-react';
 import Link from 'next/link';
 
 import type { Job } from '@/lib/types';
@@ -113,6 +113,12 @@ export function JobManagement() {
                   <DropdownMenuItem onClick={() => setSelectedJob(job)}>
                     <FileText className="mr-2 h-4 w-4" />
                     View Details
+                  </DropdownMenuItem>
+                   <DropdownMenuItem asChild>
+                    <Link href={`/admin/jobs/${job.id}/applicants`}>
+                        <Users className="mr-2 h-4 w-4" />
+                        View Applicants
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Edit className="mr-2 h-4 w-4" />
