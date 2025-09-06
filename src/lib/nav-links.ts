@@ -6,6 +6,7 @@ import {
   UserCog,
   FileText,
   Search,
+  PlusCircle,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -24,7 +25,16 @@ export const adminNavLinks: NavLink[] = [
     icon: LayoutDashboard,
     isActive: (pathname) => pathname === '/admin',
   },
-  { href: '/admin/jobs', label: 'Job Management', icon: Briefcase },
+  { 
+    href: '/admin/jobs', 
+    label: 'Job Management', 
+    icon: Briefcase,
+    isActive: (pathname) => pathname.startsWith('/admin/jobs'),
+    submenu: [
+        { href: '/admin/jobs', label: 'All Jobs', icon: Briefcase, isActive: (pathname) => pathname === '/admin/jobs' },
+        { href: '/admin/jobs/create', label: 'Create New', icon: PlusCircle },
+    ]
+  },
   { href: '/admin/candidates', label: 'Candidates', icon: Users },
 ];
 

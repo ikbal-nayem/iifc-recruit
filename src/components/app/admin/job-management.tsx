@@ -33,10 +33,8 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   AlertDialog,
@@ -53,10 +51,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 
 import { MoreHorizontal, PlusCircle, Trash, Edit, FileText } from 'lucide-react';
+import Link from 'next/link';
 
 import type { Job } from '@/lib/types';
 import { jobs as initialJobs } from '@/lib/data';
@@ -175,47 +172,12 @@ export function JobManagement() {
           }
           className="max-w-sm"
         />
-        <Dialog>
-            <DialogTrigger asChild>
-                 <Button>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Create Job
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[625px]">
-                <DialogHeader>
-                <DialogTitle>Create New Job Posting</DialogTitle>
-                <DialogDescription>
-                    Fill out the details below to create a new job.
-                </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="title" className="text-right">Title</Label>
-                        <Input id="title" defaultValue="Senior Frontend Developer" className="col-span-3" />
-                    </div>
-                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="department" className="text-right">Department</Label>
-                        <Input id="department" defaultValue="Engineering" className="col-span-3" />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="location" className="text-right">Location</Label>
-                        <Input id="location" defaultValue="Remote" className="col-span-3" />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="deadline" className="text-right">Deadline</Label>
-                        <Input id="deadline" type="date" className="col-span-3" />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="description" className="text-right">Description</Label>
-                        <Textarea id="description" defaultValue="Job description details..." className="col-span-3" />
-                    </div>
-                </div>
-                <DialogFooter>
-                    <Button type="submit">Create Job</Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+        <Button asChild>
+            <Link href="/admin/jobs/create">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Create Job
+            </Link>
+        </Button>
       </div>
       <div className="rounded-md border glassmorphism">
         <Table>
