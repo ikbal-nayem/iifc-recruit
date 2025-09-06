@@ -43,6 +43,7 @@ export default function PublicFooter() {
                 <nav className="flex flex-col gap-2">
                     <Link href="/services" className="text-sm hover:text-primary transition-colors text-muted-foreground">Our Services</Link>
                     <Link href="/projects" className="text-sm hover:text-primary transition-colors text-muted-foreground">Our Projects</Link>
+                    <Link href="/sectors" className="text-sm hover:text-primary transition-colors text-muted-foreground">Sectors</Link>
                 </nav>
             </div>
             <div>
