@@ -56,7 +56,7 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
-import { MoreHorizontal, PlusCircle, Trash, Edit } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Trash, Edit, FileText } from 'lucide-react';
 
 import type { Job } from '@/lib/types';
 import { jobs as initialJobs } from '@/lib/data';
@@ -65,6 +65,7 @@ export function JobManagement() {
   const [data, setData] = React.useState<Job[]>(initialJobs);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [selectedJob, setSelectedJob] = React.useState<Job | null>(null);
 
   const columns: ColumnDef<Job>[] = [
     {
@@ -99,45 +100,52 @@ export function JobManagement() {
     },
     {
       id: 'actions',
-      cell: ({ row }) => (
-        <AlertDialog>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <span className="sr-only">Open menu</span>
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <AlertDialogTrigger asChild>
-                    <DropdownMenuItem className="text-red-600">
-                        <Trash className="mr-2 h-4 w-4" />
-                        Delete
-                    </DropdownMenuItem>
-                </AlertDialogTrigger>
-              </DropdownMenuContent>
-            </DropdownMenu>
-             <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete the
-                  job posting and all related application data.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction>Continue</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
-      ),
+      cell: ({ row }) => {
+        const job = row.original;
+        return (
+          <AlertDialog>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuItem onClick={() => setSelectedJob(job)}>
+                    <FileText className="mr-2 h-4 w-4" />
+                    View Details
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <AlertDialogTrigger asChild>
+                      <DropdownMenuItem className="text-red-600">
+                          <Trash className="mr-2 h-4 w-4" />
+                          Delete
+                      </DropdownMenuItem>
+                  </AlertDialogTrigger>
+                </DropdownMenuContent>
+              </DropdownMenu>
+               <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete the
+                    job posting and all related application data.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction>Continue</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+          </AlertDialog>
+        )
+      },
     },
   ];
 
@@ -277,6 +285,43 @@ export function JobManagement() {
           Next
         </Button>
       </div>
+
+       <Dialog open={!!selectedJob} onOpenChange={(isOpen) => !isOpen && setSelectedJob(null)}>
+        <DialogContent className="sm:max-w-3xl max-h-[80vh] overflow-y-auto">
+          {selectedJob && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-2xl">{selectedJob.title}</DialogTitle>
+                <DialogDescription>
+                  {selectedJob.department} &middot; {selectedJob.location}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                 <div>
+                    <h3 className="font-semibold text-lg mb-2">Job Description</h3>
+                    <p className="text-sm text-muted-foreground">{selectedJob.description}</p>
+                </div>
+                <div>
+                    <h3 className="font-semibold text-lg mb-2">Responsibilities</h3>
+                    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                        {selectedJob.responsibilities.map((r, i) => <li key={i}>{r}</li>)}
+                    </ul>
+                </div>
+                <div>
+                    <h3 className="font-semibold text-lg mb-2">Requirements</h3>
+                     <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                        {selectedJob.requirements.map((r, i) => <li key={i}>{r}</li>)}
+                    </ul>
+                </div>
+                <div className="flex items-center gap-4 text-sm pt-4">
+                    <Badge variant="secondary">Posted: {selectedJob.postedDate}</Badge>
+                    <Badge variant="destructive">Deadline: {selectedJob.applicationDeadline}</Badge>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
