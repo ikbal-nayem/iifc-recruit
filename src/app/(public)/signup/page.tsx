@@ -6,27 +6,22 @@ import Link from 'next/link';
 export default function SignupPage() {
   return (
     <div className="w-full min-h-screen grid grid-cols-1 lg:grid-cols-2">
-      <div className="hidden lg:flex flex-col items-center justify-center bg-primary text-primary-foreground p-12 relative">
-        <div className="absolute inset-0 bg-primary/90" />
-        <Image
-            src="https://picsum.photos/seed/signup/1200/1800"
-            alt="Recruitment background"
-            layout="fill"
-            objectFit="cover"
-            className="opacity-20"
-            data-ai-hint="people working"
-        />
-        <div className="relative z-10 text-center">
-            <Link href="/" className="flex items-center gap-3 justify-center font-headline text-3xl font-bold mb-4">
-                <Image src="/iifc-logo.png" alt="IIFC Logo" width={48} height={48} className="h-12 w-auto bg-white/20 rounded-lg p-1" />
+      <div className="hidden lg:flex flex-col items-center justify-between bg-foreground text-background p-12">
+        <div className="self-start">
+            <Link href="/" className="flex items-center gap-3 font-headline text-2xl font-bold">
+                <Image src="/iifc-logo-white.png" alt="IIFC Logo" width={40} height={40} className="h-10 w-auto" />
                 <span>IIFC Recruit</span>
             </Link>
-            <p className="max-w-md text-lg">
-                Join our network of skilled professionals and find your next opportunity for growth.
-            </p>
+        </div>
+        <div className="text-center">
+            <h1 className="text-4xl font-bold font-headline">Let's get you started</h1>
+            <p className="text-background/70 mt-2">Create an account to begin your journey with us.</p>
+        </div>
+        <div className="text-xs text-background/50">
+            &copy; {new Date().getFullYear()} IIFC Recruit. All Rights Reserved.
         </div>
       </div>
-      <main className="flex flex-col items-center justify-center p-4">
+      <main className="flex flex-col items-center justify-center p-4 bg-background">
         <div className="w-full max-w-sm">
            <div className="lg:hidden flex flex-col items-center justify-center space-y-4 mb-8">
              <Image src="/iifc-logo.png" alt="IIFC Logo" width={48} height={48} className="h-12 w-auto" />
