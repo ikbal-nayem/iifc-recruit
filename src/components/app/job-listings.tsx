@@ -104,37 +104,36 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
         );
     }
     return (
-        <Card key={job.id} className="flex flex-col group glassmorphism hover:border-primary transition-all">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                  <div>
-                      <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">
-                        <Link href={`/jobs/${job.id}`} className="stretched-link">
-                          {job.title}
-                        </Link>
-                      </CardTitle>
-                      <CardDescription className="flex items-center gap-2 pt-2">
-                          <Building className="h-4 w-4" /> {job.department}
-                      </CardDescription>
-                  </div>
-                  <Badge variant={job.type === 'Full-time' ? 'default' : 'secondary'}>{job.type}</Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="flex-grow space-y-4">
-              <p className="text-sm text-foreground/80 line-clamp-2">{job.description}</p>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <span className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {job.location}</span>
-                  <span className="flex items-center gap-2"><Clock className="h-4 w-4" /> Posted {job.postedDate}</span>
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-between items-center">
-              <span className="font-semibold text-primary">{job.salaryRange}</span>
-              <div className="flex items-center text-primary font-medium text-sm group-hover:underline">
-                  View Details
-                  <ArrowRight className="ml-2 h-4 w-4" />
-              </div>
-            </CardFooter>
-          </Card>
+        <Link href={`/jobs/${job.id}`} className="block h-full">
+            <Card key={job.id} className="flex flex-col h-full group glassmorphism hover:border-primary transition-all">
+                <CardHeader>
+                <div className="flex justify-between items-start">
+                    <div>
+                        <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">
+                            {job.title}
+                        </CardTitle>
+                        <CardDescription className="flex items-center gap-2 pt-2">
+                            <Building className="h-4 w-4" /> {job.department}
+                        </CardDescription>
+                    </div>
+                    <Badge variant={job.type === 'Full-time' ? 'default' : 'secondary'}>{job.type}</Badge>
+                </div>
+                </CardHeader>
+                <CardContent className="flex-grow space-y-4">
+                <p className="text-sm text-foreground/80 line-clamp-2">{job.description}</p>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {job.location}</span>
+                    <span className="flex items-center gap-2"><Clock className="h-4 w-4" /> Posted {job.postedDate}</span>
+                </div>
+                </CardContent>
+                <CardFooter className="flex justify-between items-center">
+                <span className="font-semibold text-primary">{job.salaryRange}</span>
+                <div className="flex items-center text-primary font-medium text-sm">
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                </div>
+                </CardFooter>
+            </Card>
+        </Link>
     );
   }
 
