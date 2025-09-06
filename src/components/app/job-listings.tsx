@@ -113,16 +113,14 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
             <Card key={job.id} className="flex flex-col h-full group glassmorphism hover:border-primary transition-all">
                 <CardHeader className="flex-grow">
                     <div className="flex justify-between items-start">
-                        <div>
-                            <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">
-                                {job.title}
-                            </CardTitle>
-                            <CardDescription className="flex items-center gap-2 pt-2">
-                                <Building className="h-4 w-4" /> {job.department}
-                            </CardDescription>
-                        </div>
+                        <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">
+                            {job.title}
+                        </CardTitle>
                         <Badge variant={job.type === 'Full-time' ? 'default' : 'secondary'} className="whitespace-nowrap">{job.type}</Badge>
                     </div>
+                  <CardDescription className="flex items-center gap-2 pt-2">
+                      <Building className="h-4 w-4" /> {job.department}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{job.description}</p>
@@ -131,7 +129,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
                         <span className="flex items-center gap-2"><Clock className="h-4 w-4" /> {formatDistanceToNow(new Date(job.postedDate), { addSuffix: true })}</span>
                     </div>
                 </CardContent>
-                <CardFooter className="flex justify-between items-center pt-4 mt-auto">
+                <CardFooter className="flex justify-between items-center mt-auto">
                     <span className="font-semibold text-primary">{job.salaryRange}</span>
                     <div className="flex items-center text-primary font-medium text-sm">
                         <ArrowRight className="ml-2 h-4 w-4" />
