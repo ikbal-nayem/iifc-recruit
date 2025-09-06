@@ -14,18 +14,34 @@ export default function RootLayout({
   children: React.ReactNode;
   params: { locale: string };
 }>) {
-  const [loading, setLoading] = React.useState(true);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [isFadingOut, setIsFadingOut] = React.useState(false);
+  const [isMounted, setIsMounted] = React.useState(true);
+
 
   React.useEffect(() => {
-    // Simulate loading time
-    const timer = setTimeout(() => {
-      setLoading(false);
+    const loadingTimer = setTimeout(() => {
+      setIsLoading(false);
     }, 1500); 
 
-    return () => clearTimeout(timer);
+     // Start fade-out animation
+    const fadeOutTimer = setTimeout(() => {
+      setIsFadingOut(true);
+    }, 1500);
+
+    // Unmount after fade-out
+    const unmountTimer = setTimeout(() => {
+      setIsMounted(false);
+    }, 2000); // 1500ms loading + 500ms fade-out
+
+    return () => {
+      clearTimeout(loadingTimer);
+      clearTimeout(fadeOutTimer);
+      clearTimeout(unmountTimer);
+    };
   }, []);
   
-  if (loading) {
+  if (isMounted) {
     return (
        <html lang={locale} className="h-full">
         <head>
@@ -38,7 +54,14 @@ export default function RootLayout({
             <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet" />
         </head>
         <body className="font-body antialiased flex flex-col min-h-screen">
-            <SplashScreen />
+            <SplashScreen isFadingOut={isFadingOut} />
+            {!isLoading && (
+              <>
+                <TopLoader />
+                {children}
+                <Toaster />
+              </>
+            )}
         </body>
       </html>
     )
