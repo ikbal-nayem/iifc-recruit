@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -124,12 +125,13 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
                     </div>
                 </CardHeader>
                 <CardContent>
+                    <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{job.description}</p>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
                         <span className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {job.location}</span>
                         <span className="flex items-center gap-2"><Clock className="h-4 w-4" /> {formatDistanceToNow(new Date(job.postedDate), { addSuffix: true })}</span>
                     </div>
                 </CardContent>
-                <CardFooter className="flex justify-between items-center pt-4">
+                <CardFooter className="flex justify-between items-center pt-4 mt-auto">
                     <span className="font-semibold text-primary">{job.salaryRange}</span>
                     <div className="flex items-center text-primary font-medium text-sm">
                         <ArrowRight className="ml-2 h-4 w-4" />
