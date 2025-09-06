@@ -5,6 +5,7 @@ import {
   Users,
   UserCog,
   FileText,
+  Search,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -57,8 +58,8 @@ export const candidateNavLinks: NavLink[] = [
         icon: FileText 
     },
     { 
-        href: '/jobs', 
-        label: 'Job Listings', 
-        icon: Briefcase,
+        href: '/candidate/find-job', 
+        label: 'Find Job', 
+        icon: Search,
     },
 ];
