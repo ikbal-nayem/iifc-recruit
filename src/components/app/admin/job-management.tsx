@@ -52,6 +52,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 
 import { MoreHorizontal, PlusCircle, Trash, Edit, FileText, Users } from 'lucide-react';
 import Link from 'next/link';
@@ -65,11 +67,22 @@ export function JobManagement() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [selectedJob, setSelectedJob] = React.useState<Job | null>(null);
 
+  const uniqueDepartments = ['all', ...Array.from(new Set(initialJobs.map(job => job.department)))];
+  const uniqueLocations = ['all', ...Array.from(new Set(initialJobs.map(job => job.location)))];
+  const uniqueStatuses = ['all', 'Open', 'Closed', 'Archived'];
+
   const columns: ColumnDef<Job>[] = [
     {
       accessorKey: 'title',
       header: 'Title',
-      cell: ({ row }) => <div className="font-medium">{row.getValue('title')}</div>,
+      cell: ({ row }) => {
+        const job = row.original;
+        return (
+          <Button variant="link" className="p-0 h-auto font-medium" onClick={() => setSelectedJob(job)}>
+            {job.title}
+          </Button>
+        )
+      },
     },
     {
       accessorKey: 'department',
@@ -172,21 +185,45 @@ export function JobManagement() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
         <Input
           placeholder="Filter by job title..."
           value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
           onChange={(event) =>
             table.getColumn('title')?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
+          className="max-w-sm w-full"
         />
-        <Button asChild>
-            <Link href="/admin/jobs/create">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Create Job
-            </Link>
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+             <Select
+                value={(table.getColumn('department')?.getFilterValue() as string) ?? 'all'}
+                onValueChange={(value) => table.getColumn('department')?.setFilterValue(value === 'all' ? null : value)}
+             >
+                <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue placeholder="All Departments" />
+                </SelectTrigger>
+                <SelectContent>
+                     {uniqueDepartments.map(dep => <SelectItem key={dep} value={dep}>{dep === 'all' ? 'All Departments' : dep}</SelectItem>)}
+                </SelectContent>
+             </Select>
+            <Select
+                 value={(table.getColumn('status')?.getFilterValue() as string) ?? 'all'}
+                 onValueChange={(value) => table.getColumn('status')?.setFilterValue(value === 'all' ? null : value)}
+            >
+                <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                    {uniqueStatuses.map(status => <SelectItem key={status} value={status}>{status === 'all' ? 'All Statuses' : status}</SelectItem>)}
+                </SelectContent>
+            </Select>
+             <Button asChild>
+                <Link href="/admin/jobs/create">
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Create Job
+                </Link>
+            </Button>
+        </div>
       </div>
       <div className="rounded-md border glassmorphism">
         <Table>
