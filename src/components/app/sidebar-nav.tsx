@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -49,7 +50,7 @@ const NavMenu = ({ item, isSubmenuOpen, setOpenSubmenu }: { item: NavLink, isSub
                 tooltip={item.label}
                 data-state={isSubmenuOpen && hasSubmenu ? 'open' : 'closed'}
             >
-                <Link href={item.href}>
+                <Link href={item.href} className="flex items-center gap-2">
                     <item.icon />
                     <span>{item.label}</span>
                 </Link>
@@ -134,7 +135,7 @@ export default function SidebarNav() {
                 isActive={pathname === `/${role}/settings`}
                 tooltip="Settings"
               >
-                <Link href="#">
+                <Link href="#" className="flex items-center gap-2">
                   <Settings />
                   <span>Settings</span>
                 </Link>
