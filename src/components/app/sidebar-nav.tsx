@@ -49,9 +49,10 @@ const NavMenu = ({ item, isSubmenuOpen, setOpenSubmenu }: { item: NavLink, isSub
                 isActive={isActive}
                 tooltip={item.label}
                 data-state={isSubmenuOpen && hasSubmenu ? 'open' : 'closed'}
+                className="gap-3"
             >
-                <Link href={item.href} className="flex items-center gap-2">
-                    <item.icon className="h-4 w-4" />
+                <Link href={item.href} className="flex items-center gap-3">
+                    <item.icon className="size-5" />
                     <span>{item.label}</span>
                 </Link>
             </SidebarMenuButton>
@@ -134,9 +135,10 @@ export default function SidebarNav() {
                 asChild
                 isActive={pathname === `/${role}/settings`}
                 tooltip="Settings"
+                className="gap-3"
               >
-                <Link href="#" className="flex items-center gap-2">
-                  <Settings className="h-4 w-4" />
+                <Link href="#" className="flex items-center gap-3">
+                  <Settings className="size-5" />
                   <span>Settings</span>
                 </Link>
               </SidebarMenuButton>
