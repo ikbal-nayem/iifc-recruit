@@ -13,10 +13,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, Clock, ArrowRight, Building, Search } from 'lucide-react';
+import { MapPin, Clock, ArrowRight, Building, Search, List, LayoutGrid } from 'lucide-react';
 import Link from 'next/link';
 import type { Job } from '@/lib/types';
 import { jobs as allJobs } from '@/lib/data';
+import { cn } from '@/lib/utils';
 
 interface JobListingsProps {
   isPaginated?: boolean;
@@ -28,6 +29,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
   const [jobs, setJobs] = React.useState<Job[]>(allJobs.filter(j => j.status === 'Open'));
   const [filteredJobs, setFilteredJobs] = React.useState<Job[]>(jobs);
   const [currentPage, setCurrentPage] = React.useState(1);
+  const [view, setView] = React.useState<'grid' | 'list'>('grid');
   const [filters, setFilters] = React.useState({
     keyword: '',
     location: 'all',
@@ -76,10 +78,70 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 
   const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
 
+  const JobCard = ({ job, view }: { job: Job, view: 'grid' | 'list'}) => {
+    if (view === 'list') {
+        return (
+            <Card key={job.id} className="w-full group glassmorphism hover:border-primary transition-all">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 gap-4">
+                    <div className="flex-grow">
+                         <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">
+                           <Link href={`/jobs/${job.id}`} className="stretched-link">
+                              {job.title}
+                            </Link>
+                         </CardTitle>
+                          <CardDescription className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-2 text-sm">
+                            <span className="flex items-center gap-2"><Building className="h-4 w-4" /> {job.department}</span>
+                            <span className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {job.location}</span>
+                        </CardDescription>
+                    </div>
+                     <div className="flex flex-col sm:items-end sm:text-right gap-2 shrink-0">
+                         <Badge variant={job.type === 'Full-time' ? 'default' : 'secondary'}>{job.type}</Badge>
+                         <span className="font-semibold text-primary">{job.salaryRange}</span>
+                         <span className="text-xs text-muted-foreground flex items-center gap-1.5"><Clock className="h-3 w-3" /> Posted {job.postedDate}</span>
+                    </div>
+                </div>
+            </Card>
+        );
+    }
+    return (
+        <Card key={job.id} className="flex flex-col group glassmorphism hover:border-primary transition-all">
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                  <div>
+                      <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">
+                        <Link href={`/jobs/${job.id}`} className="stretched-link">
+                          {job.title}
+                        </Link>
+                      </CardTitle>
+                      <CardDescription className="flex items-center gap-2 pt-2">
+                          <Building className="h-4 w-4" /> {job.department}
+                      </CardDescription>
+                  </div>
+                  <Badge variant={job.type === 'Full-time' ? 'default' : 'secondary'}>{job.type}</Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="flex-grow space-y-4">
+              <p className="text-sm text-foreground/80 line-clamp-2">{job.description}</p>
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {job.location}</span>
+                  <span className="flex items-center gap-2"><Clock className="h-4 w-4" /> Posted {job.postedDate}</span>
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-between items-center">
+              <span className="font-semibold text-primary">{job.salaryRange}</span>
+              <div className="flex items-center text-primary font-medium text-sm group-hover:underline">
+                  View Details
+                  <ArrowRight className="ml-2 h-4 w-4" />
+              </div>
+            </CardFooter>
+          </Card>
+    );
+  }
+
   return (
     <div className="space-y-8">
       {showFilters && (
-        <div className="p-4 rounded-lg bg-card/60 backdrop-blur-xl border border-border/20 shadow-sm">
+        <div className="p-4 rounded-lg bg-card/60 backdrop-blur-xl border border-border/20 shadow-sm space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               <div className="lg:col-span-2 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -112,45 +174,24 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
                 </SelectContent>
               </Select>
           </div>
+          <div className="flex items-center justify-between border-t pt-4">
+             <p className="text-sm text-muted-foreground">{filteredJobs.length} jobs found</p>
+             <div className="flex items-center gap-2">
+                 <Button variant={view === 'grid' ? 'default' : 'ghost'} size="icon" onClick={() => setView('grid')}>
+                    <LayoutGrid className="h-5 w-5" />
+                 </Button>
+                 <Button variant={view === 'list' ? 'default' : 'ghost'} size="icon" onClick={() => setView('list')}>
+                    <List className="h-5 w-5" />
+                 </Button>
+             </div>
+          </div>
         </div>
       )}
 
       {paginatedJobs.length > 0 ? (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className={cn("gap-6", view === 'grid' ? 'grid md:grid-cols-2 lg:grid-cols-3' : 'flex flex-col')}>
           {paginatedJobs.map((job) => (
-              <Card key={job.id} className="flex flex-col group glassmorphism hover:border-primary transition-all">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                      <div>
-                          <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">
-                            <Link href={`/jobs/${job.id}`} className="stretched-link">
-                              {job.title}
-                            </Link>
-                          </CardTitle>
-                          <CardDescription className="flex items-center gap-2 pt-2">
-                              <Building className="h-4 w-4" /> {job.department}
-                          </CardDescription>
-                      </div>
-                      <Badge variant={job.type === 'Full-time' ? 'default' : 'secondary'}>{job.type}</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-grow space-y-4">
-                  <p className="text-sm text-foreground/80 line-clamp-2">{job.description}</p>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {job.location}</span>
-                      <span className="flex items-center gap-2"><Clock className="h-4 w-4" /> Posted {job.postedDate}</span>
-                  </div>
-                </CardContent>
-                <CardFooter className="flex justify-between items-center">
-                  <span className="font-semibold text-primary">{job.salaryRange}</span>
-                  <Button variant="link" asChild className="p-0 h-auto">
-                      <Link href={`/jobs/${job.id}`}>
-                          View Details
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                  </Button>
-                </CardFooter>
-              </Card>
+             <JobCard key={job.id} job={job} view={view} />
           ))}
         </div>
       ) : (
