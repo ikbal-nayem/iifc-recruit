@@ -82,22 +82,23 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
     if (view === 'list') {
         return (
             <Card key={job.id} className="w-full group glassmorphism hover:border-primary transition-all">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 gap-4">
+                <div className="flex flex-col sm:flex-row items-start justify-between p-6 gap-4">
                     <div className="flex-grow">
-                         <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">
-                           <Link href={`/jobs/${job.id}`} className="stretched-link">
-                              {job.title}
-                            </Link>
-                         </CardTitle>
-                          <CardDescription className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-2 text-sm">
-                            <span className="flex items-center gap-2"><Building className="h-4 w-4" /> {job.department}</span>
-                            <span className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {job.location}</span>
+                        <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">
+                        <Link href={`/jobs/${job.id}`} className="stretched-link">
+                            {job.title}
+                        </Link>
+                        </CardTitle>
+                        <CardDescription className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-2 text-sm">
+                        <span className="flex items-center gap-2"><Building className="h-4 w-4" /> {job.department}</span>
+                        <span className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {job.location}</span>
                         </CardDescription>
+                         <p className="text-sm text-foreground/80 line-clamp-2 mt-3">{job.description}</p>
                     </div>
-                     <div className="flex flex-col sm:items-end sm:text-right gap-2 shrink-0">
-                         <Badge variant={job.type === 'Full-time' ? 'default' : 'secondary'}>{job.type}</Badge>
-                         <span className="font-semibold text-primary">{job.salaryRange}</span>
-                         <span className="text-xs text-muted-foreground flex items-center gap-1.5"><Clock className="h-3 w-3" /> Posted {job.postedDate}</span>
+                    <div className="flex flex-col sm:items-end sm:text-right gap-2 shrink-0 pt-2 sm:pt-0">
+                        <Badge variant={job.type === 'Full-time' ? 'default' : 'secondary'} className="whitespace-nowrap">{job.type}</Badge>
+                        <span className="font-semibold text-primary">{job.salaryRange}</span>
+                        <span className="text-xs text-muted-foreground flex items-center gap-1.5"><Clock className="h-3 w-3" /> Posted {job.postedDate}</span>
                     </div>
                 </div>
             </Card>
@@ -116,7 +117,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
                             <Building className="h-4 w-4" /> {job.department}
                         </CardDescription>
                     </div>
-                    <Badge variant={job.type === 'Full-time' ? 'default' : 'secondary'}>{job.type}</Badge>
+                    <Badge variant={job.type === 'Full-time' ? 'default' : 'secondary'} className="whitespace-nowrap">{job.type}</Badge>
                 </div>
                 </CardHeader>
                 <CardContent className="flex-grow space-y-4">
