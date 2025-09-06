@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -120,9 +121,11 @@ export function JobManagement() {
                         View Applicants
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Edit
+                  <DropdownMenuItem asChild>
+                    <Link href={`/admin/jobs/${job.id}/edit`}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <AlertDialogTrigger asChild>

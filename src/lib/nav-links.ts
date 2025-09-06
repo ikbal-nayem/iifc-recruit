@@ -1,3 +1,4 @@
+
 import {
   Briefcase,
   LayoutDashboard,
@@ -8,6 +9,7 @@ import {
   PlusCircle,
   UserCircle,
   FileSignature,
+  Edit,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -32,12 +34,13 @@ export const adminNavLinks: NavLink[] = [
     icon: Briefcase,
     isActive: (pathname) => pathname.startsWith('/admin/jobs'),
     submenu: [
-        { href: '/admin/jobs', label: 'All Jobs', icon: Briefcase, isActive: (pathname) => pathname === '/admin/jobs' },
+        { href: '/admin/jobs', label: 'All Jobs', icon: Briefcase, isActive: (pathname) => pathname === '/admin/jobs' || /^\/admin\/jobs\/\w+$/.test(pathname) },
         { href: '/admin/jobs/create', label: 'Create New', icon: PlusCircle },
+        { href: '#', label: 'Edit Job', icon: Edit, isActive: (pathname) => /^\/admin\/jobs\/\w+\/edit$/.test(pathname) },
     ]
   },
   { href: '/admin/candidates', label: 'Candidates', icon: Users },
-  { href: '/admin/applications', label: 'Applications', icon: FileSignature },
+  { href: '/admin/applications', label: 'Applications', icon: FileText, isActive: (pathname) => pathname.startsWith('/admin/applications') || /^\/admin\/jobs\/\w+\/applicants$/.test(pathname) },
 ];
 
 export const candidateNavLinks: NavLink[] = [
@@ -80,3 +83,4 @@ export const candidateNavLinks: NavLink[] = [
         icon: Search,
     },
 ];
+
