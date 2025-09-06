@@ -6,18 +6,18 @@ import Link from 'next/link';
 export default function SignupPage() {
   return (
     <div className="w-full min-h-screen grid grid-cols-1 lg:grid-cols-2">
-      <div className="hidden lg:flex flex-col items-center justify-between bg-foreground text-background p-12">
+      <div className="hidden lg:flex flex-col items-center justify-between p-12 bg-no-repeat bg-cover bg-center" style={{ backgroundImage: "url('/signup-bg.png')" }}>
         <div className="self-start">
-            <Link href="/" className="flex items-center gap-3 font-headline text-2xl font-bold">
+            <Link href="/" className="flex items-center gap-3 font-headline text-2xl font-bold text-white">
                 <Image src="/iifc-logo-white.png" alt="IIFC Logo" width={40} height={40} className="h-10 w-auto" />
                 <span>IIFC Recruit</span>
             </Link>
         </div>
-        <div className="text-center">
+        <div className="text-center text-white p-6 bg-black/50 rounded-lg">
             <h1 className="text-4xl font-bold font-headline">Let's get you started</h1>
-            <p className="text-background/70 mt-2">Create an account to begin your journey with us.</p>
+            <p className="text-white/80 mt-2">Create an account to begin your journey with us.</p>
         </div>
-        <div className="text-xs text-background/50">
+        <div className="text-xs text-white/70">
             &copy; {new Date().getFullYear()} IIFC Recruit. All Rights Reserved.
         </div>
       </div>

@@ -21,11 +21,6 @@ export default function PublicHeader() {
 
   const navLinks = [
       { href: '/jobs', label: 'Jobs' },
-      { href: '/about', label: 'About' },
-      { href: '/services', label: 'Services' },
-      { href: '/projects', label: 'Projects' },
-      { href: '/sectors', label: 'Sectors' },
-      { href: '/contact', label: 'Contact' },
   ];
 
   return (

@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { LogIn, Mail, Lock, Github } from 'lucide-react';
+import { LogIn, Mail, Lock } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
@@ -39,13 +39,6 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
-    return (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-          <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-1.5c-.83 0-1.5.67-1.5 1.5V12h3l-.5 3h-2.5v6.8c4.56-.93 8-4.96 8-9.8z"/>
-      </svg>
-    )
-}
 
 export default function LoginForm() {
   const router = useRouter();
@@ -86,18 +79,6 @@ export default function LoginForm() {
             Enter your credentials to access your dashboard.
             </CardDescription>
         </CardHeader>
-        <div className="grid grid-cols-2 gap-4">
-            <Button variant="outline"><GoogleIcon className="mr-2 h-4 w-4" /> Google</Button>
-            <Button variant="outline"><Github className="mr-2 h-4 w-4" /> Github</Button>
-        </div>
-        <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-            </div>
-        </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
