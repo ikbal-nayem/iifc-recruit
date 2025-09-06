@@ -11,10 +11,13 @@ import {
   Sheet,
   SheetContent,
   SheetTrigger,
+  SheetClose,
 } from "@/components/ui/sheet"
+import { useState } from 'react';
 
 export default function PublicHeader() {
   const pathname = usePathname();
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const navLinks = [
       { href: '/jobs', label: 'Jobs' },
@@ -60,7 +63,7 @@ export default function PublicHeader() {
             Sign Up
             </Link>
         </Button>
-         <Sheet>
+         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon" className="md:hidden">
               <Menu className="h-5 w-5" />
@@ -70,20 +73,25 @@ export default function PublicHeader() {
           <SheetContent side="right">
             <nav className="grid gap-6 text-lg font-medium mt-8">
               {navLinks.map(link => (
-                  <Link 
-                    key={link.href}
-                    href={link.href}
-                    className={cn(
-                      "transition-colors hover:text-primary",
-                      pathname === link.href ? "text-primary" : "text-muted-foreground"
-                    )}
-                  >
-                    {link.label}
-                  </Link>
+                  <SheetClose asChild key={link.href}>
+                    <Link 
+                        href={link.href}
+                        className={cn(
+                        "transition-colors hover:text-primary",
+                        pathname === link.href ? "text-primary" : "text-muted-foreground"
+                        )}
+                    >
+                        {link.label}
+                    </Link>
+                 </SheetClose>
               ))}
                <hr className="my-4"/>
-               <Link href="/login" className="text-muted-foreground">Sign In</Link>
-               <Link href="/signup" className="text-muted-foreground">Sign Up</Link>
+               <SheetClose asChild>
+                 <Link href="/login" className="text-muted-foreground">Sign In</Link>
+               </SheetClose>
+                <SheetClose asChild>
+                 <Link href="/signup" className="text-muted-foreground">Sign Up</Link>
+               </SheetClose>
             </nav>
           </SheetContent>
         </Sheet>
