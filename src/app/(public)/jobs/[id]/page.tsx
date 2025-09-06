@@ -24,8 +24,8 @@ export default function JobDetailsPage({ params }: { params: { id: string } }) {
         <div className="lg:col-span-2">
           <Card className="glassmorphism">
             <CardHeader>
-                <div className="flex justify-between items-start">
-                    <div>
+                <div className="flex justify-between items-start gap-4">
+                    <div className="flex-1">
                         <CardTitle className="font-headline text-3xl">{job.title}</CardTitle>
                         <CardDescription className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-4">
                             <span className="flex items-center gap-2"><Briefcase className="h-4 w-4" /> {job.department}</span>
@@ -34,10 +34,16 @@ export default function JobDetailsPage({ params }: { params: { id: string } }) {
                              <span className="flex items-center gap-2"><DollarSign className="h-4 w-4" /> {job.salaryRange}</span>
                         </CardDescription>
                     </div>
-                     <Badge variant={job.type === 'Full-time' ? 'default' : 'secondary'}>{job.type}</Badge>
+                     <div className="flex-shrink-0">
+                        <JobDetailClient jobTitle={job.title} />
+                    </div>
                 </div>
               </CardHeader>
             <CardContent className="space-y-6">
+               <div className="flex items-center gap-2">
+                <span className="font-semibold">Job Type:</span>
+                <Badge variant={job.type === 'Full-time' ? 'default' : 'secondary'}>{job.type}</Badge>
+               </div>
               <div>
                 <h3 className="font-semibold text-lg mb-2">Job Description</h3>
                 <p className="text-muted-foreground">{job.description}</p>
@@ -59,9 +65,6 @@ export default function JobDetailsPage({ params }: { params: { id: string } }) {
                 </ul>
               </div>
             </CardContent>
-             <CardFooter>
-                <JobDetailClient jobTitle={job.title} />
-            </CardFooter>
           </Card>
         </div>
         <div className="lg:col-span-1">
