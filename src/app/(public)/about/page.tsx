@@ -102,8 +102,10 @@ export default function AboutUsPage() {
                                 <AvatarImage src={member.avatar} alt={member.name} data-ai-hint="portrait" />
                                 <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                             </Avatar>
-                            <h3 className="font-bold text-lg">{member.name}</h3>
-                            <p className="text-primary">{member.role}</p>
+                            <div className="w-full">
+                                <h3 className="font-bold text-lg">{member.name}</h3>
+                                <p className="text-primary">{member.role}</p>
+                            </div>
                         </CardContent>
                     </Card>
                 ))}
