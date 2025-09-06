@@ -1,3 +1,4 @@
+
 import { JobListings } from '@/components/app/job-listings';
 import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -27,7 +28,7 @@ export default function Home() {
                   className="w-full h-12 pl-12 text-base border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
               </div>
-               <Button size="lg" className="w-full h-12 text-base font-bold md:col-span-1" asChild>
+               <Button size="lg" className="w-full h-12 text-base font-bold" asChild>
                  <Link href="/jobs">
                     <Search className="mr-2 h-5 w-5" />
                     Find Jobs
@@ -38,7 +39,7 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 md:px-6 py-16">
         <JobListings isPaginated={false} showFilters={false} itemLimit={6} />
          <div className="text-center mt-8">
           <Button variant="outline" asChild>

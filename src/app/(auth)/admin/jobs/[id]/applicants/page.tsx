@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -46,6 +47,7 @@ import { candidates as allCandidates, applications as allApplications, jobs } fr
 import { CandidateProfileView } from '@/components/app/candidate-profile-view';
 import { notFound, useParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
+import { Card } from '@/components/ui/card';
 
 type Applicant = Candidate & { application: Application };
 
@@ -175,6 +177,53 @@ export default function JobApplicantsPage() {
   if (!job) {
     return notFound();
   }
+  
+  const renderMobileCard = (applicant: Applicant) => (
+    <Card key={applicant.id} className="mb-4 glassmorphism">
+      <div className="p-4 flex justify-between items-start">
+        <div className="flex items-center gap-4">
+          <Avatar>
+            <AvatarImage src={applicant.personalInfo.avatar} alt={applicant.personalInfo.name} data-ai-hint="avatar" />
+            <AvatarFallback>{applicant.personalInfo.name?.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <div>
+            <p className="font-semibold">{applicant.personalInfo.name}</p>
+            <p className="text-sm text-muted-foreground">Applied: {applicant.application.applicationDate}</p>
+            <Badge variant={
+                applicant.application.status === 'Hired' ? 'default' : 
+                applicant.application.status === 'Interview' ? 'default' : 
+                applicant.application.status === 'Offered' ? 'default' :
+                applicant.application.status === 'Shortlisted' ? 'default' :
+                applicant.application.status === 'Rejected' ? 'destructive' :
+                'secondary'} className="mt-2">{applicant.application.status}</Badge>
+          </div>
+        </div>
+         <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setSelectedCandidate(applicant)}>
+                <FileText className="mr-2 h-4 w-4" /> View Profile
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => handleStatusChange(applicant.application.id, applicant.personalInfo.name, 'Shortlisted')}>
+                <UserCheck className="mr-2 h-4 w-4" /> Shortlist
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleStatusChange(applicant.application.id, applicant.personalInfo.name, 'Interview')}>
+                <Star className="mr-2 h-4 w-4" /> Schedule Interview
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-red-500" onClick={() => handleStatusChange(applicant.application.id, applicant.personalInfo.name, 'Rejected')}>
+                <UserX className="mr-2 h-4 w-4" /> Reject
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+      </div>
+    </Card>
+  );
 
   return (
     <div className="space-y-8">
@@ -185,14 +234,14 @@ export default function JobApplicantsPage() {
         </p>
       </div>
 
-       <div className="flex items-center gap-4">
+       <div className="flex flex-col sm:flex-row items-center gap-4">
         <Input
           placeholder="Filter by applicant name..."
           value={(table.getColumn('personalInfo')?.getFilterValue() as string) ?? ''}
           onChange={(event) =>
             table.getColumn('personalInfo')?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
+          className="max-w-sm w-full"
         />
         <Select
           value={(table.getColumn('application_status')?.getFilterValue() as string) ?? 'all'}
@@ -200,7 +249,7 @@ export default function JobApplicantsPage() {
             table.getColumn('application_status')?.setFilterValue(value === 'all' ? null : value)
           }
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
@@ -215,8 +264,19 @@ export default function JobApplicantsPage() {
           </SelectContent>
         </Select>
       </div>
+      
+       {/* Mobile View */}
+      <div className="md:hidden">
+        {data.length > 0 ? (
+           data.map(renderMobileCard)
+        ) : (
+            <div className="text-center py-16">
+                <p className="text-muted-foreground">No applicants for this job yet.</p>
+            </div>
+        )}
+      </div>
 
-      <div className="rounded-md border glassmorphism">
+      <div className="hidden md:block rounded-md border glassmorphism">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

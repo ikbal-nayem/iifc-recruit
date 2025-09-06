@@ -24,6 +24,7 @@ import Link from 'next/link';
 
 import type { Application, Job } from '@/lib/types';
 import { applications as initialApplications, jobs } from '@/lib/data';
+import { Card } from '@/components/ui/card';
 
 type ApplicationWithJob = Application & { job: Job | undefined };
 
@@ -78,10 +79,45 @@ export function MyApplications() {
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
+  
+  const renderMobileCard = (application: ApplicationWithJob) => (
+    <Card key={application.id} className="mb-4 glassmorphism">
+      <div className="p-4 space-y-2">
+        <Link href={`/jobs/${application.jobId}`} className="font-semibold text-lg text-primary hover:underline">
+          {application.job?.title}
+        </Link>
+        <p className="text-sm text-muted-foreground">{application.job?.department}</p>
+        <div className="flex justify-between items-center pt-2">
+           <div>
+             <p className="text-xs text-muted-foreground">Applied on</p>
+             <p className="text-sm font-medium">{application.applicationDate}</p>
+           </div>
+            <Badge variant={
+                application.status === 'Hired' ? 'default' : 
+                application.status === 'Interview' ? 'default' : 
+                application.status === 'Offered' ? 'default' :
+                application.status === 'Rejected' ? 'destructive' :
+                'secondary'}>{application.status}</Badge>
+        </div>
+      </div>
+    </Card>
+  );
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border glassmorphism">
+      {/* Mobile View */}
+      <div className="md:hidden">
+        {data.length > 0 ? (
+           data.map(renderMobileCard)
+        ) : (
+            <div className="text-center py-16">
+                <p className="text-muted-foreground">You haven't applied for any jobs yet.</p>
+            </div>
+        )}
+      </div>
+
+      {/* Desktop View */}
+      <div className="hidden md:block rounded-md border glassmorphism">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -131,24 +167,27 @@ export function MyApplications() {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Previous
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Next
-        </Button>
-      </div>
+
+      {data.length > 0 && (
+        <div className="flex items-center justify-center md:justify-end space-x-2 py-4">
+            <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            >
+            Previous
+            </Button>
+            <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            >
+            Next
+            </Button>
+        </div>
+      )}
     </div>
   );
 }

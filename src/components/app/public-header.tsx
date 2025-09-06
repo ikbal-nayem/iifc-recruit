@@ -1,34 +1,92 @@
+
 'use client';
 
 import Link from 'next/link';
-import { Building2, LogIn, UserPlus } from 'lucide-react';
+import { Building2, LogIn, UserPlus, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 
 export default function PublicHeader() {
   const pathname = usePathname();
 
+  const navLinks = [
+      { href: '/jobs', label: 'Jobs' },
+      { href: '/about', label: 'About' },
+      { href: '/services', label: 'Services' },
+      { href: '/projects', label: 'Projects' },
+      { href: '/sectors', label: 'Sectors' },
+      { href: '/contact', label: 'Contact' },
+  ];
+
   return (
     <header className="sticky top-0 z-10 flex h-20 items-center gap-4 border-b bg-background/95 backdrop-blur-sm px-4 md:px-6">
-      <Link href="/" className="flex items-center gap-2 font-headline text-xl font-bold">
+      <Link href="/" className="flex items-center gap-2 font-headline text-xl font-bold mr-6">
         <Image src="/iifc-logo.png" alt="IIFC Logo" width={40} height={40} className="h-10 w-auto" />
-        <span>IIFC Recruit</span>
+        <span className="hidden sm:inline-block">IIFC Recruit</span>
       </Link>
+
+      <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+         {navLinks.map(link => (
+          <Link 
+            key={link.href}
+            href={link.href}
+            className={cn(
+              "transition-colors hover:text-primary",
+              pathname === link.href ? "text-primary" : "text-muted-foreground"
+            )}
+          >
+            {link.label}
+          </Link>
+        ))}
+      </nav>
+
       <div className="ml-auto flex items-center gap-2">
-        <Button asChild variant="ghost">
+        <Button asChild variant="ghost" className="hidden sm:inline-flex">
             <Link href="/login">
             <LogIn className="mr-2 h-4 w-4" />
             Sign In
             </Link>
         </Button>
-        <Button asChild>
+        <Button asChild className="hidden sm:inline-flex">
             <Link href="/signup">
             <UserPlus className="mr-2 h-4 w-4" />
             Sign Up
             </Link>
         </Button>
+         <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="icon" className="md:hidden">
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Toggle navigation menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right">
+            <nav className="grid gap-6 text-lg font-medium mt-8">
+              {navLinks.map(link => (
+                  <Link 
+                    key={link.href}
+                    href={link.href}
+                    className={cn(
+                      "transition-colors hover:text-primary",
+                      pathname === link.href ? "text-primary" : "text-muted-foreground"
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+              ))}
+               <hr className="my-4"/>
+               <Link href="/login" className="text-muted-foreground">Sign In</Link>
+               <Link href="/signup" className="text-muted-foreground">Sign Up</Link>
+            </nav>
+          </SheetContent>
+        </Sheet>
       </div>
     </header>
   );

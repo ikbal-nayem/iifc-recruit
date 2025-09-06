@@ -78,7 +78,7 @@ export function JobManagement() {
       cell: ({ row }) => {
         const job = row.original;
         return (
-          <Button variant="link" className="p-0 h-auto font-medium" onClick={() => setSelectedJob(job)}>
+          <Button variant="link" className="p-0 h-auto font-medium text-left" onClick={() => setSelectedJob(job)}>
             {job.title}
           </Button>
         )
@@ -199,7 +199,7 @@ export function JobManagement() {
                 value={(table.getColumn('department')?.getFilterValue() as string) ?? 'all'}
                 onValueChange={(value) => table.getColumn('department')?.setFilterValue(value === 'all' ? null : value)}
              >
-                <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectTrigger className="w-full sm:w-auto md:w-[180px]">
                     <SelectValue placeholder="All Departments" />
                 </SelectTrigger>
                 <SelectContent>
@@ -210,7 +210,7 @@ export function JobManagement() {
                  value={(table.getColumn('status')?.getFilterValue() as string) ?? 'all'}
                  onValueChange={(value) => table.getColumn('status')?.setFilterValue(value === 'all' ? null : value)}
             >
-                <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectTrigger className="w-full sm:w-auto md:w-[180px]">
                     <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
                 <SelectContent>

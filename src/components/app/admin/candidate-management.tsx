@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -32,22 +33,16 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MoreHorizontal, FileText, Star, Send } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
 import type { Candidate } from '@/lib/types';
 import { candidates as initialCandidates } from '@/lib/data';
 import { CandidateProfileView } from '@/components/app/candidate-profile-view';
-
+import { Card } from '@/components/ui/card';
 
 export function CandidateManagement() {
   const [data, setData] = React.useState<Candidate[]>(initialCandidates);
@@ -56,25 +51,6 @@ export function CandidateManagement() {
   const [selectedCandidate, setSelectedCandidate] = React.useState<Candidate | null>(null);
 
   const columns: ColumnDef<Candidate>[] = [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
     {
       accessorKey: 'personalInfo',
       header: 'Candidate',
@@ -161,6 +137,47 @@ export function CandidateManagement() {
       columnFilters,
     },
   });
+  
+  const renderMobileCard = (candidate: Candidate) => (
+    <Card key={candidate.id} className="mb-4 glassmorphism">
+      <div className="p-4 flex justify-between items-start">
+        <div className="flex items-center gap-4">
+          <Avatar>
+            <AvatarImage src={candidate.personalInfo.avatar} alt={candidate.personalInfo.name} data-ai-hint="avatar" />
+            <AvatarFallback>{candidate.personalInfo.name?.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <div>
+            <p className="font-semibold">{candidate.personalInfo.name}</p>
+            <p className="text-sm text-muted-foreground">{candidate.personalInfo.email}</p>
+            <div className="flex flex-wrap gap-1 mt-2">
+                {candidate.skills.slice(0, 3).map((skill) => (
+                    <Badge key={skill} variant="secondary">{skill}</Badge>
+                ))}
+            </div>
+          </div>
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setSelectedCandidate(candidate)}>
+              <FileText className="mr-2 h-4 w-4" /> View Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+                <Star className="mr-2 h-4 w-4" /> Shortlist
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Send className="mr-2 h-4 w-4" /> Contact
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </Card>
+  );
 
   return (
     <div className="space-y-4">
@@ -175,7 +192,20 @@ export function CandidateManagement() {
         />
          <Button variant="outline">Advanced Filters</Button>
       </div>
-      <div className="rounded-md border glassmorphism">
+      
+       {/* Mobile View */}
+        <div className="md:hidden">
+            {data.length > 0 ? (
+                data.map(renderMobileCard)
+            ) : (
+                <div className="text-center py-16">
+                    <p className="text-muted-foreground">No candidates found.</p>
+                </div>
+            )}
+        </div>
+
+      {/* Desktop View */}
+      <div className="hidden md:block rounded-md border glassmorphism">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
