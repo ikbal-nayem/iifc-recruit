@@ -78,7 +78,8 @@ export default function JobApplicantsPage() {
     ));
     toast({
         title: 'Status Updated',
-        description: `${candidateName}'s status has been updated to ${newStatus}.`
+        description: `${candidateName}'s status has been updated to ${newStatus}.`,
+        variant: 'success'
     })
   }
 

@@ -54,6 +54,7 @@ export default function LoginForm() {
     toast({
       title: 'Login Successful',
       description: 'Redirecting to your dashboard...',
+      variant: 'success',
     });
 
     if (data.email.includes('admin')) {

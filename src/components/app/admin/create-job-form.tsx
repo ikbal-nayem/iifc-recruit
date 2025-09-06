@@ -68,6 +68,7 @@ export function CreateJobForm() {
     toast({
       title: 'Job Posted Successfully!',
       description: `The job "${data.title}" has been created.`,
+      variant: 'success',
     });
   }
 

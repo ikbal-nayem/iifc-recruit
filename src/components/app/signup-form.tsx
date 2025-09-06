@@ -59,6 +59,7 @@ export default function SignupForm() {
     toast({
       title: 'Signup Successful',
       description: 'Redirecting to your dashboard...',
+      variant: 'success'
     });
 
     router.push('/candidate');
