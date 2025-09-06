@@ -51,7 +51,7 @@ const NavMenu = ({ item, isSubmenuOpen, setOpenSubmenu }: { item: NavLink, isSub
                 data-state={isSubmenuOpen && hasSubmenu ? 'open' : 'closed'}
             >
                 <Link href={item.href} className="flex items-center gap-2">
-                    <item.icon />
+                    <item.icon className="h-4 w-4" />
                     <span>{item.label}</span>
                 </Link>
             </SidebarMenuButton>
@@ -136,7 +136,7 @@ export default function SidebarNav() {
                 tooltip="Settings"
               >
                 <Link href="#" className="flex items-center gap-2">
-                  <Settings />
+                  <Settings className="h-4 w-4" />
                   <span>Settings</span>
                 </Link>
               </SidebarMenuButton>
