@@ -83,6 +83,7 @@ export type Job = {
   requirements: string[];
   status: 'Open' | 'Closed' | 'Archived';
   postedDate: string;
+  applicationDeadline: string;
 };
 
 export type Application = {

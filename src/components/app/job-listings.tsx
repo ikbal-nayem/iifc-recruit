@@ -13,11 +13,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, Clock, ArrowRight, Building, Search, List, LayoutGrid } from 'lucide-react';
+import { MapPin, Clock, ArrowRight, Building, Search, List, LayoutGrid, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import type { Job } from '@/lib/types';
 import { jobs as allJobs } from '@/lib/data';
 import { cn } from '@/lib/utils';
+import { formatDistanceToNow } from 'date-fns';
+
 
 interface JobListingsProps {
   isPaginated?: boolean;
@@ -98,7 +100,8 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
                     <div className="flex flex-col sm:items-end sm:text-right gap-2 shrink-0 pt-2 sm:pt-0">
                         <Badge variant={job.type === 'Full-time' ? 'default' : 'secondary'} className="whitespace-nowrap">{job.type}</Badge>
                         <span className="font-semibold text-primary">{job.salaryRange}</span>
-                        <span className="text-xs text-muted-foreground flex items-center gap-1.5"><Clock className="h-3 w-3" /> Posted {job.postedDate}</span>
+                        <span className="text-xs text-muted-foreground flex items-center gap-1.5"><Clock className="h-3 w-3" /> Posted {formatDistanceToNow(new Date(job.postedDate), { addSuffix: true })}</span>
+                        <span className="text-xs text-muted-foreground flex items-center gap-1.5"><Calendar className="h-3 w-3" /> Deadline: {job.applicationDeadline}</span>
                     </div>
                 </div>
             </Card>
@@ -124,7 +127,10 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
                 <p className="text-sm text-foreground/80 line-clamp-2">{job.description}</p>
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {job.location}</span>
-                    <span className="flex items-center gap-2"><Clock className="h-4 w-4" /> Posted {job.postedDate}</span>
+                    <span className="flex items-center gap-2"><Clock className="h-4 w-4" /> Posted {formatDistanceToNow(new Date(job.postedDate), { addSuffix: true })}</span>
+                </div>
+                 <div className="flex items-center gap-2 text-sm text-destructive/80">
+                    <Calendar className="h-4 w-4" /> <span>Deadline: {job.applicationDeadline}</span>
                 </div>
                 </CardContent>
                 <CardFooter className="flex justify-between items-center">

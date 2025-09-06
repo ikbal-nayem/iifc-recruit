@@ -2,7 +2,7 @@ import { jobs as allJobs } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, MapPin, Clock, ArrowRight, Building, DollarSign, Send } from 'lucide-react';
+import { Briefcase, MapPin, Clock, ArrowRight, Building, DollarSign, Send, Calendar } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import Link from 'next/link';
 import { JobDetailClient } from '@/components/app/candidate/job-detail-client';
@@ -40,9 +40,9 @@ export default function JobDetailsPage({ params }: { params: { id: string } }) {
                 </div>
               </CardHeader>
             <CardContent className="space-y-6">
-               <div className="flex items-center gap-2">
-                <span className="font-semibold">Job Type:</span>
-                <Badge variant={job.type === 'Full-time' ? 'default' : 'secondary'}>{job.type}</Badge>
+               <div className="flex items-center gap-4 text-sm">
+                <Badge variant="secondary">Posted: {job.postedDate}</Badge>
+                <Badge variant="destructive">Deadline: {job.applicationDeadline}</Badge>
                </div>
               <div>
                 <h3 className="font-semibold text-lg mb-2">Job Description</h3>

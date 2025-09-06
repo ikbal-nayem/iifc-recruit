@@ -1,5 +1,5 @@
 import type { Candidate, Job, Application, Activity } from './types';
-import { subDays, format, subMonths, subYears } from 'date-fns';
+import { subDays, format, subMonths, addDays } from 'date-fns';
 
 export const candidates: Candidate[] = [
   {
@@ -185,6 +185,7 @@ export const jobs: Job[] = [
     requirements: ['Masters degree in Economics, Finance, or related field.', 'Strong analytical and communication skills.', 'Knowledge of banking regulations.'],
     status: 'Open',
     postedDate: format(subDays(new Date(), 5), 'yyyy-MM-dd'),
+    applicationDeadline: format(addDays(new Date(), 25), 'yyyy-MM-dd'),
   },
   {
     id: 'j2',
@@ -198,6 +199,7 @@ export const jobs: Job[] = [
     requirements: ['MBBS degree from a recognized university.', 'Valid registration with BMDC.', 'Experience in clinical practice.'],
     status: 'Open',
     postedDate: format(subDays(new Date(), 12), 'yyyy-MM-dd'),
+    applicationDeadline: format(addDays(new Date(), 18), 'yyyy-MM-dd'),
   },
   {
     id: 'j3',
@@ -211,6 +213,7 @@ export const jobs: Job[] = [
     requirements: ['B.Sc. in Civil Engineering.', 'Minimum 5 years of experience in road or bridge construction.', 'Proficiency in AutoCAD and project management software.'],
     status: 'Open',
     postedDate: format(subDays(new Date(), 20), 'yyyy-MM-dd'),
+    applicationDeadline: format(addDays(new Date(), 10), 'yyyy-MM-dd'),
   },
   {
     id: 'j4',
@@ -224,6 +227,7 @@ export const jobs: Job[] = [
     requirements: ['Qualified in Bangladesh Civil Service (BCS) examination.', 'Strong leadership and administrative skills.', 'Commitment to public service.'],
     status: 'Closed',
     postedDate: format(subMonths(new Date(), 2), 'yyyy-MM-dd'),
+    applicationDeadline: format(subMonths(new Date(), 1), 'yyyy-MM-dd'),
   },
   {
     id: 'j5',
@@ -237,6 +241,7 @@ export const jobs: Job[] = [
     requirements: ['B.Sc. in Computer Science or IT.', 'Experience with network hardware, servers, and cybersecurity best practices.', 'Relevant certifications (e.g., CCNA, MCSA) are a plus.'],
     status: 'Open',
     postedDate: format(subDays(new Date(), 8), 'yyyy-MM-dd'),
+    applicationDeadline: format(addDays(new Date(), 22), 'yyyy-MM-dd'),
   },
   {
     id: 'j6',
@@ -250,6 +255,7 @@ export const jobs: Job[] = [
     requirements: ['Qualified through the BCS (Customs and Excise) cadre examination.', 'Strong integrity and attention to detail.', 'Knowledge of customs laws and tariffs.'],
     status: 'Open',
     postedDate: format(subDays(new Date(), 25), 'yyyy-MM-dd'),
+    applicationDeadline: format(addDays(new Date(), 5), 'yyyy-MM-dd'),
   },
   {
     id: 'j7',
@@ -263,6 +269,7 @@ export const jobs: Job[] = [
     requirements: ['B.Sc. in Electrical or Mechanical Engineering.', '10+ years of experience in power plant management.', 'Strong technical and leadership skills.'],
     status: 'Open',
     postedDate: format(subDays(new Date(), 3), 'yyyy-MM-dd'),
+    applicationDeadline: format(addDays(new Date(), 27), 'yyyy-MM-dd'),
   },
   {
     id: 'j8',
@@ -276,6 +283,7 @@ export const jobs: Job[] = [
     requirements: ['Masters in Computer Science from a reputable university.', 'Strong academic record.', 'Prior teaching experience is preferred.'],
     status: 'Open',
     postedDate: format(subDays(new Date(), 15), 'yyyy-MM-dd'),
+    applicationDeadline: format(addDays(new Date(), 15), 'yyyy-MM-dd'),
   },
     {
     id: 'j9',
@@ -289,6 +297,7 @@ export const jobs: Job[] = [
     requirements: ['Bachelors or Masters in Urban and Regional Planning (URP).', 'Knowledge of GIS software and planning regulations.', 'Experience in a government planning agency is a plus.'],
     status: 'Open',
     postedDate: format(subDays(new Date(), 22), 'yyyy-MM-dd'),
+    applicationDeadline: format(addDays(new Date(), 8), 'yyyy-MM-dd'),
   },
   {
     id: 'j10',
@@ -302,6 +311,7 @@ export const jobs: Job[] = [
     requirements: ['M.Sc. or PhD in a relevant scientific discipline (e.g., Chemistry, Physics, Biology).', 'Proven research capabilities and publications.', 'Strong laboratory skills.'],
     status: 'Archived',
     postedDate: format(subMonths(new Date(), 3), 'yyyy-MM-dd'),
+    applicationDeadline: format(subMonths(new Date(), 2), 'yyyy-MM-dd'),
   },
   {
     id: 'j11',
@@ -315,6 +325,7 @@ export const jobs: Job[] = [
     requirements: ['Masters in Maritime Science, Management, or a related field.', 'Experience in port or shipping industry.', 'Excellent organizational and communication skills.'],
     status: 'Open',
     postedDate: format(subDays(new Date(), 7), 'yyyy-MM-dd'),
+    applicationDeadline: format(addDays(new Date(), 23), 'yyyy-MM-dd'),
   },
   {
     id: 'j12',
@@ -328,6 +339,7 @@ export const jobs: Job[] = [
     requirements: ['PhD or M.Sc. in Agronomy or a related agricultural science.', 'Strong background in agricultural research.', 'Fieldwork experience is essential.'],
     status: 'Open',
     postedDate: format(subDays(new Date(), 30), 'yyyy-MM-dd'),
+    applicationDeadline: format(addDays(new Date(), 0), 'yyyy-MM-dd'),
   },
     {
     id: 'j13',
@@ -341,6 +353,7 @@ export const jobs: Job[] = [
     requirements: ['Qualified through the BCS (Admin) cadre examination.', 'Strong understanding of land laws in Bangladesh.', 'Excellent conflict resolution skills.'],
     status: 'Closed',
     postedDate: format(subMonths(new Date(), 4), 'yyyy-MM-dd'),
+    applicationDeadline: format(subMonths(new Date(), 3), 'yyyy-MM-dd'),
   },
   {
     id: 'j14',
@@ -354,6 +367,7 @@ export const jobs: Job[] = [
     requirements: ['B.Sc. in Electrical & Electronic Engineering (EEE) or Telecommunications Engineering.', 'Experience with fiber optics, microwave, and switching systems.', 'Knowledge of modern telecom protocols.'],
     status: 'Open',
     postedDate: format(subDays(new Date(), 18), 'yyyy-MM-dd'),
+    applicationDeadline: format(addDays(new Date(), 12), 'yyyy-MM-dd'),
   },
   {
     id: 'j15',
@@ -367,6 +381,7 @@ export const jobs: Job[] = [
     requirements: ['B.Sc. or M.Sc. in Fisheries or a related field.', 'Practical knowledge of aquaculture techniques.', 'Strong communication skills to work with local communities.'],
     status: 'Open',
     postedDate: format(subDays(new Date(), 40), 'yyyy-MM-dd'),
+    applicationDeadline: format(addDays(new Date(), -10), 'yyyy-MM-dd'),
   },
   {
     id: 'j16',
@@ -380,6 +395,7 @@ export const jobs: Job[] = [
     requirements: ['Masters in Mass Communication & Journalism or Public Relations.', 'Excellent writing skills in both Bengali and English.', 'Experience working with media outlets.'],
     status: 'Open',
     postedDate: format(subDays(new Date(), 1), 'yyyy-MM-dd'),
+    applicationDeadline: format(addDays(new Date(), 29), 'yyyy-MM-dd'),
   },
   {
     id: 'j17',
@@ -393,6 +409,7 @@ export const jobs: Job[] = [
     requirements: ['B.Sc. in Textile Engineering.', 'Knowledge of textile manufacturing processes and quality standards.', 'Good analytical and interpersonal skills.'],
     status: 'Open',
     postedDate: format(subDays(new Date(), 9), 'yyyy-MM-dd'),
+    applicationDeadline: format(addDays(new Date(), 21), 'yyyy-MM-dd'),
   },
   {
     id: 'j18',
@@ -406,6 +423,7 @@ export const jobs: Job[] = [
     requirements: ['Qualified through the BCS (Foreign Affairs) cadre examination.', 'Excellent command of English and strong interpersonal skills.', 'Deep knowledge of international relations and history.'],
     status: 'Closed',
     postedDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
+    applicationDeadline: format(subMonths(new Date(), 5), 'yyyy-MM-dd'),
   },
   {
     id: 'j19',
@@ -419,6 +437,7 @@ export const jobs: Job[] = [
     requirements: ['Masters or PhD in Archaeology or Anthropology.', 'Field experience in excavation and conservation.', 'Passion for history and cultural heritage.'],
     status: 'Open',
     postedDate: format(subDays(new Date(), 50), 'yyyy-MM-dd'),
+    applicationDeadline: format(addDays(new Date(), -20), 'yyyy-MM-dd'),
   },
   {
     id: 'j20',
@@ -432,6 +451,7 @@ export const jobs: Job[] = [
     requirements: ['LL.B or LL.M degree.', 'Qualified through the Bangladesh Judicial Service Commission (BJSC) examination or equivalent.', 'Meticulous and detail-oriented.'],
     status: 'Open',
     postedDate: format(subDays(new Date(), 28), 'yyyy-MM-dd'),
+    applicationDeadline: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
   },
 ];
 
