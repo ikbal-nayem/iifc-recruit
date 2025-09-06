@@ -39,7 +39,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MoreHorizontal, FileText, UserCheck, UserX, Star } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Candidate, Application, Job } from '@/lib/types';
 import { candidates as allCandidates, applications as allApplications, jobs } from '@/lib/data';
 import { CandidateProfileView } from '@/components/app/candidate-profile-view';
@@ -84,25 +85,6 @@ export default function JobApplicantsPage() {
   }
 
   const columns: ColumnDef<Applicant>[] = [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
     {
       accessorKey: 'personalInfo',
       header: 'Candidate',
@@ -202,6 +184,38 @@ export default function JobApplicantsPage() {
           Manage candidates who applied for this position.
         </p>
       </div>
+
+       <div className="flex items-center gap-4">
+        <Input
+          placeholder="Filter by applicant name..."
+          value={(table.getColumn('personalInfo')?.getFilterValue() as string) ?? ''}
+          onChange={(event) =>
+            table.getColumn('personalInfo')?.setFilterValue(event.target.value)
+          }
+          className="max-w-sm"
+        />
+        <Select
+          value={(table.getColumn('application_status')?.getFilterValue() as string) ?? 'all'}
+          onValueChange={(value) =>
+            table.getColumn('application_status')?.setFilterValue(value === 'all' ? null : value)
+          }
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Statuses</SelectItem>
+            <SelectItem value="Applied">Applied</SelectItem>
+            <SelectItem value="Screening">Screening</SelectItem>
+            <SelectItem value="Shortlisted">Shortlisted</SelectItem>
+            <SelectItem value="Interview">Interview</SelectItem>
+            <SelectItem value="Offered">Offered</SelectItem>
+            <SelectItem value="Hired">Hired</SelectItem>
+            <SelectItem value="Rejected">Rejected</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="rounded-md border glassmorphism">
         <Table>
           <TableHeader>
