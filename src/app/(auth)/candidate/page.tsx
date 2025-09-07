@@ -49,8 +49,8 @@ export default function CandidateDashboardPage() {
                 })}
               </CardContent>
               <CardFooter>
-                 <Button asChild variant="link">
-                    <Link href="/candidate/applications">View All Applications <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                 <Button asChild variant="link" className="group">
+                    <Link href="/candidate/applications">View All Applications <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" /></Link>
                  </Button>
               </CardFooter>
             </Card>

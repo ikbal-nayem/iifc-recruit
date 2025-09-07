@@ -1,3 +1,4 @@
+
 import { jobs as allJobs } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -84,9 +85,9 @@ export default function JobDetailsPage({ params }: { params: { id: string } }) {
                     <span className="flex items-center gap-2"><Clock className="h-4 w-4" /> {similarJob.type}</span>
                   </CardContent>
                   <CardFooter>
-                    <Button variant="link" asChild className="p-0 h-auto">
+                    <Button variant="link" asChild className="p-0 h-auto group">
                         <Link href={`/jobs/${similarJob.id}`}>
-                            View Details <ArrowRight className="ml-2 h-4 w-4" />
+                            View Details <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                         </Link>
                     </Button>
                   </CardFooter>

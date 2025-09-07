@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
@@ -80,9 +81,9 @@ export default function ProjectsPage() {
                 <CardDescription>{project.description}</CardDescription>
               </CardContent>
               <CardFooter>
-                 <Button variant="link" asChild className="p-0 h-auto">
+                 <Button variant="link" asChild className="p-0 h-auto group">
                     <Link href="#">
-                        Learn More <ArrowRight className="ml-2 h-4 w-4" />
+                        Learn More <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </Link>
                 </Button>
               </CardFooter>

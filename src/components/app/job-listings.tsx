@@ -161,7 +161,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
                     <CardFooter className="flex justify-between items-center mt-auto">
                         <span className="font-semibold text-primary">{job.salaryRange}</span>
                         <div className="flex items-center text-primary font-medium text-sm">
-                            <ArrowRight className="ml-2 h-4 w-4" />
+                            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                         </div>
                     </CardFooter>
                 </Card>
