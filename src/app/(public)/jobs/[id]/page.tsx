@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { JobDetailClient } from '@/components/app/candidate/job-detail-client';
 
 export default function JobDetailsPage({ params }: { params: { id: string } }) {
-  const job = allJobs.find((j) => j.id === params.id);
+  const job = allJobs.find((j) => j.id === params?.id);
 
   if (!job) {
     notFound();
