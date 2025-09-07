@@ -20,6 +20,7 @@ import type { Job } from '@/lib/types';
 import { jobs as allJobs } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
+import { motion } from 'framer-motion';
 
 
 interface JobListingsProps {
@@ -81,9 +82,29 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 
   const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
 
-  const JobCard = ({ job, view }: { job: Job, view: 'grid' | 'list'}) => {
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: i * 0.05,
+        duration: 0.3,
+        ease: 'easeOut',
+      },
+    }),
+  };
+
+
+  const JobCard = ({ job, view, index }: { job: Job, view: 'grid' | 'list', index: number}) => {
     if (view === 'list') {
         return (
+          <motion.div
+            custom={index}
+            initial="hidden"
+            animate="visible"
+            variants={cardVariants}
+          >
             <Card key={job.id} className="w-full group glassmorphism card-hover">
                 <div className="flex flex-col sm:flex-row items-start justify-between p-6 gap-4">
                     <div className="flex-grow">
@@ -106,37 +127,46 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
                     </div>
                 </div>
             </Card>
+           </motion.div>
         );
     }
     return (
-        <Link href={`/jobs/${job.id}`} className="block h-full">
-            <Card key={job.id} className="flex flex-col h-full group glassmorphism card-hover">
-                <CardHeader className="flex-grow">
-                    <div className="flex justify-between items-start">
-                        <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">
-                            {job.title}
-                        </CardTitle>
-                        <Badge variant={job.type === 'Full-time' ? 'default' : 'secondary'} className="whitespace-nowrap">{job.type}</Badge>
-                    </div>
-                  <CardDescription className="flex items-center gap-2 pt-2">
-                      <Building className="h-4 w-4" /> {job.department}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{job.description}</p>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {job.location}</span>
-                        <span className="flex items-center gap-2"><Clock className="h-4 w-4" /> {formatDistanceToNow(new Date(job.postedDate), { addSuffix: true })}</span>
-                    </div>
-                </CardContent>
-                <CardFooter className="flex justify-between items-center mt-auto">
-                    <span className="font-semibold text-primary">{job.salaryRange}</span>
-                    <div className="flex items-center text-primary font-medium text-sm">
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                    </div>
-                </CardFooter>
-            </Card>
-        </Link>
+       <motion.div
+            custom={index}
+            initial="hidden"
+            animate="visible"
+            variants={cardVariants}
+            className="h-full"
+        >
+            <Link href={`/jobs/${job.id}`} className="block h-full">
+                <Card key={job.id} className="flex flex-col h-full group glassmorphism card-hover">
+                    <CardHeader className="flex-grow">
+                        <div className="flex justify-between items-start">
+                            <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">
+                                {job.title}
+                            </CardTitle>
+                            <Badge variant={job.type === 'Full-time' ? 'default' : 'secondary'} className="whitespace-nowrap">{job.type}</Badge>
+                        </div>
+                    <CardDescription className="flex items-center gap-2 pt-2">
+                        <Building className="h-4 w-4" /> {job.department}
+                    </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{job.description}</p>
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                            <span className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {job.location}</span>
+                            <span className="flex items-center gap-2"><Clock className="h-4 w-4" /> {formatDistanceToNow(new Date(job.postedDate), { addSuffix: true })}</span>
+                        </div>
+                    </CardContent>
+                    <CardFooter className="flex justify-between items-center mt-auto">
+                        <span className="font-semibold text-primary">{job.salaryRange}</span>
+                        <div className="flex items-center text-primary font-medium text-sm">
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </div>
+                    </CardFooter>
+                </Card>
+            </Link>
+        </motion.div>
     );
   }
 
@@ -192,8 +222,8 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 
       {paginatedJobs.length > 0 ? (
         <div className={cn("gap-6", view === 'grid' ? 'grid md:grid-cols-2 lg:grid-cols-3' : 'flex flex-col')}>
-          {paginatedJobs.map((job) => (
-             <JobCard key={job.id} job={job} view={view} />
+          {paginatedJobs.map((job, index) => (
+             <JobCard key={job.id} job={job} view={view} index={index} />
           ))}
         </div>
       ) : (
