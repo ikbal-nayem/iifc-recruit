@@ -27,7 +27,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <Sidebar>
         <SidebarNav />
       </Sidebar>
-      <SidebarInset className="flex flex-col bg-muted/50">
+      <SidebarInset className="flex flex-col bg-muted/30">
         <Header />
         <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
             {children}
