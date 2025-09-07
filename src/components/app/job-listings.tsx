@@ -123,7 +123,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
                         <span className="flex items-center gap-2"><Building className="h-4 w-4" /> {job.department}</span>
                         <span className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {job.location}</span>
                         </CardDescription>
-                         <p className="text-sm text-foreground/80 line-clamp-2 mt-3">{job.description}</p>
+                         <p className="text-sm text-foreground/80 line-clamp-3 mt-3">{job.description}</p>
                     </div>
                     <div className="flex flex-col sm:items-end sm:text-right gap-2 shrink-0 pt-2 sm:pt-0">
                         <Badge variant={job.type === 'Full-time' ? 'default' : 'secondary'} className="whitespace-nowrap">{job.type}</Badge>
@@ -158,7 +158,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
                     </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{job.description}</p>
+                        <p className="text-sm text-muted-foreground line-clamp-3 mb-4">{job.description}</p>
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
                             <span className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {job.location}</span>
                             <span className="flex items-center gap-2"><Clock className="h-4 w-4" /> {formatDistanceToNow(new Date(job.postedDate), { addSuffix: true })}</span>
