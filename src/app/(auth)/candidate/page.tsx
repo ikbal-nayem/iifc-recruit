@@ -11,7 +11,6 @@ import { ArrowRight, MapPin } from 'lucide-react';
 export default function CandidateDashboardPage() {
   const candidate = candidates[0];
   const candidateApplications = applications.filter(app => app.candidateId === candidate.id).slice(0, 3);
-  const suggestedJobs = jobs.filter(job => job.status === 'Open').slice(0, 2);
 
   return (
     <div className="space-y-8">
@@ -24,8 +23,8 @@ export default function CandidateDashboardPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
+      <div className="grid grid-cols-1 gap-8">
+        <div className="space-y-8">
             <ProfileCompletion candidate={candidate} />
             
             <Card className="glassmorphism">
@@ -54,29 +53,6 @@ export default function CandidateDashboardPage() {
                  </Button>
               </CardFooter>
             </Card>
-        </div>
-
-        <div className="lg:col-span-1">
-          <Card className="glassmorphism sticky top-24">
-            <CardHeader>
-              <CardTitle>Suggested Jobs</CardTitle>
-              <CardDescription>Jobs you might be interested in.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {suggestedJobs.map(job => (
-                <div key={job.id} className="border-b pb-4 last:border-b-0">
-                  <Link href={`/jobs/${job.id}`} className="font-semibold hover:text-primary transition-colors">{job.title}</Link>
-                  <p className="text-sm text-muted-foreground mt-1">{job.department}</p>
-                  <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1"><MapPin className="h-3 w-3" /> {job.location}</p>
-                </div>
-              ))}
-            </CardContent>
-            <CardFooter>
-                <Button asChild variant="outline" className="w-full">
-                    <Link href="/">Browse More Jobs</Link>
-                </Button>
-            </CardFooter>
-          </Card>
         </div>
       </div>
 

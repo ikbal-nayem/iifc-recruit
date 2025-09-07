@@ -14,14 +14,10 @@ export default function JobDetailsPage({ params }: { params: { id: string } }) {
 		notFound();
 	}
 
-	const similarJobs = allJobs
-		.filter((j) => j.department === job.department && j.id !== job.id && j.status === 'Open')
-		.slice(0, 3);
-
 	return (
 		<div className='container mx-auto px-4 py-16'>
 			<div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
-				<div className='lg:col-span-2'>
+				<div className='lg:col-span-3'>
 					<Card className='glassmorphism'>
 						<CardHeader>
 							<div className='flex justify-between items-start gap-4'>
@@ -74,43 +70,6 @@ export default function JobDetailsPage({ params }: { params: { id: string } }) {
 							</div>
 						</CardContent>
 					</Card>
-				</div>
-				<div className='lg:col-span-1'>
-					<div className='sticky top-24 space-y-6'>
-						<h3 className='text-xl font-bold font-headline'>Similar Jobs</h3>
-						{similarJobs.length > 0 ? (
-							similarJobs.map((similarJob) => (
-								<Card key={similarJob.id} className='group hover:border-primary transition-all glassmorphism'>
-									<CardHeader>
-										<CardTitle className='font-headline text-lg group-hover:text-primary transition-colors'>
-											{similarJob.title}
-										</CardTitle>
-										<CardDescription className='flex items-center gap-2 pt-1'>
-											<Building className='h-4 w-4' /> {similarJob.department}
-										</CardDescription>
-									</CardHeader>
-									<CardContent className='flex items-center gap-4 text-sm text-muted-foreground'>
-										<span className='flex items-center gap-2'>
-											<MapPin className='h-4 w-4' /> {similarJob.location}
-										</span>
-										<span className='flex items-center gap-2'>
-											<Clock className='h-4 w-4' /> {similarJob.type}
-										</span>
-									</CardContent>
-									<CardFooter>
-										<Button variant='link' asChild className='p-0 h-auto group'>
-											<Link href={`/jobs/${similarJob.id}`}>
-												View Details{' '}
-												<ArrowRight className='ml-2 h-4 w-4 transition-transform group-hover:translate-x-1' />
-											</Link>
-										</Button>
-									</CardFooter>
-								</Card>
-							))
-						) : (
-							<p className='text-muted-foreground'>No similar jobs found.</p>
-						)}
-					</div>
 				</div>
 			</div>
 		</div>
