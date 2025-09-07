@@ -21,6 +21,7 @@ import { jobs as allJobs } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 
 
 interface JobListingsProps {
@@ -30,6 +31,7 @@ interface JobListingsProps {
 }
 
 export function JobListings({ isPaginated = true, showFilters = true, itemLimit }: JobListingsProps) {
+  const pathname = usePathname();
   const [jobs, setJobs] = React.useState<Job[]>(allJobs.filter(j => j.status === 'Open'));
   const [filteredJobs, setFilteredJobs] = React.useState<Job[]>(jobs);
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -45,6 +47,8 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 
   const uniqueLocations = ['all', ...Array.from(new Set(allJobs.map(job => job.location)))];
   const uniqueDepartments = ['all', ...Array.from(new Set(allJobs.map(job => job.department)))];
+  
+  const isCandidateRoute = pathname.startsWith('/candidate');
 
   React.useEffect(() => {
     let results = jobs;
@@ -97,6 +101,8 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 
 
   const JobCard = ({ job, view, index }: { job: Job, view: 'grid' | 'list', index: number}) => {
+    const jobUrl = isCandidateRoute ? `/candidate/jobs/${job.id}` : `/jobs/${job.id}`;
+    
     if (view === 'list') {
         return (
           <motion.div
@@ -109,7 +115,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
                 <div className="flex flex-col sm:flex-row items-start justify-between p-6 gap-4">
                     <div className="flex-grow">
                         <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">
-                        <Link href={`/jobs/${job.id}`} className="stretched-link">
+                        <Link href={jobUrl} className="stretched-link">
                             {job.title}
                         </Link>
                         </CardTitle>
@@ -117,7 +123,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
                         <span className="flex items-center gap-2"><Building className="h-4 w-4" /> {job.department}</span>
                         <span className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {job.location}</span>
                         </CardDescription>
-                         <p className="text-sm text-foreground/80 line-clamp-2 mt-3">{job.description}</p>
+                         <p className="text-sm text-foreground/80 line-clamp-3 mt-3">{job.description}</p>
                     </div>
                     <div className="flex flex-col sm:items-end sm:text-right gap-2 shrink-0 pt-2 sm:pt-0">
                         <Badge variant={job.type === 'Full-time' ? 'default' : 'secondary'} className="whitespace-nowrap">{job.type}</Badge>
@@ -138,7 +144,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
             variants={cardVariants}
             className="h-full"
         >
-            <Link href={`/jobs/${job.id}`} className="block h-full">
+            <Link href={jobUrl} className="block h-full">
                 <Card key={job.id} className="flex flex-col h-full group glassmorphism card-hover">
                     <CardHeader className="flex-grow">
                         <div className="flex justify-between items-start">
@@ -152,7 +158,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
                     </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{job.description}</p>
+                        <p className="text-sm text-muted-foreground line-clamp-3 mb-4">{job.description}</p>
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
                             <span className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {job.location}</span>
                             <span className="flex items-center gap-2"><Clock className="h-4 w-4" /> {formatDistanceToNow(new Date(job.postedDate), { addSuffix: true })}</span>

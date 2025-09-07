@@ -2,8 +2,21 @@ import { Suspense } from 'react';
 import { AdminDashboardCards, AdminDashboardCardsSkeleton } from '@/components/app/admin/dashboard-cards';
 import { AdminDashboardCharts, AdminDashboardChartsSkeleton } from '@/components/app/admin/dashboard-charts';
 import { AdminDashboardRecentActivity, AdminDashboardRecentActivitySkeleton } from '@/components/app/admin/dashboard-recent-activity';
+import { jobs, candidates, applications } from '@/lib/data';
 
-export default function AdminDashboard() {
+async function getDashboardData() {
+  // Simulate network latency
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  const openJobs = jobs.filter(j => j.status === 'Open').length;
+  const totalCandidates = candidates.length;
+  const newApplications = applications.filter(a => a.status === 'Applied' || a.status === 'Screening').length;
+
+  return { openJobs, totalCandidates, newApplications };
+}
+
+
+export default async function AdminDashboard() {
 
   return (
     <div className="space-y-8">
@@ -15,7 +28,7 @@ export default function AdminDashboard() {
       </div>
 
       <Suspense fallback={<AdminDashboardCardsSkeleton />}>
-        <AdminDashboardCards />
+        <AdminDashboardCards data={await getDashboardData()} />
       </Suspense>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">

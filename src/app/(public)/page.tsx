@@ -1,4 +1,5 @@
 
+
 import { JobListings } from '@/components/app/job-listings';
 import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';

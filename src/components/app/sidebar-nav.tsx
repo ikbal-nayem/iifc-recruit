@@ -7,6 +7,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   Settings,
+  ChevronDown
 } from 'lucide-react';
 import {
   SidebarHeader,
@@ -64,11 +65,14 @@ const NavMenu = ({ item }: { item: NavLink }) => {
                 isActive={isActive}
                 tooltip={item.label}
                 data-state={isSubmenuOpen && hasSubmenu ? 'open' : 'closed'}
-                className="gap-3"
+                className="gap-3 group"
             >
-                <Link href={item.href} className="flex items-center gap-3">
-                    <item.icon className="size-5" />
-                    <span>{item.label}</span>
+                <Link href={item.href} className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-3">
+                      <item.icon className="size-5" />
+                      <span>{item.label}</span>
+                    </div>
+                    {hasSubmenu && <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180" />}
                 </Link>
             </SidebarMenuButton>
             {isSubmenuOpen && state === 'expanded' && hasSubmenu && (
