@@ -5,39 +5,35 @@ import NProgress from 'nprogress';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 export function TopLoader() {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+	const pathname = usePathname();
+	const searchParams = useSearchParams();
 
-  React.useEffect(() => {
-    NProgress.done();
-  }, [pathname, searchParams]);
-  
-  React.useEffect(() => {
-    NProgress.configure({ showSpinner: false });
+	React.useEffect(() => {
+		NProgress.done();
+	}, [pathname, searchParams]);
 
-    const handleAnchorClick = (event: MouseEvent) => {
-      const targetUrl = (event.currentTarget as HTMLAnchorElement).href;
-      const currentUrl = window.location.href;
-      if (targetUrl !== currentUrl) {
-        NProgress.start();
-      }
-    };
+	React.useEffect(() => {
+		NProgress.configure({ showSpinner: false });
 
-    const handleMutation: MutationCallback = () => {
-      const anchorElements = document.querySelectorAll('a');
-      anchorElements.forEach((anchor) =>
-        anchor.addEventListener('click', handleAnchorClick)
-      );
-    };
+		const handleAnchorClick = (event: MouseEvent) => {
+			const target = event.target as HTMLElement;
+			const anchor = target.closest('a');
+			if (anchor) {
+				const targetUrl = anchor.href;
+				const currentUrl = window.location.href;
+				if (targetUrl !== currentUrl) {
+					NProgress.start();
+				}
+			}
+		};
 
-    const mutationObserver = new MutationObserver(handleMutation);
-    mutationObserver.observe(document, { childList: true, subtree: true });
+		document.addEventListener('click', handleAnchorClick);
 
-    // clean up
-    return () => {
-        mutationObserver.disconnect()
-    }
-  }, []);
+		// clean up
+		return () => {
+			document.removeEventListener('click', handleAnchorClick);
+		};
+	}, []);
 
-  return null;
+	return null;
 }

@@ -506,4 +506,4 @@ export const activities: Activity[] = [
   }
 ];
 
-export const iifcLogoUrl = "/iifc-logo.png";
+

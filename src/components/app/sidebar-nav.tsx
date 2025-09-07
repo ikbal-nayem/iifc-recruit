@@ -25,21 +25,36 @@ import Image from 'next/image';
 import { NavLink, adminNavLinks, candidateNavLinks } from '@/lib/nav-links';
 
 
-const NavMenu = ({ item, isSubmenuOpen, setOpenSubmenu }: { item: NavLink, isSubmenuOpen: boolean, setOpenSubmenu: (label: string) => void }) => {
+const NavMenu = ({ item }: { item: NavLink }) => {
     const pathname = usePathname();
     const { state } = useSidebar();
     const router = useRouter();
+    const [isOpen, setIsOpen] = React.useState(false);
 
     const hasSubmenu = item.submenu && item.submenu.length > 0;
     const isActive = item.isActive ? item.isActive(pathname, window.location.hash) : pathname.startsWith(item.href);
+    const isSubmenuOpen = hasSubmenu && (isOpen || (item.submenu?.some(subItem => subItem.isActive ? subItem.isActive(pathname) : pathname === subItem.href) ?? false));
 
     const handleMenuClick = () => {
         if (state !== 'expanded' && hasSubmenu) {
             router.push(item.href);
         } else {
-            setOpenSubmenu(item.label);
+            setIsOpen(!isOpen);
         }
     };
+
+    React.useEffect(() => {
+        if (state === 'collapsed') {
+            setIsOpen(false);
+        }
+    }, [state]);
+
+    React.useEffect(() => {
+        if (hasSubmenu) {
+            const isActive = item.submenu?.some(subItem => subItem.isActive ? subItem.isActive(pathname) : pathname === subItem.href) ?? false;
+            setIsOpen(isActive);
+        }
+    }, [pathname, hasSubmenu, item.submenu]);
     
     return (
         <SidebarMenuItem>
@@ -79,33 +94,8 @@ export default function SidebarNav() {
   const pathname = usePathname();
   const role = pathname.split('/')[1];
   const { state } = useSidebar();
-  const [openSubmenu, setOpenSubmenuState] = React.useState('');
 
   const navItems = role === 'admin' ? adminNavLinks : role === 'candidate' ? candidateNavLinks : [];
-
-  const setOpenSubmenu = (label: string) => {
-    setOpenSubmenuState(prev => prev === label ? '' : label);
-  };
-  
-  React.useEffect(() => {
-    if (state === 'collapsed') {
-      setOpenSubmenuState('');
-    }
-  }, [state]);
-
-  React.useEffect(() => {
-    const activeParent = navItems.find(item => item.isActive && item.isActive(pathname));
-    if (activeParent?.submenu) {
-        if (openSubmenu !== activeParent.label) {
-            setOpenSubmenuState(activeParent.label);
-        }
-    } else {
-        if (openSubmenu && !navItems.find(item => item.label === openSubmenu && item.isActive?.(pathname))) {
-             setOpenSubmenuState('');
-        }
-    }
-  }, [pathname, navItems, openSubmenu]);
-
 
   return (
     <>
@@ -121,8 +111,6 @@ export default function SidebarNav() {
               <NavMenu 
                 key={item.href} 
                 item={item} 
-                isSubmenuOpen={openSubmenu === item.label} 
-                setOpenSubmenu={setOpenSubmenu}
               />
             ))}
         </SidebarMenu>
