@@ -53,9 +53,20 @@ body {
   }
 }
 
-.glassmorphism {
-    @apply bg-card/60 backdrop-blur-xl border border-border/20;
+@layer components {
+  .glassmorphism {
+      @apply bg-card/60 backdrop-blur-xl border border-border/20;
+  }
+  
+  .card-hover {
+      @apply transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1;
+  }
+
+  .button-hover {
+      @apply transition-transform duration-200 ease-in-out hover:scale-105;
+  }
 }
+
 
 .hero-gradient {
   background: linear-gradient(135deg, hsl(var(--primary) / 0.1), hsl(var(--accent) / 0.05));

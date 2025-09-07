@@ -52,7 +52,7 @@ export default function AboutUsPage() {
                 <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">We offer a comprehensive suite of features designed to make recruitment seamless and effective.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <Card className="text-center glassmorphism">
+                <Card className="text-center glassmorphism card-hover">
                     <CardHeader>
                         <div className="mx-auto bg-primary/10 text-primary p-3 rounded-full w-fit">
                             <Briefcase className="h-8 w-8" />
@@ -63,7 +63,7 @@ export default function AboutUsPage() {
                         We specialize in the infrastructure and finance sectors, ensuring that job listings are relevant and attract the right talent.
                     </CardContent>
                 </Card>
-                 <Card className="text-center glassmorphism">
+                 <Card className="text-center glassmorphism card-hover">
                     <CardHeader>
                          <div className="mx-auto bg-primary/10 text-primary p-3 rounded-full w-fit">
                             <Users className="h-8 w-8" />
@@ -74,7 +74,7 @@ export default function AboutUsPage() {
                         Access a diverse and highly skilled pool of candidates ready to take on their next challenge.
                     </CardContent>
                 </Card>
-                 <Card className="text-center glassmorphism">
+                 <Card className="text-center glassmorphism card-hover">
                     <CardHeader>
                          <div className="mx-auto bg-primary/10 text-primary p-3 rounded-full w-fit">
                             <Building className="h-8 w-8" />
@@ -96,7 +96,7 @@ export default function AboutUsPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {teamMembers.map(member => (
-                    <Card key={member.name} className="text-center pt-6 glassmorphism">
+                    <Card key={member.name} className="text-center pt-6 glassmorphism card-hover">
                         <CardContent className="flex flex-col items-center">
                             <Avatar className="h-24 w-24 mb-4">
                                 <AvatarImage src={member.avatar} alt={member.name} data-ai-hint="portrait" />

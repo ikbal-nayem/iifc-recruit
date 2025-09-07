@@ -31,7 +31,7 @@ export default function SectorsPage() {
       <section className="container mx-auto px-4 md:px-6 py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {sectors.map((sector, index) => (
-            <Card key={index} className="text-center glassmorphism hover:border-primary transition-colors group">
+            <Card key={index} className="text-center glassmorphism hover:border-primary transition-colors group card-hover">
               <CardHeader>
                 <div className="mx-auto bg-primary/10 text-primary p-4 rounded-full w-fit group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                   <sector.icon className="h-8 w-8" />

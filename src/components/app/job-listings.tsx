@@ -84,7 +84,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
   const JobCard = ({ job, view }: { job: Job, view: 'grid' | 'list'}) => {
     if (view === 'list') {
         return (
-            <Card key={job.id} className="w-full group glassmorphism hover:border-primary transition-all">
+            <Card key={job.id} className="w-full group glassmorphism card-hover">
                 <div className="flex flex-col sm:flex-row items-start justify-between p-6 gap-4">
                     <div className="flex-grow">
                         <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">
@@ -110,7 +110,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
     }
     return (
         <Link href={`/jobs/${job.id}`} className="block h-full">
-            <Card key={job.id} className="flex flex-col h-full group glassmorphism hover:border-primary transition-all">
+            <Card key={job.id} className="flex flex-col h-full group glassmorphism card-hover">
                 <CardHeader className="flex-grow">
                     <div className="flex justify-between items-start">
                         <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">
