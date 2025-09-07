@@ -8,38 +8,38 @@ body {
 
 @layer base {
   :root {
-    --background: 48 33% 94%;
-    --foreground: 130 15% 15%;
+    --background: 120 20% 96%;
+    --foreground: 120 15% 15%;
 
-    --card: 48 33% 94%;
-    --card-foreground: 130 15% 15%;
+    --card: 120 20% 96%;
+    --card-foreground: 120 15% 15%;
 
-    --popover: 48 33% 94%;
-    --popover-foreground: 130 15% 15%;
+    --popover: 120 20% 96%;
+    --popover-foreground: 120 15% 15%;
 
-    --primary: 130 25% 32%; /* #386641 */
+    --primary: 120 39% 33%; /* #347433 */
     --primary-foreground: 60 40% 98%;
 
-    --secondary: 130 15% 94%;
-    --secondary-foreground: 130 25% 32%;
+    --secondary: 120 30% 94%;
+    --secondary-foreground: 120 39% 33%;
 
-    --muted: 130 15% 94%;
-    --muted-foreground: 130 10% 40%;
+    --muted: 120 30% 94%;
+    --muted-foreground: 120 10% 40%;
 
-    --accent: 130 25% 45%;
+    --accent: 120 35% 45%;
     --accent-foreground: 60 40% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 130 15% 85%;
-    --input: 130 15% 85%;
-    --ring: 130 25% 32%;
+    --border: 120 15% 85%;
+    --input: 120 15% 85%;
+    --ring: 120 39% 33%;
     
-    --chart-1: 130 25% 32%;
+    --chart-1: 120 39% 33%;
     --chart-2: 94 34% 45%;
     --chart-3: 79 53% 57%;
-    --chart-4: 130 20% 60%;
+    --chart-4: 120 20% 60%;
     --chart-5: 94 25% 70%;
     
     --radius: 0.5rem;
