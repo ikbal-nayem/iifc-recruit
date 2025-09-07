@@ -1,86 +1,104 @@
-
-import {
-  Briefcase,
-  LayoutDashboard,
-  Users,
-  UserCog,
-  FileText,
-  Search,
-  PlusCircle,
-  UserCircle,
-  FileSignature,
-  Edit,
-} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import {
+	Briefcase,
+	Edit,
+	FileText,
+	LayoutDashboard,
+	PlusCircle,
+	Search,
+	UserCircle,
+	UserCog,
+	Users,
+} from 'lucide-react';
 
 export interface NavLink {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-  isActive?: (pathname: string, hash?: string) => boolean;
-  submenu?: NavLink[];
+	href: string;
+	label: string;
+	icon: LucideIcon;
+	isActive?: (pathname: string, hash?: string) => boolean;
+	submenu?: NavLink[];
 }
 
 export const adminNavLinks: NavLink[] = [
-  { 
-    href: '/admin', 
-    label: 'Dashboard', 
-    icon: LayoutDashboard,
-    isActive: (pathname) => pathname === '/admin',
-  },
-  { 
-    href: '/admin/jobs', 
-    label: 'Job Management', 
-    icon: Briefcase,
-    isActive: (pathname) => pathname.startsWith('/admin/jobs'),
-    submenu: [
-        { href: '/admin/jobs', label: 'All Jobs', icon: Briefcase, isActive: (pathname) => pathname === '/admin/jobs' || /^\/admin\/jobs\/\w+$/.test(pathname) },
-        { href: '/admin/jobs/create', label: 'Create New', icon: PlusCircle },
-        { href: '#', label: 'Edit Job', icon: Edit, isActive: (pathname) => /^\/admin\/jobs\/\w+\/edit$/.test(pathname) },
-    ]
-  },
-  { href: '/admin/candidates', label: 'Candidates', icon: Users },
-  { href: '/admin/applications', label: 'Applications', icon: FileText, isActive: (pathname) => pathname.startsWith('/admin/applications') || /^\/admin\/jobs\/\w+\/applicants$/.test(pathname) },
+	{
+		href: '/admin',
+		label: 'Dashboard',
+		icon: LayoutDashboard,
+		isActive: (pathname) => pathname === '/admin',
+	},
+	{
+		href: '/admin/jobs',
+		label: 'Job Management',
+		icon: Briefcase,
+		isActive: (pathname) => pathname.startsWith('/admin/jobs'),
+		submenu: [
+			{
+				href: '/admin/jobs',
+				label: 'All Jobs',
+				icon: Briefcase,
+				isActive: (pathname) => pathname === '/admin/jobs' || /^\/admin\/jobs\/\w+$/.test(pathname),
+			},
+			{ href: '/admin/jobs/create', label: 'Create New', icon: PlusCircle },
+			{
+				href: '#',
+				label: 'Edit Job',
+				icon: Edit,
+				isActive: (pathname) => /^\/admin\/jobs\/\w+\/edit$/.test(pathname),
+			},
+		],
+	},
+	{ href: '/admin/candidates', label: 'Candidates', icon: Users },
+	{
+		href: '/admin/applications',
+		label: 'Applications',
+		icon: FileText,
+		isActive: (pathname) =>
+			pathname.startsWith('/admin/applications') || /^\/admin\/jobs\/\w+\/applicants$/.test(pathname),
+	},
 ];
 
 export const candidateNavLinks: NavLink[] = [
-    { 
-        href: '/candidate', 
-        label: 'Dashboard', 
-        icon: LayoutDashboard,
-        isActive: (pathname) => pathname === '/candidate'
-    },
-    {
-        href: '/candidate/profile-view',
-        label: 'My Profile',
-        icon: UserCircle,
-    },
-    {
-        href: '/candidate/profile',
-        label: 'Edit Profile',
-        icon: UserCog,
-        isActive: (pathname) => pathname.startsWith('/candidate/profile'),
-        submenu: [
-            { href: '/candidate/profile', label: 'Personal Info', icon: UserCog, isActive: (pathname) => pathname === '/candidate/profile' },
-            { href: '/candidate/profile/academic', label: 'Academic', icon: UserCog },
-            { href: '/candidate/profile/professional', label: 'Professional', icon: UserCog },
-            { href: '/candidate/profile/skills', label: 'Skills', icon: UserCog },
-            { href: '/candidate/profile/certifications', label: 'Certifications', icon: UserCog },
-            { href: '/candidate/profile/languages', label: 'Languages', icon: UserCog },
-            { href: '/candidate/profile/publications', label: 'Publications', icon: UserCog },
-            { href: '/candidate/profile/awards', label: 'Awards', icon: UserCog },
-            { href: '/candidate/profile/resume', label: 'Resume', icon: UserCog },
-        ]
-    },
-    { 
-        href: '/candidate/applications', 
-        label: 'My Applications', 
-        icon: FileText 
-    },
-    { 
-        href: '/candidate/find-job', 
-        label: 'Find Job', 
-        icon: Search,
-    },
+	{
+		href: '/candidate',
+		label: 'Dashboard',
+		icon: LayoutDashboard,
+		isActive: (pathname) => pathname === '/candidate',
+	},
+	{
+		href: '/candidate/profile-view',
+		label: 'My Profile',
+		icon: UserCircle,
+	},
+	{
+		href: '/candidate/profile-edit',
+		label: 'Edit Profile',
+		icon: UserCog,
+		isActive: (pathname) => pathname.startsWith('/candidate/profile-edit'),
+		submenu: [
+			{
+				href: '/candidate/profile-edit',
+				label: 'Personal Info',
+				icon: UserCog,
+				isActive: (pathname) => pathname === '/candidate/profile-edit',
+			},
+			{ href: '/candidate/profile-edit/academic', label: 'Academic', icon: UserCog },
+			{ href: '/candidate/profile-edit/professional', label: 'Professional', icon: UserCog },
+			{ href: '/candidate/profile-edit/skills', label: 'Skills', icon: UserCog },
+			{ href: '/candidate/profile-edit/certifications', label: 'Certifications', icon: UserCog },
+			{ href: '/candidate/profile-edit/languages', label: 'Languages', icon: UserCog },
+			{ href: '/candidate/profile-edit/publications', label: 'Publications', icon: UserCog },
+			{ href: '/candidate/profile-edit/awards', label: 'Awards', icon: UserCog },
+			{ href: '/candidate/profile-edit/resume', label: 'Resume', icon: UserCog },
+		],
+	},
+	{
+		href: '/candidate/applications',
+		label: 'My Applications',
+		icon: FileText,
+	},
+	{
+		href: '/candidate/find-job',
+		label: 'Find Job',
+		icon: Search,
+	},
 ];
-
