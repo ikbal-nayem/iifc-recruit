@@ -16,8 +16,6 @@ export default function RootLayout({
 }>) {
   const [isLoading, setIsLoading] = React.useState(true);
   const [isFadingOut, setIsFadingOut] = React.useState(false);
-  const [isMounted, setIsMounted] = React.useState(true);
-
 
   React.useEffect(() => {
     const loadingTimer = setTimeout(() => {
@@ -29,19 +27,13 @@ export default function RootLayout({
       setIsFadingOut(true);
     }, 1500);
 
-    // Unmount after fade-out
-    const unmountTimer = setTimeout(() => {
-      setIsMounted(false);
-    }, 2000); // 1500ms loading + 500ms fade-out
-
     return () => {
       clearTimeout(loadingTimer);
       clearTimeout(fadeOutTimer);
-      clearTimeout(unmountTimer);
     };
   }, []);
   
-  if (isMounted) {
+  if (isLoading) {
     return (
        <html lang={locale} className="h-full">
         <head>
@@ -55,13 +47,6 @@ export default function RootLayout({
         </head>
         <body className="font-body antialiased flex flex-col min-h-screen">
             <SplashScreen isFadingOut={isFadingOut} />
-            {!isLoading && (
-              <>
-                <TopLoader />
-                {children}
-                <Toaster />
-              </>
-            )}
         </body>
       </html>
     )
