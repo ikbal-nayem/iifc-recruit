@@ -43,7 +43,7 @@ export function MyApplications() {
       cell: ({ row }) => {
         const application = row.original;
         return (
-          <Link href={`/jobs/${application.jobId}`} className="font-medium text-primary hover:underline">
+          <Link href={`/candidate/jobs/${application.jobId}`} className="font-medium text-primary hover:underline">
             {application.job?.title}
           </Link>
         );
@@ -83,7 +83,7 @@ export function MyApplications() {
   const renderMobileCard = (application: ApplicationWithJob) => (
     <Card key={application.id} className="mb-4 glassmorphism">
       <div className="p-4 space-y-2">
-        <Link href={`/jobs/${application.jobId}`} className="font-semibold text-lg text-primary hover:underline">
+        <Link href={`/candidate/jobs/${application.jobId}`} className="font-semibold text-lg text-primary hover:underline">
           {application.job?.title}
         </Link>
         <p className="text-sm text-muted-foreground">{application.job?.department}</p>

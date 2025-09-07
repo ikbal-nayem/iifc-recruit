@@ -21,6 +21,7 @@ import { jobs as allJobs } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 
 
 interface JobListingsProps {
@@ -30,6 +31,7 @@ interface JobListingsProps {
 }
 
 export function JobListings({ isPaginated = true, showFilters = true, itemLimit }: JobListingsProps) {
+  const pathname = usePathname();
   const [jobs, setJobs] = React.useState<Job[]>(allJobs.filter(j => j.status === 'Open'));
   const [filteredJobs, setFilteredJobs] = React.useState<Job[]>(jobs);
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -45,6 +47,8 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 
   const uniqueLocations = ['all', ...Array.from(new Set(allJobs.map(job => job.location)))];
   const uniqueDepartments = ['all', ...Array.from(new Set(allJobs.map(job => job.department)))];
+  
+  const isCandidateRoute = pathname.startsWith('/candidate');
 
   React.useEffect(() => {
     let results = jobs;
@@ -97,6 +101,8 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 
 
   const JobCard = ({ job, view, index }: { job: Job, view: 'grid' | 'list', index: number}) => {
+    const jobUrl = isCandidateRoute ? `/candidate/jobs/${job.id}` : `/jobs/${job.id}`;
+    
     if (view === 'list') {
         return (
           <motion.div
@@ -109,7 +115,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
                 <div className="flex flex-col sm:flex-row items-start justify-between p-6 gap-4">
                     <div className="flex-grow">
                         <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">
-                        <Link href={`/jobs/${job.id}`} className="stretched-link">
+                        <Link href={jobUrl} className="stretched-link">
                             {job.title}
                         </Link>
                         </CardTitle>
@@ -138,7 +144,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
             variants={cardVariants}
             className="h-full"
         >
-            <Link href={`/jobs/${job.id}`} className="block h-full">
+            <Link href={jobUrl} className="block h-full">
                 <Card key={job.id} className="flex flex-col h-full group glassmorphism card-hover">
                     <CardHeader className="flex-grow">
                         <div className="flex justify-between items-start">
