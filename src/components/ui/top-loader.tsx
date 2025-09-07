@@ -13,7 +13,7 @@ export function TopLoader() {
   }, [pathname, searchParams]);
   
   React.useEffect(() => {
-    NProgress.configure({ showSpinner: false });
+    NProgress.configure({ showSpinner: true });
 
     const handleAnchorClick = (event: MouseEvent) => {
       const targetUrl = (event.currentTarget as HTMLAnchorElement).href;
