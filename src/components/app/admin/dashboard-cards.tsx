@@ -1,6 +1,5 @@
 import {
   Activity,
-  DollarSign,
   Users,
   Briefcase,
 } from 'lucide-react';
@@ -10,13 +9,18 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { jobs, candidates, applications } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export function AdminDashboardCards() {
-  const openJobs = jobs.filter(j => j.status === 'Open').length;
-  const totalCandidates = candidates.length;
-  const newApplications = applications.filter(a => a.status === 'Applied' || a.status === 'Screening').length;
+interface AdminDashboardCardsProps {
+    data: {
+        openJobs: number;
+        totalCandidates: number;
+        newApplications: number;
+    }
+}
+
+export function AdminDashboardCards({ data }: AdminDashboardCardsProps) {
+  const { openJobs, totalCandidates, newApplications } = data;
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
