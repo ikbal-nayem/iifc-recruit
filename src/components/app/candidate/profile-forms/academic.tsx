@@ -68,49 +68,51 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
   const renderItem = (item: AcademicInfo, index: number) => {
     if (editingId === index) {
       return (
-         <form onSubmit={editForm.handleSubmit((data) => handleUpdate(index, data))}>
-            <Card key={index} className="p-4 bg-muted/50">
-                <CardContent className="p-0 space-y-4">
-                    <FormField
-                      control={editForm.control}
-                      name="degree"
-                      render={({ field }) => (
-                        <FormItem>
-                           <Label>Degree</Label>
-                           <FormControl><Input {...field} /></FormControl>
-                           <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={editForm.control}
-                      name="institution"
-                      render={({ field }) => (
-                        <FormItem>
-                           <Label>Institution</Label>
-                           <FormControl><Input {...field} /></FormControl>
-                           <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                     <FormField
-                      control={editForm.control}
-                      name="graduationYear"
-                      render={({ field }) => (
-                        <FormItem>
-                           <Label>Graduation Year</Label>
-                           <FormControl><Input type="number" {...field} /></FormControl>
-                           <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                </CardContent>
-                 <CardFooter className="p-0 pt-4 flex justify-end gap-2">
-                    <Button type="button" variant="ghost" onClick={() => setEditingId(null)}>Cancel</Button>
-                    <Button type="submit">Save</Button>
-                </CardFooter>
-            </Card>
-        </form>
+         <Form {...editForm}>
+            <form onSubmit={editForm.handleSubmit((data) => handleUpdate(index, data))}>
+                <Card key={index} className="p-4 bg-muted/50">
+                    <CardContent className="p-0 space-y-4">
+                        <FormField
+                        control={editForm.control}
+                        name="degree"
+                        render={({ field }) => (
+                            <FormItem>
+                            <Label>Degree</Label>
+                            <FormControl><Input {...field} /></FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                        <FormField
+                        control={editForm.control}
+                        name="institution"
+                        render={({ field }) => (
+                            <FormItem>
+                            <Label>Institution</Label>
+                            <FormControl><Input {...field} /></FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                        <FormField
+                        control={editForm.control}
+                        name="graduationYear"
+                        render={({ field }) => (
+                            <FormItem>
+                            <Label>Graduation Year</Label>
+                            <FormControl><Input type="number" {...field} /></FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                    </CardContent>
+                    <CardFooter className="p-0 pt-4 flex justify-end gap-2">
+                        <Button type="button" variant="ghost" onClick={() => setEditingId(null)}>Cancel</Button>
+                        <Button type="submit">Save</Button>
+                    </CardFooter>
+                </Card>
+            </form>
+        </Form>
       );
     }
 
@@ -147,53 +149,54 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
             </CardContent>
         </Card>
         
-        <form onSubmit={form.handleSubmit(handleAddNew)}>
-            <Card className="glassmorphism">
-                <CardHeader>
-                    <CardTitle>Add New Education</CardTitle>
-                    <CardDescription>Add a new degree to your profile.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="degree"
-                      render={({ field }) => (
-                        <FormItem>
-                           <Label>Degree</Label>
-                           <FormControl><Input {...field} placeholder="e.g. B.S. in Computer Science"/></FormControl>
-                           <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                     <FormField
-                      control={form.control}
-                      name="institution"
-                      render={({ field }) => (
-                        <FormItem>
-                           <Label>Institution</Label>
-                           <FormControl><Input {...field} placeholder="e.g. Stanford University"/></FormControl>
-                           <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                     <FormField
-                      control={form.control}
-                      name="graduationYear"
-                      render={({ field }) => (
-                        <FormItem>
-                           <Label>Graduation Year</Label>
-                           <FormControl><Input type="number" {...field} placeholder="e.g. 2024"/></FormControl>
-                           <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                </CardContent>
-                <CardFooter>
-                    <Button type="submit"><PlusCircle className="mr-2 h-4 w-4" /> Add to History</Button>
-                </CardFooter>
-            </Card>
-        </form>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleAddNew)}>
+                <Card className="glassmorphism">
+                    <CardHeader>
+                        <CardTitle>Add New Education</CardTitle>
+                        <CardDescription>Add a new degree to your profile.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <FormField
+                        control={form.control}
+                        name="degree"
+                        render={({ field }) => (
+                            <FormItem>
+                            <Label>Degree</Label>
+                            <FormControl><Input {...field} placeholder="e.g. B.S. in Computer Science"/></FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                        <FormField
+                        control={form.control}
+                        name="institution"
+                        render={({ field }) => (
+                            <FormItem>
+                            <Label>Institution</Label>
+                            <FormControl><Input {...field} placeholder="e.g. Stanford University"/></FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                        <FormField
+                        control={form.control}
+                        name="graduationYear"
+                        render={({ field }) => (
+                            <FormItem>
+                            <Label>Graduation Year</Label>
+                            <FormControl><Input type="number" {...field} placeholder="e.g. 2024"/></FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                    </CardContent>
+                    <CardFooter>
+                        <Button type="submit"><PlusCircle className="mr-2 h-4 w-4" /> Add to History</Button>
+                    </CardFooter>
+                </Card>
+            </form>
+        </Form>
     </div>
   );
 }
-

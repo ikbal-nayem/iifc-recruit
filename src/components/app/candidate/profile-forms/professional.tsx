@@ -40,16 +40,16 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
 
   const form = useForm<ProfessionalFormValues>({
     resolver: zodResolver(professionalInfoSchema),
-    defaultValues: { responsibilities: [] }
+    defaultValues: { role: '', company: '', duration: '', responsibilities: [''] }
   });
 
   const editForm = useForm<ProfessionalFormValues>({
-    resolver: zodResolver(professionalInfoSchoema),
+    resolver: zodResolver(professionalInfoSchema),
   });
 
   const handleAddNew = (data: ProfessionalFormValues) => {
     setHistory([...history, data]);
-    form.reset({ role: '', company: '', duration: '', responsibilities: [] });
+    form.reset({ role: '', company: '', duration: '', responsibilities: [''] });
   };
   
   const handleUpdate = (index: number, data: ProfessionalFormValues) => {
@@ -71,28 +71,40 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
   const renderItem = (item: ProfessionalInfo, index: number) => {
       if (editingId === index) {
         return (
-            <form onSubmit={editForm.handleSubmit((data) => handleUpdate(index, data))}>
-                <Card key={index} className="p-4 bg-muted/50">
-                    <CardContent className="p-0 space-y-4">
-                        <FormField control={editForm.control} name="role" render={({ field }) => (
-                            <FormItem><Label>Role</Label><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
-                         <FormField control={editForm.control} name="company" render={({ field }) => (
-                            <FormItem><Label>Company</Label><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
-                         <FormField control={editForm.control} name="duration" render={({ field }) => (
-                            <FormItem><Label>Duration</Label><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
-                         <FormField control={editForm.control} name="responsibilities" render={({ field }) => (
-                            <FormItem><Label>Responsibilities</Label><FormControl><Textarea {...field} onChange={(e) => field.onChange(e.target.value.split('\n'))} value={Array.isArray(field.value) ? field.value.join('\n') : ''} /></FormControl><FormMessage /></FormItem>
-                        )}/>
-                    </CardContent>
-                    <CardFooter className="p-0 pt-4 flex justify-end gap-2">
-                        <Button type="button" variant="ghost" onClick={() => setEditingId(null)}>Cancel</Button>
-                        <Button type="submit">Save</Button>
-                    </CardFooter>
-                </Card>
-            </form>
+            <Form {...editForm}>
+                <form onSubmit={editForm.handleSubmit((data) => handleUpdate(index, data))}>
+                    <Card key={index} className="p-4 bg-muted/50">
+                        <CardContent className="p-0 space-y-4">
+                            <FormField control={editForm.control} name="role" render={({ field }) => (
+                                <FormItem><Label>Role</Label><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                            <FormField control={editForm.control} name="company" render={({ field }) => (
+                                <FormItem><Label>Company</Label><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                            <FormField control={editForm.control} name="duration" render={({ field }) => (
+                                <FormItem><Label>Duration</Label><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                            <FormField control={editForm.control} name="responsibilities" render={({ field }) => (
+                                <FormItem>
+                                    <Label>Responsibilities</Label>
+                                    <FormControl>
+                                        <Textarea {...field} 
+                                            onChange={(e) => field.onChange(e.target.value.split('\n'))} 
+                                            value={Array.isArray(field.value) ? field.value.join('\n') : ''} 
+                                            placeholder="Enter responsibilities, one per line."
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}/>
+                        </CardContent>
+                        <CardFooter className="p-0 pt-4 flex justify-end gap-2">
+                            <Button type="button" variant="ghost" onClick={() => setEditingId(null)}>Cancel</Button>
+                            <Button type="submit">Save</Button>
+                        </CardFooter>
+                    </Card>
+                </form>
+            </Form>
         );
       }
 
@@ -133,49 +145,43 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
             </CardContent>
         </Card>
         
-        <form onSubmit={form.handleSubmit(handleAddNew)}>
-            <Card className="glassmorphism">
-                <CardHeader>
-                    <CardTitle>Add New Experience</CardTitle>
-                    <CardDescription>Add a new role to your profile.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <FormField control={form.control} name="role" render={({ field }) => (
-                        <FormItem><Label>Role</Label><FormControl><Input {...field} placeholder="e.g., Software Engineer" /></FormControl><FormMessage /></FormItem>
-                    )}/>
-                    <FormField control={form.control} name="company" render={({ field }) => (
-                        <FormItem><Label>Company</Label><FormControl><Input {...field} placeholder="e.g., Google" /></FormControl><FormMessage /></FormItem>
-                    )}/>
-                     <FormField control={form.control} name="duration" render={({ field }) => (
-                        <FormItem><Label>Duration</Label><FormControl><Input {...field} placeholder="e.g., Jan 2020 - Present" /></FormControl><FormMessage /></FormItem>
-                    )}/>
-                    <FormField control={form.control} name="responsibilities" render={({ field }) => (
-                        <FormItem>
-                            <Label>Responsibilities</Label>
-                            <FormControl>
-                                <Textarea 
-                                    placeholder="Enter responsibilities, one per line."
-                                    onChange={(e) => field.onChange(e.target.value.split('\n'))}
-                                    value={Array.isArray(field.value) ? field.value.join('\n') : ''}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}/>
-                </CardContent>
-                <CardFooter>
-                    <Button type="submit"><PlusCircle className="mr-2 h-4 w-4" /> Add to History</Button>
-                </CardFooter>
-            </Card>
-        </form>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleAddNew)}>
+                <Card className="glassmorphism">
+                    <CardHeader>
+                        <CardTitle>Add New Experience</CardTitle>
+                        <CardDescription>Add a new role to your profile.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <FormField control={form.control} name="role" render={({ field }) => (
+                            <FormItem><Label>Role</Label><FormControl><Input {...field} placeholder="e.g., Software Engineer" /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                        <FormField control={form.control} name="company" render={({ field }) => (
+                            <FormItem><Label>Company</Label><FormControl><Input {...field} placeholder="e.g., Google" /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                        <FormField control={form.control} name="duration" render={({ field }) => (
+                            <FormItem><Label>Duration</Label><FormControl><Input {...field} placeholder="e.g., Jan 2020 - Present" /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                        <FormField control={form.control} name="responsibilities" render={({ field }) => (
+                            <FormItem>
+                                <Label>Responsibilities</Label>
+                                <FormControl>
+                                    <Textarea 
+                                        placeholder="Enter responsibilities, one per line."
+                                        onChange={(e) => field.onChange(e.target.value.split('\n'))}
+                                        value={Array.isArray(field.value) ? field.value.join('\n') : ''}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}/>
+                    </CardContent>
+                    <CardFooter>
+                        <Button type="submit"><PlusCircle className="mr-2 h-4 w-4" /> Add to History</Button>
+                    </CardFooter>
+                </Card>
+            </form>
+        </Form>
     </div>
   );
 }
-
-const professionalSchoema = z.object({
-  role: z.string().min(1, 'Role is required.'),
-  company: z.string().min(1, 'Company is required.'),
-  duration: z.string().min(1, 'Duration is required.'),
-  responsibilities: z.array(z.string()).min(1, "At least one responsibility is required."),
-});
-
