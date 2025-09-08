@@ -9,7 +9,7 @@ import Link from 'next/link';
 export default function Home() {
   return (
     <>
-       <section className="w-full relative overflow-hidden py-20 md:py-32 lg:py-40">
+       <section className="w-full relative overflow-hidden py-20 md:py-32 lg:py-40 bg-background">
         <div className="absolute inset-0 z-0">
             <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                 <defs>
