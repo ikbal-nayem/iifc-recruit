@@ -26,8 +26,8 @@ export default function CandidateProfileLayout({
     const segments = pathname.split('/');
     const lastSegment = segments[segments.length - 1];
     // if lastSegment is not in profileTabs values, default to personal
-    if (lastSegment === 'profile' || !profileTabs.some(tab => tab.href.endsWith(lastSegment))) {
-        return 'profile';
+    if (lastSegment === 'profile-edit' || !profileTabs.some(tab => tab.href.endsWith(lastSegment))) {
+        return 'profile-edit';
     }
     return lastSegment;
   }
