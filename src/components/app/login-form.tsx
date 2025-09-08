@@ -55,22 +55,21 @@ export default function LoginForm() {
 
   const onSubmit = (data: LoginFormValues) => {
     setIsLoading(true);
+    toast({
+      title: 'Login Successful',
+      description: 'Redirecting to your dashboard...',
+      variant: 'success',
+    });
 
-    setTimeout(() => {
-        toast({
-        title: 'Login Successful',
-        description: 'Redirecting to your dashboard...',
-        variant: 'success',
-        });
-
-        if (data.email.includes('admin')) {
-        router.push('/admin');
-        } else {
-        router.push('/candidate');
-        }
-        
-        setIsLoading(false);
-    }, 500)
+    if (data.email.includes('admin')) {
+      router.push('/admin');
+    } else {
+      router.push('/candidate');
+    }
+    
+    // We may not see the loading state change if redirection is too fast,
+    // but it's good practice to handle it.
+    setIsLoading(false);
   };
 
   return (
