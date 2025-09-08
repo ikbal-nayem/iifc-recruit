@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 export default function LoginPage() {
   return (
-    <div className="w-full min-h-screen grid grid-cols-1 lg:grid-cols-2">
+    <div className="w-full lg:min-h-screen grid grid-cols-1 lg:grid-cols-2">
       <div className="hidden lg:flex flex-col items-center justify-center p-12 bg-muted/50 relative overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
