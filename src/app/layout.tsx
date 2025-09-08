@@ -15,42 +15,15 @@ export default function RootLayout({
   params: { locale: string };
 }>) {
   const [isLoading, setIsLoading] = React.useState(true);
-  const [isFadingOut, setIsFadingOut] = React.useState(false);
 
   React.useEffect(() => {
-    const loadingTimer = setTimeout(() => {
+    const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1500); 
 
-     // Start fade-out animation
-    const fadeOutTimer = setTimeout(() => {
-      setIsFadingOut(true);
-    }, 1500);
-
-    return () => {
-      clearTimeout(loadingTimer);
-      clearTimeout(fadeOutTimer);
-    };
+    return () => clearTimeout(timer);
   }, []);
   
-  if (isLoading) {
-    return (
-       <html lang={locale} className="h-full">
-        <head>
-            <title>IIFC Recruit</title>
-            <meta name="description" content="Streamlining the recruitment process." />
-            <link rel="preconnect" href="https://fonts.googleapis.com" />
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-            <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Poppins:wght@400;500;700&display=swap" rel="stylesheet" />
-            <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet" />
-        </head>
-        <body className="font-body antialiased flex flex-col min-h-screen">
-            <SplashScreen isFadingOut={isFadingOut} />
-        </body>
-      </html>
-    )
-  }
-
   return (
     <html lang={locale} className="h-full">
       <head>
@@ -62,6 +35,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased flex flex-col min-h-screen">
+        <SplashScreen isFinished={!isLoading} />
         <TopLoader />
         {children}
         <Toaster />
