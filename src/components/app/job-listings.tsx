@@ -101,7 +101,13 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 
 
   const JobCard = ({ job, view, index }: { job: Job, view: 'grid' | 'list', index: number}) => {
-    const jobUrl = isCandidateRoute ? `/candidate/jobs/${job.id}` : `/jobs/${job.id}`;
+    const queryParams = new URLSearchParams();
+    if (filters.keyword) queryParams.set('keyword', filters.keyword);
+    if (filters.location !== 'all') queryParams.set('location', filters.location);
+    if (filters.department !== 'all') queryParams.set('department', filters.department);
+    if (filters.type !== 'all') queryParams.set('type', filters.type);
+
+    const jobUrl = `${isCandidateRoute ? '/candidate' : ''}/jobs/${job.id}?${queryParams.toString()}`;
     
     if (view === 'list') {
         return (
