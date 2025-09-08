@@ -1,26 +1,18 @@
 
-
 import LoginForm from '@/components/app/login-form';
-import Image from 'next/image';
-import BannerIcon from '/public/login-banner.svg';
+import { LoginBanner } from '@/components/app/login-banner';
 
 export default function LoginPage() {
   return (
-    <div className="w-full min-h-screen grid grid-cols-1 lg:grid-cols-2">
-      <div className="hidden lg:flex flex-col items-center justify-center p-12 bg-muted/50 relative">
-        <Image src={BannerIcon} alt="Login Banner" layout='fill' objectFit='contain' className="p-12"/>
+    <div className="w-full min-h-screen flex items-center justify-center p-4 relative">
+      <div className="absolute inset-0 z-[-1] opacity-70">
+        <LoginBanner />
       </div>
-      <main className="flex flex-col items-center justify-center p-4 bg-background">
-        <div className="w-full max-w-sm">
-           <div className="lg:hidden flex flex-col items-center justify-center space-y-4 mb-8">
-             <Image src="/iifc-logo.png" alt="IIFC Logo" width={48} height={48} className="h-12 w-auto" />
-            <h1 className="text-3xl font-headline font-bold text-center">
-                IIFC Recruit
-            </h1>
-          </div>
+      <div className="w-full max-w-sm z-10">
+        <div className="p-8 bg-background/80 backdrop-blur-lg rounded-xl border shadow-2xl">
           <LoginForm />
         </div>
-      </main>
+      </div>
     </div>
   );
 }

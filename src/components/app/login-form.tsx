@@ -6,18 +6,16 @@ import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { LogIn, Mail, Lock } from 'lucide-react';
+import { Mail, Lock } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  Card,
-  CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
-  CardFooter,
 } from '@/components/ui/card';
 import {
   Form,
@@ -28,7 +26,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Separator } from '../ui/separator';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address.' }),
@@ -56,27 +53,32 @@ export default function LoginForm() {
   const onSubmit = (data: LoginFormValues) => {
     setIsLoading(true);
 
-    toast({
-      title: 'Login Successful',
-      description: 'Redirecting to your dashboard...',
-      variant: 'success',
-    });
+    setTimeout(() => {
+        toast({
+        title: 'Login Successful',
+        description: 'Redirecting to your dashboard...',
+        variant: 'success',
+        });
 
-    if (data.email.includes('admin')) {
-      router.push('/admin');
-    } else {
-      router.push('/candidate');
-    }
-    
-    setIsLoading(false);
+        if (data.email.includes('admin')) {
+        router.push('/admin');
+        } else {
+        router.push('/candidate');
+        }
+        
+        setIsLoading(false);
+    }, 500)
   };
 
   return (
     <>
         <CardHeader className="text-center p-0 mb-8">
-            <CardTitle className="text-3xl font-bold font-headline">Sign in to your account</CardTitle>
+            <div className="flex justify-center mb-4">
+               <Image src="/iifc-logo.png" alt="IIFC Logo" width={48} height={48} className="h-12 w-auto" />
+            </div>
+            <CardTitle className="text-3xl font-bold font-headline">Welcome Back</CardTitle>
             <CardDescription className="pt-2">
-            Enter your credentials to access your dashboard.
+            Sign in to access your account.
             </CardDescription>
         </CardHeader>
         <Form {...form}>
@@ -90,7 +92,7 @@ export default function LoginForm() {
                   <FormControl>
                     <div className="relative">
                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                       <Input placeholder="you@example.com" {...field} className="pl-10" />
+                       <Input placeholder="you@example.com" {...field} className="pl-10 h-11" />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -104,28 +106,28 @@ export default function LoginForm() {
                 <FormItem>
                    <div className="flex items-center">
                         <FormLabel>Password</FormLabel>
-                        <Link href="#" className="ml-auto inline-block text-sm underline">
-                            Forgot your password?
+                        <Link href="#" className="ml-auto inline-block text-sm text-primary hover:underline">
+                            Forgot password?
                         </Link>
                     </div>
                    <FormControl>
                      <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input type="password" placeholder="••••••••" {...field} className="pl-10"/>
+                        <Input type="password" placeholder="••••••••" {...field} className="pl-10 h-11"/>
                      </div>
                    </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
               {isLoading ? 'Signing In...' : 'Sign In'}
             </Button>
           </form>
         </Form>
         <div className="mt-6 text-center text-sm">
-            Don't have an account?{' '}
-            <Link href="/signup" className="underline">Sign up</Link>
+            Don&apos;t have an account?{' '}
+            <Link href="/signup" className="font-semibold text-primary hover:underline">Sign up</Link>
         </div>
     </>
   );
