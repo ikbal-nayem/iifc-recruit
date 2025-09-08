@@ -41,7 +41,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MoreHorizontal, FileText, Star, Send, Briefcase } from 'lucide-react';
+import { MoreHorizontal, FileText, Star, Send, Briefcase, Mail, Phone, MapPin } from 'lucide-react';
 import type { Candidate, Application, Job } from '@/lib/types';
 import { candidates as initialCandidates, applications as allApplications, jobs as allJobs } from '@/lib/data';
 import { CandidateProfileView } from '@/components/app/candidate-profile-view';
@@ -56,6 +56,8 @@ export function CandidateManagement() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [selectedCandidate, setSelectedCandidate] = React.useState<Candidate | null>(null);
   const [applicationsCandidate, setApplicationsCandidate] = React.useState<Candidate | null>(null);
+  const [contactCandidate, setContactCandidate] = React.useState<Candidate | null>(null);
+
 
   const getCandidateApplications = (candidateId: string): ApplicationWithJob[] => {
     return allApplications
@@ -130,8 +132,8 @@ export function CandidateManagement() {
               <DropdownMenuItem onClick={() => setApplicationsCandidate(candidate)}>
                 <Briefcase className="mr-2 h-4 w-4" /> View Applications
               </DropdownMenuItem>
-               <DropdownMenuItem>
-                <Send className="mr-2 h-4 w-4" /> Contact
+               <DropdownMenuItem onClick={() => setContactCandidate(candidate)}>
+                <Send className="mr-2 h-4 w-4" /> Contact Info
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -187,8 +189,8 @@ export function CandidateManagement() {
             <DropdownMenuItem onClick={() => setApplicationsCandidate(candidate)}>
               <Briefcase className="mr-2 h-4 w-4" /> View Applications
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Send className="mr-2 h-4 w-4" /> Contact
+            <DropdownMenuItem onClick={() => setContactCandidate(candidate)}>
+              <Send className="mr-2 h-4 w-4" /> Contact Info
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -325,6 +327,36 @@ export function CandidateManagement() {
           )}
         </DialogContent>
       </Dialog>
+      <Dialog open={!!contactCandidate} onOpenChange={(isOpen) => !isOpen && setContactCandidate(null)}>
+        <DialogContent className="sm:max-w-md">
+          {contactCandidate && (
+            <>
+                <DialogHeader>
+                    <DialogTitle>Contact {contactCandidate.personalInfo.name}</DialogTitle>
+                    <DialogDescription>
+                        Direct contact information for the candidate.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                     <div className="flex items-center gap-4">
+                        <Mail className="h-5 w-5 text-muted-foreground" />
+                        <a href={`mailto:${contactCandidate.personalInfo.email}`} className="text-sm hover:underline">{contactCandidate.personalInfo.email}</a>
+                     </div>
+                      <div className="flex items-center gap-4">
+                        <Phone className="h-5 w-5 text-muted-foreground" />
+                        <a href={`tel:${contactCandidate.personalInfo.phone}`} className="text-sm hover:underline">{contactCandidate.personalInfo.phone}</a>
+                     </div>
+                      <div className="flex items-start gap-4">
+                        <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
+                        <p className="text-sm">
+                            {contactCandidate.personalInfo.address.line1}, {contactCandidate.personalInfo.address.upazila}, {contactCandidate.personalInfo.address.district}
+                        </p>
+                     </div>
+                </div>
+            </>
+          )}
+        </DialogContent>
+       </Dialog>
     </div>
   );
 }
