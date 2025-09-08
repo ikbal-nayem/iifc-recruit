@@ -1,39 +1,44 @@
-
-import { jobs as allJobs } from '@/lib/data';
-import { notFound } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Briefcase, MapPin, Clock, Building, DollarSign, Calendar, ArrowLeft } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import Link from 'next/link';
 import { JobDetailClient } from '@/components/app/candidate/job-detail-client';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { jobs as allJobs } from '@/lib/data';
+import { ArrowLeft, Briefcase, Clock, DollarSign, MapPin } from 'lucide-react';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
-export default function JobDetailsPage({ params, searchParams }: { params: { id: string }, searchParams: { [key: string]: string | string[] | undefined } }) {
+export default function JobDetailsPage({
+	params,
+	searchParams,
+}: {
+	params: { id: string };
+	searchParams: { [key: string]: string | string[] | undefined };
+}) {
 	const job = allJobs.find((j) => j.id === params?.id);
 
 	if (!job) {
 		notFound();
 	}
 
-    const queryParams = new URLSearchParams();
-    for (const key in searchParams) {
-        const value = searchParams[key];
-        if (typeof value === 'string') {
-            queryParams.set(key, value);
-        }
-    }
-    const backUrl = `/jobs?${queryParams.toString()}`;
+	const queryParams = new URLSearchParams();
+	for (const key in searchParams) {
+		const value = searchParams[key];
+		if (typeof value === 'string') {
+			queryParams.set(key, value);
+		}
+	}
+	const backUrl = `/jobs?${queryParams.toString()}`;
 
 	return (
 		<div className='container mx-auto px-4 py-16'>
-             <div className="mb-6">
-                <Button variant="outline" asChild>
-                    <Link href={backUrl}>
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to Listings
-                    </Link>
-                </Button>
-            </div>
+			<div className='mb-6'>
+				<Button variant='outline' asChild>
+					<Link href={backUrl}>
+						<ArrowLeft className='mr-2 h-4 w-4' />
+						Back
+					</Link>
+				</Button>
+			</div>
 			<div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
 				<div className='lg:col-span-3'>
 					<Card className='glassmorphism'>
