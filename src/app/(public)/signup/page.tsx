@@ -14,7 +14,7 @@ export default function SignupPage() {
         </div>
         <div className="relative z-10 text-center">
           <Image src="/iifc-logo.png" alt="IIFC Logo" width={80} height={80} className="h-20 w-auto mx-auto mb-4" />
-          <h1 className="text-4xl font-headline font-bold text-primary/70">
+          <h1 className="text-4xl font-headline font-bold text-primary">
             Your Gateway to Opportunity
           </h1>
         </div>

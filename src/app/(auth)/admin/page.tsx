@@ -5,9 +5,6 @@ import { AdminDashboardRecentActivity, AdminDashboardRecentActivitySkeleton } fr
 import { jobs, candidates, applications } from '@/lib/data';
 
 async function getDashboardData() {
-  // Simulate network latency - REMOVED
-  // await new Promise(resolve => setTimeout(resolve, 500));
-  
   const openJobs = jobs.filter(j => j.status === 'Open').length;
   const totalCandidates = candidates.length;
   const newApplications = applications.filter(a => a.status === 'Applied' || a.status === 'Screening').length;
