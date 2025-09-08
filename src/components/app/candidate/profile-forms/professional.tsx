@@ -16,19 +16,27 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import type { Candidate, ProfessionalInfo } from '@/lib/types';
 import { PlusCircle, Trash, Save, Edit, FileText, Upload, X } from 'lucide-react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { format, parseISO } from 'date-fns';
 
 const professionalInfoSchema = z.object({
   role: z.string().min(1, 'Role is required.'),
   company: z.string().min(1, 'Company is required.'),
-  duration: z.string().min(1, 'Duration is required.'),
+  fromDate: z.string().min(1, 'Start date is required.'),
+  toDate: z.string().optional(),
+  isPresent: z.boolean(),
   responsibilities: z.string().min(1, 'Please list at least one responsibility.'),
   documentUrls: z.array(z.string()).optional(),
+}).refine(data => !data.isPresent ? !!data.toDate : true, {
+    message: "End date is required unless you are currently working here.",
+    path: ["toDate"],
 });
+
 
 type ProfessionalFormValues = z.infer<typeof professionalInfoSchema>;
 
@@ -66,7 +74,7 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
 
   const form = useForm<ProfessionalFormValues>({
     resolver: zodResolver(professionalInfoSchema),
-    defaultValues: { role: '', company: '', duration: '', responsibilities: '', documentUrls: [] },
+    defaultValues: { role: '', company: '', fromDate: '', toDate: '', isPresent: false, responsibilities: '', documentUrls: [] },
   });
 
   const editForm = useForm<ProfessionalFormValues>({
@@ -76,11 +84,12 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
   const handleAddNew = (data: ProfessionalFormValues) => {
     const newEntry: ProfessionalInfo = { 
         ...data,
+        toDate: data.isPresent ? undefined : data.toDate,
         responsibilities: data.responsibilities.split('\n'),
         documentUrls: addFormFiles.map(f => f.name) 
     };
     setHistory([...history, newEntry]);
-    form.reset({ role: '', company: '', duration: '', responsibilities: '', documentUrls: [] });
+    form.reset({ role: '', company: '', fromDate: '', toDate: '', isPresent: false, responsibilities: '', documentUrls: [] });
     setAddFormFiles([]);
   };
 
@@ -88,6 +97,7 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
     const updatedHistory = [...history];
     const newEntry: ProfessionalInfo = { 
         ...data,
+        toDate: data.isPresent ? undefined : data.toDate,
         responsibilities: data.responsibilities.split('\n'),
         documentUrls: editFormFiles.map(f => f.name) 
     };
@@ -120,6 +130,8 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
       setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
+  const watchIsPresent = editForm.watch("isPresent");
+
   const renderItem = (item: ProfessionalInfo, index: number) => {
     if (editingId === index) {
       return (
@@ -149,17 +161,43 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                             </FormItem>
                         )}
                         />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                             <FormField
+                                control={editForm.control}
+                                name="fromDate"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <Label>From</Label>
+                                    <FormControl><Input type="date" {...field} /></FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={editForm.control}
+                                name="toDate"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <Label>To</Label>
+                                    <FormControl><Input type="date" {...field} disabled={watchIsPresent} /></FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
                          <FormField
-                        control={editForm.control}
-                        name="duration"
-                        render={({ field }) => (
-                            <FormItem>
-                            <Label>Duration</Label>
-                            <FormControl><Input {...field} placeholder="e.g., 2020 - Present" /></FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
+                            control={editForm.control}
+                            name="isPresent"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                                <div className="space-y-1 leading-none">
+                                    <Label>I currently work here</Label>
+                                </div>
+                                </FormItem>
+                            )}
                         />
+
                         <FormField
                         control={editForm.control}
                         name="responsibilities"
@@ -210,12 +248,16 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
         </Form>
       );
     }
+    
+    const fromDate = format(parseISO(item.fromDate), 'MMM yyyy');
+    const toDate = item.isPresent ? 'Present' : item.toDate ? format(parseISO(item.toDate), 'MMM yyyy') : '';
+
 
     return (
       <Card key={index} className="p-4 flex justify-between items-start">
           <div>
               <p className="font-semibold">{item.role}</p>
-              <p className="text-sm text-muted-foreground">{item.company} &middot; {item.duration}</p>
+              <p className="text-sm text-muted-foreground">{item.company} &middot; {fromDate} - {toDate}</p>
               {item.documentUrls && item.documentUrls.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2">
                       {item.documentUrls.map((url, i) => (
@@ -284,17 +326,43 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                             </FormItem>
                         )}
                         />
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                            <FormField
+                                control={form.control}
+                                name="fromDate"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <Label>From</Label>
+                                    <FormControl><Input type="date" {...field} /></FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="toDate"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <Label>To</Label>
+                                    <FormControl><Input type="date" {...field} disabled={form.watch('isPresent')} /></FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
                         <FormField
-                        control={form.control}
-                        name="duration"
-                        render={({ field }) => (
-                            <FormItem>
-                            <Label>Duration</Label>
-                            <FormControl><Input {...field} placeholder="e.g. 2022 - Present"/></FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
+                            control={form.control}
+                            name="isPresent"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                                <div className="space-y-1 leading-none">
+                                    <Label>I currently work here</Label>
+                                </div>
+                                </FormItem>
+                            )}
                         />
+
                         <FormField
                         control={form.control}
                         name="responsibilities"

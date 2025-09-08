@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -12,10 +13,17 @@ import { Mail, Phone, MapPin, Building, Briefcase, GraduationCap, Award, BookOpe
 import type { Candidate } from '@/lib/types';
 import { Button } from '../ui/button';
 import Link from 'next/link';
+import { format, parseISO } from 'date-fns';
 
 interface CandidateProfileViewProps {
     candidate: Candidate;
 }
+
+const formatDateRange = (fromDate: string, toDate?: string, isPresent?: boolean) => {
+    const start = format(parseISO(fromDate), 'MMM yyyy');
+    const end = isPresent ? 'Present' : toDate ? format(parseISO(toDate), 'MMM yyyy') : '';
+    return `${start} - ${end}`;
+};
 
 export function CandidateProfileView({ candidate }: CandidateProfileViewProps) {
   const {
@@ -70,7 +78,7 @@ export function CandidateProfileView({ candidate }: CandidateProfileViewProps) {
                             <div key={index} className="border-l-2 border-primary pl-4">
                                 <h3 className="font-semibold">{exp.role}</h3>
                                 <p className="text-sm text-muted-foreground">{exp.company}</p>
-                                <p className="text-xs text-muted-foreground">{exp.duration}</p>
+                                <p className="text-xs text-muted-foreground">{formatDateRange(exp.fromDate, exp.toDate, exp.isPresent)}</p>
                                 <ul className="list-disc list-inside mt-2 text-sm text-muted-foreground space-y-1">
                                     {exp.responsibilities.map((resp, i) => <li key={i}>{resp}</li>)}
                                 </ul>

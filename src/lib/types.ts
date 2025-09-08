@@ -1,3 +1,4 @@
+
 export type UserRole = 'candidate' | 'admin';
 
 export type Address = {
@@ -28,7 +29,9 @@ export type AcademicInfo = {
 export type ProfessionalInfo = {
   company: string;
   role: string;
-  duration: string;
+  fromDate: string;
+  toDate?: string;
+  isPresent: boolean;
   responsibilities: string[];
   documentUrls?: string[];
 };
@@ -105,3 +108,4 @@ export type Activity = {
   action: string;
   target: string;
   timestamp: string;
+};

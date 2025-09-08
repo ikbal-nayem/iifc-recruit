@@ -1,5 +1,6 @@
+
 import type { Candidate, Job, Application, Activity } from './types';
-import { subDays, format, subMonths, addDays } from 'date-fns';
+import { subDays, format, subMonths, addDays, subYears } from 'date-fns';
 
 export const candidates: Candidate[] = [
 	{
@@ -31,13 +32,16 @@ export const candidates: Candidate[] = [
 			{
 				company: 'TechCorp',
 				role: 'Senior Frontend Developer',
-				duration: '2019 - Present',
+        fromDate: format(new Date(2019, 0, 1), 'yyyy-MM-dd'),
+        isPresent: true,
 				responsibilities: ['Led development of a new design system', 'Mentored junior developers'],
 			},
 			{
 				company: 'Innovate LLC',
 				role: 'Frontend Developer',
-				duration: '2016 - 2019',
+        fromDate: format(new Date(2016, 5, 1), 'yyyy-MM-dd'),
+        toDate: format(new Date(2018, 11, 31), 'yyyy-MM-dd'),
+        isPresent: false,
 				responsibilities: [
 					'Built and maintained client-facing web applications',
 					'Collaborated with UI/UX designers',
@@ -96,7 +100,8 @@ export const candidates: Candidate[] = [
 			{
 				company: 'Solutions Inc.',
 				role: 'Product Manager',
-				duration: '2018 - Present',
+        fromDate: format(new Date(2018, 8, 1), 'yyyy-MM-dd'),
+        isPresent: true,
 				responsibilities: [
 					'Defined product roadmap for B2B SaaS platform',
 					'Conducted market research and user interviews',
@@ -139,7 +144,8 @@ export const candidates: Candidate[] = [
 			{
 				company: 'DataWiz',
 				role: 'Data Scientist',
-				duration: '2020 - Present',
+        fromDate: format(new Date(2020, 0, 15), 'yyyy-MM-dd'),
+        isPresent: true,
 				responsibilities: [
 					'Developed predictive models for customer churn',
 					'Built data visualization dashboards in Tableau',
@@ -182,7 +188,8 @@ export const candidates: Candidate[] = [
 			{
 				company: 'Creative Minds',
 				role: 'UX/UI Designer',
-				duration: '2019 - Present',
+        fromDate: format(new Date(2019, 6, 1), 'yyyy-MM-dd'),
+        isPresent: true,
 				responsibilities: ['Designed user flows and wireframes', 'Conducted usability testing sessions'],
 			},
 		],
