@@ -30,6 +30,7 @@ export type ProfessionalInfo = {
   role: string;
   duration: string;
   responsibilities: string[];
+  documentUrls?: string[];
 };
 
 export type Certification = {
@@ -104,4 +105,3 @@ export type Activity = {
   action: string;
   target: string;
   timestamp: string;
-};
