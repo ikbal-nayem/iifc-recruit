@@ -39,22 +39,9 @@ export const adminNavLinks: NavLink[] = [
 				isActive: (pathname) => pathname === '/admin/jobs' || /^\/admin\/jobs\/\w+$/.test(pathname),
 			},
 			{ href: '/admin/jobs/create', label: 'Create New', icon: PlusCircle },
-			{
-				href: '#',
-				label: 'Edit Job',
-				icon: Edit,
-				isActive: (pathname) => /^\/admin\/jobs\/\w+\/edit$/.test(pathname),
-			},
 		],
 	},
 	{ href: '/admin/candidates', label: 'Candidates', icon: Users },
-	{
-		href: '/admin/applications',
-		label: 'Applications',
-		icon: FileText,
-		isActive: (pathname) =>
-			pathname.startsWith('/admin/applications') || /^\/admin\/jobs\/\w+\/applicants$/.test(pathname),
-	},
 ];
 
 export const candidateNavLinks: NavLink[] = [
