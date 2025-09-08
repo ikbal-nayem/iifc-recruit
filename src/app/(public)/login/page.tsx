@@ -2,15 +2,13 @@
 import LoginForm from '@/components/app/login-form';
 import Image from 'next/image';
 import Link from 'next/link';
+import { LoginBanner } from '@/components/app/login-banner';
 
 export default function LoginPage() {
   return (
     <div className="w-full min-h-screen grid grid-cols-1 lg:grid-cols-2">
-      <div className="hidden lg:flex flex-col items-center justify-center p-12 bg-no-repeat bg-cover bg-center" style={{ backgroundImage: "url('/login-bg.jpg')" }}>
-        <div className="text-center text-white p-6 bg-black/50 rounded-lg">
-            <h1 className="text-4xl font-bold font-headline">Let's get you started</h1>
-            <p className="text-white/80 mt-2">Access your account and find your next opportunity.</p>
-        </div>
+      <div className="hidden lg:flex flex-col items-center justify-center p-12 bg-muted/50">
+        <LoginBanner />
       </div>
       <main className="flex flex-col items-center justify-center p-4 bg-background">
         <div className="w-full max-w-sm">
