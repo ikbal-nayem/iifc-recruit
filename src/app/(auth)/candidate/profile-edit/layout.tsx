@@ -1,15 +1,12 @@
+
 'use client';
 
 import * as React from 'react';
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { candidateNavLinks } from '@/lib/nav-links';
+import { cn } from '@/lib/utils';
+import { Card, CardContent } from '@/components/ui/card';
 
 const profileTabs = candidateNavLinks.find(item => item.label === 'Edit Profile')?.submenu || [];
 
@@ -20,31 +17,6 @@ export default function CandidateProfileLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const router = useRouter();
-
-  const getCurrentTab = () => {
-    const segments = pathname.split('/');
-    const lastSegment = segments[segments.length - 1];
-    // if lastSegment is not in profileTabs values, default to personal
-    if (lastSegment === 'profile-edit' || !profileTabs.some(tab => tab.href.endsWith(lastSegment))) {
-        return 'profile-edit';
-    }
-    return lastSegment;
-  }
-  
-  const [activeTab, setActiveTab] = React.useState(getCurrentTab());
-  
-  React.useEffect(() => {
-    setActiveTab(getCurrentTab());
-  }, [pathname]);
-
-  const handleTabChange = (value: string) => {
-    const tab = profileTabs.find(tab => (tab.href.split('/').pop() || 'profile') === value);
-    if (tab) {
-        router.push(tab.href);
-    }
-  };
-
 
   return (
      <div className="space-y-8">
@@ -56,24 +28,33 @@ export default function CandidateProfileLayout({
           Keep your profile updated to attract the best opportunities.
         </p>
       </div>
-       <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <ScrollArea className="w-full whitespace-nowrap">
-            <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0">
-                {profileTabs.map(tab => {
-                     const value = tab.href.split('/').pop() || 'profile';
-                    return (
-                        <TabsTrigger key={value} value={value} asChild>
-                            <Link href={tab.href}>{tab.label}</Link>
-                        </TabsTrigger>
-                    )
-                })}
-            </TabsList>
-            <ScrollBar orientation="horizontal" className="invisible"/>
-        </ScrollArea>
-        <div className="mt-6">
+       <div className="grid grid-cols-1 md:grid-cols-4 gap-8 items-start">
+         <Card className="md:col-span-1 glassmorphism">
+            <CardContent className="p-2">
+                <nav className="flex flex-col space-y-1">
+                    {profileTabs.map(tab => (
+                        <Link 
+                            key={tab.href} 
+                            href={tab.href}
+                            className={cn(
+                                "py-2 px-4 rounded-md text-sm font-medium transition-colors",
+                                (tab.isActive ? tab.isActive(pathname) : pathname === tab.href)
+                                ? "bg-primary/10 text-primary"
+                                : "hover:bg-muted/50"
+                            )}
+                        >
+                            {tab.label}
+                        </Link>
+                    ))}
+                </nav>
+            </CardContent>
+         </Card>
+         <div className="md:col-span-3">
              {children}
-        </div>
-        </Tabs>
+         </div>
+       </div>
     </div>
   );
 }
+
+    
