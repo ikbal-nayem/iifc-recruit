@@ -9,28 +9,7 @@ import Link from 'next/link';
 export default function Home() {
   return (
     <>
-       <section className="w-full relative overflow-hidden py-20 md:py-32 lg:py-40 bg-background">
-        <div className="absolute inset-0 z-0">
-            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <pattern id="pattern-circles" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse" patternContentUnits="userSpaceOnUse">
-                        <circle id="pattern-circle" cx="20" cy="20" r="1" className="text-primary/10" fill="currentColor"></circle>
-                    </pattern>
-                </defs>
-                <rect width="100%" height="100%" fill="url(#pattern-circles)"></rect>
-                 <style>
-                    {`
-                        @keyframes move {
-                            0% { transform: translateY(0); }
-                            100% { transform: translateY(-40px); }
-                        }
-                        #pattern-circles {
-                            animation: move 4s linear infinite;
-                        }
-                    `}
-                </style>
-            </svg>
-        </div>
+       <section className="w-full py-20 md:py-32 lg:py-40 hero-gradient">
         <div className="container relative z-10 mx-auto px-4 md:px-6 text-center">
           <div className="max-w-3xl mx-auto">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-headline font-bold mb-4">
