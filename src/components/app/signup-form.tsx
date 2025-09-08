@@ -9,6 +9,7 @@ import * as z from 'zod';
 import { Mail, User, Lock } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import NProgress from 'nprogress';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -56,6 +57,7 @@ export default function SignupForm() {
   });
 
   const onSubmit = async (data: SignupFormValues) => {
+    NProgress.start();
     setIsLoading(true);
 
     // Simulate API call

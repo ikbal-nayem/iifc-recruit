@@ -1,9 +1,11 @@
+
 'use client';
 
 import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Building2, LogOut, User, UserCog } from 'lucide-react';
+import NProgress from 'nprogress';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,6 +43,11 @@ export default function Header() {
     if (role === 'candidate') {
         user = candidates[0].personalInfo;
     } 
+
+    const handleLogout = () => {
+        NProgress.start();
+        router.push('/login');
+    }
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6">
@@ -88,7 +95,7 @@ export default function Header() {
             <span>Edit Profile</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => router.push('/login')}>
+          <DropdownMenuItem onClick={handleLogout}>
             <LogOut className="mr-2 h-4 w-4" />
             <span>Log out</span>
           </DropdownMenuItem>

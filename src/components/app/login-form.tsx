@@ -9,6 +9,7 @@ import * as z from 'zod';
 import { Mail, Lock } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import NProgress from 'nprogress';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -54,6 +55,7 @@ export default function LoginForm() {
   });
 
   const onSubmit = (data: LoginFormValues) => {
+    NProgress.start();
     setIsLoading(true);
     toast({
       title: 'Login Successful',
