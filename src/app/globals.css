@@ -17,7 +17,7 @@ body {
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
 
-    --primary: 243 78% 61%;
+    --primary: 120 40% 33%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 240 4.8% 95.9%;
@@ -34,9 +34,9 @@ body {
 
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 243 78% 61%;
+    --ring: 120 40% 33%;
     
-    --chart-1: 243 78% 61%;
+    --chart-1: 120 40% 33%;
     --chart-2: 180 100% 25%;
     --chart-3: 260 85% 65%;
     --chart-4: 220 75% 60%;
