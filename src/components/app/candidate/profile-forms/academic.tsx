@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { Candidate, AcademicInfo } from '@/lib/types';
-import { PlusCircle, Trash, Save, Edit, FileText, Upload } from 'lucide-react';
+import { PlusCircle, Trash, Save, Edit, FileText, Upload, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -34,15 +34,27 @@ interface ProfileFormProps {
   candidate: Candidate;
 }
 
-const FilePreview = ({ file, onRemove }: { file: File; onRemove: () => void }) => (
-    <Badge variant="secondary" className="flex items-center gap-2">
-      <FileText className="h-3 w-3" />
-      <span className="truncate max-w-xs">{file.name} ({(file.size / 1024).toFixed(1)} KB)</span>
-      <Button variant="ghost" size="icon" className="h-4 w-4 text-muted-foreground hover:text-foreground" onClick={onRemove}>
-        <Trash className="h-3 w-3" />
-      </Button>
-    </Badge>
-);
+const FilePreview = ({ file, onRemove }: { file: File | string; onRemove: () => void }) => {
+    const isFile = file instanceof File;
+    const name = isFile ? file.name : file;
+    const size = isFile ? `(${(file.size / 1024).toFixed(1)} KB)` : '';
+
+    return (
+        <div className="p-2 border rounded-lg flex items-center justify-between bg-muted/50">
+            <div className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-primary" />
+                <div className="text-sm">
+                    <p className="font-medium truncate max-w-xs">{name}</p>
+                    {size && <p className="text-xs text-muted-foreground">{size}</p>}
+                </div>
+            </div>
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onRemove}>
+                <X className="h-4 w-4" />
+            </Button>
+        </div>
+    )
+};
+
 
 export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
   const [history, setHistory] = React.useState(candidate.academicInfo);
@@ -153,7 +165,14 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
                                     </label>
                                 </div>
                             </FormControl>
-                            <div className="flex flex-wrap gap-2 mt-2">
+                             <div className="space-y-2 mt-2">
+                                {item.certificateUrls?.map((url, i) => (
+                                    <FilePreview key={i} file={url} onRemove={() => {
+                                        const updatedCerts = [...item.certificateUrls || []];
+                                        updatedCerts.splice(i, 1);
+                                        editForm.setValue('certificateUrls', updatedCerts);
+                                    }} />
+                                ))}
                                 {editFormFiles.map((file, i) => (
                                     <FilePreview key={i} file={file} onRemove={() => handleRemoveFile(i, setEditFormFiles)} />
                                 ))}
@@ -270,7 +289,7 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
                                     </label>
                                 </div>
                             </FormControl>
-                            <div className="flex flex-wrap gap-2 mt-2">
+                            <div className="space-y-2 mt-2">
                                 {addFormFiles.map((file, i) => (
                                     <FilePreview key={i} file={file} onRemove={() => handleRemoveFile(i, setAddFormFiles)} />
                                 ))}
