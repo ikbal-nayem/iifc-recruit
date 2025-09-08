@@ -48,6 +48,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -55,17 +64,19 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 
-import { MoreHorizontal, PlusCircle, Trash, Edit, FileText, Users } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Trash, Edit, FileText, Users, Check, ChevronsUpDown } from 'lucide-react';
 import Link from 'next/link';
 
 import type { Job } from '@/lib/types';
 import { jobs as initialJobs } from '@/lib/data';
+import { cn } from '@/lib/utils';
 
 export function JobManagement() {
   const [data, setData] = React.useState<Job[]>(initialJobs);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [selectedJob, setSelectedJob] = React.useState<Job | null>(null);
+  const [departmentPopoverOpen, setDepartmentPopoverOpen] = React.useState(false);
 
   const uniqueDepartments = ['all', ...Array.from(new Set(initialJobs.map(job => job.department)))];
   const uniqueLocations = ['all', ...Array.from(new Set(initialJobs.map(job => job.location)))];
@@ -195,17 +206,48 @@ export function JobManagement() {
           className="max-w-sm w-full"
         />
         <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-             <Select
-                value={(table.getColumn('department')?.getFilterValue() as string) ?? 'all'}
-                onValueChange={(value) => table.getColumn('department')?.setFilterValue(value === 'all' ? null : value)}
-             >
-                <SelectTrigger className="w-full sm:w-auto md:w-[180px]">
-                    <SelectValue placeholder="All Departments" />
-                </SelectTrigger>
-                <SelectContent>
-                     {uniqueDepartments.map(dep => <SelectItem key={dep} value={dep}>{dep === 'all' ? 'All Departments' : dep}</SelectItem>)}
-                </SelectContent>
-             </Select>
+             <Popover open={departmentPopoverOpen} onOpenChange={setDepartmentPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={departmentPopoverOpen}
+                    className="w-full sm:w-auto md:w-[180px] justify-between"
+                  >
+                    {table.getColumn('department')?.getFilterValue() || 'All Departments'}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[180px] p-0">
+                  <Command>
+                    <CommandInput placeholder="Search department..." />
+                    <CommandList>
+                        <CommandEmpty>No department found.</CommandEmpty>
+                        <CommandGroup>
+                        {uniqueDepartments.map((dep) => (
+                            <CommandItem
+                            key={dep}
+                            value={dep}
+                            onSelect={(currentValue) => {
+                                table.getColumn('department')?.setFilterValue(currentValue === 'all' ? null : currentValue);
+                                setDepartmentPopoverOpen(false);
+                            }}
+                            >
+                            <Check
+                                className={cn(
+                                "mr-2 h-4 w-4",
+                                table.getColumn('department')?.getFilterValue() === dep ? "opacity-100" : "opacity-0"
+                                )}
+                            />
+                            {dep === 'all' ? 'All Departments' : dep}
+                            </CommandItem>
+                        ))}
+                        </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+
             <Select
                  value={(table.getColumn('status')?.getFilterValue() as string) ?? 'all'}
                  onValueChange={(value) => table.getColumn('status')?.setFilterValue(value === 'all' ? null : value)}
