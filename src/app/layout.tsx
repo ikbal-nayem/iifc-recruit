@@ -1,3 +1,4 @@
+
 // src/app/layout.tsx
 'use client';
 
@@ -14,14 +15,11 @@ export default function RootLayout({
   children: React.ReactNode;
   params: { locale: string };
 }>) {
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isFinished, setIsFinished] = React.useState(false);
 
   React.useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500); 
-
-    return () => clearTimeout(timer);
+    const timeout = setTimeout(() => setIsFinished(true), 500); // Duration of fade-out animation
+    return () => clearTimeout(timeout);
   }, []);
   
   return (
@@ -35,7 +33,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased flex flex-col min-h-screen">
-        <SplashScreen isFinished={!isLoading} />
+        {!isFinished && <SplashScreen isFinished={isFinished} />}
         <TopLoader />
         {children}
         <Toaster />

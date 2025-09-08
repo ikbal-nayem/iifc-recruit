@@ -60,9 +60,6 @@ export default function SignupForm() {
     NProgress.start();
     setIsLoading(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-
     toast({
       title: 'Signup Successful',
       description: 'Redirecting to your dashboard...',

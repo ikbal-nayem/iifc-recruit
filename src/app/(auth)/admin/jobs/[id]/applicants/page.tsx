@@ -8,7 +8,6 @@ import { JobApplicantsTable } from '@/components/app/admin/job-applicants-table'
 type Applicant = Candidate & { application: Application };
 
 async function getJobApplicants(jobId: string): Promise<{ job: Job, applicants: Applicant[] }> {
-  await new Promise(resolve => setTimeout(resolve, 500));
   const job = jobs.find(j => j.id === jobId);
 
   if (!job) {
