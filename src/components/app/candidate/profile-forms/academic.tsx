@@ -13,80 +13,132 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { Candidate } from '@/lib/types';
-import { PlusCircle, Trash, Save, FileText } from 'lucide-react';
+import { PlusCircle, Trash, Save } from 'lucide-react';
+import { useForm, useFieldArray, FormProvider } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+
+const academicInfoSchema = z.object({
+  degree: z.string().min(1, 'Degree is required.'),
+  institution: z.string().min(1, 'Institution is required.'),
+  graduationYear: z.coerce.number().min(1950, 'Invalid year.'),
+});
+
+const formSchema = z.object({
+  academicInfo: z.array(academicInfoSchema),
+});
+
+type AcademicFormValues = z.infer<typeof formSchema>;
 
 interface ProfileFormProps {
   candidate: Candidate;
 }
 
 export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
-  const [academicHistory, setAcademicHistory] = React.useState(candidate.academicInfo);
-  const [files, setFiles] = React.useState<Record<number, File[]>>({});
+  const form = useForm<AcademicFormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      academicInfo: candidate.academicInfo,
+    },
+  });
 
-  const handleFileChange = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files) {
-      setFiles(prev => ({ ...prev, [index]: Array.from(event.target.files!) }));
-    }
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: 'academicInfo',
+  });
+  
+  const onSubmit = (data: AcademicFormValues) => {
+    console.log('Form data:', data);
+    // Here you would handle form submission, e.g., API call
   };
 
-  const handleRemoveFile = (index: number, fileIndex: number) => {
-    setFiles(prev => ({
-      ...prev,
-      [index]: prev[index]?.filter((_, i) => i !== fileIndex) || [],
-    }));
-  };
 
   return (
-    <Card className="glassmorphism">
-      <CardHeader>
-        <CardTitle>Academic History</CardTitle>
-        <CardDescription>
-          Your educational background.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {academicHistory.map((info, index) => (
-          <div key={index} className="p-4 border rounded-lg relative">
-            <div className="space-y-2">
-                <Label>Degree</Label>
-                <Input defaultValue={info.degree} />
-            </div>
-            <div className="space-y-2 mt-2">
-                <Label>Institution</Label>
-                <Input defaultValue={info.institution} />
-            </div>
-            <div className="space-y-2 mt-2">
-                <Label>Graduation Year</Label>
-                <Input type="number" defaultValue={info.graduationYear} />
-            </div>
-            <div className="space-y-2 mt-2">
-              <Label htmlFor={`certs-${index}`}>Certificates</Label>
-              <Input id={`certs-${index}`} type="file" multiple onChange={(e) => handleFileChange(index, e)} />
-            </div>
-             {files[index] && files[index].length > 0 && (
-              <div className="mt-2 space-y-2">
-                {files[index].map((file, fileIdx) => (
-                   <div key={file.name} className="flex items-center justify-between p-2 rounded-md border bg-muted/50">
-                      <div className="flex items-center gap-2 text-sm">
-                        <FileText className="h-4 w-4" />
-                        <span className="font-medium truncate max-w-xs">{file.name}</span>
-                        <span className="text-muted-foreground text-xs">({(file.size / 1024).toFixed(1)} KB)</span>
-                      </div>
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRemoveFile(index, fileIdx)}>
-                        <Trash className="h-4 w-4 text-destructive" />
-                      </Button>
-                   </div>
-                ))}
-              </div>
-            )}
-            <Button variant="ghost" size="icon" className="absolute top-2 right-2"><Trash className="h-4 w-4 text-destructive"/></Button>
-          </div>
-        ))}
-         <Button variant="outline"><PlusCircle className="mr-2 h-4 w-4"/>Add Education</Button>
-      </CardContent>
-      <CardFooter>
-        <Button><Save className="mr-2 h-4 w-4"/>Save Changes</Button>
-      </CardFooter>
-    </Card>
-  )
+    <FormProvider {...form}>
+       <form onSubmit={form.handleSubmit(onSubmit)}>
+        <Card className="glassmorphism">
+        <CardHeader>
+            <CardTitle>Academic History</CardTitle>
+            <CardDescription>Your educational background.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+            {fields.map((field, index) => (
+            <Card key={field.id} className="p-4 relative">
+                <CardContent className="p-0 space-y-4">
+                <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name={`academicInfo.${index}.degree`}
+                      render={({ field }) => (
+                        <FormItem>
+                           <Label>Degree</Label>
+                           <FormControl>
+                             <Input {...field} placeholder="e.g. B.S. in Computer Science"/>
+                           </FormControl>
+                           <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                </div>
+                <div className="space-y-2 mt-2">
+                     <FormField
+                      control={form.control}
+                      name={`academicInfo.${index}.institution`}
+                      render={({ field }) => (
+                        <FormItem>
+                           <Label>Institution</Label>
+                           <FormControl>
+                             <Input {...field} placeholder="e.g. Stanford University"/>
+                           </FormControl>
+                           <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                </div>
+                <div className="space-y-2 mt-2">
+                     <FormField
+                      control={form.control}
+                      name={`academicInfo.${index}.graduationYear`}
+                      render={({ field }) => (
+                        <FormItem>
+                           <Label>Graduation Year</Label>
+                           <FormControl>
+                             <Input type="number" {...field} placeholder="e.g. 2016"/>
+                           </FormControl>
+                           <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                </div>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2"
+                    onClick={() => remove(index)}
+                >
+                    <Trash className="h-4 w-4 text-destructive" />
+                </Button>
+                </CardContent>
+            </Card>
+            ))}
+            <Button
+            type="button"
+            variant="outline"
+            onClick={() => append({ degree: '', institution: '', graduationYear: new Date().getFullYear() })}
+            >
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add Education
+            </Button>
+        </CardContent>
+        <CardFooter>
+            <Button type="submit">
+            <Save className="mr-2 h-4 w-4" />
+            Save Changes
+            </Button>
+        </CardFooter>
+        </Card>
+       </form>
+    </FormProvider>
+  );
 }
