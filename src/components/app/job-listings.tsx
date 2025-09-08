@@ -21,7 +21,7 @@ import { jobs as allJobs } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 
 interface JobListingsProps {
@@ -31,16 +31,20 @@ interface JobListingsProps {
 }
 
 export function JobListings({ isPaginated = true, showFilters = true, itemLimit }: JobListingsProps) {
+  const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  
   const [jobs, setJobs] = React.useState<Job[]>(allJobs.filter(j => j.status === 'Open'));
   const [filteredJobs, setFilteredJobs] = React.useState<Job[]>(jobs);
   const [currentPage, setCurrentPage] = React.useState(1);
   const [view, setView] = React.useState<'grid' | 'list'>('grid');
+
   const [filters, setFilters] = React.useState({
-    keyword: '',
-    location: 'all',
-    department: 'all',
-    type: 'all',
+    keyword: searchParams.get('keyword') || '',
+    location: searchParams.get('location') || 'all',
+    department: searchParams.get('department') || 'all',
+    type: searchParams.get('type') || 'all',
   });
 
   const jobsPerPage = 9;
@@ -52,29 +56,49 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 
   React.useEffect(() => {
     let results = jobs;
+    const currentParams = new URLSearchParams(searchParams.toString());
 
     if (filters.keyword) {
       results = results.filter(job => 
         job.title.toLowerCase().includes(filters.keyword.toLowerCase()) ||
         job.description.toLowerCase().includes(filters.keyword.toLowerCase())
       );
+      currentParams.set('keyword', filters.keyword);
+    } else {
+        currentParams.delete('keyword');
     }
 
     if (filters.location !== 'all') {
       results = results.filter(job => job.location === filters.location);
+       currentParams.set('location', filters.location);
+    } else {
+        currentParams.delete('location');
     }
     
     if (filters.department !== 'all') {
       results = results.filter(job => job.department === filters.department);
+      currentParams.set('department', filters.department);
+    } else {
+      currentParams.delete('department');
     }
 
     if (filters.type !== 'all') {
       results = results.filter(job => job.type === filters.type);
+      currentParams.set('type', filters.type);
+    } else {
+      currentParams.delete('type');
+    }
+
+    const newUrl = `${pathname}?${currentParams.toString()}`;
+    // We use replace to avoid adding to browser history for every filter change
+    if (typeof window !== 'undefined' && window.location.search !== `?${currentParams.toString()}`) {
+      router.replace(newUrl, { scroll: false });
     }
 
     setFilteredJobs(results);
     setCurrentPage(1);
-  }, [filters, jobs]);
+  }, [filters, jobs, pathname, router, searchParams]);
+
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
