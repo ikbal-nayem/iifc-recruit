@@ -120,9 +120,9 @@ body {
 
 .hero-gradient {
   background:
-    radial-gradient(at top left, hsl(var(--primary)/.2), transparent 40%),
-    radial-gradient(at top right, hsl(var(--accent)/.2), transparent 50%),
-    radial-gradient(at bottom left, hsl(var(--accent)/.3), transparent 70%);
+    radial-gradient(ellipse 50% 50% at 30% -10%, hsl(var(--primary)/.2), transparent 80%),
+    radial-gradient(ellipse 60% 40% at 80% 0%, hsl(var(--accent)/.25), transparent 80%),
+    radial-gradient(circle at 50% 100%, hsl(var(--background)), hsl(var(--background)) 20%, transparent 50%);
 }
 
 /* NProgress styles */
