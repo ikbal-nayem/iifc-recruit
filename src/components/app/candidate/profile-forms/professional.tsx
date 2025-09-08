@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -14,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import type { Candidate, ProfessionalInfo } from '@/lib/types';
-import { PlusCircle, Trash, Save, Edit, FileText } from 'lucide-react';
+import { PlusCircle, Trash, Save, Edit, FileText, Upload } from 'lucide-react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -160,8 +161,18 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                         />
                         <FormItem>
                             <Label>Documents (Multi-file)</Label>
-                            <FormControl>
-                                <Input type="file" multiple onChange={(e) => handleFileChange(e, setEditFormFiles)} className="h-auto"/>
+                             <FormControl>
+                                <div className="relative flex items-center justify-center w-full">
+                                    <label htmlFor={`edit-prof-file-upload-${index}`} className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
+                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                            <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                                            <p className="text-sm text-muted-foreground">
+                                                <span className="font-semibold">Click to upload</span> or drag and drop
+                                            </p>
+                                        </div>
+                                        <Input id={`edit-prof-file-upload-${index}`} type="file" multiple className="hidden" onChange={(e) => handleFileChange(e, setEditFormFiles)} />
+                                    </label>
+                                </div>
                             </FormControl>
                             <div className="flex flex-wrap gap-2 mt-2">
                                 {editFormFiles.map((file, i) => (
@@ -278,8 +289,18 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                         />
                          <FormItem>
                             <Label>Documents (Multi-file)</Label>
-                            <FormControl>
-                                <Input type="file" multiple onChange={(e) => handleFileChange(e, setAddFormFiles)} className="h-auto"/>
+                             <FormControl>
+                                <div className="relative flex items-center justify-center w-full">
+                                    <label htmlFor="add-prof-file-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
+                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                            <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                                            <p className="text-sm text-muted-foreground">
+                                                <span className="font-semibold">Click to upload</span> or drag and drop
+                                            </p>
+                                        </div>
+                                        <Input id="add-prof-file-upload" type="file" multiple className="hidden" onChange={(e) => handleFileChange(e, setAddFormFiles)} />
+                                    </label>
+                                </div>
                             </FormControl>
                             <div className="flex flex-wrap gap-2 mt-2">
                                 {addFormFiles.map((file, i) => (
