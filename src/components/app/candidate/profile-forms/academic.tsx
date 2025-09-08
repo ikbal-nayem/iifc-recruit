@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -185,8 +186,8 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
                 </Button>
             </div>
         </Card>
-    )
-  }
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -260,4 +261,9 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
                     <CardFooter>
                         <Button type="submit"><PlusCircle className="mr-2 h-4 w-4" /> Add to History</Button>
                     </CardFooter>
-                </Card
+                </Card>
+            </form>
+        </Form>
+    </div>
+  );
+}
