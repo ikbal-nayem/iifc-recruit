@@ -12,22 +12,24 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { Candidate, AcademicInfo } from '@/lib/types';
+import { Textarea } from '@/components/ui/textarea';
+import type { Candidate, ProfessionalInfo } from '@/lib/types';
 import { PlusCircle, Trash, Save, Edit, FileText } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Badge } from '@/components/ui/badge';
 
-const academicInfoSchema = z.object({
-  degree: z.string().min(1, 'Degree is required.'),
-  institution: z.string().min(1, 'Institution is required.'),
-  graduationYear: z.coerce.number().min(1950, 'Invalid year.').max(new Date().getFullYear() + 5),
-  certificateUrls: z.array(z.string()).optional(),
+const professionalInfoSchema = z.object({
+  role: z.string().min(1, 'Role is required.'),
+  company: z.string().min(1, 'Company is required.'),
+  duration: z.string().min(1, 'Duration is required.'),
+  responsibilities: z.string().min(1, 'Please list at least one responsibility.'),
+  documentUrls: z.array(z.string()).optional(),
 });
 
-type AcademicFormValues = z.infer<typeof academicInfoSchema>;
+type ProfessionalFormValues = z.infer<typeof professionalInfoSchema>;
 
 interface ProfileFormProps {
   candidate: Candidate;
@@ -43,33 +45,39 @@ const FilePreview = ({ file, onRemove }: { file: File; onRemove: () => void }) =
     </Badge>
 );
 
-export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
-  const [history, setHistory] = React.useState(candidate.academicInfo);
+export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
+  const [history, setHistory] = React.useState(candidate.professionalInfo);
   const [editingId, setEditingId] = React.useState<number | null>(null);
   const [addFormFiles, setAddFormFiles] = React.useState<File[]>([]);
   const [editFormFiles, setEditFormFiles] = React.useState<File[]>([]);
 
-  const form = useForm<AcademicFormValues>({
-    resolver: zodResolver(academicInfoSchema),
-    defaultValues: { degree: '', institution: '', graduationYear: undefined, certificateUrls: [] },
+  const form = useForm<ProfessionalFormValues>({
+    resolver: zodResolver(professionalInfoSchema),
+    defaultValues: { role: '', company: '', duration: '', responsibilities: '', documentUrls: [] },
   });
 
-  const editForm = useForm<AcademicFormValues>({
-    resolver: zodResolver(academicInfoSchema),
+  const editForm = useForm<ProfessionalFormValues>({
+    resolver: zodResolver(professionalInfoSchema),
   });
   
-  const handleAddNew = (data: AcademicFormValues) => {
-    // In a real app, you would upload files and get URLs here.
-    const newEntry = { ...data, certificateUrls: addFormFiles.map(f => f.name) };
+  const handleAddNew = (data: ProfessionalFormValues) => {
+    const newEntry: ProfessionalInfo = { 
+        ...data,
+        responsibilities: data.responsibilities.split('\n'),
+        documentUrls: addFormFiles.map(f => f.name) 
+    };
     setHistory([...history, newEntry]);
-    form.reset({ degree: '', institution: '', graduationYear: undefined, certificateUrls: [] });
+    form.reset({ role: '', company: '', duration: '', responsibilities: '', documentUrls: [] });
     setAddFormFiles([]);
   };
 
-  const handleUpdate = (index: number, data: AcademicFormValues) => {
+  const handleUpdate = (index: number, data: ProfessionalFormValues) => {
     const updatedHistory = [...history];
-    // In a real app, you would upload files and get URLs here.
-    const newEntry = { ...data, certificateUrls: editFormFiles.map(f => f.name) };
+    const newEntry: ProfessionalInfo = { 
+        ...data,
+        responsibilities: data.responsibilities.split('\n'),
+        documentUrls: editFormFiles.map(f => f.name) 
+    };
     updatedHistory[index] = newEntry;
     setHistory(updatedHistory);
     setEditingId(null);
@@ -80,10 +88,12 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
     setHistory(history.filter((_, i) => i !== index));
   };
 
-  const startEditing = (index: number, item: AcademicInfo) => {
+  const startEditing = (index: number, item: ProfessionalInfo) => {
     setEditingId(index);
-    editForm.reset(item);
-    // In a real app, you'd fetch existing files. Here we'll reset.
+    editForm.reset({
+        ...item,
+        responsibilities: item.responsibilities.join('\n')
+    });
     setEditFormFiles([]);
   };
 
@@ -97,7 +107,7 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
       setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const renderItem = (item: AcademicInfo, index: number) => {
+  const renderItem = (item: ProfessionalInfo, index: number) => {
     if (editingId === index) {
       return (
          <Form {...editForm}>
@@ -106,10 +116,10 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
                     <CardContent className="p-0 space-y-4">
                         <FormField
                         control={editForm.control}
-                        name="degree"
+                        name="role"
                         render={({ field }) => (
                             <FormItem>
-                            <Label>Degree</Label>
+                            <Label>Role</Label>
                             <FormControl><Input {...field} /></FormControl>
                             <FormMessage />
                             </FormItem>
@@ -117,28 +127,39 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
                         />
                         <FormField
                         control={editForm.control}
-                        name="institution"
+                        name="company"
                         render={({ field }) => (
                             <FormItem>
-                            <Label>Institution</Label>
+                            <Label>Company</Label>
                             <FormControl><Input {...field} /></FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                         <FormField
+                        control={editForm.control}
+                        name="duration"
+                        render={({ field }) => (
+                            <FormItem>
+                            <Label>Duration</Label>
+                            <FormControl><Input {...field} placeholder="e.g., 2020 - Present" /></FormControl>
                             <FormMessage />
                             </FormItem>
                         )}
                         />
                         <FormField
                         control={editForm.control}
-                        name="graduationYear"
+                        name="responsibilities"
                         render={({ field }) => (
                             <FormItem>
-                            <Label>Graduation Year</Label>
-                            <FormControl><Input type="number" {...field} /></FormControl>
+                            <Label>Responsibilities (one per line)</Label>
+                            <FormControl><Textarea {...field} rows={4} /></FormControl>
                             <FormMessage />
                             </FormItem>
                         )}
                         />
                         <FormItem>
-                            <Label>Certificates (Multi-file)</Label>
+                            <Label>Documents (Multi-file)</Label>
                             <FormControl>
                                 <Input type="file" multiple onChange={(e) => handleFileChange(e, setEditFormFiles)} className="h-auto"/>
                             </FormControl>
@@ -161,44 +182,44 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
     }
 
     return (
-        <Card key={index} className="p-4 flex justify-between items-center">
-            <div>
-                <p className="font-semibold">{item.degree}</p>
-                <p className="text-sm text-muted-foreground">{item.institution} - {item.graduationYear}</p>
-                {item.certificateUrls && item.certificateUrls.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                        {item.certificateUrls.map((url, i) => (
-                            <Badge key={i} variant="outline" className="text-xs">
-                                <FileText className="h-3 w-3 mr-1" />
-                                {url.split('/').pop()}
-                            </Badge>
-                        ))}
-                    </div>
-                )}
-            </div>
-            <div className="flex gap-2">
-                 <Button variant="ghost" size="icon" onClick={() => startEditing(index, item)}>
-                    <Edit className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={() => handleRemove(index)}>
-                    <Trash className="h-4 w-4 text-destructive" />
-                </Button>
-            </div>
-        </Card>
-    )
-  }
+      <Card key={index} className="p-4 flex justify-between items-start">
+          <div>
+              <p className="font-semibold">{item.role}</p>
+              <p className="text-sm text-muted-foreground">{item.company} &middot; {item.duration}</p>
+              {item.documentUrls && item.documentUrls.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                      {item.documentUrls.map((url, i) => (
+                          <Badge key={i} variant="outline" className="text-xs">
+                              <FileText className="h-3 w-3 mr-1" />
+                              {url.split('/').pop()}
+                          </Badge>
+                      ))}
+                  </div>
+              )}
+          </div>
+          <div className="flex gap-2">
+               <Button variant="ghost" size="icon" onClick={() => startEditing(index, item)}>
+                  <Edit className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => handleRemove(index)}>
+                  <Trash className="h-4 w-4 text-destructive" />
+              </Button>
+          </div>
+      </Card>
+    );
+  };
 
   return (
     <div className="space-y-6">
         <Card className="glassmorphism">
             <CardHeader>
-                <CardTitle>Your Academic History</CardTitle>
-                <CardDescription>Listed below is your educational background.</CardDescription>
+                <CardTitle>Your Professional History</CardTitle>
+                <CardDescription>Listed below is your work experience.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                 {history.map(renderItem)}
                 {history.length === 0 && (
-                    <p className="text-center text-muted-foreground py-4">No academic history added yet.</p>
+                    <p className="text-center text-muted-foreground py-4">No professional history added yet.</p>
                 )}
             </CardContent>
         </Card>
@@ -207,45 +228,56 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
             <form onSubmit={form.handleSubmit(handleAddNew)}>
                 <Card className="glassmorphism">
                     <CardHeader>
-                        <CardTitle>Add New Education</CardTitle>
-                        <CardDescription>Add a new degree to your profile.</CardDescription>
+                        <CardTitle>Add New Experience</CardTitle>
+                        <CardDescription>Add a new role to your profile.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <FormField
                         control={form.control}
-                        name="degree"
+                        name="role"
                         render={({ field }) => (
                             <FormItem>
-                            <Label>Degree</Label>
-                            <FormControl><Input {...field} placeholder="e.g. B.S. in Computer Science"/></FormControl>
+                            <Label>Role</Label>
+                            <FormControl><Input {...field} placeholder="e.g. Software Engineer"/></FormControl>
                             <FormMessage />
                             </FormItem>
                         )}
                         />
                         <FormField
                         control={form.control}
-                        name="institution"
+                        name="company"
                         render={({ field }) => (
                             <FormItem>
-                            <Label>Institution</Label>
-                            <FormControl><Input {...field} placeholder="e.g. Stanford University"/></FormControl>
+                            <Label>Company</Label>
+                            <FormControl><Input {...field} placeholder="e.g. Google"/></FormControl>
                             <FormMessage />
                             </FormItem>
                         )}
                         />
                         <FormField
                         control={form.control}
-                        name="graduationYear"
+                        name="duration"
                         render={({ field }) => (
                             <FormItem>
-                            <Label>Graduation Year</Label>
-                            <FormControl><Input type="number" {...field} placeholder="e.g. 2024"/></FormControl>
+                            <Label>Duration</Label>
+                            <FormControl><Input {...field} placeholder="e.g. 2022 - Present"/></FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                        <FormField
+                        control={form.control}
+                        name="responsibilities"
+                        render={({ field }) => (
+                            <FormItem>
+                            <Label>Responsibilities (one per line)</Label>
+                            <FormControl><Textarea {...field} rows={4} /></FormControl>
                             <FormMessage />
                             </FormItem>
                         )}
                         />
                          <FormItem>
-                            <Label>Certificates (Multi-file)</Label>
+                            <Label>Documents (Multi-file)</Label>
                             <FormControl>
                                 <Input type="file" multiple onChange={(e) => handleFileChange(e, setAddFormFiles)} className="h-auto"/>
                             </FormControl>
