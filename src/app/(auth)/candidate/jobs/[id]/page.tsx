@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Briefcase, MapPin, Clock, ArrowRight, Building, DollarSign, Send, Calendar } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import Link from 'next/link';
-import { JobDetailClient } from '@/components/app/candidate/job-detail-client';
+import { JobApplicationClient } from '@/components/app/candidate/job-application-client';
 
 export default function JobDetailsPage({ params }: { params: { id: string } }) {
 	const job = allJobs.find((j) => j.id === params?.id);
@@ -40,7 +40,7 @@ export default function JobDetailsPage({ params }: { params: { id: string } }) {
 									</CardDescription>
 								</div>
 								<div className='flex-shrink-0'>
-									<JobDetailClient jobTitle={job.title} />
+									<JobApplicationClient jobTitle={job.title} />
 								</div>
 							</div>
 						</CardHeader>
