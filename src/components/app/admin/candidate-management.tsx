@@ -33,22 +33,39 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MoreHorizontal, FileText, Star, Send } from 'lucide-react';
-import type { Candidate } from '@/lib/types';
-import { candidates as initialCandidates } from '@/lib/data';
+import { MoreHorizontal, FileText, Star, Send, Briefcase } from 'lucide-react';
+import type { Candidate, Application, Job } from '@/lib/types';
+import { candidates as initialCandidates, applications as allApplications, jobs as allJobs } from '@/lib/data';
 import { CandidateProfileView } from '@/components/app/candidate-profile-view';
 import { Card } from '@/components/ui/card';
+import Link from 'next/link';
+
+type ApplicationWithJob = Application & { job: Job };
 
 export function CandidateManagement() {
   const [data, setData] = React.useState<Candidate[]>(initialCandidates);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [selectedCandidate, setSelectedCandidate] = React.useState<Candidate | null>(null);
+  const [applicationsCandidate, setApplicationsCandidate] = React.useState<Candidate | null>(null);
+
+  const getCandidateApplications = (candidateId: string): ApplicationWithJob[] => {
+    return allApplications
+      .filter(app => app.candidateId === candidateId)
+      .map(app => {
+        const job = allJobs.find(j => j.id === app.jobId);
+        return job ? { ...app, job } : null;
+      })
+      .filter((a): a is ApplicationWithJob => a !== null);
+  }
 
   const columns: ColumnDef<Candidate>[] = [
     {
@@ -110,8 +127,8 @@ export function CandidateManagement() {
               <DropdownMenuItem onClick={() => setSelectedCandidate(candidate)}>
                 <FileText className="mr-2 h-4 w-4" /> View Profile
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Star className="mr-2 h-4 w-4" /> Shortlist
+              <DropdownMenuItem onClick={() => setApplicationsCandidate(candidate)}>
+                <Briefcase className="mr-2 h-4 w-4" /> View Applications
               </DropdownMenuItem>
                <DropdownMenuItem>
                 <Send className="mr-2 h-4 w-4" /> Contact
@@ -167,8 +184,8 @@ export function CandidateManagement() {
             <DropdownMenuItem onClick={() => setSelectedCandidate(candidate)}>
               <FileText className="mr-2 h-4 w-4" /> View Profile
             </DropdownMenuItem>
-            <DropdownMenuItem>
-                <Star className="mr-2 h-4 w-4" /> Shortlist
+            <DropdownMenuItem onClick={() => setApplicationsCandidate(candidate)}>
+              <Briefcase className="mr-2 h-4 w-4" /> View Applications
             </DropdownMenuItem>
             <DropdownMenuItem>
               <Send className="mr-2 h-4 w-4" /> Contact
@@ -277,6 +294,34 @@ export function CandidateManagement() {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           {selectedCandidate && (
              <CandidateProfileView candidate={selectedCandidate} />
+          )}
+        </DialogContent>
+      </Dialog>
+      <Dialog open={!!applicationsCandidate} onOpenChange={(isOpen) => !isOpen && setApplicationsCandidate(null)}>
+        <DialogContent className="max-w-2xl">
+          {applicationsCandidate && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Applications by {applicationsCandidate.personalInfo.name}</DialogTitle>
+                <DialogDescription>
+                  A list of jobs this candidate has applied for.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-3 py-4 max-h-[60vh] overflow-y-auto">
+                {getCandidateApplications(applicationsCandidate.id).map(app => (
+                    <div key={app.id} className="flex items-center justify-between p-3 rounded-lg border bg-muted/50">
+                        <div>
+                            <Link href={`/admin/jobs/${app.job.id}/applicants`} className="font-semibold hover:underline">{app.job.title}</Link>
+                            <p className="text-sm text-muted-foreground">{app.job.department}</p>
+                        </div>
+                        <Badge variant={app.status === 'Interview' ? 'default' : 'secondary'}>{app.status}</Badge>
+                    </div>
+                ))}
+                {getCandidateApplications(applicationsCandidate.id).length === 0 && (
+                    <p className="text-center text-muted-foreground py-8">This candidate has not applied to any jobs yet.</p>
+                )}
+              </div>
+            </>
           )}
         </DialogContent>
       </Dialog>
