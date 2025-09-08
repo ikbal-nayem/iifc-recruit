@@ -1,3 +1,4 @@
+
 import type { LucideIcon } from 'lucide-react';
 import {
 	Briefcase,
@@ -36,9 +37,13 @@ export const adminNavLinks: NavLink[] = [
 				href: '/admin/jobs',
 				label: 'All Jobs',
 				icon: Briefcase,
-				isActive: (pathname) => pathname === '/admin/jobs' || /^\/admin\/jobs\/\w+$/.test(pathname),
+				isActive: (pathname) => pathname === '/admin/jobs' || /^\/admin\/jobs\/[^/]+(\/edit|\/applicants)?$/.test(pathname),
 			},
-			{ href: '/admin/jobs/create', label: 'Create New', icon: PlusCircle },
+			{ 
+				href: '/admin/jobs/create', 
+				label: 'Create New', 
+				icon: PlusCircle 
+			},
 		],
 	},
 	{ href: '/admin/candidates', label: 'Candidates', icon: Users },
