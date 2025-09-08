@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -12,8 +13,12 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { Candidate } from '@/lib/types';
-import { PlusCircle, Trash, Save } from 'lucide-react';
+import type { Candidate, Language } from '@/lib/types';
+import { PlusCircle, Trash, Save, Edit } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import {
   Select,
   SelectContent,
@@ -22,48 +27,185 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+const languageSchema = z.object({
+  name: z.string().min(1, 'Language name is required.'),
+  proficiency: z.enum(['Beginner', 'Intermediate', 'Advanced', 'Native']),
+});
+
+type LanguageFormValues = z.infer<typeof languageSchema>;
+
 interface ProfileFormProps {
   candidate: Candidate;
 }
 
 export function ProfileFormLanguages({ candidate }: ProfileFormProps) {
-    return (
-        <Card className="glassmorphism">
-          <CardHeader>
-            <CardTitle>Languages</CardTitle>
-            <CardDescription>Add the languages you speak.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-             {candidate.languages.map((lang, index) => (
-                <div key={index} className="p-4 border rounded-lg relative">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
+  const [history, setHistory] = React.useState(candidate.languages);
+  const [editingId, setEditingId] = React.useState<number | null>(null);
+
+  const form = useForm<LanguageFormValues>({
+    resolver: zodResolver(languageSchema),
+    defaultValues: { name: '', proficiency: 'Intermediate' },
+  });
+
+  const editForm = useForm<LanguageFormValues>({
+    resolver: zodResolver(languageSchema),
+  });
+  
+  const handleAddNew = (data: LanguageFormValues) => {
+    setHistory([...history, data]);
+    form.reset({ name: '', proficiency: 'Intermediate' });
+  };
+
+  const handleUpdate = (index: number, data: LanguageFormValues) => {
+    const updatedHistory = [...history];
+    updatedHistory[index] = data;
+    setHistory(updatedHistory);
+    setEditingId(null);
+  };
+  
+  const handleRemove = (index: number) => {
+    setHistory(history.filter((_, i) => i !== index));
+  };
+
+  const startEditing = (index: number, item: Language) => {
+    setEditingId(index);
+    editForm.reset(item);
+  };
+
+  const renderItem = (item: Language, index: number) => {
+    if (editingId === index) {
+      return (
+         <Form {...editForm}>
+            <form onSubmit={editForm.handleSubmit((data) => handleUpdate(index, data))}>
+                <Card key={index} className="p-4 bg-muted/50">
+                    <CardContent className="p-0 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <FormField
+                        control={editForm.control}
+                        name="name"
+                        render={({ field }) => (
+                            <FormItem>
                             <Label>Language</Label>
-                            <Input defaultValue={lang.name} />
-                        </div>
-                         <div className="space-y-2">
-                            <Label>Proficiency</Label>
-                            <Select defaultValue={lang.proficiency}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select proficiency" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Beginner">Beginner</SelectItem>
-                                    <SelectItem value="Intermediate">Intermediate</SelectItem>
-                                    <SelectItem value="Advanced">Advanced</SelectItem>
-                                    <SelectItem value="Native">Native</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                    <Button variant="ghost" size="icon" className="absolute top-2 right-2"><Trash className="h-4 w-4 text-destructive"/></Button>
-                </div>
-             ))}
-            <Button variant="outline"><PlusCircle className="mr-2 h-4 w-4"/>Add Language</Button>
-          </CardContent>
-          <CardFooter>
-            <Button><Save className="mr-2 h-4 w-4"/>Save Changes</Button>
-          </CardFooter>
+                            <FormControl><Input {...field} /></FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                        <FormField
+                        control={editForm.control}
+                        name="proficiency"
+                        render={({ field }) => (
+                             <FormItem>
+                                <Label>Proficiency</Label>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select proficiency" />
+                                    </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="Beginner">Beginner</SelectItem>
+                                        <SelectItem value="Intermediate">Intermediate</SelectItem>
+                                        <SelectItem value="Advanced">Advanced</SelectItem>
+                                        <SelectItem value="Native">Native</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                    </CardContent>
+                    <CardFooter className="p-0 pt-4 flex justify-end gap-2">
+                        <Button type="button" variant="ghost" onClick={() => setEditingId(null)}>Cancel</Button>
+                        <Button type="submit">Save</Button>
+                    </CardFooter>
+                </Card>
+            </form>
+        </Form>
+      );
+    }
+
+    return (
+        <Card key={index} className="p-4 flex justify-between items-center">
+            <div>
+                <p className="font-semibold">{item.name}</p>
+                <p className="text-sm text-muted-foreground">{item.proficiency}</p>
+            </div>
+            <div className="flex gap-2">
+                 <Button variant="ghost" size="icon" onClick={() => startEditing(index, item)}>
+                    <Edit className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => handleRemove(index)}>
+                    <Trash className="h-4 w-4 text-destructive" />
+                </Button>
+            </div>
         </Card>
     );
+  };
+
+  return (
+    <div className="space-y-6">
+        <Card className="glassmorphism">
+            <CardHeader>
+                <CardTitle>Your Languages</CardTitle>
+                <CardDescription>Listed below are the languages you speak.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                {history.map(renderItem)}
+                {history.length === 0 && (
+                    <p className="text-center text-muted-foreground py-4">No languages added yet.</p>
+                )}
+            </CardContent>
+        </Card>
+        
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleAddNew)}>
+                <Card className="glassmorphism">
+                    <CardHeader>
+                        <CardTitle>Add New Language</CardTitle>
+                        <CardDescription>Add a new language to your profile.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                            <FormItem>
+                            <Label>Language</Label>
+                            <FormControl><Input {...field} placeholder="e.g. Spanish"/></FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="proficiency"
+                            render={({ field }) => (
+                                <FormItem>
+                                <Label>Proficiency</Label>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a proficiency" />
+                                    </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="Beginner">Beginner</SelectItem>
+                                        <SelectItem value="Intermediate">Intermediate</SelectItem>
+                                        <SelectItem value="Advanced">Advanced</SelectItem>
+                                        <SelectItem value="Native">Native</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+                    </CardContent>
+                    <CardFooter>
+                        <Button type="submit"><PlusCircle className="mr-2 h-4 w-4" /> Add to History</Button>
+                    </CardFooter>
+                </Card>
+            </form>
+        </Form>
+    </div>
+  );
 }
