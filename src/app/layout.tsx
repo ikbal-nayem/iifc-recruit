@@ -1,4 +1,3 @@
-
 // src/app/layout.tsx
 'use client';
 
@@ -7,6 +6,22 @@ import { Toaster } from "@/components/ui/toaster";
 import { TopLoader } from '@/components/ui/top-loader';
 import * as React from 'react';
 import './globals.css';
+import { Inter, Space_Grotesk, Source_Code_Pro } from 'next/font/google';
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-space-grotesk',
+});
+
+const sourceCodePro = Source_Code_Pro({
+  subsets: ['latin'],
+  variable: '--font-source-code-pro',
+});
 
 export default function RootLayout({
   children,
@@ -23,14 +38,10 @@ export default function RootLayout({
   }, []);
   
   return (
-    <html lang={locale} className="h-full">
+    <html lang={locale} className={`h-full ${inter.variable} ${spaceGrotesk.variable} ${sourceCodePro.variable}`}>
       <head>
         <title>IIFC Recruit</title>
         <meta name="description" content="Streamlining the recruitment process." />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Poppins:wght@400;500;700&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased flex flex-col min-h-screen">
         {!isFinished && <SplashScreen isFinished={isFinished} />}
