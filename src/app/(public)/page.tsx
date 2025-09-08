@@ -10,12 +10,12 @@ export default function Home() {
   return (
     <>
        <section className="w-full py-20 md:py-32 lg:py-40 hero-gradient">
-        <div className="container relative z-10 mx-auto px-4 md:px-6 text-center">
+        <div className="container relative mx-auto px-4 md:px-6 text-center">
           <div className="max-w-3xl mx-auto">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-headline font-bold mb-4">
+            <h1 className="text-4xl text-white md:text-5xl lg:text-6xl font-headline font-bold mb-4">
               Find Your Next Career Move
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground mb-8">
+            <p className="text-lg md:text-xl text-white mb-8">
               Search through thousands of open positions in your field. Your dream job is waiting.
             </p>
           </div>
