@@ -14,7 +14,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, Clock, ArrowRight, Building, Search, List, LayoutGrid, Calendar } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+
+import { MapPin, Clock, ArrowRight, Building, Search, List, LayoutGrid, Calendar, ChevronsUpDown, Check } from 'lucide-react';
 import Link from 'next/link';
 import type { Job } from '@/lib/types';
 import { jobs as allJobs } from '@/lib/data';
@@ -46,6 +49,9 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
     department: searchParams.get('department') || 'all',
     type: searchParams.get('type') || 'all',
   });
+  
+  const [departmentPopoverOpen, setDepartmentPopoverOpen] = React.useState(false);
+
 
   const jobsPerPage = 9;
 
@@ -226,12 +232,47 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
                     {uniqueLocations.map(loc => <SelectItem key={loc} value={loc}>{loc === 'all' ? 'All Locations' : loc}</SelectItem>)}
                 </SelectContent>
               </Select>
-              <Select value={filters.department} onValueChange={(value) => handleFilterChange('department', value)}>
-                <SelectTrigger className="h-11"><SelectValue placeholder="All Departments" /></SelectTrigger>
-                <SelectContent>
-                    {uniqueDepartments.map(dep => <SelectItem key={dep} value={dep}>{dep === 'all' ? 'All Departments' : dep}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Popover open={departmentPopoverOpen} onOpenChange={setDepartmentPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={departmentPopoverOpen}
+                    className="w-full justify-between h-11"
+                  >
+                    {filters.department === 'all' ? 'All Departments' : filters.department}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                  <Command>
+                    <CommandInput placeholder="Search department..." />
+                    <CommandList>
+                      <CommandEmpty>No department found.</CommandEmpty>
+                      <CommandGroup>
+                        {uniqueDepartments.map((dep) => (
+                          <CommandItem
+                            key={dep}
+                            value={dep}
+                            onSelect={(currentValue) => {
+                              handleFilterChange('department', currentValue === filters.department ? 'all' : currentValue);
+                              setDepartmentPopoverOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                filters.department === dep ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {dep === 'all' ? 'All Departments' : dep}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
               <Select value={filters.type} onValueChange={(value) => handleFilterChange('type', value)}>
                 <SelectTrigger className="h-11"><SelectValue placeholder="All Types" /></SelectTrigger>
                 <SelectContent>
