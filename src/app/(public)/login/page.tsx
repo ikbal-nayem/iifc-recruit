@@ -4,15 +4,15 @@ import { LoginBanner } from '@/components/app/login-banner';
 
 export default function LoginPage() {
   return (
-    <div className="w-full min-h-screen flex items-center justify-center p-4 relative">
-      <div className="absolute inset-0 z-[-1] opacity-70">
-        <LoginBanner />
+    <div className="w-full min-h-screen grid grid-cols-1 lg:grid-cols-2">
+      <div className="hidden lg:flex flex-col items-center justify-center p-12 bg-muted/50 relative overflow-hidden">
+         <LoginBanner />
       </div>
-      <div className="w-full max-w-sm z-10">
-        <div className="p-8 bg-background/80 backdrop-blur-lg rounded-xl border shadow-2xl">
+      <main className="flex flex-col items-center justify-center p-4 bg-background">
+        <div className="w-full max-w-sm">
           <LoginForm />
         </div>
-      </div>
+      </main>
     </div>
   );
 }
