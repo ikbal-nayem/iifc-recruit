@@ -37,7 +37,7 @@ export const adminNavLinks: NavLink[] = [
 				href: '/admin/jobs',
 				label: 'All Jobs',
 				icon: Briefcase,
-				isActive: (pathname) => pathname === '/admin/jobs' || /^\/admin\/jobs\/[^/]+(\/edit|\/applicants)?$/.test(pathname),
+				isActive: (pathname) => /^\/admin\/jobs(\/[^/]+\/(applicants|edit))?$/.test(pathname) || pathname === '/admin/jobs',
 			},
 			{ 
 				href: '/admin/jobs/create', 
