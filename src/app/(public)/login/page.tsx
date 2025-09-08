@@ -2,14 +2,13 @@
 
 import LoginForm from '@/components/app/login-form';
 import Image from 'next/image';
-import Link from 'next/link';
-import { LoginBanner } from '@/components/app/login-banner';
+import BannerIcon from '/public/login-banner.svg';
 
 export default function LoginPage() {
   return (
     <div className="w-full min-h-screen grid grid-cols-1 lg:grid-cols-2">
-      <div className="hidden lg:flex flex-col items-center justify-center p-12 bg-muted/50">
-        <LoginBanner />
+      <div className="hidden lg:flex flex-col items-center justify-center p-12 bg-muted/50 relative">
+        <Image src={BannerIcon} alt="Login Banner" layout='fill' objectFit='contain' className="p-12"/>
       </div>
       <main className="flex flex-col items-center justify-center p-4 bg-background">
         <div className="w-full max-w-sm">

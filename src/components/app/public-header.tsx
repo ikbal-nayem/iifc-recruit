@@ -20,7 +20,7 @@ export default function PublicHeader() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const navLinks = [
-      { href: '/jobs', label: 'Jobs' },
+      { href: '/jobs', label: 'Find a Job' },
   ];
 
   return (
