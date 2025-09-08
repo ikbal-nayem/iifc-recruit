@@ -12,7 +12,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import type { Candidate } from '@/lib/types';
 import { Save, Upload, Mail, Phone, Check, ChevronsUpDown } from 'lucide-react';
 import Image from 'next/image';
@@ -112,7 +111,7 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                 </Button>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="photo-upload">Profile Photo</Label>
+                <FormLabel>Profile Photo</FormLabel>
                 <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 10MB</p>
               </div>
             </div>
@@ -123,7 +122,7 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                 name="firstName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>First Name</FormLabel>
+                    <FormLabel required>First Name</FormLabel>
                     <FormControl>
                       <Input placeholder="e.g. John" {...field} />
                     </FormControl>
@@ -136,7 +135,7 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                 name="lastName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Last Name</FormLabel>
+                    <FormLabel required>Last Name</FormLabel>
                     <FormControl>
                       <Input placeholder="e.g. Doe" {...field} />
                     </FormControl>
@@ -150,7 +149,7 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
               name="headline"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Headline</FormLabel>
+                  <FormLabel required>Headline</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g. Senior Frontend Developer" {...field} />
                   </FormControl>
@@ -164,7 +163,7 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel required>Email</FormLabel>
                     <FormControl>
                         <div className="relative flex items-center">
                             <Mail className="absolute left-3 h-4 w-4 text-muted-foreground" />
@@ -180,7 +179,7 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone</FormLabel>
+                    <FormLabel required>Phone</FormLabel>
                     <FormControl>
                         <div className="relative flex items-center">
                             <Phone className="absolute left-3 h-4 w-4 text-muted-foreground" />
@@ -193,14 +192,14 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
               />
             </div>
             <div>
-              <Label>Address</Label>
+              <FormLabel required>Address</FormLabel>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
                  <FormField
                     control={form.control}
                     name="division"
                     render={({ field }) => (
                     <FormItem className="flex flex-col">
-                        <FormLabel className="text-xs">Division</FormLabel>
+                        <FormLabel required className="text-xs">Division</FormLabel>
                         <Popover>
                         <PopoverTrigger asChild>
                             <FormControl>
@@ -246,7 +245,7 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                     name="district"
                     render={({ field }) => (
                     <FormItem className="flex flex-col">
-                        <FormLabel className="text-xs">District</FormLabel>
+                        <FormLabel required className="text-xs">District</FormLabel>
                         <Popover>
                         <PopoverTrigger asChild>
                             <FormControl>
@@ -293,7 +292,7 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                     name="upazila"
                     render={({ field }) => (
                     <FormItem className="flex flex-col">
-                        <FormLabel className="text-xs">Upazila / Thana</FormLabel>
+                        <FormLabel required className="text-xs">Upazila / Thana</FormLabel>
                         <Popover>
                         <PopoverTrigger asChild>
                             <FormControl>
@@ -342,7 +341,7 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                     name="line1"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel className="text-xs">Address Line 1</FormLabel>
+                        <FormLabel required className="text-xs">Address Line 1</FormLabel>
                         <FormControl><Input {...field} /></FormControl>
                         <FormMessage />
                     </FormItem>

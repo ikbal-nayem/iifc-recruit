@@ -12,13 +12,12 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import type { Candidate, Award } from '@/lib/types';
 import { PlusCircle, Trash, Save, Edit } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 const awardSchema = z.object({
   name: z.string().min(1, 'Award name is required.'),
@@ -77,21 +76,21 @@ export function ProfileFormAwards({ candidate }: ProfileFormProps) {
                             control={editForm.control}
                             name="name"
                             render={({ field }) => (
-                                <FormItem><Label>Award Name</Label><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel required>Award Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                             )}
                         />
                         <FormField
                             control={editForm.control}
                             name="awardingBody"
                             render={({ field }) => (
-                                <FormItem><Label>Awarding Body</Label><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel required>Awarding Body</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                             )}
                         />
                         <FormField
                             control={editForm.control}
                             name="dateReceived"
                             render={({ field }) => (
-                                <FormItem><Label>Date Received</Label><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel required>Date Received</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
                             )}
                         />
                     </CardContent>
@@ -150,21 +149,21 @@ export function ProfileFormAwards({ candidate }: ProfileFormProps) {
                             control={form.control}
                             name="name"
                             render={({ field }) => (
-                                <FormItem><Label>Award Name</Label><FormControl><Input {...field} placeholder="e.g. Employee of the Month" /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel required>Award Name</FormLabel><FormControl><Input {...field} placeholder="e.g. Employee of the Month" /></FormControl><FormMessage /></FormItem>
                             )}
                         />
                         <FormField
                             control={form.control}
                             name="awardingBody"
                             render={({ field }) => (
-                                <FormItem><Label>Awarding Body</Label><FormControl><Input {...field} placeholder="e.g. TechCorp" /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel required>Awarding Body</FormLabel><FormControl><Input {...field} placeholder="e.g. TechCorp" /></FormControl><FormMessage /></FormItem>
                             )}
                         />
                         <FormField
                             control={form.control}
                             name="dateReceived"
                             render={({ field }) => (
-                                <FormItem><Label>Date Received</Label><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel required>Date Received</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
                             )}
                         />
                     </CardContent>

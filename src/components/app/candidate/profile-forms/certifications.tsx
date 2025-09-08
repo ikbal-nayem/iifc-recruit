@@ -12,13 +12,12 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import type { Candidate, Certification } from '@/lib/types';
 import { PlusCircle, Trash, Save, Edit, FileText, Upload, X, Link2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import Link from 'next/link';
 
 const certificationSchema = z.object({
@@ -120,7 +119,7 @@ export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
                             control={editForm.control}
                             name="name"
                             render={({ field }) => (
-                                <FormItem><Label>Certificate Name</Label><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel required>Certificate Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                             )}
                         />
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -128,19 +127,19 @@ export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
                                 control={editForm.control}
                                 name="issuingOrganization"
                                 render={({ field }) => (
-                                    <FormItem><Label>Issuing Organization</Label><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem><FormLabel required>Issuing Organization</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                 )}
                             />
                             <FormField
                                 control={editForm.control}
                                 name="issueDate"
                                 render={({ field }) => (
-                                    <FormItem><Label>Issue Date</Label><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem><FormLabel required>Issue Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
                                 )}
                             />
                         </div>
                         <FormItem>
-                            <Label>Proof (PDF)</Label>
+                            <FormLabel>Proof (PDF)</FormLabel>
                             <FormControl>
                                 <div className="relative flex items-center justify-center w-full">
                                     <label htmlFor={`edit-file-upload-${index}`} className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
@@ -227,7 +226,7 @@ export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
                             control={form.control}
                             name="name"
                             render={({ field }) => (
-                                <FormItem><Label>Certificate Name</Label><FormControl><Input {...field} placeholder="e.g. Certified React Developer"/></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel required>Certificate Name</FormLabel><FormControl><Input {...field} placeholder="e.g. Certified React Developer"/></FormControl><FormMessage /></FormItem>
                             )}
                         />
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -235,19 +234,19 @@ export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
                                 control={form.control}
                                 name="issuingOrganization"
                                 render={({ field }) => (
-                                    <FormItem><Label>Issuing Organization</Label><FormControl><Input {...field} placeholder="e.g. Vercel"/></FormControl><FormMessage /></FormItem>
+                                    <FormItem><FormLabel required>Issuing Organization</FormLabel><FormControl><Input {...field} placeholder="e.g. Vercel"/></FormControl><FormMessage /></FormItem>
                                 )}
                             />
                             <FormField
                                 control={form.control}
                                 name="issueDate"
                                 render={({ field }) => (
-                                    <FormItem><Label>Issue Date</Label><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem><FormLabel required>Issue Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
                                 )}
                             />
                         </div>
                          <FormItem>
-                            <Label>Proof (PDF)</Label>
+                            <FormLabel>Proof (PDF)</FormLabel>
                             <FormControl>
                                 <div className="relative flex items-center justify-center w-full">
                                     <label htmlFor="add-file-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">

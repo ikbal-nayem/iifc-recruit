@@ -12,13 +12,12 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import type { Candidate, AcademicInfo } from '@/lib/types';
 import { PlusCircle, Trash, Save, Edit, FileText, Upload, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Badge } from '@/components/ui/badge';
 
 const academicInfoSchema = z.object({
@@ -122,7 +121,7 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
                         name="degree"
                         render={({ field }) => (
                             <FormItem>
-                            <Label>Degree</Label>
+                            <FormLabel required>Degree</FormLabel>
                             <FormControl><Input {...field} /></FormControl>
                             <FormMessage />
                             </FormItem>
@@ -133,7 +132,7 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
                         name="institution"
                         render={({ field }) => (
                             <FormItem>
-                            <Label>Institution</Label>
+                            <FormLabel required>Institution</FormLabel>
                             <FormControl><Input {...field} /></FormControl>
                             <FormMessage />
                             </FormItem>
@@ -144,14 +143,14 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
                         name="graduationYear"
                         render={({ field }) => (
                             <FormItem>
-                            <Label>Graduation Year</Label>
+                            <FormLabel required>Graduation Year</FormLabel>
                             <FormControl><Input type="number" {...field} /></FormControl>
                             <FormMessage />
                             </FormItem>
                         )}
                         />
                         <FormItem>
-                            <Label>Certificates (Multi-file)</Label>
+                            <FormLabel>Certificates (Multi-file)</FormLabel>
                             <FormControl>
                                 <div className="relative flex items-center justify-center w-full">
                                     <label htmlFor={`edit-file-upload-${index}`} className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
@@ -246,7 +245,7 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
                         name="degree"
                         render={({ field }) => (
                             <FormItem>
-                            <Label>Degree</Label>
+                            <FormLabel required>Degree</FormLabel>
                             <FormControl><Input {...field} placeholder="e.g. B.S. in Computer Science"/></FormControl>
                             <FormMessage />
                             </FormItem>
@@ -257,7 +256,7 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
                         name="institution"
                         render={({ field }) => (
                             <FormItem>
-                            <Label>Institution</Label>
+                            <FormLabel required>Institution</FormLabel>
                             <FormControl><Input {...field} placeholder="e.g. Stanford University"/></FormControl>
                             <FormMessage />
                             </FormItem>
@@ -268,14 +267,14 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
                         name="graduationYear"
                         render={({ field }) => (
                             <FormItem>
-                            <Label>Graduation Year</Label>
+                            <FormLabel required>Graduation Year</FormLabel>
                             <FormControl><Input type="number" {...field} placeholder="e.g. 2024"/></FormControl>
                             <FormMessage />
                             </FormItem>
                         )}
                         />
                          <FormItem>
-                            <Label>Certificates (Multi-file)</Label>
+                            <FormLabel>Certificates (Multi-file)</FormLabel>
                             <FormControl>
                                 <div className="relative flex items-center justify-center w-full">
                                     <label htmlFor="add-file-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">

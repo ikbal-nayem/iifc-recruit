@@ -12,13 +12,12 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import type { Candidate, Language } from '@/lib/types';
 import { PlusCircle, Trash, Save, Edit } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import {
   Select,
   SelectContent,
@@ -84,7 +83,7 @@ export function ProfileFormLanguages({ candidate }: ProfileFormProps) {
                         name="name"
                         render={({ field }) => (
                             <FormItem>
-                            <Label>Language</Label>
+                            <FormLabel required>Language</FormLabel>
                             <FormControl><Input {...field} /></FormControl>
                             <FormMessage />
                             </FormItem>
@@ -95,7 +94,7 @@ export function ProfileFormLanguages({ candidate }: ProfileFormProps) {
                         name="proficiency"
                         render={({ field }) => (
                              <FormItem>
-                                <Label>Proficiency</Label>
+                                <FormLabel required>Proficiency</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl>
                                     <SelectTrigger>
@@ -170,7 +169,7 @@ export function ProfileFormLanguages({ candidate }: ProfileFormProps) {
                         name="name"
                         render={({ field }) => (
                             <FormItem>
-                            <Label>Language</Label>
+                            <FormLabel required>Language</FormLabel>
                             <FormControl><Input {...field} placeholder="e.g. Spanish"/></FormControl>
                             <FormMessage />
                             </FormItem>
@@ -181,7 +180,7 @@ export function ProfileFormLanguages({ candidate }: ProfileFormProps) {
                             name="proficiency"
                             render={({ field }) => (
                                 <FormItem>
-                                <Label>Proficiency</Label>
+                                <FormLabel required>Proficiency</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl>
                                     <SelectTrigger>

@@ -12,14 +12,13 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import type { Candidate, ProfessionalInfo } from '@/lib/types';
 import { PlusCircle, Trash, Save, Edit, FileText, Upload, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, parseISO } from 'date-fns';
@@ -144,7 +143,7 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                         name="role"
                         render={({ field }) => (
                             <FormItem>
-                            <Label>Role</Label>
+                            <FormLabel required>Role</FormLabel>
                             <FormControl><Input {...field} /></FormControl>
                             <FormMessage />
                             </FormItem>
@@ -155,7 +154,7 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                         name="company"
                         render={({ field }) => (
                             <FormItem>
-                            <Label>Company</Label>
+                            <FormLabel required>Company</FormLabel>
                             <FormControl><Input {...field} /></FormControl>
                             <FormMessage />
                             </FormItem>
@@ -167,7 +166,7 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                                 name="fromDate"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <Label>From</Label>
+                                    <FormLabel required>From</FormLabel>
                                     <FormControl><Input type="date" {...field} /></FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -178,7 +177,7 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                                 name="toDate"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <Label>To</Label>
+                                    <FormLabel required={!watchIsPresent}>To</FormLabel>
                                     <FormControl><Input type="date" {...field} disabled={watchIsPresent} /></FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -192,7 +191,7 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                                 <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                                 <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                                 <div className="space-y-1 leading-none">
-                                    <Label>I currently work here</Label>
+                                    <FormLabel>I currently work here</FormLabel>
                                 </div>
                                 </FormItem>
                             )}
@@ -203,14 +202,14 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                         name="responsibilities"
                         render={({ field }) => (
                             <FormItem>
-                            <Label>Responsibilities (one per line)</Label>
+                            <FormLabel required>Responsibilities (one per line)</FormLabel>
                             <FormControl><Textarea {...field} rows={4} /></FormControl>
                             <FormMessage />
                             </FormItem>
                         )}
                         />
                         <FormItem>
-                            <Label>Documents (Multi-file)</Label>
+                            <FormLabel>Documents (Multi-file)</FormLabel>
                              <FormControl>
                                 <div className="relative flex items-center justify-center w-full">
                                     <label htmlFor={`edit-prof-file-upload-${index}`} className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
@@ -309,7 +308,7 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                         name="role"
                         render={({ field }) => (
                             <FormItem>
-                            <Label>Role</Label>
+                            <FormLabel required>Role</FormLabel>
                             <FormControl><Input {...field} placeholder="e.g. Software Engineer"/></FormControl>
                             <FormMessage />
                             </FormItem>
@@ -320,7 +319,7 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                         name="company"
                         render={({ field }) => (
                             <FormItem>
-                            <Label>Company</Label>
+                            <FormLabel required>Company</FormLabel>
                             <FormControl><Input {...field} placeholder="e.g. Google"/></FormControl>
                             <FormMessage />
                             </FormItem>
@@ -332,7 +331,7 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                                 name="fromDate"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <Label>From</Label>
+                                    <FormLabel required>From</FormLabel>
                                     <FormControl><Input type="date" {...field} /></FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -343,7 +342,7 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                                 name="toDate"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <Label>To</Label>
+                                    <FormLabel required={!form.watch('isPresent')}>To</FormLabel>
                                     <FormControl><Input type="date" {...field} disabled={form.watch('isPresent')} /></FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -357,7 +356,7 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                                 <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                                 <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                                 <div className="space-y-1 leading-none">
-                                    <Label>I currently work here</Label>
+                                    <FormLabel>I currently work here</FormLabel>
                                 </div>
                                 </FormItem>
                             )}
@@ -368,14 +367,14 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                         name="responsibilities"
                         render={({ field }) => (
                             <FormItem>
-                            <Label>Responsibilities (one per line)</Label>
+                            <FormLabel required>Responsibilities (one per line)</FormLabel>
                             <FormControl><Textarea {...field} rows={4} /></FormControl>
                             <FormMessage />
                             </FormItem>
                         )}
                         />
                          <FormItem>
-                            <Label>Documents (Multi-file)</Label>
+                            <FormLabel>Documents (Multi-file)</FormLabel>
                              <FormControl>
                                 <div className="relative flex items-center justify-center w-full">
                                     <label htmlFor="add-prof-file-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">

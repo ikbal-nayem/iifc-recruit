@@ -12,13 +12,12 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import type { Candidate, Publication } from '@/lib/types';
 import { PlusCircle, Trash, Save, Edit, Link2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 const publicationSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -78,28 +77,28 @@ export function ProfileFormPublications({ candidate }: ProfileFormProps) {
                             control={editForm.control}
                             name="title"
                             render={({ field }) => (
-                                <FormItem><Label>Title</Label><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel required>Title</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                             )}
                         />
                         <FormField
                             control={editForm.control}
                             name="publisher"
                             render={({ field }) => (
-                                <FormItem><Label>Publisher</Label><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel required>Publisher</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                             )}
                         />
                         <FormField
                             control={editForm.control}
                             name="publicationDate"
                             render={({ field }) => (
-                                <FormItem><Label>Publication Date</Label><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel required>Publication Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
                             )}
                         />
                          <FormField
                             control={editForm.control}
                             name="url"
                             render={({ field }) => (
-                                <FormItem><Label>URL</Label><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel required>URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                             )}
                         />
                     </CardContent>
@@ -162,28 +161,28 @@ export function ProfileFormPublications({ candidate }: ProfileFormProps) {
                             control={form.control}
                             name="title"
                             render={({ field }) => (
-                                <FormItem><Label>Title</Label><FormControl><Input {...field} placeholder="e.g., The Future of AI" /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel required>Title</FormLabel><FormControl><Input {...field} placeholder="e.g., The Future of AI" /></FormControl><FormMessage /></FormItem>
                             )}
                         />
                         <FormField
                             control={form.control}
                             name="publisher"
                             render={({ field }) => (
-                                <FormItem><Label>Publisher</Label><FormControl><Input {...field} placeholder="e.g., Nature Journal" /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel required>Publisher</FormLabel><FormControl><Input {...field} placeholder="e.g., Nature Journal" /></FormControl><FormMessage /></FormItem>
                             )}
                         />
                         <FormField
                             control={form.control}
                             name="publicationDate"
                             render={({ field }) => (
-                                <FormItem><Label>Publication Date</Label><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel required>Publication Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
                             )}
                         />
                          <FormField
                             control={form.control}
                             name="url"
                             render={({ field }) => (
-                                <FormItem><Label>URL</Label><FormControl><Input {...field} placeholder="https://example.com/publication" /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel required>URL</FormLabel><FormControl><Input {...field} placeholder="https://example.com/publication" /></FormControl><FormMessage /></FormItem>
                             )}
                         />
                     </CardContent>
