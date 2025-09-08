@@ -27,22 +27,28 @@ export default function CandidateProfileLayout({
         </p>
       </div>
        <div className="space-y-4">
-        <div className="relative">
-          <div className="flex flex-wrap items-center gap-1">
-            {profileTabs.map(tab => (
+        <div className="relative border-b">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            {profileTabs.map(tab => {
+              const isActive = tab.isActive ? tab.isActive(pathname) : pathname === tab.href;
+              return (
                 <Link 
                     key={tab.href} 
                     href={tab.href}
                     className={cn(
-                        "py-2 px-4 text-sm font-medium transition-colors rounded-md",
-                        (tab.isActive ? tab.isActive(pathname) : pathname === tab.href)
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                        "py-3 px-1 text-sm font-medium transition-colors relative",
+                        isActive
+                        ? "text-primary font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
                     )}
                 >
                     {tab.label}
+                    {isActive && (
+                      <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-primary rounded-full" />
+                    )}
                 </Link>
-            ))}
+              )
+            })}
           </div>
         </div>
          <div className="pt-4">
