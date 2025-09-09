@@ -99,7 +99,7 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
            return;
         }
         form.setValue('avatarFile', file);
-        if (avatarPreview) {
+        if (avatarPreview && avatarPreview !== candidate.personalInfo.avatar) {
           URL.revokeObjectURL(avatarPreview);
         }
         setAvatarPreview(URL.createObjectURL(file));
@@ -133,7 +133,7 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                     <FormItem>
                     <div className="flex items-center gap-6">
                         <div className="relative">
-                        <Image src={avatarPreview || candidate.personalInfo.avatar} alt="Candidate Avatar" width={80} height={80} className="rounded-full object-cover" data-ai-hint="avatar person" />
+                        <Image src={avatarPreview || candidate.personalInfo.avatar} alt="Candidate Avatar" width={80} height={80} className="rounded-full object-cover w-20 h-20" data-ai-hint="avatar person" />
                         <Button size="icon" variant="outline" className="absolute bottom-0 right-0 h-8 w-8 rounded-full" asChild>
                             <FormLabel htmlFor="avatar-upload" className="cursor-pointer">
                                 <Upload className="h-4 w-4" />

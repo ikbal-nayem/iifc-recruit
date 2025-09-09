@@ -61,7 +61,7 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
            return;
         }
         form.setValue('avatarFile', file);
-        if (avatarPreview) {
+        if (avatarPreview && avatarPreview !== user.avatar) {
           URL.revokeObjectURL(avatarPreview);
         }
         setAvatarPreview(URL.createObjectURL(file));
@@ -90,7 +90,7 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
                     <FormItem>
                     <div className="flex items-center gap-6">
                         <div className="relative">
-                        <Image src={avatarPreview || user.avatar} alt="Admin Avatar" width={80} height={80} className="rounded-full object-cover" data-ai-hint="avatar person" />
+                        <Image src={avatarPreview || user.avatar} alt="Admin Avatar" width={80} height={80} className="rounded-full object-cover h-20 w-20" data-ai-hint="avatar person" />
                         <Button size="icon" variant="outline" className="absolute bottom-0 right-0 h-8 w-8 rounded-full" asChild>
                             <FormLabel htmlFor="avatar-upload" className="cursor-pointer">
                                 <Upload className="h-4 w-4" />
