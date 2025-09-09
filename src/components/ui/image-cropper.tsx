@@ -59,13 +59,8 @@ export function ImageCropper({ imageSrc, onCropComplete, onClose }: ImageCropper
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
     
-    const cropX = crop.x * scaleX;
-    const cropY = crop.y * scaleY;
-    const cropWidth = crop.width * scaleX;
-    const cropHeight = crop.height * scaleY;
-
-    canvas.width = cropWidth;
-    canvas.height = cropHeight;
+    canvas.width = crop.width * scaleX;
+    canvas.height = crop.height * scaleY;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) {
@@ -79,14 +74,14 @@ export function ImageCropper({ imageSrc, onCropComplete, onClose }: ImageCropper
 
     ctx.drawImage(
       image,
-      cropX,
-      cropY,
-      cropWidth,
-      cropHeight,
+      crop.x * scaleX,
+      crop.y * scaleY,
+      crop.width * scaleX,
+      crop.height * scaleY,
       0,
       0,
-      cropWidth,
-      cropHeight
+      canvas.width,
+      canvas.height
     );
     
     canvas.toBlob(
