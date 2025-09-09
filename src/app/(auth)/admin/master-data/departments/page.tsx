@@ -1,9 +1,8 @@
-
 import { MasterDataCrud } from '@/components/app/admin/master-data-crud';
 import { jobs } from '@/lib/data';
 
 export default function MasterDepartmentsPage() {
-  const departments = Array.from(new Set(jobs.map(j => j.department)));
+  const departments = Array.from(new Set(jobs.map(j => j.department))).map(name => ({ name, isActive: true }));
 
   return (
     <MasterDataCrud 

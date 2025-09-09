@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -13,17 +12,24 @@ import {
 import { Input } from '@/components/ui/input';
 import { PlusCircle, Trash, Edit, Check, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+
+interface MasterDataItem {
+    name: string;
+    isActive: boolean;
+}
 
 interface MasterDataCrudProps {
   title: string;
   description: string;
-  initialData: string[];
+  initialData: MasterDataItem[];
   noun: string; // e.g., "Department", "Skill"
 }
 
 export function MasterDataCrud({ title, description, initialData, noun }: MasterDataCrudProps) {
   const { toast } = useToast();
-  const [data, setData] = React.useState<string[]>(initialData);
+  const [data, setData] = React.useState<MasterDataItem[]>(initialData);
   const [editingIndex, setEditingIndex] = React.useState<number | null>(null);
   const [editingValue, setEditingValue] = React.useState('');
   const [newValue, setNewValue] = React.useState('');
@@ -33,11 +39,11 @@ export function MasterDataCrud({ title, description, initialData, noun }: Master
         toast({ title: 'Error', description: `${noun} name cannot be empty.`, variant: 'destructive'});
         return;
     }
-    if (data.includes(newValue.trim())) {
+    if (data.some(item => item.name.toLowerCase() === newValue.trim().toLowerCase())) {
         toast({ title: 'Error', description: `This ${noun.toLowerCase()} already exists.`, variant: 'destructive'});
         return;
     }
-    setData([...data, newValue.trim()]);
+    setData([...data, { name: newValue.trim(), isActive: true }]);
     setNewValue('');
     toast({ title: 'Success', description: `${noun} added successfully.`, variant: 'success'});
   };
@@ -47,16 +53,23 @@ export function MasterDataCrud({ title, description, initialData, noun }: Master
         toast({ title: 'Error', description: `${noun} name cannot be empty.`, variant: 'destructive'});
         return;
     }
-    if (data.includes(editingValue.trim()) && data[index] !== editingValue.trim()) {
+    if (data.some((item, i) => i !== index && item.name.toLowerCase() === editingValue.trim().toLowerCase())) {
         toast({ title: 'Error', description: `This ${noun.toLowerCase()} already exists.`, variant: 'destructive'});
         return;
     }
     const updatedData = [...data];
-    updatedData[index] = editingValue.trim();
+    updatedData[index].name = editingValue.trim();
     setData(updatedData);
     setEditingIndex(null);
     setEditingValue('');
     toast({ title: 'Success', description: `${noun} updated successfully.`, variant: 'success'});
+  };
+  
+  const handleToggleActive = (index: number) => {
+    const updatedData = [...data];
+    updatedData[index].isActive = !updatedData[index].isActive;
+    setData(updatedData);
+    toast({ title: 'Status Updated', description: `${updatedData[index].name}'s status has been changed.`, variant: 'success' });
   };
 
   const handleRemove = (index: number) => {
@@ -102,7 +115,14 @@ export function MasterDataCrud({ title, description, initialData, noun }: Master
                   autoFocus
                 />
               ) : (
-                <p className="text-sm">{item}</p>
+                <div className="flex items-center gap-4">
+                     <Switch
+                        id={`active-switch-${index}`}
+                        checked={item.isActive}
+                        onCheckedChange={() => handleToggleActive(index)}
+                      />
+                    <p className={`text-sm ${!item.isActive && 'text-muted-foreground line-through'}`}>{item.name}</p>
+                </div>
               )}
               <div className="flex gap-1">
                 {editingIndex === index ? (
@@ -116,7 +136,7 @@ export function MasterDataCrud({ title, description, initialData, noun }: Master
                   </>
                 ) : (
                   <>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEditing(index, item)}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEditing(index, item.name)}>
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleRemove(index)}>

@@ -30,31 +30,27 @@ export default function MasterDataLayout({
         <div className="relative border-b">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
             {masterDataTabs.map(tab => {
-              const isActive = tab.isActive ? tab.isActive(pathname) : pathname === tab.href;
-              return (
-                <Link 
-                    key={tab.href} 
-                    href={tab.href}
-                    className={cn(
-                        "py-3 px-1 text-sm font-medium transition-colors relative",
-                        isActive
-                        ? "text-primary font-semibold"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                >
-                    {tab.label}
-                    {isActive && (
-                      <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-primary rounded-full" />
-                    )}
-                </Link>
-              )
+                if (tab.href.includes('locations')) return null;
+                const isActive = tab.isActive ? tab.isActive(pathname) : pathname === tab.href;
+                return (
+                    <Link 
+                        key={tab.href} 
+                        href={tab.href}
+                        className={cn(
+                            "py-3 px-1 text-sm font-medium transition-colors relative",
+                            isActive
+                            ? "text-primary font-semibold"
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
+                    >
+                        {tab.label}
+                        {isActive && (
+                        <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-primary rounded-full" />
+                        )}
+                    </Link>
+                )
             })}
           </div>
         </div>
          <div className="pt-4">
-             {children}
-         </div>
-       </div>
-    </div>
-  );
-}
+             {children

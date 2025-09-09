@@ -1,4 +1,3 @@
-
 import type { LucideIcon } from 'lucide-react';
 import {
 	Briefcase,
@@ -55,7 +54,6 @@ export const adminNavLinks: NavLink[] = [
 		isActive: (pathname) => pathname.startsWith('/admin/master-data'),
 		submenu: [
 			{ href: '/admin/master-data/departments', label: 'Departments', icon: Database },
-			{ href: '/admin/master-data/locations', label: 'Locations', icon: Database },
 			{ href: '/admin/master-data/skills', label: 'Skills', icon: Database },
 			{ href: '/admin/master-data/languages', label: 'Languages', icon: Database },
 		],
