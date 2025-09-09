@@ -24,7 +24,6 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { divisions, districts, upazilas } from '@/lib/bd-divisions-districts-upazilas';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { ImageCropper } from '@/components/ui/image-cropper';
 
 interface ProfileFormProps {
   candidate: Candidate;
@@ -48,7 +47,6 @@ type PersonalInfoFormValues = z.infer<typeof personalInfoSchema>;
 export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
   const { toast } = useToast();
   const [avatarPreview, setAvatarPreview] = React.useState<string | null>(candidate.personalInfo.avatar);
-  const [cropperSrc, setCropperSrc] = React.useState<string | null>(null);
 
   const form = useForm<PersonalInfoFormValues>({
     resolver: zodResolver(personalInfoSchema),
@@ -100,18 +98,12 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
            });
            return;
         }
-        setCropperSrc(URL.createObjectURL(file));
+        form.setValue('avatarFile', file);
+        if (avatarPreview) {
+          URL.revokeObjectURL(avatarPreview);
+        }
+        setAvatarPreview(URL.createObjectURL(file));
     }
-  };
-
-  const onCropComplete = (blob: Blob) => {
-    const file = new File([blob], "avatar.png", { type: "image/png" });
-    form.setValue('avatarFile', file, { shouldValidate: true });
-    if (avatarPreview) {
-      URL.revokeObjectURL(avatarPreview);
-    }
-    setAvatarPreview(URL.createObjectURL(blob));
-    setCropperSrc(null);
   };
 
 
@@ -126,11 +118,6 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
 
   return (
     <>
-        <ImageCropper 
-            imageSrc={cropperSrc}
-            onCropComplete={onCropComplete}
-            onClose={() => setCropperSrc(null)}
-        />
         <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
             <Card className="glassmorphism">
