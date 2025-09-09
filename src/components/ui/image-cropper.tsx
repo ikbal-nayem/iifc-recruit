@@ -59,8 +59,13 @@ export function ImageCropper({ imageSrc, onCropComplete, onClose }: ImageCropper
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
     
-    canvas.width = crop.width * scaleX;
-    canvas.height = crop.height * scaleY;
+    const cropX = crop.x * scaleX;
+    const cropY = crop.y * scaleY;
+    const cropWidth = crop.width * scaleX;
+    const cropHeight = crop.height * scaleY;
+
+    canvas.width = cropWidth;
+    canvas.height = cropHeight;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) {
@@ -74,14 +79,14 @@ export function ImageCropper({ imageSrc, onCropComplete, onClose }: ImageCropper
 
     ctx.drawImage(
       image,
-      crop.x * scaleX,
-      crop.y * scaleY,
-      crop.width * scaleX,
-      crop.height * scaleY,
+      cropX,
+      cropY,
+      cropWidth,
+      cropHeight,
       0,
       0,
-      canvas.width,
-      canvas.height
+      cropWidth,
+      cropHeight
     );
     
     canvas.toBlob(
@@ -113,6 +118,8 @@ export function ImageCropper({ imageSrc, onCropComplete, onClose }: ImageCropper
                     crop={crop}
                     onChange={(_, percentCrop) => setCrop(percentCrop)}
                     aspect={1}
+                    minWidth={100}
+                    minHeight={100}
                 >
                     <img ref={imgRef} src={imageSrc} onLoad={onImageLoad} alt="Crop preview"/>
                 </ReactCrop>
