@@ -1,3 +1,4 @@
+
 import type { LucideIcon } from 'lucide-react';
 import {
 	Briefcase,
@@ -56,6 +57,8 @@ export const adminNavLinks: NavLink[] = [
 			{ href: '/admin/master-data/departments', label: 'Departments', icon: Database },
 			{ href: '/admin/master-data/skills', label: 'Skills', icon: Database },
 			{ href: '/admin/master-data/languages', label: 'Languages', icon: Database },
+      { href: '/admin/master-data/job-statuses', label: 'Job Statuses', icon: Database },
+      { href: '/admin/master-data/application-statuses', label: 'Application Statuses', icon: Database },
 		],
 	},
 ];
