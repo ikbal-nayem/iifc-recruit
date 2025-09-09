@@ -41,12 +41,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MoreHorizontal, FileText, Star, Send, Briefcase, Mail, Phone, MapPin } from 'lucide-react';
+import { MoreHorizontal, FileText, Star, Send, Briefcase, Mail, Phone, MapPin, Filter } from 'lucide-react';
 import type { Candidate, Application, Job } from '@/lib/types';
 import { candidates as initialCandidates, applications as allApplications, jobs as allJobs } from '@/lib/data';
 import { CandidateProfileView } from '@/components/app/candidate-profile-view';
 import { Card } from '@/components/ui/card';
 import Link from 'next/link';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type ApplicationWithJob = Application & { job: Job };
 
@@ -58,6 +60,8 @@ export function CandidateManagement() {
   const [applicationsCandidate, setApplicationsCandidate] = React.useState<Candidate | null>(null);
   const [contactCandidate, setContactCandidate] = React.useState<Candidate | null>(null);
 
+  const uniqueLocations = ['all', ...Array.from(new Set(initialCandidates.map(c => c.personalInfo.address.district)))];
+  const uniqueStatuses = ['all', 'Active', 'Passive', 'Hired'];
 
   const getCandidateApplications = (candidateId: string): ApplicationWithJob[] => {
     return allApplications
@@ -101,6 +105,13 @@ export function CandidateManagement() {
             ))}
           </div>
         );
+      },
+    },
+     {
+      accessorKey: 'personalInfo.address.district',
+      header: 'Location',
+       cell: ({ row }) => {
+        return row.original.personalInfo.address.district;
       },
     },
     {
@@ -200,22 +211,66 @@ export function CandidateManagement() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <Input
-          placeholder="Filter by candidate name..."
-          value={(table.getColumn('personalInfo')?.getFilterValue() as string) ?? ''}
-          onChange={(event) =>
-            table.getColumn('personalInfo')?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-         <Button variant="outline">Advanced Filters</Button>
-      </div>
+      <Collapsible className="space-y-4">
+        <div className="flex flex-col md:flex-row items-center gap-4">
+          <Input
+            placeholder="Filter by candidate name or email..."
+            value={(table.getColumn('personalInfo')?.getFilterValue() as string) ?? ''}
+            onChange={(event) =>
+              table.getColumn('personalInfo')?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm w-full"
+          />
+          <CollapsibleTrigger asChild>
+            <Button variant="outline" className="w-full md:w-auto">
+              <Filter className="mr-2 h-4 w-4" />
+              Advanced Filters
+            </Button>
+          </CollapsibleTrigger>
+        </div>
+        <CollapsibleContent className="p-4 rounded-lg bg-card/60 backdrop-blur-xl border border-border/20 shadow-sm space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Input
+              placeholder="Filter by skills..."
+              value={(table.getColumn('skills')?.getFilterValue() as string) ?? ''}
+              onChange={(event) =>
+                table.getColumn('skills')?.setFilterValue(event.target.value)
+              }
+            />
+             <Select
+              value={(table.getColumn('personalInfo_address_district')?.getFilterValue() as string) ?? 'all'}
+              onValueChange={(value) =>
+                table.getColumn('personalInfo_address_district')?.setFilterValue(value === 'all' ? null : value)
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Filter by location" />
+              </SelectTrigger>
+              <SelectContent>
+                {uniqueLocations.map(loc => <SelectItem key={loc} value={loc}>{loc === 'all' ? 'All Locations' : loc}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select
+              value={(table.getColumn('status')?.getFilterValue() as string) ?? 'all'}
+              onValueChange={(value) =>
+                table.getColumn('status')?.setFilterValue(value === 'all' ? null : value)
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                {uniqueStatuses.map(status => <SelectItem key={status} value={status}>{status === 'all' ? 'All Statuses' : status}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
       
        {/* Mobile View */}
         <div className="md:hidden">
-            {data.length > 0 ? (
-                data.map(renderMobileCard)
+            {table.getRowModel().rows.length > 0 ? (
+                table.getRowModel().rows.map(row => renderMobileCard(row.original))
             ) : (
                 <div className="text-center py-16">
                     <p className="text-muted-foreground">No candidates found.</p>
@@ -360,3 +415,4 @@ export function CandidateManagement() {
     </div>
   );
 }
+
