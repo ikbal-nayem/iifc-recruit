@@ -24,6 +24,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { divisions, districts, upazilas } from '@/lib/bd-divisions-districts-upazilas';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { ImageCropper } from '@/components/ui/image-cropper';
 
 interface ProfileFormProps {
   candidate: Candidate;
@@ -46,7 +47,8 @@ type PersonalInfoFormValues = z.infer<typeof personalInfoSchema>;
 
 export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
   const { toast } = useToast();
-  const [avatarPreview, setAvatarPreview] = React.useState<string | null>(null);
+  const [avatarPreview, setAvatarPreview] = React.useState<string | null>(candidate.personalInfo.avatar);
+  const [cropperSrc, setCropperSrc] = React.useState<string | null>(null);
 
   const form = useForm<PersonalInfoFormValues>({
     resolver: zodResolver(personalInfoSchema),
@@ -87,30 +89,27 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
     form.setValue('upazila', '');
   }, [watchDistrict, form]);
 
-  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>, fieldChange: (value: File | null) => void) => {
-    const file = event.target.files?.[0] || null;
+   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (file) {
-      if (file.size > 10 * 1024 * 1024) { // 10MB limit
-         toast({
-            title: 'File Too Large',
-            description: 'Please upload an image smaller than 10MB.',
-            variant: 'destructive',
-         });
-         return;
-      }
-      const previewUrl = URL.createObjectURL(file);
-      setAvatarPreview(previewUrl);
-      fieldChange(file);
+        if (file.size > 10 * 1024 * 1024) { // 10MB limit
+           toast({
+              title: 'File Too Large',
+              description: 'Please upload an image smaller than 10MB.',
+              variant: 'destructive',
+           });
+           return;
+        }
+        setCropperSrc(URL.createObjectURL(file));
     }
   };
 
-  React.useEffect(() => {
-    return () => {
-      if (avatarPreview) {
-        URL.revokeObjectURL(avatarPreview);
-      }
-    };
-  }, [avatarPreview]);
+  const onCropComplete = (blob: Blob) => {
+    const file = new File([blob], "avatar.png", { type: "image/png" });
+    form.setValue('avatarFile', file, { shouldValidate: true });
+    setAvatarPreview(URL.createObjectURL(file));
+    setCropperSrc(null);
+  };
 
 
   const onSubmit = (data: PersonalInfoFormValues) => {
@@ -123,281 +122,288 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Card className="glassmorphism">
-          <CardHeader>
-            <CardTitle>Personal Information</CardTitle>
-            <CardDescription>This is your public-facing information.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <FormField
-              control={form.control}
-              name="avatarFile"
-              render={({ field }) => (
-                  <FormItem>
-                  <div className="flex items-center gap-6">
-                    <div className="relative">
-                      <Image src={avatarPreview || candidate.personalInfo.avatar} alt="Candidate Avatar" width={80} height={80} className="rounded-full object-cover" data-ai-hint="avatar person" />
-                      <Button size="icon" variant="outline" className="absolute bottom-0 right-0 h-8 w-8 rounded-full" asChild>
-                         <FormLabel htmlFor="avatar-upload" className="cursor-pointer">
-                            <Upload className="h-4 w-4" />
-                            <FormControl>
-                                <Input id="avatar-upload" type="file" className="sr-only" accept="image/png, image/jpeg, image/gif" onChange={(e) => handleAvatarChange(e, field.onChange)} />
-                            </FormControl>
-                          </FormLabel>
-                      </Button>
+    <>
+        <ImageCropper 
+            imageSrc={cropperSrc}
+            onCropComplete={onCropComplete}
+            onClose={() => setCropperSrc(null)}
+        />
+        <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+            <Card className="glassmorphism">
+            <CardHeader>
+                <CardTitle>Personal Information</CardTitle>
+                <CardDescription>This is your public-facing information.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <FormField
+                control={form.control}
+                name="avatarFile"
+                render={({ field }) => (
+                    <FormItem>
+                    <div className="flex items-center gap-6">
+                        <div className="relative">
+                        <Image src={avatarPreview || candidate.personalInfo.avatar} alt="Candidate Avatar" width={80} height={80} className="rounded-full object-cover" data-ai-hint="avatar person" />
+                        <Button size="icon" variant="outline" className="absolute bottom-0 right-0 h-8 w-8 rounded-full" asChild>
+                            <FormLabel htmlFor="avatar-upload" className="cursor-pointer">
+                                <Upload className="h-4 w-4" />
+                                <FormControl>
+                                    <Input id="avatar-upload" type="file" className="sr-only" accept="image/png, image/jpeg, image/gif" onChange={handleFileChange} />
+                                </FormControl>
+                            </FormLabel>
+                        </Button>
+                        </div>
+                        <div>
+                        <FormLabel>Profile Photo</FormLabel>
+                        <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 10MB</p>
+                        </div>
                     </div>
-                    <div>
-                      <FormLabel>Profile Photo</FormLabel>
-                      <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 10MB</p>
-                    </div>
-                  </div>
-                  </FormItem>
-              )}
-            />
+                    </FormItem>
+                )}
+                />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="firstName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel required>First Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g. John" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="lastName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel required>Last Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g. Doe" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <FormField
-              control={form.control}
-              name="headline"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel required>Headline</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. Senior Frontend Developer" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-               <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel required>Email</FormLabel>
-                    <FormControl>
-                        <div className="relative flex items-center">
-                            <Mail className="absolute left-3 h-4 w-4 text-muted-foreground" />
-                            <Input type="email" {...field} className="pl-10" />
-                        </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-               <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel required>Phone</FormLabel>
-                    <FormControl>
-                        <div className="relative flex items-center">
-                            <Phone className="absolute left-3 h-4 w-4 text-muted-foreground" />
-                            <Input {...field} className="pl-10" />
-                        </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div>
-              <FormLabel>Address</FormLabel>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
-                 <FormField
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
                     control={form.control}
-                    name="division"
-                    render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                        <FormLabel required className="text-xs">Division</FormLabel>
-                        <Popover>
-                        <PopoverTrigger asChild>
-                            <FormControl>
-                            <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn("w-full justify-between", !field.value && "text-muted-foreground")}
-                            >
-                                {field.value ? divisions.find((d) => d.name === field.value)?.name : "Select division"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                            </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                           <Command>
-                                <CommandInput placeholder="Search division..." />
-                                <CommandList>
-                                <CommandEmpty>No division found.</CommandEmpty>
-                                <CommandGroup>
-                                    {divisions.map((division) => (
-                                    <CommandItem
-                                        value={division.name}
-                                        key={division.id}
-                                        onSelect={() => {
-                                        form.setValue("division", division.name)
-                                        }}
-                                    >
-                                        <Check className={cn("mr-2 h-4 w-4", division.name === field.value ? "opacity-100" : "opacity-0")} />
-                                        {division.name}
-                                    </CommandItem>
-                                    ))}
-                                </CommandGroup>
-                                </CommandList>
-                            </Command>
-                        </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
-                 <FormField
-                    control={form.control}
-                    name="district"
-                    render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                        <FormLabel required className="text-xs">District</FormLabel>
-                        <Popover>
-                        <PopoverTrigger asChild>
-                            <FormControl>
-                            <Button
-                                variant="outline"
-                                role="combobox"
-                                disabled={!watchDivision}
-                                className={cn("w-full justify-between", !field.value && "text-muted-foreground")}
-                            >
-                                {field.value ? filteredDistricts.find((d) => d.name === field.value)?.name : "Select district"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                            </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                            <Command>
-                                <CommandInput placeholder="Search district..." />
-                                <CommandList>
-                                <CommandEmpty>No district found.</CommandEmpty>
-                                <CommandGroup>
-                                    {filteredDistricts.map((district) => (
-                                    <CommandItem
-                                        value={district.name}
-                                        key={district.id}
-                                        onSelect={() => {
-                                        form.setValue("district", district.name)
-                                        }}
-                                    >
-                                        <Check className={cn("mr-2 h-4 w-4", district.name === field.value ? "opacity-100" : "opacity-0")} />
-                                        {district.name}
-                                    </CommandItem>
-                                    ))}
-                                </CommandGroup>
-                                </CommandList>
-                            </Command>
-                        </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
-                 <FormField
-                    control={form.control}
-                    name="upazila"
-                    render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                        <FormLabel required className="text-xs">Upazila / Thana</FormLabel>
-                        <Popover>
-                        <PopoverTrigger asChild>
-                            <FormControl>
-                            <Button
-                                variant="outline"
-                                role="combobox"
-                                disabled={!watchDistrict}
-                                className={cn("w-full justify-between", !field.value && "text-muted-foreground")}
-                            >
-                                {field.value ? filteredUpazilas.find((u) => u.name === field.value)?.name : "Select upazila"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                            </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                            <Command>
-                                <CommandInput placeholder="Search upazila..." />
-                                <CommandList>
-                                <CommandEmpty>No upazila found.</CommandEmpty>
-                                <CommandGroup>
-                                    {filteredUpazilas.map((upazila) => (
-                                    <CommandItem
-                                        value={upazila.name}
-                                        key={upazila.id}
-                                        onSelect={() => {
-                                        form.setValue("upazila", upazila.name)
-                                        }}
-                                    >
-                                        <Check className={cn("mr-2 h-4 w-4", upazila.name === field.value ? "opacity-100" : "opacity-0")} />
-                                        {upazila.name}
-                                    </CommandItem>
-                                    ))}
-                                </CommandGroup>
-                                </CommandList>
-                            </Command>
-                        </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
-              </div>
-              <div className="space-y-2 mt-4">
-                 <FormField
-                    control={form.control}
-                    name="line1"
+                    name="firstName"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel required className="text-xs">Address Line 1</FormLabel>
-                        <FormControl><Input {...field} /></FormControl>
+                        <FormLabel required>First Name</FormLabel>
+                        <FormControl>
+                        <Input placeholder="e.g. John" {...field} />
+                        </FormControl>
                         <FormMessage />
                     </FormItem>
                     )}
                 />
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button type="submit">
-              <Save className="mr-2 h-4 w-4" />Save Changes
-            </Button>
-          </CardFooter>
-        </Card>
-      </form>
-    </Form>
+                <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel required>Last Name</FormLabel>
+                        <FormControl>
+                        <Input placeholder="e.g. Doe" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                </div>
+                <FormField
+                control={form.control}
+                name="headline"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel required>Headline</FormLabel>
+                    <FormControl>
+                        <Input placeholder="e.g. Senior Frontend Developer" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel required>Email</FormLabel>
+                        <FormControl>
+                            <div className="relative flex items-center">
+                                <Mail className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                                <Input type="email" {...field} className="pl-10" />
+                            </div>
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel required>Phone</FormLabel>
+                        <FormControl>
+                            <div className="relative flex items-center">
+                                <Phone className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                                <Input {...field} className="pl-10" />
+                            </div>
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                </div>
+                <div>
+                <FormLabel>Address</FormLabel>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+                    <FormField
+                        control={form.control}
+                        name="division"
+                        render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                            <FormLabel required className="text-xs">Division</FormLabel>
+                            <Popover>
+                            <PopoverTrigger asChild>
+                                <FormControl>
+                                <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    className={cn("w-full justify-between", !field.value && "text-muted-foreground")}
+                                >
+                                    {field.value ? divisions.find((d) => d.name === field.value)?.name : "Select division"}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                                </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                            <Command>
+                                    <CommandInput placeholder="Search division..." />
+                                    <CommandList>
+                                    <CommandEmpty>No division found.</CommandEmpty>
+                                    <CommandGroup>
+                                        {divisions.map((division) => (
+                                        <CommandItem
+                                            value={division.name}
+                                            key={division.id}
+                                            onSelect={() => {
+                                            form.setValue("division", division.name)
+                                            }}
+                                        >
+                                            <Check className={cn("mr-2 h-4 w-4", division.name === field.value ? "opacity-100" : "opacity-0")} />
+                                            {division.name}
+                                        </CommandItem>
+                                        ))}
+                                    </CommandGroup>
+                                    </CommandList>
+                                </Command>
+                            </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="district"
+                        render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                            <FormLabel required className="text-xs">District</FormLabel>
+                            <Popover>
+                            <PopoverTrigger asChild>
+                                <FormControl>
+                                <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    disabled={!watchDivision}
+                                    className={cn("w-full justify-between", !field.value && "text-muted-foreground")}
+                                >
+                                    {field.value ? filteredDistricts.find((d) => d.name === field.value)?.name : "Select district"}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                                </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                <Command>
+                                    <CommandInput placeholder="Search district..." />
+                                    <CommandList>
+                                    <CommandEmpty>No district found.</CommandEmpty>
+                                    <CommandGroup>
+                                        {filteredDistricts.map((district) => (
+                                        <CommandItem
+                                            value={district.name}
+                                            key={district.id}
+                                            onSelect={() => {
+                                            form.setValue("district", district.name)
+                                            }}
+                                        >
+                                            <Check className={cn("mr-2 h-4 w-4", district.name === field.value ? "opacity-100" : "opacity-0")} />
+                                            {district.name}
+                                        </CommandItem>
+                                        ))}
+                                    </CommandGroup>
+                                    </CommandList>
+                                </Command>
+                            </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="upazila"
+                        render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                            <FormLabel required className="text-xs">Upazila / Thana</FormLabel>
+                            <Popover>
+                            <PopoverTrigger asChild>
+                                <FormControl>
+                                <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    disabled={!watchDistrict}
+                                    className={cn("w-full justify-between", !field.value && "text-muted-foreground")}
+                                >
+                                    {field.value ? filteredUpazilas.find((u) => u.name === field.value)?.name : "Select upazila"}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                                </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                <Command>
+                                    <CommandInput placeholder="Search upazila..." />
+                                    <CommandList>
+                                    <CommandEmpty>No upazila found.</CommandEmpty>
+                                    <CommandGroup>
+                                        {filteredUpazilas.map((upazila) => (
+                                        <CommandItem
+                                            value={upazila.name}
+                                            key={upazila.id}
+                                            onSelect={() => {
+                                            form.setValue("upazila", upazila.name)
+                                            }}
+                                        >
+                                            <Check className={cn("mr-2 h-4 w-4", upazila.name === field.value ? "opacity-100" : "opacity-0")} />
+                                            {upazila.name}
+                                        </CommandItem>
+                                        ))}
+                                    </CommandGroup>
+                                    </CommandList>
+                                </Command>
+                            </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                </div>
+                <div className="space-y-2 mt-4">
+                    <FormField
+                        control={form.control}
+                        name="line1"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel required className="text-xs">Address Line 1</FormLabel>
+                            <FormControl><Input {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                </div>
+                </div>
+            </CardContent>
+            <CardFooter>
+                <Button type="submit">
+                <Save className="mr-2 h-4 w-4" />Save Changes
+                </Button>
+            </CardFooter>
+            </Card>
+        </form>
+        </Form>
+    </>
   );
 }
