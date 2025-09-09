@@ -19,6 +19,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Badge } from '@/components/ui/badge';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 const academicInfoSchema = z.object({
   degree: z.string().min(1, 'Degree is required.'),
@@ -56,6 +58,7 @@ const FilePreview = ({ file, onRemove }: { file: File | string; onRemove: () => 
 
 
 export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
+  const { toast } = useToast();
   const [history, setHistory] = React.useState(candidate.academicInfo);
   const [editingId, setEditingId] = React.useState<number | null>(null);
   const [addFormFiles, setAddFormFiles] = React.useState<File[]>([]);
@@ -90,6 +93,11 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
   
   const handleRemove = (index: number) => {
     setHistory(history.filter((_, i) => i !== index));
+    toast({
+        title: 'Entry Deleted',
+        description: 'The academic record has been removed.',
+        variant: 'success'
+    })
   };
 
   const startEditing = (index: number, item: AcademicInfo) => {
@@ -209,9 +217,25 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
                  <Button variant="ghost" size="icon" onClick={() => startEditing(index, item)}>
                     <Edit className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" onClick={() => handleRemove(index)}>
-                    <Trash className="h-4 w-4 text-destructive" />
-                </Button>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                            <Trash className="h-4 w-4 text-destructive" />
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete this academic record.
+                        </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleRemove(index)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
         </Card>
     );

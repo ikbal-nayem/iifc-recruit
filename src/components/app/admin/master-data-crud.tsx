@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -6,6 +7,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -14,6 +16,18 @@ import { PlusCircle, Trash, Edit, Check, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+
 
 interface MasterDataItem {
     name: string;
@@ -105,47 +119,63 @@ export function MasterDataCrud({ title, description, initialData, noun }: Master
         </div>
         <div className="space-y-2">
           {data.map((item, index) => (
-            <div key={index} className="flex items-center justify-between p-2 rounded-md border bg-background/50">
-              {editingIndex === index ? (
-                <Input
-                  value={editingValue}
-                  onChange={(e) => setEditingValue(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleUpdate(index)}
-                  className="h-8"
-                  autoFocus
-                />
-              ) : (
-                <div className="flex items-center gap-4">
-                     <Switch
-                        id={`active-switch-${index}`}
-                        checked={item.isActive}
-                        onCheckedChange={() => handleToggleActive(index)}
-                      />
-                    <p className={`text-sm ${!item.isActive && 'text-muted-foreground line-through'}`}>{item.name}</p>
-                </div>
-              )}
-              <div className="flex gap-1">
+             <AlertDialog key={index}>
+              <div className="flex items-center justify-between p-2 rounded-md border bg-background/50">
                 {editingIndex === index ? (
-                  <>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleUpdate(index)}>
-                      <Check className="h-4 w-4 text-green-600" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={cancelEditing}>
-                      <X className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </>
+                  <Input
+                    value={editingValue}
+                    onChange={(e) => setEditingValue(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleUpdate(index)}
+                    className="h-8"
+                    autoFocus
+                  />
                 ) : (
-                  <>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEditing(index, item.name)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleRemove(index)}>
-                      <Trash className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </>
+                  <div className="flex items-center gap-4">
+                      <Switch
+                          id={`active-switch-${index}`}
+                          checked={item.isActive}
+                          onCheckedChange={() => handleToggleActive(index)}
+                        />
+                      <p className={`text-sm ${!item.isActive && 'text-muted-foreground line-through'}`}>{item.name}</p>
+                  </div>
                 )}
+                <div className="flex gap-1">
+                  {editingIndex === index ? (
+                    <>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleUpdate(index)}>
+                        <Check className="h-4 w-4 text-green-600" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={cancelEditing}>
+                        <X className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEditing(index, item.name)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Trash className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </AlertDialogTrigger>
+                    </>
+                  )}
+                </div>
+                 <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete the {noun.toLowerCase()} &quot;{item.name}&quot;.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleRemove(index)} className="bg-destructive hover:bg-destructive/90">Continue</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
               </div>
-            </div>
+            </AlertDialog>
           ))}
           {data.length === 0 && (
             <p className="text-center text-sm text-muted-foreground py-4">No {noun.toLowerCase()}s found.</p>

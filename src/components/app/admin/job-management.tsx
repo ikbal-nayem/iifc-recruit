@@ -70,6 +70,7 @@ import Link from 'next/link';
 import type { Job } from '@/lib/types';
 import { jobs as initialJobs } from '@/lib/data';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 export function JobManagement() {
   const [data, setData] = React.useState<Job[]>(initialJobs);
@@ -77,10 +78,20 @@ export function JobManagement() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [selectedJob, setSelectedJob] = React.useState<Job | null>(null);
   const [departmentPopoverOpen, setDepartmentPopoverOpen] = React.useState(false);
+  const { toast } = useToast();
 
   const uniqueDepartments = ['all', ...Array.from(new Set(initialJobs.map(job => job.department)))];
   const uniqueLocations = ['all', ...Array.from(new Set(initialJobs.map(job => job.location)))];
   const uniqueStatuses = ['all', 'Open', 'Closed', 'Archived'];
+
+  const handleDeleteJob = (jobId: string) => {
+    setData(prev => prev.filter(j => j.id !== jobId));
+    toast({
+        title: "Job Deleted",
+        description: "The job posting has been successfully deleted.",
+        variant: 'success'
+    });
+  }
 
   const columns: ColumnDef<Job>[] = [
     {
@@ -153,7 +164,7 @@ export function JobManagement() {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <AlertDialogTrigger asChild>
-                      <DropdownMenuItem className="text-red-600">
+                      <DropdownMenuItem className="text-red-600 hover:!text-red-600">
                           <Trash className="mr-2 h-4 w-4" />
                           Delete
                       </DropdownMenuItem>
@@ -165,12 +176,12 @@ export function JobManagement() {
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete the
-                    job posting and all related application data.
+                    job posting &quot;{job.title}&quot; and all related application data.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction>Continue</AlertDialogAction>
+                  <AlertDialogAction onClick={() => handleDeleteJob(job.id)} className="bg-destructive hover:bg-destructive/90">Continue</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
           </AlertDialog>

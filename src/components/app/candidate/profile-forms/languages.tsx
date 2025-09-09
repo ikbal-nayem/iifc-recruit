@@ -25,6 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 const languageSchema = z.object({
   name: z.string().min(1, 'Language name is required.'),
@@ -38,6 +40,7 @@ interface ProfileFormProps {
 }
 
 export function ProfileFormLanguages({ candidate }: ProfileFormProps) {
+  const { toast } = useToast();
   const [history, setHistory] = React.useState(candidate.languages);
   const [editingId, setEditingId] = React.useState<number | null>(null);
 
@@ -64,6 +67,11 @@ export function ProfileFormLanguages({ candidate }: ProfileFormProps) {
   
   const handleRemove = (index: number) => {
     setHistory(history.filter((_, i) => i !== index));
+    toast({
+        title: 'Entry Deleted',
+        description: 'The language has been removed.',
+        variant: 'success'
+    })
   };
 
   const startEditing = (index: number, item: Language) => {
@@ -133,9 +141,25 @@ export function ProfileFormLanguages({ candidate }: ProfileFormProps) {
                  <Button variant="ghost" size="icon" onClick={() => startEditing(index, item)}>
                     <Edit className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" onClick={() => handleRemove(index)}>
-                    <Trash className="h-4 w-4 text-destructive" />
-                </Button>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                            <Trash className="h-4 w-4 text-destructive" />
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete this language from your profile.
+                        </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleRemove(index)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
         </Card>
     );

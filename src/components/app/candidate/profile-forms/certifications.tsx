@@ -19,6 +19,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import Link from 'next/link';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 const certificationSchema = z.object({
   name: z.string().min(1, 'Certificate name is required.'),
@@ -56,6 +58,7 @@ const FilePreview = ({ file, onRemove }: { file: File | string; onRemove: () => 
 
 
 export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
+  const { toast } = useToast();
   const [history, setHistory] = React.useState(candidate.certifications);
   const [editingId, setEditingId] = React.useState<number | null>(null);
   const [addFormFile, setAddFormFile] = React.useState<File | null>(null);
@@ -90,6 +93,11 @@ export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
   
   const handleRemove = (index: number) => {
     setHistory(history.filter((_, i) => i !== index));
+    toast({
+        title: 'Entry Deleted',
+        description: 'The certification has been removed.',
+        variant: 'success'
+    })
   };
 
   const startEditing = (index: number, item: Certification) => {
@@ -191,9 +199,25 @@ export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
                  <Button variant="ghost" size="icon" onClick={() => startEditing(index, item)}>
                     <Edit className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" onClick={() => handleRemove(index)}>
-                    <Trash className="h-4 w-4 text-destructive" />
-                </Button>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                            <Trash className="h-4 w-4 text-destructive" />
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete this certification.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleRemove(index)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
         </Card>
     );
