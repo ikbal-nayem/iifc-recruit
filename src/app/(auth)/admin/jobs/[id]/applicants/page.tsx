@@ -4,6 +4,8 @@ import type { Candidate, Application, Job } from '@/lib/types';
 import { candidates as allCandidates, applications as allApplications, jobs } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import { JobApplicantsTable } from '@/components/app/admin/job-applicants-table';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, Building2 } from 'lucide-react';
 
 type Applicant = Candidate & { application: Application };
 
@@ -37,9 +39,13 @@ export default async function JobApplicantsPage({ params }: { params: { id: stri
     <div className="space-y-8">
        <div>
         <h1 className="text-3xl font-headline font-bold">Applicants for {job.title}</h1>
-        <p className="text-muted-foreground">
-          Manage candidates who applied for this position.
-        </p>
+         <div className='flex flex-wrap items-center gap-x-4 gap-y-2 pt-2 text-muted-foreground'>
+            <span className='flex items-center gap-2'>
+                <Building2 className='h-4 w-4' /> {job.department}
+            </span>
+            <Badge variant='secondary'>Posted: {job.postedDate}</Badge>
+            <Badge variant='destructive'>Deadline: {job.applicationDeadline}</Badge>
+        </div>
       </div>
       <JobApplicantsTable applicants={applicants} />
     </div>

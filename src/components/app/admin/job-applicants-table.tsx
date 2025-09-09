@@ -12,6 +12,7 @@ import {
   useReactTable,
   SortingState,
   ColumnFiltersState,
+  RowSelectionState,
 } from '@tanstack/react-table';
 
 import {
@@ -33,18 +34,28 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog';
-
+import {
+  RadioGroup,
+  RadioGroupItem
+} from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MoreHorizontal, FileText, UserCheck, UserX, Star } from 'lucide-react';
+import { MoreHorizontal, FileText, UserCheck, UserX, Star, Send, Bell } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Candidate, Application } from '@/lib/types';
 import { CandidateProfileView } from '@/components/app/candidate-profile-view';
 import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
+import { Textarea } from '../ui/textarea';
 
 type Applicant = Candidate & { application: Application };
 
@@ -57,7 +68,10 @@ export function JobApplicantsTable({ applicants }: JobApplicantsTableProps) {
   const [data, setData] = React.useState<Applicant[]>(applicants);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [selectedCandidate, setSelectedCandidate] = React.useState<Candidate | null>(null);
+  const [isNotifyDialogOpen, setIsNotifyDialogOpen] = React.useState(false);
+  const [notificationChannel, setNotificationChannel] = React.useState<'email' | 'sms'>('email');
 
   const handleStatusChange = (applicationId: string, candidateName: string, newStatus: Application['status']) => {
     setData(prevData => prevData.map(applicant => 
@@ -73,6 +87,28 @@ export function JobApplicantsTable({ applicants }: JobApplicantsTableProps) {
   }
 
   const columns: ColumnDef<Applicant>[] = [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
     {
       accessorKey: 'personalInfo',
       header: 'Candidate',
@@ -154,9 +190,11 @@ export function JobApplicantsTable({ applicants }: JobApplicantsTableProps) {
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
       columnFilters,
+      rowSelection,
     },
   });
   
@@ -207,6 +245,8 @@ export function JobApplicantsTable({ applicants }: JobApplicantsTableProps) {
     </Card>
   );
 
+  const selectedRowCount = Object.keys(rowSelection).length;
+
   return (
     <>
       <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -238,6 +278,12 @@ export function JobApplicantsTable({ applicants }: JobApplicantsTableProps) {
             <SelectItem value="Rejected">Rejected</SelectItem>
           </SelectContent>
         </Select>
+        {selectedRowCount > 0 && (
+            <Button onClick={() => setIsNotifyDialogOpen(true)}>
+                <Bell className="mr-2 h-4 w-4" />
+                Notify ({selectedRowCount})
+            </Button>
+        )}
       </div>
       
        {/* Mobile View */}
@@ -326,6 +372,43 @@ export function JobApplicantsTable({ applicants }: JobApplicantsTableProps) {
           )}
         </DialogContent>
       </Dialog>
+      <Dialog open={isNotifyDialogOpen} onOpenChange={setIsNotifyDialogOpen}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Send Notification to {selectedRowCount} Candidate(s)</DialogTitle>
+                <DialogDescription>
+                    Compose a message and choose the channel to notify the selected candidates.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+                <RadioGroup defaultValue="email" onValueChange={(value: 'email' | 'sms') => setNotificationChannel(value)}>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="email" id="r-email" />
+                        <Label htmlFor="r-email">Email</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="sms" id="r-sms" />
+                        <Label htmlFor="r-sms">SMS</Label>
+                    </div>
+                </RadioGroup>
+                <Textarea placeholder={`Enter your message to send via ${notificationChannel}...`} rows={5} />
+            </div>
+            <DialogFooter>
+                <Button variant="ghost" onClick={() => setIsNotifyDialogOpen(false)}>Cancel</Button>
+                <Button onClick={() => {
+                    toast({
+                        title: 'Notifications Sent',
+                        description: `A message has been sent via ${notificationChannel} to ${selectedRowCount} candidate(s).`,
+                        variant: 'success'
+                    });
+                    setIsNotifyDialogOpen(false);
+                    table.toggleAllPageRowsSelected(false);
+                }}>
+                    <Send className="mr-2 h-4 w-4" /> Send Message
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+       </Dialog>
     </>
   );
 }
