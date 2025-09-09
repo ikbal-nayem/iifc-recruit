@@ -53,4 +53,9 @@ export default function MasterDataLayout({
           </div>
         </div>
          <div className="pt-4">
-             {children
+             {children}
+         </div>
+       </div>
+    </div>
+  );
+}
