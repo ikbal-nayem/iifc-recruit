@@ -61,11 +61,7 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <Card className="glassmorphism">
-          <CardHeader>
-            <CardTitle>Personal Information</CardTitle>
-            <CardDescription>Update your personal details below.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 pt-6">
             <div className="flex items-center gap-6">
               <div className="relative">
                 <Image src={user.avatar} alt="Admin Avatar" width={80} height={80} className="rounded-full" data-ai-hint="avatar person" />
