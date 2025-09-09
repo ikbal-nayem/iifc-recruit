@@ -21,6 +21,44 @@ interface ImageCropperProps {
   onClose: () => void;
 }
 
+// Function to get the cropped image data
+function getCroppedImg(image: HTMLImageElement, crop: Crop): Promise<Blob> {
+    const canvas = document.createElement('canvas');
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+
+    canvas.width = crop.width * scaleX;
+    canvas.height = crop.height * scaleY;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        return Promise.reject(new Error('Canvas context is not available.'));
+    }
+
+    ctx.drawImage(
+        image,
+        crop.x * scaleX,
+        crop.y * scaleY,
+        crop.width * scaleX,
+        crop.height * scaleY,
+        0,
+        0,
+        crop.width * scaleX,
+        crop.height * scaleY
+    );
+    
+    return new Promise((resolve, reject) => {
+        canvas.toBlob(blob => {
+            if (!blob) {
+                reject(new Error('Canvas is empty'));
+                return;
+            }
+            resolve(blob);
+        }, 'image/png');
+    });
+}
+
+
 export function ImageCropper({ imageSrc, onCropComplete, onClose }: ImageCropperProps) {
   const { toast } = useToast();
   const [crop, setCrop] = React.useState<Crop>();
@@ -54,56 +92,16 @@ export function ImageCropper({ imageSrc, onCropComplete, onClose }: ImageCropper
       return;
     }
 
-    const image = imgRef.current;
-    const canvas = document.createElement('canvas');
-    const scaleX = image.naturalWidth / image.width;
-    const scaleY = image.naturalHeight / image.height;
-    
-    const cropX = crop.x * scaleX;
-    const cropY = crop.y * scaleY;
-    const cropWidth = crop.width * scaleX;
-    const cropHeight = crop.height * scaleY;
-
-    canvas.width = cropWidth;
-    canvas.height = cropHeight;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      toast({
-        title: 'Error',
-        description: 'Could not process the image.',
-        variant: 'destructive',
-      });
-      return;
+    try {
+        const croppedImageBlob = await getCroppedImg(imgRef.current, crop);
+        onCropComplete(croppedImageBlob);
+    } catch (e) {
+         toast({
+            title: 'Error',
+            description: 'Failed to create cropped image.',
+            variant: 'destructive',
+        });
     }
-
-    ctx.drawImage(
-      image,
-      cropX,
-      cropY,
-      cropWidth,
-      cropHeight,
-      0,
-      0,
-      cropWidth,
-      cropHeight
-    );
-    
-    canvas.toBlob(
-      (blob) => {
-        if (blob) {
-          onCropComplete(blob);
-        } else {
-            toast({
-                title: 'Error',
-                description: 'Failed to create cropped image.',
-                variant: 'destructive',
-            });
-        }
-      },
-      'image/png',
-      1
-    );
   }
 
   return (
