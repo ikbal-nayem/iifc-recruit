@@ -61,6 +61,11 @@ export const adminNavLinks: NavLink[] = [
       { href: '/admin/master-data/application-statuses', label: 'Application Statuses', icon: Database },
 		],
 	},
+  {
+    href: '/admin/profile',
+    label: 'Profile',
+    icon: UserCog,
+  },
 ];
 
 export const candidateNavLinks: NavLink[] = [
