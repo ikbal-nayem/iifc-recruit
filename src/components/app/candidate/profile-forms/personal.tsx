@@ -39,12 +39,15 @@ const personalInfoSchema = z.object({
   district: z.string().min(1, 'District is required'),
   upazila: z.string().min(1, 'Upazila is required'),
   line1: z.string().min(1, 'Address line is required'),
+  avatarFile: z.any().optional(),
 });
 
 type PersonalInfoFormValues = z.infer<typeof personalInfoSchema>;
 
 export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
   const { toast } = useToast();
+  const [avatarPreview, setAvatarPreview] = React.useState<string | null>(null);
+
   const form = useForm<PersonalInfoFormValues>({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
@@ -57,6 +60,7 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
       district: candidate.personalInfo.address.district,
       upazila: candidate.personalInfo.address.upazila,
       line1: candidate.personalInfo.address.line1,
+      avatarFile: null,
     },
   });
 
@@ -83,6 +87,31 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
     form.setValue('upazila', '');
   }, [watchDistrict, form]);
 
+  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>, fieldChange: (value: File | null) => void) => {
+    const file = event.target.files?.[0] || null;
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+         toast({
+            title: 'File Too Large',
+            description: 'Please upload an image smaller than 10MB.',
+            variant: 'destructive',
+         });
+         return;
+      }
+      const previewUrl = URL.createObjectURL(file);
+      setAvatarPreview(previewUrl);
+      fieldChange(file);
+    }
+  };
+
+  React.useEffect(() => {
+    return () => {
+      if (avatarPreview) {
+        URL.revokeObjectURL(avatarPreview);
+      }
+    };
+  }, [avatarPreview]);
+
 
   const onSubmit = (data: PersonalInfoFormValues) => {
     toast({
@@ -102,19 +131,31 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
             <CardDescription>This is your public-facing information.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="flex items-center gap-6">
-              <div className="relative">
-                <Image src={candidate.personalInfo.avatar} alt="Candidate Avatar" width={80} height={80} className="rounded-full" data-ai-hint="avatar person" />
-                <Button size="icon" variant="outline" className="absolute bottom-0 right-0 h-8 w-8 rounded-full">
-                  <Upload className="h-4 w-4" />
-                  <Input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                </Button>
-              </div>
-              <div className="space-y-2">
-                <FormLabel>Profile Photo</FormLabel>
-                <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 10MB</p>
-              </div>
-            </div>
+            <FormField
+              control={form.control}
+              name="avatarFile"
+              render={({ field }) => (
+                  <FormItem>
+                  <div className="flex items-center gap-6">
+                    <div className="relative">
+                      <Image src={avatarPreview || candidate.personalInfo.avatar} alt="Candidate Avatar" width={80} height={80} className="rounded-full object-cover" data-ai-hint="avatar person" />
+                      <Button size="icon" variant="outline" className="absolute bottom-0 right-0 h-8 w-8 rounded-full" asChild>
+                         <FormLabel htmlFor="avatar-upload" className="cursor-pointer">
+                            <Upload className="h-4 w-4" />
+                            <FormControl>
+                                <Input id="avatar-upload" type="file" className="sr-only" accept="image/png, image/jpeg, image/gif" onChange={(e) => handleAvatarChange(e, field.onChange)} />
+                            </FormControl>
+                          </FormLabel>
+                      </Button>
+                    </div>
+                    <div>
+                      <FormLabel>Profile Photo</FormLabel>
+                      <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 10MB</p>
+                    </div>
+                  </div>
+                  </FormItem>
+              )}
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
@@ -192,7 +233,7 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
               />
             </div>
             <div>
-              <FormLabel required>Address</FormLabel>
+              <FormLabel>Address</FormLabel>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
                  <FormField
                     control={form.control}

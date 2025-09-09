@@ -22,6 +22,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, parseISO } from 'date-fns';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 const professionalInfoSchema = z.object({
   role: z.string().min(1, 'Role is required.'),
@@ -30,7 +32,7 @@ const professionalInfoSchema = z.object({
   toDate: z.string().optional(),
   isPresent: z.boolean(),
   responsibilities: z.string().min(1, 'Please list at least one responsibility.'),
-  documentUrls: z.array(z.string()).optional(),
+  documentFiles: z.any().optional(),
 }).refine(data => !data.isPresent ? !!data.toDate : true, {
     message: "End date is required unless you are currently working here.",
     path: ["toDate"],
@@ -66,14 +68,13 @@ const FilePreview = ({ file, onRemove }: { file: File | string; onRemove: () => 
 
 
 export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
+  const { toast } = useToast();
   const [history, setHistory] = React.useState(candidate.professionalInfo);
   const [editingId, setEditingId] = React.useState<number | null>(null);
-  const [addFormFiles, setAddFormFiles] = React.useState<File[]>([]);
-  const [editFormFiles, setEditFormFiles] = React.useState<File[]>([]);
 
   const form = useForm<ProfessionalFormValues>({
     resolver: zodResolver(professionalInfoSchema),
-    defaultValues: { role: '', company: '', fromDate: '', toDate: '', isPresent: false, responsibilities: '', documentUrls: [] },
+    defaultValues: { role: '', company: '', fromDate: '', toDate: '', isPresent: false, responsibilities: '', documentFiles: [] },
   });
 
   const editForm = useForm<ProfessionalFormValues>({
@@ -85,11 +86,11 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
         ...data,
         toDate: data.isPresent ? undefined : data.toDate,
         responsibilities: data.responsibilities.split('\n'),
-        documentUrls: addFormFiles.map(f => f.name) 
+        documentUrls: data.documentFiles?.map((f: File) => f.name) || []
     };
+    delete (newEntry as any).documentFiles;
     setHistory([...history, newEntry]);
-    form.reset({ role: '', company: '', fromDate: '', toDate: '', isPresent: false, responsibilities: '', documentUrls: [] });
-    setAddFormFiles([]);
+    form.reset({ role: '', company: '', fromDate: '', toDate: '', isPresent: false, responsibilities: '', documentFiles: [] });
   };
 
   const handleUpdate = (index: number, data: ProfessionalFormValues) => {
@@ -98,40 +99,31 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
         ...data,
         toDate: data.isPresent ? undefined : data.toDate,
         responsibilities: data.responsibilities.split('\n'),
-        documentUrls: editFormFiles.map(f => f.name) 
+        documentUrls: data.documentFiles?.map((f: File) => f.name) || history[index].documentUrls || []
     };
+    delete (newEntry as any).documentFiles;
     updatedHistory[index] = newEntry;
     setHistory(updatedHistory);
     setEditingId(null);
-    setEditFormFiles([]);
   };
   
   const handleRemove = (index: number) => {
     setHistory(history.filter((_, i) => i !== index));
+    toast({ title: 'Entry Deleted', description: 'The professional record has been removed.', variant: 'success'});
   };
 
   const startEditing = (index: number, item: ProfessionalInfo) => {
     setEditingId(index);
     editForm.reset({
         ...item,
-        responsibilities: item.responsibilities.join('\n')
+        responsibilities: item.responsibilities.join('\n'),
+        documentFiles: [],
     });
-    setEditFormFiles([]);
   };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setFiles: React.Dispatch<React.SetStateAction<File[]>>) => {
-      if (e.target.files) {
-        setFiles(prev => [...prev, ...Array.from(e.target.files!)]);
-      }
-  };
-  
-  const handleRemoveFile = (index: number, setFiles: React.Dispatch<React.SetStateAction<File[]>>) => {
-      setFiles(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const watchIsPresent = editForm.watch("isPresent");
 
   const renderItem = (item: ProfessionalInfo, index: number) => {
+    const watchIsPresent = editForm.watch("isPresent");
+
     if (editingId === index) {
       return (
          <Form {...editForm}>
@@ -208,35 +200,38 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                             </FormItem>
                         )}
                         />
-                        <FormItem>
-                            <FormLabel>Documents (Multi-file)</FormLabel>
-                             <FormControl>
-                                <div className="relative flex items-center justify-center w-full">
-                                    <label htmlFor={`edit-prof-file-upload-${index}`} className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
-                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                            <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                                            <p className="text-sm text-muted-foreground">
-                                                <span className="font-semibold">Click to upload</span> or drag and drop
-                                            </p>
-                                        </div>
-                                        <Input id={`edit-prof-file-upload-${index}`} type="file" multiple className="hidden" onChange={(e) => handleFileChange(e, setEditFormFiles)} />
-                                    </label>
+                        <FormField
+                            control={editForm.control}
+                            name="documentFiles"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Documents (Multi-file)</FormLabel>
+                                <FormControl>
+                                    <div className="relative flex items-center justify-center w-full">
+                                        <label htmlFor={`edit-prof-file-upload-${index}`} className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
+                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                                                <p className="text-sm text-muted-foreground">
+                                                    <span className="font-semibold">Click to upload</span> or drag and drop
+                                                </p>
+                                            </div>
+                                            <Input id={`edit-prof-file-upload-${index}`} type="file" multiple className="hidden" onChange={(e) => field.onChange(Array.from(e.target.files || []))} />
+                                        </label>
+                                    </div>
+                                </FormControl>
+                                <div className="space-y-2 mt-2">
+                                    {field.value?.map((file: File, i: number) => (
+                                        <FilePreview key={i} file={file} onRemove={() => {
+                                            const newFiles = [...field.value];
+                                            newFiles.splice(i, 1);
+                                            field.onChange(newFiles);
+                                        }} />
+                                    ))}
                                 </div>
-                            </FormControl>
-                            <div className="space-y-2 mt-2">
-                                {item.documentUrls?.map((url, i) => (
-                                     <FilePreview key={i} file={url} onRemove={() => {
-                                        const updatedDocs = [...item.documentUrls || []];
-                                        updatedDocs.splice(i, 1);
-                                        editForm.setValue('documentUrls', updatedDocs);
-                                    }} />
-                                ))}
-                                {editFormFiles.map((file, i) => (
-                                    <FilePreview key={i} file={file} onRemove={() => handleRemoveFile(i, setEditFormFiles)} />
-                                ))}
-                            </div>
-                            <FormMessage />
-                        </FormItem>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     </CardContent>
                     <CardFooter className="p-0 pt-4 flex justify-end gap-2">
                         <Button type="button" variant="ghost" onClick={() => setEditingId(null)}>Cancel</Button>
@@ -269,12 +264,26 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
               )}
           </div>
           <div className="flex gap-2">
-               <Button variant="ghost" size="icon" onClick={() => startEditing(index, item)}>
+                <Button variant="ghost" size="icon" onClick={() => startEditing(index, item)}>
                   <Edit className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={() => handleRemove(index)}>
-                  <Trash className="h-4 w-4 text-destructive" />
-              </Button>
+                </Button>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                            <Trash className="h-4 w-4 text-destructive" />
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription>This will permanently delete this professional record.</AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleRemove(index)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
           </div>
       </Card>
     );
@@ -373,28 +382,38 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                             </FormItem>
                         )}
                         />
-                         <FormItem>
-                            <FormLabel>Documents (Multi-file)</FormLabel>
-                             <FormControl>
-                                <div className="relative flex items-center justify-center w-full">
-                                    <label htmlFor="add-prof-file-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
-                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                            <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                                            <p className="text-sm text-muted-foreground">
-                                                <span className="font-semibold">Click to upload</span> or drag and drop
-                                            </p>
+                        <FormField
+                            control={form.control}
+                            name="documentFiles"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Documents (Multi-file)</FormLabel>
+                                    <FormControl>
+                                        <div className="relative flex items-center justify-center w-full">
+                                            <label htmlFor="add-prof-file-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
+                                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                    <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                                                    <p className="text-sm text-muted-foreground">
+                                                        <span className="font-semibold">Click to upload</span> or drag and drop
+                                                    </p>
+                                                </div>
+                                                <Input id="add-prof-file-upload" type="file" multiple className="hidden" onChange={(e) => field.onChange(Array.from(e.target.files || []))} />
+                                            </label>
                                         </div>
-                                        <Input id="add-prof-file-upload" type="file" multiple className="hidden" onChange={(e) => handleFileChange(e, setAddFormFiles)} />
-                                    </label>
-                                </div>
-                            </FormControl>
-                            <div className="space-y-2 mt-2">
-                                {addFormFiles.map((file, i) => (
-                                    <FilePreview key={i} file={file} onRemove={() => handleRemoveFile(i, setAddFormFiles)} />
-                                ))}
-                            </div>
-                            <FormMessage />
-                        </FormItem>
+                                    </FormControl>
+                                    <div className="space-y-2 mt-2">
+                                        {field.value?.map((file: File, i: number) => (
+                                            <FilePreview key={i} file={file} onRemove={() => {
+                                                const newFiles = [...field.value];
+                                                newFiles.splice(i, 1);
+                                                field.onChange(newFiles);
+                                            }} />
+                                        ))}
+                                    </div>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     </CardContent>
                     <CardFooter>
                         <Button type="submit"><PlusCircle className="mr-2 h-4 w-4" /> Add to History</Button>

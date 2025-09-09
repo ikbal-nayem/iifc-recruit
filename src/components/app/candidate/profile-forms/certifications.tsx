@@ -26,7 +26,7 @@ const certificationSchema = z.object({
   name: z.string().min(1, 'Certificate name is required.'),
   issuingOrganization: z.string().min(1, 'Issuing organization is required.'),
   issueDate: z.string().min(1, 'Issue date is required.'),
-  proofUrl: z.string().url().optional().or(z.literal('')),
+  proofFile: z.any().optional(),
 });
 
 type CertificationFormValues = z.infer<typeof certificationSchema>;
@@ -61,12 +61,10 @@ export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
   const { toast } = useToast();
   const [history, setHistory] = React.useState(candidate.certifications);
   const [editingId, setEditingId] = React.useState<number | null>(null);
-  const [addFormFile, setAddFormFile] = React.useState<File | null>(null);
-  const [editFormFile, setEditFormFile] = React.useState<File | null>(null);
 
   const form = useForm<CertificationFormValues>({
     resolver: zodResolver(certificationSchema),
-    defaultValues: { name: '', issuingOrganization: '', issueDate: '', proofUrl: '' },
+    defaultValues: { name: '', issuingOrganization: '', issueDate: '', proofFile: null },
   });
 
   const editForm = useForm<CertificationFormValues>({
@@ -75,20 +73,19 @@ export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
   
   const handleAddNew = (data: CertificationFormValues) => {
     // In a real app, you would upload file and get URL here.
-    const newEntry = { ...data, proofUrl: addFormFile ? addFormFile.name : '' };
+    const newEntry = { ...data, proofUrl: data.proofFile ? data.proofFile.name : '' };
+    delete (newEntry as any).proofFile;
     setHistory([...history, newEntry]);
-    form.reset({ name: '', issuingOrganization: '', issueDate: '', proofUrl: '' });
-    setAddFormFile(null);
+    form.reset({ name: '', issuingOrganization: '', issueDate: '', proofFile: null });
   };
 
   const handleUpdate = (index: number, data: CertificationFormValues) => {
     const updatedHistory = [...history];
-    // In a real app, you would upload file and get URL here.
-    const newEntry = { ...data, proofUrl: editFormFile ? editFormFile.name : data.proofUrl };
+    const newEntry = { ...data, proofUrl: data.proofFile ? data.proofFile.name : history[index].proofUrl };
+    delete (newEntry as any).proofFile;
     updatedHistory[index] = newEntry;
     setHistory(updatedHistory);
     setEditingId(null);
-    setEditFormFile(null);
   };
   
   const handleRemove = (index: number) => {
@@ -102,18 +99,7 @@ export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
 
   const startEditing = (index: number, item: Certification) => {
     setEditingId(index);
-    editForm.reset(item);
-    setEditFormFile(null);
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setFile: React.Dispatch<React.SetStateAction<File | null>>) => {
-      if (e.target.files && e.target.files.length > 0) {
-        setFile(e.target.files[0]);
-      }
-  };
-  
-  const handleRemoveFile = (setFile: React.Dispatch<React.SetStateAction<File | null>>) => {
-      setFile(null);
+    editForm.reset({...item, proofFile: null});
   };
 
   const renderItem = (item: Certification, index: number) => {
@@ -146,32 +132,38 @@ export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
                                 )}
                             />
                         </div>
-                        <FormItem>
-                            <FormLabel>Proof (PDF)</FormLabel>
-                            <FormControl>
-                                <div className="relative flex items-center justify-center w-full">
-                                    <label htmlFor={`edit-file-upload-${index}`} className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
-                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                            <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                                            <p className="text-sm text-muted-foreground">
-                                                <span className="font-semibold">Click to upload</span> or drag and drop
-                                            </p>
-                                        </div>
-                                        <Input id={`edit-file-upload-${index}`} type="file" className="hidden" onChange={(e) => handleFileChange(e, setEditFormFile)} />
-                                    </label>
-                                </div>
-                            </FormControl>
-                             {editFormFile ? (
-                                <div className="mt-2">
-                                    <FilePreview file={editFormFile} onRemove={() => handleRemoveFile(setEditFormFile)} />
-                                </div>
-                            ) : item.proofUrl && (
-                                 <div className="mt-2">
-                                     <FilePreview file={item.proofUrl} onRemove={() => editForm.setValue('proofUrl', '')} />
-                                 </div>
-                            )}
-                            <FormMessage />
-                        </FormItem>
+                        <FormField
+                          control={editForm.control}
+                          name="proofFile"
+                          render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Proof (PDF)</FormLabel>
+                                <FormControl>
+                                    <div className="relative flex items-center justify-center w-full">
+                                        <label htmlFor={`edit-file-upload-${index}`} className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
+                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                                                <p className="text-sm text-muted-foreground">
+                                                    <span className="font-semibold">Click to upload</span> or drag and drop
+                                                </p>
+                                            </div>
+                                            <Input id={`edit-file-upload-${index}`} type="file" className="hidden" onChange={(e) => field.onChange(e.target.files ? e.target.files[0] : null)} />
+                                        </label>
+                                    </div>
+                                </FormControl>
+                                {field.value ? (
+                                    <div className="mt-2">
+                                        <FilePreview file={field.value} onRemove={() => field.onChange(null)} />
+                                    </div>
+                                ) : item.proofUrl && (
+                                    <div className="mt-2">
+                                        <FilePreview file={item.proofUrl} onRemove={() => editForm.setValue('proofUrl', '')} />
+                                    </div>
+                                )}
+                                <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                     </CardContent>
                     <CardFooter className="p-0 pt-4 flex justify-end gap-2">
                         <Button type="button" variant="ghost" onClick={() => setEditingId(null)}>Cancel</Button>
@@ -269,28 +261,34 @@ export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
                                 )}
                             />
                         </div>
-                         <FormItem>
-                            <FormLabel>Proof (PDF)</FormLabel>
-                            <FormControl>
-                                <div className="relative flex items-center justify-center w-full">
-                                    <label htmlFor="add-file-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
-                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                            <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                                            <p className="text-sm text-muted-foreground">
-                                                <span className="font-semibold">Click to upload</span> or drag and drop
-                                            </p>
-                                        </div>
-                                        <Input id="add-file-upload" type="file" className="hidden" onChange={(e) => handleFileChange(e, setAddFormFile)} />
-                                    </label>
-                                </div>
-                            </FormControl>
-                            {addFormFile && (
-                                <div className="mt-2">
-                                    <FilePreview file={addFormFile} onRemove={() => handleRemoveFile(setAddFormFile)} />
-                                </div>
-                            )}
-                            <FormMessage />
-                        </FormItem>
+                        <FormField
+                          control={form.control}
+                          name="proofFile"
+                          render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Proof (PDF)</FormLabel>
+                                <FormControl>
+                                    <div className="relative flex items-center justify-center w-full">
+                                        <label htmlFor="add-file-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
+                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                                                <p className="text-sm text-muted-foreground">
+                                                    <span className="font-semibold">Click to upload</span> or drag and drop
+                                                </p>
+                                            </div>
+                                            <Input id="add-file-upload" type="file" className="hidden" onChange={(e) => field.onChange(e.target.files ? e.target.files[0] : null)} />
+                                        </label>
+                                    </div>
+                                </FormControl>
+                                {field.value && (
+                                    <div className="mt-2">
+                                        <FilePreview file={field.value} onRemove={() => field.onChange(null)} />
+                                    </div>
+                                )}
+                                <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                     </CardContent>
                     <CardFooter>
                         <Button type="submit"><PlusCircle className="mr-2 h-4 w-4" /> Add to History</Button>

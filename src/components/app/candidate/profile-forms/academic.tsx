@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import type { Candidate, AcademicInfo } from '@/lib/types';
 import { PlusCircle, Trash, Save, Edit, FileText, Upload, X } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -26,7 +26,7 @@ const academicInfoSchema = z.object({
   degree: z.string().min(1, 'Degree is required.'),
   institution: z.string().min(1, 'Institution is required.'),
   graduationYear: z.coerce.number().min(1950, 'Invalid year.').max(new Date().getFullYear() + 5),
-  certificateUrls: z.array(z.string()).optional(),
+  certificateFiles: z.any().optional(),
 });
 
 type AcademicFormValues = z.infer<typeof academicInfoSchema>;
@@ -61,12 +61,10 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
   const { toast } = useToast();
   const [history, setHistory] = React.useState(candidate.academicInfo);
   const [editingId, setEditingId] = React.useState<number | null>(null);
-  const [addFormFiles, setAddFormFiles] = React.useState<File[]>([]);
-  const [editFormFiles, setEditFormFiles] = React.useState<File[]>([]);
 
   const form = useForm<AcademicFormValues>({
     resolver: zodResolver(academicInfoSchema),
-    defaultValues: { degree: '', institution: '', graduationYear: undefined, certificateUrls: [] },
+    defaultValues: { degree: '', institution: '', graduationYear: undefined, certificateFiles: [] },
   });
 
   const editForm = useForm<AcademicFormValues>({
@@ -75,20 +73,19 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
   
   const handleAddNew = (data: AcademicFormValues) => {
     // In a real app, you would upload files and get URLs here.
-    const newEntry = { ...data, certificateUrls: addFormFiles.map(f => f.name) };
+    const newEntry = { ...data, certificateUrls: data.certificateFiles?.map((f: File) => f.name) || [] };
+    delete (newEntry as any).certificateFiles;
     setHistory([...history, newEntry]);
-    form.reset({ degree: '', institution: '', graduationYear: undefined, certificateUrls: [] });
-    setAddFormFiles([]);
+    form.reset({ degree: '', institution: '', graduationYear: undefined, certificateFiles: [] });
   };
 
   const handleUpdate = (index: number, data: AcademicFormValues) => {
     const updatedHistory = [...history];
-    // In a real app, you would upload files and get URLs here.
-    const newEntry = { ...data, certificateUrls: editFormFiles.map(f => f.name) };
+    const newEntry = { ...data, certificateUrls: data.certificateFiles?.map((f: File) => f.name) || [] };
+    delete (newEntry as any).certificateFiles;
     updatedHistory[index] = newEntry;
     setHistory(updatedHistory);
     setEditingId(null);
-    setEditFormFiles([]);
   };
   
   const handleRemove = (index: number) => {
@@ -102,19 +99,7 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
 
   const startEditing = (index: number, item: AcademicInfo) => {
     setEditingId(index);
-    editForm.reset(item);
-    // In a real app, you'd fetch existing files. Here we'll reset.
-    setEditFormFiles([]);
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setFiles: React.Dispatch<React.SetStateAction<File[]>>) => {
-      if (e.target.files) {
-        setFiles(prev => [...prev, ...Array.from(e.target.files!)]);
-      }
-  };
-  
-  const handleRemoveFile = (index: number, setFiles: React.Dispatch<React.SetStateAction<File[]>>) => {
-      setFiles(prev => prev.filter((_, i) => i !== index));
+    editForm.reset({...item, certificateFiles: []});
   };
 
   const renderItem = (item: AcademicInfo, index: number) => {
@@ -157,35 +142,38 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
                             </FormItem>
                         )}
                         />
-                        <FormItem>
-                            <FormLabel>Certificates (Multi-file)</FormLabel>
-                            <FormControl>
-                                <div className="relative flex items-center justify-center w-full">
-                                    <label htmlFor={`edit-file-upload-${index}`} className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
-                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                            <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                                            <p className="text-sm text-muted-foreground">
-                                                <span className="font-semibold">Click to upload</span> or drag and drop
-                                            </p>
+                        <FormField
+                            control={editForm.control}
+                            name="certificateFiles"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Certificates (Multi-file)</FormLabel>
+                                    <FormControl>
+                                        <div className="relative flex items-center justify-center w-full">
+                                            <label htmlFor={`edit-file-upload-${index}`} className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
+                                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                    <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                                                    <p className="text-sm text-muted-foreground">
+                                                        <span className="font-semibold">Click to upload</span> or drag and drop
+                                                    </p>
+                                                </div>
+                                                <Input id={`edit-file-upload-${index}`} type="file" multiple className="hidden" onChange={(e) => field.onChange(Array.from(e.target.files || []))} />
+                                            </label>
                                         </div>
-                                        <Input id={`edit-file-upload-${index}`} type="file" multiple className="hidden" onChange={(e) => handleFileChange(e, setEditFormFiles)} />
-                                    </label>
-                                </div>
-                            </FormControl>
-                             <div className="space-y-2 mt-2">
-                                {item.certificateUrls?.map((url, i) => (
-                                    <FilePreview key={i} file={url} onRemove={() => {
-                                        const updatedCerts = [...item.certificateUrls || []];
-                                        updatedCerts.splice(i, 1);
-                                        editForm.setValue('certificateUrls', updatedCerts);
-                                    }} />
-                                ))}
-                                {editFormFiles.map((file, i) => (
-                                    <FilePreview key={i} file={file} onRemove={() => handleRemoveFile(i, setEditFormFiles)} />
-                                ))}
-                            </div>
-                            <FormMessage />
-                        </FormItem>
+                                    </FormControl>
+                                    <div className="space-y-2 mt-2">
+                                        {field.value?.map((file: File, i: number) => (
+                                            <FilePreview key={i} file={file} onRemove={() => {
+                                                const newFiles = [...field.value];
+                                                newFiles.splice(i, 1);
+                                                field.onChange(newFiles);
+                                            }} />
+                                        ))}
+                                    </div>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     </CardContent>
                     <CardFooter className="p-0 pt-4 flex justify-end gap-2">
                         <Button type="button" variant="ghost" onClick={() => setEditingId(null)}>Cancel</Button>
@@ -297,28 +285,38 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
                             </FormItem>
                         )}
                         />
-                         <FormItem>
-                            <FormLabel>Certificates (Multi-file)</FormLabel>
-                            <FormControl>
-                                <div className="relative flex items-center justify-center w-full">
-                                    <label htmlFor="add-file-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
-                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                            <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                                            <p className="text-sm text-muted-foreground">
-                                                <span className="font-semibold">Click to upload</span> or drag and drop
-                                            </p>
+                        <FormField
+                            control={form.control}
+                            name="certificateFiles"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Certificates (Multi-file)</FormLabel>
+                                    <FormControl>
+                                        <div className="relative flex items-center justify-center w-full">
+                                            <label htmlFor="add-file-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
+                                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                    <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                                                    <p className="text-sm text-muted-foreground">
+                                                        <span className="font-semibold">Click to upload</span> or drag and drop
+                                                    </p>
+                                                </div>
+                                                <Input id="add-file-upload" type="file" multiple className="hidden" onChange={(e) => field.onChange(Array.from(e.target.files || []))} />
+                                            </label>
                                         </div>
-                                        <Input id="add-file-upload" type="file" multiple className="hidden" onChange={(e) => handleFileChange(e, setAddFormFiles)} />
-                                    </label>
-                                </div>
-                            </FormControl>
-                            <div className="space-y-2 mt-2">
-                                {addFormFiles.map((file, i) => (
-                                    <FilePreview key={i} file={file} onRemove={() => handleRemoveFile(i, setAddFormFiles)} />
-                                ))}
-                            </div>
-                            <FormMessage />
-                        </FormItem>
+                                    </FormControl>
+                                    <div className="space-y-2 mt-2">
+                                        {field.value?.map((file: File, i: number) => (
+                                            <FilePreview key={i} file={file} onRemove={() => {
+                                                const newFiles = [...field.value];
+                                                newFiles.splice(i, 1);
+                                                field.onChange(newFiles);
+                                            }} />
+                                        ))}
+                                    </div>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     </CardContent>
                     <CardFooter>
                         <Button type="submit"><PlusCircle className="mr-2 h-4 w-4" /> Add to History</Button>
