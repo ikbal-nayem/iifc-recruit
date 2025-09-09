@@ -9,4 +9,8 @@ export default function MasterSkillsPage() {
     <MasterDataCrud 
         title="Skills"
         description="Manage the skills used in candidate profiles."
-        initial
+        initialData={skills}
+        noun="Skill"
+    />
+    );
+}
