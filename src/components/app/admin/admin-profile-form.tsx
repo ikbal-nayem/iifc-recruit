@@ -69,7 +69,7 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
   const onCropComplete = (blob: Blob) => {
     const file = new File([blob], "avatar.png", { type: "image/png" });
     form.setValue('avatar', file, { shouldValidate: true });
-    setAvatarPreview(URL.createObjectURL(file));
+    setAvatarPreview(URL.createObjectURL(blob));
     setCropperSrc(null);
   };
 
