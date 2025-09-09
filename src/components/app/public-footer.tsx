@@ -13,7 +13,7 @@ export default function PublicFooter() {
             <div className="lg:col-span-1">
                  <Link href="/" className="flex items-center gap-3 font-headline text-2xl font-bold mb-4">
                     <Image src="/iifc-logo.png" alt="IIFC Logo" width={40} height={40} className="h-10 w-auto" />
-                    <span>IIFC Recruit</span>
+                    <span>IIFC Jobs</span>
                 </Link>
                 <p className="text-muted-foreground text-sm mb-4">
                     Connecting talent with opportunity. Find your dream job or your next star hire with us.
@@ -56,7 +56,7 @@ export default function PublicFooter() {
             </div>
         </div>
          <div className="border-t mt-8 pt-6 text-center text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} IIFC Recruit. All rights reserved.
+            &copy; {new Date().getFullYear()} IIFC Jobs. All rights reserved.
           </div>
       </div>
     </footer>

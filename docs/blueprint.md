@@ -1,4 +1,4 @@
-# **App Name**: IIFC Recruit
+# **App Name**: IIFC Jobs
 
 ## Core Features:
 

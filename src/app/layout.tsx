@@ -40,7 +40,7 @@ export default function RootLayout({
   return (
     <html lang={locale} className={`h-full ${inter.variable} ${spaceGrotesk.variable} ${sourceCodePro.variable}`}>
       <head>
-        <title>IIFC Recruit</title>
+        <title>IIFC Jobs</title>
         <meta name="description" content="Streamlining the recruitment process." />
       </head>
       <body className="font-body antialiased flex flex-col min-h-screen">

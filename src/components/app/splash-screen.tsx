@@ -24,7 +24,7 @@ export default function SplashScreen({ isFinished }: SplashScreenProps) {
       )}>
       <div className="flex flex-col items-center gap-4">
         <Image src="/iifc-logo.png" alt="IIFC Logo" width={80} height={80} className="h-20 w-auto animate-pulse" />
-        <h1 className="text-4xl font-headline font-bold">IIFC Recruit</h1>
+        <h1 className="text-4xl font-headline font-bold">IIFC Jobs</h1>
         <div className="flex justify-center items-center space-x-2 mt-4">
             <div className="h-3 w-3 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
             <div className="h-3 w-3 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"></div>

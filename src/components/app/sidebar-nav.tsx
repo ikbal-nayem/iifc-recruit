@@ -111,7 +111,7 @@ export default function SidebarNav() {
 			<SidebarHeader>
 				<Link href='/' className='flex items-center gap-3'>
 					<Image src='/iifc-logo.png' alt='IIFC Logo' width={32} height={32} className='h-8 w-auto' />
-					<span className='font-headline text-xl font-bold'>IIFC Recruit</span>
+					<span className='font-headline text-xl font-bold'>IIFC Jobs</span>
 				</Link>
 			</SidebarHeader>
 			<SidebarContent>
