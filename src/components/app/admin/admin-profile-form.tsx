@@ -6,10 +6,7 @@ import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
-  CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Save, Upload, Mail, Phone } from 'lucide-react';
@@ -33,12 +30,15 @@ const profileSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   email: z.string().email(),
   phone: z.string().min(1, 'Phone number is required'),
+  avatar: z.any().optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export function AdminProfileForm({ user }: AdminProfileFormProps) {
   const { toast } = useToast();
+  const [avatarPreview, setAvatarPreview] = React.useState<string | null>(null);
+
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -47,6 +47,31 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
       phone: user.phone,
     },
   });
+
+  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+         toast({
+            title: 'File Too Large',
+            description: 'Please upload an image smaller than 10MB.',
+            variant: 'destructive',
+         });
+         return;
+      }
+      const previewUrl = URL.createObjectURL(file);
+      setAvatarPreview(previewUrl);
+      form.setValue('avatar', file);
+    }
+  };
+
+  React.useEffect(() => {
+    return () => {
+      if (avatarPreview) {
+        URL.revokeObjectURL(avatarPreview);
+      }
+    };
+  }, [avatarPreview]);
 
   const onSubmit = (data: ProfileFormValues) => {
     toast({
@@ -64,10 +89,12 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
           <CardContent className="space-y-6 pt-6">
             <div className="flex items-center gap-6">
               <div className="relative">
-                <Image src={user.avatar} alt="Admin Avatar" width={80} height={80} className="rounded-full" data-ai-hint="avatar person" />
-                <Button size="icon" variant="outline" className="absolute bottom-0 right-0 h-8 w-8 rounded-full">
-                  <Upload className="h-4 w-4" />
-                  <Input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                <Image src={avatarPreview || user.avatar} alt="Admin Avatar" width={80} height={80} className="rounded-full object-cover" data-ai-hint="avatar person" />
+                <Button size="icon" variant="outline" className="absolute bottom-0 right-0 h-8 w-8 rounded-full" asChild>
+                  <label htmlFor="avatar-upload" className="cursor-pointer">
+                    <Upload className="h-4 w-4" />
+                    <Input id="avatar-upload" type="file" className="sr-only" accept="image/png, image/jpeg, image/gif" onChange={handleAvatarChange} />
+                  </label>
                 </Button>
               </div>
               <div className="space-y-2">
