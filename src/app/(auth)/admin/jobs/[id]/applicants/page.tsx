@@ -31,7 +31,7 @@ async function getJobApplicants(jobId: string): Promise<{ job: Job, applicants: 
 
 
 export default async function JobApplicantsPage({ params }: { params: { id: string } }) {
-  const { job, applicants } = await getJobApplicants(params.id);
+  const { job, applicants } = await getJobApplicants(params?.id);
 
   return (
     <div className="space-y-8">
