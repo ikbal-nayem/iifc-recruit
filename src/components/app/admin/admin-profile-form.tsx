@@ -45,11 +45,12 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
       name: user.name,
       email: user.email,
       phone: user.phone,
+      avatar: null,
     },
   });
 
-  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>, fieldChange: (value: File | null) => void) => {
+    const file = event.target.files?.[0] || null;
     if (file) {
       if (file.size > 10 * 1024 * 1024) { // 10MB limit
          toast({
@@ -61,7 +62,7 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
       }
       const previewUrl = URL.createObjectURL(file);
       setAvatarPreview(previewUrl);
-      form.setValue('avatar', file);
+      fieldChange(file);
     }
   };
 
@@ -85,22 +86,34 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Card className="glassmorphism">
-          <CardContent className="space-y-6 pt-6">
+        <Card className="glassmorphism pt-6">
+          <CardContent className="space-y-6">
             <div className="flex items-center gap-6">
-              <div className="relative">
-                <Image src={avatarPreview || user.avatar} alt="Admin Avatar" width={80} height={80} className="rounded-full object-cover" data-ai-hint="avatar person" />
-                <Button size="icon" variant="outline" className="absolute bottom-0 right-0 h-8 w-8 rounded-full" asChild>
-                  <label htmlFor="avatar-upload" className="cursor-pointer">
-                    <Upload className="h-4 w-4" />
-                    <Input id="avatar-upload" type="file" className="sr-only" accept="image/png, image/jpeg, image/gif" onChange={handleAvatarChange} />
-                  </label>
-                </Button>
-              </div>
-              <div className="space-y-2">
-                <FormLabel>Profile Photo</FormLabel>
-                <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 10MB</p>
-              </div>
+               <FormField
+                  control={form.control}
+                  name="avatar"
+                  render={({ field }) => (
+                     <FormItem>
+                       <div className="flex items-center gap-6">
+                         <div className="relative">
+                            <Image src={avatarPreview || user.avatar} alt="Admin Avatar" width={80} height={80} className="rounded-full object-cover" data-ai-hint="avatar person" />
+                             <Button size="icon" variant="outline" className="absolute bottom-0 right-0 h-8 w-8 rounded-full" asChild>
+                              <FormLabel htmlFor="avatar-upload" className="cursor-pointer">
+                                <Upload className="h-4 w-4" />
+                                <FormControl>
+                                   <Input id="avatar-upload" type="file" className="sr-only" accept="image/png, image/jpeg, image/gif" onChange={(e) => handleAvatarChange(e, field.onChange)} />
+                                </FormControl>
+                              </FormLabel>
+                            </Button>
+                         </div>
+                         <div>
+                            <FormLabel>Profile Photo</FormLabel>
+                            <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 10MB</p>
+                         </div>
+                       </div>
+                     </FormItem>
+                  )}
+              />
             </div>
 
             <FormField
