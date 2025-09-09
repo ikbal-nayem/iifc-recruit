@@ -55,7 +55,7 @@ import type { Candidate, Application } from '@/lib/types';
 import { CandidateProfileView } from '@/components/app/candidate-profile-view';
 import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
-import { Textarea } from '../ui/textarea';
+import { Textarea } from '@/components/ui/textarea';
 
 type Applicant = Candidate & { application: Application };
 
