@@ -45,17 +45,29 @@ export function ImageCropper({ imageSrc, onCropComplete, onClose }: ImageCropper
   }
 
   async function handleCrop() {
-    if (!imgRef.current || !crop) {
+    if (!imgRef.current || !crop || !crop.width || !crop.height) {
+      toast({
+          title: 'Error',
+          description: 'Invalid crop selection.',
+          variant: 'destructive',
+      });
       return;
     }
 
+    const image = imgRef.current;
     const canvas = document.createElement('canvas');
-    const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
-    const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
-    canvas.width = crop.width;
-    canvas.height = crop.height;
-    const ctx = canvas.getContext('2d');
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+    
+    const cropX = crop.x * scaleX;
+    const cropY = crop.y * scaleY;
+    const cropWidth = crop.width * scaleX;
+    const cropHeight = crop.height * scaleY;
 
+    canvas.width = cropWidth;
+    canvas.height = cropHeight;
+
+    const ctx = canvas.getContext('2d');
     if (!ctx) {
       toast({
         title: 'Error',
@@ -64,26 +76,19 @@ export function ImageCropper({ imageSrc, onCropComplete, onClose }: ImageCropper
       });
       return;
     }
-    
-    const pixelRatio = window.devicePixelRatio;
-    canvas.width = crop.width * pixelRatio;
-    canvas.height = crop.height * pixelRatio;
-    ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-    ctx.imageSmoothingQuality = 'high';
-
 
     ctx.drawImage(
-      imgRef.current,
-      crop.x * scaleX,
-      crop.y * scaleY,
-      crop.width * scaleX,
-      crop.height * scaleY,
+      image,
+      cropX,
+      cropY,
+      cropWidth,
+      cropHeight,
       0,
       0,
-      crop.width,
-      crop.height
+      cropWidth,
+      cropHeight
     );
-
+    
     canvas.toBlob(
       (blob) => {
         if (blob) {
