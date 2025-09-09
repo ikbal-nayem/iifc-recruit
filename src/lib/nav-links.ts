@@ -2,6 +2,7 @@
 import type { LucideIcon } from 'lucide-react';
 import {
 	Briefcase,
+	Database,
 	Edit,
 	FileText,
 	LayoutDashboard,
@@ -47,6 +48,18 @@ export const adminNavLinks: NavLink[] = [
 		],
 	},
 	{ href: '/admin/candidates', label: 'Candidates', icon: Users },
+  {
+		href: '/admin/master-data/departments',
+		label: 'Master Data',
+		icon: Database,
+		isActive: (pathname) => pathname.startsWith('/admin/master-data'),
+		submenu: [
+			{ href: '/admin/master-data/departments', label: 'Departments', icon: Database },
+			{ href: '/admin/master-data/locations', label: 'Locations', icon: Database },
+			{ href: '/admin/master-data/skills', label: 'Skills', icon: Database },
+			{ href: '/admin/master-data/languages', label: 'Languages', icon: Database },
+		],
+	},
 ];
 
 export const candidateNavLinks: NavLink[] = [
