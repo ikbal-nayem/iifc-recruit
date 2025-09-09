@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -25,10 +26,17 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 	const { state } = useSidebar();
 	const router = useRouter();
 	const [isOpen, setIsOpen] = React.useState(false);
+	const [hash, setHash] = React.useState('');
+
+	React.useEffect(() => {
+		if (typeof window !== 'undefined') {
+			setHash(window.location.hash);
+		}
+	}, [pathname]);
 
 	const hasSubmenu = item.submenu && item.submenu.length > 0;
 	const isActive = item.isActive
-		? item.isActive(pathname, window.location.hash)
+		? item.isActive(pathname, hash)
 		: pathname.startsWith(item.href);
 	const isSubmenuOpen =
 		hasSubmenu &&
