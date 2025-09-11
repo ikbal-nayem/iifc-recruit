@@ -1,4 +1,5 @@
 
+
 import { jobs as allJobs } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Briefcase, MapPin, Clock, Building, DollarSign, Calendar, ArrowLeft } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
-import { JobApplicationClient } from '@/components/app/candidate/job-application-client';
+import { JobApplicationClient } from '@/components/app/jobseeker/job-application-client';
 
 export default function JobDetailsPage({ params, searchParams }: { params: { id: string }, searchParams: { [key: string]: string | string[] | undefined } }) {
 	const job = allJobs.find((j) => j.id === params?.id);

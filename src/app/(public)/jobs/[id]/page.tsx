@@ -1,4 +1,5 @@
-import { JobDetailClient } from '@/components/app/candidate/job-detail-client';
+
+import { JobDetailClient } from '@/components/app/jobseeker/job-detail-client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

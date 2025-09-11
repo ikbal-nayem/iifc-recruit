@@ -1,3 +1,4 @@
+
 import { JobseekerProfileView } from '@/components/app/jobseeker-profile-view';
 import { candidates } from '@/lib/data';
 

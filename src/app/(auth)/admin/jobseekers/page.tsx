@@ -1,4 +1,5 @@
 
+
 import { JobseekerManagement } from '@/components/app/admin/jobseeker-management';
 
 export default function AdminJobseekersPage() {
@@ -14,4 +15,5 @@ export default function AdminJobseekersPage() {
     </div>
   );
 }
+
 
