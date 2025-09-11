@@ -47,7 +47,7 @@ export const adminNavLinks: NavLink[] = [
 			},
 		],
 	},
-	{ href: '/admin/candidates', label: 'Jobseekers', icon: Users },
+	{ href: '/admin/jobseekers', label: 'Jobseekers', icon: Users },
   {
 		href: '/admin/master-data/departments',
 		label: 'Master Data',

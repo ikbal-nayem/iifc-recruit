@@ -1,6 +1,7 @@
-import { CandidateManagement } from '@/components/app/admin/candidate-management';
 
-export default function AdminCandidatesPage() {
+import { JobseekerManagement } from '@/components/app/admin/jobseeker-management';
+
+export default function AdminJobseekersPage() {
   return (
     <div className="space-y-8">
       <div>
@@ -9,7 +10,8 @@ export default function AdminCandidatesPage() {
           Browse, filter, and manage all jobseekers in your talent pool.
         </p>
       </div>
-      <CandidateManagement />
+      <JobseekerManagement />
     </div>
   );
 }
+

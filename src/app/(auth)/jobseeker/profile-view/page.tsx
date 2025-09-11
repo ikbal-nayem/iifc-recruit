@@ -1,4 +1,4 @@
-import { CandidateProfileView } from '@/components/app/candidate-profile-view';
+import { JobseekerProfileView } from '@/components/app/jobseeker-profile-view';
 import { candidates } from '@/lib/data';
 
 export default function JobseekerPublicProfilePage() {
@@ -11,7 +11,7 @@ export default function JobseekerPublicProfilePage() {
         </p>
       </div>
       <div className="border rounded-lg bg-card text-card-foreground shadow-sm">
-        <CandidateProfileView candidate={candidates[0]} />
+        <JobseekerProfileView candidate={candidates[0]} />
       </div>
     </div>
   );

@@ -52,7 +52,7 @@ import { MoreHorizontal, FileText, UserCheck, UserX, Star, Send, Bell } from 'lu
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Candidate, Application } from '@/lib/types';
-import { CandidateProfileView } from '@/components/app/candidate-profile-view';
+import { JobseekerProfileView } from '@/components/app/jobseeker-profile-view';
 import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -69,11 +69,11 @@ export function JobApplicantsTable({ applicants }: JobApplicantsTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
-  const [selectedCandidate, setSelectedCandidate] = React.useState<Candidate | null>(null);
+  const [selectedApplicant, setSelectedApplicant] = React.useState<Candidate | null>(null);
   const [isNotifyDialogOpen, setIsNotifyDialogOpen] = React.useState(false);
   const [notificationChannel, setNotificationChannel] = React.useState<'email' | 'sms'>('email');
 
-  const handleStatusChange = (applicationId: string, candidateName: string, newStatus: Application['status']) => {
+  const handleStatusChange = (applicationId: string, applicantName: string, newStatus: Application['status']) => {
     setData(prevData => prevData.map(applicant => 
         applicant.application.id === applicationId 
         ? { ...applicant, application: { ...applicant.application, status: newStatus } }
@@ -81,7 +81,7 @@ export function JobApplicantsTable({ applicants }: JobApplicantsTableProps) {
     ));
     toast({
         title: 'Status Updated',
-        description: `${candidateName}'s status has been updated to ${newStatus}.`,
+        description: `${applicantName}'s status has been updated to ${newStatus}.`,
         variant: 'success'
     })
   }
@@ -111,7 +111,7 @@ export function JobApplicantsTable({ applicants }: JobApplicantsTableProps) {
     },
     {
       accessorKey: 'personalInfo',
-      header: 'Candidate',
+      header: 'Applicant',
       cell: ({ row }) => {
         const { name, email, avatar } = row.original.personalInfo;
         return (
@@ -161,7 +161,7 @@ export function JobApplicantsTable({ applicants }: JobApplicantsTableProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => setSelectedCandidate(applicant)}>
+              <DropdownMenuItem onClick={() => setSelectedApplicant(applicant)}>
                 <FileText className="mr-2 h-4 w-4" /> View Profile
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -226,7 +226,7 @@ export function JobApplicantsTable({ applicants }: JobApplicantsTableProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setSelectedCandidate(applicant)}>
+              <DropdownMenuItem onClick={() => setSelectedApplicant(applicant)}>
                 <FileText className="mr-2 h-4 w-4" /> View Profile
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -365,19 +365,19 @@ export function JobApplicantsTable({ applicants }: JobApplicantsTableProps) {
           Next
         </Button>
       </div>
-       <Dialog open={!!selectedCandidate} onOpenChange={(isOpen) => !isOpen && setSelectedCandidate(null)}>
+       <Dialog open={!!selectedApplicant} onOpenChange={(isOpen) => !isOpen && setSelectedApplicant(null)}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          {selectedCandidate && (
-             <CandidateProfileView candidate={selectedCandidate} />
+          {selectedApplicant && (
+             <JobseekerProfileView candidate={selectedApplicant} />
           )}
         </DialogContent>
       </Dialog>
       <Dialog open={isNotifyDialogOpen} onOpenChange={setIsNotifyDialogOpen}>
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>Send Notification to {selectedRowCount} Candidate(s)</DialogTitle>
+                <DialogTitle>Send Notification to {selectedRowCount} Applicant(s)</DialogTitle>
                 <DialogDescription>
-                    Compose a message and choose the channel to notify the selected candidates.
+                    Compose a message and choose the channel to notify the selected applicants.
                 </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
@@ -398,7 +398,7 @@ export function JobApplicantsTable({ applicants }: JobApplicantsTableProps) {
                 <Button onClick={() => {
                     toast({
                         title: 'Notifications Sent',
-                        description: `A message has been sent via ${notificationChannel} to ${selectedRowCount} candidate(s).`,
+                        description: `A message has been sent via ${notificationChannel} to ${selectedRowCount} applicant(s).`,
                         variant: 'success'
                     });
                     setIsNotifyDialogOpen(false);
