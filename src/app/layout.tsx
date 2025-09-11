@@ -7,6 +7,7 @@ import { TopLoader } from '@/components/ui/top-loader';
 import * as React from 'react';
 import './globals.css';
 import { Inter, Space_Grotesk, Source_Code_Pro } from 'next/font/google';
+import { LocalStorageService } from '@/services/localStorage.service';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -23,6 +24,8 @@ const sourceCodePro = Source_Code_Pro({
   variable: '--font-source-code-pro',
 });
 
+const SPLASH_SHOWN_KEY = 'splash_shown';
+
 export default function RootLayout({
   children,
   params: { locale }
@@ -31,10 +34,21 @@ export default function RootLayout({
   params: { locale: string };
 }>) {
   const [isFinished, setIsFinished] = React.useState(false);
+  const [showSplash, setShowSplash] = React.useState(false);
 
   React.useEffect(() => {
-    const timeout = setTimeout(() => setIsFinished(true), 500); // Duration of fade-out animation
-    return () => clearTimeout(timeout);
+    const splashShown = sessionStorage.getItem(SPLASH_SHOWN_KEY);
+    if (!splashShown) {
+      setShowSplash(true);
+      const timeout = setTimeout(() => {
+        setIsFinished(true);
+        sessionStorage.setItem(SPLASH_SHOWN_KEY, 'true');
+      }, 1500); // Increased duration for a better first-load experience
+      return () => clearTimeout(timeout);
+    } else {
+      setShowSplash(false);
+      setIsFinished(true);
+    }
   }, []);
   
   return (
@@ -44,7 +58,7 @@ export default function RootLayout({
         <meta name="description" content="Streamlining the recruitment process." />
       </head>
       <body className="font-body antialiased flex flex-col min-h-screen">
-        {!isFinished && <SplashScreen isFinished={isFinished} />}
+        {showSplash && <SplashScreen isFinished={isFinished} />}
         <TopLoader />
         {children}
         <Toaster />
