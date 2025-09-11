@@ -1,7 +1,7 @@
 import { AUTH_INFO } from '@/constants/auth.constant';
 import { ENV } from '@/constants/env.constant';
 import { IAuthInfo } from '@/interfaces/auth.interface';
-import { LocalStorageService } from '@/services/localStorage.service';
+import { LocalStorageService } from '@/services/storage.service';
 import axios from 'axios';
 
 const axiosIns = axios.create({

@@ -2,67 +2,70 @@
 'use client';
 
 import SplashScreen from '@/components/app/splash-screen';
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from '@/components/ui/toaster';
 import { TopLoader } from '@/components/ui/top-loader';
+import { sessionStorageService } from '@/services/storage.service';
+import { Inter, Source_Code_Pro, Space_Grotesk } from 'next/font/google';
 import * as React from 'react';
 import './globals.css';
-import { Inter, Space_Grotesk, Source_Code_Pro } from 'next/font/google';
-import { LocalStorageService } from '@/services/localStorage.service';
 
 const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
+	subsets: ['latin'],
+	variable: '--font-inter',
 });
 
 const spaceGrotesk = Space_Grotesk({
-  subsets: ['latin'],
-  variable: '--font-space-grotesk',
+	subsets: ['latin'],
+	variable: '--font-space-grotesk',
 });
 
 const sourceCodePro = Source_Code_Pro({
-  subsets: ['latin'],
-  variable: '--font-source-code-pro',
+	subsets: ['latin'],
+	variable: '--font-source-code-pro',
 });
 
 const SPLASH_SHOWN_KEY = 'splash_shown';
 
 export default function RootLayout({
-  children,
-  params: { locale }
+	children,
+	params: { locale },
 }: Readonly<{
-  children: React.ReactNode;
-  params: { locale: string };
+	children: React.ReactNode;
+	params: { locale: string };
 }>) {
-  const [isFinished, setIsFinished] = React.useState(false);
-  const [showSplash, setShowSplash] = React.useState(false);
+	const [isFinished, setIsFinished] = React.useState(false);
+	const [showSplash, setShowSplash] = React.useState(false);
 
-  React.useEffect(() => {
-    const splashShown = sessionStorage.getItem(SPLASH_SHOWN_KEY);
-    if (!splashShown) {
-      setShowSplash(true);
-      const timeout = setTimeout(() => {
-        setIsFinished(true);
-        sessionStorage.setItem(SPLASH_SHOWN_KEY, 'true');
-      }, 1500); // Increased duration for a better first-load experience
-      return () => clearTimeout(timeout);
-    } else {
-      setShowSplash(false);
-      setIsFinished(true);
-    }
-  }, []);
-  
-  return (
-    <html lang={locale} className={`h-full ${inter.variable} ${spaceGrotesk.variable} ${sourceCodePro.variable}`}>
-      <head>
-        <title>IIFC Jobs</title>
-        <meta name="description" content="Streamlining the recruitment process." />
-      </head>
-      <body className="font-body antialiased flex flex-col min-h-screen">
-        {showSplash && <SplashScreen isFinished={isFinished} />}
-        <TopLoader />
-        {children}
-        <Toaster />
-      </body>
-    </html>
-  );
+	React.useEffect(() => {
+		const splashShown = sessionStorageService.get(SPLASH_SHOWN_KEY);
+		if (!splashShown) {
+			setShowSplash(true);
+			const timeout = setTimeout(() => {
+				setIsFinished(true);
+				sessionStorageService.set(SPLASH_SHOWN_KEY, 'true');
+			}, 1500); // Increased duration for a better first-load experience
+			return () => clearTimeout(timeout);
+		} else {
+			setShowSplash(false);
+			setIsFinished(true);
+		}
+	}, []);
+
+	return (
+		<html
+			lang={locale}
+			className={`h-full ${inter.variable} ${spaceGrotesk.variable} ${sourceCodePro.variable}`}
+		>
+			<head>
+				<title>IIFC Jobs</title>
+				<meta name='description' content='Streamlining the recruitment process.' />
+			</head>
+			<body className='font-body antialiased flex flex-col min-h-screen'>
+				{showSplash && <SplashScreen isFinished={isFinished} />}
+				<TopLoader />
+				{children}
+				<Toaster />
+			</body>
+		</html>
+	);
 }
