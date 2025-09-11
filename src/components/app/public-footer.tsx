@@ -31,11 +31,11 @@ export default function PublicFooter() {
                 </div>
             </div>
             <div>
-                <h4 className="font-semibold mb-4">For Candidates</h4>
+                <h4 className="font-semibold mb-4">For Jobseekers</h4>
                 <nav className="flex flex-col gap-2">
                     <Link href="/" className="text-sm hover:text-primary transition-colors text-muted-foreground">Find a Job</Link>
-                    <Link href="/login" className="text-sm hover:text-primary transition-colors text-muted-foreground">Candidate Login</Link>
-                    <Link href="/signup" className="text-sm hover:text-primary transition-colors text-muted-foreground">Candidate Sign Up</Link>
+                    <Link href="/login" className="text-sm hover:text-primary transition-colors text-muted-foreground">Jobseeker Login</Link>
+                    <Link href="/signup" className="text-sm hover:text-primary transition-colors text-muted-foreground">Jobseeker Sign Up</Link>
                 </nav>
             </div>
             <div>

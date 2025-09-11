@@ -58,7 +58,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
   const uniqueLocations = ['all', ...Array.from(new Set(allJobs.map(job => job.location)))];
   const uniqueDepartments = ['all', ...Array.from(new Set(allJobs.map(job => job.department)))];
   
-  const isCandidateRoute = pathname.startsWith('/candidate');
+  const isJobseekerRoute = pathname.startsWith('/jobseeker');
 
   React.useEffect(() => {
     let results = jobs;
@@ -137,7 +137,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
     if (filters.department !== 'all') queryParams.set('department', filters.department);
     if (filters.type !== 'all') queryParams.set('type', filters.type);
 
-    const jobUrl = `${isCandidateRoute ? '/candidate' : ''}/jobs/${job.id}?${queryParams.toString()}`;
+    const jobUrl = `${isJobseekerRoute ? '/jobseeker' : ''}/jobs/${job.id}?${queryParams.toString()}`;
     
     if (view === 'list') {
         return (

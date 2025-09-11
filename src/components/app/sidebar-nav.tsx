@@ -14,7 +14,7 @@ import {
 	SidebarSeparator,
 	useSidebar,
 } from '@/components/ui/sidebar';
-import { NavLink, adminNavLinks, candidateNavLinks } from '@/lib/nav-links';
+import { NavLink, adminNavLinks, jobseekerNavLinks } from '@/lib/nav-links';
 import { ChevronDown, Settings } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -112,7 +112,7 @@ export default function SidebarNav() {
 	const pathname = usePathname();
 	const role = pathname.split('/')[1];
 
-	const navItems = role === 'admin' ? adminNavLinks : role === 'candidate' ? candidateNavLinks : [];
+	const navItems = role === 'admin' ? adminNavLinks : role === 'jobseeker' ? jobseekerNavLinks : [];
 
 	return (
 		<>

@@ -66,7 +66,7 @@ export default function SignupForm() {
       variant: 'success'
     });
 
-    router.push('/candidate');
+    router.push('/jobseeker');
     
     setIsLoading(false);
   };

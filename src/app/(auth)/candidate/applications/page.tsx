@@ -1,16 +1,15 @@
+import { CandidateManagement } from '@/components/app/admin/candidate-management';
 
-import { MyApplications } from '@/components/app/candidate/my-applications';
-
-export default function CandidateApplicationsPage() {
+export default function AdminCandidatesPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-headline font-bold">My Applications</h1>
+        <h1 className="text-3xl font-headline font-bold">Jobseeker Management</h1>
         <p className="text-muted-foreground">
-          Track the status of all your job applications.
+          Browse, filter, and manage all jobseekers in your talent pool.
         </p>
       </div>
-      <MyApplications />
+      <CandidateManagement />
     </div>
   );
 }

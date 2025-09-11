@@ -24,7 +24,10 @@ const getBreadcrumbs = (pathname: string) => {
     const parts = pathname.split('/').filter(Boolean);
     const breadcrumbs = parts.map((part, index) => {
         const href = '/' + parts.slice(0, index + 1).join('/');
-        const label = part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, ' ');
+        let label = part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, ' ');
+        if (label === 'Jobseeker') {
+          label = 'Jobseeker';
+        }
         return { href, label };
     });
     return breadcrumbs;
@@ -40,7 +43,7 @@ export default function Header() {
     // Here we just pick a user based on role for demonstration.
     const role = pathname.split('/')[1] || 'guest';
     let user = { firstName: 'Admin', lastName: 'User', email: 'admin@iifc.com', avatar: 'https://picsum.photos/seed/admin/100/100' };
-    if (role === 'candidate') {
+    if (role === 'jobseeker') {
         user = candidates[0].personalInfo;
     } 
 
@@ -50,7 +53,7 @@ export default function Header() {
     }
 
     const handleProfileClick = () => {
-      const targetPath = role === 'admin' ? '/admin/profile' : '/candidate/profile-edit';
+      const targetPath = role === 'admin' ? '/admin/profile' : '/jobseeker/profile-edit';
       router.push(targetPath);
     };
 

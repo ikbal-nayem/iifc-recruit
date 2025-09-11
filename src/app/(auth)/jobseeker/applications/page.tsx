@@ -1,3 +1,4 @@
+
 import { MyApplications } from '@/components/app/candidate/my-applications';
 
 export default function JobseekerApplicationsPage() {

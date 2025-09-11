@@ -66,7 +66,7 @@ export default function LoginForm() {
     if (data.email.includes('admin')) {
       router.push('/admin');
     } else {
-      router.push('/candidate');
+      router.push('/jobseeker');
     }
     
     // We may not see the loading state change if redirection is too fast,
