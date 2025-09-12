@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -85,8 +84,6 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
       ...candidate.personalInfo,
-      presentAddress: candidate.personalInfo.presentAddress,
-      permanentAddress: candidate.personalInfo.permanentAddress,
       usePresentForPermanent: false,
       avatarFile: null,
     },
