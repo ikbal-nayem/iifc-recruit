@@ -10,11 +10,12 @@ import {
 } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Mail, Phone, MapPin, Building, Briefcase, GraduationCap, Award, BookOpen, Languages, Star, FileText, Download } from 'lucide-react';
+import { Mail, Phone, MapPin, Building, Briefcase, GraduationCap, Award, BookOpen, Languages, Star, FileText, Download, User, Cake, Linkedin, Video } from 'lucide-react';
 import type { Candidate } from '@/lib/types';
 import { Button } from '../ui/button';
 import Link from 'next/link';
 import { format, parseISO } from 'date-fns';
+import { Separator } from '../ui/separator';
 
 interface JobseekerProfileViewProps {
     candidate: Candidate;
@@ -39,8 +40,12 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
     resumeUrl,
   } = candidate;
 
+  const getFullName = () => {
+    return [personalInfo.firstName, personalInfo.middleName, personalInfo.lastName].filter(Boolean).join(' ');
+  }
+
   return (
-    <div className="p-2 sm:p-4 space-y-6">
+    <div className="p-2 sm:p-4 md:p-6 space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start gap-6">
             <Avatar className="h-24 w-24 border-4 border-background shadow-md">
@@ -48,12 +53,19 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
                 <AvatarFallback>{personalInfo.firstName[0]}{personalInfo.lastName[0]}</AvatarFallback>
             </Avatar>
             <div className="flex-1">
-                <h1 className="text-3xl font-bold font-headline">{personalInfo.firstName} {personalInfo.lastName}</h1>
+                <h1 className="text-3xl font-bold font-headline">{getFullName()}</h1>
                 <p className="text-lg text-muted-foreground">{personalInfo.headline}</p>
                 <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground mt-2">
                     <span className="flex items-center gap-2"><Mail className="h-4 w-4"/> {personalInfo.email}</span>
                     <span className="flex items-center gap-2"><Phone className="h-4 w-4"/> {personalInfo.phone}</span>
-                    <span className="flex items-center gap-2"><MapPin className="h-4 w-4"/> {personalInfo.address.district}, {personalInfo.address.division}</span>
+                </div>
+                 <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground mt-2">
+                    {personalInfo.linkedInProfile && (
+                         <a href={personalInfo.linkedInProfile} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary"><Linkedin className="h-4 w-4"/> LinkedIn</a>
+                    )}
+                    {personalInfo.videoProfile && (
+                         <a href={personalInfo.videoProfile} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary"><Video className="h-4 w-4"/> Video Profile</a>
+                    )}
                 </div>
             </div>
              <div className="flex-shrink-0">
@@ -66,11 +78,44 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
                 )}
             </div>
         </div>
+        
+        <Separator />
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-2">
+                <h4 className="font-semibold text-sm text-muted-foreground flex items-center gap-2"><User className="h-4 w-4" /> Personal Details</h4>
+                <div className="text-sm space-y-1">
+                    <p><span className="font-medium">Father's Name:</span> {personalInfo.fatherName}</p>
+                    <p><span className="font-medium">Mother's Name:</span> {personalInfo.motherName}</p>
+                    <p><span className="font-medium">Date of Birth:</span> {format(parseISO(personalInfo.dateOfBirth), 'do MMM, yyyy')}</p>
+                    <p><span className="font-medium">Gender:</span> {personalInfo.gender}</p>
+                    <p><span className="font-medium">Marital Status:</span> {personalInfo.maritalStatus}</p>
+                    <p><span className="font-medium">Nationality:</span> {personalInfo.nationality}</p>
+                    {personalInfo.nid && <p><span className="font-medium">NID:</span> {personalInfo.nid}</p>}
+                    {personalInfo.passportNo && <p><span className="font-medium">Passport:</span> {personalInfo.passportNo}</p>}
+                </div>
+            </div>
+             <div className="space-y-2">
+                <h4 className="font-semibold text-sm text-muted-foreground flex items-center gap-2"><MapPin className="h-4 w-4" /> Present Address</h4>
+                <address className="text-sm not-italic">
+                    {personalInfo.presentAddress.line1}<br/>
+                    {personalInfo.presentAddress.upazila}, {personalInfo.presentAddress.district} - {personalInfo.presentAddress.postCode}<br/>
+                    {personalInfo.presentAddress.division}
+                </address>
+            </div>
+            <div className="space-y-2">
+                <h4 className="font-semibold text-sm text-muted-foreground flex items-center gap-2"><MapPin className="h-4 w-4" /> Permanent Address</h4>
+                <address className="text-sm not-italic">
+                    {personalInfo.permanentAddress.line1}<br/>
+                    {personalInfo.permanentAddress.upazila}, {personalInfo.permanentAddress.district} - {personalInfo.permanentAddress.postCode}<br/>
+                    {personalInfo.permanentAddress.division}
+                </address>
+            </div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
-                {/* Professional Experience */}
-                <Card className="glassmorphism">
+                {professionalInfo.length > 0 && <Card className="glassmorphism">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2"><Briefcase className="h-5 w-5"/> Professional Experience</CardTitle>
                     </CardHeader>
@@ -86,10 +131,9 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
                             </div>
                         ))}
                     </CardContent>
-                </Card>
+                </Card>}
 
-                 {/* Academic History */}
-                <Card className="glassmorphism">
+                {academicInfo.length > 0 && <Card className="glassmorphism">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2"><GraduationCap className="h-5 w-5"/> Academic History</CardTitle>
                     </CardHeader>
@@ -102,12 +146,11 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
                             </div>
                         ))}
                     </CardContent>
-                </Card>
+                </Card>}
             </div>
             
             <div className="lg:col-span-1 space-y-6">
-                 {/* Skills */}
-                <Card className="glassmorphism">
+                {skills.length > 0 && <Card className="glassmorphism">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2"><Star className="h-5 w-5"/> Skills</CardTitle>
                     </CardHeader>
@@ -116,9 +159,8 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
                             <Badge key={skill} variant="secondary">{skill}</Badge>
                         ))}
                     </CardContent>
-                </Card>
+                </Card>}
 
-                {/* Languages */}
                 {languages.length > 0 && (
                     <Card className="glassmorphism">
                         <CardHeader>
@@ -134,7 +176,6 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
                         </CardContent>
                     </Card>
                 )}
-                 {/* Certifications */}
                 {certifications.length > 0 && (
                     <Card className="glassmorphism">
                         <CardHeader>
@@ -151,7 +192,6 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
                     </Card>
                 )}
 
-                 {/* Publications */}
                  {publications.length > 0 && (
                     <Card className="glassmorphism">
                         <CardHeader>
@@ -168,7 +208,6 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
                     </Card>
                  )}
                 
-                 {/* Awards */}
                 {awards.length > 0 && (
                     <Card className="glassmorphism">
                         <CardHeader>

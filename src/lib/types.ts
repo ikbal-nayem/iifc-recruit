@@ -1,4 +1,5 @@
 
+
 export type UserRole = 'candidate' | 'admin';
 
 export type Address = {
@@ -6,17 +7,36 @@ export type Address = {
     upazila: string;
     district: string;
     division: string;
+    postCode: string;
 };
 
 export type PersonalInfo = {
   firstName: string;
+  middleName?: string;
   lastName: string;
-  name: string;
+  name: string; // Concatenation of first, middle, last
+  fatherName: string;
+  motherName: string;
   email: string;
   phone: string;
-  address: Address;
+  
+  dateOfBirth: string;
+  gender: 'Male' | 'Female' | 'Other';
+  maritalStatus: 'Single' | 'Married' | 'Widow' | 'Divorce';
+  nationality: string;
+
+  nid?: string;
+  passportNo?: string;
+  birthCertificate?: string;
+
+  presentAddress: Address;
+  permanentAddress: Address;
+
   avatar: string;
   headline: string;
+  
+  linkedInProfile?: string;
+  videoProfile?: string;
 };
 
 export type AcademicInfo = {
@@ -109,3 +129,4 @@ export type Activity = {
   target: string;
   timestamp: string;
 };
+

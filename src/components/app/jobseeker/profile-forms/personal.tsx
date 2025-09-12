@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import type { Candidate } from '@/lib/types';
-import { Save, Upload, Mail, Phone, Check, ChevronsUpDown } from 'lucide-react';
+import { Save, Upload, Mail, Phone, Check, ChevronsUpDown, Linkedin, Video } from 'lucide-react';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -25,6 +25,8 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { divisions, districts, upazilas } from '@/lib/bd-divisions-districts-upazilas';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface ProfileFormProps {
   candidate: Candidate;
@@ -32,14 +34,44 @@ interface ProfileFormProps {
 
 const personalInfoSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
+  middleName: z.string().optional(),
   lastName: z.string().min(1, 'Last name is required'),
+  fatherName: z.string().min(1, "Father's name is required"),
+  motherName: z.string().min(1, "Mother's name is required"),
   email: z.string().email(),
   phone: z.string().min(1, 'Phone number is required'),
   headline: z.string().min(1, 'Headline is required'),
-  division: z.string().min(1, 'Division is required'),
-  district: z.string().min(1, 'District is required'),
-  upazila: z.string().min(1, 'Upazila is required'),
-  line1: z.string().min(1, 'Address line is required'),
+  
+  dateOfBirth: z.string().min(1, 'Date of birth is required'),
+  gender: z.enum(['Male', 'Female', 'Other']),
+  maritalStatus: z.enum(['Single', 'Married', 'Widow', 'Divorce']),
+  nationality: z.string().min(1, 'Nationality is required'),
+  
+  nid: z.string().optional(),
+  passportNo: z.string().optional(),
+  birthCertificate: z.string().optional(),
+
+  presentAddress: z.object({
+    division: z.string().min(1, 'Division is required'),
+    district: z.string().min(1, 'District is required'),
+    upazila: z.string().min(1, 'Upazila is required'),
+    line1: z.string().min(1, 'Address line is required'),
+    postCode: z.string().min(1, 'Post code is required'),
+  }),
+  
+  usePresentForPermanent: z.boolean().default(false),
+  
+  permanentAddress: z.object({
+    division: z.string().min(1, 'Division is required'),
+    district: z.string().min(1, 'District is required'),
+    upazila: z.string().min(1, 'Upazila is required'),
+    line1: z.string().min(1, 'Address line is required'),
+    postCode: z.string().min(1, 'Post code is required'),
+  }),
+
+  linkedInProfile: z.string().url().optional().or(z.literal('')),
+  videoProfile: z.string().url().optional().or(z.literal('')),
+
   avatarFile: z.any().optional(),
 });
 
@@ -52,41 +84,23 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
   const form = useForm<PersonalInfoFormValues>({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
-      firstName: candidate.personalInfo.firstName,
-      lastName: candidate.personalInfo.lastName,
-      email: candidate.personalInfo.email,
-      phone: candidate.personalInfo.phone,
-      headline: candidate.personalInfo.headline,
-      division: candidate.personalInfo.address.division,
-      district: candidate.personalInfo.address.district,
-      upazila: candidate.personalInfo.address.upazila,
-      line1: candidate.personalInfo.address.line1,
+      ...candidate.personalInfo,
+      presentAddress: candidate.personalInfo.presentAddress,
+      permanentAddress: candidate.personalInfo.permanentAddress,
+      usePresentForPermanent: false,
       avatarFile: null,
     },
   });
 
-  const watchDivision = form.watch('division');
-  const watchDistrict = form.watch('district');
-
-  const filteredDistricts = React.useMemo(() => {
-    const selectedDivision = divisions.find(d => d.name.toLowerCase() === watchDivision?.toLowerCase());
-    if (!selectedDivision) return [];
-    return districts.filter(d => d.division_id === selectedDivision.id);
-  }, [watchDivision]);
-
-  const filteredUpazilas = React.useMemo(() => {
-    const selectedDistrict = districts.find(d => d.name.toLowerCase() === watchDistrict?.toLowerCase());
-    if (!selectedDistrict) return [];
-    return upazilas.filter(u => u.district_id === selectedDistrict.id);
-  }, [watchDistrict]);
+  const watchPresentAddress = form.watch('presentAddress');
+  const usePresentForPermanent = form.watch('usePresentForPermanent');
 
   React.useEffect(() => {
-    form.setValue('district', '');
-  }, [watchDivision, form]);
+    if (usePresentForPermanent) {
+      form.setValue('permanentAddress', watchPresentAddress);
+    }
+  }, [usePresentForPermanent, watchPresentAddress, form]);
 
-   React.useEffect(() => {
-    form.setValue('upazila', '');
-  }, [watchDistrict, form]);
 
    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -116,14 +130,124 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
     });
     console.log(data);
   };
+  
+  const AddressFields = ({ type }: { type: 'presentAddress' | 'permanentAddress' }) => {
+    const watchDivision = form.watch(`${type}.division`);
+    const watchDistrict = form.watch(`${type}.district`);
+    const disabled = type === 'permanentAddress' && usePresentForPermanent;
+
+    const filteredDistricts = React.useMemo(() => {
+        const selectedDivision = divisions.find(d => d.name === watchDivision);
+        if (!selectedDivision) return [];
+        return districts.filter(d => d.division_id === selectedDivision.id);
+    }, [watchDivision]);
+
+    const filteredUpazilas = React.useMemo(() => {
+        const selectedDistrict = districts.find(d => d.name === watchDistrict);
+        if (!selectedDistrict) return [];
+        return upazilas.filter(u => u.district_id === selectedDistrict.id);
+    }, [watchDistrict]);
+
+    React.useEffect(() => {
+        if (type === 'presentAddress') {
+            form.setValue(`${type}.district`, '');
+            form.setValue(`${type}.upazila`, '');
+        }
+    }, [watchDivision]);
+
+    React.useEffect(() => {
+        if (type === 'presentAddress') {
+            form.setValue(`${type}.upazila`, '');
+        }
+    }, [watchDistrict]);
+
+    return (
+        <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <FormField
+                    control={form.control}
+                    name={`${type}.division`}
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel required>Division</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value} disabled={disabled}>
+                                <FormControl>
+                                    <SelectTrigger><SelectValue placeholder="Select division" /></SelectTrigger>
+                                </FormControl>
+                                <SelectContent><Command><CommandInput placeholder="Search..."/><CommandList>{divisions.map(d => <CommandItem onSelect={() => field.onChange(d.name)} value={d.name} key={d.id}><SelectItem value={d.name}>{d.name}</SelectItem></CommandItem>)}</CommandList></Command></SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name={`${type}.district`}
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel required>District</FormLabel>
+                             <Select onValueChange={field.onChange} value={field.value} disabled={disabled || !watchDivision}>
+                                <FormControl>
+                                    <SelectTrigger><SelectValue placeholder="Select district" /></SelectTrigger>
+                                </FormControl>
+                                <SelectContent><Command><CommandInput placeholder="Search..."/><CommandList>{filteredDistricts.map(d => <CommandItem onSelect={() => field.onChange(d.name)} value={d.name} key={d.id}><SelectItem value={d.name}>{d.name}</SelectItem></CommandItem>)}</CommandList></Command></SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name={`${type}.upazila`}
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel required>Upazila / Thana</FormLabel>
+                             <Select onValueChange={field.onChange} value={field.value} disabled={disabled || !watchDistrict}>
+                                <FormControl>
+                                    <SelectTrigger><SelectValue placeholder="Select upazila" /></SelectTrigger>
+                                </FormControl>
+                                <SelectContent><Command><CommandInput placeholder="Search..."/><CommandList>{filteredUpazilas.map(u => <CommandItem onSelect={() => field.onChange(u.name)} value={u.name} key={u.id}><SelectItem value={u.name}>{u.name}</SelectItem></CommandItem>)}</CommandList></Command></SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <FormField
+                    control={form.control}
+                    name={`${type}.line1`}
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel required>Address Line</FormLabel>
+                            <FormControl><Input {...field} disabled={disabled} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name={`${type}.postCode`}
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel required>Post Code</FormLabel>
+                            <FormControl><Input {...field} disabled={disabled} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </div>
+        </div>
+    )
+  }
 
   return (
-    <>
-        <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+    <Form {...form}>
+    <form onSubmit={form.handleSubmit(onSubmit)}>
+        <div className="space-y-6">
             <Card className="glassmorphism">
             <CardHeader>
-                <CardTitle>Personal Information</CardTitle>
+                <CardTitle>Basic Information</CardTitle>
                 <CardDescription>This is your public-facing information.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -153,16 +277,25 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                 )}
                 />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField
                     control={form.control}
                     name="firstName"
                     render={({ field }) => (
                     <FormItem>
                         <FormLabel required>First Name</FormLabel>
-                        <FormControl>
-                        <Input placeholder="e.g. John" {...field} />
-                        </FormControl>
+                        <FormControl><Input placeholder="e.g. John" {...field} /></FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="middleName"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Middle Name</FormLabel>
+                        <FormControl><Input {...field} /></FormControl>
                         <FormMessage />
                     </FormItem>
                     )}
@@ -173,228 +306,228 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                     render={({ field }) => (
                     <FormItem>
                         <FormLabel required>Last Name</FormLabel>
-                        <FormControl>
-                        <Input placeholder="e.g. Doe" {...field} />
-                        </FormControl>
+                        <FormControl><Input placeholder="e.g. Doe" {...field} /></FormControl>
                         <FormMessage />
                     </FormItem>
                     )}
                 />
                 </div>
-                <FormField
-                control={form.control}
-                name="headline"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel required>Headline</FormLabel>
-                    <FormControl>
-                        <Input placeholder="e.g. Senior Frontend Developer" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel required>Email</FormLabel>
-                        <FormControl>
-                            <div className="relative flex items-center">
-                                <Mail className="absolute left-3 h-4 w-4 text-muted-foreground" />
-                                <Input type="email" {...field} className="pl-10" />
-                            </div>
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel required>Phone</FormLabel>
-                        <FormControl>
-                            <div className="relative flex items-center">
-                                <Phone className="absolute left-3 h-4 w-4 text-muted-foreground" />
-                                <Input {...field} className="pl-10" />
-                            </div>
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
-                </div>
-                <div>
-                <FormLabel>Address</FormLabel>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
-                    <FormField
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <FormField
                         control={form.control}
-                        name="division"
-                        render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                            <FormLabel required className="text-xs">Division</FormLabel>
-                            <Popover>
-                            <PopoverTrigger asChild>
-                                <FormControl>
-                                <Button
-                                    variant="outline"
-                                    role="combobox"
-                                    className={cn("w-full justify-between", !field.value && "text-muted-foreground")}
-                                >
-                                    {field.value ? divisions.find((d) => d.name === field.value)?.name : "Select division"}
-                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                                </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                            <Command>
-                                    <CommandInput placeholder="Search division..." />
-                                    <CommandList>
-                                    <CommandEmpty>No division found.</CommandEmpty>
-                                    <CommandGroup>
-                                        {divisions.map((division) => (
-                                        <CommandItem
-                                            value={division.name}
-                                            key={division.id}
-                                            onSelect={() => {
-                                            form.setValue("division", division.name)
-                                            }}
-                                        >
-                                            <Check className={cn("mr-2 h-4 w-4", division.name === field.value ? "opacity-100" : "opacity-0")} />
-                                            {division.name}
-                                        </CommandItem>
-                                        ))}
-                                    </CommandGroup>
-                                    </CommandList>
-                                </Command>
-                            </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="district"
-                        render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                            <FormLabel required className="text-xs">District</FormLabel>
-                            <Popover>
-                            <PopoverTrigger asChild>
-                                <FormControl>
-                                <Button
-                                    variant="outline"
-                                    role="combobox"
-                                    disabled={!watchDivision}
-                                    className={cn("w-full justify-between", !field.value && "text-muted-foreground")}
-                                >
-                                    {field.value ? filteredDistricts.find((d) => d.name === field.value)?.name : "Select district"}
-                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                                </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                                <Command>
-                                    <CommandInput placeholder="Search district..." />
-                                    <CommandList>
-                                    <CommandEmpty>No district found.</CommandEmpty>
-                                    <CommandGroup>
-                                        {filteredDistricts.map((district) => (
-                                        <CommandItem
-                                            value={district.name}
-                                            key={district.id}
-                                            onSelect={() => {
-                                            form.setValue("district", district.name)
-                                            }}
-                                        >
-                                            <Check className={cn("mr-2 h-4 w-4", district.name === field.value ? "opacity-100" : "opacity-0")} />
-                                            {district.name}
-                                        </CommandItem>
-                                        ))}
-                                    </CommandGroup>
-                                    </CommandList>
-                                </Command>
-                            </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="upazila"
-                        render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                            <FormLabel required className="text-xs">Upazila / Thana</FormLabel>
-                            <Popover>
-                            <PopoverTrigger asChild>
-                                <FormControl>
-                                <Button
-                                    variant="outline"
-                                    role="combobox"
-                                    disabled={!watchDistrict}
-                                    className={cn("w-full justify-between", !field.value && "text-muted-foreground")}
-                                >
-                                    {field.value ? filteredUpazilas.find((u) => u.name === field.value)?.name : "Select upazila"}
-                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                                </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                                <Command>
-                                    <CommandInput placeholder="Search upazila..." />
-                                    <CommandList>
-                                    <CommandEmpty>No upazila found.</CommandEmpty>
-                                    <CommandGroup>
-                                        {filteredUpazilas.map((upazila) => (
-                                        <CommandItem
-                                            value={upazila.name}
-                                            key={upazila.id}
-                                            onSelect={() => {
-                                            form.setValue("upazila", upazila.name)
-                                            }}
-                                        >
-                                            <Check className={cn("mr-2 h-4 w-4", upazila.name === field.value ? "opacity-100" : "opacity-0")} />
-                                            {upazila.name}
-                                        </CommandItem>
-                                        ))}
-                                    </CommandGroup>
-                                    </CommandList>
-                                </Command>
-                            </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                </div>
-                <div className="space-y-2 mt-4">
-                    <FormField
-                        control={form.control}
-                        name="line1"
+                        name="fatherName"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel required className="text-xs">Address Line 1</FormLabel>
+                            <FormLabel required>Father's Name</FormLabel>
+                            <FormControl><Input {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                      <FormField
+                        control={form.control}
+                        name="motherName"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel required>Mother's Name</FormLabel>
+                            <FormControl><Input {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                 </div>
+                <FormField
+                    control={form.control}
+                    name="headline"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel required>Headline</FormLabel>
+                        <FormControl><Input placeholder="e.g. Senior Frontend Developer" {...field} /></FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                        control={form.control}
+                        name="dateOfBirth"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel required>Date of Birth</FormLabel>
+                            <FormControl><Input type="date" {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="nationality"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel required>Nationality</FormLabel>
                             <FormControl><Input {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
                         )}
                     />
                 </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                        control={form.control}
+                        name="gender"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel required>Gender</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl><SelectTrigger><SelectValue placeholder="Select gender" /></SelectTrigger></FormControl>
+                                <SelectContent>
+                                    <SelectItem value="Male">Male</SelectItem>
+                                    <SelectItem value="Female">Female</SelectItem>
+                                    <SelectItem value="Other">Other</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="maritalStatus"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel required>Marital Status</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl><SelectTrigger><SelectValue placeholder="Select marital status" /></SelectTrigger></FormControl>
+                                <SelectContent>
+                                    <SelectItem value="Single">Single</SelectItem>
+                                    <SelectItem value="Married">Married</SelectItem>
+                                    <SelectItem value="Widow">Widow</SelectItem>
+                                    <SelectItem value="Divorce">Divorce</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
                 </div>
             </CardContent>
+            </Card>
+
+            <Card className="glassmorphism">
+                 <CardHeader>
+                    <CardTitle>Contact Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                         <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel required>Email</FormLabel>
+                                <FormControl>
+                                    <div className="relative flex items-center">
+                                        <Mail className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                                        <Input type="email" {...field} className="pl-10" />
+                                    </div>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="phone"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel required>Phone</FormLabel>
+                                <FormControl>
+                                    <div className="relative flex items-center">
+                                        <Phone className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                                        <Input {...field} className="pl-10" />
+                                    </div>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                    </div>
+                    <div>
+                        <h3 className="text-md font-medium mb-2">Present Address</h3>
+                        <AddressFields type="presentAddress" />
+                    </div>
+                    <div>
+                        <h3 className="text-md font-medium mb-2">Permanent Address</h3>
+                        <FormField
+                            control={form.control}
+                            name="usePresentForPermanent"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center space-x-3 space-y-0 mb-4">
+                                <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                                <FormLabel className="font-normal">Same as present address</FormLabel>
+                                </FormItem>
+                            )}
+                            />
+                        <AddressFields type="permanentAddress" />
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Card className="glassmorphism">
+                 <CardHeader>
+                    <CardTitle>Identity & Profiles</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                         <FormField control={form.control} name="nid" render={({ field }) => (<FormItem><FormLabel>NID</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                         <FormField control={form.control} name="passportNo" render={({ field }) => (<FormItem><FormLabel>Passport No.</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                         <FormField control={form.control} name="birthCertificate" render={({ field }) => (<FormItem><FormLabel>Birth Certificate No.</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    </div>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                         <FormField
+                            control={form.control}
+                            name="linkedInProfile"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>LinkedIn Profile</FormLabel>
+                                <FormControl>
+                                    <div className="relative flex items-center">
+                                        <Linkedin className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                                        <Input {...field} className="pl-10" placeholder="https://linkedin.com/in/..." />
+                                    </div>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="videoProfile"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Video Profile</FormLabel>
+                                <FormControl>
+                                    <div className="relative flex items-center">
+                                        <Video className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                                        <Input {...field} className="pl-10" placeholder="https://youtube.com/watch?v=..." />
+                                    </div>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                    </div>
+                </CardContent>
+            </Card>
+            
             <CardFooter>
                 <Button type="submit">
                 <Save className="mr-2 h-4 w-4" />Save Changes
                 </Button>
             </CardFooter>
-            </Card>
-        </form>
-        </Form>
-    </>
+        </div>
+    </form>
+    </Form>
   );
 }
