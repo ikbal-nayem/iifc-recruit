@@ -14,8 +14,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const locale = request.cookies.get('NEXT_LOCALE')?.value || 'en';
-  request.nextUrl.locale = locale;
+  // const locale = request.cookies.get('NEXT_LOCALE')?.value || 'en';
+  // request.nextUrl.locale = locale;
   
   return NextResponse.rewrite(request.nextUrl);
 }
