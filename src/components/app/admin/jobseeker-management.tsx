@@ -369,7 +369,7 @@ export function JobseekerManagement() {
                 {getJobseekerApplications(applicationsJobseeker.id).map(app => (
                     <div key={app.id} className="flex items-center justify-between p-3 rounded-lg border bg-muted/50">
                         <div>
-                            <Link href={`/admin/jobs/${app.job.id}/applicants`} className="font-semibold hover:underline">{app.job.title}</Link>
+                            <Link href={`/admin/job-management/${app.job.id}/applicants`} className="font-semibold hover:underline">{app.job.title}</Link>
                             <p className="text-sm text-muted-foreground">{app.job.department}</p>
                         </div>
                         <Badge variant={app.status === 'Interview' ? 'default' : 'secondary'}>{app.status}</Badge>

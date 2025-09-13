@@ -32,19 +32,19 @@ export const adminNavLinks: NavLink[] = [
 		isActive: (pathname) => pathname === '/admin',
 	},
 	{
-		href: '/admin/jobs',
+		href: '/admin/job-management',
 		label: 'Job Management',
 		icon: Briefcase,
-		isActive: (pathname) => pathname.startsWith('/admin/jobs'),
+		isActive: (pathname) => pathname.startsWith('/admin/job-management'),
 		submenu: [
 			{
-				href: '/admin/jobs',
+				href: '/admin/job-management',
 				label: 'All Jobs',
 				icon: Briefcase,
-				isActive: (pathname) => /^\/admin\/jobs(\/[^/]+\/(applicants|edit))?$/.test(pathname) || pathname === '/admin/jobs',
+				isActive: (pathname) => /^\/admin\/job-management(\/[^/]+\/(applicants|edit))?$/.test(pathname) || pathname === '/admin/job-management',
 			},
 			{ 
-				href: '/admin/jobs/create', 
+				href: '/admin/job-management/create', 
 				label: 'Create New', 
 				icon: PlusCircle 
 			},

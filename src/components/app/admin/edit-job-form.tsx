@@ -77,7 +77,7 @@ export function EditJobForm({ job }: EditJobFormProps) {
       description: `The job "${data.title}" has been updated.`,
       variant: 'success',
     });
-    router.push('/admin/jobs');
+    router.push('/admin/job-management');
   }
 
   return (

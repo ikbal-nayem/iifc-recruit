@@ -151,13 +151,13 @@ export function JobManagement() {
                     View Details
                   </DropdownMenuItem>
                    <DropdownMenuItem asChild>
-                    <Link href={`/admin/jobs/${job.id}/applicants`}>
+                    <Link href={`/admin/job-management/${job.id}/applicants`}>
                         <Users className="mr-2 h-4 w-4" />
                         View Applicants
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href={`/admin/jobs/${job.id}/edit`}>
+                    <Link href={`/admin/job-management/${job.id}/edit`}>
                       <Edit className="mr-2 h-4 w-4" />
                       Edit
                     </Link>
@@ -271,7 +271,7 @@ export function JobManagement() {
                 </SelectContent>
             </Select>
              <Button asChild>
-                <Link href="/admin/jobs/create">
+                <Link href="/admin/job-management/create">
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Create Job
                 </Link>
