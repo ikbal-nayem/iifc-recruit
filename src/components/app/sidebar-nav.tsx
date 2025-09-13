@@ -31,7 +31,7 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 		subItem.isActive ? subItem.isActive(pathname) : pathname.startsWith(subItem.href)
 	) ?? false);
 
-	const isActive = isParentActive || (item.isActive ? item.isActive(pathname) : pathname.startsWith(item.href));
+	const isActive = isParentActive || (item.isActive ? item.isActive(pathname) : pathname === item.href);
 
 	const isSubmenuOpen = hasSubmenu && (isOpen || isParentActive);
 	
@@ -64,47 +64,50 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 		</>
 	);
 
-	return (
-		<SidebarMenuItem>
-			<SidebarMenuButton
-				asChild={!hasSubmenu}
-				isActive={isActive}
-				tooltip={item.label}
-				data-state={isSubmenuOpen ? 'open' : 'closed'}
-				className='justify-between group-data-[state=open]:bg-sidebar-accent group-data-[state=open]:text-sidebar-accent-foreground'
-				onClick={(e) => {
-					if (hasSubmenu) {
+	if (hasSubmenu) {
+		return (
+			<SidebarMenuItem>
+				<SidebarMenuButton
+					isActive={isActive}
+					tooltip={item.label}
+					data-state={isSubmenuOpen ? 'open' : 'closed'}
+					className='justify-between group-data-[state=open]:bg-sidebar-accent group-data-[state=open]:text-sidebar-accent-foreground'
+					onClick={(e) => {
 						e.preventDefault();
 						setIsOpen(!isOpen);
-					}
-				}}
-			>
-				{hasSubmenu ? (
-					<div><MenuContent/></div>
-				) : (
-					<Link href={item.href}>
-						<MenuContent />
-					</Link>
-				)}
-			</SidebarMenuButton>
-			{isSubmenuOpen && state === 'expanded' && hasSubmenu && (
-				<SidebarMenuSub>
-					{item.submenu?.map((subItem) => (
-						<SidebarMenuItem key={subItem.href}>
-							{subItem.submenu ? (
-								<NavMenu item={subItem} />
+					}}
+				>
+					<MenuContent />
+				</SidebarMenuButton>
+				{isSubmenuOpen && state === 'expanded' && hasSubmenu && (
+					<SidebarMenuSub>
+						{item.submenu?.map((subItem) => 
+							subItem.submenu ? (
+								<NavMenu key={subItem.href} item={subItem} />
 							) : (
-								<SidebarMenuSubButton
-									asChild
-									isActive={subItem.isActive ? subItem.isActive(pathname) : pathname === subItem.href}
-								>
-									<Link href={subItem.href}>{subItem.label}</Link>
-								</SidebarMenuSubButton>
-							)}
-						</SidebarMenuItem>
-					))}
-				</SidebarMenuSub>
-			)}
+								<SidebarMenuItem key={subItem.href}>
+									<SidebarMenuSubButton
+										asChild
+										isActive={subItem.isActive ? subItem.isActive(pathname) : pathname === subItem.href}
+									>
+										<Link href={subItem.href}>{subItem.label}</Link>
+									</SidebarMenuSubButton>
+								</SidebarMenuItem>
+							)
+						)}
+					</SidebarMenuSub>
+				)}
+			</SidebarMenuItem>
+		);
+	}
+
+	return (
+		<SidebarMenuItem>
+			<SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
+				<Link href={item.href}>
+					<MenuContent />
+				</Link>
+			</SidebarMenuButton>
 		</SidebarMenuItem>
 	);
 };
