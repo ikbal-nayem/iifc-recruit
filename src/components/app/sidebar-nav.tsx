@@ -26,16 +26,14 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 	const [isOpen, setIsOpen] = React.useState(false);
 
 	const hasSubmenu = item.submenu && item.submenu.length > 0;
-	const isActive = item.isActive
-		? item.isActive(pathname)
-		: pathname.startsWith(item.href);
-	const isSubmenuOpen =
-		hasSubmenu &&
-		(isOpen ||
-			(item.submenu?.some((subItem) =>
-				subItem.isActive ? subItem.isActive(pathname) : pathname.startsWith(subItem.href)
-			) ??
-				false));
+
+	const isParentActive = hasSubmenu && (item.submenu?.some(subItem => 
+		subItem.isActive ? subItem.isActive(pathname) : pathname.startsWith(subItem.href)
+	) ?? false);
+
+	const isActive = isParentActive || (item.isActive ? item.isActive(pathname) : pathname.startsWith(item.href));
+
+	const isSubmenuOpen = hasSubmenu && (isOpen || isParentActive);
 	
 	React.useEffect(() => {
 		if (state === 'collapsed') {
@@ -53,10 +51,23 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 		}
 	}, [pathname, hasSubmenu, item.submenu]);
 
+
+	const MenuContent = () => (
+		<>
+			<div className="flex items-center gap-3">
+				<item.icon className='size-5' />
+				<span>{item.label}</span>
+			</div>
+			{hasSubmenu && (
+				<ChevronDown className='size-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180' />
+			)}
+		</>
+	);
+
 	return (
 		<SidebarMenuItem>
 			<SidebarMenuButton
-				asChild
+				asChild={!hasSubmenu}
 				isActive={isActive}
 				tooltip={item.label}
 				data-state={isSubmenuOpen ? 'open' : 'closed'}
@@ -68,15 +79,13 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 					}
 				}}
 			>
-				<Link href={item.href}>
-					<div className="flex items-center gap-3">
-						<item.icon className='size-5' />
-						<span>{item.label}</span>
-					</div>
-					{hasSubmenu && (
-						<ChevronDown className='size-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180' />
-					)}
-				</Link>
+				{hasSubmenu ? (
+					<div><MenuContent/></div>
+				) : (
+					<Link href={item.href}>
+						<MenuContent />
+					</Link>
+				)}
 			</SidebarMenuButton>
 			{isSubmenuOpen && state === 'expanded' && hasSubmenu && (
 				<SidebarMenuSub>
