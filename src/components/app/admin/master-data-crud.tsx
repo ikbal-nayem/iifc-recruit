@@ -1,21 +1,19 @@
 
 'use client';
 
-import * as React from 'react';
+import React, {useState} from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { PlusCircle, Trash, Edit, Check, X } from 'lucide-react';
+import { PlusCircle, Trash, Edit, Check, X, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,14 +39,41 @@ interface MasterDataCrudProps {
   noun: string; // e.g., "Department", "Skill"
 }
 
+// Mock API service
+const masterDataApi = {
+    add: async (item: MasterDataItem): Promise<MasterDataItem> => {
+        console.log('API: Adding item', item);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        // In a real app, you would get the created item back from the API
+        return item;
+    },
+    update: async (oldName: string, item: MasterDataItem): Promise<MasterDataItem> => {
+        console.log('API: Updating item', oldName, 'to', item);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return item;
+    },
+    remove: async (name: string): Promise<void> => {
+        console.log('API: Removing item', name);
+        await new Promise(resolve => setTimeout(resolve, 500));
+    },
+    toggle: async (item: MasterDataItem): Promise<MasterDataItem> => {
+        console.log('API: Toggling active status for', item.name);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return { ...item, isActive: !item.isActive };
+    }
+}
+
+
 export function MasterDataCrud({ title, description, initialData, noun }: MasterDataCrudProps) {
   const { toast } = useToast();
-  const [data, setData] = React.useState<MasterDataItem[]>(initialData);
-  const [editingIndex, setEditingIndex] = React.useState<number | null>(null);
-  const [editingValue, setEditingValue] = React.useState('');
-  const [newValue, setNewValue] = React.useState('');
+  const [data, setData] = useState<MasterDataItem[]>(initialData);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editingValue, setEditingValue] = useState('');
+  const [newValue, setNewValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState<number | null>(null);
 
-  const handleAddNew = () => {
+  const handleAddNew = async () => {
     if (newValue.trim() === '') {
         toast({ title: 'Error', description: `${noun} name cannot be empty.`, variant: 'destructive'});
         return;
@@ -57,12 +82,21 @@ export function MasterDataCrud({ title, description, initialData, noun }: Master
         toast({ title: 'Error', description: `This ${noun.toLowerCase()} already exists.`, variant: 'destructive'});
         return;
     }
-    setData([...data, { name: newValue.trim(), isActive: true }]);
-    setNewValue('');
-    toast({ title: 'Success', description: `${noun} added successfully.`, variant: 'success'});
+    setIsLoading(true);
+    try {
+        const newItem = { name: newValue.trim(), isActive: true };
+        await masterDataApi.add(newItem);
+        setData([...data, newItem]);
+        setNewValue('');
+        toast({ title: 'Success', description: `${noun} added successfully.`, variant: 'success'});
+    } catch (error) {
+        toast({ title: 'Error', description: `Failed to add ${noun.toLowerCase()}.`, variant: 'destructive'});
+    } finally {
+        setIsLoading(false);
+    }
   };
 
-  const handleUpdate = (index: number) => {
+  const handleUpdate = async (index: number) => {
     if (editingValue.trim() === '') {
         toast({ title: 'Error', description: `${noun} name cannot be empty.`, variant: 'destructive'});
         return;
@@ -71,24 +105,47 @@ export function MasterDataCrud({ title, description, initialData, noun }: Master
         toast({ title: 'Error', description: `This ${noun.toLowerCase()} already exists.`, variant: 'destructive'});
         return;
     }
-    const updatedData = [...data];
-    updatedData[index].name = editingValue.trim();
-    setData(updatedData);
-    setEditingIndex(null);
-    setEditingValue('');
-    toast({ title: 'Success', description: `${noun} updated successfully.`, variant: 'success'});
+    setIsSubmitting(index);
+    const originalItem = data[index];
+    const updatedItem = { ...originalItem, name: editingValue.trim() };
+    
+    try {
+        await masterDataApi.update(originalItem.name, updatedItem);
+        const updatedData = [...data];
+        updatedData[index] = updatedItem;
+        setData(updatedData);
+        setEditingIndex(null);
+        setEditingValue('');
+        toast({ title: 'Success', description: `${noun} updated successfully.`, variant: 'success'});
+    } catch (error) {
+        toast({ title: 'Error', description: `Failed to update ${noun.toLowerCase()}.`, variant: 'destructive'});
+    } finally {
+        setIsSubmitting(null);
+    }
   };
   
-  const handleToggleActive = (index: number) => {
-    const updatedData = [...data];
-    updatedData[index].isActive = !updatedData[index].isActive;
-    setData(updatedData);
-    toast({ title: 'Status Updated', description: `${updatedData[index].name}'s status has been changed.`, variant: 'success' });
+  const handleToggleActive = async (index: number) => {
+    const item = data[index];
+    try {
+        const updatedItem = await masterDataApi.toggle(item);
+        const updatedData = [...data];
+        updatedData[index] = updatedItem;
+        setData(updatedData);
+        toast({ title: 'Status Updated', description: `${updatedItem.name}'s status has been changed.`, variant: 'success' });
+    } catch(error) {
+         toast({ title: 'Error', description: `Failed to update status.`, variant: 'destructive'});
+    }
   };
 
-  const handleRemove = (index: number) => {
-    setData(data.filter((_, i) => i !== index));
-    toast({ title: 'Success', description: `${noun} removed successfully.`, variant: 'success'});
+  const handleRemove = async (index: number) => {
+    const itemToRemove = data[index];
+     try {
+        await masterDataApi.remove(itemToRemove.name);
+        setData(data.filter((_, i) => i !== index));
+        toast({ title: 'Success', description: `${noun} removed successfully.`, variant: 'success'});
+    } catch(error) {
+         toast({ title: 'Error', description: `Failed to remove ${noun.toLowerCase()}.`, variant: 'destructive'});
+    }
   };
 
   const startEditing = (index: number, value: string) => {
@@ -114,8 +171,12 @@ export function MasterDataCrud({ title, description, initialData, noun }: Master
             value={newValue}
             onChange={(e) => setNewValue(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAddNew()}
+            disabled={isLoading}
           />
-          <Button onClick={handleAddNew}><PlusCircle className="mr-2 h-4 w-4" /> Add</Button>
+          <Button onClick={handleAddNew} disabled={isLoading}>
+            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
+             Add
+          </Button>
         </div>
         <div className="space-y-2">
           {data.map((item, index) => (
@@ -128,6 +189,7 @@ export function MasterDataCrud({ title, description, initialData, noun }: Master
                     onKeyDown={(e) => e.key === 'Enter' && handleUpdate(index)}
                     className="h-8"
                     autoFocus
+                    disabled={isSubmitting === index}
                   />
                 ) : (
                   <div className="flex items-center gap-4">
@@ -142,10 +204,10 @@ export function MasterDataCrud({ title, description, initialData, noun }: Master
                 <div className="flex gap-1">
                   {editingIndex === index ? (
                     <>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleUpdate(index)}>
-                        <Check className="h-4 w-4 text-green-600" />
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleUpdate(index)} disabled={isSubmitting === index}>
+                         {isSubmitting === index ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4 text-green-600" />}
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={cancelEditing}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={cancelEditing} disabled={isSubmitting === index}>
                         <X className="h-4 w-4 text-destructive" />
                       </Button>
                     </>
@@ -185,3 +247,4 @@ export function MasterDataCrud({ title, description, initialData, noun }: Master
     </Card>
   );
 }
+
