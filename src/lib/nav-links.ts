@@ -12,6 +12,7 @@ import {
 	UserCog,
 	Users,
 	GraduationCap,
+    Building2,
 } from 'lucide-react';
 
 export interface NavLink {
@@ -50,7 +51,7 @@ export const adminNavLinks: NavLink[] = [
 	},
 	{ href: '/admin/jobseekers', label: 'Jobseekers', icon: Users },
   {
-		href: '/admin/master-data',
+		href: '#',
 		label: 'Master Data',
 		icon: Database,
 		isActive: (pathname) => pathname.startsWith('/admin/master-data'),
@@ -61,7 +62,7 @@ export const adminNavLinks: NavLink[] = [
       { href: '/admin/master-data/job-statuses', label: 'Job Statuses', icon: Database },
       { href: '/admin/master-data/application-statuses', label: 'Application Statuses', icon: Database },
 			{
-				href: '/admin/master-data/education/degree-levels',
+				href: '#',
 				label: 'Education',
 				icon: GraduationCap,
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/education'),
@@ -69,6 +70,18 @@ export const adminNavLinks: NavLink[] = [
 					{ href: '/admin/master-data/education/degree-levels', label: 'Degree Levels', icon: GraduationCap },
 					{ href: '/admin/master-data/education/domains', label: 'Domains', icon: GraduationCap },
 					{ href: '/admin/master-data/education/institutions', label: 'Institutions', icon: GraduationCap },
+				],
+			},
+            {
+				href: '#',
+				label: 'Company Data',
+				icon: Building2,
+				isActive: (pathname) => pathname.startsWith('/admin/master-data/industry-types') || pathname.startsWith('/admin/master-data/organization-types') || pathname.startsWith('/admin/master-data/organizations') || pathname.startsWith('/admin/master-data/position-levels'),
+				submenu: [
+					{ href: '/admin/master-data/industry-types', label: 'Industry Types', icon: Building2 },
+					{ href: '/admin/master-data/organization-types', label: 'Organization Types', icon: Building2 },
+                    { href: '/admin/master-data/position-levels', label: 'Position Levels', icon: Building2 },
+					{ href: '/admin/master-data/organizations', label: 'Organizations', icon: Building2 },
 				],
 			}
 		],
