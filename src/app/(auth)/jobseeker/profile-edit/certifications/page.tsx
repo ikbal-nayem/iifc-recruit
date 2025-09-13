@@ -1,4 +1,4 @@
-import { ProfileFormCertifications } from '@/components/app/candidate/profile-forms/certifications';
+import { ProfileFormCertifications } from '@/components/app/jobseeker/profile-forms/certifications';
 import { candidates } from '@/lib/data';
 
 export default function JobseekerProfileCertificationsPage() {

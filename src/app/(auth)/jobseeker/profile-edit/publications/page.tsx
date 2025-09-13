@@ -1,4 +1,4 @@
-import { ProfileFormPublications } from '@/components/app/candidate/profile-forms/publications';
+import { ProfileFormPublications } from '@/components/app/jobseeker/profile-forms/publications';
 import { candidates } from '@/lib/data';
 
 export default function JobseekerProfilePublicationsPage() {

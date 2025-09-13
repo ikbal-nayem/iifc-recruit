@@ -1,4 +1,4 @@
-import { ProfileFormLanguages } from '@/components/app/candidate/profile-forms/languages';
+import { ProfileFormLanguages } from '@/components/app/jobseeker/profile-forms/languages';
 import { candidates } from '@/lib/data';
 
 export default function JobseekerProfileLanguagesPage() {
