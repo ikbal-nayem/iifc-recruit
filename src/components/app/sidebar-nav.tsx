@@ -18,24 +18,22 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import * as React from 'react';
-import * as CollapsiblePrimitive from "@radix-ui/react-collapsible"
-
+import * as Collapsible from '@radix-ui/react-collapsible';
 
 const NavMenu = ({ item }: { item: NavLink }) => {
 	const pathname = usePathname();
 	const { state } = useSidebar();
-	const [isOpen, setIsOpen] = React.useState(false);
-
+	
 	const hasSubmenu = item.submenu && item.submenu.length > 0;
 
 	const isParentActive = hasSubmenu && (item.submenu?.some(subItem => 
 		subItem.isActive ? subItem.isActive(pathname) : pathname.startsWith(subItem.href)
 	) ?? false);
-
-	const isActive = isParentActive || (item.isActive ? item.isActive(pathname) : pathname === item.href);
-
-	const isSubmenuOpen = hasSubmenu && (isOpen || isParentActive);
 	
+	const isActive = isParentActive || (item.isActive ? item.isActive(pathname) : !hasSubmenu && pathname === item.href);
+
+	const [isOpen, setIsOpen] = React.useState(isParentActive);
+
 	React.useEffect(() => {
 		if (state === 'collapsed') {
 			setIsOpen(false);
@@ -48,46 +46,40 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 				item.submenu?.some((subItem) =>
 					subItem.isActive ? subItem.isActive(pathname) : pathname.startsWith(subItem.href)
 				) ?? false;
-			setIsOpen(isActive);
+			if (isActive) {
+				setIsOpen(true);
+			}
 		}
 	}, [pathname, hasSubmenu, item.submenu]);
 
 
-	const MenuContent = () => (
-		<>
-			<div className="flex items-center gap-3">
-				<item.icon className='size-5' />
-				<span>{item.label}</span>
-			</div>
-			{hasSubmenu && (
-				<ChevronDown className='size-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180' />
-			)}
-		</>
-	);
-
 	if (hasSubmenu) {
 		return (
 			<SidebarMenuItem>
-				<CollapsiblePrimitive.Root open={isSubmenuOpen} onOpenChange={setIsOpen}>
-					<CollapsiblePrimitive.Trigger asChild>
+				<Collapsible.Root open={isOpen} onOpenChange={setIsOpen} className="w-full">
+					<Collapsible.Trigger asChild>
 						<SidebarMenuButton
 							isActive={isActive}
 							tooltip={item.label}
-							data-state={isSubmenuOpen ? 'open' : 'closed'}
-							className='justify-between group-data-[state=open]:bg-sidebar-accent group-data-[state=open]:text-sidebar-accent-foreground'
+							className='justify-between'
+							data-state={isOpen ? 'open' : 'closed'}
 						>
-							<MenuContent />
+							<div className="flex items-center gap-3">
+								<item.icon className='size-5' />
+								<span>{item.label}</span>
+							</div>
+							<ChevronDown className='size-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180' />
 						</SidebarMenuButton>
-					</CollapsiblePrimitive.Trigger>
+					</Collapsible.Trigger>
 					
-					{state === 'expanded' && hasSubmenu && (
+					{state === 'expanded' && (
 						<SidebarMenuSub>
 							{item.submenu?.map((subItem) => 
 								<NavMenu key={subItem.href} item={subItem} />
 							)}
 						</SidebarMenuSub>
 					)}
-				</CollapsiblePrimitive.Root>
+				</Collapsible.Root>
 			</SidebarMenuItem>
 		);
 	}
@@ -96,7 +88,10 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 		<SidebarMenuItem>
 			<SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
 				<Link href={item.href}>
-					<MenuContent />
+					<div className="flex items-center gap-3">
+						<item.icon className='size-5' />
+						<span>{item.label}</span>
+					</div>
 				</Link>
 			</SidebarMenuButton>
 		</SidebarMenuItem>
@@ -120,7 +115,7 @@ export default function SidebarNav() {
 			<SidebarContent>
 				<SidebarMenu>
 					{navItems.map((item) => (
-						<NavMenu key={item.href} item={item} />
+						<NavMenu key={item.label} item={item} />
 					))}
 				</SidebarMenu>
 			</SidebarContent>
