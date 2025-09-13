@@ -54,6 +54,10 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 	}, [pathname, hasSubmenu, item.submenu]);
 
 
+	if (item.separator) {
+        return <SidebarSeparator className="my-2" />;
+    }
+
 	if (hasSubmenu) {
 		return (
 			<SidebarMenuItem>
@@ -63,22 +67,19 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 							isActive={isActive}
 							tooltip={item.label}
 							className='justify-between w-full'
-							data-state={isOpen ? 'open' : 'closed'}
 						>
 							<div className="flex items-center gap-3">
 								<item.icon className='size-5' />
 								<span>{item.label}</span>
 							</div>
-							<ChevronDown className='size-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180' />
+							<ChevronDown className='size-4 shrink-0 transition-transform duration-200 group-data-[state=open]:-rotate-180' />
 						</SidebarMenuButton>
 					</Collapsible.Trigger>
-					{state === 'expanded' && (
 						<SidebarMenuSub>
 							{item.submenu?.map((subItem) => 
 								<NavMenu key={subItem.label} item={subItem} />
 							)}
 						</SidebarMenuSub>
-					)}
 				</Collapsible.Root>
 			</SidebarMenuItem>
 		);

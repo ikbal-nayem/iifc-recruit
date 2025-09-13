@@ -19,6 +19,7 @@ export interface NavLink {
 	href: string;
 	label: string;
 	icon: LucideIcon;
+    separator?: boolean;
 	isActive?: (pathname: string, hash?: string) => boolean;
 	submenu?: NavLink[];
 }
@@ -50,7 +51,13 @@ export const adminNavLinks: NavLink[] = [
 		],
 	},
 	{ href: '/admin/jobseekers', label: 'Jobseekers', icon: Users },
-  {
+    {
+        href: '#',
+        label: 'Separator',
+        icon: Users, // Icon is not used, but required by type
+        separator: true,
+    },
+	{
 		href: '#',
 		label: 'Master Data',
 		icon: Database,
@@ -59,10 +66,10 @@ export const adminNavLinks: NavLink[] = [
 			{ href: '/admin/master-data/departments', label: 'Departments', icon: Database },
 			{ href: '/admin/master-data/skills', label: 'Skills', icon: Database },
 			{ href: '/admin/master-data/languages', label: 'Languages', icon: Database },
-      { href: '/admin/master-data/job-statuses', label: 'Job Statuses', icon: Database },
-      { href: '/admin/master-data/application-statuses', label: 'Application Statuses', icon: Database },
+      		{ href: '/admin/master-data/job-statuses', label: 'Job Statuses', icon: Database },
+      		{ href: '/admin/master-data/application-statuses', label: 'Application Statuses', icon: Database },
 			{
-				href: '#',
+				href: '/admin/master-data/education/degree-levels',
 				label: 'Education',
 				icon: GraduationCap,
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/education'),
