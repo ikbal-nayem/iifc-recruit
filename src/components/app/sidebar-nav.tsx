@@ -55,28 +55,29 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 
 	return (
 		<SidebarMenuItem>
-			<div className="group flex w-full items-center justify-between">
-				<SidebarMenuButton
-					asChild
-					isActive={isActive}
-					tooltip={item.label}
-					className='flex-1 justify-start gap-3 group-data-[state=open]:bg-sidebar-accent group-data-[state=open]:text-sidebar-accent-foreground'
-				>
-					<Link href={item.href}>
+			<SidebarMenuButton
+				asChild
+				isActive={isActive}
+				tooltip={item.label}
+				data-state={isSubmenuOpen ? 'open' : 'closed'}
+				className='justify-between group-data-[state=open]:bg-sidebar-accent group-data-[state=open]:text-sidebar-accent-foreground'
+				onClick={(e) => {
+					if (hasSubmenu) {
+						e.preventDefault();
+						setIsOpen(!isOpen);
+					}
+				}}
+			>
+				<Link href={item.href}>
+					<div className="flex items-center gap-3">
 						<item.icon className='size-5' />
 						<span>{item.label}</span>
-					</Link>
-				</SidebarMenuButton>
-				{hasSubmenu && (
-					<button
-						onClick={() => setIsOpen(!isOpen)}
-						className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors group-data-[collapsible=icon]:hidden"
-						data-state={isSubmenuOpen ? 'open' : 'closed'}
-					>
-						<ChevronDown className='h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180' />
-					</button>
-				)}
-			</div>
+					</div>
+					{hasSubmenu && (
+						<ChevronDown className='size-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180' />
+					)}
+				</Link>
+			</SidebarMenuButton>
 			{isSubmenuOpen && state === 'expanded' && hasSubmenu && (
 				<SidebarMenuSub>
 					{item.submenu?.map((subItem) => (
