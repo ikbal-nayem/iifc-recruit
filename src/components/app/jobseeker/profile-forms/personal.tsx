@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -84,6 +85,8 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
       ...candidate.personalInfo,
+      presentAddress: candidate.personalInfo.presentAddress || {},
+      permanentAddress: candidate.personalInfo.permanentAddress || {},
       usePresentForPermanent: false,
       avatarFile: null,
     },
@@ -145,18 +148,30 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
         return upazilas.filter(u => u.district_id === selectedDistrict.id);
     }, [watchDistrict]);
 
+    // This custom hook prevents infinite loops by only acting on actual changes.
+    const usePrevious = <T,>(value: T) => {
+        const ref = React.useRef<T>();
+        React.useEffect(() => {
+            ref.current = value;
+        });
+        return ref.current;
+    };
+    const prevDivision = usePrevious(watchDivision);
+    const prevDistrict = usePrevious(watchDistrict);
+
     React.useEffect(() => {
-        if (type === 'presentAddress') {
+        if (prevDivision !== watchDivision) {
             form.setValue(`${type}.district`, '');
             form.setValue(`${type}.upazila`, '');
         }
-    }, [watchDivision]);
+    }, [watchDivision, prevDivision, form, type]);
 
     React.useEffect(() => {
-        if (type === 'presentAddress') {
+        if (prevDistrict !== watchDistrict) {
             form.setValue(`${type}.upazila`, '');
         }
-    }, [watchDistrict]);
+    }, [watchDistrict, prevDistrict, form, type]);
+
 
     return (
         <div className="space-y-4">
@@ -171,7 +186,7 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                                 <FormControl>
                                     <SelectTrigger><SelectValue placeholder="Select division" /></SelectTrigger>
                                 </FormControl>
-                                <SelectContent><Command><CommandInput placeholder="Search..."/><CommandList>{divisions.map(d => <CommandItem onSelect={() => field.onChange(d.name)} value={d.name} key={d.id}><SelectItem value={d.name}>{d.name}</SelectItem></CommandItem>)}</CommandList></Command></SelectContent>
+                                <SelectContent><Command><CommandInput placeholder="Search..."/><CommandList>{divisions.map(d => <CommandItem onSelect={() => field.onChange(d.name)} value={d.name} key={d.id}>{d.name}</CommandItem>)}</CommandList></Command></SelectContent>
                             </Select>
                             <FormMessage />
                         </FormItem>
@@ -187,7 +202,7 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                                 <FormControl>
                                     <SelectTrigger><SelectValue placeholder="Select district" /></SelectTrigger>
                                 </FormControl>
-                                <SelectContent><Command><CommandInput placeholder="Search..."/><CommandList>{filteredDistricts.map(d => <CommandItem onSelect={() => field.onChange(d.name)} value={d.name} key={d.id}><SelectItem value={d.name}>{d.name}</SelectItem></CommandItem>)}</CommandList></Command></SelectContent>
+                                <SelectContent><Command><CommandInput placeholder="Search..."/><CommandList>{filteredDistricts.map(d => <CommandItem onSelect={() => field.onChange(d.name)} value={d.name} key={d.id}>{d.name}</CommandItem>)}</CommandList></Command></SelectContent>
                             </Select>
                             <FormMessage />
                         </FormItem>
@@ -203,7 +218,7 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                                 <FormControl>
                                     <SelectTrigger><SelectValue placeholder="Select upazila" /></SelectTrigger>
                                 </FormControl>
-                                <SelectContent><Command><CommandInput placeholder="Search..."/><CommandList>{filteredUpazilas.map(u => <CommandItem onSelect={() => field.onChange(u.name)} value={u.name} key={u.id}><SelectItem value={u.name}>{u.name}</SelectItem></CommandItem>)}</CommandList></Command></SelectContent>
+                                <SelectContent><Command><CommandInput placeholder="Search..."/><CommandList>{filteredUpazilas.map(u => <CommandItem onSelect={() => field.onChange(u.name)} value={u.name} key={u.id}>{u.name}</CommandItem>)}</CommandList></Command></SelectContent>
                             </Select>
                             <FormMessage />
                         </FormItem>
