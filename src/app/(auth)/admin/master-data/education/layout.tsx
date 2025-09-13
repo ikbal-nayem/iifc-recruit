@@ -10,7 +10,7 @@ export default function MasterDataEducationLayout({
 }) {
   return (
      <div className="space-y-4">
-       <div className="pt-4">
+       <div>
            {children}
        </div>
     </div>

@@ -18,7 +18,7 @@ export default function MasterDataLayout({
           Manage the core data used across the application.
         </p>
       </div>
-       <div className="pt-4">
+       <div>
            {children}
        </div>
     </div>
