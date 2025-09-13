@@ -1,4 +1,4 @@
-import { ProfileFormAcademic } from '@/components/app/candidate/profile-forms/academic';
+import { ProfileFormAcademic } from '@/components/app/jobseeker/profile-forms/academic';
 import { candidates } from '@/lib/data';
 
 export default function JobseekerProfileAcademicPage() {
