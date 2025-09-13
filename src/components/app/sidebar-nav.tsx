@@ -10,7 +10,6 @@ import {
 	SidebarMenuItem,
 	SidebarMenuSub,
 	SidebarMenuSubButton,
-	SidebarMenuSubItem,
 	SidebarSeparator,
 	useSidebar,
 } from '@/components/ui/sidebar';
@@ -26,33 +25,30 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 	const { state } = useSidebar();
 	const router = useRouter();
 	const [isOpen, setIsOpen] = React.useState(false);
-	const [hash, setHash] = React.useState('');
-
-	React.useEffect(() => {
-		if (typeof window !== 'undefined') {
-			setHash(window.location.hash);
-		}
-	}, [pathname]);
 
 	const hasSubmenu = item.submenu && item.submenu.length > 0;
 	const isActive = item.isActive
-		? item.isActive(pathname, hash)
+		? item.isActive(pathname)
 		: pathname.startsWith(item.href);
 	const isSubmenuOpen =
 		hasSubmenu &&
 		(isOpen ||
 			(item.submenu?.some((subItem) =>
-				subItem.isActive ? subItem.isActive(pathname) : pathname === subItem.href
+				subItem.isActive ? subItem.isActive(pathname) : pathname.startsWith(subItem.href)
 			) ??
 				false));
 
-	const handleMenuClick = () => {
-		if (state !== 'expanded' && hasSubmenu) {
-			router.push(item.href);
-		} else {
-			setIsOpen(!isOpen);
+	const handleMenuClick = (e: React.MouseEvent) => {
+		if (hasSubmenu) {
+			e.preventDefault();
+			if (state === 'expanded') {
+				setIsOpen(!isOpen);
+			} else {
+				router.push(item.href);
+			}
 		}
 	};
+	
 
 	React.useEffect(() => {
 		if (state === 'collapsed') {
@@ -64,7 +60,7 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 		if (hasSubmenu) {
 			const isActive =
 				item.submenu?.some((subItem) =>
-					subItem.isActive ? subItem.isActive(pathname) : pathname === subItem.href
+					subItem.isActive ? subItem.isActive(pathname) : pathname.startsWith(subItem.href)
 				) ?? false;
 			setIsOpen(isActive);
 		}
@@ -73,7 +69,7 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 	return (
 		<SidebarMenuItem>
 			<SidebarMenuButton
-				asChild={!hasSubmenu || state !== 'expanded'}
+				asChild
 				onClick={handleMenuClick}
 				isActive={isActive}
 				tooltip={item.label}
@@ -94,12 +90,16 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 				<SidebarMenuSub>
 					{item.submenu?.map((subItem) => (
 						<SidebarMenuSubItem key={subItem.href}>
-							<SidebarMenuSubButton
-								asChild
-								isActive={subItem.isActive ? subItem.isActive(pathname) : pathname === subItem.href}
-							>
-								<Link href={subItem.href}>{subItem.label}</Link>
-							</SidebarMenuSubButton>
+							{subItem.submenu ? (
+								<NavMenu item={subItem} />
+							) : (
+								<SidebarMenuSubButton
+									asChild
+									isActive={subItem.isActive ? subItem.isActive(pathname) : pathname === subItem.href}
+								>
+									<Link href={subItem.href}>{subItem.label}</Link>
+								</SidebarMenuSubButton>
+							)}
 						</SidebarMenuSubItem>
 					))}
 				</SidebarMenuSub>
