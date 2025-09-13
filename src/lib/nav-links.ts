@@ -61,7 +61,7 @@ export const adminNavLinks: NavLink[] = [
       { href: '/admin/master-data/job-statuses', label: 'Job Statuses', icon: Database },
       { href: '/admin/master-data/application-statuses', label: 'Application Statuses', icon: Database },
 			{
-				href: '/admin/master-data/education',
+				href: '/admin/master-data/education/degree-levels',
 				label: 'Education',
 				icon: GraduationCap,
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/education'),
