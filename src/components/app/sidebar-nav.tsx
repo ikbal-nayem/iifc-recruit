@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import * as React from 'react';
 import * as Collapsible from '@radix-ui/react-collapsible';
+import { cn } from '@/lib/utils';
 
 const NavMenu = ({ item }: { item: NavLink }) => {
 	const pathname = usePathname();
@@ -55,13 +56,12 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 
 	if (hasSubmenu) {
 		return (
-			<SidebarMenuItem>
-				<Collapsible.Root open={isOpen} onOpenChange={setIsOpen} className="w-full">
-					<Collapsible.Trigger asChild>
+			<Collapsible.Root open={isOpen} onOpenChange={setIsOpen} className="w-full">
+				<SidebarMenuItem>
 						<SidebarMenuButton
 							isActive={isActive}
 							tooltip={item.label}
-							className='justify-between'
+							className='justify-between w-full'
 							data-state={isOpen ? 'open' : 'closed'}
 						>
 							<div className="flex items-center gap-3">
@@ -70,17 +70,18 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 							</div>
 							<ChevronDown className='size-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180' />
 						</SidebarMenuButton>
-					</Collapsible.Trigger>
-					
-					{state === 'expanded' && (
+				</SidebarMenuItem>
+				
+				{state === 'expanded' && (
+					<Collapsible.Content asChild>
 						<SidebarMenuSub>
 							{item.submenu?.map((subItem) => 
-								<NavMenu key={subItem.href} item={subItem} />
+								<NavMenu key={subItem.label} item={subItem} />
 							)}
 						</SidebarMenuSub>
-					)}
-				</Collapsible.Root>
-			</SidebarMenuItem>
+					</Collapsible.Content>
+				)}
+			</Collapsible.Root>
 		);
 	}
 
