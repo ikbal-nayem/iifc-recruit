@@ -43,11 +43,11 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 
 	React.useEffect(() => {
 		if (hasSubmenu) {
-			const isActive =
+			const isActiveNow =
 				item.submenu?.some((subItem) =>
 					subItem.isActive ? subItem.isActive(pathname) : pathname.startsWith(subItem.href)
 				) ?? false;
-			if (isActive) {
+			if (isActiveNow) {
 				setIsOpen(true);
 			}
 		}
@@ -56,8 +56,9 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 
 	if (hasSubmenu) {
 		return (
-			<Collapsible.Root open={isOpen} onOpenChange={setIsOpen} className="w-full">
-				<SidebarMenuItem>
+			<SidebarMenuItem>
+				<Collapsible.Root open={isOpen} onOpenChange={setIsOpen} className="w-full">
+					<Collapsible.Trigger asChild>
 						<SidebarMenuButton
 							isActive={isActive}
 							tooltip={item.label}
@@ -70,18 +71,16 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 							</div>
 							<ChevronDown className='size-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180' />
 						</SidebarMenuButton>
-				</SidebarMenuItem>
-				
-				{state === 'expanded' && (
-					<Collapsible.Content asChild>
+					</Collapsible.Trigger>
+					{state === 'expanded' && (
 						<SidebarMenuSub>
 							{item.submenu?.map((subItem) => 
 								<NavMenu key={subItem.label} item={subItem} />
 							)}
 						</SidebarMenuSub>
-					</Collapsible.Content>
-				)}
-			</Collapsible.Root>
+					)}
+				</Collapsible.Root>
+			</SidebarMenuItem>
 		);
 	}
 
