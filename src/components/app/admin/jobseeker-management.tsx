@@ -61,7 +61,7 @@ export function JobseekerManagement() {
   const [applicationsJobseeker, setApplicationsJobseeker] = React.useState<Candidate | null>(null);
   const [contactJobseeker, setContactJobseeker] = React.useState<Candidate | null>(null);
 
-  const uniqueLocations = ['all', ...Array.from(new Set(initialCandidates.map(c => c.personalInfo.address.district)))];
+  const uniqueLocations = ['all', ...Array.from(new Set(initialCandidates.map(c => c.personalInfo.address?.district).filter(Boolean)))];
   const uniqueStatuses = ['all', 'Active', 'Passive', 'Hired'];
 
   const getJobseekerApplications = (jobseekerId: string): ApplicationWithJob[] => {
@@ -112,7 +112,7 @@ export function JobseekerManagement() {
       accessorKey: 'personalInfo.address.district',
       header: 'Location',
        cell: ({ row }) => {
-        return row.original.personalInfo.address.district;
+        return row.original.personalInfo.address?.district || 'N/A';
       },
     },
     {
