@@ -14,13 +14,17 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import type { Candidate, Publication } from '@/lib/types';
-import { PlusCircle, Trash, Save, Edit, Link2 } from 'lucide-react';
+import { PlusCircle, Trash, Save, Edit, Link2, CalendarIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
+import { Calendar } from '@/components/ui/calendar';
 
 const publicationSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -100,7 +104,38 @@ export function ProfileFormPublications({ candidate }: ProfileFormProps) {
                             control={editForm.control}
                             name="publicationDate"
                             render={({ field }) => (
-                                <FormItem><FormLabel required>Publication Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                               <FormItem className="flex flex-col">
+                                    <FormLabel required>Publication Date</FormLabel>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <FormControl>
+                                                <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "w-full pl-3 text-left font-normal",
+                                                        !field.value && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    {field.value ? (
+                                                        format(new Date(field.value), "PPP")
+                                                    ) : (
+                                                        <span>Pick a date</span>
+                                                    )}
+                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                </Button>
+                                            </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                            <Calendar
+                                                mode="single"
+                                                selected={field.value ? new Date(field.value) : undefined}
+                                                onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                </FormItem>
                             )}
                         />
                          <FormField
@@ -125,7 +160,7 @@ export function ProfileFormPublications({ candidate }: ProfileFormProps) {
         <Card key={index} className="p-4 flex justify-between items-start">
             <div>
                 <p className="font-semibold">{item.title}</p>
-                <p className="text-sm text-muted-foreground">{item.publisher} - {item.publicationDate}</p>
+                <p className="text-sm text-muted-foreground">{item.publisher} - {format(new Date(item.publicationDate), "PPP")}</p>
                 <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1 mt-1">
                     <Link2 className="h-3 w-3" />
                     View Publication
@@ -200,7 +235,38 @@ export function ProfileFormPublications({ candidate }: ProfileFormProps) {
                             control={form.control}
                             name="publicationDate"
                             render={({ field }) => (
-                                <FormItem><FormLabel required>Publication Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem className="flex flex-col">
+                                    <FormLabel required>Publication Date</FormLabel>
+                                     <Popover>
+                                        <PopoverTrigger asChild>
+                                            <FormControl>
+                                                <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "w-full pl-3 text-left font-normal",
+                                                        !field.value && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    {field.value ? (
+                                                        format(new Date(field.value), "PPP")
+                                                    ) : (
+                                                        <span>Pick a date</span>
+                                                    )}
+                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                </Button>
+                                            </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                            <Calendar
+                                                mode="single"
+                                                selected={field.value ? new Date(field.value) : undefined}
+                                                onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                </FormItem>
                             )}
                         />
                          <FormField

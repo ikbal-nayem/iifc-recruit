@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import type { Candidate } from '@/lib/types';
-import { Save, Upload, Mail, Phone, Check, ChevronsUpDown, Linkedin, Video } from 'lucide-react';
+import { Save, Upload, Mail, Phone, Check, ChevronsUpDown, Linkedin, Video, CalendarIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -27,6 +27,8 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
 
 interface ProfileFormProps {
   candidate: Candidate;
@@ -160,14 +162,14 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
     const prevDistrict = usePrevious(watchDistrict);
 
     React.useEffect(() => {
-        if (prevDivision !== watchDivision) {
+        if (prevDivision !== watchDivision && form.getValues(`${type}.district`)) {
             form.setValue(`${type}.district`, '');
             form.setValue(`${type}.upazila`, '');
         }
     }, [watchDivision, prevDivision, form, type]);
 
     React.useEffect(() => {
-        if (prevDistrict !== watchDistrict) {
+         if (prevDistrict !== watchDistrict && form.getValues(`${type}.upazila`)) {
             form.setValue(`${type}.upazila`, '');
         }
     }, [watchDistrict, prevDistrict, form, type]);
@@ -364,11 +366,41 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                         control={form.control}
                         name="dateOfBirth"
                         render={({ field }) => (
-                        <FormItem>
-                            <FormLabel required>Date of Birth</FormLabel>
-                            <FormControl><Input type="date" {...field} /></FormControl>
-                            <FormMessage />
-                        </FormItem>
+                            <FormItem className="flex flex-col">
+                                <FormLabel required>Date of Birth</FormLabel>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                                variant={"outline"}
+                                                className={cn(
+                                                    "w-full pl-3 text-left font-normal",
+                                                    !field.value && "text-muted-foreground"
+                                                )}
+                                            >
+                                                {field.value ? (
+                                                    format(new Date(field.value), "PPP")
+                                                ) : (
+                                                    <span>Pick a date</span>
+                                                )}
+                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            selected={field.value ? new Date(field.value) : undefined}
+                                            onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
+                                            captionLayout="dropdown-buttons"
+                                            fromYear={1960}
+                                            toYear={new Date().getFullYear() - 18}
+                                            initialFocus
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                            </FormItem>
                         )}
                     />
                      <FormField
