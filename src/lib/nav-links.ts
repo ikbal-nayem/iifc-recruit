@@ -11,6 +11,7 @@ import {
 	UserCircle,
 	UserCog,
 	Users,
+	GraduationCap,
 } from 'lucide-react';
 
 export interface NavLink {
@@ -49,7 +50,7 @@ export const adminNavLinks: NavLink[] = [
 	},
 	{ href: '/admin/jobseekers', label: 'Jobseekers', icon: Users },
   {
-		href: '/admin/master-data/departments',
+		href: '/admin/master-data',
 		label: 'Master Data',
 		icon: Database,
 		isActive: (pathname) => pathname.startsWith('/admin/master-data'),
@@ -59,6 +60,17 @@ export const adminNavLinks: NavLink[] = [
 			{ href: '/admin/master-data/languages', label: 'Languages', icon: Database },
       { href: '/admin/master-data/job-statuses', label: 'Job Statuses', icon: Database },
       { href: '/admin/master-data/application-statuses', label: 'Application Statuses', icon: Database },
+			{
+				href: '/admin/master-data/education',
+				label: 'Education',
+				icon: GraduationCap,
+				isActive: (pathname) => pathname.startsWith('/admin/master-data/education'),
+				submenu: [
+					{ href: '/admin/master-data/education/degree-levels', label: 'Degree Levels', icon: GraduationCap },
+					{ href: '/admin/master-data/education/domains', label: 'Domains', icon: GraduationCap },
+					{ href: '/admin/master-data/education/institutions', label: 'Institutions', icon: GraduationCap },
+				],
+			}
 		],
 	},
 ];
