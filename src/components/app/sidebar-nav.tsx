@@ -17,8 +17,10 @@ import { NavLink, adminNavLinks, jobseekerNavLinks } from '@/lib/nav-links';
 import { ChevronDown, Settings } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import * as React from 'react';
+import * as CollapsiblePrimitive from "@radix-ui/react-collapsible"
+
 
 const NavMenu = ({ item }: { item: NavLink }) => {
 	const pathname = usePathname();
@@ -67,36 +69,26 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 	if (hasSubmenu) {
 		return (
 			<SidebarMenuItem>
-				<SidebarMenuButton
-					isActive={isActive}
-					tooltip={item.label}
-					data-state={isSubmenuOpen ? 'open' : 'closed'}
-					className='justify-between group-data-[state=open]:bg-sidebar-accent group-data-[state=open]:text-sidebar-accent-foreground'
-					onClick={(e) => {
-						e.preventDefault();
-						setIsOpen(!isOpen);
-					}}
-				>
-					<MenuContent />
-				</SidebarMenuButton>
-				{isSubmenuOpen && state === 'expanded' && hasSubmenu && (
-					<SidebarMenuSub>
-						{item.submenu?.map((subItem) => 
-							subItem.submenu ? (
+				<CollapsiblePrimitive.Root open={isSubmenuOpen} onOpenChange={setIsOpen}>
+					<CollapsiblePrimitive.Trigger asChild>
+						<SidebarMenuButton
+							isActive={isActive}
+							tooltip={item.label}
+							data-state={isSubmenuOpen ? 'open' : 'closed'}
+							className='justify-between group-data-[state=open]:bg-sidebar-accent group-data-[state=open]:text-sidebar-accent-foreground'
+						>
+							<MenuContent />
+						</SidebarMenuButton>
+					</CollapsiblePrimitive.Trigger>
+					
+					{state === 'expanded' && hasSubmenu && (
+						<SidebarMenuSub>
+							{item.submenu?.map((subItem) => 
 								<NavMenu key={subItem.href} item={subItem} />
-							) : (
-								<SidebarMenuItem key={subItem.href}>
-									<SidebarMenuSubButton
-										asChild
-										isActive={subItem.isActive ? subItem.isActive(pathname) : pathname === subItem.href}
-									>
-										<Link href={subItem.href}>{subItem.label}</Link>
-									</SidebarMenuSubButton>
-								</SidebarMenuItem>
-							)
-						)}
-					</SidebarMenuSub>
-				)}
+							)}
+						</SidebarMenuSub>
+					)}
+				</CollapsiblePrimitive.Root>
 			</SidebarMenuItem>
 		);
 	}

@@ -5,6 +5,7 @@ import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
 import { PanelLeft } from "lucide-react"
+import * as CollapsiblePrimitive from "@radix-ui/react-collapsible"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
@@ -540,6 +541,7 @@ const SidebarMenuButton = React.forwardRef<
     asChild?: boolean
     isActive?: boolean
     tooltip?: React.ReactNode
+    "data-state"?: "open" | "closed"
   } & VariantProps<typeof sidebarMenuButtonVariants>
 >(
   (
@@ -681,22 +683,30 @@ const SidebarMenuSkeleton = React.forwardRef<
 })
 SidebarMenuSkeleton.displayName = "SidebarMenuSkeleton"
 
+
 const SidebarMenuSub = React.forwardRef<
-  HTMLUListElement,
-  React.ComponentProps<"ul">
+  React.ElementRef<typeof CollapsiblePrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Content>
 >(({ className, ...props }, ref) => (
-  <ul
+  <CollapsiblePrimitive.Content
     ref={ref}
-    data-sidebar="menu-sub"
-    className={cn(
-      "mx-3.5 my-1 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border pl-2.5",
-      "group-data-[collapsible=icon]:hidden",
-      className
-    )}
+    className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
     {...props}
-  />
-))
-SidebarMenuSub.displayName = "SidebarMenuSub"
+  >
+    <ul
+      data-sidebar="menu-sub"
+      className={cn(
+        "mx-3.5 my-1 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border pl-2.5",
+        "group-data-[collapsible=icon]:hidden",
+        className
+      )}
+    >
+      {props.children}
+    </ul>
+  </CollapsiblePrimitive.Content>
+));
+SidebarMenuSub.displayName = "SidebarMenuSub";
+
 
 const SidebarMenuSubItem = React.forwardRef<
   HTMLLIElement,
