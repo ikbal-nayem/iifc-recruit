@@ -4,7 +4,7 @@
 import SplashScreen from '@/components/app/splash-screen';
 import { Toaster } from '@/components/ui/toaster';
 import { TopLoader } from '@/components/ui/top-loader';
-import { sessionStorageService } from '@/services/storage.service';
+import { SessionStorageService } from '@/services/storage.service';
 import { Inter, Source_Code_Pro, Space_Grotesk } from 'next/font/google';
 import * as React from 'react';
 import './globals.css';
@@ -37,12 +37,12 @@ export default function RootLayout({
 	const [showSplash, setShowSplash] = React.useState(false);
 
 	React.useEffect(() => {
-		const splashShown = sessionStorageService.get(SPLASH_SHOWN_KEY);
+		const splashShown = SessionStorageService.get(SPLASH_SHOWN_KEY);
 		if (!splashShown) {
 			setShowSplash(true);
 			const timeout = setTimeout(() => {
 				setIsFinished(true);
-				sessionStorageService.set(SPLASH_SHOWN_KEY, 'true');
+				SessionStorageService.set(SPLASH_SHOWN_KEY, 'true');
 			}, 1500); // Increased duration for a better first-load experience
 			return () => clearTimeout(timeout);
 		} else {

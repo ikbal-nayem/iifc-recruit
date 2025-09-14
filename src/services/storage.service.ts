@@ -10,7 +10,7 @@ export const LocalStorageService = {
 	clear: (): void => localStorage.clear(),
 };
 
-export const sessionStorageService = {
+export const SessionStorageService = {
 	set: (key: string, value: any): void => sessionStorage.setItem(key, JSON.stringify(value)),
 	get: (key: string): any | null => JSON.parse(sessionStorage.getItem(key) || 'null'),
 	delete: (key: string): void => sessionStorage.removeItem(key),
