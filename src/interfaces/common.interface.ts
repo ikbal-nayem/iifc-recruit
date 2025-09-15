@@ -19,5 +19,5 @@ export interface IApiResponse<T = any> {
 
 export interface IApiRequest {
 	body?: IObject;
-	meta: IMeta;
+	meta?: Partial<IMeta>;
 }
