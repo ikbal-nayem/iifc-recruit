@@ -37,7 +37,7 @@ axiosIns.interceptors.request.use(
 
 		return Promise.reject({
 			body: false,
-			status: 404,
+			status: 500,
 			message: 'Server not responding',
 		});
 	}
