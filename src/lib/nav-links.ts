@@ -90,6 +90,16 @@ export const adminNavLinks: NavLink[] = [
                     { href: '/admin/master-data/position-levels', label: 'Position Levels', icon: Building2 },
 					{ href: '/admin/master-data/organizations', label: 'Organizations', icon: Building2 },
 				],
+			},
+			{
+				href: '#',
+				label: 'Training',
+				icon: GraduationCap,
+				isActive: (pathname) => pathname.startsWith('/admin/master-data/training'),
+				submenu: [
+					{ href: '/admin/master-data/training/training-types', label: 'Training Types', icon: GraduationCap },
+					{ href: '/admin/master-data/training/certifications', label: 'Certifications', icon: GraduationCap },
+				],
 			}
 		],
 	},
