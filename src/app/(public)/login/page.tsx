@@ -12,7 +12,7 @@ export default function LoginPage() {
         >
           <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
         </div>
-        <div className="relative z-10 text-center">
+        <div className="relative z-10 text-center p-10 rounded-lg bg-white/30 backdrop-blur-sm">
           <Image src="/iifc-logo.png" alt="IIFC Logo" width={80} height={80} className="h-20 w-auto mx-auto mb-4" />
           <h1 className="text-4xl font-headline font-bold text-primary">
             Your Gateway to Opportunity
