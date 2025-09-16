@@ -69,7 +69,8 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 						className={cn(
 							'peer/menu-button flex w-full items-center gap-3 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-primary data-[active=true]:font-medium data-[active=true]:text-sidebar-primary-foreground data-[state=open][data-active=false]:bg-sidebar-accent data-[state=open][data-active=false]:text-sidebar-accent-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-5 [&>svg]:shrink-0',
 							'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground', // variant default
-							'h-8 text-sm' // size default
+							'h-8 text-sm', // size default
+							hasSubmenu && 'cursor-pointer'
 						)}
 						data-sidebar='menu-button'
 						data-size='default'
