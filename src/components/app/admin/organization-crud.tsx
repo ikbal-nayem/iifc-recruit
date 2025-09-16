@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, {useState} from 'react';
@@ -53,30 +52,6 @@ interface OrganizationCrudProps {
   organizationTypes: string[];
 }
 
-// Mock API service
-const api = {
-    add: async (item: OrganizationItem): Promise<OrganizationItem> => {
-        console.log('API: Adding item', item);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return item;
-    },
-    update: async (oldName: string, item: OrganizationItem): Promise<OrganizationItem> => {
-        console.log('API: Updating item', oldName, 'to', item);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return item;
-    },
-    remove: async (name: string): Promise<void> => {
-        console.log('API: Removing item', name);
-        await new Promise(resolve => setTimeout(resolve, 500));
-    },
-    toggle: async (item: OrganizationItem): Promise<OrganizationItem> => {
-        console.log('API: Toggling active status for', item.name);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return { ...item, isActive: !item.isActive };
-    }
-}
-
-
 export function OrganizationCrud({ title, description, initialData, noun, industryTypes, organizationTypes }: OrganizationCrudProps) {
   const { toast } = useToast();
   const [data, setData] = useState<OrganizationItem[]>(initialData);
@@ -99,17 +74,13 @@ export function OrganizationCrud({ title, description, initialData, noun, indust
         return;
     }
     setIsLoading(true);
-    try {
-        const itemToAdd = { ...newItem, name: newItem.name.trim() };
-        await api.add(itemToAdd);
-        setData([...data, itemToAdd]);
-        setNewItem(initialNewState);
-        toast({ title: 'Success', description: `${noun} added successfully.`, variant: 'success'});
-    } catch (error) {
-        toast({ title: 'Error', description: `Failed to add ${noun.toLowerCase()}.`, variant: 'destructive'});
-    } finally {
-        setIsLoading(false);
-    }
+    // Mock API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const itemToAdd = { ...newItem, name: newItem.name.trim() };
+    setData([...data, itemToAdd]);
+    setNewItem(initialNewState);
+    toast({ title: 'Success', description: `${noun} added successfully.`, variant: 'success'});
+    setIsLoading(false);
   };
 
   const handleUpdate = async (index: number) => {
@@ -122,44 +93,31 @@ export function OrganizationCrud({ title, description, initialData, noun, indust
         return;
     }
     setIsSubmitting(index);
-    const originalItem = data[index];
-    const updatedItem = { ...editingItem, name: editingItem.name.trim() };
-    
-    try {
-        await api.update(originalItem.name, updatedItem);
-        const updatedData = [...data];
-        updatedData[index] = updatedItem;
-        setData(updatedData);
-        setEditingIndex(null);
-    } catch (error) {
-        toast({ title: 'Error', description: `Failed to update ${noun.toLowerCase()}.`, variant: 'destructive'});
-    } finally {
-        setIsSubmitting(null);
-    }
+    // Mock API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const updatedData = [...data];
+    updatedData[index] = { ...editingItem, name: editingItem.name.trim() };
+    setData(updatedData);
+    setEditingIndex(null);
+    setIsSubmitting(null);
   };
   
   const handleToggleActive = async (index: number) => {
     const item = data[index];
-    try {
-        const updatedItem = await api.toggle(item);
-        const updatedData = [...data];
-        updatedData[index] = updatedItem;
-        setData(updatedData);
-        toast({ title: 'Status Updated', description: `${updatedItem.name}'s status has been changed.`, variant: 'success' });
-    } catch(error) {
-         toast({ title: 'Error', description: `Failed to update status.`, variant: 'destructive'});
-    }
+    // Mock API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const updatedItem = { ...item, isActive: !item.isActive };
+    const updatedData = [...data];
+    updatedData[index] = updatedItem;
+    setData(updatedData);
+    toast({ title: 'Status Updated', description: `${updatedItem.name}'s status has been changed.`, variant: 'success' });
   };
 
   const handleRemove = async (index: number) => {
-    const itemToRemove = data[index];
-     try {
-        await api.remove(itemToRemove.name);
-        setData(data.filter((_, i) => i !== index));
-        toast({ title: 'Success', description: `${noun} removed successfully.`, variant: 'success'});
-    } catch(error) {
-         toast({ title: 'Error', description: `Failed to remove ${noun.toLowerCase()}.`, variant: 'destructive'});
-    }
+    // Mock API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+    setData(data.filter((_, i) => i !== index));
+    toast({ title: 'Success', description: `${noun} removed successfully.`, variant: 'success'});
   };
 
   const startEditing = (index: number, item: OrganizationItem) => {

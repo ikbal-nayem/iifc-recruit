@@ -1,3 +1,4 @@
+'use client';
 
 import { OrganizationCrud } from '@/components/app/admin/organization-crud';
 

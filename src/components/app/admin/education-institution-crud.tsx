@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, {useState} from 'react';
@@ -47,30 +46,6 @@ interface EducationInstitutionCrudProps {
   noun: string;
 }
 
-// Mock API service
-const masterDataApi = {
-    add: async (item: InstitutionItem): Promise<InstitutionItem> => {
-        console.log('API: Adding item', item);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return item;
-    },
-    update: async (oldName: string, item: InstitutionItem): Promise<InstitutionItem> => {
-        console.log('API: Updating item', oldName, 'to', item);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return item;
-    },
-    remove: async (name: string): Promise<void> => {
-        console.log('API: Removing item', name);
-        await new Promise(resolve => setTimeout(resolve, 500));
-    },
-    toggle: async (item: InstitutionItem): Promise<InstitutionItem> => {
-        console.log('API: Toggling active status for', item.name);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return { ...item, isActive: !item.isActive };
-    }
-}
-
-
 export function EducationInstitutionCrud({ title, description, initialData, noun }: EducationInstitutionCrudProps) {
   const { toast } = useToast();
   const [data, setData] = useState<InstitutionItem[]>(initialData);
@@ -92,18 +67,14 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
         return;
     }
     setIsLoading(true);
-    try {
-        const newItem: InstitutionItem = { name: newName.trim(), country: newCountry, isActive: true };
-        await masterDataApi.add(newItem);
-        setData([...data, newItem]);
-        setNewName('');
-        setNewCountry('');
-        toast({ title: 'Success', description: `${noun} added successfully.`, variant: 'success'});
-    } catch (error) {
-        toast({ title: 'Error', description: `Failed to add ${noun.toLowerCase()}.`, variant: 'destructive'});
-    } finally {
-        setIsLoading(false);
-    }
+    // Mock API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const newItem: InstitutionItem = { name: newName.trim(), country: newCountry, isActive: true };
+    setData([...data, newItem]);
+    setNewName('');
+    setNewCountry('');
+    toast({ title: 'Success', description: `${noun} added successfully.`, variant: 'success'});
+    setIsLoading(false);
   };
 
   const handleUpdate = async (index: number) => {
@@ -116,44 +87,31 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
         return;
     }
     setIsSubmitting(index);
-    const originalItem = data[index];
-    const updatedItem = { ...originalItem, name: editingName.trim(), country: editingCountry };
-    
-    try {
-        await masterDataApi.update(originalItem.name, updatedItem);
-        const updatedData = [...data];
-        updatedData[index] = updatedItem;
-        setData(updatedData);
-        setEditingIndex(null);
-    } catch (error) {
-        toast({ title: 'Error', description: `Failed to update ${noun.toLowerCase()}.`, variant: 'destructive'});
-    } finally {
-        setIsSubmitting(null);
-    }
+    // Mock API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const updatedData = [...data];
+    updatedData[index] = { ...updatedData[index], name: editingName.trim(), country: editingCountry };
+    setData(updatedData);
+    setEditingIndex(null);
+    setIsSubmitting(null);
   };
   
   const handleToggleActive = async (index: number) => {
     const item = data[index];
-    try {
-        const updatedItem = await masterDataApi.toggle(item);
-        const updatedData = [...data];
-        updatedData[index] = updatedItem;
-        setData(updatedData);
-        toast({ title: 'Status Updated', description: `${updatedItem.name}'s status has been changed.`, variant: 'success' });
-    } catch(error) {
-         toast({ title: 'Error', description: `Failed to update status.`, variant: 'destructive'});
-    }
+    // Mock API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const updatedItem = { ...item, isActive: !item.isActive };
+    const updatedData = [...data];
+    updatedData[index] = updatedItem;
+    setData(updatedData);
+    toast({ title: 'Status Updated', description: `${updatedItem.name}'s status has been changed.`, variant: 'success' });
   };
 
   const handleRemove = async (index: number) => {
-    const itemToRemove = data[index];
-     try {
-        await masterDataApi.remove(itemToRemove.name);
-        setData(data.filter((_, i) => i !== index));
-        toast({ title: 'Success', description: `${noun} removed successfully.`, variant: 'success'});
-    } catch(error) {
-         toast({ title: 'Error', description: `Failed to remove ${noun.toLowerCase()}.`, variant: 'destructive'});
-    }
+    // Mock API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+    setData(data.filter((_, i) => i !== index));
+    toast({ title: 'Success', description: `${noun} removed successfully.`, variant: 'success'});
   };
 
   const startEditing = (index: number, item: InstitutionItem) => {

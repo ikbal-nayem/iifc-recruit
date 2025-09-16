@@ -1,31 +1,108 @@
-
 'use client';
 
 import { MasterDataCrud } from '@/components/app/admin/master-data-crud';
+import { useDebounce } from '@/hooks/use-debounce';
+import { useToast } from '@/hooks/use-toast';
+import { IApiRequest, IMeta } from '@/interfaces/common.interface';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { MasterDataService } from '@/services/api/master-data.service';
+import { useCallback, useEffect, useState } from 'react';
+
+const initMeta: IMeta = { page: 1, limit: 20 };
 
 export default function MasterEducationDomainsPage() {
-  const initialData = [
-    { id: 1, name: 'Computer Science', isActive: true },
-    { id: 2, name: 'Economics', isActive: true },
-    { id: 3, name: 'Business Administration', isActive: true },
-    { id: 4, name: 'Electrical Engineering', isActive: true },
-    { id: 5, name: 'Medicine', isActive: true },
-  ];
+	const { toast } = useToast();
+	const [items, setItems] = useState<ICommonMasterData[]>([]);
+	const [meta, setMeta] = useState<IMeta>(initMeta);
+	const [isLoading, setIsLoading] = useState(true);
+	const [searchQuery, setSearchQuery] = useState('');
+	const debouncedSearch = useDebounce(searchQuery, 500);
 
-  return (
-    <MasterDataCrud
-        title="Education Domains"
-        description="Manage academic domains or fields of study."
-        noun="Domain"
-        items={initialData}
-        meta={{ page: 1, limit: initialData.length }}
-        isLoading={false}
-        onAdd={async (name) => { console.log('add', name); return null; }}
-        onUpdate={async (id, name) => { console.log('update', id, name); return null; }}
-        onDelete={async (id) => { console.log('delete', id); return false; }}
-        onToggle={async (id) => { console.log('toggle', id); return null; }}
-        onPageChange={() => {}}
-        onSearch={() => {}}
-    />
-    );
+	const loadItems = useCallback(
+		async (page: number, search: string) => {
+			setIsLoading(true);
+			try {
+				const payload: IApiRequest = {
+					body: { searchKey: search },
+					meta: { page: page, limit: meta.limit },
+				};
+				const response = await MasterDataService.educationDomain.getList(payload);
+				setItems(response.body);
+				setMeta(response.meta);
+			} catch (error) {
+				console.error('Failed to load items', error);
+				toast({
+					title: 'Error',
+					description: 'Failed to load education domains.',
+					variant: 'destructive',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[meta.limit, toast]
+	);
+
+	useEffect(() => {
+		loadItems(1, debouncedSearch);
+	}, [debouncedSearch, loadItems]);
+
+	const handlePageChange = (newPage: number) => {
+		loadItems(newPage, debouncedSearch);
+	};
+
+	const handleAdd = async (name: string): Promise<boolean | null> => {
+		try {
+			const resp = await MasterDataService.educationDomain.add({ name, isActive: true });
+			toast({ description: resp.message, variant: 'success' });
+			loadItems(meta.page, debouncedSearch);
+			return true;
+		} catch (error) {
+			console.error('Failed to add item', error);
+			toast({ title: 'Error', description: 'Failed to add education domain.', variant: 'destructive' });
+			return null;
+		}
+	};
+
+	const handleUpdate = async (item: ICommonMasterData): Promise<boolean | null> => {
+		try {
+			const updatedItem = await MasterDataService.educationDomain.update(item);
+			setItems(items.map((i) => (i?.id === item?.id ? updatedItem?.body : i)));
+			toast({ description: updatedItem?.message, variant: 'success' });
+			return true;
+		} catch (error) {
+			console.error('Failed to update item', error);
+			toast({ title: 'Error', description: 'Failed to update education domain.', variant: 'destructive' });
+			return null;
+		}
+	};
+
+	const handleDelete = async (id: string): Promise<boolean> => {
+		try {
+			await MasterDataService.educationDomain.delete(id);
+			toast({ title: 'Success', description: 'Education domain deleted successfully.', variant: 'success' });
+			loadItems(meta.page, debouncedSearch);
+			return true;
+		} catch (error) {
+			console.error('Failed to delete item', error);
+			toast({ title: 'Error', description: 'Failed to delete education domain.', variant: 'destructive' });
+			return false;
+		}
+	};
+
+	return (
+		<MasterDataCrud<ICommonMasterData>
+			title='Education Domains'
+			description='Manage academic domains or fields of study.'
+			noun='Domain'
+			items={items}
+			meta={meta}
+			isLoading={isLoading}
+			onAdd={handleAdd}
+			onUpdate={handleUpdate}
+			onDelete={handleDelete}
+			onPageChange={handlePageChange}
+			onSearch={setSearchQuery}
+		/>
+	);
 }
