@@ -1,7 +1,7 @@
 import { AUTH_INFO } from '@/constants/auth.constant';
 import { ENV } from '@/constants/env.constant';
 import { IAuthInfo } from '@/interfaces/auth.interface';
-import { LocalStorageService } from '@/services/storage.service';
+import { LocalStorageService, isBrowser } from '@/services/storage.service';
 import axios from 'axios';
 
 const axiosIns = axios.create({
@@ -20,7 +20,11 @@ const setAuthHeader = (token?: string) => {
 	if (authInfo) axiosIns.defaults.headers.common['Authorization'] = 'Bearer ' + authInfo?.accessToken;
 };
 
-setAuthHeader();
+const initializeAuthHeader = () => {
+    if (isBrowser) {
+        setAuthHeader();
+    }
+}
 
 axiosIns.interceptors.request.use(
 	(config) => {
@@ -83,4 +87,4 @@ const logout = () => {
 	window.location.reload();
 };
 
-export { axiosIns, setAuthHeader };
+export { axiosIns, setAuthHeader, initializeAuthHeader };

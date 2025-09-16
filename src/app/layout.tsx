@@ -4,6 +4,7 @@
 import SplashScreen from '@/components/app/splash-screen';
 import { Toaster } from '@/components/ui/toaster';
 import { TopLoader } from '@/components/ui/top-loader';
+import { initializeAuthHeader } from '@/config/api.config';
 import { SessionStorageService } from '@/services/storage.service';
 import { Inter, Source_Code_Pro, Space_Grotesk } from 'next/font/google';
 import * as React from 'react';
@@ -37,6 +38,8 @@ export default function RootLayout({
 	const [showSplash, setShowSplash] = React.useState(false);
 
 	React.useEffect(() => {
+		initializeAuthHeader();
+
 		const splashShown = SessionStorageService.get(SPLASH_SHOWN_KEY);
 		if (!splashShown) {
 			setShowSplash(true);
