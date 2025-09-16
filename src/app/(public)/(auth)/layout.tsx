@@ -1,8 +1,6 @@
-
-import SignupForm from '@/components/app/signup-form';
 import Image from 'next/image';
 
-export default function SignupPage() {
+export default function AuthFormsLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="w-full min-h-[calc(100vh-5rem)] grid grid-cols-1 lg:grid-cols-2">
       <div className="hidden lg:flex flex-col items-center justify-center p-12 bg-muted/50 relative overflow-hidden">
@@ -21,7 +19,7 @@ export default function SignupPage() {
       </div>
       <main className="flex flex-col items-center justify-center p-4 bg-background">
         <div className="w-full max-w-sm">
-          <SignupForm />
+          {children}
         </div>
       </main>
     </div>
