@@ -13,6 +13,15 @@ import {
 	Users,
 	GraduationCap,
     Building2,
+    Settings,
+    Tag,
+    BookMarked,
+    Globe,
+    BriefcaseBusiness,
+    Network,
+    Award,
+    BookCopy,
+    ListChecks,
 } from 'lucide-react';
 
 export interface NavLink {
@@ -60,20 +69,20 @@ export const adminNavLinks: NavLink[] = [
 	{
 		href: '#',
 		label: 'Master Data',
-		icon: Database,
+		icon: Settings,
 		isActive: (pathname) => pathname.startsWith('/admin/master-data'),
 		submenu: [
-			{ href: '/admin/master-data/departments', label: 'Departments', icon: Database },
-			{ href: '/admin/master-data/skills', label: 'Skills', icon: Database },
-			{ href: '/admin/master-data/languages', label: 'Languages', icon: Database },
+			{ href: '/admin/master-data/departments', label: 'Departments', icon: BriefcaseBusiness },
+			{ href: '/admin/master-data/skills', label: 'Skills', icon: Award },
+			{ href: '/admin/master-data/languages', label: 'Languages', icon: Globe },
       		{
 				href: '#',
 				label: 'Statuses',
-				icon: Database,
+				icon: ListChecks,
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/statuses'),
 				submenu: [
-					{ href: '/admin/master-data/statuses/job-statuses', label: 'Job Statuses', icon: Database },
-      				{ href: '/admin/master-data/statuses/application-statuses', label: 'Application Statuses', icon: Database },
+					{ href: '/admin/master-data/statuses/job-statuses', label: 'Job Statuses', icon: Briefcase },
+      				{ href: '/admin/master-data/statuses/application-statuses', label: 'Application Statuses', icon: FileText },
 				]
 			},
 			{
@@ -83,30 +92,30 @@ export const adminNavLinks: NavLink[] = [
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/education'),
 				submenu: [
 					{ href: '/admin/master-data/education/degree-levels', label: 'Degree Levels', icon: GraduationCap },
-					{ href: '/admin/master-data/education/domains', label: 'Domains', icon: GraduationCap },
-					{ href: '/admin/master-data/education/institutions', label: 'Institutions', icon: GraduationCap },
+					{ href: '/admin/master-data/education/domains', label: 'Domains', icon: BookCopy },
+					{ href: '/admin/master-data/education/institutions', label: 'Institutions', icon: Building2 },
 				],
 			},
             {
 				href: '#',
 				label: 'Company Data',
-				icon: Building2,
+				icon: Network,
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/industry-types') || pathname.startsWith('/admin/master-data/organization-types') || pathname.startsWith('/admin/master-data/organizations') || pathname.startsWith('/admin/master-data/position-levels'),
 				submenu: [
-					{ href: '/admin/master-data/industry-types', label: 'Industry Types', icon: Building2 },
-					{ href: '/admin/master-data/organization-types', label: 'Organization Types', icon: Building2 },
-                    { href: '/admin/master-data/position-levels', label: 'Position Levels', icon: Building2 },
+					{ href: '/admin/master-data/industry-types', label: 'Industry Types', icon: Tag },
+					{ href: '/admin/master-data/organization-types', label: 'Organization Types', icon: Tag },
+                    { href: '/admin/master-data/position-levels', label: 'Position Levels', icon: Tag },
 					{ href: '/admin/master-data/organizations', label: 'Organizations', icon: Building2 },
 				],
 			},
 			{
 				href: '/admin/master-data/training/training-types',
 				label: 'Training',
-				icon: GraduationCap,
+				icon: BookMarked,
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/training'),
 				submenu: [
-					{ href: '/admin/master-data/training/training-types', label: 'Training Types', icon: GraduationCap },
-					{ href: '/admin/master-data/training/certifications', label: 'Certifications', icon: GraduationCap },
+					{ href: '/admin/master-data/training/training-types', label: 'Training Types', icon: BookMarked },
+					{ href: '/admin/master-data/training/certifications', label: 'Certifications', icon: Award },
 				],
 			}
 		],
