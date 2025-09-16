@@ -1,4 +1,6 @@
 
+'use client';
+
 import { MasterDataCrud } from '@/components/app/admin/master-data-crud';
 
 export default function MasterPositionLevelsPage() {
