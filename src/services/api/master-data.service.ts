@@ -18,7 +18,7 @@ export const MasterDataService = {
 	language: createMasterDataCrud('language'),
 	jobStatus: createMasterDataCrud('job-status'),
 	applicationStatus: createMasterDataCrud('application-status'),
-	degreeLevel: createMasterDataCrud('degree-level'),
+	degreeLevel: createMasterDataCrud('education-degree-level'),
 	educationDomain: createMasterDataCrud('education-domain'),
 	industryType: createMasterDataCrud('industry-type'),
 	organizationType: createMasterDataCrud('organization-type'),
