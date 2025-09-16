@@ -66,8 +66,16 @@ export const adminNavLinks: NavLink[] = [
 			{ href: '/admin/master-data/departments', label: 'Departments', icon: Database },
 			{ href: '/admin/master-data/skills', label: 'Skills', icon: Database },
 			{ href: '/admin/master-data/languages', label: 'Languages', icon: Database },
-      		{ href: '/admin/master-data/job-statuses', label: 'Job Statuses', icon: Database },
-      		{ href: '/admin/master-data/application-statuses', label: 'Application Statuses', icon: Database },
+      		{
+				href: '#',
+				label: 'Statuses',
+				icon: Database,
+				isActive: (pathname) => pathname.startsWith('/admin/master-data/statuses'),
+				submenu: [
+					{ href: '/admin/master-data/statuses/job-statuses', label: 'Job Statuses', icon: Database },
+      				{ href: '/admin/master-data/statuses/application-statuses', label: 'Application Statuses', icon: Database },
+				]
+			},
 			{
 				href: '/admin/master-data/education/degree-levels',
 				label: 'Education',
@@ -92,7 +100,7 @@ export const adminNavLinks: NavLink[] = [
 				],
 			},
 			{
-				href: '#',
+				href: '/admin/master-data/training/training-types',
 				label: 'Training',
 				icon: GraduationCap,
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/training'),

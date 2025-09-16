@@ -1,3 +1,4 @@
+
 'use client';
 
 import { MasterDataCrud } from '@/components/app/admin/master-data-crud';
@@ -10,7 +11,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 const initMeta: IMeta = { page: 1, limit: 20 };
 
-export default function MasterJobStatusesPage() {
+export default function MasterApplicationStatusesPage() {
 	const { toast } = useToast();
 	const [items, setItems] = useState<ICommonMasterData[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
@@ -26,21 +27,21 @@ export default function MasterJobStatusesPage() {
 					body: { searchKey: search },
 					meta: { page: page, limit: meta.limit },
 				};
-				const response = await MasterDataService.jobStatus.getList(payload);
+				const response = await MasterDataService.applicationStatus.getList(payload);
 				setItems(response.body);
 				setMeta(response.meta);
 			} catch (error) {
 				console.error('Failed to load items', error);
 				toast({
 					title: 'Error',
-					description: 'Failed to load job statuses.',
+					description: 'Failed to load application statuses.',
 					variant: 'destructive',
 				});
 			} finally {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit, toast]
+		[meta.limit]
 	);
 
 	useEffect(() => {
@@ -53,48 +54,48 @@ export default function MasterJobStatusesPage() {
 
 	const handleAdd = async (name: string): Promise<boolean | null> => {
 		try {
-			const resp = await MasterDataService.jobStatus.add({ name, isActive: true });
+			const resp = await MasterDataService.applicationStatus.add({ name, isActive: true });
 			toast({ description: resp.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch);
 			return true;
 		} catch (error) {
 			console.error('Failed to add item', error);
-			toast({ title: 'Error', description: 'Failed to add job status.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to add application status.', variant: 'destructive' });
 			return null;
 		}
 	};
 
 	const handleUpdate = async (item: ICommonMasterData): Promise<boolean | null> => {
 		try {
-			const updatedItem = await MasterDataService.jobStatus.update(item);
+			const updatedItem = await MasterDataService.applicationStatus.update(item);
 			setItems(items.map((i) => (i?.id === item?.id ? updatedItem?.body : i)));
 			toast({ description: updatedItem?.message, variant: 'success' });
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update job status.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to update application status.', variant: 'destructive' });
 			return null;
 		}
 	};
 
 	const handleDelete = async (id: string): Promise<boolean> => {
 		try {
-			await MasterDataService.jobStatus.delete(id);
-			toast({ title: 'Success', description: 'Job status deleted successfully.', variant: 'success' });
+			await MasterDataService.applicationStatus.delete(id);
+			toast({ title: 'Success', description: 'Application status deleted successfully.', variant: 'success' });
 			loadItems(meta.page, debouncedSearch);
 			return true;
 		} catch (error) {
 			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: 'Failed to delete job status.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to delete application status.', variant: 'destructive' });
 			return false;
 		}
 	};
 
 	return (
 		<MasterDataCrud<ICommonMasterData>
-			title='Job Statuses'
-			description='Manage the statuses used for job postings (e.g., Open, Closed).'
-			noun='Job Status'
+			title='Application Statuses'
+			description='Manage the statuses used for job applications (e.g., Applied, Screening).'
+			noun='Application Status'
 			items={items}
 			meta={meta}
 			isLoading={isLoading}
