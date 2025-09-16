@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -19,6 +20,8 @@ import { Switch } from '@/components/ui/switch';
 import { IMeta } from '@/interfaces/common.interface';
 import { Check, Edit, Loader2, PlusCircle, Search, Trash, X } from 'lucide-react';
 import { useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 
 interface MasterDataItem {
 	id: number;
@@ -58,6 +61,7 @@ export function MasterDataCrud<T extends MasterDataItem>({
 	const [editingIndex, setEditingIndex] = useState<number | null>(null);
 	const [editingValue, setEditingValue] = useState('');
 	const [newValue, setNewValue] = useState('');
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
 	const [isAdding, setIsAdding] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState<number | null>(null);
@@ -68,6 +72,7 @@ export function MasterDataCrud<T extends MasterDataItem>({
 		const success = await onAdd(newValue.trim());
 		if (success) {
 			setNewValue('');
+            setIsAddDialogOpen(false);
 		}
 		setIsAdding(false);
 	};
@@ -110,8 +115,8 @@ export function MasterDataCrud<T extends MasterDataItem>({
 				<CardDescription>{description}</CardDescription>
 			</CardHeader>
 			<CardContent className='space-y-4'>
-				<div className='flex flex-col sm:flex-row gap-2'>
-					<div className='relative w-full sm:w-auto sm:flex-1'>
+				<div className='flex flex-col sm:flex-row gap-4 justify-between'>
+					<div className='relative w-full sm:max-w-xs'>
 						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 						<Input
 							placeholder={`Search ${noun.toLowerCase()}s...`}
@@ -119,22 +124,51 @@ export function MasterDataCrud<T extends MasterDataItem>({
 							className='pl-10'
 						/>
 					</div>
-					<Input
-						placeholder={`Add a new ${noun.toLowerCase()}...`}
-						value={newValue}
-						onChange={(e) => setNewValue(e.target.value)}
-						onKeyDown={(e) => e.key === 'Enter' && handleAddNew()}
-						disabled={isAdding}
-						className='sm:w-auto sm:flex-1'
-					/>
-					<Button onClick={handleAddNew} disabled={isAdding} className='w-full sm:w-auto'>
-						{isAdding ? (
-							<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-						) : (
-							<PlusCircle className='mr-2 h-4 w-4' />
-						)}
-						Add
-					</Button>
+                    <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button className='w-full sm:w-auto'>
+                                <PlusCircle className='mr-2 h-4 w-4' />
+                                Add New {noun}
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Add New {noun}</DialogTitle>
+                                <DialogDescription>
+                                    Enter the name for the new {noun.toLowerCase()}.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="new-item-name" className="text-right">
+                                        Name
+                                    </Label>
+                                    <Input 
+                                        id="new-item-name" 
+                                        value={newValue} 
+                                        onChange={(e) => setNewValue(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleAddNew()}
+                                        className="col-span-3" 
+                                        autoFocus
+                                        disabled={isAdding}
+                                    />
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <DialogClose asChild>
+                                    <Button type="button" variant="ghost" disabled={isAdding}>Cancel</Button>
+                                </DialogClose>
+                                <Button type="button" onClick={handleAddNew} disabled={isAdding}>
+                                     {isAdding ? (
+                                        <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                                    ) : (
+                                        <PlusCircle className='mr-2 h-4 w-4' />
+                                    )}
+                                    Add
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
 				</div>
 				<div className='space-y-2'>
 					{isLoading
