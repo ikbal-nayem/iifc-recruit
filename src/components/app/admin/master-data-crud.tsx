@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -14,17 +13,26 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { IMeta } from '@/interfaces/common.interface';
 import { Check, Edit, Loader2, PlusCircle, Search, Trash, X } from 'lucide-react';
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
 
 interface MasterDataItem {
-	id: number;
+	id?: string;
 	name: string;
 	isActive: boolean;
 }
@@ -36,10 +44,10 @@ interface MasterDataCrudProps<T extends MasterDataItem> {
 	items: T[];
 	meta: IMeta;
 	isLoading: boolean;
-	onAdd: (name: string) => Promise<T | null>;
-	onUpdate: (id: number, name: string) => Promise<T | null>;
-	onDelete: (id: number) => Promise<boolean>;
-	onToggle: (id: number) => Promise<T | null>;
+	onAdd: (name: string) => Promise<T | boolean | null>;
+	onUpdate: (item: T) => Promise<T | boolean | null>;
+	onDelete: (id: string) => Promise<boolean>;
+	onToggle?: (id: string) => Promise<T | boolean | null>;
 	onPageChange: (page: number) => void;
 	onSearch: (query: string) => void;
 }
@@ -61,10 +69,10 @@ export function MasterDataCrud<T extends MasterDataItem>({
 	const [editingIndex, setEditingIndex] = useState<number | null>(null);
 	const [editingValue, setEditingValue] = useState('');
 	const [newValue, setNewValue] = useState('');
-    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
 	const [isAdding, setIsAdding] = useState(false);
-	const [isSubmitting, setIsSubmitting] = useState<number | null>(null);
+	const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
 
 	const handleAddNew = async () => {
 		if (newValue.trim() === '') return;
@@ -72,7 +80,7 @@ export function MasterDataCrud<T extends MasterDataItem>({
 		const success = await onAdd(newValue.trim());
 		if (success) {
 			setNewValue('');
-            setIsAddDialogOpen(false);
+			setIsAddDialogOpen(false);
 		}
 		setIsAdding(false);
 	};
@@ -81,8 +89,10 @@ export function MasterDataCrud<T extends MasterDataItem>({
 		if (editingValue.trim() === '') return;
 
 		const item = items[index];
+		if (!item.id) return;
+
 		setIsSubmitting(item.id);
-		const success = await onUpdate(item.id, editingValue.trim());
+		const success = await onUpdate({ ...item, name: editingValue.trim() });
 		if (success) {
 			setEditingIndex(null);
 			setEditingValue('');
@@ -90,11 +100,16 @@ export function MasterDataCrud<T extends MasterDataItem>({
 		setIsSubmitting(null);
 	};
 
-	const handleToggleActive = async (id: number) => {
-		await onToggle(id);
+	const handleToggleActive = async (item: T) => {
+		if (!item.id) return;
+
+		setIsSubmitting(item.id);
+		await onUpdate({ ...item, isActive: !item.isActive });
+		setIsSubmitting(null);
 	};
 
-	const handleRemove = async (id: number) => {
+	const handleRemove = async (id?: string) => {
+		if (!id) return;
 		await onDelete(id);
 	};
 
@@ -124,51 +139,52 @@ export function MasterDataCrud<T extends MasterDataItem>({
 							className='pl-10'
 						/>
 					</div>
-                    <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                        <DialogTrigger asChild>
-                            <Button className='w-full sm:w-auto'>
-                                <PlusCircle className='mr-2 h-4 w-4' />
-                                Add New {noun}
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Add New {noun}</DialogTitle>
-                                <DialogDescription>
-                                    Enter the name for the new {noun.toLowerCase()}.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="new-item-name" className="text-right">
-                                        Name
-                                    </Label>
-                                    <Input 
-                                        id="new-item-name" 
-                                        value={newValue} 
-                                        onChange={(e) => setNewValue(e.target.value)}
-                                        onKeyDown={(e) => e.key === 'Enter' && handleAddNew()}
-                                        className="col-span-3" 
-                                        autoFocus
-                                        disabled={isAdding}
-                                    />
-                                </div>
-                            </div>
-                            <DialogFooter>
-                                <DialogClose asChild>
-                                    <Button type="button" variant="ghost" disabled={isAdding}>Cancel</Button>
-                                </DialogClose>
-                                <Button type="button" onClick={handleAddNew} disabled={isAdding}>
-                                     {isAdding ? (
-                                        <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                                    ) : (
-                                        <PlusCircle className='mr-2 h-4 w-4' />
-                                    )}
-                                    Add
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
+					<Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+						<DialogTrigger asChild>
+							<Button className='w-full sm:w-auto'>
+								<PlusCircle className='mr-2 h-4 w-4' />
+								Add New {noun}
+							</Button>
+						</DialogTrigger>
+						<DialogContent>
+							<DialogHeader>
+								<DialogTitle>Add New {noun}</DialogTitle>
+								<DialogDescription>Enter the name for the new {noun.toLowerCase()}.</DialogDescription>
+							</DialogHeader>
+							<div className='grid gap-4 py-4'>
+								<div className='grid grid-cols-4 items-center gap-4'>
+									<Label htmlFor='new-item-name' className='text-right'>
+										Name
+									</Label>
+									<Input
+										id='new-item-name'
+										value={newValue}
+										onChange={(e) => setNewValue(e.target.value)}
+										onKeyDown={(e) => e.key === 'Enter' && handleAddNew()}
+										className='col-span-3'
+										autoFocus
+										required
+										disabled={isAdding}
+									/>
+								</div>
+							</div>
+							<DialogFooter>
+								<DialogClose asChild>
+									<Button type='button' variant='ghost' disabled={isAdding}>
+										Cancel
+									</Button>
+								</DialogClose>
+								<Button type='button' onClick={handleAddNew} disabled={isAdding}>
+									{isAdding ? (
+										<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+									) : (
+										<PlusCircle className='mr-2 h-4 w-4' />
+									)}
+									Add
+								</Button>
+							</DialogFooter>
+						</DialogContent>
+					</Dialog>
 				</div>
 				<div className='space-y-2'>
 					{isLoading
@@ -190,7 +206,8 @@ export function MasterDataCrud<T extends MasterDataItem>({
 												<Switch
 													id={`active-switch-${item.id}`}
 													checked={item.isActive}
-													onCheckedChange={() => handleToggleActive(item.id)}
+													onCheckedChange={() => handleToggleActive(item)}
+													disabled={isSubmitting === item.id}
 												/>
 												<p className={`text-sm ${!item.isActive && 'text-muted-foreground line-through'}`}>
 													{item.name}
@@ -246,13 +263,13 @@ export function MasterDataCrud<T extends MasterDataItem>({
 												<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 												<AlertDialogDescription>
 													This action cannot be undone. This will permanently delete the {noun.toLowerCase()}{' '}
-													&quot;{item.name}&quot;.
+													<strong>&quot;{item.name}&quot;</strong>.
 												</AlertDialogDescription>
 											</AlertDialogHeader>
 											<AlertDialogFooter>
 												<AlertDialogCancel>Cancel</AlertDialogCancel>
 												<AlertDialogAction
-													onClick={() => handleRemove(item.id)}
+													onClick={() => handleRemove(item?.id)}
 													className='bg-destructive hover:bg-destructive/90'
 												>
 													Continue

@@ -15,6 +15,7 @@ export interface IMeta {
 export interface IApiResponse<T = any> {
 	body: T;
 	meta: IMeta;
+	message?: string;
 }
 
 export interface IApiRequest {

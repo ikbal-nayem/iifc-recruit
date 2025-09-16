@@ -1,16 +1,15 @@
 import { axiosIns } from '@/config/api.config';
 import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
-import { ISkill } from '@/interfaces/master-data.interface';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
 
 export const MasterDataService = {
-	getSkills: async (payload: IApiRequest): Promise<IApiResponse<ISkill[]>> =>
-		await axiosIns.post(`/admin/master-data/skill/get-list`, payload),
-	addSkill: async (skill: { name: string }): Promise<ISkill> =>
-		await axiosIns.post(`/admin/master-data/skill`, skill),
-	updateSkill: async (id: number, skill: { name: string }): Promise<ISkill> =>
-		await axiosIns.put(`/admin/master-data/skill/${id}`, skill),
-	toggleSkillStatus: async (id: number): Promise<ISkill> =>
-		await axiosIns.patch(`/admin/master-data/skill/${id}/toggle-status`),
-	deleteSkill: async (id: number): Promise<void> =>
-		await axiosIns.delete(`/admin/master-data/skill/${id}`),
+	skill: {
+		getList: async (payload: IApiRequest): Promise<IApiResponse<ICommonMasterData[]>> =>
+			await axiosIns.post(`/master-data/skill/get-list`, payload),
+		add: async (payload: ICommonMasterData): Promise<IApiResponse<ICommonMasterData>> =>
+			await axiosIns.post(`/master-data/skill/create`, payload),
+		update: async (payload: ICommonMasterData): Promise<IApiResponse<ICommonMasterData>> =>
+			await axiosIns.put(`/master-data/skill/update`, payload),
+		delete: async (id: string): Promise<void> => await axiosIns.delete(`/master-data/skill/delete/${id}`),
+	}
 };

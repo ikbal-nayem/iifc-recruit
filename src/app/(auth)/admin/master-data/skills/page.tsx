@@ -1,58 +1,63 @@
 'use client';
 
 import { MasterDataCrud } from '@/components/app/admin/master-data-crud';
-import { IApiRequest, IMeta } from '@/interfaces/common.interface';
-import { ISkill } from '@/interfaces/master-data.interface';
-import { MasterDataService } from '@/services/api/master-data.service';
-import { useToast } from '@/hooks/use-toast';
-import { useEffect, useState, useCallback } from 'react';
 import { useDebounce } from '@/hooks/use-debounce';
+import { useToast } from '@/hooks/use-toast';
+import { IApiRequest, IMeta } from '@/interfaces/common.interface';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { MasterDataService } from '@/services/api/master-data.service';
+import { useCallback, useEffect, useState } from 'react';
+
+const initMeta: IMeta = { page: 0, limit: 20 };
 
 export default function MasterSkillsPage() {
 	const { toast } = useToast();
-	const [skills, setSkills] = useState<ISkill[]>([]);
-	const [meta, setMeta] = useState<IMeta>({ page: 1, limit: 10 });
+	const [skills, setSkills] = useState<ICommonMasterData[]>([]);
+	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
 
-	const loadSkills = useCallback(async (page: number, search: string) => {
-		setIsLoading(true);
-		try {
-			const payload: IApiRequest = {
-				body: { searchKey: search },
-				meta: { page: page, limit: meta.limit },
-			};
-			const response = await MasterDataService.getSkills(payload);
-			setSkills(response.body);
-			setMeta(response.meta);
-		} catch (error) {
-			console.error('Failed to load skills', error);
-			toast({
-				title: 'Error',
-				description: 'Failed to load skills.',
-				variant: 'destructive',
-			});
-		} finally {
-			setIsLoading(false);
-		}
-	}, [meta.limit, toast]);
+	const loadSkills = useCallback(
+		async (page: number, search: string) => {
+			setIsLoading(true);
+			try {
+				const payload: IApiRequest = {
+					body: { searchKey: search },
+					meta: { page: page, limit: meta.limit },
+				};
+				const response = await MasterDataService.skill.getList(payload);
+				setSkills(response.body);
+				setMeta(response.meta);
+			} catch (error) {
+				console.error('Failed to load skills', error);
+				toast({
+					title: 'Error',
+					description: 'Failed to load skills.',
+					variant: 'destructive',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[meta.limit]
+	);
 
 	useEffect(() => {
-		loadSkills(1, debouncedSearch);
+		loadSkills(0, debouncedSearch);
 	}, [debouncedSearch, loadSkills]);
 
 	const handlePageChange = (newPage: number) => {
 		loadSkills(newPage, debouncedSearch);
 	};
 
-	const handleAdd = async (name: string): Promise<ISkill | null> => {
+	const handleAdd = async (name: string): Promise<boolean | null> => {
 		try {
-			const newSkill = await MasterDataService.addSkill({ name });
-			toast({ title: 'Success', description: 'Skill added successfully.', variant: 'success' });
+			const resp = await MasterDataService.skill.add({ name, isActive: true });
+			toast({ description: resp.message, variant: 'success' });
 			// Refresh list to show the new item
 			loadSkills(meta.page, debouncedSearch);
-			return newSkill;
+			return true;
 		} catch (error) {
 			console.error('Failed to add skill', error);
 			toast({ title: 'Error', description: 'Failed to add skill.', variant: 'destructive' });
@@ -60,12 +65,12 @@ export default function MasterSkillsPage() {
 		}
 	};
 
-	const handleUpdate = async (id: number, name: string): Promise<ISkill | null> => {
+	const handleUpdate = async (item: ICommonMasterData): Promise<boolean | null> => {
 		try {
-			const updatedSkill = await MasterDataService.updateSkill(id, { name });
-			setSkills(skills.map(s => s.id === id ? updatedSkill : s));
-			toast({ title: 'Success', description: 'Skill updated successfully.', variant: 'success' });
-			return updatedSkill;
+			const updatedSkill = await MasterDataService.skill.update(item);
+			setSkills(skills.map((s) => (s?.id === item?.id ? updatedSkill?.body : s)));
+			toast({ description: updatedSkill?.message, variant: 'success' });
+			return true;
 		} catch (error) {
 			console.error('Failed to update skill', error);
 			toast({ title: 'Error', description: 'Failed to update skill.', variant: 'destructive' });
@@ -73,11 +78,10 @@ export default function MasterSkillsPage() {
 		}
 	};
 
-	const handleDelete = async (id: number): Promise<boolean> => {
+	const handleDelete = async (id: string): Promise<boolean> => {
 		try {
-			await MasterDataService.deleteSkill(id);
+			await MasterDataService.skill.delete(id);
 			toast({ title: 'Success', description: 'Skill deleted successfully.', variant: 'success' });
-			// Refresh list
 			loadSkills(meta.page, debouncedSearch);
 			return true;
 		} catch (error) {
@@ -87,21 +91,8 @@ export default function MasterSkillsPage() {
 		}
 	};
 
-	const handleToggle = async (id: number): Promise<ISkill | null> => {
-		try {
-			const updatedSkill = await MasterDataService.toggleSkillStatus(id);
-			setSkills(skills.map(s => s.id === id ? updatedSkill : s));
-			toast({ title: 'Success', description: 'Skill status updated.', variant: 'success' });
-			return updatedSkill;
-		} catch (error) {
-			console.error('Failed to toggle skill status', error);
-			toast({ title: 'Error', description: 'Failed to toggle skill status.', variant: 'destructive' });
-			return null;
-		}
-	};
-
 	return (
-		<MasterDataCrud<ISkill>
+		<MasterDataCrud<ICommonMasterData>
 			title='Skills'
 			description='Manage the skills used in candidate profiles.'
 			noun='Skill'
@@ -111,7 +102,6 @@ export default function MasterSkillsPage() {
 			onAdd={handleAdd}
 			onUpdate={handleUpdate}
 			onDelete={handleDelete}
-			onToggle={handleToggle}
 			onPageChange={handlePageChange}
 			onSearch={setSearchQuery}
 		/>
