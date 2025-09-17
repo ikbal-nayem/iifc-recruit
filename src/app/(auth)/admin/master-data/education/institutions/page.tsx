@@ -48,7 +48,7 @@ export default function MasterInstitutionsPage() {
 	useEffect(() => {
 		async function fetchCountries() {
 			try {
-				const response = await MasterDataService.country.getList({ meta: { limit: 300 } });
+				const response = await MasterDataService.country.get();
 				setCountries(response.body);
 			} catch (error) {
 				console.error('Failed to fetch countries', error);

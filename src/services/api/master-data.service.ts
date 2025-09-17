@@ -2,10 +2,10 @@ import { axiosIns } from '@/config/api.config';
 import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
 import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
 
-const createMasterDataCrud = (entity: string) => ({
+const createMasterDataCrud = <T extends ICommonMasterData>(entity: string) => ({
 	get: async (): Promise<IApiResponse<ICommonMasterData[]>> =>
 		await axiosIns.get(`/master-data/${entity}/get`),
-	getList: async (payload: IApiRequest): Promise<IApiResponse<ICommonMasterData[]>> =>
+	getList: async (payload: IApiRequest): Promise<IApiResponse<T[]>> =>
 		await axiosIns.post(`/master-data/${entity}/get-list`, payload),
 	add: async (payload: T): Promise<IApiResponse<T>> =>
 		await axiosIns.post(`/master-data/${entity}/create`, payload),
