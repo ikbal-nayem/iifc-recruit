@@ -1,3 +1,4 @@
+
 'use client';
 
 import { MasterDataCrud } from '@/components/app/admin/master-data-crud';
@@ -8,7 +9,7 @@ import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { useCallback, useEffect, useState } from 'react';
 
-const initMeta: IMeta = { page: 0, limit: 20 };
+const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
 
 export default function MasterDepartmentsPage() {
 	const { toast } = useToast();
@@ -23,7 +24,7 @@ export default function MasterDepartmentsPage() {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { searchKey: search },
+					body: { name: search },
 					meta: { page: page, limit: meta.limit },
 				};
 				const response = await MasterDataService.department.getList(payload);
@@ -67,8 +68,8 @@ export default function MasterDepartmentsPage() {
 	const handleUpdate = async (item: ICommonMasterData): Promise<boolean | null> => {
 		try {
 			const updatedItem = await MasterDataService.department.update(item);
-			setItems(items.map((i) => (i?.id === item?.id ? updatedItem?.body : i)));
 			toast({ description: updatedItem?.message, variant: 'success' });
+			loadItems(meta.page, debouncedSearch);
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
