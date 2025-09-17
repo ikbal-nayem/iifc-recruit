@@ -123,6 +123,9 @@ export function MasterDataCrud<T extends MasterDataItem>({
 		setEditingValue('');
 	};
 
+	const from = meta.totalRecords ? meta.page * meta.limit + 1 : 0;
+	const to = Math.min((meta.page + 1) * meta.limit, meta.totalRecords || 0);
+
 	return (
 		<Card className='glassmorphism'>
 			<CardHeader>
@@ -285,26 +288,32 @@ export function MasterDataCrud<T extends MasterDataItem>({
 				</div>
 			</CardContent>
 			{meta && meta.totalRecords && meta.totalRecords > meta.limit && (
-				<CardFooter className='justify-end space-x-2'>
-					<Button
-						variant='outline'
-						size='sm'
-						onClick={() => onPageChange(meta.page - 1)}
-						disabled={!meta.prevPage || isLoading}
-					>
-						Previous
-					</Button>
-					<span className='text-sm text-muted-foreground'>
-						Page {meta.page} of {meta.totalPageCount}
-					</span>
-					<Button
-						variant='outline'
-						size='sm'
-						onClick={() => onPageChange(meta.page + 1)}
-						disabled={!meta.nextPage || isLoading}
-					>
-						Next
-					</Button>
+				<CardFooter className='flex-col-reverse items-center gap-4 sm:flex-row sm:justify-between'>
+					<p className='text-sm text-muted-foreground'>
+						Showing{' '}
+						<strong>
+							{from}-{to}
+						</strong>{' '}
+						of <strong>{meta.totalRecords}</strong> {noun.toLowerCase()}s
+					</p>
+					<div className='flex items-center space-x-2'>
+						<Button
+							variant='outline'
+							size='sm'
+							onClick={() => onPageChange(meta.page - 1)}
+							disabled={!meta.prevPage || isLoading}
+						>
+							Previous
+						</Button>
+						<Button
+							variant='outline'
+							size='sm'
+							onClick={() => onPageChange(meta.page + 1)}
+							disabled={!meta.nextPage || isLoading}
+						>
+							Next
+						</Button>
+					</div>
 				</CardFooter>
 			)}
 		</Card>

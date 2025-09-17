@@ -9,7 +9,7 @@ import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { useCallback, useEffect, useState } from 'react';
 
-const initMeta: IMeta = { page: 1, limit: 20 };
+const initMeta: IMeta = { page: 0, limit: 20 };
 
 export default function MasterJobStatusesPage() {
 	const { toast } = useToast();
@@ -45,7 +45,7 @@ export default function MasterJobStatusesPage() {
 	);
 
 	useEffect(() => {
-		loadItems(1, debouncedSearch);
+		loadItems(0, debouncedSearch);
 	}, [debouncedSearch, loadItems]);
 
 	const handlePageChange = (newPage: number) => {
