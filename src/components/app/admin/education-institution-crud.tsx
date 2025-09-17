@@ -77,7 +77,7 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
 	useEffect(() => {
 		async function fetchCountries() {
 			try {
-				const response = await MasterDataService.country.getList({ meta: { limit: 200 } });
+				const response = await MasterDataService.country.get();
 				setCountries(response.body);
 			} catch (error) {
 				console.error('Failed to fetch countries', error);
