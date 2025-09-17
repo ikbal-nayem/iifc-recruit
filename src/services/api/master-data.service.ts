@@ -25,4 +25,5 @@ export const MasterDataService = {
 	positionLevel: createMasterDataCrud('position-level'),
 	certification: createMasterDataCrud('certification'),
 	trainingType: createMasterDataCrud('training-type'),
+	country: createMasterDataCrud('country'),
 };

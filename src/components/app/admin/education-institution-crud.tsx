@@ -14,6 +14,14 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from '@/components/ui/command';
+import {
 	Dialog,
 	DialogClose,
 	DialogContent,
@@ -25,12 +33,14 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, Sbox, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { countries } from '@/lib/countries';
-import { Check, Edit, Loader2, PlusCircle, Search, Trash, X } from 'lucide-react';
-import React, { useState } from 'react';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { MasterDataService } from '@/services/api/master-data.service';
+import { cn } from '@/lib/utils';
+import { Check, ChevronsUpDown, Edit, Loader2, PlusCircle, Search, Trash, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface InstitutionItem {
 	name: string;
@@ -54,12 +64,31 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
 	const [newItem, setNewItem] = useState<InstitutionItem>(initialNewState);
 	const [editingItem, setEditingItem] = useState<InstitutionItem | null>(null);
 
-	const [isLoading, setIsLoading] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState<number | null>(null);
 
 	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 	const [isAdding, setIsAdding] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
+
+	const [countries, setCountries] = useState<ICommonMasterData[]>([]);
+	const [countryPopoverOpen, setCountryPopoverOpen] = useState(false);
+
+	useEffect(() => {
+		async function fetchCountries() {
+			try {
+				const response = await MasterDataService.country.getList({ meta: { limit: 200 } });
+				setCountries(response.body);
+			} catch (error) {
+				console.error('Failed to fetch countries', error);
+				toast({
+					title: 'Error',
+					description: 'Failed to load countries.',
+					variant: 'destructive',
+				});
+			}
+		}
+		fetchCountries();
+	}, [toast]);
 
 	const handleAddNew = async () => {
 		if (newItem.name.trim() === '' || newItem.country.trim() === '') {
@@ -134,6 +163,62 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
 			item.country.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 
+	const CountryCombobox = ({
+		value,
+		onChange,
+		disabled,
+	}: {
+		value: string;
+		onChange: (value: string) => void;
+		disabled?: boolean;
+	}) => {
+		const [open, setOpen] = useState(false);
+		return (
+			<Popover open={open} onOpenChange={setOpen}>
+				<PopoverTrigger asChild>
+					<Button
+						variant='outline'
+						role='combobox'
+						aria-expanded={open}
+						className='w-full justify-between'
+						disabled={disabled}
+					>
+						{value ? countries.find((c) => c.name.toLowerCase() === value.toLowerCase())?.name : 'Select Country'}
+						<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+					</Button>
+				</PopoverTrigger>
+				<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
+					<Command>
+						<CommandInput placeholder='Search country...' />
+						<CommandList>
+							<CommandEmpty>No country found.</CommandEmpty>
+							<CommandGroup>
+								{countries.map((c) => (
+									<CommandItem
+										key={c.id}
+										value={c.name}
+										onSelect={(currentValue) => {
+											onChange(currentValue.toLowerCase() === value.toLowerCase() ? '' : currentValue);
+											setOpen(false);
+										}}
+									>
+										<Check
+											className={cn(
+												'mr-2 h-4 w-4',
+												value.toLowerCase() === c.name.toLowerCase() ? 'opacity-100' : 'opacity-0'
+											)}
+										/>
+										{c.name}
+									</CommandItem>
+								))}
+							</CommandGroup>
+						</CommandList>
+					</Command>
+				</PopoverContent>
+			</Popover>
+		);
+	};
+
 	const renderViewItem = (item: InstitutionItem, index: number) => (
 		<Card key={index} className='p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-background/50'>
 			<div className='flex-1 mb-4 sm:mb-0'>
@@ -186,18 +271,10 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
 					onChange={(e) => setEditingItem({ ...editingItem!, name: e.target.value })}
 					autoFocus
 				/>
-				<Select value={editingItem?.country} onValueChange={(value) => setEditingItem({ ...editingItem!, country: value })}>
-					<SelectTrigger>
-						<SelectValue placeholder='Select Country' />
-					</SelectTrigger>
-					<SelectContent>
-						{countries.map((c) => (
-							<SelectItem key={c.code} value={c.name}>
-								{c.name}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
+				<CountryCombobox
+					value={editingItem?.country || ''}
+					onChange={(value) => setEditingItem({ ...editingItem!, country: value })}
+				/>
 			</div>
 			<div className='flex justify-end gap-2'>
 				<Button variant='ghost' size='sm' onClick={cancelEditing} disabled={isSubmitting === index}>
@@ -245,39 +322,23 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
 								<DialogDescription>Enter the details for the new {noun.toLowerCase()}.</DialogDescription>
 							</DialogHeader>
 							<div className='grid gap-4 py-4'>
-								<div className='grid grid-cols-4 items-center gap-4'>
-									<Label htmlFor='new-item-name' className='text-right'>
-										Name
-									</Label>
+								<div className='space-y-2'>
+									<Label htmlFor='new-item-name'>Name</Label>
 									<Input
 										id='new-item-name'
 										value={newItem.name}
 										onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-										className='col-span-3'
 										autoFocus
 										disabled={isAdding}
 									/>
 								</div>
-								<div className='grid grid-cols-4 items-center gap-4'>
-									<Label htmlFor='new-item-country' className='text-right'>
-										Country
-									</Label>
-									<Select
+								<div className='space-y-2'>
+									<Label>Country</Label>
+									<CountryCombobox
 										value={newItem.country}
-										onValueChange={(value) => setNewItem({ ...newItem, country: value })}
+										onChange={(value) => setNewItem({ ...newItem, country: value })}
 										disabled={isAdding}
-									>
-										<SelectTrigger className='col-span-3'>
-											<SelectValue placeholder='Select Country' />
-										</SelectTrigger>
-										<SelectContent>
-											{countries.map((c) => (
-												<SelectItem key={c.code} value={c.name}>
-													{c.name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
+									/>
 								</div>
 							</div>
 							<DialogFooter>
