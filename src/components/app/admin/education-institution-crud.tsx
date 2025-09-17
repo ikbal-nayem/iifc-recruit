@@ -37,6 +37,7 @@ import { Check, ChevronsUpDown, Edit, Loader2, PlusCircle, Search, Trash } from 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { Label } from '@/components/ui/label';
 
 const formSchema = z.object({
 	name: z.string().min(1, 'Name is required.'),
