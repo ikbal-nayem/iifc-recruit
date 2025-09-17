@@ -16,25 +16,25 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import {
 	Dialog,
-	DialogClose,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
+import { Form } from '@/components/ui/form';
+import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { IMeta } from '@/interfaces/common.interface';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronLeft, ChevronRight, Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 interface MasterDataItem {
 	id?: string;
@@ -74,6 +74,7 @@ function MasterDataForm<T extends MasterDataItem>({
 		const success = await onSubmit(payload);
 		if (success) {
 			onClose();
+			form.reset();
 		}
 		setIsSubmitting(false);
 	};
@@ -89,18 +90,13 @@ function MasterDataForm<T extends MasterDataItem>({
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4'>
-						<FormField
+						<FormInput
 							control={form.control}
 							name='name'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Name</FormLabel>
-									<FormControl>
-										<Input placeholder={`${noun} Name`} {...field} disabled={isSubmitting} />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
+							label='Name'
+							placeholder={`${noun} Name`}
+							required
+							disabled={isSubmitting}
 						/>
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
