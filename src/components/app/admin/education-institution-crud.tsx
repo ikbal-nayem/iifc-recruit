@@ -34,7 +34,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
@@ -73,7 +72,7 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
 	const [countryFilter, setCountryFilter] = useState('all');
 
 	const [countries, setCountries] = useState<ICommonMasterData[]>([]);
-	const [countryPopoverOpen, setCountryPopoverOpen] = useState(false);
+	const [countryFilterPopoverOpen, setCountryFilterPopoverOpen] = useState(false);
 
 	useEffect(() => {
 		async function fetchCountries() {
@@ -313,19 +312,63 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
 								className='pl-10'
 							/>
 						</div>
-						<Select value={countryFilter} onValueChange={setCountryFilter}>
-							<SelectTrigger>
-								<SelectValue placeholder='Filter by Country' />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value='all'>All Countries</SelectItem>
-								{countries.map((c) => (
-									<SelectItem key={c.id} value={c.name}>
-										{c.name}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
+						<Popover open={countryFilterPopoverOpen} onOpenChange={setCountryFilterPopoverOpen}>
+							<PopoverTrigger asChild>
+								<Button
+									variant='outline'
+									role='combobox'
+									aria-expanded={countryFilterPopoverOpen}
+									className='w-full justify-between'
+								>
+									{countryFilter === 'all'
+										? 'All Countries'
+										: countries.find((c) => c.name.toLowerCase() === countryFilter.toLowerCase())?.name}
+									<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
+								<Command>
+									<CommandInput placeholder='Search country...' />
+									<CommandList>
+										<CommandEmpty>No country found.</CommandEmpty>
+										<CommandGroup>
+											<CommandItem
+												value='all'
+												onSelect={() => {
+													setCountryFilter('all');
+													setCountryFilterPopoverOpen(false);
+												}}
+											>
+												<Check
+													className={cn('mr-2 h-4 w-4', countryFilter === 'all' ? 'opacity-100' : 'opacity-0')}
+												/>
+												All Countries
+											</CommandItem>
+											{countries.map((c) => (
+												<CommandItem
+													key={c.id}
+													value={c.name}
+													onSelect={(currentValue) => {
+														setCountryFilter(
+															currentValue.toLowerCase() === countryFilter.toLowerCase() ? 'all' : currentValue
+														);
+														setCountryFilterPopoverOpen(false);
+													}}
+												>
+													<Check
+														className={cn(
+															'mr-2 h-4 w-4',
+															countryFilter.toLowerCase() === c.name.toLowerCase() ? 'opacity-100' : 'opacity-0'
+														)}
+													/>
+													{c.name}
+												</CommandItem>
+											))}
+										</CommandGroup>
+									</CommandList>
+								</Command>
+							</PopoverContent>
+						</Popover>
 					</div>
 					<Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
 						<DialogTrigger asChild>
