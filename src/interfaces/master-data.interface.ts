@@ -1,3 +1,5 @@
+import { IObject } from "./common.interface";
+
 export interface ICommonMasterData {
 	id?: string;
 	name: string;
@@ -5,5 +7,6 @@ export interface ICommonMasterData {
 }
 
 export interface IEducationInstitution extends ICommonMasterData {
-	country: string;
+	countryId: string;
+	country?: IObject;
 }

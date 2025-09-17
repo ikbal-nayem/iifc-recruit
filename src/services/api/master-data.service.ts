@@ -28,5 +28,5 @@ export const MasterDataService = {
 	certification: createMasterDataCrud('certification'),
 	trainingType: createMasterDataCrud('training-type'),
 	country: createMasterDataCrud('country'),
-	educationInstitution: createMasterDataCrud('education-institution'),
+	educationInstitution: createMasterDataCrud<IEducationInstitution>('education-institution'),
 };

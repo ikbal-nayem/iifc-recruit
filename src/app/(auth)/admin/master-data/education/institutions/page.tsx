@@ -1,4 +1,3 @@
-
 'use client';
 
 import { EducationInstitutionCrud } from '@/components/app/admin/education-institution-crud';
@@ -19,6 +18,10 @@ export default function MasterInstitutionsPage() {
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
 	const [countries, setCountries] = useState<ICommonMasterData[]>([]);
+
+	useEffect(() => {
+		MasterDataService.country.get().then((resp) => setCountries(resp.body));
+	}, []);
 
 	const loadItems = useCallback(
 		async (page: number, search: string) => {
@@ -42,25 +45,8 @@ export default function MasterInstitutionsPage() {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit, toast]
+		[meta.limit]
 	);
-
-	useEffect(() => {
-		async function fetchCountries() {
-			try {
-				const response = await MasterDataService.country.get();
-				setCountries(response.body);
-			} catch (error) {
-				console.error('Failed to fetch countries', error);
-				toast({
-					title: 'Error',
-					description: 'Failed to load countries.',
-					variant: 'destructive',
-				});
-			}
-		}
-		fetchCountries();
-	}, [toast]);
 
 	useEffect(() => {
 		loadItems(1, debouncedSearch);

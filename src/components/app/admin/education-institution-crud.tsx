@@ -34,13 +34,15 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { IMeta } from '@/interfaces/common.interface';
 import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
 import { cn } from '@/lib/utils';
 import { Check, ChevronsUpDown, Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
-import React, { useState } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useState } from 'react';
+
+const initialNewState: IEducationInstitution = { name: '', countryId: '', isActive: true };
 
 interface EducationInstitutionCrudProps {
 	title: string;
@@ -73,7 +75,6 @@ export function EducationInstitutionCrud({
 }: EducationInstitutionCrudProps) {
 	const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
-	const initialNewState: IEducationInstitution = { name: '', country: '', isActive: true };
 	const [newItem, setNewItem] = useState<IEducationInstitution>(initialNewState);
 	const [editingItem, setEditingItem] = useState<IEducationInstitution | null>(null);
 
@@ -86,7 +87,7 @@ export function EducationInstitutionCrud({
 	const [countryFilterPopoverOpen, setCountryFilterPopoverOpen] = useState(false);
 
 	const handleAddNew = async () => {
-		if (newItem.name.trim() === '' || newItem.country.trim() === '') {
+		if (newItem.name.trim() === '' || !newItem.countryId) {
 			return;
 		}
 		setIsAdding(true);
@@ -99,7 +100,12 @@ export function EducationInstitutionCrud({
 	};
 
 	const handleUpdate = async (index: number) => {
-		if (!editingItem || !editingItem.id || editingItem.name.trim() === '' || editingItem.country.trim() === '') {
+		if (
+			!editingItem ||
+			!editingItem.id ||
+			editingItem.name.trim() === '' ||
+			editingItem.country?.trim() === ''
+		) {
 			return;
 		}
 		setIsSubmitting(editingItem.id);
@@ -134,7 +140,7 @@ export function EducationInstitutionCrud({
 	};
 
 	const filteredItems = items.filter(
-		(item) => countryFilter === 'all' || item.country.toLowerCase() === countryFilter.toLowerCase()
+		(item) => countryFilter === 'all' || item.countryId === countryFilter.toLowerCase()
 	);
 
 	const CountryCombobox = ({
@@ -157,7 +163,9 @@ export function EducationInstitutionCrud({
 						className='w-full justify-between'
 						disabled={disabled}
 					>
-						{value ? countries.find((c) => c.name.toLowerCase() === value.toLowerCase())?.name : 'Select Country'}
+						{value
+							? countries.find((c) => c.name.toLowerCase() === value.toLowerCase())?.name
+							: 'Select Country'}
 						<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
 					</Button>
 				</PopoverTrigger>
@@ -176,9 +184,7 @@ export function EducationInstitutionCrud({
 											setOpen(false);
 										}}
 									>
-										<Check
-											className={cn('mr-2 h-4 w-4', value === c.name ? 'opacity-100' : 'opacity-0')}
-										/>
+										<Check className={cn('mr-2 h-4 w-4', value === c.name ? 'opacity-100' : 'opacity-0')} />
 										{c.name}
 									</CommandItem>
 								))}
@@ -191,10 +197,15 @@ export function EducationInstitutionCrud({
 	};
 
 	const renderViewItem = (item: IEducationInstitution, index: number) => (
-		<Card key={item.id} className='p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-background/50'>
+		<Card
+			key={item.id}
+			className='p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-background/50'
+		>
 			<div className='flex-1 mb-4 sm:mb-0'>
-				<p className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}>{item.name}</p>
-				<p className='text-sm text-muted-foreground'>{item.country}</p>
+				<p className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}>
+					{item.name}
+				</p>
+				<p className='text-sm text-muted-foreground'>{item.country?.name}</p>
 			</div>
 			<div className='flex items-center gap-2 w-full sm:w-auto justify-between'>
 				<div className='flex items-center gap-2'>
@@ -230,7 +241,10 @@ export function EducationInstitutionCrud({
 							</AlertDialogHeader>
 							<AlertDialogFooter>
 								<AlertDialogCancel>Cancel</AlertDialogCancel>
-								<AlertDialogAction onClick={() => handleRemove(item.id)} className='bg-destructive hover:bg-destructive/90'>
+								<AlertDialogAction
+									onClick={() => handleRemove(item.id)}
+									className='bg-destructive hover:bg-destructive/90'
+								>
 									Delete
 								</AlertDialogAction>
 							</AlertDialogFooter>
@@ -251,8 +265,8 @@ export function EducationInstitutionCrud({
 					autoFocus
 				/>
 				<CountryCombobox
-					value={editingItem?.country || ''}
-					onChange={(value) => setEditingItem({ ...editingItem!, country: value })}
+					value={editingItem?.countryId || ''}
+					onChange={(value) => setEditingItem({ ...editingItem!, countryId: value })}
 				/>
 			</div>
 			<div className='flex justify-end gap-2'>
@@ -298,7 +312,8 @@ export function EducationInstitutionCrud({
 								>
 									{countryFilter === 'all'
 										? 'All Countries'
-										: countries.find((c) => c.name.toLowerCase() === countryFilter.toLowerCase())?.name || 'All Countries'}
+										: countries.find((c) => c.name.toLowerCase() === countryFilter.toLowerCase())?.name ||
+										  'All Countries'}
 									<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
 								</Button>
 							</PopoverTrigger>
@@ -316,7 +331,10 @@ export function EducationInstitutionCrud({
 												}}
 											>
 												<Check
-													className={cn('mr-2 h-4 w-4', countryFilter === 'all' ? 'opacity-100' : 'opacity-0')}
+													className={cn(
+														'mr-2 h-4 w-4',
+														countryFilter === 'all' ? 'opacity-100' : 'opacity-0'
+													)}
 												/>
 												All Countries
 											</CommandItem>
@@ -370,8 +388,8 @@ export function EducationInstitutionCrud({
 								<div className='space-y-2'>
 									<Label>Country</Label>
 									<CountryCombobox
-										value={newItem.country}
-										onChange={(value) => setNewItem({ ...newItem, country: value })}
+										value={newItem.countryId}
+										onChange={(value) => setNewItem({ ...newItem, countryId: value })}
 										disabled={isAdding}
 									/>
 								</div>
