@@ -1,4 +1,6 @@
 
+'use client';
+
 import { EducationInstitutionCrud } from '@/components/app/admin/education-institution-crud';
 
 export default function MasterInstitutionsPage() {
