@@ -1,15 +1,15 @@
 import { axiosIns } from '@/config/api.config';
 import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
-import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
 
 const createMasterDataCrud = (entity: string) => ({
 	get: async (): Promise<IApiResponse<ICommonMasterData[]>> =>
 		await axiosIns.get(`/master-data/${entity}/get`),
 	getList: async (payload: IApiRequest): Promise<IApiResponse<ICommonMasterData[]>> =>
 		await axiosIns.post(`/master-data/${entity}/get-list`, payload),
-	add: async (payload: ICommonMasterData): Promise<IApiResponse<ICommonMasterData>> =>
+	add: async (payload: T): Promise<IApiResponse<T>> =>
 		await axiosIns.post(`/master-data/${entity}/create`, payload),
-	update: async (payload: ICommonMasterData): Promise<IApiResponse<ICommonMasterData>> =>
+	update: async (payload: T): Promise<IApiResponse<T>> =>
 		await axiosIns.put(`/master-data/${entity}/update`, payload),
 	delete: async (id: string): Promise<void> => await axiosIns.delete(`/master-data/${entity}/delete/${id}`),
 });
@@ -28,4 +28,5 @@ export const MasterDataService = {
 	certification: createMasterDataCrud('certification'),
 	trainingType: createMasterDataCrud('training-type'),
 	country: createMasterDataCrud('country'),
+	educationInstitution: createMasterDataCrud('education-institution'),
 };

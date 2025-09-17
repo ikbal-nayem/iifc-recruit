@@ -3,3 +3,7 @@ export interface ICommonMasterData {
 	name: string;
 	isActive: boolean;
 }
+
+export interface IEducationInstitution extends ICommonMasterData {
+	country: string;
+}

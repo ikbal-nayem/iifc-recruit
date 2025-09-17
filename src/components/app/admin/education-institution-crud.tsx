@@ -12,7 +12,7 @@ import {
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import {
 	Command,
 	CommandEmpty,
@@ -35,120 +35,95 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
-import { ICommonMasterData } from '@/interfaces/master-data.interface';
-import { MasterDataService } from '@/services/api/master-data.service';
+import { IMeta } from '@/interfaces/common.interface';
+import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
 import { cn } from '@/lib/utils';
-import { Check, ChevronsUpDown, Edit, Loader2, PlusCircle, Search, Trash, X } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-
-interface InstitutionItem {
-	name: string;
-	country: string;
-	isActive: boolean;
-}
+import { Check, ChevronsUpDown, Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
+import React, { useState } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface EducationInstitutionCrudProps {
 	title: string;
 	description: string;
-	initialData: InstitutionItem[];
 	noun: string;
+	items: IEducationInstitution[];
+	meta: IMeta;
+	isLoading: boolean;
+	countries: ICommonMasterData[];
+	onAdd: (item: IEducationInstitution) => Promise<boolean | null>;
+	onUpdate: (item: IEducationInstitution) => Promise<boolean | null>;
+	onDelete: (id: string) => Promise<boolean>;
+	onPageChange: (page: number) => void;
+	onSearch: (query: string) => void;
 }
 
-export function EducationInstitutionCrud({ title, description, initialData, noun }: EducationInstitutionCrudProps) {
-	const { toast } = useToast();
-	const [data, setData] = useState<InstitutionItem[]>(initialData);
+export function EducationInstitutionCrud({
+	title,
+	description,
+	noun,
+	items,
+	meta,
+	isLoading,
+	countries,
+	onAdd,
+	onUpdate,
+	onDelete,
+	onPageChange,
+	onSearch,
+}: EducationInstitutionCrudProps) {
 	const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
-	const initialNewState: InstitutionItem = { name: '', country: '', isActive: true };
-	const [newItem, setNewItem] = useState<InstitutionItem>(initialNewState);
-	const [editingItem, setEditingItem] = useState<InstitutionItem | null>(null);
+	const initialNewState: IEducationInstitution = { name: '', country: '', isActive: true };
+	const [newItem, setNewItem] = useState<IEducationInstitution>(initialNewState);
+	const [editingItem, setEditingItem] = useState<IEducationInstitution | null>(null);
 
-	const [isSubmitting, setIsSubmitting] = useState<number | null>(null);
+	const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
 
 	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 	const [isAdding, setIsAdding] = useState(false);
-	const [searchQuery, setSearchQuery] = useState('');
 	const [countryFilter, setCountryFilter] = useState('all');
 
-	const [countries, setCountries] = useState<ICommonMasterData[]>([]);
 	const [countryFilterPopoverOpen, setCountryFilterPopoverOpen] = useState(false);
-
-	useEffect(() => {
-		async function fetchCountries() {
-			try {
-				const response = await MasterDataService.country.get();
-				setCountries(response.body);
-			} catch (error) {
-				console.error('Failed to fetch countries', error);
-				toast({
-					title: 'Error',
-					description: 'Failed to load countries.',
-					variant: 'destructive',
-				});
-			}
-		}
-		fetchCountries();
-	}, [toast]);
 
 	const handleAddNew = async () => {
 		if (newItem.name.trim() === '' || newItem.country.trim() === '') {
-			toast({ title: 'Error', description: `Institution name and country cannot be empty.`, variant: 'destructive' });
-			return;
-		}
-		if (data.some((item) => item.name.toLowerCase() === newItem.name.trim().toLowerCase())) {
-			toast({ title: 'Error', description: `This ${noun.toLowerCase()} already exists.`, variant: 'destructive' });
 			return;
 		}
 		setIsAdding(true);
-		// Mock API call
-		await new Promise((resolve) => setTimeout(resolve, 500));
-		const itemToAdd: InstitutionItem = { ...newItem, name: newItem.name.trim() };
-		setData([...data, itemToAdd]);
-		setNewItem(initialNewState);
-		toast({ title: 'Success', description: `${noun} added successfully.`, variant: 'success' });
+		const success = await onAdd(newItem);
+		if (success) {
+			setNewItem(initialNewState);
+			setIsAddDialogOpen(false);
+		}
 		setIsAdding(false);
-		setIsAddDialogOpen(false);
 	};
 
 	const handleUpdate = async (index: number) => {
-		if (!editingItem || editingItem.name.trim() === '' || editingItem.country.trim() === '') {
-			toast({ title: 'Error', description: `Institution name and country are required.`, variant: 'destructive' });
+		if (!editingItem || !editingItem.id || editingItem.name.trim() === '' || editingItem.country.trim() === '') {
 			return;
 		}
-		if (data.some((item, i) => i !== index && item.name.toLowerCase() === editingItem.name.trim().toLowerCase())) {
-			toast({ title: 'Error', description: `This ${noun.toLowerCase()} already exists.`, variant: 'destructive' });
-			return;
+		setIsSubmitting(editingItem.id);
+		const success = await onUpdate(editingItem);
+		if (success) {
+			setEditingIndex(null);
+			setEditingItem(null);
 		}
-		setIsSubmitting(index);
-		// Mock API call
-		await new Promise((resolve) => setTimeout(resolve, 500));
-		const updatedData = [...data];
-		updatedData[index] = { ...editingItem, name: editingItem.name.trim() };
-		setData(updatedData);
-		setEditingIndex(null);
 		setIsSubmitting(null);
 	};
 
-	const handleToggleActive = async (index: number) => {
-		const item = data[index];
-		// Mock API call
-		await new Promise((resolve) => setTimeout(resolve, 500));
-		const updatedItem = { ...item, isActive: !item.isActive };
-		const updatedData = [...data];
-		updatedData[index] = updatedItem;
-		setData(updatedData);
-		toast({ title: 'Status Updated', description: `${updatedItem.name}'s status has been changed.`, variant: 'success' });
+	const handleToggleActive = async (item: IEducationInstitution) => {
+		if (!item.id) return;
+		setIsSubmitting(item.id);
+		await onUpdate({ ...item, isActive: !item.isActive });
+		setIsSubmitting(null);
 	};
 
-	const handleRemove = async (index: number) => {
-		// Mock API call
-		await new Promise((resolve) => setTimeout(resolve, 500));
-		setData(data.filter((_, i) => i !== index));
-		toast({ title: 'Success', description: `${noun} removed successfully.`, variant: 'success' });
+	const handleRemove = async (id?: string) => {
+		if (!id) return;
+		await onDelete(id);
 	};
 
-	const startEditing = (index: number, item: InstitutionItem) => {
+	const startEditing = (index: number, item: IEducationInstitution) => {
 		setEditingIndex(index);
 		setEditingItem({ ...item });
 	};
@@ -158,11 +133,8 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
 		setEditingItem(null);
 	};
 
-	const filteredData = data.filter(
-		(item) =>
-			(countryFilter === 'all' || item.country.toLowerCase() === countryFilter.toLowerCase()) &&
-			(item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				item.country.toLowerCase().includes(searchQuery.toLowerCase()))
+	const filteredItems = items.filter(
+		(item) => countryFilter === 'all' || item.country.toLowerCase() === countryFilter.toLowerCase()
 	);
 
 	const CountryCombobox = ({
@@ -200,15 +172,12 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
 										key={c.id}
 										value={c.name}
 										onSelect={(currentValue) => {
-											onChange(currentValue.toLowerCase() === value.toLowerCase() ? '' : currentValue);
+											onChange(currentValue === value ? '' : currentValue);
 											setOpen(false);
 										}}
 									>
 										<Check
-											className={cn(
-												'mr-2 h-4 w-4',
-												value.toLowerCase() === c.name.toLowerCase() ? 'opacity-100' : 'opacity-0'
-											)}
+											className={cn('mr-2 h-4 w-4', value === c.name ? 'opacity-100' : 'opacity-0')}
 										/>
 										{c.name}
 									</CommandItem>
@@ -221,26 +190,34 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
 		);
 	};
 
-	const renderViewItem = (item: InstitutionItem, index: number) => (
-		<Card key={index} className='p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-background/50'>
+	const renderViewItem = (item: IEducationInstitution, index: number) => (
+		<Card key={item.id} className='p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-background/50'>
 			<div className='flex-1 mb-4 sm:mb-0'>
 				<p className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}>{item.name}</p>
 				<p className='text-sm text-muted-foreground'>{item.country}</p>
 			</div>
 			<div className='flex items-center gap-2 w-full sm:w-auto justify-between'>
 				<div className='flex items-center gap-2'>
-					<Switch checked={item.isActive} onCheckedChange={() => handleToggleActive(index)} />
-					<Label htmlFor={`active-switch-${index}`} className='text-sm'>
-						{item.isActive ? 'Active' : 'Inactive'}
-					</Label>
+					<Switch
+						checked={item.isActive}
+						onCheckedChange={() => handleToggleActive(item)}
+						disabled={isSubmitting === item.id}
+					/>
+					<Label className='text-sm'>{item.isActive ? 'Active' : 'Inactive'}</Label>
 				</div>
 				<div className='flex'>
-					<Button variant='ghost' size='icon' className='h-8 w-8' onClick={() => startEditing(index, item)}>
+					<Button
+						variant='ghost'
+						size='icon'
+						className='h-8 w-8'
+						onClick={() => startEditing(index, item)}
+						disabled={isSubmitting === item.id}
+					>
 						<Edit className='h-4 w-4' />
 					</Button>
 					<AlertDialog>
 						<AlertDialogTrigger asChild>
-							<Button variant='ghost' size='icon' className='h-8 w-8'>
+							<Button variant='ghost' size='icon' className='h-8 w-8' disabled={isSubmitting === item.id}>
 								<Trash className='h-4 w-4 text-destructive' />
 							</Button>
 						</AlertDialogTrigger>
@@ -253,7 +230,7 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
 							</AlertDialogHeader>
 							<AlertDialogFooter>
 								<AlertDialogCancel>Cancel</AlertDialogCancel>
-								<AlertDialogAction onClick={() => handleRemove(index)} className='bg-destructive hover:bg-destructive/90'>
+								<AlertDialogAction onClick={() => handleRemove(item.id)} className='bg-destructive hover:bg-destructive/90'>
 									Delete
 								</AlertDialogAction>
 							</AlertDialogFooter>
@@ -265,7 +242,7 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
 	);
 
 	const renderEditItem = (index: number) => (
-		<div key={index} className='p-4 rounded-md border bg-muted/90 space-y-4'>
+		<div key={items[index].id} className='p-4 rounded-md border bg-muted/90 space-y-4'>
 			<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
 				<Input
 					placeholder='Name'
@@ -279,11 +256,11 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
 				/>
 			</div>
 			<div className='flex justify-end gap-2'>
-				<Button variant='ghost' size='sm' onClick={cancelEditing} disabled={isSubmitting === index}>
+				<Button variant='ghost' size='sm' onClick={cancelEditing} disabled={isSubmitting === items[index].id}>
 					Cancel
 				</Button>
-				<Button size='sm' onClick={() => handleUpdate(index)} disabled={isSubmitting === index}>
-					{isSubmitting === index ? (
+				<Button size='sm' onClick={() => handleUpdate(index)} disabled={isSubmitting === items[index].id}>
+					{isSubmitting === items[index].id ? (
 						<Loader2 className='mr-2 h-4 w-4 animate-spin' />
 					) : (
 						<Check className='mr-2 h-4 w-4' />
@@ -307,8 +284,7 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
 							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 							<Input
 								placeholder={`Search ${noun.toLowerCase()}s...`}
-								value={searchQuery}
-								onChange={(e) => setSearchQuery(e.target.value)}
+								onChange={(e) => onSearch(e.target.value)}
 								className='pl-10'
 							/>
 						</div>
@@ -322,7 +298,7 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
 								>
 									{countryFilter === 'all'
 										? 'All Countries'
-										: countries.find((c) => c.name.toLowerCase() === countryFilter.toLowerCase())?.name}
+										: countries.find((c) => c.name.toLowerCase() === countryFilter.toLowerCase())?.name || 'All Countries'}
 									<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
 								</Button>
 							</PopoverTrigger>
@@ -349,16 +325,14 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
 													key={c.id}
 													value={c.name}
 													onSelect={(currentValue) => {
-														setCountryFilter(
-															currentValue.toLowerCase() === countryFilter.toLowerCase() ? 'all' : currentValue
-														);
+														setCountryFilter(currentValue === countryFilter ? 'all' : currentValue);
 														setCountryFilterPopoverOpen(false);
 													}}
 												>
 													<Check
 														className={cn(
 															'mr-2 h-4 w-4',
-															countryFilter.toLowerCase() === c.name.toLowerCase() ? 'opacity-100' : 'opacity-0'
+															countryFilter === c.name.toLowerCase() ? 'opacity-100' : 'opacity-0'
 														)}
 													/>
 													{c.name}
@@ -421,14 +395,39 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
 					</Dialog>
 				</div>
 				<div className='space-y-2 pt-4'>
-					{filteredData.map((item, index) =>
-						editingIndex === data.indexOf(item) ? renderEditItem(data.indexOf(item)) : renderViewItem(item, data.indexOf(item))
-					)}
-					{filteredData.length === 0 && (
+					{isLoading
+						? [...Array(5)].map((_, i) => <Skeleton key={i} className='h-16 w-full' />)
+						: filteredItems.map((item, index) =>
+								editingIndex === index ? renderEditItem(index) : renderViewItem(item, index)
+						  )}
+					{!isLoading && filteredItems.length === 0 && (
 						<p className='text-center text-sm text-muted-foreground py-4'>No {noun.toLowerCase()}s found.</p>
 					)}
 				</div>
 			</CardContent>
+			{meta && meta.totalRecords && meta.totalRecords > meta.limit && (
+				<CardFooter className='justify-end space-x-2'>
+					<Button
+						variant='outline'
+						size='sm'
+						onClick={() => onPageChange(meta.page - 1)}
+						disabled={!meta.prevPage || isLoading}
+					>
+						Previous
+					</Button>
+					<span className='text-sm text-muted-foreground'>
+						Page {meta.page} of {meta.totalPageCount}
+					</span>
+					<Button
+						variant='outline'
+						size='sm'
+						onClick={() => onPageChange(meta.page + 1)}
+						disabled={!meta.nextPage || isLoading}
+					>
+						Next
+					</Button>
+				</CardFooter>
+			)}
 		</Card>
 	);
 }
