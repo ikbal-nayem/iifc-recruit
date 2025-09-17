@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -22,6 +21,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { FormInput } from '@/components/ui/form-input';
 
 const academicInfoSchema = z.object({
   degree: z.string().min(1, 'Degree is required.'),
@@ -110,38 +110,24 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
             <form onSubmit={editForm.handleSubmit((data) => handleUpdate(index, data))}>
                 <Card key={index} className="p-4 bg-muted/50">
                     <CardContent className="p-0 space-y-4">
-                        <FormField
-                        control={editForm.control}
-                        name="degree"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel required>Degree</FormLabel>
-                            <FormControl><Input {...field} /></FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
+                        <FormInput
+                            control={editForm.control}
+                            name="degree"
+                            label="Degree"
+                            required
                         />
-                        <FormField
-                        control={editForm.control}
-                        name="institution"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel required>Institution</FormLabel>
-                            <FormControl><Input {...field} /></FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
+                        <FormInput
+                            control={editForm.control}
+                            name="institution"
+                            label="Institution"
+                            required
                         />
-                        <FormField
-                        control={editForm.control}
-                        name="graduationYear"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel required>Graduation Year</FormLabel>
-                            <FormControl><Input type="number" {...field} /></FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
+                        <FormInput
+                            control={editForm.control}
+                            name="graduationYear"
+                            label="Graduation Year"
+                            type="number"
+                            required
                         />
                         <FormField
                             control={editForm.control}
@@ -253,38 +239,27 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
                         <CardDescription>Add a new degree to your profile.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <FormField
-                        control={form.control}
-                        name="degree"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel required>Degree</FormLabel>
-                            <FormControl><Input {...field} placeholder="e.g. B.S. in Computer Science"/></FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
+                        <FormInput
+                            control={form.control}
+                            name="degree"
+                            label="Degree"
+                            placeholder="e.g. B.S. in Computer Science"
+                            required
                         />
-                        <FormField
-                        control={form.control}
-                        name="institution"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel required>Institution</FormLabel>
-                            <FormControl><Input {...field} placeholder="e.g. Stanford University"/></FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
+                        <FormInput
+                            control={form.control}
+                            name="institution"
+                            label="Institution"
+                            placeholder="e.g. Stanford University"
+                            required
                         />
-                        <FormField
-                        control={form.control}
-                        name="graduationYear"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel required>Graduation Year</FormLabel>
-                            <FormControl><Input type="number" {...field} placeholder="e.g. 2024"/></FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
+                        <FormInput
+                            control={form.control}
+                            name="graduationYear"
+                            label="Graduation Year"
+                            placeholder="e.g. 2024"
+                            type="number"
+                            required
                         />
                         <FormField
                             control={form.control}

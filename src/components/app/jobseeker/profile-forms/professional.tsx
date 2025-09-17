@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -28,6 +27,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
+import { FormInput } from '@/components/ui/form-input';
 
 const professionalInfoSchema = z.object({
   role: z.string().min(1, 'Role is required.'),
@@ -134,27 +134,17 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
             <form onSubmit={editForm.handleSubmit((data) => handleUpdate(index, data))}>
                 <Card key={index} className="p-4 bg-muted/50">
                     <CardContent className="p-0 space-y-4">
-                        <FormField
-                        control={editForm.control}
-                        name="role"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel required>Role</FormLabel>
-                            <FormControl><Input {...field} /></FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
+                        <FormInput
+                            control={editForm.control}
+                            name="role"
+                            label="Role"
+                            required
                         />
-                        <FormField
-                        control={editForm.control}
-                        name="company"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel required>Company</FormLabel>
-                            <FormControl><Input {...field} /></FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
+                        <FormInput
+                            control={editForm.control}
+                            name="company"
+                            label="Company"
+                            required
                         />
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                              <FormField
@@ -374,27 +364,19 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                         <CardDescription>Add a new role to your profile.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <FormField
-                        control={form.control}
-                        name="role"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel required>Role</FormLabel>
-                            <FormControl><Input {...field} placeholder="e.g. Software Engineer"/></FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
+                        <FormInput
+                            control={form.control}
+                            name="role"
+                            label="Role"
+                            placeholder="e.g. Software Engineer"
+                            required
                         />
-                        <FormField
-                        control={form.control}
-                        name="company"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel required>Company</FormLabel>
-                            <FormControl><Input {...field} placeholder="e.g. Google"/></FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
+                        <FormInput
+                            control={form.control}
+                            name="company"
+                            label="Company"
+                            placeholder="e.g. Google"
+                            required
                         />
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                             <FormField

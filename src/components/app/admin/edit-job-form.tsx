@@ -14,7 +14,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -38,6 +37,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
+import { FormInput } from '@/components/ui/form-input';
 
 const jobSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -89,46 +89,28 @@ export function EditJobForm({ job }: EditJobFormProps) {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Job Title</FormLabel>
-                    <FormControl>
-                        <Input placeholder="e.g. Senior Frontend Developer" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
+                <FormInput
+                    control={form.control}
+                    name="title"
+                    label="Job Title"
+                    placeholder="e.g. Senior Frontend Developer"
+                    required
                 />
-                 <FormField
-                control={form.control}
-                name="department"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Department</FormLabel>
-                    <FormControl>
-                        <Input placeholder="e.g. Engineering" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
+                <FormInput
+                    control={form.control}
+                    name="department"
+                    label="Department"
+                    placeholder="e.g. Engineering"
+                    required
                 />
             </div>
              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FormField
-                control={form.control}
-                name="location"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Location</FormLabel>
-                    <FormControl>
-                        <Input placeholder="e.g. Dhaka, Bangladesh" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
+                <FormInput
+                    control={form.control}
+                    name="location"
+                    label="Location"
+                    placeholder="e.g. Dhaka, Bangladesh"
+                    required
                 />
                  <FormField
                     control={form.control}
@@ -152,26 +134,20 @@ export function EditJobForm({ job }: EditJobFormProps) {
                         </FormItem>
                     )}
                     />
-                 <FormField
-                control={form.control}
-                name="salaryRange"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Salary Range</FormLabel>
-                    <FormControl>
-                        <Input placeholder="e.g. BDT 80,000 - 120,000" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
+                 <FormInput
+                    control={form.control}
+                    name="salaryRange"
+                    label="Salary Range"
+                    placeholder="e.g. BDT 80,000 - 120,000"
+                    required
+                 />
              </div>
              <FormField
                 control={form.control}
                 name="applicationDeadline"
                 render={({ field }) => (
                      <FormItem className="flex flex-col">
-                        <FormLabel>Application Deadline</FormLabel>
+                        <FormLabel required>Application Deadline</FormLabel>
                         <Popover>
                             <PopoverTrigger asChild>
                                 <FormControl>

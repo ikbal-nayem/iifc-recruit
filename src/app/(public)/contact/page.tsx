@@ -1,23 +1,41 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FormInput } from '@/components/ui/form-input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Mail, Phone, MapPin, Printer } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+
+const contactSchema = z.object({
+  name: z.string().min(1, 'Name is required.'),
+  email: z.string().email('Please enter a valid email.'),
+  subject: z.string().min(1, 'Subject is required.'),
+  message: z.string().min(10, 'Message must be at least 10 characters.'),
+});
+
+type ContactFormValues = z.infer<typeof contactSchema>;
 
 export default function ContactPage() {
   const { toast } = useToast();
+  const form = useForm<ContactFormValues>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: { name: '', email: '', subject: '', message: '' },
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (data: ContactFormValues) => {
+    console.log(data);
     toast({
       title: "Message Sent!",
       description: "Thank you for contacting us. We will get back to you shortly.",
       variant: 'success'
     });
+    form.reset();
   };
 
   return (
@@ -43,27 +61,29 @@ export default function ContactPage() {
               <CardDescription>Fill out the form and we'll get back to you.</CardDescription>
             </CardHeader>
             <CardContent>
-              <form className="space-y-4" onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="name">Name</Label>
-                        <Input id="name" placeholder="Your name" required/>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input id="email" type="email" placeholder="you@example.com" required/>
-                    </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="subject">Subject</Label>
-                  <Input id="subject" placeholder="What is your message about?" required/>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="message">Message</Label>
-                  <Textarea id="message" placeholder="Your message..." className="min-h-[120px]" required/>
-                </div>
-                <Button type="submit" className="w-full">Send Message</Button>
-              </form>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <FormInput control={form.control} name="name" label="Name" placeholder="Your name" required/>
+                      <FormInput control={form.control} name="email" label="Email" type="email" placeholder="you@example.com" required/>
+                  </div>
+                  <FormInput control={form.control} name="subject" label="Subject" placeholder="What is your message about?" required/>
+                  <FormField
+                    control={form.control}
+                    name="message"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel required>Message</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Your message..." className="min-h-[120px]" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" className="w-full">Send Message</Button>
+                </form>
+              </Form>
             </CardContent>
           </Card>
           <div className="space-y-8">

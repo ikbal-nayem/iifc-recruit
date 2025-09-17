@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -12,7 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import type { Candidate, Language } from '@/lib/types';
 import { PlusCircle, Trash, Save, Edit } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -28,6 +26,7 @@ import {
 } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { FormInput } from '@/components/ui/form-input';
 
 const languageSchema = z.object({
   name: z.string().min(1, 'Language name is required.'),
@@ -87,16 +86,11 @@ export function ProfileFormLanguages({ candidate }: ProfileFormProps) {
             <form onSubmit={editForm.handleSubmit((data) => handleUpdate(index, data))}>
                 <Card key={index} className="p-4 bg-muted/50">
                     <CardContent className="p-0 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <FormField
-                        control={editForm.control}
-                        name="name"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel required>Language</FormLabel>
-                            <FormControl><Input {...field} /></FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
+                        <FormInput
+                            control={editForm.control}
+                            name="name"
+                            label="Language"
+                            required
                         />
                         <FormField
                         control={editForm.control}
@@ -189,16 +183,12 @@ export function ProfileFormLanguages({ candidate }: ProfileFormProps) {
                         <CardDescription>Add a new language to your profile.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel required>Language</FormLabel>
-                            <FormControl><Input {...field} placeholder="e.g. Spanish"/></FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
+                        <FormInput
+                            control={form.control}
+                            name="name"
+                            label="Language"
+                            placeholder="e.g. Spanish"
+                            required
                         />
                         <FormField
                             control={form.control}

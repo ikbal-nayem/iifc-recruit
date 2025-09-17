@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -12,7 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import type { Candidate, Award } from '@/lib/types';
 import { PlusCircle, Trash, Save, Edit, CalendarIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -25,6 +23,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
+import { FormInput } from '@/components/ui/form-input';
 
 const awardSchema = z.object({
   name: z.string().min(1, 'Award name is required.'),
@@ -85,19 +84,17 @@ export function ProfileFormAwards({ candidate }: ProfileFormProps) {
             <form onSubmit={editForm.handleSubmit((data) => handleUpdate(index, data))}>
                 <Card key={index} className="p-4 bg-muted/50">
                     <CardContent className="p-0 space-y-4">
-                        <FormField
+                        <FormInput
                             control={editForm.control}
                             name="name"
-                            render={({ field }) => (
-                                <FormItem><FormLabel required>Award Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                            )}
+                            label="Award Name"
+                            required
                         />
-                        <FormField
+                        <FormInput
                             control={editForm.control}
                             name="awardingBody"
-                            render={({ field }) => (
-                                <FormItem><FormLabel required>Awarding Body</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                            )}
+                            label="Awarding Body"
+                            required
                         />
                         <FormField
                             control={editForm.control}
@@ -205,19 +202,19 @@ export function ProfileFormAwards({ candidate }: ProfileFormProps) {
                         <CardDescription>Add a new award to your profile.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <FormField
+                        <FormInput
                             control={form.control}
                             name="name"
-                            render={({ field }) => (
-                                <FormItem><FormLabel required>Award Name</FormLabel><FormControl><Input {...field} placeholder="e.g. Employee of the Month" /></FormControl><FormMessage /></FormItem>
-                            )}
+                            label="Award Name"
+                            placeholder="e.g. Employee of the Month"
+                            required
                         />
-                        <FormField
+                        <FormInput
                             control={form.control}
                             name="awardingBody"
-                            render={({ field }) => (
-                                <FormItem><FormLabel required>Awarding Body</FormLabel><FormControl><Input {...field} placeholder="e.g. TechCorp" /></FormControl><FormMessage /></FormItem>
-                            )}
+                            label="Awarding Body"
+                            placeholder="e.g. TechCorp"
+                            required
                         />
                         <FormField
                             control={form.control}

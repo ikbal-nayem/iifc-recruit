@@ -30,6 +30,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
+import { FormInput } from '@/components/ui/form-input';
 
 const signupSchema = z.object({
   name: z.string().min(2, { message: 'Please enter your full name.'}),
@@ -86,20 +87,20 @@ export default function SignupForm() {
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                     <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Full Name</FormLabel>
-                        <FormControl>
-                            <div className="relative">
-                                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                <Input placeholder="John Doe" {...field} className="pl-10 h-11" />
-                            </div>
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                          <FormItem>
+                          <FormLabel>Full Name</FormLabel>
+                          <FormControl>
+                              <div className="relative">
+                                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                  <Input placeholder="John Doe" {...field} className="pl-10 h-11" />
+                              </div>
+                          </FormControl>
+                          <FormMessage />
+                          </FormItem>
+                      )}
                     />
                     <FormField
                     control={form.control}

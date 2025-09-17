@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -12,7 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import type { Candidate, Publication } from '@/lib/types';
 import { PlusCircle, Trash, Save, Edit, Link2, CalendarIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -25,6 +23,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
+import { FormInput } from '@/components/ui/form-input';
 
 const publicationSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -86,20 +85,8 @@ export function ProfileFormPublications({ candidate }: ProfileFormProps) {
             <form onSubmit={editForm.handleSubmit((data) => handleUpdate(index, data))}>
                 <Card key={index} className="p-4 bg-muted/50">
                     <CardContent className="p-0 space-y-4">
-                        <FormField
-                            control={editForm.control}
-                            name="title"
-                            render={({ field }) => (
-                                <FormItem><FormLabel required>Title</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={editForm.control}
-                            name="publisher"
-                            render={({ field }) => (
-                                <FormItem><FormLabel required>Publisher</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                            )}
-                        />
+                        <FormInput control={editForm.control} name="title" label="Title" required />
+                        <FormInput control={editForm.control} name="publisher" label="Publisher" required />
                         <FormField
                             control={editForm.control}
                             name="publicationDate"
@@ -138,13 +125,7 @@ export function ProfileFormPublications({ candidate }: ProfileFormProps) {
                                 </FormItem>
                             )}
                         />
-                         <FormField
-                            control={editForm.control}
-                            name="url"
-                            render={({ field }) => (
-                                <FormItem><FormLabel required>URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                            )}
-                        />
+                         <FormInput control={editForm.control} name="url" label="URL" required type="url" />
                     </CardContent>
                     <CardFooter className="p-0 pt-4 flex justify-end gap-2">
                         <Button type="button" variant="ghost" onClick={() => setEditingId(null)}>Cancel</Button>
@@ -217,19 +198,19 @@ export function ProfileFormPublications({ candidate }: ProfileFormProps) {
                         <CardDescription>Add a new publication to your profile.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                         <FormField
+                        <FormInput
                             control={form.control}
                             name="title"
-                            render={({ field }) => (
-                                <FormItem><FormLabel required>Title</FormLabel><FormControl><Input {...field} placeholder="e.g., The Future of AI" /></FormControl><FormMessage /></FormItem>
-                            )}
+                            label="Title"
+                            placeholder="e.g., The Future of AI"
+                            required
                         />
-                        <FormField
+                        <FormInput
                             control={form.control}
                             name="publisher"
-                            render={({ field }) => (
-                                <FormItem><FormLabel required>Publisher</FormLabel><FormControl><Input {...field} placeholder="e.g., Nature Journal" /></FormControl><FormMessage /></FormItem>
-                            )}
+                            label="Publisher"
+                            placeholder="e.g., Nature Journal"
+                            required
                         />
                         <FormField
                             control={form.control}
@@ -269,12 +250,13 @@ export function ProfileFormPublications({ candidate }: ProfileFormProps) {
                                 </FormItem>
                             )}
                         />
-                         <FormField
+                         <FormInput
                             control={form.control}
                             name="url"
-                            render={({ field }) => (
-                                <FormItem><FormLabel required>URL</FormLabel><FormControl><Input {...field} placeholder="https://example.com/publication" /></FormControl><FormMessage /></FormItem>
-                            )}
+                            label="URL"
+                            placeholder="https://example.com/publication"
+                            required
+                            type="url"
                         />
                     </CardContent>
                     <CardFooter>

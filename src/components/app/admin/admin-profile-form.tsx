@@ -16,6 +16,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
+import { FormInput } from '@/components/ui/form-input';
 
 interface AdminProfileFormProps {
   user: {
@@ -109,18 +110,12 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
                 )}
               />
 
-              <FormField
+              <FormInput
                 control={form.control}
                 name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel required>Full Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g. John Doe" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Full Name"
+                placeholder="e.g. John Doe"
+                required
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -26,6 +25,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { FormInput } from '@/components/ui/form-input';
 
 const certificationSchema = z.object({
   name: z.string().min(1, 'Certificate name is required.'),
@@ -114,21 +114,21 @@ export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
             <form onSubmit={editForm.handleSubmit((data) => handleUpdate(index, data))}>
                 <Card key={index} className="p-4 bg-muted/50">
                     <CardContent className="p-0 space-y-4">
-                        <FormField
+                        <FormInput
                             control={editForm.control}
                             name="name"
-                            render={({ field }) => (
-                                <FormItem><FormLabel required>Certificate Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                            )}
+                            label="Certificate Name"
+                            required
                         />
                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <FormField
-                                control={editForm.control}
-                                name="issuingOrganization"
-                                render={({ field }) => (
-                                    <FormItem className="md:col-span-2"><FormLabel required>Issuing Organization</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                                )}
-                            />
+                            <div className='md:col-span-2'>
+                                <FormInput
+                                    control={editForm.control}
+                                    name="issuingOrganization"
+                                    label="Issuing Organization"
+                                    required
+                                />
+                            </div>
                             <FormField
                                 control={editForm.control}
                                 name="issueDate"
@@ -274,21 +274,23 @@ export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
                         <CardDescription>Add a new certification to your profile.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <FormField
+                        <FormInput
                             control={form.control}
                             name="name"
-                            render={({ field }) => (
-                                <FormItem><FormLabel required>Certificate Name</FormLabel><FormControl><Input {...field} placeholder="e.g. Certified React Developer"/></FormControl><FormMessage /></FormItem>
-                            )}
+                            label="Certificate Name"
+                            placeholder="e.g. Certified React Developer"
+                            required
                         />
                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="issuingOrganization"
-                                render={({ field }) => (
-                                    <FormItem className="md:col-span-2"><FormLabel required>Issuing Organization</FormLabel><FormControl><Input {...field} placeholder="e.g. Vercel"/></FormControl><FormMessage /></FormItem>
-                                )}
-                            />
+                            <div className="md:col-span-2">
+                                <FormInput
+                                    control={form.control}
+                                    name="issuingOrganization"
+                                    label="Issuing Organization"
+                                    placeholder="e.g. Vercel"
+                                    required
+                                />
+                            </div>
                              <FormField
                                 control={form.control}
                                 name="issueDate"
@@ -366,5 +368,3 @@ export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
     </div>
   );
 }
-
-    

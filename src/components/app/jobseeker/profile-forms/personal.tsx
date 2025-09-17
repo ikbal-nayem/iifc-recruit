@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -29,6 +28,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
+import { FormInput } from '@/components/ui/form-input';
 
 interface ProfileFormProps {
   candidate: Candidate;
@@ -228,28 +228,20 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                 />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <FormField
+                 <FormInput
                     control={form.control}
                     name={`${type}.line1`}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel required>Address Line</FormLabel>
-                            <FormControl><Input {...field} disabled={disabled} /></FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                 <FormField
+                    label="Address Line"
+                    disabled={disabled}
+                    required
+                 />
+                 <FormInput
                     control={form.control}
                     name={`${type}.postCode`}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel required>Post Code</FormLabel>
-                            <FormControl><Input {...field} disabled={disabled} /></FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                    label="Post Code"
+                    disabled={disabled}
+                    required
+                 />
             </div>
         </div>
     )
@@ -292,74 +284,20 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <FormField
-                    control={form.control}
-                    name="firstName"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel required>First Name</FormLabel>
-                        <FormControl><Input placeholder="e.g. John" {...field} /></FormControl>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
-                 <FormField
-                    control={form.control}
-                    name="middleName"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Middle Name</FormLabel>
-                        <FormControl><Input {...field} /></FormControl>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="lastName"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel required>Last Name</FormLabel>
-                        <FormControl><Input placeholder="e.g. Doe" {...field} /></FormControl>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
+                    <FormInput control={form.control} name="firstName" label="First Name" placeholder="e.g. John" required />
+                    <FormInput control={form.control} name="middleName" label="Middle Name" />
+                    <FormInput control={form.control} name="lastName" label="Last Name" placeholder="e.g. Doe" required />
                 </div>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                     <FormField
-                        control={form.control}
-                        name="fatherName"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel required>Father's Name</FormLabel>
-                            <FormControl><Input {...field} /></FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                      <FormField
-                        control={form.control}
-                        name="motherName"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel required>Mother's Name</FormLabel>
-                            <FormControl><Input {...field} /></FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
+                    <FormInput control={form.control} name="fatherName" label="Father's Name" required />
+                    <FormInput control={form.control} name="motherName" label="Mother's Name" required />
                  </div>
-                <FormField
+                <FormInput
                     control={form.control}
                     name="headline"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel required>Headline</FormLabel>
-                        <FormControl><Input placeholder="e.g. Senior Frontend Developer" {...field} /></FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
+                    label="Headline"
+                    placeholder="e.g. Senior Frontend Developer"
+                    required
                 />
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
@@ -403,17 +341,7 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                             </FormItem>
                         )}
                     />
-                     <FormField
-                        control={form.control}
-                        name="nationality"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel required>Nationality</FormLabel>
-                            <FormControl><Input {...field} /></FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
+                    <FormInput control={form.control} name="nationality" label="Nationality" required />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -524,9 +452,9 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                         <FormField control={form.control} name="nid" render={({ field }) => (<FormItem><FormLabel>NID</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                         <FormField control={form.control} name="passportNo" render={({ field }) => (<FormItem><FormLabel>Passport No.</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                         <FormField control={form.control} name="birthCertificate" render={({ field }) => (<FormItem><FormLabel>Birth Certificate No.</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                         <FormInput control={form.control} name="nid" label="NID" />
+                         <FormInput control={form.control} name="passportNo" label="Passport No." />
+                         <FormInput control={form.control} name="birthCertificate" label="Birth Certificate No." />
                     </div>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                          <FormField
