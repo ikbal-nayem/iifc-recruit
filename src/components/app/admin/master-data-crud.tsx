@@ -22,20 +22,100 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
+import { useToast } from '@/hooks/use-toast';
 import { IMeta } from '@/interfaces/common.interface';
-import { Check, Edit, Loader2, PlusCircle, Search, Trash, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 interface MasterDataItem {
 	id?: string;
 	name: string;
 	isActive: boolean;
+}
+
+const formSchema = z.object({
+	name: z.string().min(1, 'Name is required.'),
+});
+type FormValues = z.infer<typeof formSchema>;
+
+interface MasterDataFormProps<T extends MasterDataItem> {
+	isOpen: boolean;
+	onClose: () => void;
+	onSubmit: (data: T | Omit<T, 'id'>) => Promise<boolean | null>;
+	initialData?: T;
+	noun: string;
+}
+
+function MasterDataForm<T extends MasterDataItem>({
+	isOpen,
+	onClose,
+	onSubmit,
+	initialData,
+	noun,
+}: MasterDataFormProps<T>) {
+	const form = useForm<FormValues>({
+		resolver: zodResolver(formSchema),
+		defaultValues: { name: initialData?.name || '' },
+	});
+	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	const handleSubmit = async (data: FormValues) => {
+		setIsSubmitting(true);
+		const payload = { ...initialData, ...data, isActive: initialData?.isActive ?? true } as T | Omit<T, 'id'>;
+		const success = await onSubmit(payload);
+		if (success) {
+			onClose();
+		}
+		setIsSubmitting(false);
+	};
+
+	return (
+		<Dialog open={isOpen} onOpenChange={onClose}>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
+					<DialogDescription>
+						{initialData ? 'Update the details.' : `Enter the details for the new ${noun.toLowerCase()}.`}
+					</DialogDescription>
+				</DialogHeader>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4'>
+						<FormField
+							control={form.control}
+							name='name'
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Name</FormLabel>
+									<FormControl>
+										<Input placeholder={`${noun} Name`} {...field} disabled={isSubmitting} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<DialogFooter className='pt-4'>
+							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
+								Cancel
+							</Button>
+							<Button type='submit' disabled={isSubmitting}>
+								{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+								{initialData ? 'Save Changes' : 'Add'}
+							</Button>
+						</DialogFooter>
+					</form>
+				</Form>
+			</DialogContent>
+		</Dialog>
+	);
 }
 
 interface MasterDataCrudProps<T extends MasterDataItem> {
@@ -45,8 +125,8 @@ interface MasterDataCrudProps<T extends MasterDataItem> {
 	items: T[];
 	meta: IMeta;
 	isLoading: boolean;
-	onAdd: (name: string) => Promise<T | boolean | null>;
-	onUpdate: (item: T) => Promise<T | boolean | null>;
+	onAdd: (name: string) => Promise<boolean | null>;
+	onUpdate: (item: T) => Promise<boolean | null>;
 	onDelete: (id: string) => Promise<boolean>;
 	onToggle?: (id: string) => Promise<T | boolean | null>;
 	onPageChange: (page: number) => void;
@@ -108,7 +188,7 @@ const PaginationControls = ({
 				startPage = totalPages - 4;
 				endPage = totalPages - 2;
 			}
-			
+
 			if (startPage > 1) {
 				pageNumbers.push(ellipsis);
 			}
@@ -126,7 +206,7 @@ const PaginationControls = ({
 					</Button>
 				);
 			}
-			
+
 			if (endPage < totalPages - 2) {
 				pageNumbers.push(ellipsis);
 			}
@@ -187,45 +267,39 @@ export function MasterDataCrud<T extends MasterDataItem>({
 	onPageChange,
 	onSearch,
 }: MasterDataCrudProps<T>) {
-	const [editingIndex, setEditingIndex] = useState<number | null>(null);
-	const [editingValue, setEditingValue] = useState('');
-	const [newValue, setNewValue] = useState('');
-	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-
-	const [isAdding, setIsAdding] = useState(false);
+	const { toast } = useToast();
 	const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
+	const [isFormOpen, setIsFormOpen] = useState(false);
+	const [editingItem, setEditingItem] = useState<T | undefined>(undefined);
 
-	const handleAddNew = async () => {
-		if (newValue.trim() === '') return;
-		setIsAdding(true);
-		const success = await onAdd(newValue.trim());
-		if (success) {
-			setNewValue('');
-			setIsAddDialogOpen(false);
-		}
-		setIsAdding(false);
+	const handleOpenForm = (item?: T) => {
+		setEditingItem(item);
+		setIsFormOpen(true);
 	};
 
-	const handleUpdate = async (index: number) => {
-		if (editingValue.trim() === '') return;
+	const handleCloseForm = () => {
+		setIsFormOpen(false);
+		setEditingItem(undefined);
+	};
 
-		const item = items[index];
-		if (!item.id) return;
-
-		setIsSubmitting(item.id);
-		const success = await onUpdate({ ...item, name: editingValue.trim() });
-		if (success) {
-			setEditingIndex(null);
-			setEditingValue('');
+	const handleFormSubmit = async (data: T | Omit<T, 'id'>) => {
+		if ('id' in data) {
+			return onUpdate(data as T);
 		}
-		setIsSubmitting(null);
+		return onAdd((data as T).name);
 	};
 
 	const handleToggleActive = async (item: T) => {
 		if (!item.id) return;
-
 		setIsSubmitting(item.id);
-		await onUpdate({ ...item, isActive: !item.isActive });
+		const success = await onUpdate({ ...item, isActive: !item.isActive });
+		if (success) {
+			toast({
+				title: 'Success',
+				description: 'Status updated successfully.',
+				variant: 'success',
+			});
+		}
 		setIsSubmitting(null);
 	};
 
@@ -234,192 +308,127 @@ export function MasterDataCrud<T extends MasterDataItem>({
 		await onDelete(id);
 	};
 
-	const startEditing = (index: number, value: string) => {
-		setEditingIndex(index);
-		setEditingValue(value);
-	};
-
-	const cancelEditing = () => {
-		setEditingIndex(null);
-		setEditingValue('');
-	};
-
 	const from = meta.totalRecords ? meta.page * meta.limit + 1 : 0;
 	const to = Math.min((meta.page + 1) * meta.limit, meta.totalRecords || 0);
 
 	return (
-		<Card className='glassmorphism'>
-			<CardHeader>
-				<CardTitle>{title}</CardTitle>
-				<CardDescription>{description}</CardDescription>
-			</CardHeader>
-			<CardContent className='space-y-4'>
-				<div className='flex flex-col sm:flex-row gap-4 justify-between'>
-					<div className='relative w-full sm:max-w-xs'>
-						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-						<Input
-							placeholder={`Search ${noun.toLowerCase()}s...`}
-							onChange={(e) => onSearch(e.target.value)}
-							className='pl-10'
-						/>
+		<>
+			<Card className='glassmorphism'>
+				<CardHeader>
+					<CardTitle>{title}</CardTitle>
+					<CardDescription>{description}</CardDescription>
+				</CardHeader>
+				<CardContent className='space-y-4'>
+					<div className='flex flex-col sm:flex-row gap-4 justify-between'>
+						<div className='relative w-full sm:max-w-xs'>
+							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+							<Input
+								placeholder={`Search ${noun.toLowerCase()}s...`}
+								onChange={(e) => onSearch(e.target.value)}
+								className='pl-10'
+							/>
+						</div>
+						<Button className='w-full sm:w-auto' onClick={() => handleOpenForm()}>
+							<PlusCircle className='mr-2 h-4 w-4' />
+							Add New {noun}
+						</Button>
 					</div>
-					<Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-						<DialogTrigger asChild>
-							<Button className='w-full sm:w-auto'>
-								<PlusCircle className='mr-2 h-4 w-4' />
-								Add New {noun}
-							</Button>
-						</DialogTrigger>
-						<DialogContent>
-							<DialogHeader>
-								<DialogTitle>Add New {noun}</DialogTitle>
-								<DialogDescription>Enter the name for the new {noun.toLowerCase()}.</DialogDescription>
-							</DialogHeader>
-							<div className='grid gap-4 py-4'>
-								<div className='grid grid-cols-4 items-center gap-4'>
-									<Label htmlFor='new-item-name' className='text-right'>
-										Name
-									</Label>
-									<Input
-										id='new-item-name'
-										value={newValue}
-										onChange={(e) => setNewValue(e.target.value)}
-										onKeyDown={(e) => e.key === 'Enter' && handleAddNew()}
-										className='col-span-3'
-										autoFocus
-										required
-										disabled={isAdding}
-									/>
-								</div>
-							</div>
-							<DialogFooter>
-								<DialogClose asChild>
-									<Button type='button' variant='ghost' disabled={isAdding}>
-										Cancel
-									</Button>
-								</DialogClose>
-								<Button type='button' onClick={handleAddNew} disabled={isAdding}>
-									{isAdding ? (
-										<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-									) : (
-										<PlusCircle className='mr-2 h-4 w-4' />
-									)}
-									Add
-								</Button>
-							</DialogFooter>
-						</DialogContent>
-					</Dialog>
-				</div>
-				<div className='space-y-2'>
-					{isLoading
-						? [...Array(5)].map((_, i) => <Skeleton key={i} className='h-12 w-full' />)
-						: items.map((item, index) => (
-								<AlertDialog key={item.id}>
-									<div className='flex items-center justify-between p-2 rounded-md border bg-background/50'>
-										{editingIndex === index ? (
-											<Input
-												value={editingValue}
-												onChange={(e) => setEditingValue(e.target.value)}
-												onKeyDown={(e) => e.key === 'Enter' && handleUpdate(index)}
-												className='h-8'
-												autoFocus
-												disabled={isSubmitting === item.id}
-											/>
-										) : (
-											<div className='flex items-center gap-4'>
+					<div className='space-y-2 pt-4'>
+						{isLoading
+							? [...Array(5)].map((_, i) => <Skeleton key={i} className='h-16 w-full' />)
+							: items.map((item) => (
+									<Card
+										key={item.id}
+										className='p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-background/50'
+									>
+										<div className='flex-1 mb-4 sm:mb-0'>
+											<p className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}>
+												{item.name}
+											</p>
+										</div>
+										<div className='flex items-center gap-2 w-full sm:w-auto justify-between'>
+											<div className='flex items-center gap-2'>
 												<Switch
-													id={`active-switch-${item.id}`}
 													checked={item.isActive}
 													onCheckedChange={() => handleToggleActive(item)}
 													disabled={isSubmitting === item.id}
 												/>
-												<p className={`text-sm ${!item.isActive && 'text-muted-foreground line-through'}`}>
-													{item.name}
-												</p>
+												<Label className='text-sm'>{item.isActive ? 'Active' : 'Inactive'}</Label>
 											</div>
-										)}
-										<div className='flex gap-1'>
-											{editingIndex === index ? (
-												<>
-													<Button
-														variant='ghost'
-														size='icon'
-														className='h-8 w-8'
-														onClick={() => handleUpdate(index)}
-														disabled={isSubmitting === item.id}
-													>
-														{isSubmitting === item.id ? (
-															<Loader2 className='h-4 w-4 animate-spin' />
-														) : (
-															<Check className='h-4 w-4 text-green-600' />
-														)}
-													</Button>
-													<Button
-														variant='ghost'
-														size='icon'
-														className='h-8 w-8'
-														onClick={cancelEditing}
-														disabled={isSubmitting === item.id}
-													>
-														<X className='h-4 w-4 text-destructive' />
-													</Button>
-												</>
-											) : (
-												<>
-													<Button
-														variant='ghost'
-														size='icon'
-														className='h-8 w-8'
-														onClick={() => startEditing(index, item.name)}
-													>
-														<Edit className='h-4 w-4' />
-													</Button>
+											<div className='flex'>
+												<Button
+													variant='ghost'
+													size='icon'
+													className='h-8 w-8'
+													onClick={() => handleOpenForm(item)}
+													disabled={isSubmitting === item.id}
+												>
+													<Edit className='h-4 w-4' />
+												</Button>
+												<AlertDialog>
 													<AlertDialogTrigger asChild>
-														<Button variant='ghost' size='icon' className='h-8 w-8'>
+														<Button
+															variant='ghost'
+															size='icon'
+															className='h-8 w-8'
+															disabled={isSubmitting === item.id}
+														>
 															<Trash className='h-4 w-4 text-destructive' />
 														</Button>
 													</AlertDialogTrigger>
-												</>
-											)}
+													<AlertDialogContent>
+														<AlertDialogHeader>
+															<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+															<AlertDialogDescription>
+																This will permanently delete the {noun.toLowerCase()}{' '}
+																<strong>&quot;{item.name}&quot;</strong>.
+															</AlertDialogDescription>
+														</AlertDialogHeader>
+														<AlertDialogFooter>
+															<AlertDialogCancel>Cancel</AlertDialogCancel>
+															<AlertDialogAction
+																onClick={() => handleRemove(item.id)}
+																className='bg-destructive hover:bg-destructive/90'
+															>
+																Delete
+															</AlertDialogAction>
+														</AlertDialogFooter>
+													</AlertDialogContent>
+												</AlertDialog>
+											</div>
 										</div>
-										<AlertDialogContent>
-											<AlertDialogHeader>
-												<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-												<AlertDialogDescription>
-													This action cannot be undone. This will permanently delete the {noun.toLowerCase()}{' '}
-													<strong>&quot;{item.name}&quot;</strong>.
-												</AlertDialogDescription>
-											</AlertDialogHeader>
-											<AlertDialogFooter>
-												<AlertDialogCancel>Cancel</AlertDialogCancel>
-												<AlertDialogAction
-													onClick={() => handleRemove(item?.id)}
-													className='bg-destructive hover:bg-destructive/90'
-												>
-													Continue
-												</AlertDialogAction>
-											</AlertDialogFooter>
-										</AlertDialogContent>
-									</div>
-								</AlertDialog>
-						  ))}
-					{!isLoading && items.length === 0 && (
-						<p className='text-center text-sm text-muted-foreground py-4'>No {noun.toLowerCase()}s found.</p>
-					)}
-				</div>
-			</CardContent>
-			{meta && meta.totalRecords && meta.totalRecords > 0 && (
-				<CardFooter className='flex-col-reverse items-center gap-4 sm:flex-row sm:justify-between'>
-					<p className='text-sm text-muted-foreground'>
-						Showing{' '}
-						<strong>
-							{from}-{to}
-						</strong>{' '}
-						of <strong>{meta.totalRecords}</strong> {noun.toLowerCase()}s
-					</p>
-					<PaginationControls meta={meta} isLoading={isLoading} onPageChange={onPageChange} />
-				</CardFooter>
+									</Card>
+							  ))}
+						{!isLoading && items.length === 0 && (
+							<p className='text-center text-sm text-muted-foreground py-4'>
+								No {noun.toLowerCase()}s found.
+							</p>
+						)}
+					</div>
+				</CardContent>
+				{meta && meta.totalRecords && meta.totalRecords > 0 && (
+					<CardFooter className='flex-col-reverse items-center gap-4 sm:flex-row sm:justify-between'>
+						<p className='text-sm text-muted-foreground'>
+							Showing{' '}
+							<strong>
+								{from}-{to}
+							</strong>{' '}
+							of <strong>{meta.totalRecords}</strong> {noun.toLowerCase()}s
+						</p>
+						<PaginationControls meta={meta} isLoading={isLoading} onPageChange={onPageChange} />
+					</CardFooter>
+				)}
+			</Card>
+
+			{isFormOpen && (
+				<MasterDataForm
+					isOpen={isFormOpen}
+					onClose={handleCloseForm}
+					onSubmit={handleFormSubmit}
+					initialData={editingItem}
+					noun={noun}
+				/>
 			)}
-		</Card>
+		</>
 	);
 }
