@@ -34,6 +34,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
@@ -69,6 +70,7 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
 	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 	const [isAdding, setIsAdding] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
+	const [countryFilter, setCountryFilter] = useState('all');
 
 	const [countries, setCountries] = useState<ICommonMasterData[]>([]);
 	const [countryPopoverOpen, setCountryPopoverOpen] = useState(false);
@@ -159,8 +161,9 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
 
 	const filteredData = data.filter(
 		(item) =>
-			item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			item.country.toLowerCase().includes(searchQuery.toLowerCase())
+			(countryFilter === 'all' || item.country.toLowerCase() === countryFilter.toLowerCase()) &&
+			(item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+				item.country.toLowerCase().includes(searchQuery.toLowerCase()))
 	);
 
 	const CountryCombobox = ({
@@ -300,14 +303,29 @@ export function EducationInstitutionCrud({ title, description, initialData, noun
 			</CardHeader>
 			<CardContent className='space-y-4'>
 				<div className='flex flex-col sm:flex-row gap-4 justify-between'>
-					<div className='relative w-full sm:max-w-xs'>
-						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-						<Input
-							placeholder={`Search ${noun.toLowerCase()}s...`}
-							value={searchQuery}
-							onChange={(e) => setSearchQuery(e.target.value)}
-							className='pl-10'
-						/>
+					<div className='flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4'>
+						<div className='relative w-full'>
+							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+							<Input
+								placeholder={`Search ${noun.toLowerCase()}s...`}
+								value={searchQuery}
+								onChange={(e) => setSearchQuery(e.target.value)}
+								className='pl-10'
+							/>
+						</div>
+						<Select value={countryFilter} onValueChange={setCountryFilter}>
+							<SelectTrigger>
+								<SelectValue placeholder='Filter by Country' />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value='all'>All Countries</SelectItem>
+								{countries.map((c) => (
+									<SelectItem key={c.id} value={c.name}>
+										{c.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
 					</div>
 					<Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
 						<DialogTrigger asChild>
