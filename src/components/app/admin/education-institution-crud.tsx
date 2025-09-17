@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -21,28 +22,175 @@ import {
 	CommandItem,
 	CommandList,
 } from '@/components/ui/command';
-import {
-	Dialog,
-	DialogClose,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
-import { IMeta } from '@/interfaces/common.interface';
+import { useToast } from '@/hooks/use-toast';
 import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
+import { IMeta } from '@/interfaces/common.interface';
 import { cn } from '@/lib/utils';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, ChevronsUpDown, Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
-const initialNewState: IEducationInstitution = { name: '', countryId: '', isActive: true };
+const formSchema = z.object({
+	name: z.string().min(1, 'Name is required.'),
+	countryId: z.string().min(1, 'Country is required.'),
+});
+type FormValues = z.infer<typeof formSchema>;
+
+interface EducationInstitutionFormProps {
+	isOpen: boolean;
+	onClose: () => void;
+	onSubmit: (data: IEducationInstitution | Omit<IEducationInstitution, 'id'>) => Promise<boolean>;
+	initialData?: IEducationInstitution;
+	countries: ICommonMasterData[];
+	noun: string;
+}
+
+function EducationInstitutionForm({
+	isOpen,
+	onClose,
+	onSubmit,
+	initialData,
+	countries,
+	noun,
+}: EducationInstitutionFormProps) {
+	const form = useForm<FormValues>({
+		resolver: zodResolver(formSchema),
+		defaultValues: {
+			name: initialData?.name || '',
+			countryId: initialData?.countryId || '',
+		},
+	});
+
+	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	const handleSubmit = async (data: FormValues) => {
+		setIsSubmitting(true);
+		const payload = {
+			...initialData,
+			...data,
+			isActive: initialData?.isActive ?? true,
+		};
+		const success = await onSubmit(payload);
+		if (success) {
+			onClose();
+		}
+		setIsSubmitting(false);
+	};
+
+	// Reset form when initialData changes (i.e., when a new item is selected for editing)
+	useState(() => {
+		form.reset({
+			name: initialData?.name || '',
+			countryId: initialData?.countryId || '',
+		});
+	});
+
+	return (
+		<Dialog open={isOpen} onOpenChange={onClose}>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
+					<DialogDescription>
+						{initialData
+							? 'Update the details of the institution.'
+							: `Enter the details for the new ${noun.toLowerCase()}.`}
+					</DialogDescription>
+				</DialogHeader>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4'>
+						<FormField
+							control={form.control}
+							name='name'
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Name</FormLabel>
+									<FormControl>
+										<Input placeholder='Institution Name' {...field} disabled={isSubmitting} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name='countryId'
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Country</FormLabel>
+									<Popover>
+										<PopoverTrigger asChild>
+											<FormControl>
+												<Button
+													variant='outline'
+													role='combobox'
+													className={cn(
+														'w-full justify-between',
+														!field.value && 'text-muted-foreground'
+													)}
+													disabled={isSubmitting}
+												>
+													{field.value
+														? countries.find((c) => c.id === field.value)?.name
+														: 'Select Country'}
+													<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+												</Button>
+											</FormControl>
+										</PopoverTrigger>
+										<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
+											<Command>
+												<CommandInput placeholder='Search country...' />
+												<CommandList>
+													<CommandEmpty>No country found.</CommandEmpty>
+													<CommandGroup>
+														{countries.map((c) => (
+															<CommandItem
+																key={c.id}
+																value={c.name}
+																onSelect={() => {
+																	form.setValue('countryId', c.id!);
+																}}
+															>
+																<Check
+																	className={cn(
+																		'mr-2 h-4 w-4',
+																		field.value === c.id ? 'opacity-100' : 'opacity-0'
+																	)}
+                                                                />
+                                                                {c.name}
+															</CommandItem>
+														))}
+													</CommandGroup>
+												</CommandList>
+											</Command>
+										</PopoverContent>
+									</Popover>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<AlertDialogFooter className='pt-4'>
+							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
+								Cancel
+							</Button>
+							<Button type='submit' disabled={isSubmitting}>
+								{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+								{initialData ? 'Save Changes' : 'Add'}
+							</Button>
+						</AlertDialogFooter>
+					</form>
+				</Form>
+			</DialogContent>
+		</Dialog>
+	);
+}
 
 interface EducationInstitutionCrudProps {
 	title: string;
@@ -52,8 +200,8 @@ interface EducationInstitutionCrudProps {
 	meta: IMeta;
 	isLoading: boolean;
 	countries: ICommonMasterData[];
-	onAdd: (item: IEducationInstitution) => Promise<boolean | null>;
-	onUpdate: (item: IEducationInstitution) => Promise<boolean | null>;
+	onAdd: (item: Omit<IEducationInstitution, 'id'>) => Promise<boolean>;
+	onUpdate: (item: IEducationInstitution) => Promise<boolean>;
 	onDelete: (id: string) => Promise<boolean>;
 	onPageChange: (page: number) => void;
 	onSearch: (query: string) => void;
@@ -73,54 +221,42 @@ export function EducationInstitutionCrud({
 	onPageChange,
 	onSearch,
 }: EducationInstitutionCrudProps) {
-	const [editingIndex, setEditingIndex] = useState<number | null>(null);
-
-	const [newItem, setNewItem] = useState<IEducationInstitution>(initialNewState);
-	const [editingItem, setEditingItem] = useState<IEducationInstitution | null>(null);
-
+	const { toast } = useToast();
 	const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
-
-	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-	const [isAdding, setIsAdding] = useState(false);
 	const [countryFilter, setCountryFilter] = useState('all');
-
 	const [countryFilterPopoverOpen, setCountryFilterPopoverOpen] = useState(false);
 
-	const handleAddNew = async () => {
-		if (newItem.name.trim() === '' || !newItem.countryId) {
-			return;
-		}
-		setIsAdding(true);
-		const success = await onAdd(newItem);
-		if (success) {
-			setNewItem(initialNewState);
-			setIsAddDialogOpen(false);
-		}
-		setIsAdding(false);
+	const [isFormOpen, setIsFormOpen] = useState(false);
+	const [editingItem, setEditingItem] = useState<IEducationInstitution | undefined>(undefined);
+
+	const handleOpenForm = (item?: IEducationInstitution) => {
+		setEditingItem(item);
+		setIsFormOpen(true);
 	};
 
-	const handleUpdate = async (index: number) => {
-		if (
-			!editingItem ||
-			!editingItem.id ||
-			editingItem.name.trim() === '' ||
-			editingItem.country?.trim() === ''
-		) {
-			return;
+	const handleCloseForm = () => {
+		setIsFormOpen(false);
+		setEditingItem(undefined);
+	};
+
+	const handleFormSubmit = async (data: IEducationInstitution | Omit<IEducationInstitution, 'id'>) => {
+		if ('id' in data) {
+			return onUpdate(data as IEducationInstitution);
 		}
-		setIsSubmitting(editingItem.id);
-		const success = await onUpdate(editingItem);
-		if (success) {
-			setEditingIndex(null);
-			setEditingItem(null);
-		}
-		setIsSubmitting(null);
+		return onAdd(data as Omit<IEducationInstitution, 'id'>);
 	};
 
 	const handleToggleActive = async (item: IEducationInstitution) => {
 		if (!item.id) return;
 		setIsSubmitting(item.id);
-		await onUpdate({ ...item, isActive: !item.isActive });
+		const success = await onUpdate({ ...item, isActive: !item.isActive });
+		if (success) {
+			toast({
+				title: 'Success',
+				description: 'Status updated successfully.',
+				variant: 'success',
+			});
+		}
 		setIsSubmitting(null);
 	};
 
@@ -129,74 +265,11 @@ export function EducationInstitutionCrud({
 		await onDelete(id);
 	};
 
-	const startEditing = (index: number, item: IEducationInstitution) => {
-		setEditingIndex(index);
-		setEditingItem({ ...item });
-	};
-
-	const cancelEditing = () => {
-		setEditingIndex(null);
-		setEditingItem(null);
-	};
-
 	const filteredItems = items.filter(
-		(item) => countryFilter === 'all' || item.countryId === countryFilter.toLowerCase()
+		(item) => countryFilter === 'all' || item.countryId === countryFilter
 	);
 
-	const CountryCombobox = ({
-		value,
-		onChange,
-		disabled,
-	}: {
-		value: string;
-		onChange: (value: string) => void;
-		disabled?: boolean;
-	}) => {
-		const [open, setOpen] = useState(false);
-		return (
-			<Popover open={open} onOpenChange={setOpen}>
-				<PopoverTrigger asChild>
-					<Button
-						variant='outline'
-						role='combobox'
-						aria-expanded={open}
-						className='w-full justify-between'
-						disabled={disabled}
-					>
-						{value
-							? countries.find((c) => c.name.toLowerCase() === value.toLowerCase())?.name
-							: 'Select Country'}
-						<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-					</Button>
-				</PopoverTrigger>
-				<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
-					<Command>
-						<CommandInput placeholder='Search country...' />
-						<CommandList>
-							<CommandEmpty>No country found.</CommandEmpty>
-							<CommandGroup>
-								{countries.map((c) => (
-									<CommandItem
-										key={c.id}
-										value={c.name}
-										onSelect={(currentValue) => {
-											onChange(currentValue === value ? '' : currentValue);
-											setOpen(false);
-										}}
-									>
-										<Check className={cn('mr-2 h-4 w-4', value === c.name ? 'opacity-100' : 'opacity-0')} />
-										{c.name}
-									</CommandItem>
-								))}
-							</CommandGroup>
-						</CommandList>
-					</Command>
-				</PopoverContent>
-			</Popover>
-		);
-	};
-
-	const renderViewItem = (item: IEducationInstitution, index: number) => (
+	const renderViewItem = (item: IEducationInstitution) => (
 		<Card
 			key={item.id}
 			className='p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-background/50'
@@ -205,7 +278,9 @@ export function EducationInstitutionCrud({
 				<p className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}>
 					{item.name}
 				</p>
-				<p className='text-sm text-muted-foreground'>{item.country?.name}</p>
+				<p className='text-sm text-muted-foreground'>
+					{countries.find((c) => c.id === item.countryId)?.name || 'Unknown Country'}
+				</p>
 			</div>
 			<div className='flex items-center gap-2 w-full sm:w-auto justify-between'>
 				<div className='flex items-center gap-2'>
@@ -221,7 +296,7 @@ export function EducationInstitutionCrud({
 						variant='ghost'
 						size='icon'
 						className='h-8 w-8'
-						onClick={() => startEditing(index, item)}
+						onClick={() => handleOpenForm(item)}
 						disabled={isSubmitting === item.id}
 					>
 						<Edit className='h-4 w-4' />
@@ -255,197 +330,134 @@ export function EducationInstitutionCrud({
 		</Card>
 	);
 
-	const renderEditItem = (index: number) => (
-		<div key={items[index].id} className='p-4 rounded-md border bg-muted/90 space-y-4'>
-			<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-				<Input
-					placeholder='Name'
-					value={editingItem?.name}
-					onChange={(e) => setEditingItem({ ...editingItem!, name: e.target.value })}
-					autoFocus
-				/>
-				<CountryCombobox
-					value={editingItem?.countryId || ''}
-					onChange={(value) => setEditingItem({ ...editingItem!, countryId: value })}
-				/>
-			</div>
-			<div className='flex justify-end gap-2'>
-				<Button variant='ghost' size='sm' onClick={cancelEditing} disabled={isSubmitting === items[index].id}>
-					Cancel
-				</Button>
-				<Button size='sm' onClick={() => handleUpdate(index)} disabled={isSubmitting === items[index].id}>
-					{isSubmitting === items[index].id ? (
-						<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-					) : (
-						<Check className='mr-2 h-4 w-4' />
-					)}
-					Save
-				</Button>
-			</div>
-		</div>
-	);
-
 	return (
-		<Card className='glassmorphism'>
-			<CardHeader>
-				<CardTitle>{title}</CardTitle>
-				<CardDescription>{description}</CardDescription>
-			</CardHeader>
-			<CardContent className='space-y-4'>
-				<div className='flex flex-col sm:flex-row gap-4 justify-between'>
-					<div className='flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4'>
-						<div className='relative w-full'>
-							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-							<Input
-								placeholder={`Search ${noun.toLowerCase()}s...`}
-								onChange={(e) => onSearch(e.target.value)}
-								className='pl-10'
-							/>
-						</div>
-						<Popover open={countryFilterPopoverOpen} onOpenChange={setCountryFilterPopoverOpen}>
-							<PopoverTrigger asChild>
-								<Button
-									variant='outline'
-									role='combobox'
-									aria-expanded={countryFilterPopoverOpen}
-									className='w-full justify-between'
-								>
-									{countryFilter === 'all'
-										? 'All Countries'
-										: countries.find((c) => c.name.toLowerCase() === countryFilter.toLowerCase())?.name ||
-										  'All Countries'}
-									<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-								</Button>
-							</PopoverTrigger>
-							<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
-								<Command>
-									<CommandInput placeholder='Search country...' />
-									<CommandList>
-										<CommandEmpty>No country found.</CommandEmpty>
-										<CommandGroup>
-											<CommandItem
-												value='all'
-												onSelect={() => {
-													setCountryFilter('all');
-													setCountryFilterPopoverOpen(false);
-												}}
-											>
-												<Check
-													className={cn(
-														'mr-2 h-4 w-4',
-														countryFilter === 'all' ? 'opacity-100' : 'opacity-0'
-													)}
-												/>
-												All Countries
-											</CommandItem>
-											{countries.map((c) => (
+		<>
+			<Card className='glassmorphism'>
+				<CardHeader>
+					<CardTitle>{title}</CardTitle>
+					<CardDescription>{description}</CardDescription>
+				</CardHeader>
+				<CardContent className='space-y-4'>
+					<div className='flex flex-col sm:flex-row gap-4 justify-between'>
+						<div className='flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4'>
+							<div className='relative w-full'>
+								<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+								<Input
+									placeholder={`Search ${noun.toLowerCase()}s...`}
+									onChange={(e) => onSearch(e.target.value)}
+									className='pl-10'
+								/>
+							</div>
+							<Popover open={countryFilterPopoverOpen} onOpenChange={setCountryFilterPopoverOpen}>
+								<PopoverTrigger asChild>
+									<Button
+										variant='outline'
+										role='combobox'
+										aria-expanded={countryFilterPopoverOpen}
+										className='w-full justify-between'
+									>
+										{countryFilter === 'all'
+											? 'All Countries'
+											: countries.find((c) => c.id === countryFilter)?.name || 'All Countries'}
+										<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+									</Button>
+								</PopoverTrigger>
+								<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
+									<Command>
+										<CommandInput placeholder='Search country...' />
+										<CommandList>
+											<CommandEmpty>No country found.</CommandEmpty>
+											<CommandGroup>
 												<CommandItem
-													key={c.id}
-													value={c.name}
-													onSelect={(currentValue) => {
-														setCountryFilter(currentValue === countryFilter ? 'all' : currentValue);
+													value='all'
+													onSelect={() => {
+														setCountryFilter('all');
 														setCountryFilterPopoverOpen(false);
 													}}
 												>
 													<Check
 														className={cn(
 															'mr-2 h-4 w-4',
-															countryFilter === c.name.toLowerCase() ? 'opacity-100' : 'opacity-0'
+															countryFilter === 'all' ? 'opacity-100' : 'opacity-0'
 														)}
 													/>
-													{c.name}
+													All Countries
 												</CommandItem>
-											))}
-										</CommandGroup>
-									</CommandList>
-								</Command>
-							</PopoverContent>
-						</Popover>
+												{countries.map((c) => (
+													<CommandItem
+														key={c.id}
+														value={c.name}
+														onSelect={() => {
+															setCountryFilter(c.id!);
+															setCountryFilterPopoverOpen(false);
+														}}
+													>
+														<Check
+															className={cn(
+																'mr-2 h-4 w-4',
+																countryFilter === c.id ? 'opacity-100' : 'opacity-0'
+															)}
+														/>
+														{c.name}
+													</CommandItem>
+												))}
+											</CommandGroup>
+										</CommandList>
+									</Command>
+								</PopoverContent>
+							</Popover>
+						</div>
+						<Button className='w-full sm:w-auto' onClick={() => handleOpenForm()}>
+							<PlusCircle className='mr-2 h-4 w-4' />
+							Add New {noun}
+						</Button>
 					</div>
-					<Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-						<DialogTrigger asChild>
-							<Button className='w-full sm:w-auto'>
-								<PlusCircle className='mr-2 h-4 w-4' />
-								Add New {noun}
-							</Button>
-						</DialogTrigger>
-						<DialogContent>
-							<DialogHeader>
-								<DialogTitle>Add New {noun}</DialogTitle>
-								<DialogDescription>Enter the details for the new {noun.toLowerCase()}.</DialogDescription>
-							</DialogHeader>
-							<div className='grid gap-4 py-4'>
-								<div className='space-y-2'>
-									<Label htmlFor='new-item-name'>Name</Label>
-									<Input
-										id='new-item-name'
-										value={newItem.name}
-										onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-										autoFocus
-										disabled={isAdding}
-									/>
-								</div>
-								<div className='space-y-2'>
-									<Label>Country</Label>
-									<CountryCombobox
-										value={newItem.countryId}
-										onChange={(value) => setNewItem({ ...newItem, countryId: value })}
-										disabled={isAdding}
-									/>
-								</div>
-							</div>
-							<DialogFooter>
-								<DialogClose asChild>
-									<Button type='button' variant='ghost' disabled={isAdding}>
-										Cancel
-									</Button>
-								</DialogClose>
-								<Button type='button' onClick={handleAddNew} disabled={isAdding}>
-									{isAdding ? (
-										<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-									) : (
-										<PlusCircle className='mr-2 h-4 w-4' />
-									)}
-									Add
-								</Button>
-							</DialogFooter>
-						</DialogContent>
-					</Dialog>
-				</div>
-				<div className='space-y-2 pt-4'>
-					{isLoading
-						? [...Array(5)].map((_, i) => <Skeleton key={i} className='h-16 w-full' />)
-						: filteredItems.map((item, index) =>
-								editingIndex === index ? renderEditItem(index) : renderViewItem(item, index)
-						  )}
-					{!isLoading && filteredItems.length === 0 && (
-						<p className='text-center text-sm text-muted-foreground py-4'>No {noun.toLowerCase()}s found.</p>
-					)}
-				</div>
-			</CardContent>
-			{meta && meta.totalRecords && meta.totalRecords > meta.limit && (
-				<CardFooter className='justify-end space-x-2'>
-					<Button
-						variant='outline'
-						size='sm'
-						onClick={() => onPageChange(meta.page - 1)}
-						disabled={!meta.prevPage || isLoading}
-					>
-						Previous
-					</Button>
-					<span className='text-sm text-muted-foreground'>
-						Page {meta.page} of {meta.totalPageCount}
-					</span>
-					<Button
-						variant='outline'
-						size='sm'
-						onClick={() => onPageChange(meta.page + 1)}
-						disabled={!meta.nextPage || isLoading}
-					>
-						Next
-					</Button>
-				</CardFooter>
+					<div className='space-y-2 pt-4'>
+						{isLoading
+							? [...Array(5)].map((_, i) => <Skeleton key={i} className='h-16 w-full' />)
+							: filteredItems.map(renderViewItem)}
+						{!isLoading && filteredItems.length === 0 && (
+							<p className='text-center text-sm text-muted-foreground py-4'>
+								No {noun.toLowerCase()}s found.
+							</p>
+						)}
+					</div>
+				</CardContent>
+				{meta && meta.totalRecords && meta.totalRecords > meta.limit && (
+					<CardFooter className='justify-end space-x-2'>
+						<Button
+							variant='outline'
+							size='sm'
+							onClick={() => onPageChange(meta.page - 1)}
+							disabled={!meta.prevPage || isLoading}
+						>
+							Previous
+						</Button>
+						<span className='text-sm text-muted-foreground'>
+							Page {meta.page} of {meta.totalPageCount}
+						</span>
+						<Button
+							variant='outline'
+							size='sm'
+							onClick={() => onPageChange(meta.page + 1)}
+							disabled={!meta.nextPage || isLoading}
+						>
+							Next
+						</Button>
+					</CardFooter>
+				)}
+			</Card>
+
+			{isFormOpen && (
+				<EducationInstitutionForm
+					isOpen={isFormOpen}
+					onClose={handleCloseForm}
+					onSubmit={handleFormSubmit}
+					initialData={editingItem}
+					countries={countries}
+					noun={noun}
+				/>
 			)}
-		</Card>
+		</>
 	);
 }
