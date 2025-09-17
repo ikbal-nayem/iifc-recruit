@@ -97,22 +97,19 @@ const PaginationControls = ({
 				</Button>
 			);
 
-			// Ellipsis after first page
-			if (currentPage > 2) {
-				pageNumbers.push(ellipsis);
-			}
-
-			// Middle pages
 			let startPage = Math.max(1, currentPage - 1);
 			let endPage = Math.min(totalPages - 2, currentPage + 1);
 
-			if (currentPage <= 2) {
+			if (currentPage < 3) {
 				startPage = 1;
 				endPage = 3;
-			}
-			if (currentPage >= totalPages - 3) {
+			} else if (currentPage > totalPages - 4) {
 				startPage = totalPages - 4;
 				endPage = totalPages - 2;
+			}
+			
+			if (startPage > 1) {
+				pageNumbers.push(ellipsis);
 			}
 
 			for (let i = startPage; i <= endPage; i++) {
@@ -128,9 +125,8 @@ const PaginationControls = ({
 					</Button>
 				);
 			}
-
-			// Ellipsis before last page
-			if (currentPage < totalPages - 3) {
+			
+			if (endPage < totalPages - 2) {
 				pageNumbers.push(ellipsis);
 			}
 
@@ -153,11 +149,11 @@ const PaginationControls = ({
 
 	return (
 		<div className='flex items-center space-x-2'>
-			<Button variant='outline' size='sm' onClick={() => onPageChange(meta.page - 1)} disabled={!meta.prevPage || isLoading}>
+			<Button variant='outline' size='sm' onClick={() => onPageChange(meta.prevPage ?? 0)} disabled={!meta.prevPage || isLoading}>
 				Previous
 			</Button>
 			<div className='hidden md:flex items-center gap-1'>{renderPageNumbers()}</div>
-			<Button variant='outline' size='sm' onClick={() => onPageChange(meta.page + 1)} disabled={!meta.nextPage || isLoading}>
+			<Button variant='outline' size='sm' onClick={() => onPageChange(meta.nextPage ?? 0)} disabled={!meta.nextPage || isLoading}>
 				Next
 			</Button>
 		</div>
