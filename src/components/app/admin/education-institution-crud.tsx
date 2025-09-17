@@ -202,6 +202,118 @@ interface EducationInstitutionCrudProps {
 	onCountryChange: (countryId: string) => void;
 }
 
+const PaginationControls = ({
+	meta,
+	isLoading,
+	onPageChange,
+}: {
+	meta: IMeta;
+	isLoading: boolean;
+	onPageChange: (page: number) => void;
+}) => {
+	const currentPage = meta.page;
+	const totalPages = meta.totalPageCount || 1;
+
+	const renderPageNumbers = () => {
+		const pageNumbers = [];
+		const maxPagesToShow = 5;
+		const ellipsis = <span className='px-2 py-1'>...</span>;
+
+		if (totalPages <= maxPagesToShow + 2) {
+			for (let i = 0; i < totalPages; i++) {
+				pageNumbers.push(
+					<Button
+						key={i}
+						variant={currentPage === i ? 'default' : 'outline'}
+						size='sm'
+						onClick={() => onPageChange(i)}
+						disabled={isLoading}
+					>
+						{i + 1}
+					</Button>
+				);
+			}
+		} else {
+			// Always show first page
+			pageNumbers.push(
+				<Button
+					key={0}
+					variant={currentPage === 0 ? 'default' : 'outline'}
+					size='sm'
+					onClick={() => onPageChange(0)}
+					disabled={isLoading}
+				>
+					1
+				</Button>
+			);
+
+			// Ellipsis after first page
+			if (currentPage > 2) {
+				pageNumbers.push(ellipsis);
+			}
+
+			// Middle pages
+			let startPage = Math.max(1, currentPage - 1);
+			let endPage = Math.min(totalPages - 2, currentPage + 1);
+
+			if (currentPage <= 2) {
+				startPage = 1;
+				endPage = 3;
+			}
+			if (currentPage >= totalPages - 3) {
+				startPage = totalPages - 4;
+				endPage = totalPages - 2;
+			}
+
+			for (let i = startPage; i <= endPage; i++) {
+				pageNumbers.push(
+					<Button
+						key={i}
+						variant={currentPage === i ? 'default' : 'outline'}
+						size='sm'
+						onClick={() => onPageChange(i)}
+						disabled={isLoading}
+					>
+						{i + 1}
+					</Button>
+				);
+			}
+
+			// Ellipsis before last page
+			if (currentPage < totalPages - 3) {
+				pageNumbers.push(ellipsis);
+			}
+
+			// Always show last page
+			pageNumbers.push(
+				<Button
+					key={totalPages - 1}
+					variant={currentPage === totalPages - 1 ? 'default' : 'outline'}
+					size='sm'
+					onClick={() => onPageChange(totalPages - 1)}
+					disabled={isLoading}
+				>
+					{totalPages}
+				</Button>
+			);
+		}
+
+		return pageNumbers;
+	};
+
+	return (
+		<div className='flex items-center space-x-2'>
+			<Button variant='outline' size='sm' onClick={() => onPageChange(meta.page - 1)} disabled={!meta.prevPage || isLoading}>
+				Previous
+			</Button>
+			<div className='hidden md:flex items-center gap-1'>{renderPageNumbers()}</div>
+			<Button variant='outline' size='sm' onClick={() => onPageChange(meta.page + 1)} disabled={!meta.nextPage || isLoading}>
+				Next
+			</Button>
+		</div>
+	);
+};
+
 export function EducationInstitutionCrud({
 	title,
 	description,
@@ -418,7 +530,7 @@ export function EducationInstitutionCrud({
 						)}
 					</div>
 				</CardContent>
-				{meta && meta.totalRecords && meta.totalRecords > meta.limit && (
+				{meta && meta.totalRecords && meta.totalRecords > 0 && (
 					<CardFooter className='flex-col-reverse items-center gap-4 sm:flex-row sm:justify-between'>
 						<p className='text-sm text-muted-foreground'>
 							Showing{' '}
@@ -427,24 +539,7 @@ export function EducationInstitutionCrud({
 							</strong>{' '}
 							of <strong>{meta.totalRecords}</strong> institutions
 						</p>
-						<div className='flex items-center space-x-2'>
-							<Button
-								variant='outline'
-								size='sm'
-								onClick={() => onPageChange(meta.page - 1)}
-								disabled={!meta.prevPage || isLoading}
-							>
-								Previous
-							</Button>
-							<Button
-								variant='outline'
-								size='sm'
-								onClick={() => onPageChange(meta.page + 1)}
-								disabled={!meta.nextPage || isLoading}
-							>
-								Next
-							</Button>
-						</div>
+						<PaginationControls meta={meta} isLoading={isLoading} onPageChange={onPageChange} />
 					</CardFooter>
 				)}
 			</Card>
