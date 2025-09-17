@@ -23,7 +23,7 @@ export default function MasterSkillsPage() {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { searchKey: search },
+					body: { name: search },
 					meta: { page: page, limit: meta.limit },
 				};
 				const response = await MasterDataService.skill.getList(payload);

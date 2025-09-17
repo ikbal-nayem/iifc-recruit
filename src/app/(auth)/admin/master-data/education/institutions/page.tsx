@@ -9,7 +9,7 @@ import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-da
 import { MasterDataService } from '@/services/api/master-data.service';
 import { useCallback, useEffect, useState } from 'react';
 
-const initMeta: IMeta = { page: 1, limit: 10 };
+const initMeta: IMeta = { page: 0, limit: 10 };
 
 export default function MasterInstitutionsPage() {
 	const { toast } = useToast();
@@ -20,30 +20,16 @@ export default function MasterInstitutionsPage() {
 	const debouncedSearch = useDebounce(searchQuery, 500);
 	const [countries, setCountries] = useState<ICommonMasterData[]>([]);
 
-	const fetchCountries = useCallback(async () => {
-		try {
-			const response = await MasterDataService.country.get();
-			setCountries(response.body);
-		} catch (error) {
-			console.error('Failed to load countries', error);
-			toast({
-				title: 'Error',
-				description: 'Failed to load countries.',
-				variant: 'destructive',
-			});
-		}
-	}, [toast]);
-
 	useEffect(() => {
-		fetchCountries();
-	}, [fetchCountries]);
+		MasterDataService.country.get().then(r => setCountries(r.body))
+	}, []);
 
 	const loadItems = useCallback(
 		async (page: number, search: string) => {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { searchKey: search },
+					body: { name: search },
 					meta: { page: page, limit: meta.limit },
 				};
 				const response = await MasterDataService.educationInstitution.getList(payload);
@@ -64,7 +50,7 @@ export default function MasterInstitutionsPage() {
 	);
 
 	useEffect(() => {
-		loadItems(1, debouncedSearch);
+		loadItems(0, debouncedSearch);
 	}, [debouncedSearch, loadItems]);
 
 	const handlePageChange = (newPage: number) => {
@@ -73,8 +59,8 @@ export default function MasterInstitutionsPage() {
 
 	const handleAdd = async (item: Omit<IEducationInstitution, 'id'>): Promise<boolean> => {
 		try {
-			await MasterDataService.educationInstitution.add(item);
-			toast({ description: 'Institution added successfully.', variant: 'success' });
+			const resp = await MasterDataService.educationInstitution.add(item);
+			toast({ description: resp.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch);
 			return true;
 		} catch (error) {
@@ -86,8 +72,8 @@ export default function MasterInstitutionsPage() {
 
 	const handleUpdate = async (item: IEducationInstitution): Promise<boolean> => {
 		try {
-			await MasterDataService.educationInstitution.update(item);
-			toast({ description: 'Institution updated successfully.', variant: 'success' });
+			const resp = await MasterDataService.educationInstitution.update(item);
+			toast({ description: resp.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch);
 			return true;
 		} catch (error) {

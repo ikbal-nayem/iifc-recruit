@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -25,19 +24,19 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
 import { IMeta } from '@/interfaces/common.interface';
+import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, ChevronsUpDown, Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Label } from '@/components/ui/label';
 
 const formSchema = z.object({
 	name: z.string().min(1, 'Name is required.'),
@@ -62,12 +61,14 @@ function EducationInstitutionForm({
 	countries,
 	noun,
 }: EducationInstitutionFormProps) {
+	const defaultValues = {
+		name: initialData?.name || '',
+		countryId: initialData?.countryId || '',
+	};
+
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
-		defaultValues: {
-			name: initialData?.name || '',
-			countryId: initialData?.countryId || '',
-		},
+		defaultValues,
 	});
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -88,10 +89,7 @@ function EducationInstitutionForm({
 
 	// Reset form when initialData changes (i.e., when a new item is selected for editing)
 	useState(() => {
-		form.reset({
-			name: initialData?.name || '',
-			countryId: initialData?.countryId || '',
-		});
+		form.reset(defaultValues);
 	});
 
 	return (
@@ -132,15 +130,10 @@ function EducationInstitutionForm({
 												<Button
 													variant='outline'
 													role='combobox'
-													className={cn(
-														'w-full justify-between',
-														!field.value && 'text-muted-foreground'
-													)}
+													className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
 													disabled={isSubmitting}
 												>
-													{field.value
-														? countries.find((c) => c.id === field.value)?.name
-														: 'Select Country'}
+													{field.value ? countries.find((c) => c.id === field.value)?.name : 'Select Country'}
 													<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
 												</Button>
 											</FormControl>
@@ -164,8 +157,8 @@ function EducationInstitutionForm({
 																		'mr-2 h-4 w-4',
 																		field.value === c.id ? 'opacity-100' : 'opacity-0'
 																	)}
-                                                                />
-                                                                {c.name}
+																/>
+																{c.name}
 															</CommandItem>
 														))}
 													</CommandGroup>
@@ -266,9 +259,7 @@ export function EducationInstitutionCrud({
 		await onDelete(id);
 	};
 
-	const filteredItems = items.filter(
-		(item) => countryFilter === 'all' || item.countryId === countryFilter
-	);
+	const filteredItems = items.filter((item) => countryFilter === 'all' || item.countryId === countryFilter);
 
 	const renderViewItem = (item: IEducationInstitution) => (
 		<Card
@@ -312,7 +303,7 @@ export function EducationInstitutionCrud({
 							<AlertDialogHeader>
 								<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 								<AlertDialogDescription>
-									This will permanently delete the {noun.toLowerCase()} &quot;{item.name}&quot;.
+									This will permanently delete the {noun.toLowerCase()} <strong>&quot;{item.name}&quot;</strong>.
 								</AlertDialogDescription>
 							</AlertDialogHeader>
 							<AlertDialogFooter>

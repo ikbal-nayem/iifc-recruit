@@ -8,7 +8,7 @@ import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { useCallback, useEffect, useState } from 'react';
 
-const initMeta: IMeta = { page: 1, limit: 20 };
+const initMeta: IMeta = { page: 0, limit: 20 };
 
 export default function MasterOrganizationTypesPage() {
 	const { toast } = useToast();
@@ -23,7 +23,7 @@ export default function MasterOrganizationTypesPage() {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { searchKey: search },
+					body: { name: search },
 					meta: { page: page, limit: meta.limit },
 				};
 				const response = await MasterDataService.organizationType.getList(payload);
@@ -44,7 +44,7 @@ export default function MasterOrganizationTypesPage() {
 	);
 
 	useEffect(() => {
-		loadItems(1, debouncedSearch);
+		loadItems(0, debouncedSearch);
 	}, [debouncedSearch, loadItems]);
 
 	const handlePageChange = (newPage: number) => {
