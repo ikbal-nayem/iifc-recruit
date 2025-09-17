@@ -1,4 +1,3 @@
-
 'use client';
 
 import { EducationInstitutionCrud } from '@/components/app/admin/education-institution-crud';
@@ -18,18 +17,34 @@ export default function MasterInstitutionsPage() {
 	const [isLoading, setIsLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
+	const [countryFilter, setCountryFilter] = useState('all');
 	const [countries, setCountries] = useState<ICommonMasterData[]>([]);
 
 	useEffect(() => {
-		MasterDataService.country.get().then(r => setCountries(r.body))
-	}, []);
+		const fetchCountries = async () => {
+			try {
+				const response = await MasterDataService.country.get();
+				setCountries(response.body);
+			} catch (error) {
+				toast({
+					title: 'Error',
+					description: 'Failed to load countries.',
+					variant: 'destructive',
+				});
+			}
+		};
+		fetchCountries();
+	}, [toast]);
 
 	const loadItems = useCallback(
-		async (page: number, search: string) => {
+		async (page: number, search: string, countryId: string) => {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { name: search },
+					body: {
+						name: search,
+						...(countryId !== 'all' && { countryId }),
+					},
 					meta: { page: page, limit: meta.limit },
 				};
 				const response = await MasterDataService.educationInstitution.getList(payload);
@@ -50,18 +65,18 @@ export default function MasterInstitutionsPage() {
 	);
 
 	useEffect(() => {
-		loadItems(0, debouncedSearch);
-	}, [debouncedSearch, loadItems]);
+		loadItems(0, debouncedSearch, countryFilter);
+	}, [debouncedSearch, countryFilter, loadItems]);
 
 	const handlePageChange = (newPage: number) => {
-		loadItems(newPage, debouncedSearch);
+		loadItems(newPage, debouncedSearch, countryFilter);
 	};
 
 	const handleAdd = async (item: Omit<IEducationInstitution, 'id'>): Promise<boolean> => {
 		try {
 			const resp = await MasterDataService.educationInstitution.add(item);
 			toast({ description: resp.message, variant: 'success' });
-			loadItems(meta.page, debouncedSearch);
+			loadItems(meta.page, debouncedSearch, countryFilter);
 			return true;
 		} catch (error) {
 			console.error('Failed to add item', error);
@@ -74,7 +89,7 @@ export default function MasterInstitutionsPage() {
 		try {
 			const resp = await MasterDataService.educationInstitution.update(item);
 			toast({ description: resp.message, variant: 'success' });
-			loadItems(meta.page, debouncedSearch);
+			loadItems(meta.page, debouncedSearch, countryFilter);
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
@@ -87,7 +102,7 @@ export default function MasterInstitutionsPage() {
 		try {
 			await MasterDataService.educationInstitution.delete(id);
 			toast({ title: 'Success', description: 'Institution deleted successfully.', variant: 'success' });
-			loadItems(meta.page, debouncedSearch);
+			loadItems(meta.page, debouncedSearch, countryFilter);
 			return true;
 		} catch (error) {
 			console.error('Failed to delete item', error);
@@ -110,6 +125,8 @@ export default function MasterInstitutionsPage() {
 			onDelete={handleDelete}
 			onPageChange={handlePageChange}
 			onSearch={setSearchQuery}
+			countryFilter={countryFilter}
+			onCountryChange={setCountryFilter}
 		/>
 	);
 }

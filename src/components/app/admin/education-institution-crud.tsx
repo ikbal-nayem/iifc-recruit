@@ -87,7 +87,6 @@ function EducationInstitutionForm({
 		setIsSubmitting(false);
 	};
 
-	// Reset form when initialData changes (i.e., when a new item is selected for editing)
 	useState(() => {
 		form.reset(defaultValues);
 	});
@@ -199,6 +198,8 @@ interface EducationInstitutionCrudProps {
 	onDelete: (id: string) => Promise<boolean>;
 	onPageChange: (page: number) => void;
 	onSearch: (query: string) => void;
+	countryFilter: string;
+	onCountryChange: (countryId: string) => void;
 }
 
 export function EducationInstitutionCrud({
@@ -214,10 +215,11 @@ export function EducationInstitutionCrud({
 	onDelete,
 	onPageChange,
 	onSearch,
+	countryFilter,
+	onCountryChange,
 }: EducationInstitutionCrudProps) {
 	const { toast } = useToast();
 	const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
-	const [countryFilter, setCountryFilter] = useState('all');
 	const [countryFilterPopoverOpen, setCountryFilterPopoverOpen] = useState(false);
 
 	const [isFormOpen, setIsFormOpen] = useState(false);
@@ -258,8 +260,6 @@ export function EducationInstitutionCrud({
 		if (!id) return;
 		await onDelete(id);
 	};
-
-	const filteredItems = items.filter((item) => countryFilter === 'all' || item.countryId === countryFilter);
 
 	const renderViewItem = (item: IEducationInstitution) => (
 		<Card
@@ -363,7 +363,7 @@ export function EducationInstitutionCrud({
 												<CommandItem
 													value='all'
 													onSelect={() => {
-														setCountryFilter('all');
+														onCountryChange('all');
 														setCountryFilterPopoverOpen(false);
 													}}
 												>
@@ -380,7 +380,7 @@ export function EducationInstitutionCrud({
 														key={c.id}
 														value={c.name}
 														onSelect={() => {
-															setCountryFilter(c.id!);
+															onCountryChange(c.id!);
 															setCountryFilterPopoverOpen(false);
 														}}
 													>
@@ -407,8 +407,8 @@ export function EducationInstitutionCrud({
 					<div className='space-y-2 pt-4'>
 						{isLoading
 							? [...Array(5)].map((_, i) => <Skeleton key={i} className='h-16 w-full' />)
-							: filteredItems.map(renderViewItem)}
-						{!isLoading && filteredItems.length === 0 && (
+							: items.map(renderViewItem)}
+						{!isLoading && items.length === 0 && (
 							<p className='text-center text-sm text-muted-foreground py-4'>
 								No {noun.toLowerCase()}s found.
 							</p>
