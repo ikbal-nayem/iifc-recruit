@@ -3,6 +3,8 @@ import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 
 const createMasterDataCrud = (entity: string) => ({
+	get: async (): Promise<IApiResponse<ICommonMasterData[]>> =>
+		await axiosIns.get(`/master-data/${entity}/get`),
 	getList: async (payload: IApiRequest): Promise<IApiResponse<ICommonMasterData[]>> =>
 		await axiosIns.post(`/master-data/${entity}/get-list`, payload),
 	add: async (payload: ICommonMasterData): Promise<IApiResponse<ICommonMasterData>> =>
