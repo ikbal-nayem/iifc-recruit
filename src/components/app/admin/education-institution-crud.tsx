@@ -22,10 +22,12 @@ import {
 	CommandItem,
 	CommandList,
 } from '@/components/ui/command';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Pagination } from '@/components/ui/pagination';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
@@ -38,7 +40,6 @@ import { Check, ChevronsUpDown, Edit, Loader2, PlusCircle, Search, Trash } from 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Pagination } from '@/components/ui/pagination';
 
 const formSchema = z.object({
 	name: z.string().min(1, 'Name is required.'),
@@ -106,25 +107,20 @@ function EducationInstitutionForm({
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4'>
-						<FormField
+						<FormInput
 							control={form.control}
 							name='name'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Name</FormLabel>
-									<FormControl>
-										<Input placeholder='Institution Name' {...field} disabled={isSubmitting} />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
+							label='Name'
+							placeholder='Institution Name'
+							required
+							disabled={isSubmitting}
 						/>
 						<FormField
 							control={form.control}
 							name='countryId'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Country</FormLabel>
+									<FormLabel required>Country</FormLabel>
 									<Popover>
 										<PopoverTrigger asChild>
 											<FormControl>
@@ -171,7 +167,7 @@ function EducationInstitutionForm({
 								</FormItem>
 							)}
 						/>
-						<AlertDialogFooter className='pt-4'>
+						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
 								Cancel
 							</Button>
@@ -179,7 +175,7 @@ function EducationInstitutionForm({
 								{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
 								{initialData ? 'Save Changes' : 'Add'}
 							</Button>
-						</AlertDialogFooter>
+						</DialogFooter>
 					</form>
 				</Form>
 			</DialogContent>
