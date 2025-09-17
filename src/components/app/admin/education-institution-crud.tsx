@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -33,7 +34,7 @@ import { IMeta } from '@/interfaces/common.interface';
 import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, ChevronsUpDown, Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
+import { Check, ChevronsUpDown, Edit, Loader2, PlusCircle, Search, Trash, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -299,12 +300,24 @@ const PaginationControls = ({
 
 	return (
 		<div className='flex items-center space-x-2'>
-			<Button variant='outline' size='sm' onClick={() => onPageChange(meta.prevPage ?? 0)} disabled={!meta.prevPage || isLoading}>
-				Previous
+			<Button
+				variant='outline'
+				size='icon'
+				className='h-8 w-8'
+				onClick={() => onPageChange(meta.prevPage ?? 0)}
+				disabled={!meta.prevPage || isLoading}
+			>
+				<ChevronLeft className='h-4 w-4' />
 			</Button>
 			<div className='hidden md:flex items-center gap-1'>{renderPageNumbers()}</div>
-			<Button variant='outline' size='sm' onClick={() => onPageChange(meta.nextPage ?? 0)} disabled={!meta.nextPage || isLoading}>
-				Next
+			<Button
+				variant='outline'
+				size='icon'
+				className='h-8 w-8'
+				onClick={() => onPageChange(meta.nextPage ?? 0)}
+				disabled={!meta.nextPage || isLoading}
+			>
+				<ChevronRight className='h-4 w-4' />
 			</Button>
 		</div>
 	);
