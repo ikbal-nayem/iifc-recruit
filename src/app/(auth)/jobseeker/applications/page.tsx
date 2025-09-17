@@ -1,5 +1,5 @@
 
-import { MyApplications } from '@/components/app/candidate/my-applications';
+import { MyApplications } from '@/components/app/jobseeker/my-applications';
 
 export default function JobseekerApplicationsPage() {
   return (
