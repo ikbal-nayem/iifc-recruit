@@ -14,24 +14,25 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { FormInput } from '@/components/ui/form-input';
+import { FormSelect } from '@/components/ui/form-select';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { IMeta } from '@/interfaces/common.interface';
 import { ICommonMasterData, IOrganization } from '@/interfaces/master-data.interface';
-import { countries } from '@/lib/countries';
+import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
+import { Check, ChevronsUpDown, Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { FormInput } from '@/components/ui/form-input';
-import { FormSelect } from '@/components/ui/form-select';
 
 const formSchema = z.object({
 	name: z.string().min(1, 'Name is required.'),
@@ -48,6 +49,7 @@ interface OrganizationFormProps {
 	onClose: () => void;
 	onSubmit: (data: IOrganization | Omit<IOrganization, 'id'>) => Promise<boolean>;
 	initialData?: IOrganization;
+	countries: ICommonMasterData[];
 	industryTypes: ICommonMasterData[];
 	organizationTypes: ICommonMasterData[];
 	noun: string;
@@ -58,6 +60,7 @@ function OrganizationForm({
 	onClose,
 	onSubmit,
 	initialData,
+	countries,
 	industryTypes,
 	organizationTypes,
 	noun,
@@ -101,14 +104,59 @@ function OrganizationForm({
 							required
 							disabled={isSubmitting}
 						/>
-						<FormSelect
+						<FormField
 							control={form.control}
 							name='fkCountry'
-							label='Country'
-							placeholder='Select Country'
-							required
-							options={countries.map((c) => ({ label: c.name, value: c.name }))}
-							disabled={isSubmitting}
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel required>Country</FormLabel>
+									<Popover>
+										<PopoverTrigger asChild>
+											<FormControl>
+												<Button
+													variant='outline'
+													role='combobox'
+													className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
+													disabled={isSubmitting}
+												>
+													{field.value
+														? countries.find((c) => c.name === field.value)?.name
+														: 'Select Country'}
+													<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+												</Button>
+											</FormControl>
+										</PopoverTrigger>
+										<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
+											<Command>
+												<CommandInput placeholder='Search country...' />
+												<CommandList>
+													<CommandEmpty>No country found.</CommandEmpty>
+													<CommandGroup>
+														{countries.map((c) => (
+															<CommandItem
+																key={c.id}
+																value={c.name}
+																onSelect={() => {
+																	form.setValue('fkCountry', c.name);
+																}}
+															>
+																<Check
+																	className={cn(
+																		'mr-2 h-4 w-4',
+																		field.value === c.name ? 'opacity-100' : 'opacity-0'
+																	)}
+																/>
+																{c.name}
+															</CommandItem>
+														))}
+													</CommandGroup>
+												</CommandList>
+											</Command>
+										</PopoverContent>
+									</Popover>
+									<FormMessage />
+								</FormItem>
+							)}
 						/>
 						<div className='grid grid-cols-2 gap-4'>
 							<FormInput
@@ -165,6 +213,7 @@ interface OrganizationCrudProps {
 	items: IOrganization[];
 	meta: IMeta;
 	isLoading: boolean;
+	countries: ICommonMasterData[];
 	industryTypes: ICommonMasterData[];
 	organizationTypes: ICommonMasterData[];
 	onAdd: (item: Omit<IOrganization, 'id'>) => Promise<boolean>;
@@ -181,6 +230,7 @@ export function OrganizationCrud({
 	items,
 	meta,
 	isLoading,
+	countries,
 	industryTypes,
 	organizationTypes,
 	onAdd,
@@ -220,8 +270,8 @@ export function OrganizationCrud({
 		}
 	};
 
-	const from = meta?.totalRecords ? meta.page * meta.limit + 1 : 0;
-	const to = Math.min((meta?.page + 1) * meta?.limit, meta?.totalRecords || 0);
+	const from = meta.totalRecords ? meta.page * meta.limit + 1 : 0;
+	const to = Math.min((meta.page + 1) * meta.limit, meta.totalRecords || 0);
 
 	const renderViewItem = (item: IOrganization) => (
 		<Card key={item.id} className='p-4 flex justify-between items-center bg-background/50'>
@@ -293,7 +343,7 @@ export function OrganizationCrud({
 						)}
 					</div>
 				</CardContent>
-				{meta && meta.totalRecords && meta.totalRecords > 0 && (
+				{meta && meta.totalRecords > 0 && (
 					<CardFooter className='flex-col-reverse items-center gap-4 sm:flex-row sm:justify-between'>
 						<p className='text-sm text-muted-foreground'>
 							Showing{' '}
@@ -312,6 +362,7 @@ export function OrganizationCrud({
 					onClose={handleCloseForm}
 					onSubmit={handleFormSubmit}
 					initialData={editingItem}
+					countries={countries}
 					industryTypes={industryTypes}
 					organizationTypes={organizationTypes}
 					noun={noun}

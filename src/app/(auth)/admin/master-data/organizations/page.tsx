@@ -1,9 +1,32 @@
 'use client';
 
 import { OrganizationCrud } from '@/components/app/admin/organization-crud';
+import { useToast } from '@/hooks/use-toast';
 import { IMeta } from '@/interfaces/common.interface';
+import { ICommonMasterData, IOrganization } from '@/interfaces/master-data.interface';
+import { MasterDataService } from '@/services/api/master-data.service';
+import { useEffect, useState } from 'react';
 
 export default function MasterOrganizationsPage() {
+	const { toast } = useToast();
+	const [countries, setCountries] = useState<ICommonMasterData[]>([]);
+
+	useEffect(() => {
+		const fetchCountries = async () => {
+			try {
+				const response = await MasterDataService.country.get();
+				setCountries(response.body);
+			} catch (error) {
+				toast({
+					title: 'Error',
+					description: 'Failed to load countries.',
+					variant: 'destructive',
+				});
+			}
+		};
+		fetchCountries();
+	}, [toast]);
+
 	const initialData = [
 		{
 			id: '1',
@@ -59,6 +82,7 @@ export default function MasterOrganizationsPage() {
 			meta={meta}
 			isLoading={false}
 			noun='Organization'
+			countries={countries}
 			industryTypes={industryTypes}
 			organizationTypes={organizationTypes}
 			onAdd={async () => handleNoOp()}
