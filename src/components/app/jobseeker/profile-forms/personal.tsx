@@ -29,6 +29,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { FormInput } from '@/components/ui/form-input';
+import { FormSelect } from '@/components/ui/form-select';
 
 interface ProfileFormProps {
   candidate: Candidate;
@@ -345,42 +346,30 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
+                    <FormSelect
                         control={form.control}
                         name="gender"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel required>Gender</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl><SelectTrigger><SelectValue placeholder="Select gender" /></SelectTrigger></FormControl>
-                                <SelectContent>
-                                    <SelectItem value="Male">Male</SelectItem>
-                                    <SelectItem value="Female">Female</SelectItem>
-                                    <SelectItem value="Other">Other</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
-                        </FormItem>
-                        )}
+                        label="Gender"
+                        required
+                        placeholder="Select gender"
+                        options={[
+                            { label: 'Male', value: 'Male' },
+                            { label: 'Female', value: 'Female' },
+                            { label: 'Other', value: 'Other' },
+                        ]}
                     />
-                    <FormField
+                    <FormSelect
                         control={form.control}
                         name="maritalStatus"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel required>Marital Status</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl><SelectTrigger><SelectValue placeholder="Select marital status" /></SelectTrigger></FormControl>
-                                <SelectContent>
-                                    <SelectItem value="Single">Single</SelectItem>
-                                    <SelectItem value="Married">Married</SelectItem>
-                                    <SelectItem value="Widow">Widow</SelectItem>
-                                    <SelectItem value="Divorce">Divorce</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
-                        </FormItem>
-                        )}
+                        label="Marital Status"
+                        required
+                        placeholder="Select marital status"
+                        options={[
+                            { label: 'Single', value: 'Single' },
+                            { label: 'Married', value: 'Married' },
+                            { label: 'Widow', value: 'Widow' },
+                            { label: 'Divorce', value: 'Divorce' },
+                        ]}
                     />
                 </div>
             </CardContent>

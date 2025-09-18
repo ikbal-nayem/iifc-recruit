@@ -36,6 +36,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import { FormInput } from '@/components/ui/form-input';
+import { FormSelect } from '@/components/ui/form-select';
 
 const jobSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -109,28 +110,17 @@ export function CreateJobForm() {
                     placeholder="e.g. Dhaka, Bangladesh"
                     required
                 />
-                 <FormField
+                 <FormSelect
                     control={form.control}
                     name="type"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Job Type</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select a job type" />
-                            </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                                <SelectItem value="Full-time">Full-time</SelectItem>
-                                <SelectItem value="Contract">Contract</SelectItem>
-                                <SelectItem value="Internship">Internship</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
+                    label="Job Type"
+                    placeholder="Select a job type"
+                    options={[
+                        { label: 'Full-time', value: 'Full-time' },
+                        { label: 'Contract', value: 'Contract' },
+                        { label: 'Internship', value: 'Internship' },
+                    ]}
+                 />
                  <FormInput
                     control={form.control}
                     name="salaryRange"

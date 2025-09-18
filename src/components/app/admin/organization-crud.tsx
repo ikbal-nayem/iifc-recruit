@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -29,6 +30,8 @@ import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { FormInput } from '@/components/ui/form-input';
+import { FormSelect } from '@/components/ui/form-select';
 
 const formSchema = z.object({
 	name: z.string().min(1, 'Name is required.'),
@@ -90,118 +93,54 @@ function OrganizationForm({
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4'>
-						<FormField
+						<FormInput
 							control={form.control}
 							name='name'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Name</FormLabel>
-									<FormControl>
-										<Input placeholder='Organization Name' {...field} disabled={isSubmitting} />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
+							label='Name'
+							placeholder='Organization Name'
+							required
+							disabled={isSubmitting}
 						/>
-						<FormField
+						<FormSelect
 							control={form.control}
 							name='fkCountry'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Country</FormLabel>
-									<Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting}>
-										<FormControl>
-											<SelectTrigger>
-												<SelectValue placeholder='Select Country' />
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											{countries.map((c) => (
-												<SelectItem key={c.code} value={c.name}>
-													{c.name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-									<FormMessage />
-								</FormItem>
-							)}
+							label='Country'
+							placeholder='Select Country'
+							required
+							options={countries.map((c) => ({ label: c.name, value: c.name }))}
+							disabled={isSubmitting}
 						/>
 						<div className='grid grid-cols-2 gap-4'>
-							<FormField
+							<FormInput
 								control={form.control}
 								name='address'
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Address</FormLabel>
-										<FormControl>
-											<Input placeholder='Address' {...field} disabled={isSubmitting} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
+								label='Address'
+								placeholder='Address'
+								disabled={isSubmitting}
 							/>
-							<FormField
+							<FormInput
 								control={form.control}
 								name='postCode'
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Post Code</FormLabel>
-										<FormControl>
-											<Input placeholder='Post Code' {...field} disabled={isSubmitting} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
+								label='Post Code'
+								placeholder='Post Code'
+								disabled={isSubmitting}
 							/>
 						</div>
-						<FormField
+						<FormSelect
 							control={form.control}
 							name='fkIndustryType'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Industry Type</FormLabel>
-									<Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting}>
-										<FormControl>
-											<SelectTrigger>
-												<SelectValue placeholder='Select Industry Type' />
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											{industryTypes.map((type) => (
-												<SelectItem key={type.id} value={type.name}>
-													{type.name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-									<FormMessage />
-								</FormItem>
-							)}
+							label='Industry Type'
+							placeholder='Select Industry Type'
+							options={industryTypes.map((type) => ({ label: type.name, value: type.name }))}
+							disabled={isSubmitting}
 						/>
-						<FormField
+						<FormSelect
 							control={form.control}
 							name='fkOrganizationType'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Organization Type</FormLabel>
-									<Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting}>
-										<FormControl>
-											<SelectTrigger>
-												<SelectValue placeholder='Select Organization Type' />
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											{organizationTypes.map((type) => (
-												<SelectItem key={type.id} value={type.name}>
-													{type.name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-									<FormMessage />
-								</FormItem>
-							)}
+							label='Organization Type'
+							placeholder='Select Organization Type'
+							options={organizationTypes.map((type) => ({ label: type.name, value: type.name }))}
+							disabled={isSubmitting}
 						/>
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>

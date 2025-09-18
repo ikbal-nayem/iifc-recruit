@@ -27,6 +27,7 @@ import {
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { FormInput } from '@/components/ui/form-input';
+import { FormSelect } from '@/components/ui/form-select';
 
 const languageSchema = z.object({
   name: z.string().min(1, 'Language name is required.'),
@@ -92,28 +93,18 @@ export function ProfileFormLanguages({ candidate }: ProfileFormProps) {
                             label="Language"
                             required
                         />
-                        <FormField
-                        control={editForm.control}
-                        name="proficiency"
-                        render={({ field }) => (
-                             <FormItem>
-                                <FormLabel required>Proficiency</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select proficiency" />
-                                    </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="Beginner">Beginner</SelectItem>
-                                        <SelectItem value="Intermediate">Intermediate</SelectItem>
-                                        <SelectItem value="Advanced">Advanced</SelectItem>
-                                        <SelectItem value="Native">Native</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
+                        <FormSelect
+                          control={editForm.control}
+                          name="proficiency"
+                          label="Proficiency"
+                          required
+                          options={[
+                            { label: 'Beginner', value: 'Beginner' },
+                            { label: 'Intermediate', value: 'Intermediate' },
+                            { label: 'Advanced', value: 'Advanced' },
+                            { label: 'Native', value: 'Native' },
+                          ]}
+                          placeholder="Select proficiency"
                         />
                     </CardContent>
                     <CardFooter className="p-0 pt-4 flex justify-end gap-2">
@@ -190,29 +181,19 @@ export function ProfileFormLanguages({ candidate }: ProfileFormProps) {
                             placeholder="e.g. Spanish"
                             required
                         />
-                        <FormField
-                            control={form.control}
-                            name="proficiency"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel required>Proficiency</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select a proficiency" />
-                                    </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="Beginner">Beginner</SelectItem>
-                                        <SelectItem value="Intermediate">Intermediate</SelectItem>
-                                        <SelectItem value="Advanced">Advanced</SelectItem>
-                                        <SelectItem value="Native">Native</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                            />
+                        <FormSelect
+                          control={form.control}
+                          name="proficiency"
+                          label="Proficiency"
+                          required
+                          options={[
+                            { label: 'Beginner', value: 'Beginner' },
+                            { label: 'Intermediate', value: 'Intermediate' },
+                            { label: 'Advanced', value: 'Advanced' },
+                            { label: 'Native', value: 'Native' },
+                          ]}
+                          placeholder="Select proficiency"
+                        />
                     </CardContent>
                     <CardFooter>
                         <Button type="submit"><PlusCircle className="mr-2 h-4 w-4" /> Add to History</Button>

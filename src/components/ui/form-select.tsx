@@ -1,0 +1,53 @@
+
+'use client';
+
+import * as React from 'react';
+import { Control, FieldPath, FieldValues } from 'react-hook-form';
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+interface FormSelectProps<TFieldValues extends FieldValues> {
+	control: Control<TFieldValues>;
+	name: FieldPath<TFieldValues>;
+	label: string;
+	placeholder?: string;
+	required?: boolean;
+	options: { label: string; value: string }[];
+}
+
+export function FormSelect<TFieldValues extends FieldValues>({
+	control,
+	name,
+	label,
+	placeholder,
+	required = false,
+	options,
+	...props
+}: FormSelectProps<TFieldValues>) {
+	return (
+		<FormField
+			control={control}
+			name={name}
+			render={({ field }) => (
+				<FormItem>
+					<FormLabel required={required}>{label}</FormLabel>
+					<Select onValueChange={field.onChange} defaultValue={field.value} {...props}>
+						<FormControl>
+							<SelectTrigger>
+								<SelectValue placeholder={placeholder} />
+							</SelectTrigger>
+						</FormControl>
+						<SelectContent>
+							{options.map((option) => (
+								<SelectItem key={option.value} value={option.value}>
+									{option.label}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
+	);
+}
