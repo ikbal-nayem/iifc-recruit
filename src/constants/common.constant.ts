@@ -1,0 +1,4 @@
+export const STATUS_TYPE = {
+	JOB: 'JOB',
+	APPLICATION: 'APPLICATION',
+};

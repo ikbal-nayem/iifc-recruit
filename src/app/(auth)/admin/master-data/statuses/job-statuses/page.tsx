@@ -1,33 +1,33 @@
-
 'use client';
 
 import { MasterDataCrud } from '@/components/app/admin/master-data-crud';
+import { STATUS_TYPE } from '@/constants/common.constant';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
-import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { IStatus } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { useCallback, useEffect, useState } from 'react';
 
-const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
+const initMeta: IMeta = { page: 0, limit: 999 };
 
 export default function MasterJobStatusesPage() {
 	const { toast } = useToast();
-	const [items, setItems] = useState<ICommonMasterData[]>([]);
+	const [items, setItems] = useState<IStatus[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
 
 	const loadItems = useCallback(
-		async (page: number, search: string) => {
+		async (search: string) => {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { name: search },
-					meta: { page: page, limit: meta.limit },
+					body: { name: search, statusType: STATUS_TYPE.JOB },
+					meta: initMeta,
 				};
-				const response = await MasterDataService.jobStatus.getList(payload);
+				const response = await MasterDataService.status.getList(payload);
 				setItems(response.body);
 				setMeta(response.meta);
 			} catch (error) {
@@ -41,22 +41,18 @@ export default function MasterJobStatusesPage() {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit, toast]
+		[meta.limit]
 	);
 
 	useEffect(() => {
-		loadItems(0, debouncedSearch);
+		loadItems(debouncedSearch);
 	}, [debouncedSearch, loadItems]);
-
-	const handlePageChange = (newPage: number) => {
-		loadItems(newPage, debouncedSearch);
-	};
 
 	const handleAdd = async (name: string): Promise<boolean | null> => {
 		try {
-			const resp = await MasterDataService.jobStatus.add({ name, isActive: true });
+			const resp = await MasterDataService.status.add({ name, statusType: STATUS_TYPE.JOB, isActive: true });
 			toast({ description: resp.message, variant: 'success' });
-			loadItems(meta.page, debouncedSearch);
+			loadItems(debouncedSearch);
 			return true;
 		} catch (error) {
 			console.error('Failed to add item', error);
@@ -65,11 +61,11 @@ export default function MasterJobStatusesPage() {
 		}
 	};
 
-	const handleUpdate = async (item: ICommonMasterData): Promise<boolean | null> => {
+	const handleUpdate = async (item: IStatus): Promise<boolean | null> => {
 		try {
-			const updatedItem = await MasterDataService.jobStatus.update(item);
+			const updatedItem = await MasterDataService.status.update(item);
 			toast({ description: updatedItem?.message, variant: 'success' });
-			loadItems(meta.page, debouncedSearch);
+			loadItems(debouncedSearch);
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
@@ -80,9 +76,9 @@ export default function MasterJobStatusesPage() {
 
 	const handleDelete = async (id: string): Promise<boolean> => {
 		try {
-			await MasterDataService.jobStatus.delete(id);
+			await MasterDataService.status.delete(id);
 			toast({ title: 'Success', description: 'Job status deleted successfully.', variant: 'success' });
-			loadItems(meta.page, debouncedSearch);
+			loadItems(debouncedSearch);
 			return true;
 		} catch (error) {
 			console.error('Failed to delete item', error);
@@ -92,17 +88,16 @@ export default function MasterJobStatusesPage() {
 	};
 
 	return (
-		<MasterDataCrud<ICommonMasterData>
+		<MasterDataCrud<IStatus>
 			title='Job Statuses'
 			description='Manage the statuses used for job postings (e.g., Open, Closed).'
-			noun='Job Status'
+			noun='Status'
 			items={items}
 			meta={meta}
 			isLoading={isLoading}
 			onAdd={handleAdd}
 			onUpdate={handleUpdate}
 			onDelete={handleDelete}
-			onPageChange={handlePageChange}
 			onSearch={setSearchQuery}
 		/>
 	);

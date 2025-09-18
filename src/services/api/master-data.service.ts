@@ -1,6 +1,6 @@
 import { axiosIns } from '@/config/api.config';
 import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
-import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
+import { ICommonMasterData, IEducationInstitution, IStatus } from '@/interfaces/master-data.interface';
 
 const createMasterDataCrud = <T extends ICommonMasterData>(entity: string) => ({
 	get: async (): Promise<IApiResponse<ICommonMasterData[]>> =>
@@ -18,14 +18,13 @@ export const MasterDataService = {
 	skill: createMasterDataCrud('skill'),
 	department: createMasterDataCrud('department'),
 	language: createMasterDataCrud('language'),
-	jobStatus: createMasterDataCrud('job-status'),
-	applicationStatus: createMasterDataCrud('application-status'),
+	status: createMasterDataCrud<IStatus>('status'),
 	degreeLevel: createMasterDataCrud('education-degree-level'),
 	educationDomain: createMasterDataCrud('education-domain'),
 	industryType: createMasterDataCrud('industry-type'),
 	organizationType: createMasterDataCrud('organization-type'),
 	positionLevel: createMasterDataCrud('position-level'),
-	certification: createMasterDataCrud('certification'),
+	certification: createMasterDataCrud('certification-type'),
 	trainingType: createMasterDataCrud('training-type'),
 	country: createMasterDataCrud('country'),
 	educationInstitution: createMasterDataCrud<IEducationInstitution>('education-institution'),

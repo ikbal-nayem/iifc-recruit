@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -126,7 +125,7 @@ interface MasterDataCrudProps<T extends MasterDataItem> {
 	onUpdate: (item: T) => Promise<boolean | null>;
 	onDelete: (id: string) => Promise<boolean>;
 	onToggle?: (id: string) => Promise<T | boolean | null>;
-	onPageChange: (page: number) => void;
+	onPageChange?: (page: number) => void;
 	onSearch: (query: string) => void;
 }
 
@@ -218,7 +217,9 @@ export function MasterDataCrud<T extends MasterDataItem>({
 										className='p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-background/50'
 									>
 										<div className='flex-1 mb-4 sm:mb-0'>
-											<p className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}>
+											<p
+												className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}
+											>
 												{item.name}
 											</p>
 										</div>
@@ -291,7 +292,7 @@ export function MasterDataCrud<T extends MasterDataItem>({
 							</strong>{' '}
 							of <strong>{meta.totalRecords}</strong> {noun.toLowerCase()}s
 						</p>
-						<Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} />
+						{onPageChange && <Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} />}
 					</CardFooter>
 				)}
 			</Card>
