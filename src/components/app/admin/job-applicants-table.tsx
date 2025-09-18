@@ -1,5 +1,6 @@
 
 
+
 'use client';
 
 import * as React from 'react';
@@ -40,12 +41,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import {
-  RadioGroup,
-  RadioGroupItem
-} from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -57,6 +53,9 @@ import { JobseekerProfileView } from '@/components/app/jobseeker-profile-view';
 import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
+import { Form } from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
+import { FormRadioGroup } from '@/components/ui/form-radio-group';
 
 type Applicant = Candidate & { application: Application };
 
@@ -72,7 +71,13 @@ export function JobApplicantsTable({ applicants }: JobApplicantsTableProps) {
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [selectedApplicant, setSelectedApplicant] = React.useState<Candidate | null>(null);
   const [isNotifyDialogOpen, setIsNotifyDialogOpen] = React.useState(false);
-  const [notificationChannel, setNotificationChannel] = React.useState<'email' | 'sms'>('email');
+  
+  const notifyForm = useForm({
+    defaultValues: {
+      channel: 'email',
+      message: '',
+    },
+  });
 
   const handleStatusChange = (applicationId: string, applicantName: string, newStatus: Application['status']) => {
     setData(prevData => prevData.map(applicant => 
@@ -247,6 +252,17 @@ export function JobApplicantsTable({ applicants }: JobApplicantsTableProps) {
   );
 
   const selectedRowCount = Object.keys(rowSelection).length;
+  
+  const handleSendNotification = (data: {channel: string, message: string}) => {
+    toast({
+        title: 'Notifications Sent',
+        description: `A message has been sent via ${data.channel} to ${selectedRowCount} applicant(s).`,
+        variant: 'success'
+    });
+    setIsNotifyDialogOpen(false);
+    table.toggleAllPageRowsSelected(false);
+    notifyForm.reset();
+  }
 
   return (
     <>
@@ -381,33 +397,31 @@ export function JobApplicantsTable({ applicants }: JobApplicantsTableProps) {
                     Compose a message and choose the channel to notify the selected applicants.
                 </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 py-4">
-                <RadioGroup defaultValue="email" onValueChange={(value: 'email' | 'sms') => setNotificationChannel(value)}>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="email" id="r-email" />
-                        <Label htmlFor="r-email">Email</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="sms" id="r-sms" />
-                        <Label htmlFor="r-sms">SMS</Label>
-                    </div>
-                </RadioGroup>
-                <Textarea placeholder={`Enter your message to send via ${notificationChannel}...`} rows={5} />
-            </div>
-            <DialogFooter>
-                <Button variant="ghost" onClick={() => setIsNotifyDialogOpen(false)}>Cancel</Button>
-                <Button onClick={() => {
-                    toast({
-                        title: 'Notifications Sent',
-                        description: `A message has been sent via ${notificationChannel} to ${selectedRowCount} applicant(s).`,
-                        variant: 'success'
-                    });
-                    setIsNotifyDialogOpen(false);
-                    table.toggleAllPageRowsSelected(false);
-                }}>
-                    <Send className="mr-2 h-4 w-4" /> Send Message
-                </Button>
-            </DialogFooter>
+            <Form {...notifyForm}>
+                <form onSubmit={notifyForm.handleSubmit(handleSendNotification)} className="space-y-4 py-4">
+                    <FormRadioGroup
+                        control={notifyForm.control}
+                        name="channel"
+                        label="Channel"
+                        required
+                        options={[
+                            { label: 'Email', value: 'email' },
+                            { label: 'SMS', value: 'sms' },
+                        ]}
+                    />
+                    <Textarea 
+                        placeholder={`Enter your message to send via ${notifyForm.watch('channel')}...`} 
+                        rows={5}
+                        {...notifyForm.register('message')} 
+                    />
+                    <DialogFooter>
+                        <Button type="button" variant="ghost" onClick={() => setIsNotifyDialogOpen(false)}>Cancel</Button>
+                        <Button type="submit">
+                            <Send className="mr-2 h-4 w-4" /> Send Message
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </Form>
         </DialogContent>
        </Dialog>
     </>

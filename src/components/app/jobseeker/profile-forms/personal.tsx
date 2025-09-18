@@ -13,23 +13,19 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import type { Candidate } from '@/lib/types';
-import { Save, Upload, Mail, Phone, Check, ChevronsUpDown, Linkedin, Video, CalendarIcon } from 'lucide-react';
+import { Save, Upload, Mail, Phone, Linkedin, Video } from 'lucide-react';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { divisions, districts, upazilas } from '@/lib/bd-divisions-districts-upazilas';
-import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Calendar } from '@/components/ui/calendar';
-import { format } from 'date-fns';
 import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
+import { FormDatePicker } from '@/components/ui/form-datepicker';
+import { FormCheckbox } from '@/components/ui/form-checkbox';
 
 interface ProfileFormProps {
   candidate: Candidate;
@@ -185,12 +181,14 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel required>Division</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value} disabled={disabled}>
-                                <FormControl>
-                                    <SelectTrigger><SelectValue placeholder="Select division" /></SelectTrigger>
-                                </FormControl>
-                                <SelectContent><Command><CommandInput placeholder="Search..."/><CommandList>{divisions.map(d => <CommandItem onSelect={() => field.onChange(d.name)} value={d.name} key={d.id}>{d.name}</CommandItem>)}</CommandList></Command></SelectContent>
-                            </Select>
+                            <FormSelect
+                                control={form.control}
+                                name={`${type}.division`}
+                                label=""
+                                placeholder="Select division"
+                                disabled={disabled}
+                                options={divisions.map(d => ({label: d.name, value: d.name}))}
+                            />
                             <FormMessage />
                         </FormItem>
                     )}
@@ -201,12 +199,14 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel required>District</FormLabel>
-                             <Select onValueChange={field.onChange} value={field.value} disabled={disabled || !watchDivision}>
-                                <FormControl>
-                                    <SelectTrigger><SelectValue placeholder="Select district" /></SelectTrigger>
-                                </FormControl>
-                                <SelectContent><Command><CommandInput placeholder="Search..."/><CommandList>{filteredDistricts.map(d => <CommandItem onSelect={() => field.onChange(d.name)} value={d.name} key={d.id}>{d.name}</CommandItem>)}</CommandList></Command></SelectContent>
-                            </Select>
+                             <FormSelect
+                                control={form.control}
+                                name={`${type}.district`}
+                                label=""
+                                placeholder="Select district"
+                                disabled={disabled || !watchDivision}
+                                options={filteredDistricts.map(d => ({label: d.name, value: d.name}))}
+                             />
                             <FormMessage />
                         </FormItem>
                     )}
@@ -217,12 +217,14 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel required>Upazila / Thana</FormLabel>
-                             <Select onValueChange={field.onChange} value={field.value} disabled={disabled || !watchDistrict}>
-                                <FormControl>
-                                    <SelectTrigger><SelectValue placeholder="Select upazila" /></SelectTrigger>
-                                </FormControl>
-                                <SelectContent><Command><CommandInput placeholder="Search..."/><CommandList>{filteredUpazilas.map(u => <CommandItem onSelect={() => field.onChange(u.name)} value={u.name} key={u.id}>{u.name}</CommandItem>)}</CommandList></Command></SelectContent>
-                            </Select>
+                             <FormSelect
+                                control={form.control}
+                                name={`${type}.upazila`}
+                                label=""
+                                placeholder="Select upazila"
+                                disabled={disabled || !watchDistrict}
+                                options={filteredUpazilas.map(u => ({label: u.name, value: u.name}))}
+                             />
                             <FormMessage />
                         </FormItem>
                     )}
@@ -301,46 +303,14 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                     required
                 />
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
+                    <FormDatePicker
                         control={form.control}
                         name="dateOfBirth"
-                        render={({ field }) => (
-                            <FormItem className="flex flex-col">
-                                <FormLabel required>Date of Birth</FormLabel>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <FormControl>
-                                            <Button
-                                                variant={"outline"}
-                                                className={cn(
-                                                    "w-full pl-3 text-left font-normal",
-                                                    !field.value && "text-muted-foreground"
-                                                )}
-                                            >
-                                                {field.value ? (
-                                                    format(new Date(field.value), "PPP")
-                                                ) : (
-                                                    <span>Pick a date</span>
-                                                )}
-                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                            </Button>
-                                        </FormControl>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0" align="start">
-                                        <Calendar
-                                            mode="single"
-                                            selected={field.value ? new Date(field.value) : undefined}
-                                            onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
-                                            captionLayout="dropdown-buttons"
-                                            fromYear={1960}
-                                            toYear={new Date().getFullYear() - 18}
-                                            initialFocus
-                                        />
-                                    </PopoverContent>
-                                </Popover>
-                                <FormMessage />
-                            </FormItem>
-                        )}
+                        label="Date of Birth"
+                        required
+                        captionLayout="dropdown-buttons"
+                        fromYear={1960}
+                        toYear={new Date().getFullYear() - 18}
                     />
                     <FormInput control={form.control} name="nationality" label="Nationality" required />
                 </div>
@@ -420,17 +390,14 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                     </div>
                     <div>
                         <h3 className="text-md font-medium mb-2">Permanent Address</h3>
-                        <FormField
+                        <FormCheckbox
                             control={form.control}
                             name="usePresentForPermanent"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-row items-center space-x-3 space-y-0 mb-4">
-                                <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                                <FormLabel className="font-normal">Same as present address</FormLabel>
-                                </FormItem>
-                            )}
-                            />
-                        <AddressFields type="permanentAddress" />
+                            label="Same as present address"
+                        />
+                        <div className='mt-4'>
+                            <AddressFields type="permanentAddress" />
+                        </div>
                     </div>
                 </CardContent>
             </Card>

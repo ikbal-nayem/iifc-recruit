@@ -12,18 +12,16 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import type { Candidate, Award } from '@/lib/types';
-import { PlusCircle, Trash, Save, Edit, CalendarIcon } from 'lucide-react';
+import { PlusCircle, Trash, Save, Edit } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { Calendar } from '@/components/ui/calendar';
 import { FormInput } from '@/components/ui/form-input';
+import { FormDatePicker } from '@/components/ui/form-datepicker';
 
 const awardSchema = z.object({
   name: z.string().min(1, 'Award name is required.'),
@@ -96,43 +94,11 @@ export function ProfileFormAwards({ candidate }: ProfileFormProps) {
                             label="Awarding Body"
                             required
                         />
-                        <FormField
+                        <FormDatePicker
                             control={editForm.control}
                             name="dateReceived"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-col">
-                                    <FormLabel required>Date Received</FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <FormControl>
-                                                <Button
-                                                    variant={"outline"}
-                                                    className={cn(
-                                                        "w-full pl-3 text-left font-normal",
-                                                        !field.value && "text-muted-foreground"
-                                                    )}
-                                                >
-                                                    {field.value ? (
-                                                        format(new Date(field.value), "PPP")
-                                                    ) : (
-                                                        <span>Pick a date</span>
-                                                    )}
-                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                </Button>
-                                            </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar
-                                                mode="single"
-                                                selected={field.value ? new Date(field.value) : undefined}
-                                                onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
-                                                initialFocus
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
+                            label="Date Received"
+                            required
                         />
                     </CardContent>
                     <CardFooter className="p-0 pt-4 flex justify-end gap-2">
@@ -216,43 +182,11 @@ export function ProfileFormAwards({ candidate }: ProfileFormProps) {
                             placeholder="e.g. TechCorp"
                             required
                         />
-                        <FormField
+                        <FormDatePicker
                             control={form.control}
                             name="dateReceived"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-col">
-                                    <FormLabel required>Date Received</FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <FormControl>
-                                                <Button
-                                                    variant={"outline"}
-                                                    className={cn(
-                                                        "w-full pl-3 text-left font-normal",
-                                                        !field.value && "text-muted-foreground"
-                                                    )}
-                                                >
-                                                    {field.value ? (
-                                                        format(new Date(field.value), "PPP")
-                                                    ) : (
-                                                        <span>Pick a date</span>
-                                                    )}
-                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                </Button>
-                                            </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar
-                                                mode="single"
-                                                selected={field.value ? new Date(field.value) : undefined}
-                                                onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
-                                                initialFocus
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
+                            label="Date Received"
+                            required
                         />
                     </CardContent>
                     <CardFooter>

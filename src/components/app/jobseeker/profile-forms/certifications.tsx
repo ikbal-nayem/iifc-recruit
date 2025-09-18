@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import type { Candidate, Certification } from '@/lib/types';
-import { PlusCircle, Trash, Save, Edit, FileText, Upload, X, Link2, CalendarIcon } from 'lucide-react';
+import { PlusCircle, Trash, Save, Edit, FileText, Upload, X, Link2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -21,11 +21,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import Link from 'next/link';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
 import { FormInput } from '@/components/ui/form-input';
+import { FormDatePicker } from '@/components/ui/form-datepicker';
 
 const certificationSchema = z.object({
   name: z.string().min(1, 'Certificate name is required.'),
@@ -129,43 +126,11 @@ export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
                                     required
                                 />
                             </div>
-                            <FormField
+                            <FormDatePicker
                                 control={editForm.control}
                                 name="issueDate"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-col pt-2">
-                                        <FormLabel required>Issue Date</FormLabel>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <FormControl>
-                                                    <Button
-                                                        variant={"outline"}
-                                                        className={cn(
-                                                            "w-full pl-3 text-left font-normal",
-                                                            !field.value && "text-muted-foreground"
-                                                        )}
-                                                    >
-                                                        {field.value ? (
-                                                            format(new Date(field.value), "PPP")
-                                                        ) : (
-                                                            <span>Pick a date</span>
-                                                        )}
-                                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                    </Button>
-                                                </FormControl>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0" align="start">
-                                                <Calendar
-                                                    mode="single"
-                                                    selected={field.value ? new Date(field.value) : undefined}
-                                                    onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
-                                                    initialFocus
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
+                                label="Issue Date"
+                                required
                             />
                         </div>
                         <FormField
@@ -291,43 +256,11 @@ export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
                                     required
                                 />
                             </div>
-                             <FormField
+                            <FormDatePicker
                                 control={form.control}
                                 name="issueDate"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-col pt-2">
-                                        <FormLabel required>Issue Date</FormLabel>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <FormControl>
-                                                    <Button
-                                                        variant={"outline"}
-                                                        className={cn(
-                                                            "w-full pl-3 text-left font-normal",
-                                                            !field.value && "text-muted-foreground"
-                                                        )}
-                                                    >
-                                                        {field.value ? (
-                                                            format(new Date(field.value), "PPP")
-                                                        ) : (
-                                                            <span>Pick a date</span>
-                                                        )}
-                                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                    </Button>
-                                                </FormControl>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0" align="start">
-                                                <Calendar
-                                                    mode="single"
-                                                    selected={field.value ? new Date(field.value) : undefined}
-                                                    onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
-                                                    initialFocus
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
+                                label="Issue Date"
+                                required
                             />
                         </div>
                         <FormField

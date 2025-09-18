@@ -14,13 +14,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Card,
@@ -30,13 +23,10 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { CalendarIcon, Save } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
-import { Calendar } from '@/components/ui/calendar';
+import { Save } from 'lucide-react';
 import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
+import { FormDatePicker } from '@/components/ui/form-datepicker';
 
 const jobSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -129,44 +119,12 @@ export function CreateJobForm() {
                     required
                  />
              </div>
-             <FormField
+             <FormDatePicker
                 control={form.control}
                 name="applicationDeadline"
-                render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                        <FormLabel required>Application Deadline</FormLabel>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <FormControl>
-                                    <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                            "w-full pl-3 text-left font-normal",
-                                            !field.value && "text-muted-foreground"
-                                        )}
-                                    >
-                                        {field.value ? (
-                                            format(new Date(field.value), "PPP")
-                                        ) : (
-                                            <span>Pick a date</span>
-                                        )}
-                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                    </Button>
-                                </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar
-                                    mode="single"
-                                    selected={field.value ? new Date(field.value) : undefined}
-                                    onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
-                                    initialFocus
-                                />
-                            </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                    </FormItem>
-                )}
-                />
+                label="Application Deadline"
+                required
+             />
             <FormField
               control={form.control}
               name="description"
