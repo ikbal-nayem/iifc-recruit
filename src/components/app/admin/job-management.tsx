@@ -50,13 +50,13 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
-  Combobox,
-  ComboboxEmpty,
-  ComboboxGroup,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from '@/components/ui/combobox';
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -230,13 +230,13 @@ export function JobManagement() {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[180px] p-0">
-                  <Combobox>
-                    <ComboboxInput placeholder="Search department..." />
-                    <ComboboxList>
-                        <ComboboxEmpty>No department found.</ComboboxEmpty>
-                        <ComboboxGroup>
+                  <Command>
+                    <CommandInput placeholder="Search department..." />
+                    <CommandList>
+                        <CommandEmpty>No department found.</CommandEmpty>
+                        <CommandGroup>
                         {uniqueDepartments.map((dep) => (
-                            <ComboboxItem
+                            <CommandItem
                             key={dep}
                             value={dep}
                             onSelect={(currentValue) => {
@@ -251,11 +251,11 @@ export function JobManagement() {
                                 )}
                             />
                             {dep === 'all' ? 'All Departments' : dep}
-                            </ComboboxItem>
+                            </CommandItem>
                         ))}
-                        </ComboboxGroup>
-                    </ComboboxList>
-                  </Combobox>
+                        </CommandGroup>
+                    </CommandList>
+                  </Command>
                 </PopoverContent>
               </Popover>
 

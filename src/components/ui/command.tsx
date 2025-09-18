@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -9,7 +8,7 @@ import { Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 
-const Combobox = React.forwardRef<
+const Command = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive>
 >(({ className, ...props }, ref) => (
@@ -22,23 +21,23 @@ const Combobox = React.forwardRef<
     {...props}
   />
 ))
-Combobox.displayName = CommandPrimitive.displayName
+Command.displayName = CommandPrimitive.displayName
 
-interface ComboboxDialogProps extends DialogProps {}
+interface CommandDialogProps extends DialogProps {}
 
-const ComboboxDialog = ({ children, ...props }: ComboboxDialogProps) => {
+const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
   return (
     <Dialog {...props}>
       <DialogContent className="overflow-hidden p-0 shadow-lg">
-        <Combobox className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
+        <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
           {children}
-        </Combobox>
+        </Command>
       </DialogContent>
     </Dialog>
   )
 }
 
-const ComboboxInput = React.forwardRef<
+const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
 >(({ className, ...props }, ref) => (
@@ -55,9 +54,9 @@ const ComboboxInput = React.forwardRef<
   </div>
 ))
 
-ComboboxInput.displayName = CommandPrimitive.Input.displayName
+CommandInput.displayName = CommandPrimitive.Input.displayName
 
-const ComboboxList = React.forwardRef<
+const CommandList = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.List>
 >(({ className, ...props }, ref) => (
@@ -68,9 +67,9 @@ const ComboboxList = React.forwardRef<
   />
 ))
 
-ComboboxList.displayName = CommandPrimitive.List.displayName
+CommandList.displayName = CommandPrimitive.List.displayName
 
-const ComboboxEmpty = React.forwardRef<
+const CommandEmpty = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Empty>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Empty>
 >((props, ref) => (
@@ -81,9 +80,9 @@ const ComboboxEmpty = React.forwardRef<
   />
 ))
 
-ComboboxEmpty.displayName = CommandPrimitive.Empty.displayName
+CommandEmpty.displayName = CommandPrimitive.Empty.displayName
 
-const ComboboxGroup = React.forwardRef<
+const CommandGroup = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Group>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Group>
 >(({ className, ...props }, ref) => (
@@ -97,9 +96,9 @@ const ComboboxGroup = React.forwardRef<
   />
 ))
 
-ComboboxGroup.displayName = CommandPrimitive.Group.displayName
+CommandGroup.displayName = CommandPrimitive.Group.displayName
 
-const ComboboxSeparator = React.forwardRef<
+const CommandSeparator = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Separator>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Separator>
 >(({ className, ...props }, ref) => (
@@ -109,9 +108,9 @@ const ComboboxSeparator = React.forwardRef<
     {...props}
   />
 ))
-ComboboxSeparator.displayName = CommandPrimitive.Separator.displayName
+CommandSeparator.displayName = CommandPrimitive.Separator.displayName
 
-const ComboboxItem = React.forwardRef<
+const CommandItem = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Item>
 >(({ className, ...props }, ref) => (
@@ -125,9 +124,9 @@ const ComboboxItem = React.forwardRef<
   />
 ))
 
-ComboboxItem.displayName = CommandPrimitive.Item.displayName
+CommandItem.displayName = CommandPrimitive.Item.displayName
 
-const ComboboxShortcut = ({
+const CommandShortcut = ({
   className,
   ...props
 }: React.HTMLAttributes<HTMLSpanElement>) => {
@@ -141,16 +140,16 @@ const ComboboxShortcut = ({
     />
   )
 }
-ComboboxShortcut.displayName = "ComboboxShortcut"
+CommandShortcut.displayName = "CommandShortcut"
 
 export {
-  Combobox,
-  ComboboxDialog,
-  ComboboxInput,
-  ComboboxList,
-  ComboboxEmpty,
-  ComboboxGroup,
-  ComboboxItem,
-  ComboboxShortcut,
-  ComboboxSeparator,
+  Command,
+  CommandDialog,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandShortcut,
+  CommandSeparator,
 }

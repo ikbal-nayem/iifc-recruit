@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Combobox, ComboboxEmpty, ComboboxGroup, ComboboxInput, ComboboxItem, ComboboxList } from '@/components/ui/combobox';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 
 import { MapPin, Clock, ArrowRight, Building, Search, List, LayoutGrid, Calendar, ChevronsUpDown, Check } from 'lucide-react';
 import Link from 'next/link';
@@ -245,13 +245,13 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                  <Combobox>
-                    <ComboboxInput placeholder="Search department..." />
-                    <ComboboxList>
-                      <ComboboxEmpty>No department found.</ComboboxEmpty>
-                      <ComboboxGroup>
+                  <Command>
+                    <CommandInput placeholder="Search department..." />
+                    <CommandList>
+                      <CommandEmpty>No department found.</CommandEmpty>
+                      <CommandGroup>
                         {uniqueDepartments.map((dep) => (
-                          <ComboboxItem
+                          <CommandItem
                             key={dep}
                             value={dep}
                             onSelect={(currentValue) => {
@@ -266,11 +266,11 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
                               )}
                             />
                             {dep === 'all' ? 'All Departments' : dep}
-                          </ComboboxItem>
+                          </CommandItem>
                         ))}
-                      </ComboboxGroup>
-                    </ComboboxList>
-                  </Combobox>
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
                 </PopoverContent>
               </Popover>
               <Select value={filters.type} onValueChange={(value) => handleFilterChange('type', value)}>
