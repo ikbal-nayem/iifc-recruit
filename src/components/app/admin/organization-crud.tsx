@@ -18,7 +18,6 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
-import { FormSelect } from '@/components/ui/form-select';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -185,21 +184,113 @@ function OrganizationForm({
 								disabled={isSubmitting}
 							/>
 						</div>
-						<FormSelect
+						<FormField
 							control={form.control}
 							name='fkIndustryType'
-							label='Industry Type'
-							placeholder='Select Industry Type'
-							options={industryTypes.map((type) => ({ label: type.name, value: type.name }))}
-							disabled={isSubmitting}
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Industry Type</FormLabel>
+									<Popover>
+										<PopoverTrigger asChild>
+											<FormControl>
+												<Button
+													variant='outline'
+													role='combobox'
+													className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
+													disabled={isSubmitting}
+												>
+													{field.value
+														? industryTypes.find((c) => c.name === field.value)?.name
+														: 'Select Industry Type'}
+													<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+												</Button>
+											</FormControl>
+										</PopoverTrigger>
+										<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
+											<Command>
+												<CommandInput placeholder='Search industry type...' />
+												<CommandList>
+													<CommandEmpty>No type found.</CommandEmpty>
+													<CommandGroup>
+														{industryTypes.map((c) => (
+															<CommandItem
+																key={c.id}
+																value={c.name}
+																onSelect={() => {
+																	form.setValue('fkIndustryType', c.name);
+																}}
+															>
+																<Check
+																	className={cn(
+																		'mr-2 h-4 w-4',
+																		field.value === c.name ? 'opacity-100' : 'opacity-0'
+																	)}
+																/>
+																{c.name}
+															</CommandItem>
+														))}
+													</CommandGroup>
+												</CommandList>
+											</Command>
+										</PopoverContent>
+									</Popover>
+									<FormMessage />
+								</FormItem>
+							)}
 						/>
-						<FormSelect
+						<FormField
 							control={form.control}
 							name='fkOrganizationType'
-							label='Organization Type'
-							placeholder='Select Organization Type'
-							options={organizationTypes.map((type) => ({ label: type.name, value: type.name }))}
-							disabled={isSubmitting}
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Organization Type</FormLabel>
+									<Popover>
+										<PopoverTrigger asChild>
+											<FormControl>
+												<Button
+													variant='outline'
+													role='combobox'
+													className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
+													disabled={isSubmitting}
+												>
+													{field.value
+														? organizationTypes.find((c) => c.name === field.value)?.name
+														: 'Select Organization Type'}
+													<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+												</Button>
+											</FormControl>
+										</PopoverTrigger>
+										<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
+											<Command>
+												<CommandInput placeholder='Search organization type...' />
+												<CommandList>
+													<CommandEmpty>No type found.</CommandEmpty>
+													<CommandGroup>
+														{organizationTypes.map((c) => (
+															<CommandItem
+																key={c.id}
+																value={c.name}
+																onSelect={() => {
+																	form.setValue('fkOrganizationType', c.name);
+																}}
+															>
+																<Check
+																	className={cn(
+																		'mr-2 h-4 w-4',
+																		field.value === c.name ? 'opacity-100' : 'opacity-0'
+																	)}
+																/>
+																{c.name}
+															</CommandItem>
+														))}
+													</CommandGroup>
+												</CommandList>
+											</Command>
+										</PopoverContent>
+									</Popover>
+									<FormMessage />
+								</FormItem>
+							)}
 						/>
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
