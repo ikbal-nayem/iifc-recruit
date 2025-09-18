@@ -30,7 +30,7 @@ import { ICommonMasterData, IOrganization } from '@/interfaces/master-data.inter
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, ChevronsUpDown, Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -65,17 +65,20 @@ function OrganizationForm({
 	organizationTypes,
 	noun,
 }: OrganizationFormProps) {
+	const defaultValues = initialData || {
+		name: '',
+		fkCountry: countries.find(c => c.name === 'Bangladesh')?.name || '',
+		address: '',
+		postCode: '',
+		fkIndustryType: '',
+		fkOrganizationType: '',
+	};
+
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
-		defaultValues: initialData || {
-			name: '',
-			fkCountry: '',
-			address: '',
-			postCode: '',
-			fkIndustryType: '',
-			fkOrganizationType: '',
-		},
+		defaultValues,
 	});
+
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const handleSubmit = async (data: FormValues) => {
@@ -87,6 +90,10 @@ function OrganizationForm({
 		}
 		setIsSubmitting(false);
 	};
+
+	useEffect(() => {
+		form.reset(defaultValues);
+	}, [initialData, countries, form, defaultValues]);
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>

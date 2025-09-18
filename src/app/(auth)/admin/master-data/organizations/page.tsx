@@ -10,24 +10,32 @@ import { useEffect, useState } from 'react';
 export default function MasterOrganizationsPage() {
 	const { toast } = useToast();
 	const [countries, setCountries] = useState<ICommonMasterData[]>([]);
+	const [industryTypes, setIndustryTypes] = useState<ICommonMasterData[]>([]);
+	const [organizationTypes, setOrganizationTypes] = useState<ICommonMasterData[]>([]);
 
 	useEffect(() => {
-		const fetchCountries = async () => {
+		const fetchInitialData = async () => {
 			try {
-				const response = await MasterDataService.country.get();
-				setCountries(response.body);
+				const [countriesRes, industryTypesRes, orgTypesRes] = await Promise.all([
+					MasterDataService.country.get(),
+					MasterDataService.industryType.get(),
+					MasterDataService.organizationType.get(),
+				]);
+				setCountries(countriesRes.body);
+				setIndustryTypes(industryTypesRes.body);
+				setOrganizationTypes(orgTypesRes.body);
 			} catch (error) {
 				toast({
 					title: 'Error',
-					description: 'Failed to load countries.',
+					description: 'Failed to load initial data for the form.',
 					variant: 'destructive',
 				});
 			}
 		};
-		fetchCountries();
+		fetchInitialData();
 	}, [toast]);
 
-	const initialData = [
+	const initialData: IOrganization[] = [
 		{
 			id: '1',
 			name: 'IIFC',
@@ -48,19 +56,6 @@ export default function MasterOrganizationsPage() {
 			fkOrganizationType: 'Multinational',
 			isActive: true,
 		},
-	];
-
-	const industryTypes = [
-		{ id: '1', name: 'Information Technology', isActive: true },
-		{ id: '2', name: 'Finance & Banking', isActive: true },
-		{ id: '3', name: 'Telecommunication', isActive: true },
-		{ id: '4', name: 'Infrastructure', isActive: true },
-	];
-	const organizationTypes = [
-		{ id: '1', name: 'Government', isActive: true },
-		{ id: '2', name: 'Private', isActive: true },
-		{ id: '3', name: 'Non-profit', isActive: true },
-		{ id: '4', name: 'Multinational', isActive: true },
 	];
 
 	const meta: IMeta = {
