@@ -6,7 +6,7 @@ import { Control, FieldPath, FieldValues } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { Command, CommandEmpty, CommandInput, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
+import { Combobox, ComboboxEmpty, ComboboxInput, ComboboxGroup, ComboboxItem, ComboboxList } from '@/components/ui/combobox';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -54,13 +54,13 @@ export function FormAutocomplete<TFieldValues extends FieldValues>({
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
-                        <Command>
-                            <CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
-                            <CommandList>
-                                <CommandEmpty>No options found.</CommandEmpty>
-                                <CommandGroup>
+                        <Combobox>
+                            <ComboboxInput placeholder={`Search ${label.toLowerCase()}...`} />
+                            <ComboboxList>
+                                <ComboboxEmpty>No options found.</ComboboxEmpty>
+                                <ComboboxGroup>
                                     {options.map((option) => (
-                                        <CommandItem
+                                        <ComboboxItem
                                             key={option.value}
                                             value={option.label}
                                             onSelect={() => {
@@ -72,11 +72,11 @@ export function FormAutocomplete<TFieldValues extends FieldValues>({
                                                 className={cn('mr-2 h-4 w-4', value === option.value ? 'opacity-100' : 'opacity-0')}
                                             />
                                             {option.label}
-                                        </CommandItem>
+                                        </ComboboxItem>
                                     ))}
-                                </CommandGroup>
-                            </CommandList>
-                        </Command>
+                                </ComboboxGroup>
+                            </ComboboxList>
+                        </Combobox>
                     </PopoverContent>
                 </Popover>
             </div>
@@ -107,13 +107,13 @@ export function FormAutocomplete<TFieldValues extends FieldValues>({
 							</FormControl>
 						</PopoverTrigger>
 						<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
-							<Command>
-								<CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
-								<CommandList>
-									<CommandEmpty>No options found.</CommandEmpty>
-									<CommandGroup>
+							<Combobox>
+								<ComboboxInput placeholder={`Search ${label.toLowerCase()}...`} />
+								<ComboboxList>
+									<ComboboxEmpty>No options found.</ComboboxEmpty>
+									<ComboboxGroup>
 										{options.map((option) => (
-											<CommandItem
+											<ComboboxItem
 												key={option.value}
 												value={option.label}
 												onSelect={() => {
@@ -125,11 +125,11 @@ export function FormAutocomplete<TFieldValues extends FieldValues>({
 													className={cn('mr-2 h-4 w-4', field.value === option.value ? 'opacity-100' : 'opacity-0')}
 												/>
 												{option.label}
-											</CommandItem>
+											</ComboboxItem>
 										))}
-									</CommandGroup>
-								</CommandList>
-							</Command>
+									</ComboboxGroup>
+								</ComboboxList>
+							</Combobox>
 						</PopoverContent>
 					</Popover>
 					<FormMessage />
