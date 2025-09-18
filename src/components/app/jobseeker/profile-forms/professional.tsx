@@ -25,7 +25,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from '@/hooks/use-toast';
 import { FormInput } from '@/components/ui/form-input';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
-import { FormCheckbox } from '@/components/ui/form-checkbox';
+import { FormSwitch } from '@/components/ui/form-switch';
 
 const professionalInfoSchema = z.object({
   role: z.string().min(1, 'Role is required.'),
@@ -160,7 +160,7 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                                 disabledDays={(date) => new Date(editForm.getValues("fromDate")) > date || date > new Date()}
                              />
                         </div>
-                         <FormCheckbox
+                         <FormSwitch
                             control={editForm.control}
                             name="isPresent"
                             label="I currently work here"
@@ -319,7 +319,7 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                                 disabledDays={(date) => new Date(form.getValues("fromDate")) > date || date > new Date()}
                              />
                         </div>
-                        <FormCheckbox
+                        <FormSwitch
                             control={form.control}
                             name="isPresent"
                             label="I currently work here"
