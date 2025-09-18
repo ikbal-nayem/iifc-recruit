@@ -22,6 +22,7 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -288,8 +289,8 @@ export function OrganizationCrud({
 		}
 	};
 
-	const from = meta.totalRecords ? meta.page * meta.limit + 1 : 0;
-	const to = Math.min((meta.page + 1) * meta.limit, meta.totalRecords || 0);
+	const from = meta?.totalRecords ? meta.page * meta.limit + 1 : 0;
+	const to = Math.min((meta?.page + 1) * meta?.limit, meta?.totalRecords || 0);
 
 	const renderViewItem = (item: IOrganization) => (
 		<Card key={item.id} className='p-4 flex justify-between items-center bg-background/50'>
