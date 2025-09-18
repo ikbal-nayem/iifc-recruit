@@ -30,7 +30,7 @@ import { ICommonMasterData, IOrganization } from '@/interfaces/master-data.inter
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, ChevronsUpDown, Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -65,14 +65,18 @@ function OrganizationForm({
 	organizationTypes,
 	noun,
 }: OrganizationFormProps) {
-	const defaultValues = initialData || {
-		name: '',
-		fkCountry: countries.find(c => c.name === 'Bangladesh')?.name || '',
-		address: '',
-		postCode: '',
-		fkIndustryType: '',
-		fkOrganizationType: '',
-	};
+	const defaultValues = useMemo(
+		() =>
+			initialData || {
+				name: '',
+				fkCountry: countries.find((c) => c.name === 'Bangladesh')?.name || '',
+				address: '',
+				postCode: '',
+				fkIndustryType: '',
+				fkOrganizationType: '',
+			},
+		[initialData, countries]
+	);
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
@@ -93,7 +97,7 @@ function OrganizationForm({
 
 	useEffect(() => {
 		form.reset(defaultValues);
-	}, [initialData, countries, form, defaultValues]);
+	}, [defaultValues, form]);
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
@@ -326,7 +330,7 @@ export function OrganizationCrud({
 				<p className='text-muted-foreground'>{description}</p>
 			</div>
 			<Card className='glassmorphism'>
-				<CardContent className='space-y-4 pt-6'>
+				<CardContent className='pt-6'>
 					<div className='flex flex-col sm:flex-row gap-4 justify-between'>
 						<div className='relative w-full sm:max-w-xs'>
 							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
@@ -350,7 +354,7 @@ export function OrganizationCrud({
 						)}
 					</div>
 				</CardContent>
-				{meta && meta.totalRecords > 0 && (
+				{meta && meta.totalRecords && meta.totalRecords > 0 ? (
 					<CardFooter className='flex-col-reverse items-center gap-4 sm:flex-row sm:justify-between'>
 						<p className='text-sm text-muted-foreground'>
 							Showing{' '}
@@ -361,7 +365,7 @@ export function OrganizationCrud({
 						</p>
 						<Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} />
 					</CardFooter>
-				)}
+				) : null}
 			</Card>
 			{isFormOpen && (
 				<OrganizationForm
