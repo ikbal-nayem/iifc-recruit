@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
@@ -26,10 +27,9 @@ import { IMeta } from '@/interfaces/common.interface';
 import { ICommonMasterData, IOrganization } from '@/interfaces/master-data.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 
 const formSchema = z.object({
 	name: z.string().min(1, 'Name is required.'),
@@ -185,6 +185,10 @@ interface OrganizationCrudProps {
 	onDelete: (id: string) => Promise<boolean>;
 	onPageChange: (page: number) => void;
 	onSearch: (query: string) => void;
+	countryFilter: string;
+	onCountryChange: (id: string) => void;
+	industryFilter: string;
+	onIndustryChange: (id: string) => void;
 }
 
 export function OrganizationCrud({
@@ -202,6 +206,10 @@ export function OrganizationCrud({
 	onDelete,
 	onPageChange,
 	onSearch,
+	countryFilter,
+	onCountryChange,
+	industryFilter,
+	onIndustryChange,
 }: OrganizationCrudProps) {
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [editingItem, setEditingItem] = useState<IOrganization | undefined>(undefined);
@@ -293,6 +301,26 @@ export function OrganizationCrud({
 								placeholder={`Search ${noun.toLowerCase()}s...`}
 								onChange={(e) => onSearch(e.target.value)}
 								className='pl-10'
+							/>
+						</div>
+						<div className='flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4'>
+							<FormAutocomplete
+								control={undefined as any}
+								name='countryFilter'
+								label=''
+								placeholder='Filter by Country...'
+								options={[{ value: 'all', label: 'All Countries' }, ...countries.map((c) => ({ value: c.id!, label: c.name }))]}
+								onValueChange={onCountryChange}
+								value={countryFilter}
+							/>
+							<FormAutocomplete
+								control={undefined as any}
+								name='industryFilter'
+								label=''
+								placeholder='Filter by Industry...'
+								options={[{ value: 'all', label: 'All Industries' }, ...industryTypes.map((i) => ({ value: i.id!, label: i.name }))]}
+								onValueChange={onIndustryChange}
+								value={industryFilter}
 							/>
 						</div>
 						<Button className='w-full sm:w-auto' onClick={() => handleOpenForm()}>
