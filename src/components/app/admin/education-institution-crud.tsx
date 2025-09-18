@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -325,12 +324,12 @@ export function EducationInstitutionCrud({
 
 	return (
 		<>
+			<div className='space-y-2'>
+				<h1 className='text-3xl font-headline font-bold'>{title}</h1>
+				<p className='text-muted-foreground'>{description}</p>
+			</div>
 			<Card className='glassmorphism'>
-				<CardHeader>
-					<CardTitle>{title}</CardTitle>
-					<CardDescription>{description}</CardDescription>
-				</CardHeader>
-				<CardContent className='space-y-4'>
+				<CardContent className='space-y-4 pt-6'>
 					<div className='flex flex-col sm:flex-row gap-4 justify-between'>
 						<div className='flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4'>
 							<div className='relative w-full'>

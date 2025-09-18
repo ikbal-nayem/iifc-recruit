@@ -13,18 +13,12 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
@@ -34,7 +28,6 @@ import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Pagination } from '@/components/ui/pagination';
 
 interface MasterDataItem {
 	id?: string;
@@ -188,12 +181,12 @@ export function MasterDataCrud<T extends MasterDataItem>({
 
 	return (
 		<>
+			<div className='space-y-2'>
+				<h1 className='text-3xl font-headline font-bold'>{title}</h1>
+				<p className='text-muted-foreground'>{description}</p>
+			</div>
 			<Card className='glassmorphism'>
-				<CardHeader>
-					<CardTitle>{title}</CardTitle>
-					<CardDescription>{description}</CardDescription>
-				</CardHeader>
-				<CardContent className='space-y-4'>
+				<CardContent className='space-y-4 pt-6'>
 					<div className='flex flex-col sm:flex-row gap-4 justify-between'>
 						<div className='relative w-full sm:max-w-xs'>
 							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
