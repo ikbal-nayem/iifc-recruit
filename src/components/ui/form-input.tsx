@@ -1,11 +1,12 @@
 
 'use client';
 
+import * as React from 'react';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { Input, InputProps } from '@/components/ui/input';
+import { Input } from '@/components/ui/input';
 
-interface FormInputProps<TFieldValues extends FieldValues> extends InputProps {
+interface FormInputProps<TFieldValues extends FieldValues> extends React.ComponentProps<'input'> {
 	control: Control<TFieldValues>;
 	name: FieldPath<TFieldValues>;
 	label: string;
