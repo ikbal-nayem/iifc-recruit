@@ -23,10 +23,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { IMeta } from '@/interfaces/common.interface';
-import { ICommonMasterData, IOrganization } from '@/interfaces/master-data.interface';
+import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -43,8 +43,8 @@ type FormValues = z.infer<typeof formSchema>;
 interface OrganizationFormProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onSubmit: (data: IOrganization | Omit<IOrganization, 'id'>) => Promise<boolean>;
-	initialData?: IOrganization;
+	onSubmit: (data: IEducationInstitution | Omit<IEducationInstitution, 'id'>) => Promise<boolean>;
+	initialData?: IEducationInstitution;
 	countries: ICommonMasterData[];
 	industryTypes: ICommonMasterData[];
 	organizationTypes: ICommonMasterData[];
@@ -173,14 +173,14 @@ interface OrganizationCrudProps {
 	title: string;
 	description: string;
 	noun: string;
-	items: IOrganization[];
+	items: IEducationInstitution[];
 	meta: IMeta;
 	isLoading: boolean;
 	countries: ICommonMasterData[];
 	industryTypes: ICommonMasterData[];
 	organizationTypes: ICommonMasterData[];
-	onAdd: (item: Omit<IOrganization, 'id'>) => Promise<boolean>;
-	onUpdate: (item: IOrganization) => Promise<boolean>;
+	onAdd: (item: Omit<IEducationInstitution, 'id'>) => Promise<boolean>;
+	onUpdate: (item: IEducationInstitution) => Promise<boolean>;
 	onDelete: (id: string) => Promise<boolean>;
 	onPageChange: (page: number) => void;
 	onSearch: (query: string) => void;
@@ -211,10 +211,10 @@ export function OrganizationCrud({
 	onIndustryChange,
 }: OrganizationCrudProps) {
 	const [isFormOpen, setIsFormOpen] = useState(false);
-	const [editingItem, setEditingItem] = useState<IOrganization | undefined>(undefined);
+	const [editingItem, setEditingItem] = useState<IEducationInstitution | undefined>(undefined);
 	const { toast } = useToast();
 
-	const handleOpenForm = (item?: IOrganization) => {
+	const handleOpenForm = (item?: IEducationInstitution) => {
 		setEditingItem(item);
 		setIsFormOpen(true);
 	};
@@ -224,13 +224,13 @@ export function OrganizationCrud({
 		setEditingItem(undefined);
 	};
 
-	const handleFormSubmit = async (data: IOrganization | Omit<IOrganization, 'id'>) => {
+	const handleFormSubmit = async (data: IEducationInstitution | Omit<IEducationInstitution, 'id'>) => {
 		const success = 'id' in data ? await onUpdate(data) : await onAdd(data);
 		if (success) handleCloseForm();
 		return success;
 	};
 
-	const handleToggleActive = async (item: IOrganization) => {
+	const handleToggleActive = async (item: IEducationInstitution) => {
 		const success = await onUpdate({ ...item, isActive: !item.isActive });
 		if (success) {
 			toast({
@@ -244,7 +244,7 @@ export function OrganizationCrud({
 	const from = meta.totalRecords ? meta.page * meta.limit + 1 : 0;
 	const to = Math.min((meta.page + 1) * meta.limit, meta.totalRecords || 0);
 
-	const renderViewItem = (item: IOrganization) => (
+	const renderViewItem = (item: IEducationInstitution) => (
 		<Card key={item.id} className='p-4 flex justify-between items-center bg-background/50'>
 			<div className='flex-1 space-y-1'>
 				<p className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}>{item.name}</p>
