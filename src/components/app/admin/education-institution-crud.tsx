@@ -12,17 +12,10 @@ import {
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList,
-} from '@/components/ui/command';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -39,10 +32,11 @@ import { Check, ChevronsUpDown, Edit, Loader2, PlusCircle, Search, Trash } from 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '../ui/command';
 
 const formSchema = z.object({
 	name: z.string().min(1, 'Name is required.'),
-	countryId: z.string().min(1, 'Country is required.'),
+	fkCountry: z.string().min(1, 'Country is required.'),
 });
 type FormValues = z.infer<typeof formSchema>;
 
@@ -65,7 +59,7 @@ function EducationInstitutionForm({
 }: EducationInstitutionFormProps) {
 	const defaultValues = {
 		name: initialData?.name || '',
-		countryId: initialData?.countryId || '',
+		fkCountry: initialData?.fkCountry || '',
 	};
 
 	const form = useForm<FormValues>({
@@ -116,52 +110,19 @@ function EducationInstitutionForm({
 						/>
 						<FormField
 							control={form.control}
-							name='countryId'
+							name='fkCountry'
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel required>Country</FormLabel>
-									<Popover>
-										<PopoverTrigger asChild>
-											<FormControl>
-												<Button
-													variant='outline'
-													role='combobox'
-													className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
-													disabled={isSubmitting}
-												>
-													{field.value ? countries.find((c) => c.id === field.value)?.name : 'Select Country'}
-													<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-												</Button>
-											</FormControl>
-										</PopoverTrigger>
-										<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
-											<Command>
-												<CommandInput placeholder='Search country...' />
-												<CommandList>
-													<CommandEmpty>No country found.</CommandEmpty>
-													<CommandGroup>
-														{countries.map((c) => (
-															<CommandItem
-																key={c.id}
-																value={c.name}
-																onSelect={() => {
-																	form.setValue('countryId', c.id!);
-																}}
-															>
-																<Check
-																	className={cn(
-																		'mr-2 h-4 w-4',
-																		field.value === c.id ? 'opacity-100' : 'opacity-0'
-																	)}
-																/>
-																{c.name}
-															</CommandItem>
-														))}
-													</CommandGroup>
-												</CommandList>
-											</Command>
-										</PopoverContent>
-									</Popover>
+									<FormAutocomplete
+										control={form.control}
+										name='fkCountry'
+										label=''
+										placeholder='Select Country'
+										required
+										options={countries.map((c) => ({ value: c.id!, label: c.name }))}
+										disabled={isSubmitting}
+									/>
 									<FormMessage />
 								</FormItem>
 							)}
@@ -268,7 +229,7 @@ export function EducationInstitutionCrud({
 					{item.name}
 				</p>
 				<p className='text-sm text-muted-foreground'>
-					{countries.find((c) => c.id === item.countryId)?.name || 'Unknown Country'}
+					{countries.find((c) => c.id === item.fkCountry)?.name || 'Unknown Country'}
 				</p>
 			</div>
 			<div className='flex items-center gap-2 w-full sm:w-auto justify-between'>

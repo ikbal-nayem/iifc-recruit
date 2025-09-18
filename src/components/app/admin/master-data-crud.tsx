@@ -12,7 +12,7 @@ import {
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
@@ -276,7 +276,7 @@ export function MasterDataCrud<T extends MasterDataItem>({
 						)}
 					</div>
 				</CardContent>
-				{meta && meta.totalRecords && meta.totalRecords > 0 && (
+				{meta && meta.totalRecords && meta.totalRecords > 0 ? (
 					<CardFooter className='flex-col-reverse items-center gap-4 sm:flex-row sm:justify-between'>
 						<p className='text-sm text-muted-foreground'>
 							Showing{' '}
@@ -287,7 +287,7 @@ export function MasterDataCrud<T extends MasterDataItem>({
 						</p>
 						{onPageChange && <Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} />}
 					</CardFooter>
-				)}
+				) : null}
 			</Card>
 
 			{isFormOpen && (
