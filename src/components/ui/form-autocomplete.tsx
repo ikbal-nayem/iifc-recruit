@@ -1,0 +1,88 @@
+
+'use client';
+
+import * as React from 'react';
+import { Control, FieldPath, FieldValues } from 'react-hook-form';
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { Command, CommandEmpty, CommandInput, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+interface FormAutocompleteProps<TFieldValues extends FieldValues> {
+	control: Control<TFieldValues>;
+	name: FieldPath<TFieldValues>;
+	label: string;
+	placeholder?: string;
+	required?: boolean;
+	options: { value: string; label: string }[];
+	disabled?: boolean;
+}
+
+export function FormAutocomplete<TFieldValues extends FieldValues>({
+	control,
+	name,
+	label,
+	placeholder,
+	required = false,
+	options,
+	disabled = false,
+}: FormAutocompleteProps<TFieldValues>) {
+	const [open, setOpen] = React.useState(false);
+
+	return (
+		<FormField
+			control={control}
+			name={name}
+			render={({ field }) => (
+				<FormItem>
+					<FormLabel required={required}>{label}</FormLabel>
+					<Popover open={open} onOpenChange={setOpen}>
+						<PopoverTrigger asChild>
+							<FormControl>
+								<Button
+									variant='outline'
+									role='combobox'
+									className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
+									disabled={disabled}
+								>
+									{field.value
+										? options.find((option) => option.value === field.value)?.label
+										: placeholder || 'Select...'}
+									<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+								</Button>
+							</FormControl>
+						</PopoverTrigger>
+						<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
+							<Command>
+								<CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
+								<CommandList>
+									<CommandEmpty>No options found.</CommandEmpty>
+									<CommandGroup>
+										{options.map((option) => (
+											<CommandItem
+												key={option.value}
+												value={option.label}
+												onSelect={() => {
+													field.onChange(option.value);
+													setOpen(false);
+												}}
+											>
+												<Check
+													className={cn('mr-2 h-4 w-4', field.value === option.value ? 'opacity-100' : 'opacity-0')}
+												/>
+												{option.label}
+											</CommandItem>
+										))}
+									</CommandGroup>
+								</CommandList>
+							</Command>
+						</PopoverContent>
+					</Popover>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
+	);
+}

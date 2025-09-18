@@ -13,25 +13,23 @@ import {
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { IMeta } from '@/interfaces/common.interface';
 import { ICommonMasterData, IOrganization } from '@/interfaces/master-data.interface';
-import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, ChevronsUpDown, Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
+import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 
 const formSchema = z.object({
 	name: z.string().min(1, 'Name is required.'),
@@ -68,7 +66,7 @@ function OrganizationForm({
 		() =>
 			initialData || {
 				name: '',
-				fkCountry: countries.find((c) => c.name === 'Bangladesh')?.name || '',
+				fkCountry: countries.find((c) => c.name === 'Bangladesh')?.id || '',
 				address: '',
 				postCode: '',
 				fkIndustryType: '',
@@ -114,60 +112,16 @@ function OrganizationForm({
 							required
 							disabled={isSubmitting}
 						/>
-						<FormField
+						<FormAutocomplete
 							control={form.control}
 							name='fkCountry'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel required>Country</FormLabel>
-									<Popover>
-										<PopoverTrigger asChild>
-											<FormControl>
-												<Button
-													variant='outline'
-													role='combobox'
-													className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
-													disabled={isSubmitting}
-												>
-													{field.value
-														? countries.find((c) => c.name === field.value)?.name
-														: 'Select Country'}
-													<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-												</Button>
-											</FormControl>
-										</PopoverTrigger>
-										<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
-											<Command>
-												<CommandInput placeholder='Search country...' />
-												<CommandList>
-													<CommandEmpty>No country found.</CommandEmpty>
-													<CommandGroup>
-														{countries.map((c) => (
-															<CommandItem
-																key={c.id}
-																value={c.name}
-																onSelect={() => {
-																	form.setValue('fkCountry', c.name);
-																}}
-															>
-																<Check
-																	className={cn(
-																		'mr-2 h-4 w-4',
-																		field.value === c.name ? 'opacity-100' : 'opacity-0'
-																	)}
-																/>
-																{c.name}
-															</CommandItem>
-														))}
-													</CommandGroup>
-												</CommandList>
-											</Command>
-										</PopoverContent>
-									</Popover>
-									<FormMessage />
-								</FormItem>
-							)}
+							label='Country'
+							placeholder='Select Country'
+							required
+							options={countries.map((c) => ({ value: c.id!, label: c.name }))}
+							disabled={isSubmitting}
 						/>
+
 						<div className='grid grid-cols-2 gap-4'>
 							<FormInput
 								control={form.control}
@@ -184,113 +138,21 @@ function OrganizationForm({
 								disabled={isSubmitting}
 							/>
 						</div>
-						<FormField
+						<FormAutocomplete
 							control={form.control}
 							name='fkIndustryType'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Industry Type</FormLabel>
-									<Popover>
-										<PopoverTrigger asChild>
-											<FormControl>
-												<Button
-													variant='outline'
-													role='combobox'
-													className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
-													disabled={isSubmitting}
-												>
-													{field.value
-														? industryTypes.find((c) => c.name === field.value)?.name
-														: 'Select Industry Type'}
-													<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-												</Button>
-											</FormControl>
-										</PopoverTrigger>
-										<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
-											<Command>
-												<CommandInput placeholder='Search industry type...' />
-												<CommandList>
-													<CommandEmpty>No type found.</CommandEmpty>
-													<CommandGroup>
-														{industryTypes.map((c) => (
-															<CommandItem
-																key={c.id}
-																value={c.name}
-																onSelect={() => {
-																	form.setValue('fkIndustryType', c.name);
-																}}
-															>
-																<Check
-																	className={cn(
-																		'mr-2 h-4 w-4',
-																		field.value === c.name ? 'opacity-100' : 'opacity-0'
-																	)}
-																/>
-																{c.name}
-															</CommandItem>
-														))}
-													</CommandGroup>
-												</CommandList>
-											</Command>
-										</PopoverContent>
-									</Popover>
-									<FormMessage />
-								</FormItem>
-							)}
+							label='Industry Type'
+							placeholder='Select Industry Type'
+							options={industryTypes.map((i) => ({ value: i.id!, label: i.name }))}
+							disabled={isSubmitting}
 						/>
-						<FormField
+						<FormAutocomplete
 							control={form.control}
 							name='fkOrganizationType'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Organization Type</FormLabel>
-									<Popover>
-										<PopoverTrigger asChild>
-											<FormControl>
-												<Button
-													variant='outline'
-													role='combobox'
-													className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
-													disabled={isSubmitting}
-												>
-													{field.value
-														? organizationTypes.find((c) => c.name === field.value)?.name
-														: 'Select Organization Type'}
-													<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-												</Button>
-											</FormControl>
-										</PopoverTrigger>
-										<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
-											<Command>
-												<CommandInput placeholder='Search organization type...' />
-												<CommandList>
-													<CommandEmpty>No type found.</CommandEmpty>
-													<CommandGroup>
-														{organizationTypes.map((c) => (
-															<CommandItem
-																key={c.id}
-																value={c.name}
-																onSelect={() => {
-																	form.setValue('fkOrganizationType', c.name);
-																}}
-															>
-																<Check
-																	className={cn(
-																		'mr-2 h-4 w-4',
-																		field.value === c.name ? 'opacity-100' : 'opacity-0'
-																	)}
-																/>
-																{c.name}
-															</CommandItem>
-														))}
-													</CommandGroup>
-												</CommandList>
-											</Command>
-										</PopoverContent>
-									</Popover>
-									<FormMessage />
-								</FormItem>
-							)}
+							label='Organization Type'
+							placeholder='Select Organization Type'
+							options={organizationTypes.map((o) => ({ value: o.id!, label: o.name }))}
+							disabled={isSubmitting}
 						/>
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
@@ -380,7 +242,9 @@ export function OrganizationCrud({
 			<div className='flex-1 space-y-1'>
 				<p className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}>{item.name}</p>
 				<p className='text-xs text-muted-foreground'>
-					{item.fkCountry} | Industry: {item.fkIndustryType || 'N/A'} | Type: {item.fkOrganizationType || 'N/A'}
+					{countries.find((c) => c.id === item.fkCountry)?.name} | Industry:{' '}
+					{industryTypes.find((i) => i.id === item.fkIndustryType)?.name || 'N/A'} | Type:{' '}
+					{organizationTypes.find((o) => o.id === item.fkOrganizationType)?.name || 'N/A'}
 				</p>
 				{item.address && <p className='text-xs text-muted-foreground'>{item.address}, {item.postCode}</p>}
 			</div>

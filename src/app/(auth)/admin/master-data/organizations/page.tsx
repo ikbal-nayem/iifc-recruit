@@ -1,3 +1,4 @@
+
 'use client';
 
 import { OrganizationCrud } from '@/components/app/admin/organization-crud';
@@ -39,21 +40,21 @@ export default function MasterOrganizationsPage() {
 		{
 			id: '1',
 			name: 'IIFC',
-			fkCountry: 'Bangladesh',
+			fkCountry: '1',
 			address: 'Ede-II, 6/B, 147, Mohakhali',
 			postCode: '1212',
-			fkIndustryType: 'Infrastructure',
-			fkOrganizationType: 'Government',
+			fkIndustryType: '1',
+			fkOrganizationType: '1',
 			isActive: true,
 		},
 		{
 			id: '2',
 			name: 'Google',
-			fkCountry: 'United States',
+			fkCountry: '2',
 			address: '1600 Amphitheatre Parkway',
 			postCode: '94043',
-			fkIndustryType: 'Information Technology',
-			fkOrganizationType: 'Multinational',
+			fkIndustryType: '2',
+			fkOrganizationType: '2',
 			isActive: true,
 		},
 	];
