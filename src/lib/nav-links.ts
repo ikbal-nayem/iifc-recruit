@@ -60,6 +60,7 @@ export const adminNavLinks: NavLink[] = [
 		],
 	},
 	{ href: '/admin/jobseekers', label: 'Jobseekers', icon: Users },
+	{ href: '/admin/our-clients', label: 'Our Clients', icon: Building2 },
     {
         href: '#',
         label: 'Separator',
@@ -72,7 +73,6 @@ export const adminNavLinks: NavLink[] = [
 		icon: Settings,
 		isActive: (pathname) => pathname.startsWith('/admin/master-data'),
 		submenu: [
-			{ href: '/admin/master-data/departments', label: 'Departments', icon: BriefcaseBusiness },
 			{ href: '/admin/master-data/skills', label: 'Skills', icon: Award },
 			{ href: '/admin/master-data/languages', label: 'Languages', icon: Globe },
       		{

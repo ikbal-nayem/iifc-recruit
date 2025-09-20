@@ -34,7 +34,7 @@ export default function MasterDepartmentsPage() {
 				console.error('Failed to load items', error);
 				toast({
 					title: 'Error',
-					description: 'Failed to load departments.',
+					description: 'Failed to load clients.',
 					variant: 'destructive',
 				});
 			} finally {
@@ -60,7 +60,7 @@ export default function MasterDepartmentsPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to add item', error);
-			toast({ title: 'Error', description: 'Failed to add department.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to add client.', variant: 'destructive' });
 			return null;
 		}
 	};
@@ -73,7 +73,7 @@ export default function MasterDepartmentsPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update department.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to update client.', variant: 'destructive' });
 			return null;
 		}
 	};
@@ -81,21 +81,21 @@ export default function MasterDepartmentsPage() {
 	const handleDelete = async (id: string): Promise<boolean> => {
 		try {
 			await MasterDataService.department.delete(id);
-			toast({ title: 'Success', description: 'Department deleted successfully.', variant: 'success' });
+			toast({ title: 'Success', description: 'Client deleted successfully.', variant: 'success' });
 			loadItems(meta.page, debouncedSearch);
 			return true;
 		} catch (error) {
 			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: 'Failed to delete department.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to delete client.', variant: 'destructive' });
 			return false;
 		}
 	};
 
 	return (
 		<MasterDataCrud<ICommonMasterData>
-			title='Departments'
-			description='Manage the departments used for job postings.'
-			noun='Department'
+			title='Our Clients'
+			description='Manage the clients served by the organization.'
+			noun='Client'
 			items={items}
 			meta={meta}
 			isLoading={isLoading}
