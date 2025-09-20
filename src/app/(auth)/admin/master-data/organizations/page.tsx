@@ -1,40 +1,14 @@
-
 'use client';
 
 import { OrganizationCrud } from '@/components/app/admin/organization-crud';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
-import { IMeta } from '@/interfaces/common.interface';
+import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { ICommonMasterData, IOrganization } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-const initialData: IOrganization[] = [
-	{
-		id: '1',
-		name: 'IIFC',
-		countryCode: 'BD', 
-		address: 'Ede-II, 6/B, 147, Mohakhali',
-		industryTypeId: '1', 
-		organizationTypeId: '1',
-        phone: '+88029889244',
-        email: 'info@iifc.gov.bd',
-        website: 'https://iifc.gov.bd',
-		isActive: true,
-	},
-	{
-		id: '2',
-		name: 'Google',
-		countryCode: 'US',
-		address: '1600 Amphitheatre Parkway',
-		industryTypeId: '2',
-		organizationTypeId: '2', 
-        phone: '+1-650-253-0000',
-        email: 'info@google.com',
-        website: 'https://google.com',
-		isActive: true,
-	},
-];
+const initMeta: IMeta = { page: 0, limit: 10 };
 
 export default function MasterOrganizationsPage() {
 	const { toast } = useToast();
@@ -42,6 +16,7 @@ export default function MasterOrganizationsPage() {
 	const [countries, setCountries] = useState<ICommonMasterData[]>([]);
 	const [industryTypes, setIndustryTypes] = useState<ICommonMasterData[]>([]);
 	const [organizationTypes, setOrganizationTypes] = useState<ICommonMasterData[]>([]);
+	const [meta, setMeta] = useState<IMeta>(initMeta);
 
 	const [isLoading, setIsLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState('');
@@ -51,23 +26,34 @@ export default function MasterOrganizationsPage() {
 	const [countryFilter, setCountryFilter] = useState('all');
 	const [industryFilter, setIndustryFilter] = useState('all');
 
-	
-	useEffect(() => {
-		const filtered = initialData
-			.filter((item) => {
-				if (debouncedSearch && !item.name.toLowerCase().includes(debouncedSearch.toLowerCase())) {
-					return false;
-				}
-				if (countryFilter !== 'all' && item.countryCode !== countryFilter) {
-					return false;
-				}
-				if (industryFilter !== 'all' && item.industryTypeId !== industryFilter) {
-					return false;
-				}
-				return true;
-			});
-            setItems(filtered);
-	}, [debouncedSearch, countryFilter, industryFilter]);
+	const loadItems = useCallback(
+		async (page: number, search: string, countryId: string, industryId: string) => {
+			setIsLoading(true);
+			try {
+				const payload: IApiRequest = {
+					body: {
+						name: search,
+						...(countryId !== 'all' && { countryCode: countryId }),
+						...(industryId !== 'all' && { industryTypeId: industryId }),
+					},
+					meta: { page: page, limit: meta.limit },
+				};
+				const response = await MasterDataService.organization.getList(payload);
+				setItems(response.body);
+				setMeta(response.meta);
+			} catch (error) {
+				console.error('Failed to load items', error);
+				toast({
+					title: 'Error',
+					description: 'Failed to load organizations.',
+					variant: 'destructive',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[meta.limit, toast]
+	);
 
 	useEffect(() => {
 		const fetchInitialData = async () => {
@@ -81,7 +67,6 @@ export default function MasterOrganizationsPage() {
 				setCountries(countriesRes.body);
 				setIndustryTypes(industryTypesRes.body);
 				setOrganizationTypes(orgTypesRes.body);
-				setItems(initialData); // In a real app, this would be an API call.
 			} catch (error) {
 				toast({
 					title: 'Error',
@@ -95,32 +80,51 @@ export default function MasterOrganizationsPage() {
 		fetchInitialData();
 	}, [toast]);
 
-	// This is a mock pagination meta object. In a real app, this would come from the API response.
-	const meta: IMeta = {
-		page: 0,
-		limit: items.length,
-		totalRecords: items.length,
-		totalPageCount: 1,
+	useEffect(() => {
+		loadItems(0, debouncedSearch, countryFilter, industryFilter);
+	}, [debouncedSearch, countryFilter, industryFilter, loadItems]);
+
+	const handlePageChange = (newPage: number) => {
+		loadItems(newPage, debouncedSearch, countryFilter, industryFilter);
 	};
 
-
 	const handleAdd = async (item: Omit<IOrganization, 'id'>): Promise<boolean> => {
-		console.log('Adding', item);
-		toast({ description: 'Organization added (mock).', variant: 'success' });
-		// In a real app: call API, then reload items.
-		return true;
+		try {
+			const resp = await MasterDataService.organization.add(item);
+			toast({ description: resp.message, variant: 'success' });
+			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter);
+			return true;
+		} catch (error) {
+			console.error('Failed to add item', error);
+			toast({ title: 'Error', description: 'Failed to add organization.', variant: 'destructive' });
+			return false;
+		}
 	};
 
 	const handleUpdate = async (item: IOrganization): Promise<boolean> => {
-		console.log('Updating', item);
-		toast({ description: 'Organization updated (mock).', variant: 'success' });
-		return true;
+		try {
+			const resp = await MasterDataService.organization.update(item);
+			toast({ description: resp.message, variant: 'success' });
+			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter);
+			return true;
+		} catch (error) {
+			console.error('Failed to update item', error);
+			toast({ title: 'Error', description: 'Failed to update organization.', variant: 'destructive' });
+			return false;
+		}
 	};
 
 	const handleDelete = async (id: string): Promise<boolean> => {
-		console.log('Deleting', id);
-		toast({ description: 'Organization deleted (mock).', variant: 'success' });
-		return true;
+		try {
+			await MasterDataService.organization.delete(id);
+			toast({ title: 'Success', description: 'Organization deleted successfully.', variant: 'success' });
+			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter);
+			return true;
+		} catch (error) {
+			console.error('Failed to delete item', error);
+			toast({ title: 'Error', description: 'Failed to delete organization.', variant: 'destructive' });
+			return false;
+		}
 	};
 
 	return (
@@ -137,7 +141,7 @@ export default function MasterOrganizationsPage() {
 			onAdd={handleAdd}
 			onUpdate={handleUpdate}
 			onDelete={handleDelete}
-			onPageChange={() => {}}
+			onPageChange={handlePageChange}
 			onSearch={setSearchQuery}
 			countryFilter={countryFilter}
 			onCountryChange={setCountryFilter}
