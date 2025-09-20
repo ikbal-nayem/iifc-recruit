@@ -7,7 +7,7 @@ const createMasterDataCrud = <T extends ICommonMasterData>(entity: string) => ({
 		await axiosIns.get(`/master-data/${entity}/get`),
 	getList: async (payload: IApiRequest): Promise<IApiResponse<T[]>> =>
 		await axiosIns.post(`/master-data/${entity}/get-list`, payload),
-	add: async (payload: T | Omit<T, 'id'>): Promise<IApiResponse<T>> =>
+	add: async (payload: Omit<T, 'id'>): Promise<IApiResponse<T>> =>
 		await axiosIns.post(`/master-data/${entity}/create`, payload),
 	update: async (payload: T): Promise<IApiResponse<T>> =>
 		await axiosIns.put(`/master-data/${entity}/update`, payload),
@@ -28,11 +28,5 @@ export const MasterDataService = {
 	trainingType: createMasterDataCrud('training-type'),
 	country: createMasterDataCrud('country'),
 	educationInstitution: createMasterDataCrud<IEducationInstitution>('education-institution'),
-	organization: {
-		...createMasterDataCrud<IOrganization>('organization'),
-		add: async (payload: Omit<IOrganization, 'id'>): Promise<IApiResponse<IOrganization>> =>
-			await axiosIns.post('/master-data/organization/create', payload),
-		update: async (payload: IOrganization): Promise<IApiResponse<IOrganization>> =>
-			await axiosIns.put('/master-data/organization/update', payload),
-	},
+	organization: createMasterDataCrud<IOrganization>('organization'),
 };

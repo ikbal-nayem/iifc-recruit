@@ -103,7 +103,7 @@ function OrganizationForm({
 					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
 				</DialogHeader>
 				<Form {...form}>
-					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4'>
+					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4' noValidate>
 						<FormInput
 							control={form.control}
 							name='name'

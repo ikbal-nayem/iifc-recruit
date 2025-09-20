@@ -76,7 +76,7 @@ function MasterDataForm<T extends MasterDataItem>({
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
+					<DialogTitle>{initialData ? `Edit ${noun}` : `Add ${noun}`}</DialogTitle>
 					<DialogDescription>
 						{initialData ? 'Update the details.' : `Enter the details for the new ${noun.toLowerCase()}.`}
 					</DialogDescription>
