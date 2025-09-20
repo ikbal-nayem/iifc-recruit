@@ -18,6 +18,9 @@ const initialData: IOrganization[] = [
 		postCode: '1212',
 		fkIndustryType: '1', // Example
 		fkOrganizationType: '1', // Example
+        phone: '+88029889244',
+        email: 'info@iifc.gov.bd',
+        website: 'https://iifc.gov.bd',
 		isActive: true,
 	},
 	{
@@ -28,6 +31,9 @@ const initialData: IOrganization[] = [
 		postCode: '94043',
 		fkIndustryType: '2', // Example
 		fkOrganizationType: '2', // Example
+        phone: '+1-650-253-0000',
+        email: 'info@google.com',
+        website: 'https://google.com',
 		isActive: true,
 	},
 ];

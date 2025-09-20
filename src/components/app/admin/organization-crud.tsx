@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -23,9 +24,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { IMeta } from '@/interfaces/common.interface';
-import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
+import { ICommonMasterData, IOrganization } from '@/interfaces/master-data.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
+import { Edit, Loader2, PlusCircle, Search, Trash, Mail, Phone, Globe } from 'lucide-react';
 import { useEffect, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -37,14 +38,17 @@ const formSchema = z.object({
 	postCode: z.string().optional(),
 	fkIndustryType: z.string().optional(),
 	fkOrganizationType: z.string().optional(),
+    phone: z.string().optional(),
+    email: z.string().email('Please enter a valid email.').optional().or(z.literal('')),
+    website: z.string().url('Please enter a valid URL.').optional().or(z.literal('')),
 });
 type FormValues = z.infer<typeof formSchema>;
 
 interface OrganizationFormProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onSubmit: (data: IEducationInstitution | Omit<IEducationInstitution, 'id'>) => Promise<boolean>;
-	initialData?: IEducationInstitution;
+	onSubmit: (data: IOrganization | Omit<IOrganization, 'id'>) => Promise<boolean>;
+	initialData?: IOrganization;
 	countries: ICommonMasterData[];
 	industryTypes: ICommonMasterData[];
 	organizationTypes: ICommonMasterData[];
@@ -70,6 +74,9 @@ function OrganizationForm({
 				postCode: '',
 				fkIndustryType: '',
 				fkOrganizationType: '',
+                phone: '',
+                email: '',
+                website: '',
 			},
 		[initialData, countries]
 	);
@@ -84,7 +91,7 @@ function OrganizationForm({
 	const handleSubmit = async (data: FormValues) => {
 		setIsSubmitting(true);
 		const payload = { ...initialData, ...data, isActive: initialData?.isActive ?? true };
-		const success = await onSubmit(payload);
+		const success = await onSubmit(payload as IOrganization | Omit<IOrganization, 'id'>);
 		if (success) {
 			onClose();
 		}
@@ -97,7 +104,7 @@ function OrganizationForm({
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
-			<DialogContent>
+			<DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
 				<DialogHeader>
 					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
 				</DialogHeader>
@@ -137,6 +144,31 @@ function OrganizationForm({
 								disabled={isSubmitting}
 							/>
 						</div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <FormInput
+                                control={form.control}
+                                name="phone"
+                                label="Phone"
+                                placeholder="Contact number"
+                                disabled={isSubmitting}
+                            />
+                             <FormInput
+                                control={form.control}
+                                name="email"
+                                label="Email"
+                                type="email"
+                                placeholder="Contact email"
+                                disabled={isSubmitting}
+                            />
+                        </div>
+                        <FormInput
+							control={form.control}
+							name='website'
+							label='Website'
+                            type="url"
+							placeholder='https://example.com'
+							disabled={isSubmitting}
+						/>
 						<FormAutocomplete
 							control={form.control}
 							name='fkIndustryType'
@@ -173,14 +205,14 @@ interface OrganizationCrudProps {
 	title: string;
 	description: string;
 	noun: string;
-	items: IEducationInstitution[];
+	items: IOrganization[];
 	meta: IMeta;
 	isLoading: boolean;
 	countries: ICommonMasterData[];
 	industryTypes: ICommonMasterData[];
 	organizationTypes: ICommonMasterData[];
-	onAdd: (item: Omit<IEducationInstitution, 'id'>) => Promise<boolean>;
-	onUpdate: (item: IEducationInstitution) => Promise<boolean>;
+	onAdd: (item: Omit<IOrganization, 'id'>) => Promise<boolean>;
+	onUpdate: (item: IOrganization) => Promise<boolean>;
 	onDelete: (id: string) => Promise<boolean>;
 	onPageChange: (page: number) => void;
 	onSearch: (query: string) => void;
@@ -211,10 +243,10 @@ export function OrganizationCrud({
 	onIndustryChange,
 }: OrganizationCrudProps) {
 	const [isFormOpen, setIsFormOpen] = useState(false);
-	const [editingItem, setEditingItem] = useState<IEducationInstitution | undefined>(undefined);
+	const [editingItem, setEditingItem] = useState<IOrganization | undefined>(undefined);
 	const { toast } = useToast();
 
-	const handleOpenForm = (item?: IEducationInstitution) => {
+	const handleOpenForm = (item?: IOrganization) => {
 		setEditingItem(item);
 		setIsFormOpen(true);
 	};
@@ -224,13 +256,13 @@ export function OrganizationCrud({
 		setEditingItem(undefined);
 	};
 
-	const handleFormSubmit = async (data: IEducationInstitution | Omit<IEducationInstitution, 'id'>) => {
+	const handleFormSubmit = async (data: IOrganization | Omit<IOrganization, 'id'>) => {
 		const success = 'id' in data ? await onUpdate(data) : await onAdd(data);
 		if (success) handleCloseForm();
 		return success;
 	};
 
-	const handleToggleActive = async (item: IEducationInstitution) => {
+	const handleToggleActive = async (item: IOrganization) => {
 		const success = await onUpdate({ ...item, isActive: !item.isActive });
 		if (success) {
 			toast({
@@ -244,18 +276,25 @@ export function OrganizationCrud({
 	const from = meta.totalRecords ? meta.page * meta.limit + 1 : 0;
 	const to = Math.min((meta.page + 1) * meta.limit, meta.totalRecords || 0);
 
-	const renderViewItem = (item: IEducationInstitution) => (
-		<Card key={item.id} className='p-4 flex justify-between items-center bg-background/50'>
+	const renderViewItem = (item: IOrganization) => (
+		<Card key={item.id} className='p-4 flex flex-col sm:flex-row justify-between items-start bg-background/50 gap-4'>
 			<div className='flex-1 space-y-1'>
 				<p className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}>{item.name}</p>
-				<p className='text-xs text-muted-foreground'>
-					{countries.find((c) => c.id === item.fkCountry)?.name} | Industry:{' '}
-					{industryTypes.find((i) => i.id === item.fkIndustryType)?.name || 'N/A'} | Type:{' '}
-					{organizationTypes.find((o) => o.id === item.fkOrganizationType)?.name || 'N/A'}
-				</p>
-				{item.address && <p className='text-xs text-muted-foreground'>{item.address}, {item.postCode}</p>}
+                <div className="text-xs text-muted-foreground space-y-1">
+                    <p>
+                        {countries.find((c) => c.id === item.fkCountry)?.name} | Industry:{' '}
+                        {industryTypes.find((i) => i.id === item.fkIndustryType)?.name || 'N/A'} | Type:{' '}
+                        {organizationTypes.find((o) => o.id === item.fkOrganizationType)?.name || 'N/A'}
+                    </p>
+                    {item.address && <p className='text-xs text-muted-foreground'>{item.address}, {item.postCode}</p>}
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1">
+                        {item.phone && <span className="flex items-center gap-1.5"><Phone className="h-3 w-3" /> {item.phone}</span>}
+                        {item.email && <span className="flex items-center gap-1.5"><Mail className="h-3 w-3" /> {item.email}</span>}
+                        {item.website && <a href={item.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:underline"><Globe className="h-3 w-3" /> Website</a>}
+                    </div>
+                </div>
 			</div>
-			<div className='flex items-center gap-2'>
+			<div className='flex items-center gap-2 self-start'>
 				<Switch checked={item.isActive} onCheckedChange={() => handleToggleActive(item)} />
 				<Button variant='ghost' size='icon' className='h-8 w-8' onClick={() => handleOpenForm(item)}>
 					<Edit className='h-4 w-4' />
