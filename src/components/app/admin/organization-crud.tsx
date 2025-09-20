@@ -48,7 +48,7 @@ type FormValues = z.infer<typeof formSchema>;
 interface OrganizationFormProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onSubmit: (data: Omit<IOrganization, 'id'>) => Promise<boolean>;
+	onSubmit: (data: Omit<IOrganization, 'id'> | IOrganization) => Promise<boolean>;
 	initialData?: IOrganization;
 	countries: ICommonMasterData[];
 	industryTypes: ICommonMasterData[];
@@ -66,16 +66,18 @@ function OrganizationForm({
 	organizationTypes,
 	noun,
 }: OrganizationFormProps) {
-	const defaultValues = initialData || {
-		name: '',
-		countryCode: countries.find((c) => c.name === 'Bangladesh')?.code || '',
-		organizationTypeId: '',
-		industryTypeId: '',
-		address: '',
-		phone: '',
-		email: '',
-		website: '',
-	};
+	const defaultValues = initialData
+		? { ...initialData }
+		: {
+				name: '',
+				countryCode: countries.find((c) => c.name === 'Bangladesh')?.code || '',
+				organizationTypeId: '',
+				industryTypeId: '',
+				address: '',
+				phone: '',
+				email: '',
+				website: '',
+		  };
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
@@ -86,7 +88,7 @@ function OrganizationForm({
 
 	const handleSubmit = async (data: FormValues) => {
 		setIsSubmitting(true);
-		const payload: Omit<IOrganization, 'id'> = {
+		const payload: Omit<IOrganization, 'id'> | IOrganization = {
 			...initialData,
 			...data,
 			isActive: initialData?.isActive ?? true,
@@ -210,7 +212,10 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 	const [organizationTypes, setOrganizationTypes] = useState<ICommonMasterData[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 
-	const [isLoading, setIsLoading] = useState(true);
+	const [isInitialLoading, setIsInitialLoading] = useState(true);
+	const [isLoading, setIsLoading] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
+
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
 
@@ -221,8 +226,12 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 	const [editingItem, setEditingItem] = useState<IOrganization | undefined>(undefined);
 
 	const loadItems = useCallback(
-		async (page: number, search: string, countryCode: string, industryId: string) => {
-			setIsLoading(true);
+		async (page: number, search: string, countryCode: string, industryId: string, isInitial = false) => {
+			if (isInitial) {
+				setIsInitialLoading(true);
+			} else {
+				setIsLoading(true);
+			}
 			try {
 				const payload: IApiRequest = {
 					body: {
@@ -243,7 +252,11 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 					variant: 'destructive',
 				});
 			} finally {
-				setIsLoading(false);
+				if (isInitial) {
+					setIsInitialLoading(false);
+				} else {
+					setIsLoading(false);
+				}
 			}
 		},
 		[meta.limit, toast]
@@ -261,22 +274,24 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 				setCountries(countriesRes.body);
 				setIndustryTypes(industryTypesRes.body);
 				setOrganizationTypes(orgTypesRes.body);
+				loadItems(0, '', 'all', 'all', true);
 			} catch (error) {
 				toast({
 					title: 'Error',
 					description: 'Failed to load initial data for the form.',
 					variant: 'destructive',
 				});
-			} finally {
 				setIsLoading(false);
 			}
 		};
 		fetchInitialData();
-	}, [toast]);
+	}, []);
 
 	useEffect(() => {
-		loadItems(0, debouncedSearch, countryFilter, industryFilter);
-	}, [debouncedSearch, countryFilter, industryFilter, loadItems]);
+		if (!isInitialLoading) {
+			loadItems(0, debouncedSearch, countryFilter, industryFilter);
+		}
+	}, [debouncedSearch, countryFilter, industryFilter]);
 
 	const handlePageChange = (newPage: number) => {
 		loadItems(newPage, debouncedSearch, countryFilter, industryFilter);
@@ -299,7 +314,6 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 		try {
 			const resp = await MasterDataService.organization.update(item);
 			toast({ description: resp.message, variant: 'success' });
-			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter);
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
@@ -331,21 +345,29 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 		setEditingItem(undefined);
 	};
 
-	const handleFormSubmit = async (data: Omit<IOrganization, 'id'>) => {
-		const success = editingItem ? await handleUpdate({ id: editingItem.id, ...data }) : await handleAdd(data);
-		if (success) handleCloseForm();
+	const handleFormSubmit = async (data: Omit<IOrganization, 'id'> | IOrganization) => {
+		const success = editingItem ? await handleUpdate(data as IOrganization) : await handleAdd(data);
+		if (success) {
+			handleCloseForm();
+			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter);
+		}
 		return success;
 	};
 
 	const handleToggleActive = async (item: IOrganization) => {
-		const success = await handleUpdate({ ...item, isActive: !item.isActive });
+		if (!item.id) return;
+		setIsSubmitting(item.id);
+		const updatedItem = { ...item, isActive: !item.isActive };
+		const success = await handleUpdate(updatedItem);
 		if (success) {
+			setItems((prevItems) => prevItems.map((i) => (i.id === item.id ? updatedItem : i)));
 			toast({
 				title: 'Success',
 				description: 'Status updated successfully.',
 				variant: 'success',
 			});
 		}
+		setIsSubmitting(null);
 	};
 
 	const from = meta.totalRecords ? meta.page * meta.limit + 1 : 0;
@@ -387,13 +409,23 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 				</div>
 			</div>
 			<div className='flex items-center gap-2 self-start'>
-				<Switch checked={item.isActive} onCheckedChange={() => handleToggleActive(item)} />
-				<Button variant='ghost' size='icon' className='h-8 w-8' onClick={() => handleOpenForm(item)}>
+				<Switch
+					checked={item.isActive}
+					onCheckedChange={() => handleToggleActive(item)}
+					disabled={isSubmitting === item.id}
+				/>
+				<Button
+					variant='ghost'
+					size='icon'
+					className='h-8 w-8'
+					onClick={() => handleOpenForm(item)}
+					disabled={isSubmitting === item.id}
+				>
 					<Edit className='h-4 w-4' />
 				</Button>
 				<AlertDialog>
 					<AlertDialogTrigger asChild>
-						<Button variant='ghost' size='icon' className='h-8 w-8'>
+						<Button variant='ghost' size='icon' className='h-8 w-8' disabled={isSubmitting === item.id}>
 							<Trash className='h-4 w-4 text-destructive' />
 						</Button>
 					</AlertDialogTrigger>
@@ -462,15 +494,15 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 						</Button>
 					</div>
 					<div className='space-y-2 pt-4'>
-						{isLoading
+						{isInitialLoading
 							? [...Array(5)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
 							: items.map(renderViewItem)}
-						{!isLoading && items.length === 0 && (
+						{!isInitialLoading && items.length === 0 && (
 							<p className='text-center text-sm text-muted-foreground py-4'>No {noun.toLowerCase()}s found.</p>
 						)}
 					</div>
 				</CardContent>
-				{meta && meta.totalRecords && meta.totalRecords > 0 ? (
+				{meta && meta.totalRecords && meta.totalRecords > 0 && !isInitialLoading ? (
 					<CardFooter className='flex-col-reverse items-center gap-4 sm:flex-row sm:justify-between'>
 						<p className='text-sm text-muted-foreground'>
 							Showing{' '}
