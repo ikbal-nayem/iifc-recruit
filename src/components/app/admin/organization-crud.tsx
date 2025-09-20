@@ -35,9 +35,8 @@ const formSchema = z.object({
 	name: z.string().min(1, 'Name is required.'),
 	fkCountry: z.string().min(1, 'Country is required.'),
 	address: z.string().optional(),
-	postCode: z.string().optional(),
 	fkIndustryType: z.string().optional(),
-	fkOrganizationType: z.string().optional(),
+	fkOrganizationType: z.string().min(1, 'Organization Type is required'),
     phone: z.string().optional(),
     email: z.string().email('Please enter a valid email.').optional().or(z.literal('')),
     website: z.string().url('Please enter a valid URL.').optional().or(z.literal('')),
@@ -71,7 +70,6 @@ function OrganizationForm({
 				name: '',
 				fkCountry: countries.find((c) => c.name === 'Bangladesh')?.id || '',
 				address: '',
-				postCode: '',
 				fkIndustryType: '',
 				fkOrganizationType: '',
                 phone: '',
@@ -127,23 +125,13 @@ function OrganizationForm({
 							options={countries.map((c) => ({ value: c.id!, label: c.name }))}
 							disabled={isSubmitting}
 						/>
-
-						<div className='grid grid-cols-2 gap-4'>
-							<FormInput
+						<FormInput
 								control={form.control}
 								name='address'
 								label='Address'
 								placeholder='Address'
 								disabled={isSubmitting}
 							/>
-							<FormInput
-								control={form.control}
-								name='postCode'
-								label='Post Code'
-								placeholder='Post Code'
-								disabled={isSubmitting}
-							/>
-						</div>
                         <div className="grid grid-cols-2 gap-4">
                             <FormInput
                                 control={form.control}
@@ -181,6 +169,7 @@ function OrganizationForm({
 							control={form.control}
 							name='fkOrganizationType'
 							label='Organization Type'
+                            required
 							placeholder='Select Organization Type'
 							options={organizationTypes.map((o) => ({ value: o.id!, label: o.name }))}
 							disabled={isSubmitting}
@@ -286,7 +275,7 @@ export function OrganizationCrud({
                         {industryTypes.find((i) => i.id === item.fkIndustryType)?.name || 'N/A'} | Type:{' '}
                         {organizationTypes.find((o) => o.id === item.fkOrganizationType)?.name || 'N/A'}
                     </p>
-                    {item.address && <p className='text-xs text-muted-foreground'>{item.address}, {item.postCode}</p>}
+                    {item.address && <p className='text-xs text-muted-foreground'>{item.address}</p>}
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1">
                         {item.phone && <span className="flex items-center gap-1.5"><Phone className="h-3 w-3" /> {item.phone}</span>}
                         {item.email && <span className="flex items-center gap-1.5"><Mail className="h-3 w-3" /> {item.email}</span>}

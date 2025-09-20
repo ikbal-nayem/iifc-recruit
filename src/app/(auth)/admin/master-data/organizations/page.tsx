@@ -15,7 +15,6 @@ const initialData: IOrganization[] = [
 		name: 'IIFC',
 		fkCountry: '1', // Assuming '1' is Bangladesh
 		address: 'Ede-II, 6/B, 147, Mohakhali',
-		postCode: '1212',
 		fkIndustryType: '1', // Example
 		fkOrganizationType: '1', // Example
         phone: '+88029889244',
@@ -28,7 +27,6 @@ const initialData: IOrganization[] = [
 		name: 'Google',
 		fkCountry: '3', // Assuming '3' is United States
 		address: '1600 Amphitheatre Parkway',
-		postCode: '94043',
 		fkIndustryType: '2', // Example
 		fkOrganizationType: '2', // Example
         phone: '+1-650-253-0000',

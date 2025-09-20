@@ -16,7 +16,6 @@ export interface IEducationInstitution extends ICommonMasterData {
 export interface IOrganization extends ICommonMasterData {
     fkCountry: string;
     address: string;
-    postCode: string;
     fkIndustryType: string;
     fkOrganizationType: string;
     phone?: string;
@@ -28,3 +27,4 @@ export interface IOrganization extends ICommonMasterData {
 export interface IStatus extends ICommonMasterData {
 	statusType: typeof STATUS_TYPE[keyof typeof STATUS_TYPE];
 }
+
