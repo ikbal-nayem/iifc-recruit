@@ -104,7 +104,7 @@ function OrganizationForm({
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
 				<DialogHeader>
-					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
+					<DialogTitle>{initialData ? `Edit ${noun}` : `Add ${noun}`}</DialogTitle>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4' noValidate>
