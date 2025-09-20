@@ -122,7 +122,7 @@ function OrganizationForm({
 								options={countries.map((c) => ({ value: c.code!, label: c.name }))}
 								disabled={isSubmitting}
 							/>
-                            <FormAutocomplete
+							<FormAutocomplete
 								control={form.control}
 								name='organizationTypeId'
 								label='Organization Type'
@@ -147,7 +147,7 @@ function OrganizationForm({
 								placeholder='Address'
 								disabled={isSubmitting}
 							/>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <FormInput
                                 control={form.control}
                                 name="phone"
@@ -323,8 +323,8 @@ export function OrganizationCrud({
 			</div>
 			<Card className='glassmorphism'>
 				<CardContent className='pt-6'>
-					<div className='flex flex-col sm:flex-row gap-4 justify-between'>
-						<div className='relative w-full sm:max-w-xs'>
+					<div className='flex flex-col md:flex-row md:items-center gap-4'>
+						<div className='relative w-full md:max-w-xs'>
 							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 							<Input
 								placeholder={`Search ${noun.toLowerCase()}s...`}
@@ -352,7 +352,7 @@ export function OrganizationCrud({
 								value={industryFilter}
 							/>
 						</div>
-						<Button className='w-full sm:w-auto' onClick={() => handleOpenForm()}>
+						<Button className='w-full md:w-auto' onClick={() => handleOpenForm()}>
 							<PlusCircle className='mr-2 h-4 w-4' />
 							Add New {noun}
 						</Button>
