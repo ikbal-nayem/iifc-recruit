@@ -27,7 +27,7 @@ import { IMeta } from '@/interfaces/common.interface';
 import { ICommonMasterData, IOrganization } from '@/interfaces/master-data.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Search, Trash, Mail, Phone, Globe } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -108,24 +108,26 @@ function OrganizationForm({
 							required
 							disabled={isSubmitting}
 						/>
-						<FormAutocomplete
-							control={form.control}
-							name='fkCountry'
-							label='Country'
-							placeholder='Select Country'
-							required
-							options={countries.map((c) => ({ value: c.id!, label: c.name }))}
-							disabled={isSubmitting}
-						/>
-                        <FormAutocomplete
-							control={form.control}
-							name='fkOrganizationType'
-							label='Organization Type'
-                            required
-							placeholder='Select Organization Type'
-							options={organizationTypes.map((o) => ({ value: o.id!, label: o.name }))}
-							disabled={isSubmitting}
-						/>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<FormAutocomplete
+								control={form.control}
+								name='fkCountry'
+								label='Country'
+								placeholder='Select Country'
+								required
+								options={countries.map((c) => ({ value: c.id!, label: c.name }))}
+								disabled={isSubmitting}
+							/>
+							<FormAutocomplete
+								control={form.control}
+								name='fkOrganizationType'
+								label='Organization Type'
+								required
+								placeholder='Select Organization Type'
+								options={organizationTypes.map((o) => ({ value: o.id!, label: o.name }))}
+								disabled={isSubmitting}
+							/>
+						</div>
 						<FormAutocomplete
 							control={form.control}
 							name='fkIndustryType'
