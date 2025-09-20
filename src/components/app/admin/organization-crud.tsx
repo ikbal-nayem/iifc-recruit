@@ -22,24 +22,26 @@ import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
+import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
-import { IMeta } from '@/interfaces/common.interface';
+import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { ICommonMasterData, IOrganization } from '@/interfaces/master-data.interface';
+import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Search, Trash, Mail, Phone, Globe } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 const formSchema = z.object({
 	name: z.string().min(1, 'Name is required.'),
 	countryCode: z.string().min(1, 'Country is required.'),
-	address: z.string().optional(),
+	organizationTypeId: z.string().min(1, 'Organization Type is required.'),
 	industryTypeId: z.string().optional(),
-	organizationTypeId: z.string().min(1, 'Organization Type is required'),
-    phone: z.string().optional(),
-    email: z.string().email('Please enter a valid email.').optional().or(z.literal('')),
-    website: z.string().url('Please enter a valid URL.').optional().or(z.literal('')),
+	address: z.string().optional(),
+	phone: z.string().optional(),
+	email: z.string().email('Please enter a valid email.').optional().or(z.literal('')),
+	website: z.string().url('Please enter a valid URL.').optional().or(z.literal('')),
 });
 type FormValues = z.infer<typeof formSchema>;
 
@@ -65,15 +67,15 @@ function OrganizationForm({
 	noun,
 }: OrganizationFormProps) {
 	const defaultValues = initialData || {
-        name: '',
-        countryCode: countries.find((c) => c.name === 'Bangladesh')?.code || '',
-        address: '',
-        industryTypeId: '',
-        organizationTypeId: '',
-        phone: '',
-        email: '',
-        website: '',
-    };
+		name: '',
+		countryCode: countries.find((c) => c.name === 'Bangladesh')?.code || '',
+		organizationTypeId: '',
+		industryTypeId: '',
+		address: '',
+		phone: '',
+		email: '',
+		website: '',
+	};
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
@@ -84,11 +86,11 @@ function OrganizationForm({
 
 	const handleSubmit = async (data: FormValues) => {
 		setIsSubmitting(true);
-        const payload: Omit<IOrganization, 'id'> = {
-            ...initialData,
-            ...data,
-            isActive: initialData?.isActive ?? true,
-        };
+		const payload: Omit<IOrganization, 'id'> = {
+			...initialData,
+			...data,
+			isActive: initialData?.isActive ?? true,
+		};
 		const success = await onSubmit(payload);
 		if (success) {
 			onClose();
@@ -98,7 +100,7 @@ function OrganizationForm({
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
-			<DialogContent>
+			<DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
 				<DialogHeader>
 					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
 				</DialogHeader>
@@ -112,7 +114,7 @@ function OrganizationForm({
 							required
 							disabled={isSubmitting}
 						/>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 							<FormAutocomplete
 								control={form.control}
 								name='countryCode'
@@ -141,41 +143,41 @@ function OrganizationForm({
 							disabled={isSubmitting}
 						/>
 						<FormInput
+							control={form.control}
+							name='address'
+							label='Address'
+							placeholder='Address'
+							disabled={isSubmitting}
+						/>
+						<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+							<FormInput
 								control={form.control}
-								name='address'
-								label='Address'
-								placeholder='Address'
+								name='phone'
+								label='Phone'
+								placeholder='Contact number'
 								disabled={isSubmitting}
+								startIcon={<Phone className='h-4 w-4 text-muted-foreground' />}
 							/>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <FormInput
-                                control={form.control}
-                                name="phone"
-                                label="Phone"
-                                placeholder="Contact number"
-                                disabled={isSubmitting}
-                                startIcon={<Phone className="h-4 w-4 text-muted-foreground" />}
-                            />
-                             <FormInput
-                                control={form.control}
-                                name="email"
-                                label="Email"
-                                type="email"
-                                placeholder="Contact email"
-                                disabled={isSubmitting}
-                                startIcon={<Mail className="h-4 w-4 text-muted-foreground" />}
-                            />
-                        </div>
-                        <FormInput
+							<FormInput
+								control={form.control}
+								name='email'
+								label='Email'
+								type='email'
+								placeholder='Contact email'
+								disabled={isSubmitting}
+								startIcon={<Mail className='h-4 w-4 text-muted-foreground' />}
+							/>
+						</div>
+						<FormInput
 							control={form.control}
 							name='website'
 							label='Website'
-                            type="url"
+							type='url'
 							placeholder='https://example.com'
 							disabled={isSubmitting}
-                            startIcon={<Globe className="h-4 w-4 text-muted-foreground" />}
+							startIcon={<Globe className='h-4 w-4 text-muted-foreground' />}
 						/>
-						
+
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
 								Cancel
@@ -192,50 +194,132 @@ function OrganizationForm({
 	);
 }
 
+const initMeta: IMeta = { page: 0, limit: 10 };
+
 interface OrganizationCrudProps {
 	title: string;
 	description: string;
 	noun: string;
-	items: IOrganization[];
-	meta: IMeta;
-	isLoading: boolean;
-	countries: ICommonMasterData[];
-	industryTypes: ICommonMasterData[];
-	organizationTypes: ICommonMasterData[];
-	onAdd: (item: Omit<IOrganization, 'id'>) => Promise<boolean>;
-	onUpdate: (item: IOrganization) => Promise<boolean>;
-	onDelete: (id: string) => Promise<boolean>;
-	onPageChange: (page: number) => void;
-	onSearch: (query: string) => void;
-	countryFilter: string;
-	onCountryChange: (id: string) => void;
-	industryFilter: string;
-	onIndustryChange: (id: string) => void;
 }
 
-export function OrganizationCrud({
-	title,
-	description,
-	noun,
-	items,
-	meta,
-	isLoading,
-	countries,
-	industryTypes,
-	organizationTypes,
-	onAdd,
-	onUpdate,
-	onDelete,
-	onPageChange,
-	onSearch,
-	countryFilter,
-	onCountryChange,
-	industryFilter,
-	onIndustryChange,
-}: OrganizationCrudProps) {
+export function OrganizationCrud({ title, description, noun }: OrganizationCrudProps) {
+	const { toast } = useToast();
+	const [items, setItems] = useState<IOrganization[]>([]);
+	const [countries, setCountries] = useState<ICommonMasterData[]>([]);
+	const [industryTypes, setIndustryTypes] = useState<ICommonMasterData[]>([]);
+	const [organizationTypes, setOrganizationTypes] = useState<ICommonMasterData[]>([]);
+	const [meta, setMeta] = useState<IMeta>(initMeta);
+
+	const [isLoading, setIsLoading] = useState(true);
+	const [searchQuery, setSearchQuery] = useState('');
+	const debouncedSearch = useDebounce(searchQuery, 500);
+
+	const [countryFilter, setCountryFilter] = useState('all');
+	const [industryFilter, setIndustryFilter] = useState('all');
+
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [editingItem, setEditingItem] = useState<IOrganization | undefined>(undefined);
-	const { toast } = useToast();
+
+	const loadItems = useCallback(
+		async (page: number, search: string, countryId: string, industryId: string) => {
+			setIsLoading(true);
+			try {
+				const payload: IApiRequest = {
+					body: {
+						name: search,
+						...(countryId !== 'all' && { countryCode: countryId }),
+						...(industryId !== 'all' && { industryTypeId: industryId }),
+					},
+					meta: { page: page, limit: meta.limit },
+				};
+				const response = await MasterDataService.organization.getList(payload);
+				setItems(response.body);
+				setMeta(response.meta);
+			} catch (error) {
+				console.error('Failed to load items', error);
+				toast({
+					title: 'Error',
+					description: 'Failed to load organizations.',
+					variant: 'destructive',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[meta.limit, toast]
+	);
+
+	useEffect(() => {
+		const fetchInitialData = async () => {
+			setIsLoading(true);
+			try {
+				const [countriesRes, industryTypesRes, orgTypesRes] = await Promise.all([
+					MasterDataService.country.get(),
+					MasterDataService.industryType.get(),
+					MasterDataService.organizationType.get(),
+				]);
+				setCountries(countriesRes.body);
+				setIndustryTypes(industryTypesRes.body);
+				setOrganizationTypes(orgTypesRes.body);
+			} catch (error) {
+				toast({
+					title: 'Error',
+					description: 'Failed to load initial data for the form.',
+					variant: 'destructive',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		};
+		fetchInitialData();
+	}, [toast]);
+
+	useEffect(() => {
+		loadItems(0, debouncedSearch, countryFilter, industryFilter);
+	}, [debouncedSearch, countryFilter, industryFilter, loadItems]);
+
+	const handlePageChange = (newPage: number) => {
+		loadItems(newPage, debouncedSearch, countryFilter, industryFilter);
+	};
+
+	const handleAdd = async (item: Omit<IOrganization, 'id'>): Promise<boolean> => {
+		try {
+			const resp = await MasterDataService.organization.add(item);
+			toast({ description: resp.message, variant: 'success' });
+			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter);
+			return true;
+		} catch (error) {
+			console.error('Failed to add item', error);
+			toast({ title: 'Error', description: 'Failed to add organization.', variant: 'destructive' });
+			return false;
+		}
+	};
+
+	const handleUpdate = async (item: IOrganization): Promise<boolean> => {
+		try {
+			const resp = await MasterDataService.organization.update(item);
+			toast({ description: resp.message, variant: 'success' });
+			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter);
+			return true;
+		} catch (error) {
+			console.error('Failed to update item', error);
+			toast({ title: 'Error', description: 'Failed to update organization.', variant: 'destructive' });
+			return false;
+		}
+	};
+
+	const handleDelete = async (id: string): Promise<boolean> => {
+		try {
+			await MasterDataService.organization.delete(id);
+			toast({ title: 'Success', description: 'Organization deleted successfully.', variant: 'success' });
+			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter);
+			return true;
+		} catch (error) {
+			console.error('Failed to delete item', error);
+			toast({ title: 'Error', description: 'Failed to delete organization.', variant: 'destructive' });
+			return false;
+		}
+	};
 
 	const handleOpenForm = (item?: IOrganization) => {
 		setEditingItem(item);
@@ -248,13 +332,13 @@ export function OrganizationCrud({
 	};
 
 	const handleFormSubmit = async (data: Omit<IOrganization, 'id'>) => {
-		const success = editingItem ? await onUpdate({ ...editingItem, ...data}) : await onAdd(data);
+		const success = editingItem ? await handleUpdate({ ...editingItem, ...data }) : await handleAdd(data);
 		if (success) handleCloseForm();
 		return success;
 	};
 
 	const handleToggleActive = async (item: IOrganization) => {
-		const success = await onUpdate({ ...item, isActive: !item.isActive });
+		const success = await handleUpdate({ ...item, isActive: !item.isActive });
 		if (success) {
 			toast({
 				title: 'Success',
@@ -271,19 +355,36 @@ export function OrganizationCrud({
 		<Card key={item.id} className='p-4 flex flex-col sm:flex-row justify-between items-start bg-background/50 gap-4'>
 			<div className='flex-1 space-y-1'>
 				<p className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}>{item.name}</p>
-                <div className="text-xs text-muted-foreground space-y-1">
-                    <p>
-                        {countries.find((c) => c.code === item.countryCode)?.name} | Industry:{' '}
-                        {industryTypes.find((i) => i.id === item.industryTypeId)?.name || 'N/A'} | Type:{' '}
-                        {organizationTypes.find((o) => o.id === item.organizationTypeId)?.name || 'N/A'}
-                    </p>
-                    {item.address && <p className='text-xs text-muted-foreground'>{item.address}</p>}
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1">
-                        {item.phone && <span className="flex items-center gap-1.5"><Phone className="h-3 w-3" /> {item.phone}</span>}
-                        {item.email && <span className="flex items-center gap-1.5"><Mail className="h-3 w-3" /> {item.email}</span>}
-                        {item.website && <a href={item.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:underline"><Globe className="h-3 w-3" /> Website</a>}
-                    </div>
-                </div>
+				<div className='text-xs text-muted-foreground space-y-1'>
+					<p>
+						{countries.find((c) => c.code === item.countryCode)?.name} | Industry:{' '}
+						{industryTypes.find((i) => i.id === item.industryTypeId)?.name || 'N/A'} | Type:{' '}
+						{organizationTypes.find((o) => o.id === item.organizationTypeId)?.name || 'N/A'}
+					</p>
+					{item.address && <p className='text-xs text-muted-foreground'>{item.address}</p>}
+					<div className='flex flex-wrap items-center gap-x-4 gap-y-1 pt-1'>
+						{item.phone && (
+							<span className='flex items-center gap-1.5'>
+								<Phone className='h-3 w-3' /> {item.phone}
+							</span>
+						)}
+						{item.email && (
+							<span className='flex items-center gap-1.5'>
+								<Mail className='h-3 w-3' /> {item.email}
+							</span>
+						)}
+						{item.website && (
+							<a
+								href={item.website}
+								target='_blank'
+								rel='noopener noreferrer'
+								className='flex items-center gap-1.5 hover:underline'
+							>
+								<Globe className='h-3 w-3' /> Website
+							</a>
+						)}
+					</div>
+				</div>
 			</div>
 			<div className='flex items-center gap-2 self-start'>
 				<Switch checked={item.isActive} onCheckedChange={() => handleToggleActive(item)} />
@@ -305,7 +406,10 @@ export function OrganizationCrud({
 						</AlertDialogHeader>
 						<AlertDialogFooter>
 							<AlertDialogCancel>Cancel</AlertDialogCancel>
-							<AlertDialogAction onClick={() => onDelete(item.id!)} className='bg-destructive hover:bg-destructive/90'>
+							<AlertDialogAction
+								onClick={() => handleDelete(item.id!)}
+								className='bg-destructive hover:bg-destructive/90'
+							>
 								Delete
 							</AlertDialogAction>
 						</AlertDialogFooter>
@@ -328,7 +432,7 @@ export function OrganizationCrud({
 							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 							<Input
 								placeholder={`Search ${noun.toLowerCase()}s...`}
-								onChange={(e) => onSearch(e.target.value)}
+								onChange={(e) => setSearchQuery(e.target.value)}
 								className='pl-10'
 							/>
 						</div>
@@ -339,7 +443,7 @@ export function OrganizationCrud({
 								label=''
 								placeholder='Filter by Country...'
 								options={[{ value: 'all', label: 'All Countries' }, ...countries.map((c) => ({ value: c.id!, label: c.name }))]}
-								onValueChange={onCountryChange}
+								onValueChange={setCountryFilter}
 								value={countryFilter}
 							/>
 							<FormAutocomplete
@@ -348,7 +452,7 @@ export function OrganizationCrud({
 								label=''
 								placeholder='Filter by Industry...'
 								options={[{ value: 'all', label: 'All Industries' }, ...industryTypes.map((i) => ({ value: i.id!, label: i.name }))]}
-								onValueChange={onIndustryChange}
+								onValueChange={setIndustryFilter}
 								value={industryFilter}
 							/>
 						</div>
@@ -375,7 +479,7 @@ export function OrganizationCrud({
 							</strong>{' '}
 							of <strong>{meta.totalRecords}</strong> {noun.toLowerCase()}s
 						</p>
-						<Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} />
+						<Pagination meta={meta} isLoading={isLoading} onPageChange={handlePageChange} />
 					</CardFooter>
 				) : null}
 			</Card>
