@@ -27,7 +27,7 @@ import { IMeta } from '@/interfaces/common.interface';
 import { ICommonMasterData, IOrganization } from '@/interfaces/master-data.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Search, Trash, Mail, Phone, Globe } from 'lucide-react';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -64,20 +64,16 @@ function OrganizationForm({
 	organizationTypes,
 	noun,
 }: OrganizationFormProps) {
-	const defaultValues = useMemo(
-		() =>
-			initialData || {
-				name: '',
-				fkCountry: countries.find((c) => c.name === 'Bangladesh')?.id || '',
-				address: '',
-				fkIndustryType: '',
-				fkOrganizationType: '',
-                phone: '',
-                email: '',
-                website: '',
-			},
-		[initialData, countries]
-	);
+	const defaultValues = initialData || {
+        name: '',
+        fkCountry: countries.find((c) => c.name === 'Bangladesh')?.id || '',
+        address: '',
+        fkIndustryType: '',
+        fkOrganizationType: '',
+        phone: '',
+        email: '',
+        website: '',
+    };
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
@@ -127,19 +123,19 @@ function OrganizationForm({
 						/>
                         <FormAutocomplete
 							control={form.control}
-							name='fkIndustryType'
-							label='Industry Type'
-							placeholder='Select Industry Type'
-							options={industryTypes.map((i) => ({ value: i.id!, label: i.name }))}
-							disabled={isSubmitting}
-						/>
-						<FormAutocomplete
-							control={form.control}
 							name='fkOrganizationType'
 							label='Organization Type'
                             required
 							placeholder='Select Organization Type'
 							options={organizationTypes.map((o) => ({ value: o.id!, label: o.name }))}
+							disabled={isSubmitting}
+						/>
+						<FormAutocomplete
+							control={form.control}
+							name='fkIndustryType'
+							label='Industry Type'
+							placeholder='Select Industry Type'
+							options={industryTypes.map((i) => ({ value: i.id!, label: i.name }))}
 							disabled={isSubmitting}
 						/>
 						<FormInput
