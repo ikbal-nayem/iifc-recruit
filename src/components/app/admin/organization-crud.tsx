@@ -125,39 +125,7 @@ function OrganizationForm({
 							options={countries.map((c) => ({ value: c.id!, label: c.name }))}
 							disabled={isSubmitting}
 						/>
-						<FormInput
-								control={form.control}
-								name='address'
-								label='Address'
-								placeholder='Address'
-								disabled={isSubmitting}
-							/>
-                        <div className="grid grid-cols-2 gap-4">
-                            <FormInput
-                                control={form.control}
-                                name="phone"
-                                label="Phone"
-                                placeholder="Contact number"
-                                disabled={isSubmitting}
-                            />
-                             <FormInput
-                                control={form.control}
-                                name="email"
-                                label="Email"
-                                type="email"
-                                placeholder="Contact email"
-                                disabled={isSubmitting}
-                            />
-                        </div>
-                        <FormInput
-							control={form.control}
-							name='website'
-							label='Website'
-                            type="url"
-							placeholder='https://example.com'
-							disabled={isSubmitting}
-						/>
-						<FormAutocomplete
+                        <FormAutocomplete
 							control={form.control}
 							name='fkIndustryType'
 							label='Industry Type'
@@ -174,6 +142,42 @@ function OrganizationForm({
 							options={organizationTypes.map((o) => ({ value: o.id!, label: o.name }))}
 							disabled={isSubmitting}
 						/>
+						<FormInput
+								control={form.control}
+								name='address'
+								label='Address'
+								placeholder='Address'
+								disabled={isSubmitting}
+							/>
+                        <div className="grid grid-cols-2 gap-4">
+                            <FormInput
+                                control={form.control}
+                                name="phone"
+                                label="Phone"
+                                placeholder="Contact number"
+                                disabled={isSubmitting}
+                                startIcon={<Phone className="h-4 w-4 text-muted-foreground" />}
+                            />
+                             <FormInput
+                                control={form.control}
+                                name="email"
+                                label="Email"
+                                type="email"
+                                placeholder="Contact email"
+                                disabled={isSubmitting}
+                                startIcon={<Mail className="h-4 w-4 text-muted-foreground" />}
+                            />
+                        </div>
+                        <FormInput
+							control={form.control}
+							name='website'
+							label='Website'
+                            type="url"
+							placeholder='https://example.com'
+							disabled={isSubmitting}
+                            startIcon={<Globe className="h-4 w-4 text-muted-foreground" />}
+						/>
+						
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
 								Cancel
