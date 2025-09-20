@@ -92,10 +92,6 @@ function OrganizationForm({
 		setIsSubmitting(false);
 	};
 
-	useEffect(() => {
-		form.reset(defaultValues);
-	}, [defaultValues, form]);
-
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
