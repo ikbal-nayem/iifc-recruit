@@ -332,7 +332,7 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 	};
 
 	const handleFormSubmit = async (data: Omit<IOrganization, 'id'>) => {
-		const success = editingItem ? await handleUpdate({ ...editingItem, ...data }) : await handleAdd(data);
+		const success = editingItem ? await handleUpdate({ id: editingItem.id, ...data }) : await handleAdd(data);
 		if (success) handleCloseForm();
 		return success;
 	};
