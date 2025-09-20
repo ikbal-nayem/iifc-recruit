@@ -22,6 +22,7 @@ import {
     Award,
     BookCopy,
     ListChecks,
+    Handshake,
 } from 'lucide-react';
 
 export interface NavLink {
@@ -60,7 +61,7 @@ export const adminNavLinks: NavLink[] = [
 		],
 	},
 	{ href: '/admin/jobseekers', label: 'Jobseekers', icon: Users },
-	{ href: '/admin/our-clients', label: 'Our Clients', icon: Building2 },
+	{ href: '/admin/our-clients', label: 'Our Clients', icon: Handshake },
     {
         href: '#',
         label: 'Separator',
