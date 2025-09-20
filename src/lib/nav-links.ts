@@ -101,14 +101,14 @@ export const adminNavLinks: NavLink[] = [
 				href: '#',
 				label: 'Company Data',
 				icon: Network,
-				isActive: (pathname) => pathname.startsWith('/admin/master-data/industry-types') || pathname.startsWith('/admin/master-data/organization-types') || pathname.startsWith('/admin/master-data/organizations') || pathname.startsWith('/admin/master-data/position-levels'),
+				isActive: (pathname) => pathname.startsWith('/admin/master-data/industry-types') || pathname.startsWith('/admin/master-data/organization-types') || pathname.startsWith('/admin/master-data/position-levels'),
 				submenu: [
 					{ href: '/admin/master-data/industry-types', label: 'Industry Types', icon: Tag },
 					{ href: '/admin/master-data/organization-types', label: 'Organization Types', icon: Tag },
                     { href: '/admin/master-data/position-levels', label: 'Position Levels', icon: Tag },
-					{ href: '/admin/master-data/organizations', label: 'Organizations', icon: Building2 },
 				],
 			},
+            { href: '/admin/master-data/organizations', label: 'Organizations', icon: Building2 },
 			{
 				href: '/admin/master-data/training/training-types',
 				label: 'Training',
