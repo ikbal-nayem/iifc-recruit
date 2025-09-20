@@ -1,13 +1,13 @@
 import { axiosIns } from '@/config/api.config';
 import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
-import { ICommonMasterData, IEducationInstitution, IStatus } from '@/interfaces/master-data.interface';
+import { ICommonMasterData, IEducationInstitution, IOrganization, IStatus } from '@/interfaces/master-data.interface';
 
 const createMasterDataCrud = <T extends ICommonMasterData>(entity: string) => ({
 	get: async (): Promise<IApiResponse<ICommonMasterData[]>> =>
 		await axiosIns.get(`/master-data/${entity}/get`),
 	getList: async (payload: IApiRequest): Promise<IApiResponse<T[]>> =>
 		await axiosIns.post(`/master-data/${entity}/get-list`, payload),
-	add: async (payload: T): Promise<IApiResponse<T>> =>
+	add: async (payload: T | Omit<T, 'id'>): Promise<IApiResponse<T>> =>
 		await axiosIns.post(`/master-data/${entity}/create`, payload),
 	update: async (payload: T): Promise<IApiResponse<T>> =>
 		await axiosIns.put(`/master-data/${entity}/update`, payload),
@@ -28,4 +28,11 @@ export const MasterDataService = {
 	trainingType: createMasterDataCrud('training-type'),
 	country: createMasterDataCrud('country'),
 	educationInstitution: createMasterDataCrud<IEducationInstitution>('education-institution'),
+	organization: {
+		...createMasterDataCrud<IOrganization>('organization'),
+		add: async (payload: Omit<IOrganization, 'id'>): Promise<IApiResponse<IOrganization>> =>
+			await axiosIns.post('/master-data/organization/create', payload),
+		update: async (payload: IOrganization): Promise<IApiResponse<IOrganization>> =>
+			await axiosIns.put('/master-data/organization/update', payload),
+	},
 };

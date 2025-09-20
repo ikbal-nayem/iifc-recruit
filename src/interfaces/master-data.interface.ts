@@ -6,6 +6,7 @@ export interface ICommonMasterData {
 	id?: string;
 	name: string;
 	isActive: boolean;
+	code?: string;
 }
 
 export interface IEducationInstitution extends ICommonMasterData {
@@ -14,17 +15,20 @@ export interface IEducationInstitution extends ICommonMasterData {
 }
 
 export interface IOrganization extends ICommonMasterData {
-    fkCountry: string;
-    address: string;
-    fkIndustryType: string;
-    fkOrganizationType: string;
+    countryCode: string;
+    organizationTypeId: string;
+    industryTypeId?: string;
+    address?: string;
     phone?: string;
     email?: string;
     website?: string;
+    
+    country?: ICommonMasterData;
+    organizationType?: ICommonMasterData;
+    industryType?: ICommonMasterData;
 }
 
 
 export interface IStatus extends ICommonMasterData {
 	statusType: typeof STATUS_TYPE[keyof typeof STATUS_TYPE];
 }
-

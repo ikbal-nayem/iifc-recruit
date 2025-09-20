@@ -7,16 +7,16 @@ import { useToast } from '@/hooks/use-toast';
 import { IMeta } from '@/interfaces/common.interface';
 import { ICommonMasterData, IOrganization } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 
 const initialData: IOrganization[] = [
 	{
 		id: '1',
 		name: 'IIFC',
-		fkCountry: '1', // Assuming '1' is Bangladesh
+		countryCode: 'BD', 
 		address: 'Ede-II, 6/B, 147, Mohakhali',
-		fkIndustryType: '1', // Example
-		fkOrganizationType: '1', // Example
+		industryTypeId: '1', 
+		organizationTypeId: '1',
         phone: '+88029889244',
         email: 'info@iifc.gov.bd',
         website: 'https://iifc.gov.bd',
@@ -25,10 +25,10 @@ const initialData: IOrganization[] = [
 	{
 		id: '2',
 		name: 'Google',
-		fkCountry: '3', // Assuming '3' is United States
+		countryCode: 'US',
 		address: '1600 Amphitheatre Parkway',
-		fkIndustryType: '2', // Example
-		fkOrganizationType: '2', // Example
+		industryTypeId: '2',
+		organizationTypeId: '2', 
         phone: '+1-650-253-0000',
         email: 'info@google.com',
         website: 'https://google.com',
@@ -51,21 +51,22 @@ export default function MasterOrganizationsPage() {
 	const [countryFilter, setCountryFilter] = useState('all');
 	const [industryFilter, setIndustryFilter] = useState('all');
 
-	// Memoize filtered items
-	const filteredItems = useMemo(() => {
-		return initialData
+	
+	useEffect(() => {
+		const filtered = initialData
 			.filter((item) => {
 				if (debouncedSearch && !item.name.toLowerCase().includes(debouncedSearch.toLowerCase())) {
 					return false;
 				}
-				if (countryFilter !== 'all' && item.fkCountry !== countryFilter) {
+				if (countryFilter !== 'all' && item.countryCode !== countryFilter) {
 					return false;
 				}
-				if (industryFilter !== 'all' && item.fkIndustryType !== industryFilter) {
+				if (industryFilter !== 'all' && item.industryTypeId !== industryFilter) {
 					return false;
 				}
 				return true;
 			});
+            setItems(filtered);
 	}, [debouncedSearch, countryFilter, industryFilter]);
 
 	useEffect(() => {
@@ -97,14 +98,28 @@ export default function MasterOrganizationsPage() {
 	// This is a mock pagination meta object. In a real app, this would come from the API response.
 	const meta: IMeta = {
 		page: 0,
-		limit: filteredItems.length,
-		totalRecords: filteredItems.length,
+		limit: items.length,
+		totalRecords: items.length,
 		totalPageCount: 1,
 	};
 
 
-	const handleNoOp = async () => {
-		console.log('This is a mock operation.');
+	const handleAdd = async (item: Omit<IOrganization, 'id'>): Promise<boolean> => {
+		console.log('Adding', item);
+		toast({ description: 'Organization added (mock).', variant: 'success' });
+		// In a real app: call API, then reload items.
+		return true;
+	};
+
+	const handleUpdate = async (item: IOrganization): Promise<boolean> => {
+		console.log('Updating', item);
+		toast({ description: 'Organization updated (mock).', variant: 'success' });
+		return true;
+	};
+
+	const handleDelete = async (id: string): Promise<boolean> => {
+		console.log('Deleting', id);
+		toast({ description: 'Organization deleted (mock).', variant: 'success' });
 		return true;
 	};
 
@@ -112,16 +127,16 @@ export default function MasterOrganizationsPage() {
 		<OrganizationCrud
 			title='Organizations'
 			description='Manage company and organization profiles.'
-			items={filteredItems}
+			items={items}
 			meta={meta}
 			isLoading={isLoading}
 			noun='Organization'
 			countries={countries}
 			industryTypes={industryTypes}
 			organizationTypes={organizationTypes}
-			onAdd={async () => handleNoOp()}
-			onUpdate={async () => handleNoOp()}
-			onDelete={async () => handleNoOp()}
+			onAdd={handleAdd}
+			onUpdate={handleUpdate}
+			onDelete={handleDelete}
 			onPageChange={() => {}}
 			onSearch={setSearchQuery}
 			countryFilter={countryFilter}

@@ -33,10 +33,10 @@ import { z } from 'zod';
 
 const formSchema = z.object({
 	name: z.string().min(1, 'Name is required.'),
-	fkCountry: z.string().min(1, 'Country is required.'),
+	countryCode: z.string().min(1, 'Country is required.'),
 	address: z.string().optional(),
-	fkIndustryType: z.string().optional(),
-	fkOrganizationType: z.string().min(1, 'Organization Type is required'),
+	industryTypeId: z.string().optional(),
+	organizationTypeId: z.string().min(1, 'Organization Type is required'),
     phone: z.string().optional(),
     email: z.string().email('Please enter a valid email.').optional().or(z.literal('')),
     website: z.string().url('Please enter a valid URL.').optional().or(z.literal('')),
@@ -46,7 +46,7 @@ type FormValues = z.infer<typeof formSchema>;
 interface OrganizationFormProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onSubmit: (data: IOrganization | Omit<IOrganization, 'id'>) => Promise<boolean>;
+	onSubmit: (data: Omit<IOrganization, 'id'>) => Promise<boolean>;
 	initialData?: IOrganization;
 	countries: ICommonMasterData[];
 	industryTypes: ICommonMasterData[];
@@ -66,10 +66,10 @@ function OrganizationForm({
 }: OrganizationFormProps) {
 	const defaultValues = initialData || {
         name: '',
-        fkCountry: countries.find((c) => c.name === 'Bangladesh')?.id || '',
+        countryCode: countries.find((c) => c.name === 'Bangladesh')?.code || '',
         address: '',
-        fkIndustryType: '',
-        fkOrganizationType: '',
+        industryTypeId: '',
+        organizationTypeId: '',
         phone: '',
         email: '',
         website: '',
@@ -84,8 +84,12 @@ function OrganizationForm({
 
 	const handleSubmit = async (data: FormValues) => {
 		setIsSubmitting(true);
-		const payload = { ...initialData, ...data, isActive: initialData?.isActive ?? true };
-		const success = await onSubmit(payload as IOrganization | Omit<IOrganization, 'id'>);
+        const payload: Omit<IOrganization, 'id'> = {
+            ...initialData,
+            ...data,
+            isActive: initialData?.isActive ?? true,
+        };
+		const success = await onSubmit(payload);
 		if (success) {
 			onClose();
 		}
@@ -94,7 +98,7 @@ function OrganizationForm({
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
-			<DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
+			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
 				</DialogHeader>
@@ -111,16 +115,16 @@ function OrganizationForm({
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 							<FormAutocomplete
 								control={form.control}
-								name='fkCountry'
+								name='countryCode'
 								label='Country'
 								placeholder='Select Country'
 								required
-								options={countries.map((c) => ({ value: c.id!, label: c.name }))}
+								options={countries.map((c) => ({ value: c.code!, label: c.name }))}
 								disabled={isSubmitting}
 							/>
-							<FormAutocomplete
+                            <FormAutocomplete
 								control={form.control}
-								name='fkOrganizationType'
+								name='organizationTypeId'
 								label='Organization Type'
 								required
 								placeholder='Select Organization Type'
@@ -130,7 +134,7 @@ function OrganizationForm({
 						</div>
 						<FormAutocomplete
 							control={form.control}
-							name='fkIndustryType'
+							name='industryTypeId'
 							label='Industry Type'
 							placeholder='Select Industry Type'
 							options={industryTypes.map((i) => ({ value: i.id!, label: i.name }))}
@@ -243,8 +247,8 @@ export function OrganizationCrud({
 		setEditingItem(undefined);
 	};
 
-	const handleFormSubmit = async (data: IOrganization | Omit<IOrganization, 'id'>) => {
-		const success = 'id' in data ? await onUpdate(data) : await onAdd(data);
+	const handleFormSubmit = async (data: Omit<IOrganization, 'id'>) => {
+		const success = editingItem ? await onUpdate({ ...editingItem, ...data}) : await onAdd(data);
 		if (success) handleCloseForm();
 		return success;
 	};
@@ -269,9 +273,9 @@ export function OrganizationCrud({
 				<p className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}>{item.name}</p>
                 <div className="text-xs text-muted-foreground space-y-1">
                     <p>
-                        {countries.find((c) => c.id === item.fkCountry)?.name} | Industry:{' '}
-                        {industryTypes.find((i) => i.id === item.fkIndustryType)?.name || 'N/A'} | Type:{' '}
-                        {organizationTypes.find((o) => o.id === item.fkOrganizationType)?.name || 'N/A'}
+                        {countries.find((c) => c.code === item.countryCode)?.name} | Industry:{' '}
+                        {industryTypes.find((i) => i.id === item.industryTypeId)?.name || 'N/A'} | Type:{' '}
+                        {organizationTypes.find((o) => o.id === item.organizationTypeId)?.name || 'N/A'}
                     </p>
                     {item.address && <p className='text-xs text-muted-foreground'>{item.address}</p>}
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1">
