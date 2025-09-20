@@ -221,13 +221,13 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 	const [editingItem, setEditingItem] = useState<IOrganization | undefined>(undefined);
 
 	const loadItems = useCallback(
-		async (page: number, search: string, countryId: string, industryId: string) => {
+		async (page: number, search: string, countryCode: string, industryId: string) => {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
 					body: {
 						name: search,
-						...(countryId !== 'all' && { countryCode: countryId }),
+						...(countryCode !== 'all' && { countryCode }),
 						...(industryId !== 'all' && { industryTypeId: industryId }),
 					},
 					meta: { page: page, limit: meta.limit },
@@ -442,7 +442,7 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 								name='countryFilter'
 								label=''
 								placeholder='Filter by Country...'
-								options={[{ value: 'all', label: 'All Countries' }, ...countries.map((c) => ({ value: c.id!, label: c.name }))]}
+								options={[{ value: 'all', label: 'All Countries' }, ...countries.map((c) => ({ value: c.code!, label: c.name }))]}
 								onValueChange={setCountryFilter}
 								value={countryFilter}
 							/>
