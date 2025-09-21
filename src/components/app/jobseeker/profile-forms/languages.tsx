@@ -201,7 +201,7 @@ export function ProfileFormLanguages({ candidate }: ProfileFormProps) {
                         />
                     </CardContent>
                     <CardFooter>
-                        <Button type="submit"><PlusCircle className="mr-2 h-4 w-4" /> Add to History</Button>
+                        <Button type="submit"><PlusCircle className="mr-2 h-4 w-4" /> Add Entry</Button>
                     </CardFooter>
                 </Card>
             </form>
