@@ -33,7 +33,7 @@ import { Check, ChevronsUpDown, Edit, Loader2, PlusCircle, Search, Trash } from 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '../ui/command';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 
 const formSchema = z.object({
 	name: z.string().min(1, 'Name is required.'),
