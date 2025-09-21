@@ -178,7 +178,7 @@ export function MasterDataCrud<T extends MasterDataItem>({
 	};
 
 	return (
-		<>
+		<div className='space-y-8'>
 			<div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
 				<div className='space-y-2'>
 					<h1 className='text-3xl font-headline font-bold'>{title}</h1>
@@ -292,6 +292,6 @@ export function MasterDataCrud<T extends MasterDataItem>({
 					noun={noun}
 				/>
 			)}
-		</>
+		</div>
 	);
 }
