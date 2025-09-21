@@ -144,6 +144,7 @@ function OrganizationForm({
 							options={industryTypes.map((i) => ({ value: i.id!, label: i.name }))}
 							disabled={isSubmitting}
 						/>
+
 						<FormInput
 							control={form.control}
 							name='address'
@@ -228,12 +229,20 @@ export function OrganizationCrud({
 
 	const [countryFilter, setCountryFilter] = useState('all');
 	const [industryFilter, setIndustryFilter] = useState('all');
+	const [organizationTypeFilter, setOrganizationTypeFilter] = useState('all');
 
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [editingItem, setEditingItem] = useState<IOrganization | undefined>(undefined);
 
 	const loadItems = useCallback(
-		async (page: number, search: string, countryCode: string, industryId: string, isInitial = false) => {
+		async (
+			page: number,
+			search: string,
+			countryCode: string,
+			industryId: string,
+			orgTypeId: string,
+			isInitial = false
+		) => {
 			if (isInitial) {
 				setIsInitialLoading(true);
 			} else {
@@ -245,6 +254,7 @@ export function OrganizationCrud({
 					name: search,
 					...(countryCode !== 'all' && { countryCode }),
 					...(industryId !== 'all' && { industryTypeId: industryId }),
+					...(orgTypeId !== 'all' && { organizationTypeId: orgTypeId }),
 				},
 				meta: { page: page, limit: meta.limit },
 			};
@@ -273,26 +283,26 @@ export function OrganizationCrud({
 	);
 
 	useEffect(() => {
-		loadItems(0, '', 'all', 'all', true);
+		loadItems(0, '', 'all', 'all', 'all', true);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {
 		if (!isInitialLoading) {
-			loadItems(0, debouncedSearch, countryFilter, industryFilter);
+			loadItems(0, debouncedSearch, countryFilter, industryFilter, organizationTypeFilter);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [debouncedSearch, countryFilter, industryFilter]);
+	}, [debouncedSearch, countryFilter, industryFilter, organizationTypeFilter]);
 
 	const handlePageChange = (newPage: number) => {
-		loadItems(newPage, debouncedSearch, countryFilter, industryFilter);
+		loadItems(newPage, debouncedSearch, countryFilter, industryFilter, organizationTypeFilter);
 	};
 
 	const handleAdd = async (item: Omit<IOrganization, 'id'>): Promise<boolean> => {
 		try {
 			const resp = await MasterDataService.organization.add(item);
 			toast({ description: resp.message, variant: 'success' });
-			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter);
+			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter, organizationTypeFilter);
 			return true;
 		} catch (error: any) {
 			console.error('Failed to add item', error);
@@ -310,9 +320,9 @@ export function OrganizationCrud({
 			const resp = await MasterDataService.organization.update(item);
 			toast({ description: resp.message, variant: 'success' });
 			return true;
-		} catch (error) {
+		} catch (error: any) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update organization.', variant: 'destructive' });
+			toast({ title: 'Error', description: error.message || 'Failed to update organization.', variant: 'destructive' });
 			return false;
 		}
 	};
@@ -321,11 +331,15 @@ export function OrganizationCrud({
 		try {
 			await MasterDataService.organization.delete(id);
 			toast({ title: 'Success', description: 'Organization deleted successfully.', variant: 'success' });
-			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter);
+			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter, organizationTypeFilter);
 			return true;
 		} catch (error: any) {
 			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: error?.message || 'Failed to delete organization.', variant: 'destructive' });
+			toast({
+				title: 'Error',
+				description: error?.message || 'Failed to delete organization.',
+				variant: 'destructive',
+			});
 			return false;
 		}
 	};
@@ -341,10 +355,12 @@ export function OrganizationCrud({
 	};
 
 	const handleFormSubmit = async (data: Omit<IOrganization, 'id'> | IOrganization) => {
-		const success = editingItem ? await handleUpdate({ ...data, id: editingItem.id }) : await handleAdd(data);
+		const success = editingItem
+			? await handleUpdate({ ...data, id: editingItem.id, isActive: editingItem.isActive })
+			: await handleAdd(data);
 		if (success) {
 			handleCloseForm();
-			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter);
+			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter, organizationTypeFilter);
 		}
 		return success;
 	};
@@ -465,7 +481,7 @@ export function OrganizationCrud({
 								className='pl-10'
 							/>
 						</div>
-						<div className='flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4'>
+						<div className='flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
 							<FormAutocomplete
 								control={undefined as any}
 								name='countryFilter'
@@ -477,6 +493,18 @@ export function OrganizationCrud({
 								]}
 								onValueChange={setCountryFilter}
 								value={countryFilter}
+							/>
+							<FormAutocomplete
+								control={undefined as any}
+								name='organizationTypeFilter'
+								label=''
+								placeholder='Filter by Type...'
+								options={[
+									{ value: 'all', label: 'All Types' },
+									...organizationTypes?.map((c) => ({ value: c.id!, label: c.name })),
+								]}
+								onValueChange={setOrganizationTypeFilter}
+								value={organizationTypeFilter}
 							/>
 							<FormAutocomplete
 								control={undefined as any}
