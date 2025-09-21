@@ -90,7 +90,7 @@ export function ProfileFormSkills({ candidate }: ProfileFormProps) {
 				</CardDescription>
 			</CardHeader>
 			<CardContent className='space-y-4'>
-                <div className='flex flex-wrap gap-2 p-3 border rounded-lg min-h-[44px] items-center'>
+				<div className='flex flex-wrap gap-2 p-3 border rounded-lg min-h-[44px] items-center'>
 					{skills.map((skill) => (
 						<AlertDialog key={skill}>
 							<Badge variant='secondary' className='text-sm py-1 px-2'>
@@ -121,58 +121,57 @@ export function ProfileFormSkills({ candidate }: ProfileFormProps) {
 							</AlertDialogContent>
 						</AlertDialog>
 					))}
-
-                    <Popover open={open} onOpenChange={setOpen}>
-						<PopoverTrigger asChild>
-                            <div className='flex-1 relative'>
-                                <Command>
-                                    <CommandInput
-                                        placeholder='Add a skill...'
-                                        value={searchQuery}
-                                        onValueChange={setSearchQuery}
-                                        className='h-auto bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 px-1'
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter' && debouncedSearch && suggestedSkills.length === 0) {
-                                                e.preventDefault();
-                                                handleAddSkill(debouncedSearch);
-                                            }
-                                        }}
-                                    />
-                                </Command>
-                            </div>
-						</PopoverTrigger>
-						<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align="start">
-							<CommandList>
-								{isLoading && (
-									<div className='p-2 flex justify-center'>
-										<Loader2 className='h-6 w-6 animate-spin' />
-									</div>
-								)}
-								{!isLoading && debouncedSearch && <CommandEmpty>No skill found. Press Enter to add &quot;{debouncedSearch}&quot;</CommandEmpty>}
-                                {!isLoading && !debouncedSearch && <CommandEmpty>Type to search for skills.</CommandEmpty>}
-								<CommandGroup>
-									{suggestedSkills.map((skill) => (
-										<CommandItem
-											key={skill.id}
-											value={skill.name}
-											onSelect={(currentValue) => {
-												handleAddSkill(currentValue);
-												setOpen(false);
-											}}
-										>
-											<Check
-												className={cn(
-													'mr-2 h-4 w-4',
-													skills.includes(skill.name) ? 'opacity-100' : 'opacity-0'
-												)}
-											/>
-											{skill.name}
-										</CommandItem>
-									))}
-								</CommandGroup>
-							</CommandList>
-						</PopoverContent>
-					</Popover>
+					<Command className='flex-1 relative bg-transparent'>
+						<Popover open={open} onOpenChange={setOpen}>
+							<PopoverTrigger asChild>
+								<div className='flex-1 relative'>
+									<CommandInput
+										placeholder='Add a skill...'
+										value={searchQuery}
+										onValueChange={setSearchQuery}
+										className='h-auto bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 px-1'
+										onKeyDown={(e) => {
+											if (e.key === 'Enter' && debouncedSearch && suggestedSkills.length === 0) {
+												e.preventDefault();
+												handleAddSkill(debouncedSearch);
+											}
+										}}
+									/>
+								</div>
+							</PopoverTrigger>
+							<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align="start">
+								<CommandList>
+									{isLoading && (
+										<div className='p-2 flex justify-center'>
+											<Loader2 className='h-6 w-6 animate-spin' />
+										</div>
+									)}
+									{!isLoading && debouncedSearch && <CommandEmpty>No skill found. Press Enter to add &quot;{debouncedSearch}&quot;</CommandEmpty>}
+									{!isLoading && !debouncedSearch && <CommandEmpty>Type to search for skills.</CommandEmpty>}
+									<CommandGroup>
+										{suggestedSkills.map((skill) => (
+											<CommandItem
+												key={skill.id}
+												value={skill.name}
+												onSelect={(currentValue) => {
+													handleAddSkill(currentValue);
+													setOpen(false);
+												}}
+											>
+												<Check
+													className={cn(
+														'mr-2 h-4 w-4',
+														skills.includes(skill.name) ? 'opacity-100' : 'opacity-0'
+													)}
+												/>
+												{skill.name}
+											</CommandItem>
+										))}
+									</CommandGroup>
+								</CommandList>
+							</PopoverContent>
+						</Popover>
+					</Command>
 				</div>
 			</CardContent>
 			<CardFooter>
