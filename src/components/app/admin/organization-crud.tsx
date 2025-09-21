@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -28,7 +27,7 @@ import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { ICommonMasterData, IOrganization } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Edit, Loader2, PlusCircle, Search, Trash, Mail, Phone, Globe } from 'lucide-react';
+import { Edit, Globe, Loader2, Mail, Phone, PlusCircle, Search, Trash } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -202,14 +201,16 @@ interface OrganizationCrudProps {
 	title: string;
 	description: string;
 	noun: string;
+	masterData: {
+		countries: Array<ICommonMasterData>;
+		industryTypes: Array<ICommonMasterData>;
+		organizationTypes: Array<ICommonMasterData>;
+	};
 }
 
-export function OrganizationCrud({ title, description, noun }: OrganizationCrudProps) {
+export function OrganizationCrud({ title, description, noun, masterData }: OrganizationCrudProps) {
 	const { toast } = useToast();
 	const [items, setItems] = useState<IOrganization[]>([]);
-	const [countries, setCountries] = useState<ICommonMasterData[]>([]);
-	const [industryTypes, setIndustryTypes] = useState<ICommonMasterData[]>([]);
-	const [organizationTypes, setOrganizationTypes] = useState<ICommonMasterData[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 
 	const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -232,59 +233,41 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 			} else {
 				setIsLoading(true);
 			}
-			try {
-				const payload: IApiRequest = {
-					body: {
-						name: search,
-						...(countryCode !== 'all' && { countryCode }),
-						...(industryId !== 'all' && { industryTypeId: industryId }),
-					},
-					meta: { page: page, limit: meta.limit },
-				};
-				const response = await MasterDataService.organization.getList(payload);
-				setItems(response.body);
-				setMeta(response.meta);
-			} catch (error) {
-				console.error('Failed to load items', error);
-				toast({
-					title: 'Error',
-					description: 'Failed to load organizations.',
-					variant: 'destructive',
+
+			const payload: IApiRequest = {
+				body: {
+					name: search,
+					...(countryCode !== 'all' && { countryCode }),
+					...(industryId !== 'all' && { industryTypeId: industryId }),
+				},
+				meta: { page: page, limit: meta.limit },
+			};
+			MasterDataService.organization
+				.getList(payload)
+				.then((res) => {
+					setItems(res.body);
+					setMeta(res.meta);
+				})
+				.catch((error) => {
+					console.error('Failed to load items', error);
+					toast({
+						description: error?.message || 'Failed to load organizations.',
+						variant: 'destructive',
+					});
+				})
+				.finally(() => {
+					if (isInitial) {
+						setIsInitialLoading(false);
+					} else {
+						setIsLoading(false);
+					}
 				});
-			} finally {
-				if (isInitial) {
-					setIsInitialLoading(false);
-				} else {
-					setIsLoading(false);
-				}
-			}
 		},
-		[meta.limit, toast]
+		[meta.limit]
 	);
 
 	useEffect(() => {
-		const fetchInitialData = async () => {
-			setIsLoading(true);
-			try {
-				const [countriesRes, industryTypesRes, orgTypesRes] = await Promise.all([
-					MasterDataService.country.get(),
-					MasterDataService.industryType.get(),
-					MasterDataService.organizationType.get(),
-				]);
-				setCountries(countriesRes.body);
-				setIndustryTypes(industryTypesRes.body);
-				setOrganizationTypes(orgTypesRes.body);
-				loadItems(0, '', 'all', 'all', true);
-			} catch (error) {
-				toast({
-					title: 'Error',
-					description: 'Failed to load initial data for the form.',
-					variant: 'destructive',
-				});
-				setIsLoading(false);
-			}
-		};
-		fetchInitialData();
+		loadItems(0, '', 'all', 'all', true);
 	}, []);
 
 	useEffect(() => {
@@ -303,9 +286,13 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 			toast({ description: resp.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter);
 			return true;
-		} catch (error) {
+		} catch (error: any) {
 			console.error('Failed to add item', error);
-			toast({ title: 'Error', description: 'Failed to add organization.', variant: 'destructive' });
+			toast({
+				title: 'Error',
+				description: error?.message || 'Failed to add organization.',
+				variant: 'destructive',
+			});
 			return false;
 		}
 	};
@@ -315,9 +302,13 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 			const resp = await MasterDataService.organization.update(item);
 			toast({ description: resp.message, variant: 'success' });
 			return true;
-		} catch (error) {
+		} catch (error: any) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update organization.', variant: 'destructive' });
+			toast({
+				title: 'Error',
+				description: error?.message || 'Failed to update organization.',
+				variant: 'destructive',
+			});
 			return false;
 		}
 	};
@@ -328,9 +319,9 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 			toast({ title: 'Success', description: 'Organization deleted successfully.', variant: 'success' });
 			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter);
 			return true;
-		} catch (error) {
+		} catch (error: any) {
 			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: 'Failed to delete organization.', variant: 'destructive' });
+			toast({ title: 'Error', description: error?.message || 'Failed to delete organization.', variant: 'destructive' });
 			return false;
 		}
 	};
@@ -374,14 +365,19 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 	const to = Math.min((meta.page + 1) * meta.limit, meta.totalRecords || 0);
 
 	const renderViewItem = (item: IOrganization) => (
-		<Card key={item.id} className='p-4 flex flex-col sm:flex-row justify-between items-start bg-background/50 gap-4'>
+		<Card
+			key={item.id}
+			className='p-4 flex flex-col sm:flex-row justify-between items-start bg-background/50 gap-4'
+		>
 			<div className='flex-1 space-y-1'>
-				<p className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}>{item.name}</p>
+				<p className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}>
+					{item.name}
+				</p>
 				<div className='text-xs text-muted-foreground space-y-1'>
 					<p>
-						{countries.find((c) => c.code === item.countryCode)?.name} | Industry:{' '}
-						{industryTypes.find((i) => i.id === item.industryTypeId)?.name || 'N/A'} | Type:{' '}
-						{organizationTypes.find((o) => o.id === item.organizationTypeId)?.name || 'N/A'}
+						{masterData?.countries?.find((c) => c.code === item.countryCode)?.name} | Industry:{' '}
+						{masterData?.industryTypes?.find((i) => i.id === item.industryTypeId)?.name || 'N/A'} | Type:{' '}
+						{masterData?.organizationTypes?.find((o) => o.id === item.organizationTypeId)?.name || 'N/A'}
 					</p>
 					{item.address && <p className='text-xs text-muted-foreground'>{item.address}</p>}
 					<div className='flex flex-wrap items-center gap-x-4 gap-y-1 pt-1'>
@@ -474,7 +470,10 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 								name='countryFilter'
 								label=''
 								placeholder='Filter by Country...'
-								options={[{ value: 'all', label: 'All Countries' }, ...countries.map((c) => ({ value: c.code!, label: c.name }))]}
+								options={[
+									{ value: 'all', label: 'All Countries' },
+									...masterData?.countries?.map((c) => ({ value: c.code!, label: c.name })),
+								]}
 								onValueChange={setCountryFilter}
 								value={countryFilter}
 							/>
@@ -483,14 +482,17 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 								name='industryFilter'
 								label=''
 								placeholder='Filter by Industry...'
-								options={[{ value: 'all', label: 'All Industries' }, ...industryTypes.map((i) => ({ value: i.id!, label: i.name }))]}
+								options={[
+									{ value: 'all', label: 'All Industries' },
+									...masterData?.industryTypes?.map((i) => ({ value: i.id!, label: i.name })),
+								]}
 								onValueChange={setIndustryFilter}
 								value={industryFilter}
 							/>
 						</div>
 						<Button className='w-full md:w-auto' onClick={() => handleOpenForm()}>
 							<PlusCircle className='mr-2 h-4 w-4' />
-							Add New {noun}
+							Add {noun}
 						</Button>
 					</div>
 					<div className='space-y-2 pt-4'>
@@ -498,7 +500,9 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 							? [...Array(5)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
 							: items.map(renderViewItem)}
 						{!isInitialLoading && items.length === 0 && (
-							<p className='text-center text-sm text-muted-foreground py-4'>No {noun.toLowerCase()}s found.</p>
+							<p className='text-center text-sm text-muted-foreground py-4'>
+								No {noun.toLowerCase()}s found.
+							</p>
 						)}
 					</div>
 				</CardContent>
@@ -521,9 +525,9 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 					onClose={handleCloseForm}
 					onSubmit={handleFormSubmit}
 					initialData={editingItem}
-					countries={countries}
-					industryTypes={industryTypes}
-					organizationTypes={organizationTypes}
+					countries={masterData?.countries}
+					industryTypes={masterData?.industryTypes}
+					organizationTypes={masterData?.organizationTypes}
 					noun={noun}
 				/>
 			)}

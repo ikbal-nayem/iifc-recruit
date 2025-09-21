@@ -18,6 +18,12 @@ export interface IApiResponse<T = any> {
 	message?: string;
 }
 
+export interface IApiError {
+	body?: IObject;
+	message: string;
+	status: number;
+}
+
 export interface IApiRequest {
 	body?: IObject;
 	meta?: Partial<IMeta>;
