@@ -1,6 +1,6 @@
-
 'use client';
 
+import { FormMasterData } from '@/app/(auth)/admin/master-data/organizations/page';
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -25,7 +25,7 @@ import { Switch } from '@/components/ui/switch';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
-import { ICommonMasterData, IOrganization } from '@/interfaces/master-data.interface';
+import { IOrganization } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Globe, Loader2, Mail, Phone, PlusCircle, Search, Trash } from 'lucide-react';
@@ -50,10 +50,8 @@ interface OrganizationFormProps {
 	onClose: () => void;
 	onSubmit: (data: Omit<IOrganization, 'id'> | IOrganization) => Promise<boolean>;
 	initialData?: IOrganization;
-	countries: ICommonMasterData[];
-	industryTypes: ICommonMasterData[];
-	organizationTypes: ICommonMasterData[];
 	noun: string;
+	masterData: FormMasterData;
 }
 
 function OrganizationForm({
@@ -61,10 +59,8 @@ function OrganizationForm({
 	onClose,
 	onSubmit,
 	initialData,
-	countries,
-	industryTypes,
-	organizationTypes,
 	noun,
+	masterData: { countries, industryTypes, organizationTypes },
 }: OrganizationFormProps) {
 	const defaultValues = initialData
 		? { ...initialData }
@@ -202,16 +198,13 @@ interface OrganizationCrudProps {
 	title: string;
 	description: string;
 	noun: string;
+	masterData: FormMasterData;
 }
 
-export function OrganizationCrud({ title, description, noun }: OrganizationCrudProps) {
+export function OrganizationCrud({ title, description, noun, masterData }: OrganizationCrudProps) {
 	const { toast } = useToast();
 	const [items, setItems] = useState<IOrganization[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
-
-	const [countries, setCountries] = useState<ICommonMasterData[]>([]);
-	const [industryTypes, setIndustryTypes] = useState<ICommonMasterData[]>([]);
-	const [organizationTypes, setOrganizationTypes] = useState<ICommonMasterData[]>([]);
 
 	const [isInitialLoading, setIsInitialLoading] = useState(true);
 	const [isLoading, setIsLoading] = useState(false);
@@ -252,46 +245,20 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 				});
 			} finally {
 				setIsLoading(false);
+				setIsInitialLoading(false);
 			}
 		},
 		[meta.limit, toast]
 	);
 
 	useEffect(() => {
-		const fetchMasterDataAndItems = async () => {
-			setIsInitialLoading(true);
-			try {
-				const [countriesRes, industryTypesRes, orgTypesRes] = await Promise.all([
-					MasterDataService.country.get(),
-					MasterDataService.industryType.get(),
-					MasterDataService.organizationType.get(),
-				]);
-				setCountries(countriesRes.body);
-				setIndustryTypes(industryTypesRes.body);
-				setOrganizationTypes(orgTypesRes.body);
-
-				// Now load items
-				await loadItems(0, '', 'all', 'all', 'all');
-			} catch (error) {
-				toast({
-					title: 'Error',
-					description: 'Failed to load master data.',
-					variant: 'destructive',
-				});
-			} finally {
-				setIsInitialLoading(false);
-			}
-		};
-
-		fetchMasterDataAndItems();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		loadItems(0, '', 'all', 'all', 'all');
 	}, []);
 
 	useEffect(() => {
 		if (!isInitialLoading) {
 			loadItems(0, debouncedSearch, countryFilter, industryFilter, organizationTypeFilter);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [debouncedSearch, countryFilter, industryFilter, organizationTypeFilter]);
 
 	const handlePageChange = (newPage: number) => {
@@ -355,7 +322,9 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 	};
 
 	const handleFormSubmit = async (data: Omit<IOrganization, 'id'> | IOrganization) => {
-		const success = editingItem ? await handleUpdate({ ...data, id: editingItem.id }) : await handleAdd(data as Omit<IOrganization, 'id'>);
+		const success = editingItem
+			? await handleUpdate({ ...data, id: editingItem.id })
+			: await handleAdd(data as Omit<IOrganization, 'id'>);
 		if (success) {
 			handleCloseForm();
 			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter, organizationTypeFilter);
@@ -390,9 +359,9 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 				</p>
 				<div className='text-xs text-muted-foreground space-y-1'>
 					<p>
-						{countries?.find((c) => c.code === item.countryCode)?.name} | Industry:{' '}
-						{industryTypes?.find((i) => i.id === item.industryTypeId)?.name || 'N/A'} | Type:{' '}
-						{organizationTypes?.find((o) => o.id === item.organizationTypeId)?.name || 'N/A'}
+						{masterData?.countries?.find((c) => c.code === item.countryCode)?.name} | Industry:{' '}
+						{masterData?.industryTypes?.find((i) => i.id === item.industryTypeId)?.name || 'N/A'} | Type:{' '}
+						{masterData?.organizationTypes?.find((o) => o.id === item.organizationTypeId)?.name || 'N/A'}
 					</p>
 					{item.address && <p className='text-xs text-muted-foreground'>{item.address}</p>}
 					<div className='flex flex-wrap items-center gap-x-4 gap-y-1 pt-1'>
@@ -493,7 +462,7 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 								placeholder='Filter by Country...'
 								options={[
 									{ value: 'all', label: 'All Countries' },
-									...countries?.map((c) => ({ value: c.code!, label: c.name })),
+									...masterData?.countries?.map((c) => ({ value: c.code!, label: c.name })),
 								]}
 								onValueChange={setCountryFilter}
 								value={countryFilter}
@@ -505,7 +474,7 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 								placeholder='Filter by Type...'
 								options={[
 									{ value: 'all', label: 'All Types' },
-									...organizationTypes?.map((c) => ({ value: c.id!, label: c.name })),
+									...masterData?.organizationTypes?.map((c) => ({ value: c.id!, label: c.name })),
 								]}
 								onValueChange={setOrganizationTypeFilter}
 								value={organizationTypeFilter}
@@ -517,7 +486,7 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 								placeholder='Filter by Industry...'
 								options={[
 									{ value: 'all', label: 'All Industries' },
-									...industryTypes?.map((i) => ({ value: i.id!, label: i.name })),
+									...masterData?.industryTypes?.map((i) => ({ value: i.id!, label: i.name })),
 								]}
 								onValueChange={setIndustryFilter}
 								value={industryFilter}
@@ -547,10 +516,8 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 					onClose={handleCloseForm}
 					onSubmit={handleFormSubmit}
 					initialData={editingItem}
-					countries={countries}
-					industryTypes={industryTypes}
-					organizationTypes={organizationTypes}
 					noun={noun}
+					masterData={masterData}
 				/>
 			)}
 		</div>

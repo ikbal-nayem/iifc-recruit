@@ -1,24 +1,22 @@
-
 'use client';
 
-import * as React from 'react';
-import { usePathname } from 'next/navigation';
-import Image from 'next/image';
-import Link from 'next/link';
-import * as Collapsible from '@radix-ui/react-collapsible';
-import { ChevronDown, Settings } from 'lucide-react';
 import {
 	SidebarContent,
 	SidebarHeader,
 	SidebarMenu,
 	SidebarMenuItem,
-	SidebarMenuButton,
 	SidebarMenuSub,
 	SidebarSeparator,
 	useSidebar,
 } from '@/components/ui/sidebar';
 import { NavLink, adminNavLinks, jobseekerNavLinks } from '@/lib/nav-links';
 import { cn } from '@/lib/utils';
+import * as Collapsible from '@radix-ui/react-collapsible';
+import { ChevronDown } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import * as React from 'react';
 
 const NavMenu = ({ item }: { item: NavLink }) => {
 	const pathname = usePathname();
@@ -32,7 +30,9 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 		) ??
 			false);
 
-	const isActive = isParentActive || (item.isActive ? item.isActive(pathname) : !hasSubmenu && pathname.startsWith(item.href));
+	const isActive =
+		isParentActive ||
+		(item.isActive ? item.isActive(pathname) : !hasSubmenu && pathname.startsWith(item.href));
 
 	const [isOpen, setIsOpen] = React.useState(isParentActive);
 
@@ -77,7 +77,7 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 						data-active={isActive}
 					>
 						<div className='flex items-center gap-3 w-full'>
-							<item.icon className='size-5 shrink-0' />
+							{!!item.icon && <item.icon className='size-5 shrink-0' />}
 							<span className='flex-1'>{item.label}</span>
 							{hasSubmenu && (
 								<ChevronDown className='size-4 shrink-0 transition-transform duration-200 data-[state=open]:-rotate-180' />

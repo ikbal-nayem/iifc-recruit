@@ -1,35 +1,31 @@
-
 import type { LucideIcon } from 'lucide-react';
 import {
+	Award,
+	BookCopy,
+	BookMarked,
 	Briefcase,
-	Database,
-	Edit,
+	Building2,
 	FileText,
+	Globe,
+	GraduationCap,
+	Handshake,
 	LayoutDashboard,
+	ListChecks,
+	Network,
 	PlusCircle,
 	Search,
+	Settings,
+	Tag,
 	UserCircle,
 	UserCog,
 	Users,
-	GraduationCap,
-    Building2,
-    Settings,
-    Tag,
-    BookMarked,
-    Globe,
-    BriefcaseBusiness,
-    Network,
-    Award,
-    BookCopy,
-    ListChecks,
-    Handshake,
 } from 'lucide-react';
 
 export interface NavLink {
 	href: string;
 	label: string;
-	icon: LucideIcon;
-    separator?: boolean;
+	icon?: LucideIcon;
+	separator?: boolean;
 	isActive?: (pathname: string, hash?: string) => boolean;
 	submenu?: NavLink[];
 }
@@ -51,40 +47,46 @@ export const adminNavLinks: NavLink[] = [
 				href: '/admin/job-management',
 				label: 'All Jobs',
 				icon: Briefcase,
-				isActive: (pathname) => /^\/admin\/job-management(\/[^/]+\/(applicants|edit))?$/.test(pathname) || pathname === '/admin/job-management',
+				isActive: (pathname) =>
+					/^\/admin\/job-management(\/[^/]+\/(applicants|edit))?$/.test(pathname) ||
+					pathname === '/admin/job-management',
 			},
-			{ 
-				href: '/admin/job-management/create', 
-				label: 'Create New', 
-				icon: PlusCircle 
+			{
+				href: '/admin/job-management/create',
+				label: 'Create New',
+				icon: PlusCircle,
 			},
 		],
 	},
 	{ href: '/admin/jobseekers', label: 'Jobseekers', icon: Users },
 	{ href: '/admin/our-clients', label: 'Our Clients', icon: Handshake },
-    {
-        href: '#',
-        label: 'Separator',
-        icon: Users, // Icon is not used, but required by type
-        separator: true,
-    },
+	{
+		href: '#',
+		label: 'Separator',
+		icon: Users, // Icon is not used, but required by type
+		separator: true,
+	},
 	{
 		href: '#',
 		label: 'Master Data',
 		icon: Settings,
 		isActive: (pathname) => pathname.startsWith('/admin/master-data'),
 		submenu: [
+			{ href: '/admin/master-data/organizations', label: 'Organizations', icon: Building2 },
 			{ href: '/admin/master-data/skills', label: 'Skills', icon: Award },
 			{ href: '/admin/master-data/languages', label: 'Languages', icon: Globe },
-      		{
+			{
 				href: '#',
 				label: 'Statuses',
 				icon: ListChecks,
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/statuses'),
 				submenu: [
-					{ href: '/admin/master-data/statuses/job-statuses', label: 'Job Statuses', icon: Briefcase },
-      				{ href: '/admin/master-data/statuses/application-statuses', label: 'Application Statuses', icon: FileText },
-				]
+					{ href: '/admin/master-data/statuses/job-statuses', label: 'Job Statuses' },
+					{
+						href: '/admin/master-data/statuses/application-statuses',
+						label: 'Application Statuses',
+					},
+				],
 			},
 			{
 				href: '/admin/master-data/education/degree-levels',
@@ -92,33 +94,35 @@ export const adminNavLinks: NavLink[] = [
 				icon: GraduationCap,
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/education'),
 				submenu: [
-					{ href: '/admin/master-data/education/degree-levels', label: 'Degree Levels', icon: GraduationCap },
-					{ href: '/admin/master-data/education/domains', label: 'Domains', icon: BookCopy },
-					{ href: '/admin/master-data/education/institutions', label: 'Institutions', icon: Building2 },
+					{ href: '/admin/master-data/education/degree-levels', label: 'Degree Levels' },
+					{ href: '/admin/master-data/education/domains', label: 'Domains' },
+					{ href: '/admin/master-data/education/institutions', label: 'Institutions' },
 				],
 			},
-            {
+			{
 				href: '#',
 				label: 'Company Data',
 				icon: Network,
-				isActive: (pathname) => pathname.startsWith('/admin/master-data/industry-types') || pathname.startsWith('/admin/master-data/organization-types') || pathname.startsWith('/admin/master-data/position-levels'),
+				isActive: (pathname) =>
+					pathname.startsWith('/admin/master-data/industry-types') ||
+					pathname.startsWith('/admin/master-data/organization-types') ||
+					pathname.startsWith('/admin/master-data/position-levels'),
 				submenu: [
-					{ href: '/admin/master-data/industry-types', label: 'Industry Types', icon: Tag },
-					{ href: '/admin/master-data/organization-types', label: 'Organization Types', icon: Tag },
-                    { href: '/admin/master-data/position-levels', label: 'Position Levels', icon: Tag },
+					{ href: '/admin/master-data/industry-types', label: 'Industry Types' },
+					{ href: '/admin/master-data/organization-types', label: 'Organization Types' },
+					{ href: '/admin/master-data/position-levels', label: 'Position Levels' },
 				],
 			},
-            { href: '/admin/master-data/organizations', label: 'Organizations', icon: Building2 },
 			{
 				href: '/admin/master-data/training/training-types',
 				label: 'Training',
 				icon: BookMarked,
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/training'),
 				submenu: [
-					{ href: '/admin/master-data/training/training-types', label: 'Training Types', icon: BookMarked },
-					{ href: '/admin/master-data/training/certifications', label: 'Certifications', icon: Award },
+					{ href: '/admin/master-data/training/training-types', label: 'Training Types' },
+					{ href: '/admin/master-data/training/certifications', label: 'Certifications' },
 				],
-			}
+			},
 		],
 	},
 ];
