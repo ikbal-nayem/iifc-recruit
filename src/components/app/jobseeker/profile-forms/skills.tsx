@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -12,14 +11,28 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { Candidate } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
-import { Trash, Save, X } from 'lucide-react';
+import { Trash, Save, X, Check, ChevronsUpDown, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { MasterDataService } from '@/services/api/master-data.service';
+import { useDebounce } from '@/hooks/use-debounce';
+import { cn } from '@/lib/utils';
 
 interface ProfileFormProps {
   candidate: Candidate;
@@ -28,13 +41,34 @@ interface ProfileFormProps {
 export function ProfileFormSkills({ candidate }: ProfileFormProps) {
   const { toast } = useToast();
   const [skills, setSkills] = React.useState<string[]>(candidate.skills);
-  const [newSkill, setNewSkill] = React.useState('');
+  
+  const [open, setOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [suggestedSkills, setSuggestedSkills] = React.useState<ICommonMasterData[]>([]);
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleAddSkill = () => {
-    if (newSkill.trim() && !skills.includes(newSkill.trim())) {
-      setSkills([...skills, newSkill.trim()]);
-      setNewSkill('');
+  const debouncedSearch = useDebounce(searchQuery, 300);
+
+  React.useEffect(() => {
+    if (debouncedSearch) {
+      setIsLoading(true);
+      MasterDataService.skill
+        .getList({ body: { name: debouncedSearch }, meta: { limit: 10 } })
+        .then((res) => setSuggestedSkills(res.body))
+        .finally(() => setIsLoading(false));
+    } else {
+      setSuggestedSkills([]);
     }
+  }, [debouncedSearch]);
+
+
+  const handleAddSkill = (skill: string) => {
+    if (skill && !skills.includes(skill)) {
+      setSkills([...skills, skill]);
+    }
+    setSearchQuery('');
+    setSuggestedSkills([]);
+    setOpen(false);
   };
 
   const handleRemoveSkill = (skillToRemove: string) => {
@@ -61,15 +95,46 @@ export function ProfileFormSkills({ candidate }: ProfileFormProps) {
       <CardContent className="space-y-4">
         <div className="space-y-2">
             <Label>Add a new skill</Label>
-            <div className="flex gap-2">
-                <Input 
-                    placeholder="e.g. React" 
-                    value={newSkill}
-                    onChange={(e) => setNewSkill(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddSkill(); } }}
-                />
-                <Button variant="outline" onClick={handleAddSkill}>Add</Button>
-            </div>
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between">
+                  Type to search skills...
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                <Command>
+                  <CommandInput 
+                    placeholder="Search for a skill..." 
+                    value={searchQuery}
+                    onValueChange={setSearchQuery}
+                  />
+                  <CommandList>
+                    {isLoading && <div className="p-2 flex justify-center"><Loader2 className="h-6 w-6 animate-spin" /></div>}
+                    {!isLoading && <CommandEmpty>No skill found. You can add it as a new skill.</CommandEmpty>}
+                    <CommandGroup>
+                      {suggestedSkills.map((skill) => (
+                        <CommandItem
+                          key={skill.id}
+                          value={skill.name}
+                          onSelect={(currentValue) => {
+                            handleAddSkill(currentValue);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              skills.includes(skill.name.toLowerCase()) ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {skill.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
         </div>
          <div className="flex flex-wrap gap-2">
             {skills.map(skill => (
