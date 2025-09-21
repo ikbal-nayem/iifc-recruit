@@ -9,11 +9,14 @@ interface PaginationProps {
 	meta: IMeta;
 	isLoading?: boolean;
 	onPageChange: (page: number) => void;
+	noun: string;
 }
 
-export function Pagination({ meta, isLoading, onPageChange }: PaginationProps) {
+export function Pagination({ meta, isLoading, onPageChange, noun }: PaginationProps) {
 	const currentPage = meta.page;
 	const totalPages = meta.totalPageCount || 1;
+	const from = meta.totalRecords ? meta.page * meta.limit + 1 : 0;
+	const to = Math.min((meta.page + 1) * meta.limit, meta.totalRecords || 0);
 
 	const renderPageNumbers = () => {
 		const pageNumbers = [];
@@ -99,26 +102,35 @@ export function Pagination({ meta, isLoading, onPageChange }: PaginationProps) {
 	};
 
 	return (
-		<div className='flex items-center space-x-2'>
-			<Button
-				variant='outline'
-				size='icon'
-				className='h-8 w-8'
-				onClick={() => onPageChange(meta.prevPage ?? 0)}
-				disabled={!meta.prevPage || isLoading}
-			>
-				<ChevronLeft className='h-4 w-4' />
-			</Button>
-			<div className='hidden md:flex items-center gap-1'>{renderPageNumbers()}</div>
-			<Button
-				variant='outline'
-				size='icon'
-				className='h-8 w-8'
-				onClick={() => onPageChange(meta.nextPage ?? 0)}
-				disabled={!meta.nextPage || isLoading}
-			>
-				<ChevronRight className='h-4 w-4' />
-			</Button>
-		</div>
+        <div className='flex flex-col-reverse items-center gap-4 sm:flex-row sm:justify-between w-full'>
+            <p className='text-sm text-muted-foreground'>
+                Showing{' '}
+                <strong>
+                    {from}-{to}
+                </strong>{' '}
+                of <strong>{meta.totalRecords}</strong> {noun.toLowerCase()}s
+            </p>
+            <div className='flex items-center space-x-2'>
+                <Button
+                    variant='outline'
+                    size='icon'
+                    className='h-8 w-8'
+                    onClick={() => onPageChange(meta.prevPage ?? 0)}
+                    disabled={!meta.prevPage || isLoading}
+                >
+                    <ChevronLeft className='h-4 w-4' />
+                </Button>
+                <div className='hidden md:flex items-center gap-1'>{renderPageNumbers()}</div>
+                <Button
+                    variant='outline'
+                    size='icon'
+                    className='h-8 w-8'
+                    onClick={() => onPageChange(meta.nextPage ?? 0)}
+                    disabled={!meta.nextPage || isLoading}
+                >
+                    <ChevronRight className='h-4 w-4' />
+                </Button>
+            </div>
+        </div>
 	);
 };

@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -219,70 +220,6 @@ export function EducationInstitutionCrud({
 		await onDelete(id);
 	};
 
-	const renderViewItem = (item: IEducationInstitution) => (
-		<Card
-			key={item.id}
-			className='p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-background/50'
-		>
-			<div className='flex-1 mb-4 sm:mb-0'>
-				<p className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}>
-					{item.name}
-				</p>
-				<p className='text-sm text-muted-foreground'>
-					{countries.find((c) => c.id === item.fkCountry)?.name || 'Unknown Country'}
-				</p>
-			</div>
-			<div className='flex items-center gap-2 w-full sm:w-auto justify-between'>
-				<div className='flex items-center gap-2'>
-					<Switch
-						checked={item.isActive}
-						onCheckedChange={() => handleToggleActive(item)}
-						disabled={isSubmitting === item.id}
-					/>
-					<Label className='text-sm'>{item.isActive ? 'Active' : 'Inactive'}</Label>
-				</div>
-				<div className='flex'>
-					<Button
-						variant='ghost'
-						size='icon'
-						className='h-8 w-8'
-						onClick={() => handleOpenForm(item)}
-						disabled={isSubmitting === item.id}
-					>
-						<Edit className='h-4 w-4' />
-					</Button>
-					<AlertDialog>
-						<AlertDialogTrigger asChild>
-							<Button variant='ghost' size='icon' className='h-8 w-8' disabled={isSubmitting === item.id}>
-								<Trash className='h-4 w-4 text-destructive' />
-							</Button>
-						</AlertDialogTrigger>
-						<AlertDialogContent>
-							<AlertDialogHeader>
-								<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-								<AlertDialogDescription>
-									This will permanently delete the {noun.toLowerCase()} <strong>&quot;{item.name}&quot;</strong>.
-								</AlertDialogDescription>
-							</AlertDialogHeader>
-							<AlertDialogFooter>
-								<AlertDialogCancel>Cancel</AlertDialogCancel>
-								<AlertDialogAction
-									onClick={() => handleRemove(item.id)}
-									className='bg-destructive hover:bg-destructive/90'
-								>
-									Delete
-								</AlertDialogAction>
-							</AlertDialogFooter>
-						</AlertDialogContent>
-					</AlertDialog>
-				</div>
-			</div>
-		</Card>
-	);
-
-	const from = meta.totalRecords ? meta.page * meta.limit + 1 : 0;
-	const to = Math.min((meta.page + 1) * meta.limit, meta.totalRecords || 0);
-
 	return (
 		<>
 			<div className='space-y-2'>
@@ -368,7 +305,74 @@ export function EducationInstitutionCrud({
 					<div className='space-y-2 pt-4'>
 						{isLoading
 							? [...Array(5)].map((_, i) => <Skeleton key={i} className='h-16 w-full' />)
-							: items.map(renderViewItem)}
+							: items.map((item) => (
+									<Card
+										key={item.id}
+										className='p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-background/50'
+									>
+										<div className='flex-1 mb-4 sm:mb-0'>
+											<p
+												className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}
+											>
+												{item.name}
+											</p>
+											<p className='text-sm text-muted-foreground'>
+												{countries.find((c) => c.id === item.fkCountry)?.name || 'Unknown Country'}
+											</p>
+										</div>
+										<div className='flex items-center gap-2 w-full sm:w-auto justify-between'>
+											<div className='flex items-center gap-2'>
+												<Switch
+													checked={item.isActive}
+													onCheckedChange={() => handleToggleActive(item)}
+													disabled={isSubmitting === item.id}
+												/>
+												<Label className='text-sm'>{item.isActive ? 'Active' : 'Inactive'}</Label>
+											</div>
+											<div className='flex'>
+												<Button
+													variant='ghost'
+													size='icon'
+													className='h-8 w-8'
+													onClick={() => handleOpenForm(item)}
+													disabled={isSubmitting === item.id}
+												>
+													<Edit className='h-4 w-4' />
+												</Button>
+												<AlertDialog>
+													<AlertDialogTrigger asChild>
+														<Button
+															variant='ghost'
+															size='icon'
+															className='h-8 w-8'
+															disabled={isSubmitting === item.id}
+														>
+															<Trash className='h-4 w-4 text-destructive' />
+														</Button>
+													</AlertDialogTrigger>
+													<AlertDialogContent>
+														<AlertDialogHeader>
+															<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+															<AlertDialogDescription>
+																This will permanently delete the {noun.toLowerCase()}{' '}
+																<strong>&quot;{item.name}&quot;</strong>.
+															</AlertDialogDescription>
+														</AlertDialogHeader>
+														<AlertDialogFooter>
+															<AlertDialogCancel>Cancel</AlertDialogCancel>
+															<AlertDialogAction
+																onClick={() => handleRemove(item.id)}
+																className='bg-destructive hover:bg-destructive/90'
+															>
+																Delete
+															</AlertDialogAction>
+														</AlertDialogFooter>
+													</AlertDialogContent>
+												</AlertDialog>
+											</div>
+										</div>
+									</Card>
+							  ))}
 						{!isLoading && items.length === 0 && (
 							<p className='text-center text-sm text-muted-foreground py-4'>
 								No {noun.toLowerCase()}s found.
@@ -377,15 +381,8 @@ export function EducationInstitutionCrud({
 					</div>
 				</CardContent>
 				{meta && meta.totalRecords && meta.totalRecords > 0 && (
-					<CardFooter className='flex-col-reverse items-center gap-4 sm:flex-row sm:justify-between'>
-						<p className='text-sm text-muted-foreground'>
-							Showing{' '}
-							<strong>
-								{from}-{to}
-							</strong>{' '}
-							of <strong>{meta.totalRecords}</strong> institutions
-						</p>
-						<Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} />
+					<CardFooter>
+						<Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} noun={noun} />
 					</CardFooter>
 				)}
 			</Card>

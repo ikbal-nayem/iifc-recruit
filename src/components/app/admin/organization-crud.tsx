@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -201,14 +202,19 @@ interface OrganizationCrudProps {
 	title: string;
 	description: string;
 	noun: string;
-	masterData: {
-		countries: Array<ICommonMasterData>;
-		industryTypes: Array<ICommonMasterData>;
-		organizationTypes: Array<ICommonMasterData>;
-	};
+	countries: ICommonMasterData[];
+	industryTypes: ICommonMasterData[];
+	organizationTypes: ICommonMasterData[];
 }
 
-export function OrganizationCrud({ title, description, noun, masterData }: OrganizationCrudProps) {
+export function OrganizationCrud({
+	title,
+	description,
+	noun,
+	countries,
+	industryTypes,
+	organizationTypes,
+}: OrganizationCrudProps) {
 	const { toast } = useToast();
 	const [items, setItems] = useState<IOrganization[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
@@ -263,17 +269,19 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 					}
 				});
 		},
-		[meta.limit]
+		[meta.limit, toast]
 	);
 
 	useEffect(() => {
 		loadItems(0, '', 'all', 'all', true);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {
 		if (!isInitialLoading) {
 			loadItems(0, debouncedSearch, countryFilter, industryFilter);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [debouncedSearch, countryFilter, industryFilter]);
 
 	const handlePageChange = (newPage: number) => {
@@ -302,13 +310,9 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 			const resp = await MasterDataService.organization.update(item);
 			toast({ description: resp.message, variant: 'success' });
 			return true;
-		} catch (error: any) {
+		} catch (error) {
 			console.error('Failed to update item', error);
-			toast({
-				title: 'Error',
-				description: error?.message || 'Failed to update organization.',
-				variant: 'destructive',
-			});
+			toast({ title: 'Error', description: 'Failed to update organization.', variant: 'destructive' });
 			return false;
 		}
 	};
@@ -337,7 +341,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 	};
 
 	const handleFormSubmit = async (data: Omit<IOrganization, 'id'> | IOrganization) => {
-		const success = editingItem ? await handleUpdate(data as IOrganization) : await handleAdd(data);
+		const success = editingItem ? await handleUpdate({ ...data, id: editingItem.id }) : await handleAdd(data);
 		if (success) {
 			handleCloseForm();
 			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter);
@@ -361,9 +365,6 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 		setIsSubmitting(null);
 	};
 
-	const from = meta.totalRecords ? meta.page * meta.limit + 1 : 0;
-	const to = Math.min((meta.page + 1) * meta.limit, meta.totalRecords || 0);
-
 	const renderViewItem = (item: IOrganization) => (
 		<Card
 			key={item.id}
@@ -375,9 +376,9 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 				</p>
 				<div className='text-xs text-muted-foreground space-y-1'>
 					<p>
-						{masterData?.countries?.find((c) => c.code === item.countryCode)?.name} | Industry:{' '}
-						{masterData?.industryTypes?.find((i) => i.id === item.industryTypeId)?.name || 'N/A'} | Type:{' '}
-						{masterData?.organizationTypes?.find((o) => o.id === item.organizationTypeId)?.name || 'N/A'}
+						{countries?.find((c) => c.code === item.countryCode)?.name} | Industry:{' '}
+						{industryTypes?.find((i) => i.id === item.industryTypeId)?.name || 'N/A'} | Type:{' '}
+						{organizationTypes?.find((o) => o.id === item.organizationTypeId)?.name || 'N/A'}
 					</p>
 					{item.address && <p className='text-xs text-muted-foreground'>{item.address}</p>}
 					<div className='flex flex-wrap items-center gap-x-4 gap-y-1 pt-1'>
@@ -472,7 +473,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 								placeholder='Filter by Country...'
 								options={[
 									{ value: 'all', label: 'All Countries' },
-									...masterData?.countries?.map((c) => ({ value: c.code!, label: c.name })),
+									...countries?.map((c) => ({ value: c.code!, label: c.name })),
 								]}
 								onValueChange={setCountryFilter}
 								value={countryFilter}
@@ -484,7 +485,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 								placeholder='Filter by Industry...'
 								options={[
 									{ value: 'all', label: 'All Industries' },
-									...masterData?.industryTypes?.map((i) => ({ value: i.id!, label: i.name })),
+									...industryTypes?.map((i) => ({ value: i.id!, label: i.name })),
 								]}
 								onValueChange={setIndustryFilter}
 								value={industryFilter}
@@ -507,15 +508,8 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 					</div>
 				</CardContent>
 				{meta && meta.totalRecords && meta.totalRecords > 0 && !isInitialLoading ? (
-					<CardFooter className='flex-col-reverse items-center gap-4 sm:flex-row sm:justify-between'>
-						<p className='text-sm text-muted-foreground'>
-							Showing{' '}
-							<strong>
-								{from}-{to}
-							</strong>{' '}
-							of <strong>{meta.totalRecords}</strong> {noun.toLowerCase()}s
-						</p>
-						<Pagination meta={meta} isLoading={isLoading} onPageChange={handlePageChange} />
+					<CardFooter>
+						<Pagination meta={meta} isLoading={isLoading} onPageChange={handlePageChange} noun={noun} />
 					</CardFooter>
 				) : null}
 			</Card>
@@ -525,9 +519,9 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 					onClose={handleCloseForm}
 					onSubmit={handleFormSubmit}
 					initialData={editingItem}
-					countries={masterData?.countries}
-					industryTypes={masterData?.industryTypes}
-					organizationTypes={masterData?.organizationTypes}
+					countries={countries}
+					industryTypes={industryTypes}
+					organizationTypes={organizationTypes}
 					noun={noun}
 				/>
 			)}

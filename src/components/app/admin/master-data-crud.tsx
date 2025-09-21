@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -176,9 +177,6 @@ export function MasterDataCrud<T extends MasterDataItem>({
 		await onDelete(id);
 	};
 
-	const from = meta.totalRecords ? meta.page * meta.limit + 1 : 0;
-	const to = Math.min((meta.page + 1) * meta.limit, meta.totalRecords || 0);
-
 	return (
 		<>
 			<div className='space-y-2'>
@@ -277,15 +275,8 @@ export function MasterDataCrud<T extends MasterDataItem>({
 					</div>
 				</CardContent>
 				{meta && meta.totalRecords && meta.totalRecords > 0 ? (
-					<CardFooter className='flex-col-reverse items-center gap-4 sm:flex-row sm:justify-between'>
-						<p className='text-sm text-muted-foreground'>
-							Showing{' '}
-							<strong>
-								{from}-{to}
-							</strong>{' '}
-							of <strong>{meta.totalRecords}</strong> {noun.toLowerCase()}s
-						</p>
-						{onPageChange && <Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} />}
+					<CardFooter>
+						{onPageChange && <Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} noun={noun} />}
 					</CardFooter>
 				) : null}
 			</Card>
