@@ -132,7 +132,7 @@ export function ProfileFormSkills({ candidate }: ProfileFormProps) {
 												<Check
 													className={cn(
 														'mr-2 h-4 w-4',
-														skills.includes(skill.name.toLowerCase()) ? 'opacity-100' : 'opacity-0'
+														skills.includes(skill.name) ? 'opacity-100' : 'opacity-0'
 													)}
 												/>
 												{skill.name}
