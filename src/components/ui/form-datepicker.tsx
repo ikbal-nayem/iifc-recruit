@@ -32,7 +32,7 @@ export function FormDatePicker<TFieldValues extends FieldValues>({
 			control={control}
 			name={name}
 			render={({ field }) => (
-				<FormItem className="flex flex-col">
+				<FormItem>
 					<FormLabel required={required}>{label}</FormLabel>
 					<Popover>
 						<PopoverTrigger asChild>
