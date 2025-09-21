@@ -17,17 +17,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { MasterDataService } from '@/services/api/master-data.service';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 
 const languageSchema = z.object({
   name: z.string().min(1, 'Language name is required.'),
@@ -44,6 +39,13 @@ export function ProfileFormLanguages({ candidate }: ProfileFormProps) {
   const { toast } = useToast();
   const [history, setHistory] = React.useState(candidate.languages);
   const [editingId, setEditingId] = React.useState<number | null>(null);
+  const [languageOptions, setLanguageOptions] = React.useState<{label: string, value: string}[]>([]);
+
+  React.useEffect(() => {
+    MasterDataService.language.get().then(res => {
+        setLanguageOptions(res.body.map(l => ({ label: l.name, value: l.name })));
+    });
+  }, []);
 
   const form = useForm<LanguageFormValues>({
     resolver: zodResolver(languageSchema),
@@ -87,11 +89,13 @@ export function ProfileFormLanguages({ candidate }: ProfileFormProps) {
             <form onSubmit={editForm.handleSubmit((data) => handleUpdate(index, data))}>
                 <Card key={index} className="p-4 bg-muted/50">
                     <CardContent className="p-0 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <FormInput
+                        <FormAutocomplete
                             control={editForm.control}
                             name="name"
                             label="Language"
                             required
+                            placeholder="Select a language"
+                            options={languageOptions}
                         />
                         <FormSelect
                           control={editForm.control}
@@ -174,12 +178,13 @@ export function ProfileFormLanguages({ candidate }: ProfileFormProps) {
                         <CardDescription>Add a new language to your profile.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <FormInput
+                        <FormAutocomplete
                             control={form.control}
                             name="name"
                             label="Language"
-                            placeholder="e.g. Spanish"
+                            placeholder="Select a language"
                             required
+                            options={languageOptions}
                         />
                         <FormSelect
                           control={form.control}
