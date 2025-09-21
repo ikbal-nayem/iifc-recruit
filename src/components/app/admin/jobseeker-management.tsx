@@ -73,13 +73,18 @@ export function JobseekerManagement() {
       })
       .filter((a): a is ApplicationWithJob => a !== null);
   }
+  
+  const getFullName = (personalInfo: Candidate['personalInfo']) => {
+    return [personalInfo.firstName, personalInfo.middleName, personalInfo.lastName].filter(Boolean).join(' ');
+  }
 
   const columns: ColumnDef<Candidate>[] = [
     {
       accessorKey: 'personalInfo',
       header: 'Jobseeker',
       cell: ({ row }) => {
-        const { name, email, avatar } = row.original.personalInfo;
+        const { email, avatar } = row.original.personalInfo;
+        const name = getFullName(row.original.personalInfo);
         return (
           <div className="flex items-center gap-3">
             <Avatar>
@@ -174,11 +179,11 @@ export function JobseekerManagement() {
       <div className="p-4 flex justify-between items-start">
         <div className="flex items-center gap-4">
           <Avatar>
-            <AvatarImage src={jobseeker.personalInfo.avatar} alt={jobseeker.personalInfo.name} data-ai-hint="avatar" />
-            <AvatarFallback>{jobseeker.personalInfo.name?.charAt(0)}</AvatarFallback>
+            <AvatarImage src={jobseeker.personalInfo.avatar} alt={getFullName(jobseeker.personalInfo)} data-ai-hint="avatar" />
+            <AvatarFallback>{jobseeker.personalInfo.firstName?.charAt(0)}</AvatarFallback>
           </Avatar>
           <div>
-            <p className="font-semibold">{jobseeker.personalInfo.name}</p>
+            <p className="font-semibold">{getFullName(jobseeker.personalInfo)}</p>
             <p className="text-sm text-muted-foreground">{jobseeker.personalInfo.email}</p>
             <div className="flex flex-wrap gap-1 mt-2">
                 {jobseeker.skills.slice(0, 3).map((skill) => (
@@ -360,7 +365,7 @@ export function JobseekerManagement() {
           {applicationsJobseeker && (
             <>
               <DialogHeader>
-                <DialogTitle>Applications by {applicationsJobseeker.personalInfo.name}</DialogTitle>
+                <DialogTitle>Applications by {getFullName(applicationsJobseeker.personalInfo)}</DialogTitle>
                 <DialogDescription>
                   A list of jobs this jobseeker has applied for.
                 </DialogDescription>
@@ -388,7 +393,7 @@ export function JobseekerManagement() {
           {contactJobseeker && (
             <>
                 <DialogHeader>
-                    <DialogTitle>Contact {contactJobseeker.personalInfo.name}</DialogTitle>
+                    <DialogTitle>Contact {getFullName(contactJobseeker.personalInfo)}</DialogTitle>
                     <DialogDescription>
                         Direct contact information for the jobseeker.
                     </DialogDescription>

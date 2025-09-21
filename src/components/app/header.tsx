@@ -57,6 +57,9 @@ export default function Header() {
       router.push(targetPath);
     };
 
+  const getFullName = () => {
+    return [user.firstName, user.lastName].filter(Boolean).join(' ');
+  }
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6">
@@ -80,7 +83,7 @@ export default function Header() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-9 w-9 rounded-full">
             <Avatar>
-              <AvatarImage src={user.avatar} alt={`${user.firstName} ${user.lastName}`} data-ai-hint="avatar" />
+              <AvatarImage src={user.avatar} alt={getFullName()} data-ai-hint="avatar" />
               <AvatarFallback>{user.firstName.charAt(0)}</AvatarFallback>
             </Avatar>
           </Button>
@@ -88,7 +91,7 @@ export default function Header() {
         <DropdownMenuContent className="w-56" align="end" forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">{user.firstName} {user.lastName}</p>
+              <p className="text-sm font-medium leading-none">{getFullName()}</p>
               <p className="text-xs leading-none text-muted-foreground">
                 {user.email}
               </p>

@@ -33,7 +33,9 @@ import { useToast } from '@/hooks/use-toast';
 import { FormInput } from '@/components/ui/form-input';
 
 const signupSchema = z.object({
-  name: z.string().min(2, { message: 'Please enter your full name.'}),
+  firstName: z.string().min(1, 'First name is required.'),
+  middleName: z.string().optional(),
+  lastName: z.string().min(1, 'Last name is required.'),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   password: z
     .string()
@@ -51,7 +53,9 @@ export default function SignupForm() {
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
-      name: '',
+      firstName: '',
+      middleName: '',
+      lastName: '',
       email: '',
       password: '',
     },
@@ -86,54 +90,13 @@ export default function SignupForm() {
         <CardContent>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                          <FormItem>
-                          <FormLabel>Full Name</FormLabel>
-                          <FormControl>
-                              <div className="relative">
-                                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                  <Input placeholder="John Doe" {...field} className="pl-10 h-11" />
-                              </div>
-                          </FormControl>
-                          <FormMessage />
-                          </FormItem>
-                      )}
-                    />
-                    <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                            <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                <Input placeholder="you@example.com" {...field} className="pl-10 h-11" />
-                            </div>
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                    <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                <Input type="password" placeholder="••••••••" {...field} className="pl-10 h-11" />
-                            </div>
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
+                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <FormInput control={form.control} name="firstName" label="First Name" required />
+                        <FormInput control={form.control} name="lastName" label="Last Name" required />
+                    </div>
+                    <FormInput control={form.control} name="email" label="Email" type="email" placeholder="you@example.com" required startIcon={<Mail className="h-4 w-4 text-muted-foreground" />} />
+                    <FormInput control={form.control} name="password" label="Password" type="password" placeholder="••••••••" required startIcon={<Lock className="h-4 w-4 text-muted-foreground" />} />
+                    
                     <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
                     {isLoading ? 'Creating Account...' : 'Create Account'}
                     </Button>

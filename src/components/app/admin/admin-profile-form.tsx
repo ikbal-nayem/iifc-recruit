@@ -28,7 +28,8 @@ interface AdminProfileFormProps {
 }
 
 const profileSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
   email: z.string().email(),
   phone: z.string().min(1, 'Phone number is required'),
   avatarFile: z.any().optional(),
@@ -39,11 +40,13 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 export function AdminProfileForm({ user }: AdminProfileFormProps) {
   const { toast } = useToast();
   const [avatarPreview, setAvatarPreview] = React.useState<string | null>(user.avatar);
+  const nameParts = user.name.split(' ');
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: user.name,
+      firstName: nameParts[0] || '',
+      lastName: nameParts.slice(1).join(' ') || '',
       email: user.email,
       phone: user.phone,
       avatarFile: null,
@@ -109,14 +112,22 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
                     </FormItem>
                 )}
               />
-
-              <FormInput
-                control={form.control}
-                name="name"
-                label="Full Name"
-                placeholder="e.g. John Doe"
-                required
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormInput
+                    control={form.control}
+                    name="firstName"
+                    label="First Name"
+                    placeholder="e.g. John"
+                    required
+                />
+                 <FormInput
+                    control={form.control}
+                    name="lastName"
+                    label="Last Name"
+                    placeholder="e.g. Doe"
+                    required
+                />
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                  <FormField

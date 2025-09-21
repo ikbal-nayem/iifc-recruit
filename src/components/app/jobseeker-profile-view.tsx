@@ -49,8 +49,8 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start gap-6">
             <Avatar className="h-24 w-24 border-4 border-background shadow-md">
-                <AvatarImage src={personalInfo.avatar} alt={personalInfo.name} />
-                <AvatarFallback>{personalInfo.firstName[0]}{personalInfo.lastName[0]}</AvatarFallback>
+                <AvatarImage src={personalInfo.avatar} alt={getFullName()} />
+                <AvatarFallback>{personalInfo.firstName?.[0]}{personalInfo.lastName?.[0]}</AvatarFallback>
             </Avatar>
             <div className="flex-1">
                 <h1 className="text-3xl font-bold font-headline">{getFullName()}</h1>

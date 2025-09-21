@@ -129,4 +129,3 @@ export type Activity = {
   target: string;
   timestamp: string;
 };
-
