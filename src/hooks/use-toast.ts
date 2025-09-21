@@ -1,3 +1,4 @@
+
 "use client"
 
 // Inspired by react-hot-toast library
@@ -170,6 +171,11 @@ function toast({ ...props }: Toast) {
     update,
   }
 }
+
+toast.info = (props: Toast) => toast({ ...props, variant: 'info' });
+toast.success = (props: Toast) => toast({ ...props, variant: 'success' });
+toast.warning = (props: Toast) => toast({ ...props, variant: 'warning' });
+toast.error = (props: Toast) => toast({ ...props, variant: 'destructive' });
 
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState)
