@@ -23,7 +23,6 @@ import {
 	CommandItem,
 	CommandList,
 } from '@/components/ui/command';
-import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
@@ -31,7 +30,7 @@ import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import type { Candidate } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { MasterDataService } from '@/services/api/master-data.service';
-import { Check, ChevronsUpDown, Loader2, Save, X } from 'lucide-react';
+import { Check, Loader2, Save, X } from 'lucide-react';
 import * as React from 'react';
 
 interface ProfileFormProps {
@@ -66,13 +65,12 @@ export function ProfileFormSkills({ candidate }: ProfileFormProps) {
 			setSkills([...skills, skill]);
 		}
 		setSearchQuery('');
-		setSuggestedSkills([]);
-		setOpen(false);
 	};
 
 	const handleRemoveSkill = (skillToRemove: string) => {
 		setSkills(skills.filter((skill) => skill !== skillToRemove));
 	};
+
 
 	const handleSaveChanges = () => {
 		// In a real app, you would save the skills to the backend here.
@@ -92,71 +90,16 @@ export function ProfileFormSkills({ candidate }: ProfileFormProps) {
 				</CardDescription>
 			</CardHeader>
 			<CardContent className='space-y-4'>
-				<div className='space-y-2'>
-					<Label>Add a new skill</Label>
-					<Popover open={open} onOpenChange={setOpen}>
-						<PopoverTrigger asChild>
-							<Button
-								variant='outline'
-								role='combobox'
-								aria-expanded={open}
-								className='w-full justify-between'
-							>
-								Type to search skills...
-								<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-							</Button>
-						</PopoverTrigger>
-						<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
-							<Command>
-								<CommandInput
-									placeholder='Search for a skill...'
-									value={searchQuery}
-									onValueChange={setSearchQuery}
-								/>
-								<CommandList>
-									{isLoading && (
-										<div className='p-2 flex justify-center'>
-											<Loader2 className='h-6 w-6 animate-spin' />
-										</div>
-									)}
-									{!isLoading && <CommandEmpty>No skill found. You can add it as a new skill.</CommandEmpty>}
-									<CommandGroup>
-										{suggestedSkills.map((skill) => (
-											<CommandItem
-												key={skill.id}
-												value={skill.name}
-												onSelect={(currentValue) => {
-													handleAddSkill(currentValue);
-												}}
-											>
-												<Check
-													className={cn(
-														'mr-2 h-4 w-4',
-														skills.includes(skill.name) ? 'opacity-100' : 'opacity-0'
-													)}
-												/>
-												{skill.name}
-											</CommandItem>
-										))}
-									</CommandGroup>
-								</CommandList>
-							</Command>
-						</PopoverContent>
-					</Popover>
-				</div>
-				<div className='flex flex-wrap gap-2'>
+                <div className='flex flex-wrap gap-2 p-3 border rounded-lg min-h-[44px] items-center'>
 					{skills.map((skill) => (
 						<AlertDialog key={skill}>
-							<Badge variant='secondary' className='text-sm py-1 px-3'>
+							<Badge variant='secondary' className='text-sm py-1 px-2'>
 								{skill}
 								<AlertDialogTrigger asChild>
-									<Button
-										variant='ghost'
-										size='icon'
-										className='ml-1 h-4 w-4 text-secondary-foreground/70 hover:text-secondary-foreground'
-									>
-										<X className='h-3 w-3' />
-									</Button>
+									<button className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+                                    >
+										<X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
+									</button>
 								</AlertDialogTrigger>
 							</Badge>
 							<AlertDialogContent>
@@ -178,6 +121,58 @@ export function ProfileFormSkills({ candidate }: ProfileFormProps) {
 							</AlertDialogContent>
 						</AlertDialog>
 					))}
+
+                    <Popover open={open} onOpenChange={setOpen}>
+						<PopoverTrigger asChild>
+                            <div className='flex-1 relative'>
+                                <Command>
+                                    <CommandInput
+                                        placeholder='Add a skill...'
+                                        value={searchQuery}
+                                        onValueChange={setSearchQuery}
+                                        className='h-auto bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 px-1'
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && debouncedSearch && suggestedSkills.length === 0) {
+                                                e.preventDefault();
+                                                handleAddSkill(debouncedSearch);
+                                            }
+                                        }}
+                                    />
+                                </Command>
+                            </div>
+						</PopoverTrigger>
+						<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align="start">
+							<CommandList>
+								{isLoading && (
+									<div className='p-2 flex justify-center'>
+										<Loader2 className='h-6 w-6 animate-spin' />
+									</div>
+								)}
+								{!isLoading && debouncedSearch && <CommandEmpty>No skill found. Press Enter to add &quot;{debouncedSearch}&quot;</CommandEmpty>}
+                                {!isLoading && !debouncedSearch && <CommandEmpty>Type to search for skills.</CommandEmpty>}
+								<CommandGroup>
+									{suggestedSkills.map((skill) => (
+										<CommandItem
+											key={skill.id}
+											value={skill.name}
+											onSelect={(currentValue) => {
+												handleAddSkill(currentValue);
+												setOpen(false);
+											}}
+										>
+											<Check
+												className={cn(
+													'mr-2 h-4 w-4',
+													skills.includes(skill.name) ? 'opacity-100' : 'opacity-0'
+												)}
+											/>
+											{skill.name}
+										</CommandItem>
+									))}
+								</CommandGroup>
+							</CommandList>
+						</PopoverContent>
+					</Popover>
 				</div>
 			</CardContent>
 			<CardFooter>
