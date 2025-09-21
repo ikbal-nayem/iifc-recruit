@@ -12,6 +12,8 @@ import {
   SheetContent,
   SheetTrigger,
   SheetClose,
+  SheetHeader,
+  SheetTitle,
 } from "@/components/ui/sheet"
 import { useState } from 'react';
 
@@ -66,6 +68,9 @@ export default function PublicHeader() {
             </Button>
           </SheetTrigger>
           <SheetContent side="right">
+            <SheetHeader>
+                <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+            </SheetHeader>
             <nav className="grid gap-6 text-lg font-medium mt-8">
               {navLinks.map(link => (
                   <SheetClose asChild key={link.href}>
