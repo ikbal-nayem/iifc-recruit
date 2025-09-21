@@ -203,22 +203,16 @@ interface OrganizationCrudProps {
 	title: string;
 	description: string;
 	noun: string;
-	countries: ICommonMasterData[];
-	industryTypes: ICommonMasterData[];
-	organizationTypes: ICommonMasterData[];
 }
 
-export function OrganizationCrud({
-	title,
-	description,
-	noun,
-	countries,
-	industryTypes,
-	organizationTypes,
-}: OrganizationCrudProps) {
+export function OrganizationCrud({ title, description, noun }: OrganizationCrudProps) {
 	const { toast } = useToast();
 	const [items, setItems] = useState<IOrganization[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
+
+	const [countries, setCountries] = useState<ICommonMasterData[]>([]);
+	const [industryTypes, setIndustryTypes] = useState<ICommonMasterData[]>([]);
+	const [organizationTypes, setOrganizationTypes] = useState<ICommonMasterData[]>([]);
 
 	const [isInitialLoading, setIsInitialLoading] = useState(true);
 	const [isLoading, setIsLoading] = useState(false);
@@ -283,7 +277,28 @@ export function OrganizationCrud({
 	);
 
 	useEffect(() => {
-		loadItems(0, '', 'all', 'all', 'all', true);
+		const fetchMasterData = async () => {
+			try {
+				const [countriesRes, industryTypesRes, orgTypesRes] = await Promise.all([
+					MasterDataService.country.get(),
+					MasterDataService.industryType.get(),
+					MasterDataService.organizationType.get(),
+				]);
+				setCountries(countriesRes.body);
+				setIndustryTypes(industryTypesRes.body);
+				setOrganizationTypes(orgTypesRes.body);
+			} catch (error) {
+				toast({
+					title: 'Error',
+					description: 'Failed to load master data for filters.',
+					variant: 'destructive',
+				});
+			} finally {
+				loadItems(0, '', 'all', 'all', 'all', true);
+			}
+		};
+
+		fetchMasterData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
@@ -322,7 +337,11 @@ export function OrganizationCrud({
 			return true;
 		} catch (error: any) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: error.message || 'Failed to update organization.', variant: 'destructive' });
+			toast({
+				title: 'Error',
+				description: error.message || 'Failed to update organization.',
+				variant: 'destructive',
+			});
 			return false;
 		}
 	};
@@ -357,7 +376,7 @@ export function OrganizationCrud({
 	const handleFormSubmit = async (data: Omit<IOrganization, 'id'> | IOrganization) => {
 		const success = editingItem
 			? await handleUpdate({ ...data, id: editingItem.id, isActive: editingItem.isActive })
-			: await handleAdd(data);
+			: await handleAdd(data as Omit<IOrganization, 'id'>);
 		if (success) {
 			handleCloseForm();
 			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter, organizationTypeFilter);
@@ -472,8 +491,8 @@ export function OrganizationCrud({
 			</div>
 			<Card className='glassmorphism'>
 				<CardContent className='pt-6'>
-					<div className='flex flex-col md:flex-row md:items-center gap-4'>
-						<div className='relative w-full md:max-w-xs'>
+					<div className='flex flex-col lg:flex-row lg:items-center gap-4'>
+						<div className='relative w-full lg:max-w-xs'>
 							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 							<Input
 								placeholder={`Search ${noun.toLowerCase()}s...`}
@@ -481,7 +500,7 @@ export function OrganizationCrud({
 								className='pl-10'
 							/>
 						</div>
-						<div className='flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+						<div className='flex-1 grid grid-cols-1 md:grid-cols-3 gap-4'>
 							<FormAutocomplete
 								control={undefined as any}
 								name='countryFilter'
@@ -519,7 +538,7 @@ export function OrganizationCrud({
 								value={industryFilter}
 							/>
 						</div>
-						<Button className='w-full md:w-auto' onClick={() => handleOpenForm()}>
+						<Button className='w-full lg:w-auto' onClick={() => handleOpenForm()}>
 							<PlusCircle className='mr-2 h-4 w-4' />
 							Add {noun}
 						</Button>
