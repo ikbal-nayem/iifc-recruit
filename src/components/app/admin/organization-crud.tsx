@@ -116,7 +116,7 @@ function OrganizationForm({
 							required
 							disabled={isSubmitting}
 						/>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+						<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
 							<FormAutocomplete
 								control={form.control}
 								name='countryCode'
@@ -144,7 +144,6 @@ function OrganizationForm({
 							options={industryTypes.map((i) => ({ value: i.id!, label: i.name }))}
 							disabled={isSubmitting}
 						/>
-
 						<FormInput
 							control={form.control}
 							name='address'
@@ -485,9 +484,15 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 
 	return (
 		<>
-			<div className='space-y-2'>
-				<h1 className='text-3xl font-headline font-bold'>{title}</h1>
-				<p className='text-muted-foreground'>{description}</p>
+			<div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
+				<div className='space-y-2'>
+					<h1 className='text-3xl font-headline font-bold'>{title}</h1>
+					<p className='text-muted-foreground'>{description}</p>
+				</div>
+				<Button className='w-full sm:w-auto' onClick={() => handleOpenForm()}>
+					<PlusCircle className='mr-2 h-4 w-4' />
+					Add {noun}
+				</Button>
 			</div>
 			<Card className='glassmorphism'>
 				<CardContent className='pt-6'>
@@ -538,10 +543,6 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 								value={industryFilter}
 							/>
 						</div>
-						<Button className='w-full lg:w-auto' onClick={() => handleOpenForm()}>
-							<PlusCircle className='mr-2 h-4 w-4' />
-							Add {noun}
-						</Button>
 					</div>
 					<div className='space-y-2 pt-4'>
 						{isInitialLoading
