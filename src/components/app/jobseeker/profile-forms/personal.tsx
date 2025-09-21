@@ -19,7 +19,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { divisions, districts, upazilas } from '@/lib/bd-divisions-districts-upazilas';
 import { useToast } from '@/hooks/use-toast';
 import { FormInput } from '@/components/ui/form-input';
@@ -175,60 +174,33 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
     return (
         <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <FormField
+                <FormSelect
                     control={form.control}
                     name={`${type}.division`}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel required>Division</FormLabel>
-                            <FormSelect
-                                control={form.control}
-                                name={`${type}.division`}
-                                label=""
-                                placeholder="Select division"
-                                disabled={disabled}
-                                options={divisions.map(d => ({label: d.name, value: d.name}))}
-                            />
-                            <FormMessage />
-                        </FormItem>
-                    )}
+                    label="Division"
+                    placeholder="Select division"
+                    required
+                    disabled={disabled}
+                    options={divisions.map(d => ({label: d.name, value: d.name}))}
                 />
-                 <FormField
+                 <FormSelect
                     control={form.control}
                     name={`${type}.district`}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel required>District</FormLabel>
-                             <FormSelect
-                                control={form.control}
-                                name={`${type}.district`}
-                                label=""
-                                placeholder="Select district"
-                                disabled={disabled || !watchDivision}
-                                options={filteredDistricts.map(d => ({label: d.name, value: d.name}))}
-                             />
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
+                    label="District"
+                    placeholder="Select district"
+                    required
+                    disabled={disabled || !watchDivision}
+                    options={filteredDistricts.map(d => ({label: d.name, value: d.name}))}
+                 />
+                <FormSelect
                     control={form.control}
                     name={`${type}.upazila`}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel required>Upazila / Thana</FormLabel>
-                             <FormSelect
-                                control={form.control}
-                                name={`${type}.upazila`}
-                                label=""
-                                placeholder="Select upazila"
-                                disabled={disabled || !watchDistrict}
-                                options={filteredUpazilas.map(u => ({label: u.name, value: u.name}))}
-                             />
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                    label="Upazila / Thana"
+                    placeholder="Select upazila"
+                    required
+                    disabled={disabled || !watchDistrict}
+                    options={filteredUpazilas.map(u => ({label: u.name, value: u.name}))}
+                 />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                  <FormInput
