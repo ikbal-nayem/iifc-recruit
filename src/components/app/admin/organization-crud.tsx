@@ -228,55 +228,38 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 	const [editingItem, setEditingItem] = useState<IOrganization | undefined>(undefined);
 
 	const loadItems = useCallback(
-		async (
-			page: number,
-			search: string,
-			countryCode: string,
-			industryId: string,
-			orgTypeId: string,
-			isInitial = false
-		) => {
-			if (isInitial) {
-				setIsInitialLoading(true);
-			} else {
-				setIsLoading(true);
-			}
-
-			const payload: IApiRequest = {
-				body: {
-					name: search,
-					...(countryCode !== 'all' && { countryCode }),
-					...(industryId !== 'all' && { industryTypeId: industryId }),
-					...(orgTypeId !== 'all' && { organizationTypeId: orgTypeId }),
-				},
-				meta: { page: page, limit: meta.limit },
-			};
-			MasterDataService.organization
-				.getList(payload)
-				.then((res) => {
-					setItems(res.body);
-					setMeta(res.meta);
-				})
-				.catch((error) => {
-					console.error('Failed to load items', error);
-					toast({
-						description: error?.message || 'Failed to load organizations.',
-						variant: 'destructive',
-					});
-				})
-				.finally(() => {
-					if (isInitial) {
-						setIsInitialLoading(false);
-					} else {
-						setIsLoading(false);
-					}
+		async (page: number, search: string, countryCode: string, industryId: string, orgTypeId: string) => {
+			setIsLoading(true);
+			try {
+				const payload: IApiRequest = {
+					body: {
+						name: search,
+						...(countryCode !== 'all' && { countryCode }),
+						...(industryId !== 'all' && { industryTypeId: industryId }),
+						...(orgTypeId !== 'all' && { organizationTypeId: orgTypeId }),
+					},
+					meta: { page: page, limit: meta.limit },
+				};
+				const response = await MasterDataService.organization.getList(payload);
+				setItems(response.body);
+				setMeta(response.meta);
+			} catch (error) {
+				console.error('Failed to load items', error);
+				toast({
+					title: 'Error',
+					description: 'Failed to load organizations.',
+					variant: 'destructive',
 				});
+			} finally {
+				setIsLoading(false);
+			}
 		},
 		[meta.limit, toast]
 	);
 
 	useEffect(() => {
-		const fetchMasterData = async () => {
+		const fetchMasterDataAndItems = async () => {
+			setIsInitialLoading(true);
 			try {
 				const [countriesRes, industryTypesRes, orgTypesRes] = await Promise.all([
 					MasterDataService.country.get(),
@@ -286,18 +269,21 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 				setCountries(countriesRes.body);
 				setIndustryTypes(industryTypesRes.body);
 				setOrganizationTypes(orgTypesRes.body);
+
+				// Now load items
+				await loadItems(0, '', 'all', 'all', 'all');
 			} catch (error) {
 				toast({
 					title: 'Error',
-					description: 'Failed to load master data for filters.',
+					description: 'Failed to load master data.',
 					variant: 'destructive',
 				});
 			} finally {
-				loadItems(0, '', 'all', 'all', 'all', true);
+				setIsInitialLoading(false);
 			}
 		};
 
-		fetchMasterData();
+		fetchMasterDataAndItems();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
@@ -334,13 +320,9 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 			const resp = await MasterDataService.organization.update(item);
 			toast({ description: resp.message, variant: 'success' });
 			return true;
-		} catch (error: any) {
+		} catch (error) {
 			console.error('Failed to update item', error);
-			toast({
-				title: 'Error',
-				description: error.message || 'Failed to update organization.',
-				variant: 'destructive',
-			});
+			toast({ title: 'Error', description: 'Failed to update organization.', variant: 'destructive' });
 			return false;
 		}
 	};
@@ -373,9 +355,7 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 	};
 
 	const handleFormSubmit = async (data: Omit<IOrganization, 'id'> | IOrganization) => {
-		const success = editingItem
-			? await handleUpdate({ ...data, id: editingItem.id, isActive: editingItem.isActive })
-			: await handleAdd(data as Omit<IOrganization, 'id'>);
+		const success = editingItem ? await handleUpdate({ ...data, id: editingItem.id }) : await handleAdd(data as Omit<IOrganization, 'id'>);
 		if (success) {
 			handleCloseForm();
 			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter, organizationTypeFilter);
@@ -505,7 +485,7 @@ export function OrganizationCrud({ title, description, noun }: OrganizationCrudP
 								className='pl-10'
 							/>
 						</div>
-						<div className='flex-1 grid grid-cols-1 md:grid-cols-3 gap-4'>
+						<div className='flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
 							<FormAutocomplete
 								control={undefined as any}
 								name='countryFilter'

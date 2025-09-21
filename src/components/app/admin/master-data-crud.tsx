@@ -179,9 +179,15 @@ export function MasterDataCrud<T extends MasterDataItem>({
 
 	return (
 		<>
-			<div className='space-y-2'>
-				<h1 className='text-3xl font-headline font-bold'>{title}</h1>
-				<p className='text-muted-foreground'>{description}</p>
+			<div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
+				<div className='space-y-2'>
+					<h1 className='text-3xl font-headline font-bold'>{title}</h1>
+					<p className='text-muted-foreground'>{description}</p>
+				</div>
+				<Button className='w-full sm:w-auto' onClick={() => handleOpenForm()}>
+					<PlusCircle className='mr-2 h-4 w-4' />
+					Add New {noun}
+				</Button>
 			</div>
 			<Card className='glassmorphism'>
 				<CardContent className='space-y-4 pt-6'>
@@ -194,10 +200,6 @@ export function MasterDataCrud<T extends MasterDataItem>({
 								className='pl-10'
 							/>
 						</div>
-						<Button className='w-full sm:w-auto' onClick={() => handleOpenForm()}>
-							<PlusCircle className='mr-2 h-4 w-4' />
-							Add New {noun}
-						</Button>
 					</div>
 					<div className='space-y-2 pt-4'>
 						{isLoading
