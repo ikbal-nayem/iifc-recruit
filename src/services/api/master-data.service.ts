@@ -29,14 +29,5 @@ export const MasterDataService = {
 	trainingType: createMasterDataCrud('training-type'),
 	country: createMasterDataCrud('country'),
 	educationInstitution: createMasterDataCrud<IEducationInstitution>('education-institution'),
-	organization: {
-		get: async (): Promise<IApiResponse<IOrganization[]>> => await axiosIns.get(`/master-data/organization/get`),
-		getList: async (payload: IApiRequest): Promise<IApiResponse<IOrganization[]>> =>
-			await axiosIns.post(`/master-data/organization/get-list`, payload),
-		add: async (payload: Omit<IOrganization, 'id'>): Promise<IApiResponse<IOrganization>> =>
-			await axiosIns.post(`/master-data/organization/create`, payload),
-		update: async (payload: IOrganization): Promise<IApiResponse<IOrganization>> =>
-			await axiosIns.put(`/master-data/organization/update`, payload),
-		delete: async (id: string): Promise<void> => await axiosIns.delete(`/master-data/organization/delete/${id}`),
-	},
+	organization: createMasterDataCrud<IOrganization>('organization'),
 };
