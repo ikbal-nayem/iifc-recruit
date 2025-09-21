@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -146,13 +147,13 @@ export function ProfileFormSkills({ candidate }: ProfileFormProps) {
 				<div className='flex flex-wrap gap-2'>
 					{skills.map((skill) => (
 						<AlertDialog key={skill}>
-							<Badge variant='default' className='text-sm py-1 px-3'>
+							<Badge variant='secondary' className='text-sm py-1 px-3'>
 								{skill}
 								<AlertDialogTrigger asChild>
 									<Button
 										variant='ghost'
 										size='icon'
-										className='ml-1 h-4 w-4 text-primary-foreground/70 hover:text-primary-foreground'
+										className='ml-1 h-4 w-4 text-secondary-foreground/70 hover:text-secondary-foreground'
 									>
 										<X className='h-3 w-3' />
 									</Button>
