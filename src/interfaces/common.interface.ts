@@ -14,8 +14,9 @@ export interface IMeta {
 
 export interface IApiResponse<T = any> {
 	body: T;
-	meta: IMeta;
+	meta?: IMeta;
 	message?: string;
+	status: number;
 }
 
 export interface IApiError {
