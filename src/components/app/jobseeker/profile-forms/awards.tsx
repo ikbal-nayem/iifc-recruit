@@ -7,15 +7,15 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
 import type { Candidate, Award } from '@/lib/types';
-import { PlusCircle, Trash, Save, Edit } from 'lucide-react';
+import { PlusCircle, Trash, Save, Edit, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -31,6 +31,59 @@ const awardSchema = z.object({
 
 type AwardFormValues = z.infer<typeof awardSchema>;
 
+interface AwardFormProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSubmit: (data: AwardFormValues) => Promise<boolean>;
+    initialData?: Award;
+    noun: string;
+}
+
+function AwardForm({ isOpen, onClose, onSubmit, initialData, noun }: AwardFormProps) {
+    const form = useForm<AwardFormValues>({
+        resolver: zodResolver(awardSchema),
+        defaultValues: initialData || { name: '', awardingBody: '', dateReceived: '' },
+    });
+    const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+    React.useEffect(() => {
+        form.reset(initialData || { name: '', awardingBody: '', dateReceived: '' });
+    }, [initialData, form]);
+
+    const handleSubmit = async (data: AwardFormValues) => {
+        setIsSubmitting(true);
+        const success = await onSubmit(data);
+        if (success) {
+            onClose();
+        }
+        setIsSubmitting(false);
+    };
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
+                </DialogHeader>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-4">
+                        <FormInput control={form.control} name="name" label="Award Name" placeholder="e.g., Employee of the Month" required disabled={isSubmitting} />
+                        <FormInput control={form.control} name="awardingBody" label="Awarding Body" placeholder="e.g., TechCorp" required disabled={isSubmitting} />
+                        <FormDatePicker control={form.control} name="dateReceived" label="Date Received" required disabled={isSubmitting} />
+                        <DialogFooter className="pt-4">
+                            <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting}>Cancel</Button>
+                            <Button type="submit" disabled={isSubmitting}>
+                                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                {initialData ? 'Save Changes' : 'Add Award'}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </Form>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 interface ProfileFormProps {
   candidate: Candidate;
 }
@@ -38,31 +91,33 @@ interface ProfileFormProps {
 export function ProfileFormAwards({ candidate }: ProfileFormProps) {
   const { toast } = useToast();
   const [history, setHistory] = React.useState(candidate.awards);
-  const [editingId, setEditingId] = React.useState<number | null>(null);
+  const [editingItem, setEditingItem] = React.useState<Award | undefined>(undefined);
+  const [isFormOpen, setIsFormOpen] = React.useState(false);
 
-  const form = useForm<AwardFormValues>({
-    resolver: zodResolver(awardSchema),
-    defaultValues: { name: '', awardingBody: '', dateReceived: '' },
-  });
-
-  const editForm = useForm<AwardFormValues>({
-    resolver: zodResolver(awardSchema),
-  });
-  
-  const handleAddNew = (data: AwardFormValues) => {
-    setHistory([...history, data]);
-    form.reset({ name: '', awardingBody: '', dateReceived: '' });
+  const handleOpenForm = (item?: Award) => {
+    setEditingItem(item);
+    setIsFormOpen(true);
   };
 
-  const handleUpdate = (index: number, data: AwardFormValues) => {
-    const updatedHistory = [...history];
-    updatedHistory[index] = data;
-    setHistory(updatedHistory);
-    setEditingId(null);
+  const handleCloseForm = () => {
+    setIsFormOpen(false);
+    setEditingItem(undefined);
   };
   
-  const handleRemove = (index: number) => {
-    setHistory(history.filter((_, i) => i !== index));
+  const handleFormSubmit = async (data: AwardFormValues) => {
+    // In a real app, this would be an API call.
+    if (editingItem) {
+        setHistory(history.map(item => item.name === editingItem.name && item.awardingBody === editingItem.awardingBody ? { ...item, ...data } : item));
+        toast({ title: 'Success', description: 'Award updated successfully.', variant: 'success' });
+    } else {
+        setHistory([...history, data]);
+        toast({ title: 'Success', description: 'Award added successfully.', variant: 'success' });
+    }
+    return true; // Simulate successful submission
+  };
+  
+  const handleRemove = (itemToRemove: Award) => {
+    setHistory(history.filter(item => item !== itemToRemove));
     toast({
         title: 'Entry Deleted',
         description: 'The award has been removed.',
@@ -70,47 +125,7 @@ export function ProfileFormAwards({ candidate }: ProfileFormProps) {
     })
   };
 
-  const startEditing = (index: number, item: Award) => {
-    setEditingId(index);
-    editForm.reset(item);
-  };
-
   const renderItem = (item: Award, index: number) => {
-    if (editingId === index) {
-      return (
-         <Form {...editForm}>
-            <form onSubmit={editForm.handleSubmit((data) => handleUpdate(index, data))}>
-                <Card key={index} className="p-4 bg-muted/50">
-                    <CardContent className="p-0 space-y-4">
-                        <FormInput
-                            control={editForm.control}
-                            name="name"
-                            label="Award Name"
-                            required
-                        />
-                        <FormInput
-                            control={editForm.control}
-                            name="awardingBody"
-                            label="Awarding Body"
-                            required
-                        />
-                        <FormDatePicker
-                            control={editForm.control}
-                            name="dateReceived"
-                            label="Date Received"
-                            required
-                        />
-                    </CardContent>
-                    <CardFooter className="p-0 pt-4 flex justify-end gap-2">
-                        <Button type="button" variant="ghost" onClick={() => setEditingId(null)}>Cancel</Button>
-                        <Button type="submit">Save</Button>
-                    </CardFooter>
-                </Card>
-            </form>
-        </Form>
-      );
-    }
-
     return (
         <Card key={index} className="p-4 flex justify-between items-center">
             <div>
@@ -118,13 +133,13 @@ export function ProfileFormAwards({ candidate }: ProfileFormProps) {
                 <p className="text-sm text-muted-foreground">{item.awardingBody} - {format(new Date(item.dateReceived), "PPP")}</p>
             </div>
             <div className="flex gap-2">
-                 <Button variant="ghost" size="icon" onClick={() => startEditing(index, item)}>
+                 <Button variant="ghost" size="icon" onClick={() => handleOpenForm(item)}>
                     <Edit className="h-4 w-4" />
                 </Button>
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
                         <Button variant="ghost" size="icon">
-                            <Trash className="h-4 w-4 text-destructive" />
+                            <Trash className="h-4 w-4 text-danger" />
                         </Button>
                     </AlertDialogTrigger>
                      <AlertDialogContent>
@@ -136,7 +151,7 @@ export function ProfileFormAwards({ candidate }: ProfileFormProps) {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleRemove(index)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                        <AlertDialogAction onClick={() => handleRemove(item)} className="bg-danger hover:bg-danger/90">Delete</AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
@@ -149,52 +164,34 @@ export function ProfileFormAwards({ candidate }: ProfileFormProps) {
     <div className="space-y-6">
         <Card className="glassmorphism">
             <CardHeader>
-                <CardTitle>Your Awards & Recognitions</CardTitle>
-                <CardDescription>Listed below are your awards and recognitions.</CardDescription>
+                <div className="flex justify-between items-center">
+                    <div>
+                        <CardTitle>Your Awards & Recognitions</CardTitle>
+                        <CardDescription>Listed below are your awards and recognitions.</CardDescription>
+                    </div>
+                     <Button onClick={() => handleOpenForm()}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add New
+                    </Button>
+                </div>
             </CardHeader>
             <CardContent className="space-y-4">
                 {history.map(renderItem)}
                 {history.length === 0 && (
-                    <p className="text-center text-muted-foreground py-4">No awards added yet.</p>
+                    <p className="text-center text-muted-foreground py-8">No awards added yet.</p>
                 )}
             </CardContent>
         </Card>
         
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleAddNew)}>
-                <Card className="glassmorphism">
-                    <CardHeader>
-                        <CardTitle>Add New Award</CardTitle>
-                        <CardDescription>Add a new award to your profile.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <FormInput
-                            control={form.control}
-                            name="name"
-                            label="Award Name"
-                            placeholder="e.g. Employee of the Month"
-                            required
-                        />
-                        <FormInput
-                            control={form.control}
-                            name="awardingBody"
-                            label="Awarding Body"
-                            placeholder="e.g. TechCorp"
-                            required
-                        />
-                        <FormDatePicker
-                            control={form.control}
-                            name="dateReceived"
-                            label="Date Received"
-                            required
-                        />
-                    </CardContent>
-                    <CardFooter>
-                        <Button type="submit"><PlusCircle className="mr-2 h-4 w-4" /> Add Entry</Button>
-                    </CardFooter>
-                </Card>
-            </form>
-        </Form>
+        {isFormOpen && (
+            <AwardForm
+                isOpen={isFormOpen}
+                onClose={handleCloseForm}
+                onSubmit={handleFormSubmit}
+                initialData={editingItem}
+                noun="Award"
+            />
+        )}
     </div>
   );
 }
