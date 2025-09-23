@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Info, CheckCircle, AlertTriangle, AlertCircle } from 'lucide-react'
@@ -47,21 +48,17 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
   ({ className, variant, children, icon, showIcon = true, ...props }, ref) => {
     const IconComponent = variant ? variantIcons[variant] : Info;
     
-    const displayIcon = showIcon ? (icon ?? <IconComponent />) : null;
+    const displayIcon = showIcon ? (icon ?? <IconComponent className="h-4 w-4" />) : null;
     
     return (
       <div
         ref={ref}
         role="alert"
-        className={cn(alertVariants({ variant }), className)}
+        className={cn(alertVariants({ variant }), 'flex items-start gap-4', className)}
         {...props}
       >
-        {displayIcon && (
-           <div className="absolute left-4 top-4 h-4 w-4">
-            {displayIcon}
-           </div>
-        )}
-        <div className={cn(showIcon && 'ml-7')}>
+        {displayIcon}
+        <div className="flex-1">
           {children}
         </div>
       </div>
