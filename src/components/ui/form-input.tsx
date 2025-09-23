@@ -13,6 +13,7 @@ interface FormInputProps<TFieldValues extends FieldValues> extends React.Compone
 	label: string;
 	required?: boolean;
     startIcon?: React.ReactNode;
+    children?: React.ReactNode;
 }
 
 export function FormInput<TFieldValues extends FieldValues>({
@@ -21,6 +22,7 @@ export function FormInput<TFieldValues extends FieldValues>({
 	label,
 	required = false,
     startIcon,
+    children,
 	...props
 }: FormInputProps<TFieldValues>) {
 	return (
@@ -29,11 +31,14 @@ export function FormInput<TFieldValues extends FieldValues>({
 			name={name}
 			render={({ field }) => (
 				<FormItem>
-					<FormLabel required={required}>{label}</FormLabel>
+					<div className='flex items-center'>
+						<FormLabel required={required}>{label}</FormLabel>
+						{children}
+					</div>
 					<FormControl>
                         <div className="relative flex items-center">
                             {startIcon && <div className="absolute left-3">{startIcon}</div>}
-						    <Input {...props} {...field} className={cn(startIcon && "pl-10")} />
+						    <Input {...props} {...field} className={cn(startIcon && "pl-10", 'h-11')} />
                         </div>
 					</FormControl>
 					<FormMessage />
