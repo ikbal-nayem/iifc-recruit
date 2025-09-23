@@ -34,7 +34,7 @@ export default function MasterPositionLevelsPage() {
 				toast({
 					title: 'Error',
 					description: 'Failed to load position levels.',
-					variant: 'destructive',
+					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
@@ -59,7 +59,7 @@ export default function MasterPositionLevelsPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to add item', error);
-			toast({ title: 'Error', description: 'Failed to add position level.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to add position level.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -72,7 +72,7 @@ export default function MasterPositionLevelsPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update position level.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to update position level.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -85,7 +85,7 @@ export default function MasterPositionLevelsPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: 'Failed to delete position level.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to delete position level.', variant: 'danger' });
 			return false;
 		}
 	};

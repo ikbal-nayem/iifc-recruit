@@ -14,7 +14,7 @@ export function JobDetailClient({ jobTitle }: { jobTitle: string }) {
     toast({
       title: 'Login Required',
       description: `Please log in to apply for the ${jobTitle} position.`,
-      variant: 'destructive',
+      variant: 'danger',
     });
     router.push('/login');
   };

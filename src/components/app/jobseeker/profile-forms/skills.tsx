@@ -99,41 +99,41 @@ export function ProfileFormSkills({ candidate }: ProfileFormProps) {
 			</CardHeader>
 			<CardContent className='space-y-4'>
 				<Command className='relative'>
-					<Popover open={open} onOpenChange={setOpen}>
-						<PopoverTrigger asChild>
-							<div className='flex flex-wrap gap-2 p-3 border rounded-lg min-h-[44px] items-center'>
-								{skills.map((skill) => (
-									<AlertDialog key={skill}>
-										<Badge variant='secondary' className='text-sm py-1 px-2'>
-											{skill}
-											<AlertDialogTrigger asChild>
-												<button
-													className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
-												>
-													<X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
-												</button>
-											</AlertDialogTrigger>
-										</Badge>
-										<AlertDialogContent>
-											<AlertDialogHeader>
-												<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-												<AlertDialogDescription>
-													This action cannot be undone. This will permanently delete the skill &quot;
-													{skill}&quot;.
-												</AlertDialogDescription>
-											</AlertDialogHeader>
-											<AlertDialogFooter>
-												<AlertDialogCancel>Cancel</AlertDialogCancel>
-												<AlertDialogAction
-													onClick={() => handleRemoveSkill(skill)}
-													className='bg-destructive hover:bg-destructive/90'
-												>
-													Delete
-												</AlertDialogAction>
-											</AlertDialogFooter>
-										</AlertDialogContent>
-									</AlertDialog>
-								))}
+					<div className='flex flex-wrap gap-2 p-3 border rounded-lg min-h-[44px] items-center'>
+						{skills.map((skill) => (
+							<AlertDialog key={skill}>
+								<Badge variant='secondary' className='text-sm py-1 px-2'>
+									{skill}
+									<AlertDialogTrigger asChild>
+										<button
+											className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+										>
+											<X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
+										</button>
+									</AlertDialogTrigger>
+								</Badge>
+								<AlertDialogContent>
+									<AlertDialogHeader>
+										<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+										<AlertDialogDescription>
+											This action cannot be undone. This will permanently delete the skill &quot;
+											{skill}&quot;.
+										</AlertDialogDescription>
+									</AlertDialogHeader>
+									<AlertDialogFooter>
+										<AlertDialogCancel>Cancel</AlertDialogCancel>
+										<AlertDialogAction
+											onClick={() => handleRemoveSkill(skill)}
+											className='bg-danger hover:bg-danger/90'
+										>
+											Delete
+										</AlertDialogAction>
+									</AlertDialogFooter>
+								</AlertDialogContent>
+							</AlertDialog>
+						))}
+						<Popover open={open} onOpenChange={setOpen}>
+							<PopoverTrigger asChild>
 								<CommandInput
 									placeholder='Add a skill...'
 									value={searchQuery}
@@ -146,40 +146,40 @@ export function ProfileFormSkills({ candidate }: ProfileFormProps) {
 										}
 									}}
 								/>
-							</div>
-						</PopoverTrigger>
-						<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align="start">
-							<CommandList>
-								{isLoading && (
-									<div className='p-2 flex justify-center'>
-										<Loader2 className='h-6 w-6 animate-spin' />
-									</div>
-								)}
-								{!isLoading && debouncedSearch && <CommandEmpty>No skill found. Press Enter to add &quot;{debouncedSearch}&quot;</CommandEmpty>}
-								{!isLoading && !debouncedSearch && <CommandEmpty>Type to search for skills.</CommandEmpty>}
-								<CommandGroup>
-									{suggestedSkills.map((skill) => (
-										<CommandItem
-											key={skill.id}
-											value={skill.name}
-											onSelect={(currentValue) => {
-												handleAddSkill(currentValue);
-												setOpen(false);
-											}}
-										>
-											<Check
-												className={cn(
-													'mr-2 h-4 w-4',
-													skills.includes(skill.name) ? 'opacity-100' : 'opacity-0'
-												)}
-											/>
-											{skill.name}
-										</CommandItem>
-									))}
-								</CommandGroup>
-							</CommandList>
-						</PopoverContent>
-					</Popover>
+							</PopoverTrigger>
+							<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align="start">
+								<CommandList>
+									{isLoading && (
+										<div className='p-2 flex justify-center'>
+											<Loader2 className='h-6 w-6 animate-spin' />
+										</div>
+									)}
+									{!isLoading && debouncedSearch && <CommandEmpty>No skill found. Press Enter to add &quot;{debouncedSearch}&quot;</CommandEmpty>}
+									{!isLoading && !debouncedSearch && <CommandEmpty>Type to search for skills.</CommandEmpty>}
+									<CommandGroup>
+										{suggestedSkills.map((skill) => (
+											<CommandItem
+												key={skill.id}
+												value={skill.name}
+												onSelect={(currentValue) => {
+													handleAddSkill(currentValue);
+													setOpen(false);
+												}}
+											>
+												<Check
+													className={cn(
+														'mr-2 h-4 w-4',
+														skills.includes(skill.name) ? 'opacity-100' : 'opacity-0'
+													)}
+												/>
+												{skill.name}
+											</CommandItem>
+										))}
+									</CommandGroup>
+								</CommandList>
+							</PopoverContent>
+						</Popover>
+					</div>
 				</Command>
 			</CardContent>
 			<CardFooter>

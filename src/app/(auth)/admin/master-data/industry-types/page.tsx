@@ -35,7 +35,7 @@ export default function MasterIndustryTypesPage() {
 				toast({
 					title: 'Error',
 					description: 'Failed to load industry types.',
-					variant: 'destructive',
+					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
@@ -60,7 +60,7 @@ export default function MasterIndustryTypesPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to add item', error);
-			toast({ title: 'Error', description: 'Failed to add industry type.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to add industry type.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -73,7 +73,7 @@ export default function MasterIndustryTypesPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update industry type.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to update industry type.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -86,7 +86,7 @@ export default function MasterIndustryTypesPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: 'Failed to delete industry type.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to delete industry type.', variant: 'danger' });
 			return false;
 		}
 	};

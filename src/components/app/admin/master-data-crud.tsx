@@ -243,7 +243,7 @@ export function MasterDataCrud<T extends MasterDataItem>({
 															className='h-8 w-8'
 															disabled={isSubmitting === item.id}
 														>
-															<Trash className='h-4 w-4 text-destructive' />
+															<Trash className='h-4 w-4 text-danger' />
 														</Button>
 													</AlertDialogTrigger>
 													<AlertDialogContent>
@@ -258,7 +258,7 @@ export function MasterDataCrud<T extends MasterDataItem>({
 															<AlertDialogCancel>Cancel</AlertDialogCancel>
 															<AlertDialogAction
 																onClick={() => handleRemove(item.id)}
-																className='bg-destructive hover:bg-destructive/90'
+																className='bg-danger hover:bg-danger/90'
 															>
 																Delete
 															</AlertDialogAction>

@@ -35,7 +35,7 @@ export default function MasterApplicationStatusesPage() {
 				toast({
 					title: 'Error',
 					description: 'Failed to load application statuses.',
-					variant: 'destructive',
+					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
@@ -60,7 +60,7 @@ export default function MasterApplicationStatusesPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to add item', error);
-			toast({ title: 'Error', description: 'Failed to add application status.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to add application status.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -73,7 +73,7 @@ export default function MasterApplicationStatusesPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update application status.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to update application status.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -90,7 +90,7 @@ export default function MasterApplicationStatusesPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: 'Failed to delete application status.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to delete application status.', variant: 'danger' });
 			return false;
 		}
 	};

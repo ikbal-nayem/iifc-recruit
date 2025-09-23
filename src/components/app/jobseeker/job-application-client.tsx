@@ -44,7 +44,7 @@ export function JobApplicationClient({ jobTitle }: { jobTitle: string }) {
         toast({
             title: 'Invalid File Type',
             description: 'Please upload your cover letter as a PDF file.',
-            variant: 'destructive',
+            variant: 'danger',
         });
     }
   };

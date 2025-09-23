@@ -181,7 +181,7 @@ export function JobManagement() {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => handleDeleteJob(job.id)} className="bg-destructive hover:bg-destructive/90">Continue</AlertDialogAction>
+                  <AlertDialogAction onClick={() => handleDeleteJob(job.id)} className="bg-danger hover:bg-danger/90">Continue</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
           </AlertDialog>
@@ -376,7 +376,7 @@ export function JobManagement() {
                 </div>
                 <div className="flex items-center gap-4 text-sm pt-4">
                     <Badge variant="secondary">Posted: {selectedJob.postedDate}</Badge>
-                    <Badge variant="destructive">Deadline: {selectedJob.applicationDeadline}</Badge>
+                    <Badge variant="danger">Deadline: {selectedJob.applicationDeadline}</Badge>
                 </div>
               </div>
             </>

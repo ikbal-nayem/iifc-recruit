@@ -35,7 +35,7 @@ export default function MasterTrainingTypesPage() {
 				toast({
 					title: 'Error',
 					description: 'Failed to load training types.',
-					variant: 'destructive',
+					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
@@ -60,7 +60,7 @@ export default function MasterTrainingTypesPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to add item', error);
-			toast({ title: 'Error', description: 'Failed to add training type.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to add training type.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -73,7 +73,7 @@ export default function MasterTrainingTypesPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update training type.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to update training type.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -86,7 +86,7 @@ export default function MasterTrainingTypesPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: 'Failed to delete training type.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to delete training type.', variant: 'danger' });
 			return false;
 		}
 	};

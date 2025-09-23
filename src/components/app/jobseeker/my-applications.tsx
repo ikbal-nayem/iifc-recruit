@@ -67,7 +67,7 @@ export function MyApplications() {
             status === 'Hired' ? 'default' : 
             status === 'Interview' ? 'default' : 
             status === 'Offered' ? 'default' :
-            status === 'Rejected' ? 'destructive' :
+            status === 'Rejected' ? 'danger' :
             'secondary';
         return <Badge variant={variant as any}>{status}</Badge>;
       },
@@ -97,7 +97,7 @@ export function MyApplications() {
                 application.status === 'Hired' ? 'default' : 
                 application.status === 'Interview' ? 'default' : 
                 application.status === 'Offered' ? 'default' :
-                application.status === 'Rejected' ? 'destructive' :
+                application.status === 'Rejected' ? 'danger' :
                 'secondary'}>{application.status}</Badge>
         </div>
       </div>

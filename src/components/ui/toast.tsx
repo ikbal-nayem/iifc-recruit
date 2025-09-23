@@ -31,8 +31,8 @@ const toastVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground",
-        destructive:
-          "destructive group border-destructive bg-destructive text-destructive-foreground",
+        danger:
+          "danger group border-danger bg-danger text-danger-foreground",
         success:
           "success group border-transparent bg-green-600 text-white",
         warning:
@@ -70,7 +70,7 @@ const ToastAction = React.forwardRef<
     ref={ref}
     className={cn(
       "inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-      "group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive",
+      "group-[.danger]:border-muted/40 group-[.danger]:hover:border-danger/30 group-[.danger]:hover:bg-danger group-[.danger]:hover:text-danger-foreground group-[.danger]:focus:ring-danger",
        "group-[.success]:border-muted/40 group-[.success]:hover:border-green-600/30 group-[.success]:hover:bg-green-600 group-[.success]:hover:text-white group-[.success]:focus:ring-green-600",
        "group-[.warning]:border-muted/40 group-[.warning]:hover:border-amber-500/30 group-[.warning]:hover:bg-amber-500 group-[.warning]:hover:text-white group-[.warning]:focus:ring-amber-500",
         "group-[.info]:border-muted/40 group-[.info]:hover:border-sky-500/30 group-[.info]:hover:bg-sky-500 group-[.info]:hover:text-white group-[.info]:focus:ring-sky-500",
@@ -89,7 +89,7 @@ const ToastClose = React.forwardRef<
     ref={ref}
     className={cn(
       "absolute right-2 top-2 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100",
-      "group-[.destructive]:text-red-300 group-[.destructive]:hover:text-red-50 group-[.destructive]:focus:ring-red-400 group-[.destructive]:focus:ring-offset-red-600",
+      "group-[.danger]:text-red-300 group-[.danger]:hover:text-red-50 group-[.danger]:focus:ring-red-400 group-[.danger]:focus:ring-offset-red-600",
        "group-[.success]:text-green-300 group-[.success]:hover:text-green-50 group-[.success]:focus:ring-green-400 group-[.success]:focus:ring-offset-green-600",
        "group-[.warning]:text-amber-300 group-[.warning]:hover:text-amber-50 group-[.warning]:focus:ring-amber-400 group-[.warning]:focus:ring-offset-amber-600",
         "group-[.info]:text-sky-300 group-[.info]:hover:text-sky-50 group-[.info]:focus:ring-sky-400 group-[.info]:focus:ring-offset-sky-600",

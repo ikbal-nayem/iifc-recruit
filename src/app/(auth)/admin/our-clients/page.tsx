@@ -35,7 +35,7 @@ export default function MasterDepartmentsPage() {
 				toast({
 					title: 'Error',
 					description: 'Failed to load clients.',
-					variant: 'destructive',
+					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
@@ -60,7 +60,7 @@ export default function MasterDepartmentsPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to add item', error);
-			toast({ title: 'Error', description: 'Failed to add client.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to add client.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -73,7 +73,7 @@ export default function MasterDepartmentsPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update client.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to update client.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -86,7 +86,7 @@ export default function MasterDepartmentsPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: 'Failed to delete client.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to delete client.', variant: 'danger' });
 			return false;
 		}
 	};

@@ -35,7 +35,7 @@ export default function MasterJobStatusesPage() {
 				toast({
 					title: 'Error',
 					description: 'Failed to load job statuses.',
-					variant: 'destructive',
+					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
@@ -56,7 +56,7 @@ export default function MasterJobStatusesPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to add item', error);
-			toast({ title: 'Error', description: 'Failed to add job status.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to add job status.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -69,7 +69,7 @@ export default function MasterJobStatusesPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update job status.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to update job status.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -82,7 +82,7 @@ export default function MasterJobStatusesPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: 'Failed to delete job status.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to delete job status.', variant: 'danger' });
 			return false;
 		}
 	};

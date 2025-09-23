@@ -35,7 +35,7 @@ export default function MasterCertificationsPage() {
 				toast({
 					title: 'Error',
 					description: 'Failed to load certifications.',
-					variant: 'destructive',
+					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
@@ -60,7 +60,7 @@ export default function MasterCertificationsPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to add item', error);
-			toast({ title: 'Error', description: 'Failed to add certification.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to add certification.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -73,7 +73,7 @@ export default function MasterCertificationsPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update certification.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to update certification.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -86,7 +86,7 @@ export default function MasterCertificationsPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: 'Failed to delete certification.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to delete certification.', variant: 'danger' });
 			return false;
 		}
 	};

@@ -29,7 +29,7 @@ export default function MasterInstitutionsPage() {
 				toast({
 					title: 'Error',
 					description: 'Failed to load countries.',
-					variant: 'destructive',
+					variant: 'danger',
 				});
 			}
 		};
@@ -55,7 +55,7 @@ export default function MasterInstitutionsPage() {
 				toast({
 					title: 'Error',
 					description: 'Failed to load institutions.',
-					variant: 'destructive',
+					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
@@ -80,7 +80,7 @@ export default function MasterInstitutionsPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to add item', error);
-			toast({ title: 'Error', description: 'Failed to add institution.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to add institution.', variant: 'danger' });
 			return false;
 		}
 	};
@@ -93,7 +93,7 @@ export default function MasterInstitutionsPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update institution.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to update institution.', variant: 'danger' });
 			return false;
 		}
 	};
@@ -106,7 +106,7 @@ export default function MasterInstitutionsPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: 'Failed to delete institution.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to delete institution.', variant: 'danger' });
 			return false;
 		}
 	};

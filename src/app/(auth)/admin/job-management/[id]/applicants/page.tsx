@@ -44,7 +44,7 @@ export default async function JobApplicantsPage({ params }: { params: { id: stri
                 <Building2 className='h-4 w-4' /> {job.department}
             </span>
             <Badge variant='secondary'>Posted: {job.postedDate}</Badge>
-            <Badge variant='destructive'>Deadline: {job.applicationDeadline}</Badge>
+            <Badge variant='danger'>Deadline: {job.applicationDeadline}</Badge>
         </div>
       </div>
       <JobApplicantsTable applicants={applicants} />

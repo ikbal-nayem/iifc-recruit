@@ -34,7 +34,7 @@ export default function MasterLanguagesPage() {
 				toast({
 					title: 'Error',
 					description: 'Failed to load languages.',
-					variant: 'destructive',
+					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
@@ -59,7 +59,7 @@ export default function MasterLanguagesPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to add item', error);
-			toast({ title: 'Error', description: 'Failed to add language.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to add language.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -72,7 +72,7 @@ export default function MasterLanguagesPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update language.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to update language.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -85,7 +85,7 @@ export default function MasterLanguagesPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: 'Failed to delete language.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to delete language.', variant: 'danger' });
 			return false;
 		}
 	};

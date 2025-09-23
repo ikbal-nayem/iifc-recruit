@@ -34,7 +34,7 @@ export default function MasterEducationDomainsPage() {
 				toast({
 					title: 'Error',
 					description: 'Failed to load education domains.',
-					variant: 'destructive',
+					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
@@ -59,7 +59,7 @@ export default function MasterEducationDomainsPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to add item', error);
-			toast({ title: 'Error', description: 'Failed to add education domain.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to add education domain.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -72,7 +72,7 @@ export default function MasterEducationDomainsPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update education domain.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to update education domain.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -85,7 +85,7 @@ export default function MasterEducationDomainsPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: 'Failed to delete education domain.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to delete education domain.', variant: 'danger' });
 			return false;
 		}
 	};

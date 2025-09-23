@@ -34,7 +34,7 @@ export default function MasterSkillsPage() {
 				toast({
 					title: 'Error',
 					description: 'Failed to load skills.',
-					variant: 'destructive',
+					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
@@ -60,7 +60,7 @@ export default function MasterSkillsPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to add skill', error);
-			toast({ title: 'Error', description: 'Failed to add skill.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to add skill.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -73,7 +73,7 @@ export default function MasterSkillsPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to update skill', error);
-			toast({ title: 'Error', description: 'Failed to update skill.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to update skill.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -86,7 +86,7 @@ export default function MasterSkillsPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to delete skill', error);
-			toast({ title: 'Error', description: 'Failed to delete skill.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to delete skill.', variant: 'danger' });
 			return false;
 		}
 	};

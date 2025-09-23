@@ -241,7 +241,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 				toast({
 					title: 'Error',
 					description: 'Failed to load organizations.',
-					variant: 'destructive',
+					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
@@ -276,7 +276,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 			toast({
 				title: 'Error',
 				description: error?.message || 'Failed to add organization.',
-				variant: 'destructive',
+				variant: 'danger',
 			});
 			return false;
 		}
@@ -289,7 +289,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update organization.', variant: 'destructive' });
+			toast({ title: 'Error', description: 'Failed to update organization.', variant: 'danger' });
 			return false;
 		}
 	};
@@ -305,7 +305,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 			toast({
 				title: 'Error',
 				description: error?.message || 'Failed to delete organization.',
-				variant: 'destructive',
+				variant: 'danger',
 			});
 			return false;
 		}
@@ -406,7 +406,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 				<AlertDialog>
 					<AlertDialogTrigger asChild>
 						<Button variant='ghost' size='icon' className='h-8 w-8' disabled={isSubmitting === item.id}>
-							<Trash className='h-4 w-4 text-destructive' />
+							<Trash className='h-4 w-4 text-danger' />
 						</Button>
 					</AlertDialogTrigger>
 					<AlertDialogContent>
@@ -420,7 +420,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 							<AlertDialogCancel>Cancel</AlertDialogCancel>
 							<AlertDialogAction
 								onClick={() => handleDelete(item.id!)}
-								className='bg-destructive hover:bg-destructive/90'
+								className='bg-danger hover:bg-danger/90'
 							>
 								Delete
 							</AlertDialogAction>

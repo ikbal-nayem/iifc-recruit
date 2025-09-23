@@ -70,7 +70,7 @@ export default function JobDetailsPage({
 						<CardContent className='space-y-6'>
 							<div className='flex items-center gap-4 text-sm'>
 								<Badge variant='secondary'>Posted: {job.postedDate}</Badge>
-								<Badge variant='destructive'>Deadline: {job.applicationDeadline}</Badge>
+								<Badge variant='danger'>Deadline: {job.applicationDeadline}</Badge>
 							</div>
 							<div>
 								<h3 className='font-semibold text-lg mb-2'>Job Description</h3>
