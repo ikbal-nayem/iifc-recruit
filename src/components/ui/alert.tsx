@@ -1,10 +1,11 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
+import { Info, CheckCircle, AlertTriangle, AlertCircle } from 'lucide-react'
 
 import { cn } from "@/lib/utils"
 
 const alertVariants = cva(
-  "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground",
+  "relative w-full rounded-lg border p-4 [&>svg]:text-foreground",
   {
     variants: {
       variant: {
@@ -25,17 +26,48 @@ const alertVariants = cva(
   }
 )
 
-const Alert = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof alertVariants>
->(({ className, variant, ...props }, ref) => (
-  <div
-    ref={ref}
-    role="alert"
-    className={cn(alertVariants({ variant }), className)}
-    {...props}
-  />
-))
+const variantIcons = {
+  default: Info,
+  danger: AlertCircle,
+  success: CheckCircle,
+  warning: AlertTriangle,
+  info: Info,
+}
+
+
+interface AlertProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof alertVariants> {
+  icon?: React.ReactNode;
+  showIcon?: boolean;
+}
+
+
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
+  ({ className, variant, children, icon, showIcon = true, ...props }, ref) => {
+    const IconComponent = variant ? variantIcons[variant] : Info;
+    
+    const displayIcon = showIcon ? (icon ?? <IconComponent />) : null;
+    
+    return (
+      <div
+        ref={ref}
+        role="alert"
+        className={cn(alertVariants({ variant }), className)}
+        {...props}
+      >
+        {displayIcon && (
+           <div className="absolute left-4 top-4 h-4 w-4">
+            {displayIcon}
+           </div>
+        )}
+        <div className={cn(showIcon && 'ml-7')}>
+          {children}
+        </div>
+      </div>
+    );
+  }
+);
 Alert.displayName = "Alert"
 
 const AlertTitle = React.forwardRef<
