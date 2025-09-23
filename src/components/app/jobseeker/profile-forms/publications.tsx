@@ -7,7 +7,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -16,6 +15,7 @@ import { PlusCircle, Trash, Save, Edit, Link2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -24,6 +24,8 @@ import { FormInput } from '@/components/ui/form-input';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Loader2 } from 'lucide-react';
+
 
 const publicationSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -34,21 +36,67 @@ const publicationSchema = z.object({
 
 type PublicationFormValues = z.infer<typeof publicationSchema>;
 
+interface PublicationFormProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSubmit: (data: PublicationFormValues, id?: string) => Promise<boolean>;
+    initialData?: Publication;
+    noun: string;
+}
+
+function PublicationForm({ isOpen, onClose, onSubmit, initialData, noun }: PublicationFormProps) {
+    const form = useForm<PublicationFormValues>({
+        resolver: zodResolver(publicationSchema),
+        defaultValues: initialData || { title: '', publisher: '', publicationDate: '', url: '' },
+    });
+    const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+    React.useEffect(() => {
+        form.reset(initialData || { title: '', publisher: '', publicationDate: '', url: '' });
+    }, [initialData, form]);
+
+    const handleSubmit = async (data: PublicationFormValues) => {
+        setIsSubmitting(true);
+        const success = await onSubmit(data, initialData?.id);
+        if (success) {
+            onClose();
+        }
+        setIsSubmitting(false);
+    };
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
+                </DialogHeader>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-4">
+                        <FormInput control={form.control} name="title" label="Title" placeholder="e.g., The Future of AI" required disabled={isSubmitting} />
+                        <FormInput control={form.control} name="publisher" label="Publisher" placeholder="e.g., Nature Journal" required disabled={isSubmitting} />
+                        <FormDatePicker control={form.control} name="publicationDate" label="Publication Date" required disabled={isSubmitting} />
+                        <FormInput control={form.control} name="url" label="URL" placeholder="https://example.com/publication" required disabled={isSubmitting} />
+                        <DialogFooter className="pt-4">
+                            <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting}>Cancel</Button>
+                            <Button type="submit" disabled={isSubmitting}>
+                                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                {initialData ? 'Save Changes' : 'Add Publication'}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </Form>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 
 export function ProfileFormPublications() {
   const { toast } = useToast();
   const [history, setHistory] = React.useState<Publication[]>([]);
-  const [editingId, setEditingId] = React.useState<string | null>(null);
+  const [editingItem, setEditingItem] = React.useState<Publication | undefined>(undefined);
+  const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
-
-   const form = useForm<PublicationFormValues>({
-    resolver: zodResolver(publicationSchema),
-    defaultValues: { title: '', publisher: '', publicationDate: '', url: '' },
-  });
-
-  const editForm = useForm<PublicationFormValues>({
-    resolver: zodResolver(publicationSchema),
-  });
 
   const loadPublications = React.useCallback(async () => {
     setIsLoading(true);
@@ -70,25 +118,23 @@ export function ProfileFormPublications() {
     loadPublications();
   }, [loadPublications]);
 
-  const handleAddNew = async (data: PublicationFormValues) => {
-    try {
-        const response = await JobseekerProfileService.publication.add(data);
-        toast({ description: response.message, variant: 'success' });
-        loadPublications();
-        form.reset();
-        return true;
-    } catch (error: any) {
-        toast({ title: 'Error', description: error.message || 'An error occurred.', variant: 'danger' });
-        return false;
-    }
+  const handleOpenForm = (item?: Publication) => {
+    setEditingItem(item);
+    setIsFormOpen(true);
   };
 
-  const handleUpdate = async (data: PublicationFormValues, id: string) => {
-     try {
-        const response = await JobseekerProfileService.publication.update({ id, ...data });
+  const handleCloseForm = () => {
+    setIsFormOpen(false);
+    setEditingItem(undefined);
+  };
+
+  const handleFormSubmit = async (data: PublicationFormValues, id?: string) => {
+    try {
+        const response = id 
+            ? await JobseekerProfileService.publication.update({ id, ...data })
+            : await JobseekerProfileService.publication.add(data);
         toast({ description: response.message, variant: 'success' });
         loadPublications();
-        setEditingId(null);
         return true;
     } catch (error: any) {
         toast({ title: 'Error', description: error.message || 'An error occurred.', variant: 'danger' });
@@ -105,35 +151,8 @@ export function ProfileFormPublications() {
         toast({ title: 'Error', description: error.message || 'Failed to delete publication.', variant: 'danger' });
     }
   };
-  
-  const startEditing = (item: Publication) => {
-    setEditingId(item.id!);
-    editForm.reset(item);
-  };
-
 
   const renderItem = (item: Publication) => {
-    if (editingId === item.id) {
-        return (
-            <Form {...editForm}>
-                <form onSubmit={editForm.handleSubmit((data) => handleUpdate(data, item.id!))}>
-                    <Card key={item.id} className="p-4 bg-muted/50">
-                        <CardContent className="p-0 space-y-4">
-                           <FormInput control={editForm.control} name="title" label="Title" required />
-                           <FormInput control={editForm.control} name="publisher" label="Publisher" required />
-                           <FormDatePicker control={editForm.control} name="publicationDate" label="Publication Date" required />
-                           <FormInput control={editForm.control} name="url" label="URL" required />
-                        </CardContent>
-                        <CardFooter className="p-0 pt-4 flex justify-end gap-2">
-                            <Button type="button" variant="ghost" onClick={() => setEditingId(null)}>Cancel</Button>
-                            <Button type="submit">Save</Button>
-                        </CardFooter>
-                    </Card>
-                </form>
-            </Form>
-        );
-    }
-
     return (
         <Card key={item.id} className="p-4 flex justify-between items-start">
             <div>
@@ -145,7 +164,7 @@ export function ProfileFormPublications() {
                 </a>
             </div>
             <div className="flex gap-2">
-                 <Button variant="ghost" size="icon" onClick={() => startEditing(item)}>
+                 <Button variant="ghost" size="icon" onClick={() => handleOpenForm(item)}>
                     <Edit className="h-4 w-4" />
                 </Button>
                 <AlertDialog>
@@ -176,8 +195,16 @@ export function ProfileFormPublications() {
     <div className="space-y-6">
         <Card className="glassmorphism">
             <CardHeader>
-                <CardTitle>Your Publications</CardTitle>
-                <CardDescription>Listed below is your published work.</CardDescription>
+                <div className="flex justify-between items-center">
+                    <div>
+                        <CardTitle>Your Publications</CardTitle>
+                        <CardDescription>Listed below is your published work.</CardDescription>
+                    </div>
+                     <Button onClick={() => handleOpenForm()}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add New
+                    </Button>
+                </div>
             </CardHeader>
             <CardContent className="space-y-4">
                 {isLoading ? (
@@ -190,25 +217,15 @@ export function ProfileFormPublications() {
             </CardContent>
         </Card>
         
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleAddNew)}>
-                <Card className="glassmorphism">
-                    <CardHeader>
-                        <CardTitle>Add New Publication</CardTitle>
-                        <CardDescription>Add a new publication to your profile.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <FormInput control={form.control} name="title" label="Title" placeholder="e.g., The Future of AI" required />
-                        <FormInput control={form.control} name="publisher" label="Publisher" placeholder="e.g., Nature Journal" required />
-                        <FormDatePicker control={form.control} name="publicationDate" label="Publication Date" required />
-                        <FormInput control={form.control} name="url" label="URL" placeholder="https://example.com/publication" required />
-                    </CardContent>
-                    <CardFooter>
-                        <Button type="submit"><PlusCircle className="mr-2 h-4 w-4" /> Add Publication</Button>
-                    </CardFooter>
-                </Card>
-            </form>
-        </Form>
+        {isFormOpen && (
+            <PublicationForm
+                isOpen={isFormOpen}
+                onClose={handleCloseForm}
+                onSubmit={handleFormSubmit}
+                initialData={editingItem}
+                noun="Publication"
+            />
+        )}
     </div>
   );
 }
