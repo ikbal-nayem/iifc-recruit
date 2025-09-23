@@ -17,6 +17,7 @@ import { FormInput } from '@/components/ui/form-input';
 import { COMMON_URL } from '@/constants/common.constant';
 import { useToast } from '@/hooks/use-toast';
 import { AuthService } from '@/services/api/auth.service';
+import { Alert, AlertDescription } from '../ui/alert';
 
 const signupSchema = z.object({
 	firstName: z.string().min(1, 'First name is required.'),
@@ -43,28 +44,27 @@ export default function SignupForm() {
 	});
 
 	const onSubmit = async (data: SignupFormValues) => {
+		
 		NProgress.start();
+		form.clearErrors();
 		setIsLoading(true);
 
-    AuthService.signup(data)
-      .then((res)=>{
-        toast({
-          title: 'Signup Successful',
-          description: res?.message || 'Your account has been created successfully.',
-          variant: 'success',
-        });
-      })
-      .catch((error)=>{
-        toast({
-          title: 'Signup Failed',
-          description: error?.message || 'An error occurred during signup. Please try again.',
-          variant: 'destructive',
-        });
-      })
-      .finally(()=>{
-        NProgress.done();
-        setIsLoading(false);
-      })
+		AuthService.signup(data)
+			.then((res) => {
+				router.push('/login');
+				toast({
+					description: res?.message || 'Your account has been created successfully.',
+					variant: 'success',
+				});
+			})
+			.catch((error) => {
+				form.setError('root', { message: error?.message || 'Signup failed. Please try again.' });
+				console.log(error);
+			})
+			.finally(() => {
+				NProgress.done();
+				setIsLoading(false);
+			});
 	};
 
 	return (
@@ -102,6 +102,12 @@ export default function SignupForm() {
 							startIcon={<Lock className='h-4 w-4 text-muted-foreground' />}
 						/>
 
+						{form.formState.errors.root?.message && (
+							<Alert variant='danger' iconClassName='h-4 w-4'>
+								<AlertDescription>{form.formState.errors.root?.message}</AlertDescription>
+							</Alert>
+						)}
+
 						<Button type='submit' className='w-full h-11 text-base' disabled={isLoading}>
 							{isLoading ? 'Creating Account...' : 'Create Account'}
 						</Button>
@@ -112,7 +118,7 @@ export default function SignupForm() {
 				<div className='text-center text-sm w-full'>
 					Already have an account?{' '}
 					<Link href='/login' className='font-semibold text-primary hover:underline'>
-						Sign in
+						Login
 					</Link>
 				</div>
 			</CardFooter>
