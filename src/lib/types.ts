@@ -40,6 +40,7 @@ export type PersonalInfo = {
 };
 
 export type AcademicInfo = {
+  id?: string;
   degree: string;
   institution: string;
   graduationYear: number;
@@ -47,6 +48,7 @@ export type AcademicInfo = {
 };
 
 export type ProfessionalInfo = {
+  id?: string;
   company: string;
   role: string;
   fromDate: string;
@@ -57,6 +59,7 @@ export type ProfessionalInfo = {
 };
 
 export type Certification = {
+    id?: string;
     name: string;
     issuingOrganization: string;
     issueDate: string;
@@ -64,11 +67,13 @@ export type Certification = {
 };
 
 export type Language = {
+    id?: string;
     name: string;
     proficiency: 'Beginner' | 'Intermediate' | 'Advanced' | 'Native';
 };
 
 export type Publication = {
+    id?: string;
     title: string;
     publisher: string;
     publicationDate: string;
@@ -76,6 +81,7 @@ export type Publication = {
 };
 
 export type Award = {
+    id?: string;
     name: string;
     awardingBody: string;
     dateReceived: string;

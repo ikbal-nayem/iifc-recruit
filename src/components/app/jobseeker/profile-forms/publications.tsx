@@ -22,6 +22,8 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { FormInput } from '@/components/ui/form-input';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
+import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const publicationSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
@@ -32,14 +34,11 @@ const publicationSchema = z.object({
 
 type PublicationFormValues = z.infer<typeof publicationSchema>;
 
-interface ProfileFormProps {
-  candidate: Candidate;
-}
-
-export function ProfileFormPublications({ candidate }: ProfileFormProps) {
+export function ProfileFormPublications() {
   const { toast } = useToast();
-  const [history, setHistory] = React.useState(candidate.publications);
-  const [editingId, setEditingId] = React.useState<number | null>(null);
+  const [history, setHistory] = React.useState<Publication[]>([]);
+  const [editingId, setEditingId] = React.useState<string | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   const form = useForm<PublicationFormValues>({
     resolver: zodResolver(publicationSchema),
@@ -50,38 +49,69 @@ export function ProfileFormPublications({ candidate }: ProfileFormProps) {
     resolver: zodResolver(publicationSchema),
   });
   
-  const handleAddNew = (data: PublicationFormValues) => {
-    setHistory([...history, data]);
-    form.reset({ title: '', publisher: '', publicationDate: '', url: '' });
+  const loadPublications = React.useCallback(async () => {
+    setIsLoading(true);
+    try {
+        const response = await JobseekerProfileService.publication.get();
+        setHistory(response.body);
+    } catch (error) {
+        toast({
+            title: 'Error',
+            description: 'Failed to load publications.',
+            variant: 'danger',
+        });
+    } finally {
+        setIsLoading(false);
+    }
+  }, [toast]);
+  
+  React.useEffect(() => {
+    loadPublications();
+  }, [loadPublications]);
+
+  const handleAddNew = async (data: PublicationFormValues) => {
+    try {
+        const response = await JobseekerProfileService.publication.add(data);
+        toast({ description: response.message, variant: 'success' });
+        loadPublications();
+        form.reset({ title: '', publisher: '', publicationDate: '', url: '' });
+    } catch (error: any) {
+        toast({ title: 'Error', description: error.message || 'Failed to add publication.', variant: 'danger' });
+    }
   };
 
-  const handleUpdate = (index: number, data: PublicationFormValues) => {
-    const updatedHistory = [...history];
-    updatedHistory[index] = data;
-    setHistory(updatedHistory);
-    setEditingId(null);
+  const handleUpdate = async (id: string, data: PublicationFormValues) => {
+    try {
+        const response = await JobseekerProfileService.publication.update({ id, ...data });
+        toast({ description: response.message, variant: 'success' });
+        loadPublications();
+        setEditingId(null);
+    } catch (error: any) {
+        toast({ title: 'Error', description: error.message || 'Failed to update publication.', variant: 'danger' });
+    }
   };
   
-  const handleRemove = (index: number) => {
-    setHistory(history.filter((_, i) => i !== index));
-    toast({
-        title: 'Entry Deleted',
-        description: 'The publication has been removed.',
-        variant: 'success'
-    })
+  const handleRemove = async (id: string) => {
+    try {
+        const response = await JobseekerProfileService.publication.delete(id);
+        toast({ description: response.message || 'Publication deleted successfully.', variant: 'success' });
+        loadPublications();
+    } catch (error: any) {
+        toast({ title: 'Error', description: error.message || 'Failed to delete publication.', variant: 'danger' });
+    }
   };
 
-  const startEditing = (index: number, item: Publication) => {
-    setEditingId(index);
+  const startEditing = (item: Publication) => {
+    setEditingId(item.id!);
     editForm.reset(item);
   };
 
-  const renderItem = (item: Publication, index: number) => {
-    if (editingId === index) {
+  const renderItem = (item: Publication) => {
+    if (editingId === item.id) {
       return (
          <Form {...editForm}>
-            <form onSubmit={editForm.handleSubmit((data) => handleUpdate(index, data))}>
-                <Card key={index} className="p-4 bg-muted/50">
+            <form onSubmit={editForm.handleSubmit((data) => handleUpdate(item.id!, data))}>
+                <Card key={item.id} className="p-4 bg-muted/50">
                     <CardContent className="p-0 space-y-4">
                         <FormInput control={editForm.control} name="title" label="Title" required />
                         <FormInput control={editForm.control} name="publisher" label="Publisher" required />
@@ -104,7 +134,7 @@ export function ProfileFormPublications({ candidate }: ProfileFormProps) {
     }
 
     return (
-        <Card key={index} className="p-4 flex justify-between items-start">
+        <Card key={item.id} className="p-4 flex justify-between items-start">
             <div>
                 <p className="font-semibold">{item.title}</p>
                 <p className="text-sm text-muted-foreground">{item.publisher} - {format(new Date(item.publicationDate), "PPP")}</p>
@@ -114,13 +144,13 @@ export function ProfileFormPublications({ candidate }: ProfileFormProps) {
                 </a>
             </div>
             <div className="flex gap-2">
-                 <Button variant="ghost" size="icon" onClick={() => startEditing(index, item)}>
+                 <Button variant="ghost" size="icon" onClick={() => startEditing(item)}>
                     <Edit className="h-4 w-4" />
                 </Button>
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
                         <Button variant="ghost" size="icon">
-                            <Trash className="h-4 w-4 text-destructive" />
+                            <Trash className="h-4 w-4 text-danger" />
                         </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
@@ -132,7 +162,7 @@ export function ProfileFormPublications({ candidate }: ProfileFormProps) {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleRemove(index)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                            <AlertDialogAction onClick={() => handleRemove(item.id!)} className="bg-danger hover:bg-danger/90">Delete</AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
@@ -149,8 +179,11 @@ export function ProfileFormPublications({ candidate }: ProfileFormProps) {
                 <CardDescription>Listed below is your published work.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-                {history.map(renderItem)}
-                {history.length === 0 && (
+                {isLoading ? (
+                    [...Array(2)].map((_, i) => <Skeleton key={i} className="h-20 w-full" />)
+                ) : history.length > 0 ? (
+                    history.map(renderItem)
+                ) : (
                     <p className="text-center text-muted-foreground py-4">No publications added yet.</p>
                 )}
             </CardContent>
