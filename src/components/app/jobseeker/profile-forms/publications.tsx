@@ -204,7 +204,7 @@ export function ProfileFormPublications() {
                         <FormInput control={form.control} name="url" label="URL" placeholder="https://example.com/publication" required />
                     </CardContent>
                     <CardFooter>
-                        <Button type="submit"><PlusCircle className="mr-2 h-4 w-4" /> Add Entry</Button>
+                        <Button type="submit"><PlusCircle className="mr-2 h-4 w-4" /> Add Publication</Button>
                     </CardFooter>
                 </Card>
             </form>
