@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import type { Candidate, Award } from '@/lib/types';
-import { PlusCircle, Trash, Save, Edit, Loader2 } from 'lucide-react';
+import { PlusCircle, Trash, Edit, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';

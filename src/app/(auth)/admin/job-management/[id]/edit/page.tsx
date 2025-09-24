@@ -1,4 +1,5 @@
 
+'use client';
 import { EditJobForm } from '@/components/app/admin/edit-job-form';
 import { jobs } from '@/lib/data';
 import { notFound } from 'next/navigation';

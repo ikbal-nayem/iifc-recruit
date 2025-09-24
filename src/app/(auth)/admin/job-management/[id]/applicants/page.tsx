@@ -1,4 +1,5 @@
 
+'use client';
 import * as React from 'react';
 import type { Candidate, Application, Job } from '@/lib/types';
 import { candidates as allCandidates, applications as allApplications, jobs } from '@/lib/data';

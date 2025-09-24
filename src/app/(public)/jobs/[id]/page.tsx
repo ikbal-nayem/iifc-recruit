@@ -1,4 +1,5 @@
 
+'use client';
 import { JobDetailClient } from '@/components/app/jobseeker/job-detail-client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -6,28 +7,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { jobs as allJobs } from '@/lib/data';
 import { ArrowLeft, Briefcase, Clock, DollarSign, MapPin } from 'lucide-react';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, useSearchParams } from 'next/navigation';
 
 export default function JobDetailsPage({
 	params,
-	searchParams,
 }: {
 	params: { id: string };
-	searchParams: { [key: string]: string | string[] | undefined };
 }) {
+	const searchParams = useSearchParams();
 	const job = allJobs.find((j) => j.id === params?.id);
 
 	if (!job) {
 		notFound();
 	}
 
-	const queryParams = new URLSearchParams();
-	for (const key in searchParams) {
-		const value = searchParams[key];
-		if (typeof value === 'string') {
-			queryParams.set(key, value);
-		}
-	}
+	const queryParams = new URLSearchParams(searchParams.toString());
 	const backUrl = `/jobs?${queryParams.toString()}`;
 
 	return (
