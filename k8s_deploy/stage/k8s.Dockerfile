@@ -9,5 +9,5 @@ RUN pnpm install
 COPY . .
 ENV NEXT_PUBLIC_ENV_TYPE=dev
 RUN pnpm run build
-EXPOSE 9002
+EXPOSE 3000
 CMD [ "pnpm", "start" ]

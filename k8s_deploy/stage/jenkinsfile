@@ -6,7 +6,7 @@ pipeline {
         DEPLOYMENT_ENV="stage"
         IMAGE_CREATED_BY="jenkins"
         PROJECT_NAME="web-recruitment"
-        K8S_NAMESPACE="iifc-recruit"
+        K8S_NAMESPACE="iifc-recruit-stage"
 
         GIT_TAG=sh(returnStdout: true, script: '''
             echo $(git describe --tags)
@@ -36,7 +36,7 @@ pipeline {
 
         //Port configuration
         K8S_SERVICE_PORT="80"
-        K8S_CONTAINER_PORT="9002"
+        K8S_CONTAINER_PORT="3000"
         K8S_PORT_NAME="http"
 
         K8S_NODE_PORT="31910"
