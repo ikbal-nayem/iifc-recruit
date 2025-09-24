@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -25,6 +26,7 @@ import { Loader2, PlusCircle, Trash, Globe, Mail, Phone } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 const formSchema = z.object({
 	organizationId: z.string().min(1, 'Please select an organization.'),
@@ -155,28 +157,18 @@ export default function OurClientsPage() {
 									)}
 								</CardContent>
 								<div className='p-4 pt-0'>
-									<AlertDialog>
-										<AlertDialogTrigger asChild>
+									<ConfirmationDialog
+										trigger={
 											<Button variant='outline' className='w-full'>
 												<Trash className='mr-2 h-4 w-4' /> Remove
 											</Button>
-										</AlertDialogTrigger>
-										<AlertDialogContent>
-											<AlertDialogHeader>
-												<AlertDialogTitle>Are you sure?</AlertDialogTitle>
-												<AlertDialogDescription>
-													This will remove &quot;{client.name}&quot; from your client list. It will not delete the
-													organization itself.
-												</AlertDialogDescription>
-											</AlertDialogHeader>
-											<AlertDialogFooter>
-												<AlertDialogCancel>Cancel</AlertDialogCancel>
-												<AlertDialogAction onClick={() => handleRemoveClient(client.id!)} variant='danger'>
-													Confirm Remove
-												</AlertDialogAction>
-											</AlertDialogFooter>
-										</AlertDialogContent>
-									</AlertDialog>
+										}
+										title='Are you sure?'
+										description={`This will remove "${client.name}" from your client list. It will not delete the organization itself.`}
+										onConfirm={() => handleRemoveClient(client.id!)}
+										confirmText='Confirm Remove'
+										variant='danger'
+									/>
 								</div>
 							</Card>
 					  ))}
