@@ -1,6 +1,3 @@
-
-
-'use client';
 import { ProfileFormAwards } from '@/components/app/jobseeker/profile-forms/awards';
 import { candidates } from '@/lib/data';
 

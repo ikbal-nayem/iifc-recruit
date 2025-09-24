@@ -1,6 +1,3 @@
-
-
-'use client';
 import { ProfileFormCertifications } from '@/components/app/jobseeker/profile-forms/certifications';
 import { candidates } from '@/lib/data';
 
