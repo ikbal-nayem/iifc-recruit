@@ -1,23 +1,22 @@
-
 'use client';
 
+import { Publication } from '@/app/(auth)/jobseeker/profile-edit/publications/page';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import type { Publication } from '@/lib/types';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
 import { Edit, Link2, Loader2, PlusCircle, Trash } from 'lucide-react';
-import * as React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 const publicationSchema = z.object({
 	title: z.string().min(1, 'Title is required.'),
@@ -27,6 +26,8 @@ const publicationSchema = z.object({
 });
 
 type PublicationFormValues = z.infer<typeof publicationSchema>;
+
+const defaultData = { title: '', publisher: '', publicationDate: '', url: '', userId: 1 };
 
 interface PublicationFormProps {
 	isOpen: boolean;
@@ -39,12 +40,12 @@ interface PublicationFormProps {
 function PublicationForm({ isOpen, onClose, onSubmit, initialData, noun }: PublicationFormProps) {
 	const form = useForm<PublicationFormValues>({
 		resolver: zodResolver(publicationSchema),
-		defaultValues: initialData || { title: '', publisher: '', publicationDate: '', url: '' },
+		defaultValues: initialData || defaultData,
 	});
-	const [isSubmitting, setIsSubmitting] = React.useState(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	React.useEffect(() => {
-		form.reset(initialData || { title: '', publisher: '', publicationDate: '', url: '' });
+	useEffect(() => {
+		form.reset(initialData || defaultData);
 	}, [initialData, form]);
 
 	const handleSubmit = async (data: PublicationFormValues) => {
@@ -60,7 +61,7 @@ function PublicationForm({ isOpen, onClose, onSubmit, initialData, noun }: Publi
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
+					<DialogTitle>{initialData ? `Edit ${noun}` : `Add ${noun}`}</DialogTitle>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4'>
@@ -125,7 +126,6 @@ export function ProfileFormPublications() {
 			setHistory(response.body);
 		} catch (error) {
 			toast({
-				title: 'Error',
 				description: 'Failed to load publications.',
 				variant: 'danger',
 			});
@@ -149,10 +149,11 @@ export function ProfileFormPublications() {
 	};
 
 	const handleFormSubmit = async (data: PublicationFormValues, id?: string) => {
+		const payload = { ...data, userId: 2 };
 		try {
 			const response = id
-				? await JobseekerProfileService.publication.update({ id, ...data })
-				: await JobseekerProfileService.publication.add(data);
+				? await JobseekerProfileService.publication.update(payload)
+				: await JobseekerProfileService.publication.add(payload);
 			toast({ description: response.message, variant: 'success' });
 			loadPublications();
 			return true;

@@ -1,137 +1,128 @@
-
+import { Publication } from "@/app/(auth)/jobseeker/profile-edit/publications/page";
 
 export type UserRole = 'candidate' | 'admin';
 
 export type Address = {
-    line1: string;
-    upazila: string;
-    district: string;
-    division: string;
-    postCode: string;
+	line1: string;
+	upazila: string;
+	district: string;
+	division: string;
+	postCode: string;
 };
 
 export type PersonalInfo = {
-  firstName: string;
-  middleName?: string;
-  lastName: string;
-  name: string; // Concatenation of first, middle, last
-  fatherName: string;
-  motherName: string;
-  email: string;
-  phone: string;
-  
-  dateOfBirth: string;
-  gender: 'Male' | 'Female' | 'Other';
-  maritalStatus: 'Single' | 'Married' | 'Widow' | 'Divorce';
-  nationality: string;
+	firstName: string;
+	middleName?: string;
+	lastName: string;
+	name: string; // Concatenation of first, middle, last
+	fatherName: string;
+	motherName: string;
+	email: string;
+	phone: string;
 
-  nid?: string;
-  passportNo?: string;
-  birthCertificate?: string;
+	dateOfBirth: string;
+	gender: 'Male' | 'Female' | 'Other';
+	maritalStatus: 'Single' | 'Married' | 'Widow' | 'Divorce';
+	nationality: string;
 
-  presentAddress: Address;
-  permanentAddress: Address;
+	nid?: string;
+	passportNo?: string;
+	birthCertificate?: string;
 
-  avatar: string;
-  headline: string;
-  
-  linkedInProfile?: string;
-  videoProfile?: string;
+	presentAddress: Address;
+	permanentAddress: Address;
+
+	avatar: string;
+	headline: string;
+
+	linkedInProfile?: string;
+	videoProfile?: string;
 };
 
 export type AcademicInfo = {
-  id?: string;
-  degree: string;
-  institution: string;
-  graduationYear: number;
-  certificateUrls?: string[];
+	id?: string;
+	degree: string;
+	institution: string;
+	graduationYear: number;
+	certificateUrls?: string[];
 };
 
 export type ProfessionalInfo = {
-  id?: string;
-  company: string;
-  role: string;
-  fromDate: string;
-  toDate?: string;
-  isPresent: boolean;
-  responsibilities: string[];
-  documentUrls?: string[];
+	id?: string;
+	company: string;
+	role: string;
+	fromDate: string;
+	toDate?: string;
+	isPresent: boolean;
+	responsibilities: string[];
+	documentUrls?: string[];
 };
 
 export type Certification = {
-    id?: string;
-    name: string;
-    issuingOrganization: string;
-    issueDate: string;
-    proofUrl?: string;
+	id?: string;
+	name: string;
+	issuingOrganization: string;
+	issueDate: string;
+	proofUrl?: string;
 };
 
 export type Language = {
-    id?: string;
-    name: string;
-    proficiency: 'Beginner' | 'Intermediate' | 'Advanced' | 'Native';
-};
-
-export type Publication = {
-    id?: string;
-    title: string;
-    publisher: string;
-    publicationDate: string;
-    url: string;
+	id?: string;
+	name: string;
+	proficiency: 'Beginner' | 'Intermediate' | 'Advanced' | 'Native';
 };
 
 export type Award = {
-    id?: string;
-    name: string;
-    awardingBody: string;
-    dateReceived: string;
+	id?: string;
+	name: string;
+	awardingBody: string;
+	dateReceived: string;
 };
 
-
 export type Candidate = {
-  id: string;
-  personalInfo: PersonalInfo;
-  academicInfo: AcademicInfo[];
-  professionalInfo: ProfessionalInfo[];
-  skills: string[];
-  certifications: Certification[];
-  languages: Language[];
-  publications: Publication[];
-  awards: Award[];
-  resumeUrl?: string;
-  status: 'Active' | 'Passive' | 'Hired';
+	id: string;
+	personalInfo: PersonalInfo;
+	academicInfo: AcademicInfo[];
+	professionalInfo: ProfessionalInfo[];
+	skills: string[];
+	certifications: Certification[];
+	languages: Language[];
+	publications: Publication[];
+	awards: Award[];
+	resumeUrl?: string;
+	status: 'Active' | 'Passive' | 'Hired';
 };
 
 export type Job = {
-  id: string;
-  title: string;
-  department: string;
-  location: string;
-  type: 'Full-time' | 'Part-time' | 'Contract' | 'Internship';
-  salaryRange: string;
-  description: string;
-  responsibilities: string[];
-  requirements: string[];
-  status: 'Open' | 'Closed' | 'Archived';
-  postedDate: string;
-  applicationDeadline: string;
+	id: string;
+	title: string;
+	department: string;
+	location: string;
+	type: 'Full-time' | 'Part-time' | 'Contract' | 'Internship';
+	salaryRange: string;
+	description: string;
+	responsibilities: string[];
+	requirements: string[];
+	status: 'Open' | 'Closed' | 'Archived';
+	postedDate: string;
+	applicationDeadline: string;
 };
 
 export type Application = {
-  id: string;
-  jobId: string;
-  candidateId: string;
-  status: 'Applied' | 'Screening' | 'Interview' | 'Offered' | 'Rejected' | 'Hired' | 'Shortlisted';
-  applicationDate: string;
+	id: string;
+	jobId: string;
+	candidateId: string;
+	status: 'Applied' | 'Screening' | 'Interview' | 'Offered' | 'Rejected' | 'Hired' | 'Shortlisted';
+	applicationDate: string;
 };
 
 export type Activity = {
-  id: string;
-  user: {
-    name: string;
-    avatar: string;
-  };
-  action: string;
-  target: string;
-  timestamp: string;
+	id: string;
+	user: {
+		name: string;
+		avatar: string;
+	};
+	action: string;
+	target: string;
+	timestamp: string;
 };

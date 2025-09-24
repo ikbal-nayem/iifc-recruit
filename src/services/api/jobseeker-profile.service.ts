@@ -1,8 +1,8 @@
 'use client';
 
+import { Publication } from '@/app/(auth)/jobseeker/profile-edit/publications/page';
 import { axiosIns } from '@/config/api.config';
 import { IApiResponse } from '@/interfaces/common.interface';
-import { Publication } from '@/lib/types';
 
 const createProfileCrud = <T>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/jobseeker/${entity}/get`),
