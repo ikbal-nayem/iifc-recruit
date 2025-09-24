@@ -1,7 +1,3 @@
-
-
-'use client';
-
 import { ProfileCompletion } from '@/components/app/jobseeker/profile-completion';
 import { candidates, applications, jobs } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';

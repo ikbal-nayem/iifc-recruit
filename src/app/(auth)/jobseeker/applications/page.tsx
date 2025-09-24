@@ -1,5 +1,3 @@
-'use client';
-
 import { MyApplications } from '@/components/app/jobseeker/my-applications';
 
 export default function JobseekerApplicationsPage() {

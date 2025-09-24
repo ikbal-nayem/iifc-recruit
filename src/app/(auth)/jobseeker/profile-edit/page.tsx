@@ -1,11 +1,8 @@
-
-
-'use client';
 import { ProfileFormPersonal } from '@/components/app/jobseeker/profile-forms/personal';
 import { candidates } from '@/lib/data';
 
 export default function JobseekerProfilePersonalPage() {
-  const candidate = candidates[0];
+	const candidate = candidates[0];
 
-  return <ProfileFormPersonal candidate={candidate} />;
+	return <ProfileFormPersonal candidate={candidate} />;
 }
