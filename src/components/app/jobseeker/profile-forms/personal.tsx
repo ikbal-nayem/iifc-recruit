@@ -107,7 +107,7 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
            toast({
               title: 'File Too Large',
               description: 'Please upload an image smaller than 10MB.',
-              variant: 'destructive',
+              variant: 'danger',
            });
            return;
         }

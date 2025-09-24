@@ -1,3 +1,5 @@
+'use client';
+
 import { AdminProfileForm } from '@/components/app/admin/admin-profile-form';
 
 export default function AdminProfilePage() {

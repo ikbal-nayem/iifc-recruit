@@ -1,3 +1,4 @@
+'use client';
 
 import { JobManagement } from '@/components/app/admin/job-management';
 

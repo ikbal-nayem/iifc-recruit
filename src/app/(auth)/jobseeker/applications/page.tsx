@@ -1,3 +1,4 @@
+'use client';
 
 import { MyApplications } from '@/components/app/jobseeker/my-applications';
 
