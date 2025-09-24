@@ -1,6 +1,6 @@
-'use client';
-
+import { Suspense } from 'react';
 import { AdminProfileForm } from '@/components/app/admin/admin-profile-form';
+import AdminProfileLoading from './loading';
 
 export default function AdminProfilePage() {
   const adminUser = {
@@ -11,14 +11,16 @@ export default function AdminProfilePage() {
   };
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-headline font-bold">Admin Profile</h1>
-        <p className="text-muted-foreground">
-          Manage your profile information.
-        </p>
+    <Suspense fallback={<AdminProfileLoading />}>
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-headline font-bold">Admin Profile</h1>
+          <p className="text-muted-foreground">
+            Manage your profile information.
+          </p>
+        </div>
+        <AdminProfileForm user={adminUser} />
       </div>
-      <AdminProfileForm user={adminUser} />
-    </div>
+    </Suspense>
   );
 }

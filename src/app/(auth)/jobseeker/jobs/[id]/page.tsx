@@ -1,6 +1,8 @@
 
 
 'use client';
+
+import { Suspense } from 'react';
 import { jobs as allJobs } from '@/lib/data';
 import { notFound, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -9,8 +11,17 @@ import { Briefcase, MapPin, Clock, Building, DollarSign, Calendar, ArrowLeft } f
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
 import { JobApplicationClient } from '@/components/app/jobseeker/job-application-client';
+import JobseekerJobDetailsLoading from './loading';
 
 export default function JobDetailsPage({ params }: { params: { id: string } }) {
+  return (
+    <Suspense fallback={<JobseekerJobDetailsLoading />}>
+      <JobDetailsContent params={params} />
+    </Suspense>
+  );
+}
+
+function JobDetailsContent({ params }: { params: { id: string } }) {
 	const searchParams = useSearchParams();
 	const job = allJobs.find((j) => j.id === params?.id);
 
@@ -61,7 +72,7 @@ export default function JobDetailsPage({ params }: { params: { id: string } }) {
 						<CardContent className='space-y-6'>
 							<div className='flex items-center gap-4 text-sm'>
 								<Badge variant='secondary'>Posted: {job.postedDate}</Badge>
-								<Badge variant='destructive'>Deadline: {job.applicationDeadline}</Badge>
+								<Badge variant='danger'>Deadline: {job.applicationDeadline}</Badge>
 							</div>
 							<div>
 								<h3 className='font-semibold text-lg mb-2'>Job Description</h3>

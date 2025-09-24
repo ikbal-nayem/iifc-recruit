@@ -1,15 +1,21 @@
 'use client';
 
-import { NavLink } from '@/lib/nav-links';
+import { jobseekerNavLinks } from '@/lib/nav-links';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-export function ProfileTabs({ profileTabs }: { profileTabs: Array<NavLink> }) {
+const profileTabs = (jobseekerNavLinks.find((item) => item.label === 'Edit Profile')?.submenu || []).map(
+	({ isActive, ...tab }) => tab
+);
+
+export function ProfileTabs() {
 	const pathname = usePathname();
 
 	return profileTabs.map((tab) => {
-		const isActive = tab.isActive ? tab.isActive(pathname) : pathname === tab.href;
+		const isActive =
+			tab.href === '/jobseeker/profile-edit' ? pathname === tab.href : pathname.startsWith(tab.href);
+
 		return (
 			<Link
 				key={tab.href}

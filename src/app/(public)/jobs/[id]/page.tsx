@@ -1,5 +1,6 @@
 
 'use client';
+import { Suspense } from 'react';
 import { JobDetailClient } from '@/components/app/jobseeker/job-detail-client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -8,8 +9,21 @@ import { jobs as allJobs } from '@/lib/data';
 import { ArrowLeft, Briefcase, Clock, DollarSign, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { notFound, useSearchParams } from 'next/navigation';
+import JobDetailsLoading from './loading';
 
 export default function JobDetailsPage({
+	params,
+}: {
+	params: { id: string };
+}) {
+  return (
+    <Suspense fallback={<JobDetailsLoading />}>
+      <JobDetailsContent params={params} />
+    </Suspense>
+  );
+}
+
+function JobDetailsContent({
 	params,
 }: {
 	params: { id: string };

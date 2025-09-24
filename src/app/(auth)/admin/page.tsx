@@ -1,5 +1,3 @@
-
-'use client';
 import { Suspense } from 'react';
 import { AdminDashboardCards, AdminDashboardCardsSkeleton } from '@/components/app/admin/dashboard-cards';
 import { AdminDashboardCharts, AdminDashboardChartsSkeleton } from '@/components/app/admin/dashboard-charts';

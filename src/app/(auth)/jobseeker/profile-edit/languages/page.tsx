@@ -1,6 +1,3 @@
-
-
-'use client';
 import { ProfileFormLanguages } from '@/components/app/jobseeker/profile-forms/languages';
 import { candidates } from '@/lib/data';
 
