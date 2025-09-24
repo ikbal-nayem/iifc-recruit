@@ -1,109 +1,223 @@
-
 'use client';
 
-import { MasterDataCrud } from '@/components/app/admin/master-data-crud';
-import { useDebounce } from '@/hooks/use-debounce';
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Form } from '@/components/ui/form';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { IApiRequest, IMeta } from '@/interfaces/common.interface';
-import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { IOrganization } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2, PlusCircle, Trash, Globe, Mail, Phone } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
-const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
+const formSchema = z.object({
+	organizationId: z.string().min(1, 'Please select an organization.'),
+});
 
-export default function MasterDepartmentsPage() {
+type FormValues = z.infer<typeof formSchema>;
+
+export default function OurClientsPage() {
 	const { toast } = useToast();
-	const [items, setItems] = useState<ICommonMasterData[]>([]);
-	const [meta, setMeta] = useState<IMeta>(initMeta);
+	const [clients, setClients] = useState<IOrganization[]>([]);
+	const [allOrganizations, setAllOrganizations] = useState<IOrganization[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
-	const [searchQuery, setSearchQuery] = useState('');
-	const debouncedSearch = useDebounce(searchQuery, 500);
+	const [isFormOpen, setIsFormOpen] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	const loadItems = useCallback(
-		async (page: number, search: string) => {
-			setIsLoading(true);
-			try {
-				const payload: IApiRequest = {
-					body: { name: search },
-					meta: { page: page, limit: meta.limit },
-				};
-				const response = await MasterDataService.department.getList(payload);
-				setItems(response.body);
-				setMeta(response.meta);
-			} catch (error) {
-				console.error('Failed to load items', error);
-				toast({
-					title: 'Error',
-					description: 'Failed to load clients.',
-					variant: 'danger',
-				});
-			} finally {
-				setIsLoading(false);
-			}
-		},
-		[meta.limit, toast]
-	);
+	const form = useForm<FormValues>({
+		resolver: zodResolver(formSchema),
+		defaultValues: { organizationId: '' },
+	});
+
+	const loadData = useCallback(async () => {
+		setIsLoading(true);
+		try {
+			const [clientsRes, orgsRes] = await Promise.all([
+				MasterDataService.client.getList(),
+				MasterDataService.organization.getList({ meta: { limit: 1000 } }), // Fetch all orgs for the dropdown
+			]);
+			setClients(clientsRes.body);
+			setAllOrganizations(orgsRes.body);
+		} catch (error) {
+			console.error('Failed to load data', error);
+			toast({
+				title: 'Error',
+				description: 'Failed to load clients and organizations.',
+				variant: 'danger',
+			});
+		} finally {
+			setIsLoading(false);
+		}
+	}, [toast]);
 
 	useEffect(() => {
-		loadItems(0, debouncedSearch);
-	}, [debouncedSearch, loadItems]);
+		loadData();
+	}, [loadData]);
 
-	const handlePageChange = (newPage: number) => {
-		loadItems(newPage, debouncedSearch);
-	};
-
-	const handleAdd = async (name: string): Promise<boolean | null> => {
+	const handleAddClient = async (data: FormValues) => {
+		setIsSubmitting(true);
 		try {
-			const resp = await MasterDataService.department.add({ name, isActive: true });
-			toast({ description: resp.message, variant: 'success' });
-			loadItems(meta.page, debouncedSearch);
-			return true;
+			await MasterDataService.client.add({ organizationId: data.organizationId });
+			toast({ title: 'Success', description: 'Client added successfully.', variant: 'success' });
+			loadData();
+			setIsFormOpen(false);
+			form.reset();
 		} catch (error) {
-			console.error('Failed to add item', error);
 			toast({ title: 'Error', description: 'Failed to add client.', variant: 'danger' });
-			return null;
+		} finally {
+			setIsSubmitting(false);
 		}
 	};
 
-	const handleUpdate = async (item: ICommonMasterData): Promise<boolean | null> => {
+	const handleRemoveClient = async (organizationId: string) => {
 		try {
-			const updatedItem = await MasterDataService.department.update(item);
-			toast({ description: updatedItem?.message, variant: 'success' });
-			loadItems(meta.page, debouncedSearch);
-			return true;
+			await MasterDataService.client.delete(organizationId);
+			toast({ title: 'Success', description: 'Client removed successfully.', variant: 'success' });
+			loadData();
 		} catch (error) {
-			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update client.', variant: 'danger' });
-			return null;
+			toast({ title: 'Error', description: 'Failed to remove client.', variant: 'danger' });
 		}
 	};
 
-	const handleDelete = async (id: string): Promise<boolean> => {
-		try {
-			await MasterDataService.department.delete(id);
-			toast({ title: 'Success', description: 'Client deleted successfully.', variant: 'success' });
-			loadItems(meta.page, debouncedSearch);
-			return true;
-		} catch (error) {
-			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: 'Failed to delete client.', variant: 'danger' });
-			return false;
-		}
-	};
+	const availableOrganizations = allOrganizations.filter(
+		(org) => !clients.some((client) => client.id === org.id)
+	);
 
 	return (
-		<MasterDataCrud<ICommonMasterData>
-			title='Our Clients'
-			description='Manage the clients served by the organization.'
-			noun='Client'
-			items={items}
-			meta={meta}
-			isLoading={isLoading}
-			onAdd={handleAdd}
-			onUpdate={handleUpdate}
-			onDelete={handleDelete}
-			onPageChange={handlePageChange}
-			onSearch={setSearchQuery}
-		/>
+		<div className='space-y-8'>
+			<div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
+				<div className='space-y-2'>
+					<h1 className='text-3xl font-headline font-bold'>Our Clients</h1>
+					<p className='text-muted-foreground'>Manage the organizations you work with.</p>
+				</div>
+				<Button className='w-full sm:w-auto' onClick={() => setIsFormOpen(true)}>
+					<PlusCircle className='mr-2 h-4 w-4' />
+					Add New Client
+				</Button>
+			</div>
+
+			<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+				{isLoading
+					? [...Array(3)].map((_, i) => (
+							<Card key={i} className='glassmorphism'>
+								<CardHeader>
+									<Skeleton className='h-6 w-3/4' />
+									<Skeleton className='h-4 w-1/2' />
+								</CardHeader>
+								<CardContent className='space-y-2'>
+									<Skeleton className='h-4 w-full' />
+									<Skeleton className='h-4 w-2/3' />
+								</CardContent>
+							</Card>
+					  ))
+					: clients.map((client) => (
+							<Card key={client.id} className='glassmorphism flex flex-col'>
+								<CardHeader>
+									<CardTitle>{client.name}</CardTitle>
+									<CardDescription>{client.industryType?.name || 'N/A'}</CardDescription>
+								</CardHeader>
+								<CardContent className='flex-grow space-y-2 text-sm text-muted-foreground'>
+									{client.email && (
+										<div className='flex items-center gap-2'>
+											<Mail className='h-4 w-4' />
+											<span>{client.email}</span>
+										</div>
+									)}
+									{client.phone && (
+										<div className='flex items-center gap-2'>
+											<Phone className='h-4 w-4' />
+											<span>{client.phone}</span>
+										</div>
+									)}
+									{client.website && (
+										<div className='flex items-center gap-2'>
+											<Globe className='h-4 w-4' />
+											<a href={client.website} target='_blank' rel='noopener noreferrer' className='hover:underline'>
+												Visit Website
+											</a>
+										</div>
+									)}
+								</CardContent>
+								<div className='p-4 pt-0'>
+									<AlertDialog>
+										<AlertDialogTrigger asChild>
+											<Button variant='outline' className='w-full'>
+												<Trash className='mr-2 h-4 w-4' /> Remove
+											</Button>
+										</AlertDialogTrigger>
+										<AlertDialogContent>
+											<AlertDialogHeader>
+												<AlertDialogTitle>Are you sure?</AlertDialogTitle>
+												<AlertDialogDescription>
+													This will remove &quot;{client.name}&quot; from your client list. It will not delete the
+													organization itself.
+												</AlertDialogDescription>
+											</AlertDialogHeader>
+											<AlertDialogFooter>
+												<AlertDialogCancel>Cancel</AlertDialogCancel>
+												<AlertDialogAction onClick={() => handleRemoveClient(client.id!)} variant='danger'>
+													Confirm Remove
+												</AlertDialogAction>
+											</AlertDialogFooter>
+										</AlertDialogContent>
+									</AlertDialog>
+								</div>
+							</Card>
+					  ))}
+			</div>
+
+			{!isLoading && clients.length === 0 && (
+				<div className='text-center py-16 text-muted-foreground'>
+					<p>You haven&apos;t added any clients yet.</p>
+				</div>
+			)}
+
+			<Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Add New Client</DialogTitle>
+						<DialogDescription>Select an organization to add them to your client list.</DialogDescription>
+					</DialogHeader>
+					<Form {...form}>
+						<form onSubmit={form.handleSubmit(handleAddClient)} className='space-y-4 py-4'>
+							<FormAutocomplete
+								control={form.control}
+								name='organizationId'
+								label='Organization'
+								placeholder='Search for an organization...'
+								required
+								options={availableOrganizations.map((org) => ({ value: org.id!, label: org.name }))}
+								disabled={isSubmitting}
+							/>
+							<DialogFooter className='pt-4'>
+								<Button type='button' variant='ghost' onClick={() => setIsFormOpen(false)} disabled={isSubmitting}>
+									Cancel
+								</Button>
+								<Button type='submit' disabled={isSubmitting}>
+									{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+									Add Client
+								</Button>
+							</DialogFooter>
+						</form>
+					</Form>
+				</DialogContent>
+			</Dialog>
+		</div>
 	);
 }

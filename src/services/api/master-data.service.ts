@@ -1,4 +1,3 @@
-
 import { axiosIns } from '@/config/api.config';
 import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
 import { ICommonMasterData, IEducationInstitution, IOrganization, IStatus } from '@/interfaces/master-data.interface';
@@ -30,4 +29,11 @@ export const MasterDataService = {
 	country: createMasterDataCrud('country'),
 	educationInstitution: createMasterDataCrud<IEducationInstitution>('education-institution'),
 	organization: createMasterDataCrud<IOrganization>('organization'),
+	client: {
+		getList: async (): Promise<IApiResponse<IOrganization[]>> => await axiosIns.get('/client/get-list'),
+		add: async (payload: { organizationId: string }): Promise<IApiResponse<any>> =>
+			await axiosIns.post('/client/create', payload),
+		delete: async (organizationId: string): Promise<void> =>
+			await axiosIns.delete(`/client/delete/${organizationId}`),
+	},
 };
