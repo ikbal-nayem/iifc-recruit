@@ -32,6 +32,9 @@ body {
 		--danger: 0 84.2% 60.2%;
 		--danger-foreground: 0 0% 98%;
 
+		--warning: 38 92% 50%;
+		--warning-foreground: 38 92% 95%;
+
 		--border: 240 5.9% 90%;
 		--input: 240 5.9% 90%;
 		--ring: 120 40% 33%;
@@ -78,6 +81,9 @@ body {
 
 		--danger: 0 62.8% 30.6%;
 		--danger-foreground: 0 0% 98%;
+
+		--warning: 38 92% 50%;
+		--warning-foreground: 38 92% 95%;
 
 		--border: 240 3.7% 15.9%;
 		--input: 240 3.7% 15.9%;
