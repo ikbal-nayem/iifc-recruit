@@ -37,17 +37,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Command,
@@ -71,6 +60,7 @@ import type { Job } from '@/lib/types';
 import { jobs as initialJobs } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 export function JobManagement() {
   const [data, setData] = React.useState<Job[]>(initialJobs);
@@ -136,55 +126,46 @@ export function JobManagement() {
       cell: ({ row }) => {
         const job = row.original;
         return (
-          <AlertDialog>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
-                    <span className="sr-only">Open menu</span>
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuItem onClick={() => setSelectedJob(job)}>
-                    <FileText className="mr-2 h-4 w-4" />
-                    View Details
-                  </DropdownMenuItem>
-                   <DropdownMenuItem asChild>
-                    <Link href={`/admin/job-management/${job.id}/applicants`}>
-                        <Users className="mr-2 h-4 w-4" />
-                        View Applicants
-                    </Link>
-                  </DropdownMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => setSelectedJob(job)}>
+                  <FileText className="mr-2 h-4 w-4" />
+                  View Details
+                </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href={`/admin/job-management/${job.id}/edit`}>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edit
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <AlertDialogTrigger asChild>
-                      <DropdownMenuItem className="text-red-600 hover:!text-red-600">
-                          <Trash className="mr-2 h-4 w-4" />
-                          Delete
-                      </DropdownMenuItem>
-                  </AlertDialogTrigger>
-                </DropdownMenuContent>
-              </DropdownMenu>
-               <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete the
-                    job posting &quot;{job.title}&quot; and all related application data.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => handleDeleteJob(job.id)} className="bg-danger hover:bg-danger/90">Continue</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-          </AlertDialog>
+                  <Link href={`/admin/job-management/${job.id}/applicants`}>
+                      <Users className="mr-2 h-4 w-4" />
+                      View Applicants
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={`/admin/job-management/${job.id}/edit`}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <ConfirmationDialog
+                  trigger={
+                    <Button variant="ghost" className="w-full justify-start p-2 h-auto font-normal text-danger hover:bg-danger/10 hover:text-danger">
+                        <Trash className="mr-2 h-4 w-4" />
+                        Delete
+                    </Button>
+                  }
+                  title="Are you absolutely sure?"
+                  description={`This action cannot be undone. This will permanently delete the job posting "${job.title}" and all related application data.`}
+                  onConfirm={() => handleDeleteJob(job.id)}
+                  confirmText='Continue'
+                />
+              </DropdownMenuContent>
+            </DropdownMenu>
         )
       },
     },

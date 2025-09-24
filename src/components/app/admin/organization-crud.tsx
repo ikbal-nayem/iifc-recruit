@@ -1,3 +1,4 @@
+
 'use client';
 
 import { FormMasterData } from '@/app/(auth)/admin/master-data/organizations/page';
@@ -32,6 +33,7 @@ import { Edit, Globe, Loader2, Mail, Phone, PlusCircle, Search, Trash } from 'lu
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 const formSchema = z.object({
 	name: z.string().min(1, 'Name is required.'),
@@ -403,30 +405,16 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 				>
 					<Edit className='h-4 w-4' />
 				</Button>
-				<AlertDialog>
-					<AlertDialogTrigger asChild>
+				<ConfirmationDialog
+					trigger={
 						<Button variant='ghost' size='icon' className='h-8 w-8' disabled={isSubmitting === item.id}>
 							<Trash className='h-4 w-4 text-danger' />
 						</Button>
-					</AlertDialogTrigger>
-					<AlertDialogContent>
-						<AlertDialogHeader>
-							<AlertDialogTitle>Are you sure?</AlertDialogTitle>
-							<AlertDialogDescription>
-								This will permanently delete the {noun.toLowerCase()} &quot;{item.name}&quot;.
-							</AlertDialogDescription>
-						</AlertDialogHeader>
-						<AlertDialogFooter>
-							<AlertDialogCancel>Cancel</AlertDialogCancel>
-							<AlertDialogAction
-								onClick={() => handleDelete(item.id!)}
-								className='bg-danger hover:bg-danger/90'
-							>
-								Delete
-							</AlertDialogAction>
-						</AlertDialogFooter>
-					</AlertDialogContent>
-				</AlertDialog>
+					}
+					description={`This will permanently delete the ${noun.toLowerCase()} "${item.name}".`}
+					onConfirm={() => handleDelete(item.id!)}
+					confirmText='Delete'
+				/>
 			</div>
 		</Card>
 	);

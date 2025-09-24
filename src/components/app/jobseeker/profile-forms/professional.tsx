@@ -21,11 +21,11 @@ import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { FormInput } from '@/components/ui/form-input';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormSwitch } from '@/components/ui/form-switch';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 const professionalInfoSchema = z.object({
   role: z.string().min(1, 'Role is required.'),
@@ -244,23 +244,16 @@ export function ProfileFormProfessional({ candidate }: ProfileFormProps) {
                 <Button variant="ghost" size="icon" onClick={() => startEditing(index, item)}>
                   <Edit className="h-4 w-4" />
                 </Button>
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                            <Trash className="h-4 w-4 text-destructive" />
-                        </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                            <AlertDialogDescription>This will permanently delete this professional record.</AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleRemove(index)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
+                <ConfirmationDialog
+                  trigger={
+                    <Button variant="ghost" size="icon">
+                        <Trash className="h-4 w-4 text-danger" />
+                    </Button>
+                  }
+                  description='This will permanently delete this professional record.'
+                  onConfirm={() => handleRemove(index)}
+                  confirmText='Delete'
+                />
           </div>
       </Card>
     );

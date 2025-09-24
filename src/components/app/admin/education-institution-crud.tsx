@@ -1,21 +1,10 @@
 
 'use client';
 
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
@@ -34,6 +23,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 const formSchema = z.object({
 	name: z.string().min(1, 'Name is required.'),
@@ -341,36 +331,20 @@ export function EducationInstitutionCrud({
 												>
 													<Edit className='h-4 w-4' />
 												</Button>
-												<AlertDialog>
-													<AlertDialogTrigger asChild>
+												<ConfirmationDialog
+													trigger={
 														<Button
 															variant='ghost'
 															size='icon'
 															className='h-8 w-8'
 															disabled={isSubmitting === item.id}
 														>
-															<Trash className='h-4 w-4 text-destructive' />
+															<Trash className='h-4 w-4 text-danger' />
 														</Button>
-													</AlertDialogTrigger>
-													<AlertDialogContent>
-														<AlertDialogHeader>
-															<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-															<AlertDialogDescription>
-																This will permanently delete the {noun.toLowerCase()}{' '}
-																<strong>&quot;{item.name}&quot;</strong>.
-															</AlertDialogDescription>
-														</AlertDialogHeader>
-														<AlertDialogFooter>
-															<AlertDialogCancel>Cancel</AlertDialogCancel>
-															<AlertDialogAction
-																onClick={() => handleRemove(item.id)}
-																className='bg-destructive hover:bg-destructive/90'
-															>
-																Delete
-															</AlertDialogAction>
-														</AlertDialogFooter>
-													</AlertDialogContent>
-												</AlertDialog>
+													}
+													description={`This will permanently delete the ${noun.toLowerCase()} "${item.name}".`}
+													onConfirm={() => handleRemove(item.id)}
+												/>
 											</div>
 										</div>
 									</Card>

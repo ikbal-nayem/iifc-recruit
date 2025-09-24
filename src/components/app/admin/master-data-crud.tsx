@@ -1,17 +1,6 @@
 
 'use client';
 
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -29,6 +18,7 @@ import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 interface MasterDataItem {
 	id?: string;
@@ -235,8 +225,8 @@ export function MasterDataCrud<T extends MasterDataItem>({
 												>
 													<Edit className='h-4 w-4' />
 												</Button>
-												<AlertDialog>
-													<AlertDialogTrigger asChild>
+												<ConfirmationDialog
+													trigger={
 														<Button
 															variant='ghost'
 															size='icon'
@@ -245,26 +235,12 @@ export function MasterDataCrud<T extends MasterDataItem>({
 														>
 															<Trash className='h-4 w-4 text-danger' />
 														</Button>
-													</AlertDialogTrigger>
-													<AlertDialogContent>
-														<AlertDialogHeader>
-															<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-															<AlertDialogDescription>
-																This will permanently delete the {noun.toLowerCase()}{' '}
-																<strong>&quot;{item.name}&quot;</strong>.
-															</AlertDialogDescription>
-														</AlertDialogHeader>
-														<AlertDialogFooter>
-															<AlertDialogCancel>Cancel</AlertDialogCancel>
-															<AlertDialogAction
-																onClick={() => handleRemove(item.id)}
-																className='bg-danger hover:bg-danger/90'
-															>
-																Delete
-															</AlertDialogAction>
-														</AlertDialogFooter>
-													</AlertDialogContent>
-												</AlertDialog>
+													}
+													description={`This will permanently delete the ${noun.toLowerCase()} "${
+														item.name
+													}".`}
+													onConfirm={() => handleRemove(item.id)}
+												/>
 											</div>
 										</div>
 									</Card>

@@ -19,10 +19,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import Link from 'next/link';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { FormInput } from '@/components/ui/form-input';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 const certificationSchema = z.object({
   name: z.string().min(1, 'Certificate name is required.'),
@@ -192,25 +192,16 @@ export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
                  <Button variant="ghost" size="icon" onClick={() => startEditing(index, item)}>
                     <Edit className="h-4 w-4" />
                 </Button>
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
+                <ConfirmationDialog
+                    trigger={
                         <Button variant="ghost" size="icon">
-                            <Trash className="h-4 w-4 text-destructive" />
+                            <Trash className="h-4 w-4 text-danger" />
                         </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete this certification.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleRemove(index)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
+                    }
+                    description='This action cannot be undone. This will permanently delete this certification.'
+                    onConfirm={() => handleRemove(index)}
+                    confirmText='Delete'
+                />
             </div>
         </Card>
     );

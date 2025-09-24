@@ -1,17 +1,6 @@
 
 'use client';
 
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,6 +21,7 @@ import { cn } from '@/lib/utils';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { Check, Loader2, Save, X } from 'lucide-react';
 import * as React from 'react';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 interface ProfileFormProps {
 	candidate: Candidate;
@@ -101,36 +91,21 @@ export function ProfileFormSkills({ candidate }: ProfileFormProps) {
 				<Command className='relative'>
 					<div className='flex flex-wrap gap-2 p-3 border rounded-lg min-h-[44px] items-center'>
 						{skills.map((skill) => (
-							<AlertDialog key={skill}>
-								<Badge variant='secondary' className='text-sm py-1 px-2'>
+								<Badge key={skill} variant='secondary' className='text-sm py-1 px-2'>
 									{skill}
-									<AlertDialogTrigger asChild>
-										<button
-											className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
-										>
-											<X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
-										</button>
-									</AlertDialogTrigger>
+									<ConfirmationDialog
+										trigger={
+											<button
+												className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+											>
+												<X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
+											</button>
+										}
+										description={`This action cannot be undone. This will permanently delete the skill "${skill}".`}
+										onConfirm={() => handleRemoveSkill(skill)}
+										confirmText='Delete'
+									/>
 								</Badge>
-								<AlertDialogContent>
-									<AlertDialogHeader>
-										<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-										<AlertDialogDescription>
-											This action cannot be undone. This will permanently delete the skill &quot;
-											{skill}&quot;.
-										</AlertDialogDescription>
-									</AlertDialogHeader>
-									<AlertDialogFooter>
-										<AlertDialogCancel>Cancel</AlertDialogCancel>
-										<AlertDialogAction
-											onClick={() => handleRemoveSkill(skill)}
-											className='bg-danger hover:bg-danger/90'
-										>
-											Delete
-										</AlertDialogAction>
-									</AlertDialogFooter>
-								</AlertDialogContent>
-							</AlertDialog>
 						))}
 						<Popover open={open} onOpenChange={setOpen}>
 							<PopoverTrigger asChild>

@@ -17,11 +17,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { FormInput } from '@/components/ui/form-input';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 const awardSchema = z.object({
   name: z.string().min(1, 'Award name is required.'),
@@ -136,25 +136,16 @@ export function ProfileFormAwards({ candidate }: ProfileFormProps) {
                  <Button variant="ghost" size="icon" onClick={() => handleOpenForm(item)}>
                     <Edit className="h-4 w-4" />
                 </Button>
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
+                <ConfirmationDialog
+                    trigger={
                         <Button variant="ghost" size="icon">
                             <Trash className="h-4 w-4 text-danger" />
                         </Button>
-                    </AlertDialogTrigger>
-                     <AlertDialogContent>
-                        <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete this award.
-                        </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleRemove(item)} className="bg-danger hover:bg-danger/90">Delete</AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
+                    }
+                    description='This action cannot be undone. This will permanently delete this award.'
+                    onConfirm={() => handleRemove(item)}
+                    confirmText='Delete'
+                />
             </div>
         </Card>
     );

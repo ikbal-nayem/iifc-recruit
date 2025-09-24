@@ -16,13 +16,12 @@ import { PlusCircle, Trash, Save, Edit } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Form } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { FormSelect } from '@/components/ui/form-select';
-import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 const languageSchema = z.object({
   name: z.string().min(1, 'Language name is required.'),
@@ -131,25 +130,16 @@ export function ProfileFormLanguages({ candidate }: ProfileFormProps) {
                  <Button variant="ghost" size="icon" onClick={() => startEditing(index, item)}>
                     <Edit className="h-4 w-4" />
                 </Button>
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                            <Trash className="h-4 w-4 text-destructive" />
-                        </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete this language from your profile.
-                        </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleRemove(index)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
+                <ConfirmationDialog
+                  trigger={
+                    <Button variant="ghost" size="icon">
+                        <Trash className="h-4 w-4 text-danger" />
+                    </Button>
+                  }
+                  description='This action cannot be undone. This will permanently delete this language from your profile.'
+                  onConfirm={() => handleRemove(index)}
+                  confirmText='Delete'
+                />
             </div>
         </Card>
     );

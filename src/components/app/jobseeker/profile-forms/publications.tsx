@@ -1,16 +1,6 @@
+
 'use client';
 
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -27,6 +17,7 @@ import { Edit, Link2, Loader2, PlusCircle, Trash } from 'lucide-react';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 const publicationSchema = z.object({
 	title: z.string().min(1, 'Title is required.'),
@@ -207,30 +198,16 @@ export function ProfileFormPublications() {
 					<Button variant='ghost' size='icon' onClick={() => handleOpenForm(item)}>
 						<Edit className='h-4 w-4' />
 					</Button>
-					<AlertDialog>
-						<AlertDialogTrigger asChild>
+					<ConfirmationDialog
+						trigger={
 							<Button variant='ghost' size='icon'>
 								<Trash className='h-4 w-4 text-danger' />
 							</Button>
-						</AlertDialogTrigger>
-						<AlertDialogContent>
-							<AlertDialogHeader>
-								<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-								<AlertDialogDescription>
-									This action cannot be undone. This will permanently delete this publication.
-								</AlertDialogDescription>
-							</AlertDialogHeader>
-							<AlertDialogFooter>
-								<AlertDialogCancel>Cancel</AlertDialogCancel>
-								<AlertDialogAction
-									onClick={() => handleRemove(item.id!)}
-									className='bg-danger hover:bg-danger/90'
-								>
-									Delete
-								</AlertDialogAction>
-							</AlertDialogFooter>
-						</AlertDialogContent>
-					</AlertDialog>
+						}
+						description='This action cannot be undone. This will permanently delete this publication.'
+						onConfirm={() => handleRemove(item.id!)}
+						confirmText='Delete'
+					/>
 				</div>
 			</Card>
 		);
