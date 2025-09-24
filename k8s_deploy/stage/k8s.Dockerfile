@@ -7,7 +7,7 @@ WORKDIR /app
 COPY pnpm-lock.yaml package.json ./
 RUN pnpm install
 COPY . .
-ENV NEXT_PUBLIC_ENV_TYPE=prod
+ENV NEXT_PUBLIC_ENV_TYPE=dev
 RUN pnpm run build
 EXPOSE 9002
 CMD [ "pnpm", "start" ]
