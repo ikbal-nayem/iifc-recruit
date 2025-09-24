@@ -6,7 +6,7 @@ pipeline {
         DEPLOYMENT_ENV="stage"
         IMAGE_CREATED_BY="jenkins"
         PROJECT_NAME="web-recruitment"
-        K8S_NAMESPACE="iifc-recruit-dev"
+        K8S_NAMESPACE="iifc-recruit-stage"
 
         GIT_TAG=sh(returnStdout: true, script: '''
             echo $(git describe --tags)
