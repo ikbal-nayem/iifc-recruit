@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $K8S_SERVICE_NAME
+  namespace: $K8S_NAMESPACE
+spec:
+  selector:
+    matchLabels:
+      app: $K8S_SERVICE_NAME
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        kubernetes.io/change-cause: "$K8S_CHANGE_CAUSE"
+      labels:
+        app: $K8S_SERVICE_NAME
+    spec:
+      containers:
+      - name: $K8S_SERVICE_NAME
+        image: $DOCKER_TAG
+        envFrom:
+          - secretRef:
+              name: $K8S_SECRET_NAME        
+        imagePullPolicy: IfNotPresent    
+        ports:
+          - name: $K8S_PORT_NAME
+            containerPort: $K8S_CONTAINER_PORT
+      restartPolicy: Always
+      imagePullSecrets:
+      - name: imagerepo.gems.gov.bd
+      hostAliases:
+        - ip: 114.130.241.87
+          hostnames:
+            - api.cao.gov.bd
+            - new.cao.gov.bd
