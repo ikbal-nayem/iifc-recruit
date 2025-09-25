@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Badge } from '@/components/ui/badge';
@@ -13,16 +12,15 @@ import {
 	CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { cn } from '@/lib/utils';
+import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { Check, Loader2, Save, X } from 'lucide-react';
 import * as React from 'react';
-import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
-import { JobseekerSkillService } from '@/services/api/jobseeker-skill.service';
-import { Skeleton } from '@/components/ui/skeleton';
 
 interface SkillSelectorProps {
 	selectedSkills: ICommonMasterData[];
@@ -108,7 +106,9 @@ const SkillSelector = React.memo(function SkillSelector({
 						{!isLoadingSuggestions && debouncedSearch && (
 							<CommandEmpty>No skill found. Press Enter to add &quot;{debouncedSearch}&quot;</CommandEmpty>
 						)}
-						{!isLoadingSuggestions && !debouncedSearch && <CommandEmpty>Type to search for skills.</CommandEmpty>}
+						{!isLoadingSuggestions && !debouncedSearch && (
+							<CommandEmpty>Type to search for skills.</CommandEmpty>
+						)}
 						<CommandGroup>
 							{suggestedSkills.map((skill) => (
 								<CommandItem
@@ -146,7 +146,7 @@ export function ProfileFormSkills() {
 		setIsSkillsLoading(true);
 		try {
 			// Assuming user ID is 2 for now as requested
-			const response = await JobseekerSkillService.getSkillsByUserId('2');
+			const response = await JobseekerProfileService.getSkills('2');
 			setSkills(response.body);
 		} catch (error) {
 			toast({
@@ -175,22 +175,21 @@ export function ProfileFormSkills() {
 
 	const handleSaveChanges = async () => {
 		setIsSaving(true);
-		try {
-			const skillIds = skills.map((s) => s.id).filter((id): id is string => !!id);
-			await JobseekerSkillService.saveSkills({ userId: 2, skillIds });
-			toast({
-				description: 'Your skills have been successfully saved.',
-				variant: 'success',
-			});
-		} catch (error) {
-			toast({
-				title: 'Error',
-				description: 'Failed to save skills.',
-				variant: 'danger',
-			});
-		} finally {
-			setIsSaving(false);
-		}
+		const skillIds = skills.map((s) => s.id).filter((id): id is string => !!id);
+		JobseekerProfileService.saveSkills({ userId: 2, skillIds })
+			.then((res) => {
+				toast({
+					description: res.message || 'Your skills have been successfully saved.',
+					variant: 'success',
+				});
+			})
+			.catch((error) => {
+				toast({
+					description: error?.message || 'Failed to save skills.',
+					variant: 'danger',
+				});
+			})
+			.finally(() => setIsSaving(false));
 	};
 
 	return (

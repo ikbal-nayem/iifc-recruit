@@ -3,6 +3,7 @@
 import { Publication } from '@/app/(auth)/jobseeker/profile-edit/publications/page';
 import { axiosIns } from '@/config/api.config';
 import { IApiResponse } from '@/interfaces/common.interface';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
 
 const createProfileCrud = <T>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/jobseeker/${entity}/get`),
@@ -19,4 +20,10 @@ const createProfileCrud = <T>(entity: string) => ({
 
 export const JobseekerProfileService = {
 	publication: createProfileCrud<Publication>('publication'),
+
+	getSkills: async (userId: string): Promise<IApiResponse<ICommonMasterData[]>> =>
+		await axiosIns.get(`/jobseeker/skill/get-skills-by-user-id?userId=${userId}`),
+
+	saveSkills: async (payload: { userId: number; skillIds: (string | number)[] }): Promise<IApiResponse<any>> =>
+		await axiosIns.post('/jobseeker/skill/save-skills', payload),
 };
