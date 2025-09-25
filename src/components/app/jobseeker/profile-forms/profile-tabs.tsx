@@ -1,3 +1,4 @@
+
 'use client';
 
 import { jobseekerNavLinks } from '@/lib/nav-links';
@@ -21,12 +22,11 @@ export function ProfileTabs() {
 				key={tab.href}
 				href={tab.href}
 				className={cn(
-					'py-3 px-1 text-sm font-medium transition-colors relative',
-					isActive ? 'text-primary font-semibold' : 'text-muted-foreground hover:text-foreground'
+					'inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+					isActive ? 'bg-primary text-primary-foreground shadow' : 'hover:bg-accent hover:text-accent-foreground'
 				)}
 			>
 				{tab.label}
-				{isActive && <div className='absolute bottom-[-1px] left-0 right-0 h-0.5 bg-primary rounded-full' />}
 			</Link>
 		);
 	});

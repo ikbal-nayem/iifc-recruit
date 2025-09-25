@@ -1,3 +1,4 @@
+
 import { ProfileTabs } from '@/components/app/jobseeker/profile-forms/profile-tabs';
 import * as React from 'react';
 
@@ -9,8 +10,8 @@ export default function JobseekerProfileLayout({ children }: { children: React.R
 				<p className='text-muted-foreground'>Keep your profile updated to attract the best opportunities.</p>
 			</div>
 			<div className='space-y-4'>
-				<div className='relative border-b'>
-					<div className='flex flex-wrap items-center gap-x-6 gap-y-2'>
+				<div className='border-b'>
+					<div className='flex flex-wrap items-center gap-2 pb-2'>
 						<ProfileTabs />
 					</div>
 				</div>
