@@ -58,18 +58,20 @@ const SkillSelector = React.memo(function SkillSelector({ selectedSkills, onAddS
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild>
-				<CommandInput
-					placeholder='Add a skill...'
-					value={searchQuery}
-					onValueChange={setSearchQuery}
-					className='h-auto bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 px-1'
-					onKeyDown={(e) => {
-						if (e.key === 'Enter' && debouncedSearch && suggestedSkills.length === 0) {
-							e.preventDefault();
-							handleSelectSkill({ name: debouncedSearch, isActive: true });
-						}
-					}}
-				/>
+				<div className='flex-1'>
+					<CommandInput
+						placeholder='Add a skill...'
+						value={searchQuery}
+						onValueChange={setSearchQuery}
+						className='h-auto bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 px-1'
+						onKeyDown={(e) => {
+							if (e.key === 'Enter' && debouncedSearch && suggestedSkills.length === 0) {
+								e.preventDefault();
+								handleSelectSkill({ name: debouncedSearch, isActive: true });
+							}
+						}}
+					/>
+				</div>
 			</PopoverTrigger>
 			<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
 				<CommandList>
@@ -174,30 +176,28 @@ export function ProfileFormSkills() {
 				</CardDescription>
 			</CardHeader>
 			<CardContent className='space-y-4'>
-				<Command className='relative'>
-					<div className='flex flex-wrap gap-2 p-3 border rounded-lg min-h-[44px] items-center'>
-						{isSkillsLoading ? (
-							<Skeleton className='h-6 w-32' />
-						) : (
-							skills.map((skill) => (
-								<Badge key={skill.name} variant='secondary' className='text-sm py-1 px-2'>
-									{skill.name}
-									<ConfirmationDialog
-										trigger={
-											<button className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'>
-												<X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
-											</button>
-										}
-										description={`This action cannot be undone. This will permanently delete the skill "${skill.name}".`}
-										onConfirm={() => handleRemoveSkill(skill)}
-										confirmText='Delete'
-									/>
-								</Badge>
-							))
-						)}
-						<SkillSelector selectedSkills={skills} onAddSkill={handleAddSkill} />
-					</div>
-				</Command>
+				<div className='flex flex-wrap gap-2 p-3 border rounded-lg min-h-[44px] items-center'>
+					{isSkillsLoading ? (
+						<Skeleton className='h-6 w-32' />
+					) : (
+						skills.map((skill) => (
+							<Badge key={skill.name} variant='secondary' className='text-sm py-1 px-2'>
+								{skill.name}
+								<ConfirmationDialog
+									trigger={
+										<button className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'>
+											<X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
+										</button>
+									}
+									description={`This action cannot be undone. This will permanently delete the skill "${skill.name}".`}
+									onConfirm={() => handleRemoveSkill(skill)}
+									confirmText='Delete'
+								/>
+							</Badge>
+						))
+					)}
+					<SkillSelector selectedSkills={skills} onAddSkill={handleAddSkill} />
+				</div>
 			</CardContent>
 			<CardFooter>
 				<Button onClick={handleSaveChanges} disabled={isSaving}>
