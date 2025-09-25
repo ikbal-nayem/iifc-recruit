@@ -54,8 +54,23 @@ const SkillSelector = React.memo(function SkillSelector({
 	}, [debouncedSearch]);
 
 	const handleSelectSkill = (skill: ICommonMasterData) => {
-		onAddSkill(skill);
+		if (!selectedSkills.some((s) => s.id === skill.id)) {
+			onAddSkill(skill);
+		}
 		setSearchQuery('');
+	};
+
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+		if (e.key === 'Enter') {
+			// Prevent adding a skill if the user just presses Enter on the input
+			// without selecting an item from the list.
+			const isSuggestionSelected = suggestedSkills.some(
+				(skill) => skill.name.toLowerCase() === searchQuery.toLowerCase()
+			);
+			if (!isSuggestionSelected) {
+				e.preventDefault();
+			}
+		}
 	};
 
 	return (
@@ -68,7 +83,7 @@ const SkillSelector = React.memo(function SkillSelector({
 					)}
 				>
 					{selectedSkills.map((skill) => (
-						<Badge key={skill.name} variant='secondary' className='text-sm py-1 px-2'>
+						<Badge key={skill.id} variant='secondary' className='text-sm py-1 px-2'>
 							{skill.name}
 							<button
 								className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
@@ -82,11 +97,15 @@ const SkillSelector = React.memo(function SkillSelector({
 							</button>
 						</Badge>
 					))}
-					<span className='text-muted-foreground'>{selectedSkills.length === 0 ? 'Add a skill...' : 'Add more...'}</span>
+					{selectedSkills.length === 0 ? (
+						<span className='text-muted-foreground'>Add a skill...</span>
+					) : (
+						<span className='text-muted-foreground text-sm'>Add more...</span>
+					)}
 				</div>
 			</PopoverTrigger>
 			<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
-				<Command shouldFilter={false}>
+				<Command shouldFilter={false} onKeyDown={handleKeyDown}>
 					<CommandInput
 						placeholder='Add a skill...'
 						value={searchQuery}
@@ -98,7 +117,7 @@ const SkillSelector = React.memo(function SkillSelector({
 								<Loader2 className='h-6 w-6 animate-spin' />
 							</div>
 						)}
-						{!isLoadingSuggestions && debouncedSearch && (
+						{!isLoadingSuggestions && debouncedSearch && suggestedSkills.length === 0 && (
 							<CommandEmpty>No skill found.</CommandEmpty>
 						)}
 						{!isLoadingSuggestions && !debouncedSearch && (
