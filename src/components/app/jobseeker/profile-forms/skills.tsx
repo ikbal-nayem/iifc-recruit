@@ -62,7 +62,12 @@ const SkillSelector = React.memo(function SkillSelector({
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild>
-				<div className='flex flex-wrap gap-2 p-3 border rounded-lg min-h-[44px] items-center cursor-text w-full'>
+				<div
+					className={cn(
+						'flex flex-wrap gap-2 p-3 border rounded-lg min-h-[44px] items-center cursor-text w-full justify-start font-normal h-auto',
+						!selectedSkills.length && 'text-muted-foreground'
+					)}
+				>
 					{selectedSkills.map((skill) => (
 						<Badge key={skill.name} variant='secondary' className='text-sm py-1 px-2'>
 							{skill.name}
@@ -78,7 +83,7 @@ const SkillSelector = React.memo(function SkillSelector({
 							</button>
 						</Badge>
 					))}
-					<p className='text-sm text-muted-foreground flex-1'>{selectedSkills.length === 0 && 'Add a skill...'}</p>
+					{selectedSkills.length === 0 && 'Add a skill...'}
 				</div>
 			</PopoverTrigger>
 			<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
