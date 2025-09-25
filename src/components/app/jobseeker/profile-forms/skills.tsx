@@ -24,18 +24,102 @@ import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { JobseekerSkillService } from '@/services/api/jobseeker-skill.service';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export function ProfileFormSkills() {
-	const { toast } = useToast();
-	const [skills, setSkills] = React.useState<ICommonMasterData[]>([]);
-	const [isSkillsLoading, setIsSkillsLoading] = React.useState(true);
-	const [isSaving, setIsSaving] = React.useState(false);
+interface SkillSelectorProps {
+	selectedSkills: ICommonMasterData[];
+	onAddSkill: (skill: ICommonMasterData) => void;
+}
 
+const SkillSelector = React.memo(function SkillSelector({ selectedSkills, onAddSkill }: SkillSelectorProps) {
 	const [open, setOpen] = React.useState(false);
 	const [searchQuery, setSearchQuery] = React.useState('');
 	const [suggestedSkills, setSuggestedSkills] = React.useState<ICommonMasterData[]>([]);
 	const [isLoadingSuggestions, setIsLoadingSuggestions] = React.useState(false);
 
 	const debouncedSearch = useDebounce(searchQuery, 300);
+
+	React.useEffect(() => {
+		if (debouncedSearch) {
+			setIsLoadingSuggestions(true);
+			MasterDataService.skill
+				.getList({ body: { name: debouncedSearch }, meta: { page: 0, limit: 30 } })
+				.then((res) => setSuggestedSkills(res.body))
+				.finally(() => setIsLoadingSuggestions(false));
+		} else {
+			setSuggestedSkills([]);
+		}
+	}, [debouncedSearch]);
+
+	React.useEffect(() => {
+		if (searchQuery.length > 0 && !open) {
+			setOpen(true);
+		} else if (searchQuery.length === 0 && open) {
+			setOpen(false);
+		}
+	}, [searchQuery, open]);
+
+	const handleSelectSkill = (skill: ICommonMasterData) => {
+		onAddSkill(skill);
+		setSearchQuery('');
+	};
+
+	return (
+		<Popover open={open} onOpenChange={setOpen}>
+			<PopoverTrigger asChild>
+				<CommandInput
+					placeholder='Add a skill...'
+					value={searchQuery}
+					onValueChange={setSearchQuery}
+					className='h-auto bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 px-1'
+					onKeyDown={(e) => {
+						if (e.key === 'Enter' && debouncedSearch && suggestedSkills.length === 0) {
+							e.preventDefault();
+							handleSelectSkill({ name: debouncedSearch, isActive: true });
+						}
+					}}
+				/>
+			</PopoverTrigger>
+			<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
+				<CommandList>
+					{isLoadingSuggestions && (
+						<div className='p-2 flex justify-center'>
+							<Loader2 className='h-6 w-6 animate-spin' />
+						</div>
+					)}
+					{!isLoadingSuggestions && debouncedSearch && (
+						<CommandEmpty>No skill found. Press Enter to add &quot;{debouncedSearch}&quot;</CommandEmpty>
+					)}
+					{!isLoadingSuggestions && !debouncedSearch && <CommandEmpty>Type to search for skills.</CommandEmpty>}
+					<CommandGroup>
+						{suggestedSkills.map((skill) => (
+							<CommandItem
+								key={skill.id}
+								value={skill.name}
+								onSelect={() => {
+									handleSelectSkill(skill);
+									setOpen(false);
+								}}
+							>
+								<Check
+									className={cn(
+										'mr-2 h-4 w-4',
+										selectedSkills.some((s) => s.name === skill.name) ? 'opacity-100' : 'opacity-0'
+									)}
+								/>
+								{skill.name}
+							</CommandItem>
+						))}
+					</CommandGroup>
+				</CommandList>
+			</PopoverContent>
+		</Popover>
+	);
+});
+
+export function ProfileFormSkills() {
+	const { toast } = useToast();
+	const [skills, setSkills] = React.useState<ICommonMasterData[]>([]);
+	const [isSkillsLoading, setIsSkillsLoading] = React.useState(true);
+	const [isSaving, setIsSaving] = React.useState(false);
 
 	const loadSkills = React.useCallback(async () => {
 		setIsSkillsLoading(true);
@@ -58,31 +142,10 @@ export function ProfileFormSkills() {
 		loadSkills();
 	}, [loadSkills]);
 
-	React.useEffect(() => {
-		if (debouncedSearch) {
-			setIsLoadingSuggestions(true);
-			MasterDataService.skill
-				.getList({ body: { name: debouncedSearch }, meta: { page: 0, limit: 30 } })
-				.then((res) => setSuggestedSkills(res.body))
-				.finally(() => setIsLoadingSuggestions(false));
-		} else {
-			setSuggestedSkills([]);
-		}
-	}, [debouncedSearch]);
-
-	React.useEffect(() => {
-		if (searchQuery.length > 0 && !open) {
-			setOpen(true);
-		} else if (searchQuery.length === 0 && open) {
-			setOpen(false);
-		}
-	}, [searchQuery, open]);
-
 	const handleAddSkill = (skill: ICommonMasterData) => {
 		if (skill.name && !skills.some((s) => s.name === skill.name)) {
 			setSkills([...skills, skill]);
 		}
-		setSearchQuery('');
 	};
 
 	const handleRemoveSkill = (skillToRemove: ICommonMasterData) => {
@@ -139,57 +202,7 @@ export function ProfileFormSkills() {
 								</Badge>
 							))
 						)}
-						<Popover open={open} onOpenChange={setOpen}>
-							<PopoverTrigger asChild>
-								<CommandInput
-									placeholder='Add a skill...'
-									value={searchQuery}
-									onValueChange={setSearchQuery}
-									className='h-auto bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 px-1'
-									onKeyDown={(e) => {
-										if (e.key === 'Enter' && debouncedSearch && suggestedSkills.length === 0) {
-											e.preventDefault();
-											handleAddSkill({ name: debouncedSearch, isActive: true });
-										}
-									}}
-								/>
-							</PopoverTrigger>
-							<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
-								<CommandList>
-									{isLoadingSuggestions && (
-										<div className='p-2 flex justify-center'>
-											<Loader2 className='h-6 w-6 animate-spin' />
-										</div>
-									)}
-									{!isLoadingSuggestions && debouncedSearch && (
-										<CommandEmpty>No skill found. Press Enter to add &quot;{debouncedSearch}&quot;</CommandEmpty>
-									)}
-									{!isLoadingSuggestions && !debouncedSearch && (
-										<CommandEmpty>Type to search for skills.</CommandEmpty>
-									)}
-									<CommandGroup>
-										{suggestedSkills.map((skill) => (
-											<CommandItem
-												key={skill.id}
-												value={skill.name}
-												onSelect={() => {
-													handleAddSkill(skill);
-													setOpen(false);
-												}}
-											>
-												<Check
-													className={cn(
-														'mr-2 h-4 w-4',
-														skills.some((s) => s.name === skill.name) ? 'opacity-100' : 'opacity-0'
-													)}
-												/>
-												{skill.name}
-											</CommandItem>
-										))}
-									</CommandGroup>
-								</CommandList>
-							</PopoverContent>
-						</Popover>
+						<SkillSelector selectedSkills={skills} onAddSkill={handleAddSkill} />
 					</div>
 				</Command>
 			</CardContent>
@@ -202,3 +215,4 @@ export function ProfileFormSkills() {
 		</Card>
 	);
 }
+
