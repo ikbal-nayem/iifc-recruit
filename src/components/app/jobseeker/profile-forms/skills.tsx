@@ -28,6 +28,7 @@ export function ProfileFormSkills() {
 	const { toast } = useToast();
 	const [skills, setSkills] = React.useState<ICommonMasterData[]>([]);
 	const [isSkillsLoading, setIsSkillsLoading] = React.useState(true);
+	const [isSaving, setIsSaving] = React.useState(false);
 
 	const [open, setOpen] = React.useState(false);
 	const [searchQuery, setSearchQuery] = React.useState('');
@@ -88,12 +89,24 @@ export function ProfileFormSkills() {
 		setSkills(skills.filter((skill) => skill.id !== skillToRemove.id));
 	};
 
-	const handleSaveChanges = () => {
-		// In a real app, you would save the skills to the backend here.
-		toast({
-			description: 'Your skills have been successfully saved.',
-			variant: 'success',
-		});
+	const handleSaveChanges = async () => {
+		setIsSaving(true);
+		try {
+			const skillIds = skills.map((s) => s.id).filter((id): id is string => !!id);
+			await JobseekerSkillService.saveSkills({ userId: 2, skillIds });
+			toast({
+				description: 'Your skills have been successfully saved.',
+				variant: 'success',
+			});
+		} catch (error) {
+			toast({
+				title: 'Error',
+				description: 'Failed to save skills.',
+				variant: 'danger',
+			});
+		} finally {
+			setIsSaving(false);
+		}
 	};
 
 	return (
@@ -181,8 +194,8 @@ export function ProfileFormSkills() {
 				</Command>
 			</CardContent>
 			<CardFooter>
-				<Button onClick={handleSaveChanges}>
-					<Save className='mr-2 h-4 w-4' />
+				<Button onClick={handleSaveChanges} disabled={isSaving}>
+					{isSaving ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Save className='mr-2 h-4 w-4' />}
 					Save Changes
 				</Button>
 			</CardFooter>
