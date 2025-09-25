@@ -107,7 +107,7 @@ const SkillSelector = React.memo(function SkillSelector({
 			<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
 				<Command shouldFilter={false} onKeyDown={handleKeyDown}>
 					<CommandInput
-						placeholder='Add a skill...'
+						placeholder='Search skill...'
 						value={searchQuery}
 						onValueChange={setSearchQuery}
 					/>
