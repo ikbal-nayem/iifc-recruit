@@ -49,13 +49,6 @@ const SkillSelector = React.memo(function SkillSelector({ selectedSkills, onAddS
 		}
 	}, [debouncedSearch]);
 
-	React.useEffect(() => {
-		if (searchQuery.length > 0 && !open) {
-			setOpen(true);
-		} else if (searchQuery.length === 0 && open) {
-			setOpen(false);
-		}
-	}, [searchQuery, open]);
 
 	const handleSelectSkill = (skill: ICommonMasterData) => {
 		onAddSkill(skill);
@@ -149,7 +142,7 @@ export function ProfileFormSkills() {
 	};
 
 	const handleRemoveSkill = (skillToRemove: ICommonMasterData) => {
-		setSkills(skills.filter((skill) => skill.id !== skillToRemove.id));
+		setSkills(skills.filter((skill) => skill.name !== skillToRemove.name));
 	};
 
 	const handleSaveChanges = async () => {
@@ -187,7 +180,7 @@ export function ProfileFormSkills() {
 							<Skeleton className='h-6 w-32' />
 						) : (
 							skills.map((skill) => (
-								<Badge key={skill.id} variant='secondary' className='text-sm py-1 px-2'>
+								<Badge key={skill.name} variant='secondary' className='text-sm py-1 px-2'>
 									{skill.name}
 									<ConfirmationDialog
 										trigger={
@@ -215,4 +208,3 @@ export function ProfileFormSkills() {
 		</Card>
 	);
 }
-
