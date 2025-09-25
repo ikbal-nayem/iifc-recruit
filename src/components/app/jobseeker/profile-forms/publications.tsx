@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Publication } from '@/app/(auth)/jobseeker/profile-edit/publications/page';
@@ -219,7 +220,7 @@ export function ProfileFormPublications() {
 			<Card className='glassmorphism'>
 				<CardHeader>
 					<div className='flex justify-between items-center'>
-						<div>
+						<div className="space-y-1.5">
 							<CardTitle>Your Publications</CardTitle>
 							<CardDescription>Listed below is your published work.</CardDescription>
 						</div>
