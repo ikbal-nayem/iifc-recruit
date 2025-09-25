@@ -81,7 +81,7 @@ const SkillSelector = React.memo(function SkillSelector({
 							</button>
 						</Badge>
 					))}
-					{selectedSkills.length === 0 && 'Add a skill...'}
+					<span className='text-muted-foreground'>{selectedSkills.length === 0 ? 'Add a skill...' : 'Add more...'}</span>
 				</div>
 			</PopoverTrigger>
 			<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
