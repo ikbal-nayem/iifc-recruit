@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Badge } from '@/components/ui/badge';
@@ -90,12 +91,6 @@ const SkillSelector = React.memo(function SkillSelector({
 						placeholder='Add a skill...'
 						value={searchQuery}
 						onValueChange={setSearchQuery}
-						onKeyDown={(e) => {
-							if (e.key === 'Enter' && debouncedSearch && suggestedSkills.length === 0) {
-								e.preventDefault();
-								handleSelectSkill({ name: debouncedSearch, isActive: true });
-							}
-						}}
 					/>
 					<CommandList>
 						{isLoadingSuggestions && (
@@ -104,7 +99,7 @@ const SkillSelector = React.memo(function SkillSelector({
 							</div>
 						)}
 						{!isLoadingSuggestions && debouncedSearch && (
-							<CommandEmpty>No skill found. Press Enter to add &quot;{debouncedSearch}&quot;</CommandEmpty>
+							<CommandEmpty>No skill found.</CommandEmpty>
 						)}
 						{!isLoadingSuggestions && !debouncedSearch && (
 							<CommandEmpty>Type to search for skills.</CommandEmpty>
