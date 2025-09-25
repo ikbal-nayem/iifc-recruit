@@ -1,3 +1,4 @@
+
 import { Publication } from "@/app/(auth)/jobseeker/profile-edit/publications/page";
 
 export type UserRole = 'candidate' | 'admin';
@@ -68,12 +69,14 @@ export type Certification = {
 
 export type Language = {
 	id?: string;
+	userId?: number;
 	name: string;
 	proficiency: 'Beginner' | 'Intermediate' | 'Advanced' | 'Native';
 };
 
 export type Award = {
 	id?: string;
+	userId?: number;
 	name: string;
 	awardingBody: string;
 	dateReceived: string;

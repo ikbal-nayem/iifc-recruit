@@ -1,11 +1,13 @@
+
 'use client';
 
 import { Publication } from '@/app/(auth)/jobseeker/profile-edit/publications/page';
 import { axiosIns } from '@/config/api.config';
 import { IApiResponse } from '@/interfaces/common.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { Language, Award } from '@/lib/types';
 
-const createProfileCrud = <T>(entity: string) => ({
+const createProfileCrud = <T extends { id?: string }>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/jobseeker/${entity}/get`),
 	
 	add: async (payload: Omit<T, 'id'>): Promise<IApiResponse<T>> =>
@@ -20,6 +22,8 @@ const createProfileCrud = <T>(entity: string) => ({
 
 export const JobseekerProfileService = {
 	publication: createProfileCrud<Publication>('publication'),
+    language: createProfileCrud<Language>('language'),
+    award: createProfileCrud<Award>('award'),
 
 	getSkills: async (userId: string): Promise<IApiResponse<ICommonMasterData[]>> =>
 		await axiosIns.get(`/jobseeker/skill/get-skills-by-user-id?userId=${userId}`),
