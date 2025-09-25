@@ -207,7 +207,7 @@ export function ProfileFormLanguages() {
 			<Card className='glassmorphism'>
 				<CardHeader>
 					<div className='flex justify-between items-center'>
-						<div>
+						<div className="space-y-1.5">
 							<CardTitle>Your Languages</CardTitle>
 							<CardDescription>Listed below are the languages you speak.</CardDescription>
 						</div>
