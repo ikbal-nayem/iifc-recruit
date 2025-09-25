@@ -73,7 +73,6 @@ export function ProfileFormSkills({ candidate }: ProfileFormProps) {
 	const handleSaveChanges = () => {
 		// In a real app, you would save the skills to the backend here.
 		toast({
-			title: 'Skills Updated',
 			description: 'Your skills have been successfully saved.',
 			variant: 'success',
 		});
