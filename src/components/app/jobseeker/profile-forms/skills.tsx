@@ -27,9 +27,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 interface SkillSelectorProps {
 	selectedSkills: ICommonMasterData[];
 	onAddSkill: (skill: ICommonMasterData) => void;
+	onRemoveSkill: (skill: ICommonMasterData) => void;
 }
 
-const SkillSelector = React.memo(function SkillSelector({ selectedSkills, onAddSkill }: SkillSelectorProps) {
+const SkillSelector = React.memo(function SkillSelector({
+	selectedSkills,
+	onAddSkill,
+	onRemoveSkill,
+}: SkillSelectorProps) {
 	const [open, setOpen] = React.useState(false);
 	const [searchQuery, setSearchQuery] = React.useState('');
 	const [suggestedSkills, setSuggestedSkills] = React.useState<ICommonMasterData[]>([]);
@@ -49,7 +54,6 @@ const SkillSelector = React.memo(function SkillSelector({ selectedSkills, onAddS
 		}
 	}, [debouncedSearch]);
 
-
 	const handleSelectSkill = (skill: ICommonMasterData) => {
 		onAddSkill(skill);
 		setSearchQuery('');
@@ -58,12 +62,31 @@ const SkillSelector = React.memo(function SkillSelector({ selectedSkills, onAddS
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild>
-				<div className='flex-1'>
+				<div className='flex flex-wrap gap-2 p-3 border rounded-lg min-h-[44px] items-center cursor-text w-full'>
+					{selectedSkills.map((skill) => (
+						<Badge key={skill.name} variant='secondary' className='text-sm py-1 px-2'>
+							{skill.name}
+							<button
+								className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+								onClick={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+									onRemoveSkill(skill);
+								}}
+							>
+								<X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
+							</button>
+						</Badge>
+					))}
+					<p className='text-sm text-muted-foreground flex-1'>{selectedSkills.length === 0 && 'Add a skill...'}</p>
+				</div>
+			</PopoverTrigger>
+			<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
+				<Command shouldFilter={false}>
 					<CommandInput
 						placeholder='Add a skill...'
 						value={searchQuery}
 						onValueChange={setSearchQuery}
-						className='h-auto bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 px-1'
 						onKeyDown={(e) => {
 							if (e.key === 'Enter' && debouncedSearch && suggestedSkills.length === 0) {
 								e.preventDefault();
@@ -71,40 +94,38 @@ const SkillSelector = React.memo(function SkillSelector({ selectedSkills, onAddS
 							}
 						}}
 					/>
-				</div>
-			</PopoverTrigger>
-			<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
-				<CommandList>
-					{isLoadingSuggestions && (
-						<div className='p-2 flex justify-center'>
-							<Loader2 className='h-6 w-6 animate-spin' />
-						</div>
-					)}
-					{!isLoadingSuggestions && debouncedSearch && (
-						<CommandEmpty>No skill found. Press Enter to add &quot;{debouncedSearch}&quot;</CommandEmpty>
-					)}
-					{!isLoadingSuggestions && !debouncedSearch && <CommandEmpty>Type to search for skills.</CommandEmpty>}
-					<CommandGroup>
-						{suggestedSkills.map((skill) => (
-							<CommandItem
-								key={skill.id}
-								value={skill.name}
-								onSelect={() => {
-									handleSelectSkill(skill);
-									setOpen(false);
-								}}
-							>
-								<Check
-									className={cn(
-										'mr-2 h-4 w-4',
-										selectedSkills.some((s) => s.name === skill.name) ? 'opacity-100' : 'opacity-0'
-									)}
-								/>
-								{skill.name}
-							</CommandItem>
-						))}
-					</CommandGroup>
-				</CommandList>
+					<CommandList>
+						{isLoadingSuggestions && (
+							<div className='p-2 flex justify-center'>
+								<Loader2 className='h-6 w-6 animate-spin' />
+							</div>
+						)}
+						{!isLoadingSuggestions && debouncedSearch && (
+							<CommandEmpty>No skill found. Press Enter to add &quot;{debouncedSearch}&quot;</CommandEmpty>
+						)}
+						{!isLoadingSuggestions && !debouncedSearch && <CommandEmpty>Type to search for skills.</CommandEmpty>}
+						<CommandGroup>
+							{suggestedSkills.map((skill) => (
+								<CommandItem
+									key={skill.id}
+									value={skill.name}
+									onSelect={() => {
+										handleSelectSkill(skill);
+										setOpen(false);
+									}}
+								>
+									<Check
+										className={cn(
+											'mr-2 h-4 w-4',
+											selectedSkills.some((s) => s.name === skill.name) ? 'opacity-100' : 'opacity-0'
+										)}
+									/>
+									{skill.name}
+								</CommandItem>
+							))}
+						</CommandGroup>
+					</CommandList>
+				</Command>
 			</PopoverContent>
 		</Popover>
 	);
@@ -176,28 +197,15 @@ export function ProfileFormSkills() {
 				</CardDescription>
 			</CardHeader>
 			<CardContent className='space-y-4'>
-				<div className='flex flex-wrap gap-2 p-3 border rounded-lg min-h-[44px] items-center'>
-					{isSkillsLoading ? (
-						<Skeleton className='h-6 w-32' />
-					) : (
-						skills.map((skill) => (
-							<Badge key={skill.name} variant='secondary' className='text-sm py-1 px-2'>
-								{skill.name}
-								<ConfirmationDialog
-									trigger={
-										<button className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'>
-											<X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
-										</button>
-									}
-									description={`This action cannot be undone. This will permanently delete the skill "${skill.name}".`}
-									onConfirm={() => handleRemoveSkill(skill)}
-									confirmText='Delete'
-								/>
-							</Badge>
-						))
-					)}
-					<SkillSelector selectedSkills={skills} onAddSkill={handleAddSkill} />
-				</div>
+				{isSkillsLoading ? (
+					<Skeleton className='h-11 w-full' />
+				) : (
+					<SkillSelector
+						selectedSkills={skills}
+						onAddSkill={handleAddSkill}
+						onRemoveSkill={handleRemoveSkill}
+					/>
+				)}
 			</CardContent>
 			<CardFooter>
 				<Button onClick={handleSaveChanges} disabled={isSaving}>
