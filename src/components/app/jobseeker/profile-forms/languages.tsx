@@ -237,7 +237,7 @@ export function ProfileFormLanguages() {
 					onSubmit={handleFormSubmit}
 					initialData={editingItem}
 					noun='Language'
-					languageOptions={languageOptions.map(l => ({label: l.name, value: l.id!}))}
+					languageOptions={languageOptions.map(l => ({label: l.name, value: String(l.id!)}))}
 				/>
 			)}
 		</div>
