@@ -10,8 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import type { Language } from '@/lib/types';
-import { PlusCircle, Trash, Edit, Loader2 } from 'lucide-react';
+import { Language } from '@/lib/types';
+import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
