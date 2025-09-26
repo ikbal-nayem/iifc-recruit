@@ -1,3 +1,4 @@
+
 import { ProfileFormPublications } from '@/components/app/jobseeker/profile-forms/publications';
 
 export type Publication = {
@@ -6,7 +7,6 @@ export type Publication = {
 	publisher: string;
 	publicationDate: string;
 	url: string;
-	userId: number;
 };
 
 export default function JobseekerProfilePublicationsPage() {

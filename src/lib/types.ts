@@ -1,5 +1,4 @@
 
-
 import { Publication } from "@/app/(auth)/jobseeker/profile-edit/publications/page";
 
 export type UserRole = 'candidate' | 'admin';
@@ -70,7 +69,6 @@ export type Certification = {
 
 export type Language = {
 	id?: string;
-	userId?: number;
 	languageId: string;
 	name?: string; // This will be populated from the related master data
 	proficiency: 'Beginner' | 'Intermediate' | 'Advanced' | 'Native';
@@ -78,7 +76,6 @@ export type Language = {
 
 export type Award = {
 	id?: string;
-	userId?: number;
 	name: string;
 	awardingBody: string;
 	dateReceived: string;
@@ -86,7 +83,6 @@ export type Award = {
 
 export type Training = {
 	id?: string;
-	userId?: number;
 	trainingName: string;
 	institutionName: string;
 	trainingTypeId: string;

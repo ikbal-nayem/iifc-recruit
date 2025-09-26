@@ -21,14 +21,14 @@ const createProfileCrud = <T extends { id?: string }>(entity: string) => ({
 });
 
 export const JobseekerProfileService = {
-	publication: createProfileCrud<Publication>('publication'),
-    language: createProfileCrud<Language>('language'),
-    award: createProfileCrud<Award>('award'),
-    training: createProfileCrud<Training>('training'),
+	publication: createProfileCrud<Omit<Publication, 'userId'>>('publication'),
+    language: createProfileCrud<Omit<Language, 'userId'>>('language'),
+    award: createProfileCrud<Omit<Award, 'userId'>>('award'),
+    training: createProfileCrud<Omit<Training, 'userId'>>('training'),
 
-	getSkills: async (userId: string): Promise<IApiResponse<ICommonMasterData[]>> =>
-		await axiosIns.get(`/jobseeker/skill/get-skills-by-user-id?userId=${userId}`),
+	getSkills: async (): Promise<IApiResponse<ICommonMasterData[]>> =>
+		await axiosIns.get(`/jobseeker/skill/get-skills-by-user-id`),
 
-	saveSkills: async (payload: { userId: number; skillIds: (string | number)[] }): Promise<IApiResponse<any>> =>
+	saveSkills: async (payload: { skillIds: (string | number)[] }): Promise<IApiResponse<any>> =>
 		await axiosIns.post('/jobseeker/skill/save-skills', payload),
 };

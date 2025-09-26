@@ -149,7 +149,7 @@ export function ProfileFormLanguages() {
 	};
 
 	const handleFormSubmit = async (data: LanguageFormValues, id?: string) => {
-		const payload = { ...data, userId: 2 }; // Assuming user ID is 2
+		const payload = { ...data };
 		try {
 			const response = id
 				? await JobseekerProfileService.language.update({ ...payload, id })

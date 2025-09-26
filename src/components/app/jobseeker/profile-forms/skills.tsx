@@ -62,14 +62,7 @@ const SkillSelector = React.memo(function SkillSelector({
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		if (e.key === 'Enter') {
-			// Prevent adding a skill if the user just presses Enter on the input
-			// without selecting an item from the list.
-			const isSuggestionSelected = suggestedSkills.some(
-				(skill) => skill.name.toLowerCase() === searchQuery.toLowerCase()
-			);
-			if (!isSuggestionSelected) {
-				e.preventDefault();
-			}
+			e.preventDefault();
 		}
 	};
 
@@ -159,8 +152,7 @@ export function ProfileFormSkills() {
 	const loadSkills = React.useCallback(async () => {
 		setIsSkillsLoading(true);
 		try {
-			// Assuming user ID is 2 for now as requested
-			const response = await JobseekerProfileService.getSkills('2');
+			const response = await JobseekerProfileService.getSkills();
 			setSkills(response.body);
 		} catch (error) {
 			toast({
@@ -190,7 +182,7 @@ export function ProfileFormSkills() {
 	const handleSaveChanges = async () => {
 		setIsSaving(true);
 		const skillIds = skills.map((s) => s.id).filter((id): id is string => !!id);
-		JobseekerProfileService.saveSkills({ userId: 2, skillIds })
+		JobseekerProfileService.saveSkills({ skillIds })
 			.then((res) => {
 				toast({
 					description: res.message || 'Your skills have been successfully saved.',

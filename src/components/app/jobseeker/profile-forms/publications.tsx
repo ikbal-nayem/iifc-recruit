@@ -28,7 +28,7 @@ const publicationSchema = z.object({
 
 type PublicationFormValues = z.infer<typeof publicationSchema>;
 
-const defaultData = { title: '', publisher: '', publicationDate: '', url: '', userId: 1 };
+const defaultData = { title: '', publisher: '', publicationDate: '', url: ''};
 
 interface PublicationFormProps {
 	isOpen: boolean;
@@ -150,10 +150,10 @@ export function ProfileFormPublications() {
 	};
 
 	const handleFormSubmit = async (data: PublicationFormValues, id?: string) => {
-		const payload = { ...data, userId: 2 };
+		const payload = { ...data };
 		try {
 			const response = id
-				? await JobseekerProfileService.publication.update(payload)
+				? await JobseekerProfileService.publication.update({ ...payload, id })
 				: await JobseekerProfileService.publication.add(payload);
 			toast({ description: response.message, variant: 'success' });
 			loadPublications();

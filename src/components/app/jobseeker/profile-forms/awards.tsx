@@ -141,7 +141,7 @@ export function ProfileFormAwards() {
 	};
 
 	const handleFormSubmit = async (data: AwardFormValues, id?: string) => {
-		const payload = { ...data, userId: 2 }; // Assuming user ID is 2 for now
+		const payload = { ...data };
 		try {
 			const response = id
 				? await JobseekerProfileService.award.update({ ...payload, id })

@@ -193,7 +193,7 @@ export function ProfileFormTraining() {
 	const handleFormSubmit = async (data: TrainingFormValues, id?: string) => {
 		// In a real app, handle file upload here. For now, we'll just use the name.
         const certificateUrl = data.certificateFile ? data.certificateFile.name : (id ? editingItem?.certificateUrl : undefined);
-		const payload = { ...data, certificateUrl, userId: 2 };
+		const payload = { ...data, certificateUrl };
         delete (payload as any).certificateFile;
 
 		try {
