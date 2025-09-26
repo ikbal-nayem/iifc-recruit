@@ -24,9 +24,10 @@ import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
 
 const languageSchema = z.object({
-  name: z.string().min(1, 'Language name is required.'),
+  languageId: z.string().min(1, 'Language is required.'),
   proficiency: z.enum(['Beginner', 'Intermediate', 'Advanced', 'Native']),
 });
 
@@ -44,12 +45,12 @@ interface LanguageFormProps {
 function LanguageForm({ isOpen, onClose, onSubmit, initialData, noun, languageOptions }: LanguageFormProps) {
     const form = useForm<LanguageFormValues>({
         resolver: zodResolver(languageSchema),
-        defaultValues: initialData || { name: '', proficiency: 'Intermediate' },
+        defaultValues: initialData || { languageId: '', proficiency: 'Intermediate' },
     });
     const [isSubmitting, setIsSubmitting] = React.useState(false);
 
     React.useEffect(() => {
-        form.reset(initialData || { name: '', proficiency: 'Intermediate' });
+        form.reset(initialData || { languageId: '', proficiency: 'Intermediate' });
     }, [initialData, form]);
 
     const handleSubmit = async (data: LanguageFormValues) => {
@@ -71,7 +72,7 @@ function LanguageForm({ isOpen, onClose, onSubmit, initialData, noun, languageOp
                     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-4">
                        <FormAutocomplete
                             control={form.control}
-                            name="name"
+                            name="languageId"
                             label="Language"
                             placeholder="Select a language"
                             required
@@ -112,7 +113,7 @@ export function ProfileFormLanguages() {
 	const [editingItem, setEditingItem] = React.useState<Language | undefined>(undefined);
 	const [isFormOpen, setIsFormOpen] = React.useState(false);
 	const [isLoading, setIsLoading] = React.useState(true);
-	const [languageOptions, setLanguageOptions] = React.useState<{ label: string; value: string }[]>([]);
+	const [languageOptions, setLanguageOptions] = React.useState<ICommonMasterData[]>([]);
 
 	const loadLanguages = React.useCallback(async () => {
 		setIsLoading(true);
@@ -122,7 +123,7 @@ export function ProfileFormLanguages() {
 				MasterDataService.language.get(),
 			]);
 			setHistory(languagesRes.body);
-			setLanguageOptions(masterLanguagesRes.body.map((l) => ({ label: l.name, value: l.name })));
+			setLanguageOptions(masterLanguagesRes.body);
 		} catch (error) {
 			toast({
 				description: 'Failed to load languages.',
@@ -177,10 +178,11 @@ export function ProfileFormLanguages() {
 	};
 
 	const renderItem = (item: Language) => {
+		const languageName = languageOptions.find(l => l.id === item.languageId)?.name || item.name;
 		return (
 			<Card key={item.id} className='p-4 flex justify-between items-center'>
 				<div>
-					<p className='font-semibold'>{item.name}</p>
+					<p className='font-semibold'>{languageName}</p>
 					<p className='text-sm text-muted-foreground'>{item.proficiency}</p>
 				</div>
 				<div className='flex gap-2'>
@@ -235,7 +237,7 @@ export function ProfileFormLanguages() {
 					onSubmit={handleFormSubmit}
 					initialData={editingItem}
 					noun='Language'
-					languageOptions={languageOptions}
+					languageOptions={languageOptions.map(l => ({label: l.name, value: l.id!}))}
 				/>
 			)}
 		</div>
