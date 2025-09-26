@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Mail, Phone, MapPin, Building, Briefcase, GraduationCap, Award, BookOpen, Languages, Star, FileText, Download, User, Cake, Linkedin, Video } from 'lucide-react';
+import { Mail, Phone, MapPin, Building, Briefcase, GraduationCap, Award, BookOpen, Languages, Star, FileText, Download, User, Cake, Linkedin, Video, BookCopy } from 'lucide-react';
 import type { Candidate } from '@/lib/types';
 import { Button } from '../ui/button';
 import Link from 'next/link';
@@ -36,6 +36,7 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
     languages,
     publications,
     awards,
+    trainings,
     resumeUrl,
   } = candidate;
 
@@ -159,7 +160,19 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
                         ))}
                     </CardContent>
                 </Card>}
-
+                {trainings.length > 0 && <Card className="glassmorphism">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><BookCopy className="h-5 w-5"/> Trainings</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                       {trainings.map((training, index) => (
+                           <div key={index}>
+                               <p className="font-semibold text-sm">{training.trainingName}</p>
+                               <p className="text-xs text-muted-foreground">{training.institutionName}</p>
+                           </div>
+                       ))}
+                    </CardContent>
+                </Card>}
                 {languages.length > 0 && (
                     <Card className="glassmorphism">
                         <CardHeader>

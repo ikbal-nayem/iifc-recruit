@@ -159,6 +159,7 @@ export const jobseekerNavLinks: NavLink[] = [
 			{ href: '/jobseeker/profile-edit/professional', label: 'Professional', icon: Briefcase },
 			{ href: '/jobseeker/profile-edit/skills', label: 'Skills', icon: Star },
 			{ href: '/jobseeker/profile-edit/certifications', label: 'Certifications', icon: BookMarked },
+			{ href: '/jobseeker/profile-edit/training', label: 'Training', icon: BookCopy },
 			{ href: '/jobseeker/profile-edit/languages', label: 'Languages', icon: Languages },
 			{ href: '/jobseeker/profile-edit/publications', label: 'Publications', icon: BookOpen },
 			{ href: '/jobseeker/profile-edit/awards', label: 'Awards', icon: Award },

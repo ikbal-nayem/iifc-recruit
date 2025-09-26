@@ -5,7 +5,7 @@ import { Publication } from '@/app/(auth)/jobseeker/profile-edit/publications/pa
 import { axiosIns } from '@/config/api.config';
 import { IApiResponse } from '@/interfaces/common.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
-import { Language, Award } from '@/lib/types';
+import { Language, Award, Training } from '@/lib/types';
 
 const createProfileCrud = <T extends { id?: string }>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/jobseeker/${entity}/get`),
@@ -24,6 +24,7 @@ export const JobseekerProfileService = {
 	publication: createProfileCrud<Publication>('publication'),
     language: createProfileCrud<Language>('language'),
     award: createProfileCrud<Award>('award'),
+    training: createProfileCrud<Training>('training'),
 
 	getSkills: async (userId: string): Promise<IApiResponse<ICommonMasterData[]>> =>
 		await axiosIns.get(`/jobseeker/skill/get-skills-by-user-id?userId=${userId}`),

@@ -14,7 +14,7 @@ import { CheckCircle, Circle } from 'lucide-react';
 
 function calculateProfileCompletion(candidate: Candidate): number {
   let score = 0;
-  const totalFields = 8; // personal, academic, professional, skills, certs, langs, pubs, awards
+  const totalFields = 9; // personal, academic, professional, skills, certs, langs, pubs, awards, trainings
 
   if (candidate.personalInfo.firstName && candidate.personalInfo.lastName && candidate.personalInfo.email) score++;
   if (candidate.academicInfo.length > 0) score++;
@@ -24,6 +24,7 @@ function calculateProfileCompletion(candidate: Candidate): number {
   if (candidate.languages.length > 0) score++;
   if (candidate.publications.length > 0) score++;
   if (candidate.awards.length > 0) score++;
+  if (candidate.trainings.length > 0) score++;
   
   return (score / totalFields) * 100;
 }
@@ -34,6 +35,7 @@ const checklistItems = [
     { id: 'professionalInfo', label: 'Professional Experience' },
     { id: 'skills', label: 'Skills' },
     { id: 'certifications', label: 'Certifications' },
+    { id: 'trainings', label: 'Trainings' },
     { id: 'languages', label: 'Languages' },
     { id: 'publications', label: 'Publications' },
     { id: 'awards', label: 'Awards' },
@@ -50,6 +52,7 @@ function isSectionComplete(candidate: Candidate, section: string): boolean {
         case 'languages':
         case 'publications':
         case 'awards':
+        case 'trainings':
             return Array.isArray(candidate[section as keyof Candidate]) && (candidate[section as keyof Candidate] as any[]).length > 0;
         default:
             return false;

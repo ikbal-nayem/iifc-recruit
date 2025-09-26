@@ -82,6 +82,17 @@ export type Award = {
 	dateReceived: string;
 };
 
+export type Training = {
+	id?: string;
+	userId?: number;
+	trainingName: string;
+	institutionName: string;
+	trainingTypeId: string;
+	startDate: string;
+	endDate: string;
+	certificateUrl?: string;
+};
+
 export type Candidate = {
 	id: string;
 	personalInfo: PersonalInfo;
@@ -92,6 +103,7 @@ export type Candidate = {
 	languages: Language[];
 	publications: Publication[];
 	awards: Award[];
+	trainings: Training[];
 	resumeUrl?: string;
 	status: 'Active' | 'Passive' | 'Hired';
 };
