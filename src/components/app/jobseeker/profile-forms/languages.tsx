@@ -1,110 +1,110 @@
-
 'use client';
 
-import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Language } from '@/lib/types';
-import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
-import { useToast } from '@/hooks/use-toast';
-import { FormSelect } from '@/components/ui/form-select';
-import { MasterDataService } from '@/services/api/master-data.service';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
-import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { FormSelect } from '@/components/ui/form-select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
+import { useToast } from '@/hooks/use-toast';
+import { Language, ProficiancyLevel } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { proficiencyOptions } from '@/lib/data';
+import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
+import { MasterDataService } from '@/services/api/master-data.service';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
+import * as React from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 
 const languageSchema = z.object({
-  languageId: z.string().min(1, 'Language is required.'),
-  proficiency: z.enum(['Beginner', 'Intermediate', 'Advanced', 'Native']),
+	languageId: z.number().min(1, 'Language is required.'),
+	proficiency: z
+		.enum([
+			ProficiancyLevel.BEGINNER,
+			ProficiancyLevel.INTERMEDIATE,
+			ProficiancyLevel.ADVANCED,
+			ProficiancyLevel.NATIVE,
+		])
+		.default(ProficiancyLevel.INTERMEDIATE),
 });
 
 type LanguageFormValues = z.infer<typeof languageSchema>;
 
 interface LanguageFormProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onSubmit: (data: LanguageFormValues, id?: string) => Promise<boolean>;
-    initialData?: Language;
-    noun: string;
-    languageOptions: { label: string, value: string }[];
+	isOpen: boolean;
+	onClose: () => void;
+	onSubmit: (data: LanguageFormValues, id?: number) => Promise<boolean>;
+	initialData?: Language;
+	noun: string;
+	languageOptions: { label: string; value: number }[];
 }
 
+const defaultValues = { languageId: 0, proficiency: ProficiancyLevel.INTERMEDIATE };
+
 function LanguageForm({ isOpen, onClose, onSubmit, initialData, noun, languageOptions }: LanguageFormProps) {
-    const form = useForm<LanguageFormValues>({
-        resolver: zodResolver(languageSchema),
-        defaultValues: initialData || { languageId: '', proficiency: 'Intermediate' },
-    });
-    const [isSubmitting, setIsSubmitting] = React.useState(false);
+	const form = useForm<LanguageFormValues>({
+		resolver: zodResolver(languageSchema),
+		defaultValues: initialData || defaultValues,
+	});
+	const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-    React.useEffect(() => {
-        form.reset(initialData || { languageId: '', proficiency: 'Intermediate' });
-    }, [initialData, form]);
+	React.useEffect(() => {
+		form.reset(initialData || defaultValues);
+	}, [initialData, form]);
 
-    const handleSubmit = async (data: LanguageFormValues) => {
-        setIsSubmitting(true);
-        const success = await onSubmit(data, initialData?.id);
-        if (success) {
-            onClose();
-        }
-        setIsSubmitting(false);
-    };
+	const handleSubmit = async (data: LanguageFormValues) => {
+		setIsSubmitting(true);
+		const success = await onSubmit(data, initialData?.id);
+		if (success) {
+			onClose();
+		}
+		setIsSubmitting(false);
+	};
 
-    return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
-                </DialogHeader>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-4">
-                       <FormAutocomplete
-                            control={form.control}
-                            name="languageId"
-                            label="Language"
-                            placeholder="Select a language"
-                            required
-                            options={languageOptions}
-                            disabled={isSubmitting}
-                        />
-                        <FormSelect
-                          control={form.control}
-                          name="proficiency"
-                          label="Proficiency"
-                          required
-                          options={[
-                            { label: 'Beginner', value: 'Beginner' },
-                            { label: 'Intermediate', value: 'Intermediate' },
-                            { label: 'Advanced', value: 'Advanced' },
-                            { label: 'Native', value: 'Native' },
-                          ]}
-                          placeholder="Select proficiency"
-                          disabled={isSubmitting}
-                        />
-                        <DialogFooter className="pt-4">
-                            <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting}>Cancel</Button>
-                            <Button type="submit" disabled={isSubmitting}>
-                                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                {initialData ? 'Save Changes' : 'Add Language'}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </Form>
-            </DialogContent>
-        </Dialog>
-    );
+	return (
+		<Dialog open={isOpen} onOpenChange={onClose}>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
+				</DialogHeader>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4'>
+						<FormAutocomplete
+							control={form.control}
+							name='languageId'
+							label='Language'
+							placeholder='Select a language'
+							required
+							options={languageOptions}
+							disabled={isSubmitting}
+						/>
+						<FormSelect
+							control={form.control}
+							name='proficiency'
+							label='Proficiency'
+							required
+							options={proficiencyOptions}
+							placeholder='Select proficiency'
+							disabled={isSubmitting}
+						/>
+						<DialogFooter className='pt-4'>
+							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
+								Cancel
+							</Button>
+							<Button type='submit' disabled={isSubmitting}>
+								{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+								{initialData ? 'Save Changes' : 'Add Language'}
+							</Button>
+						</DialogFooter>
+					</form>
+				</Form>
+			</DialogContent>
+		</Dialog>
+	);
 }
 
 export function ProfileFormLanguages() {
@@ -148,7 +148,7 @@ export function ProfileFormLanguages() {
 		setEditingItem(undefined);
 	};
 
-	const handleFormSubmit = async (data: LanguageFormValues, id?: string) => {
+	const handleFormSubmit = async (data: LanguageFormValues, id?: number) => {
 		const payload = { ...data };
 		try {
 			const response = id
@@ -163,7 +163,7 @@ export function ProfileFormLanguages() {
 		}
 	};
 
-	const handleRemove = async (id: string) => {
+	const handleRemove = async (id: number) => {
 		try {
 			const response = await JobseekerProfileService.language.delete(id);
 			toast({ description: response.message || 'Language deleted successfully.', variant: 'success' });
@@ -178,7 +178,7 @@ export function ProfileFormLanguages() {
 	};
 
 	const renderItem = (item: Language) => {
-		const languageName = languageOptions.find(l => l.id === item.languageId)?.name || item.name;
+		const languageName = languageOptions.find((l) => l.id === item.languageId)?.name || item.language?.name;
 		return (
 			<Card key={item.id} className='p-4 flex justify-between items-center'>
 				<div>
@@ -209,7 +209,7 @@ export function ProfileFormLanguages() {
 			<Card className='glassmorphism'>
 				<CardHeader>
 					<div className='flex justify-between items-center'>
-						<div className="space-y-1.5">
+						<div className='space-y-1.5'>
 							<CardTitle>Your Languages</CardTitle>
 							<CardDescription>Listed below are the languages you speak.</CardDescription>
 						</div>
@@ -237,7 +237,7 @@ export function ProfileFormLanguages() {
 					onSubmit={handleFormSubmit}
 					initialData={editingItem}
 					noun='Language'
-					languageOptions={languageOptions.map(l => ({label: l.name, value: String(l.id!)}))}
+					languageOptions={languageOptions.map((l) => ({ label: l.name, value: l.id as number }))}
 				/>
 			)}
 		</div>

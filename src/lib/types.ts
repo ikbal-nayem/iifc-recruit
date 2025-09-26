@@ -1,5 +1,6 @@
 
 import { Publication } from "@/app/(auth)/jobseeker/profile-edit/publications/page";
+import { Language } from "@/interfaces/jobseeker.interface";
 
 export type UserRole = 'candidate' | 'admin';
 
@@ -65,13 +66,6 @@ export type Certification = {
 	issuingOrganization: string;
 	issueDate: string;
 	proofUrl?: string;
-};
-
-export type Language = {
-	id?: string;
-	languageId: string;
-	name?: string; // This will be populated from the related master data
-	proficiency: 'Beginner' | 'Intermediate' | 'Advanced' | 'Native';
 };
 
 export type Award = {

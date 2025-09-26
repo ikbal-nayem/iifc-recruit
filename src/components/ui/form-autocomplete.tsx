@@ -22,9 +22,9 @@ interface FormAutocompleteProps<TFieldValues extends FieldValues> {
 	label: string;
 	placeholder?: string;
 	required?: boolean;
-	options: { value: string; label: string }[];
+	options: { value: string | number; label: string }[];
 	disabled?: boolean;
-	onValueChange?: (value: string) => void;
+	onValueChange?: (value: string | number) => void;
 	value?: string;
 }
 

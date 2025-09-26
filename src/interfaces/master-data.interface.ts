@@ -3,7 +3,7 @@ import { STATUS_TYPE } from "@/constants/common.constant";
 import { IObject } from "./common.interface";
 
 export interface ICommonMasterData {
-	id?: string;
+	id?: number;
 	name: string;
 	isActive: boolean;
 	code?: string;
