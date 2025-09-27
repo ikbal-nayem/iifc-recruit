@@ -181,7 +181,7 @@ export function ProfileFormSkills() {
 
 	const handleSaveChanges = async () => {
 		setIsSaving(true);
-		const skillIds = skills.map((s) => s.id).filter((id): id is string => !!id);
+		const skillIds = skills.map((s) => s.id).filter((id) => !!id);
 		JobseekerProfileService.saveSkills({ skillIds })
 			.then((res) => {
 				toast({

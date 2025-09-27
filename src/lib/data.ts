@@ -1,4 +1,4 @@
-import { ProficiancyLevel } from '@/interfaces/jobseeker.interface';
+import { ProficiancyLevel } from '@/interfaces/common.interface';
 import { addDays, format, subDays, subMonths, subYears } from 'date-fns';
 import type { Activity, Application, Candidate, Job } from './types';
 

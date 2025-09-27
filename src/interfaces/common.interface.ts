@@ -2,6 +2,13 @@ export interface IObject {
 	[key: string]: any;
 }
 
+export enum ProficiancyLevel {
+	BEGINNER = 'BEGINNER',
+	INTERMEDIATE = 'INTERMEDIATE',
+	ADVANCED = 'ADVANCED',
+	NATIVE = 'NATIVE',
+}
+
 export interface IMeta {
 	limit: number;
 	nextPage?: number;

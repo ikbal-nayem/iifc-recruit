@@ -3,9 +3,9 @@
 import { Publication } from '@/app/(auth)/jobseeker/profile-edit/publications/page';
 import { axiosIns } from '@/config/api.config';
 import { IApiResponse } from '@/interfaces/common.interface';
-import { Language } from '@/interfaces/jobseeker.interface';
+import { Award, Language } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
-import { Award, Training } from '@/lib/types';
+import { Training } from '@/lib/types';
 
 const createProfileCrud = <T>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/jobseeker/${entity}/get`),
@@ -27,8 +27,8 @@ export const JobseekerProfileService = {
 	training: createProfileCrud<Training>('training'),
 
 	getSkills: async (): Promise<IApiResponse<ICommonMasterData[]>> =>
-		await axiosIns.get(`/jobseeker/skill/get-skills-by-user-id`),
+		await axiosIns.get(`/jobseeker/skill/get-skills`),
 
-	saveSkills: async (payload: { skillIds: (string | number)[] }): Promise<IApiResponse<any>> =>
+	saveSkills: async (payload: { skillIds: (number | undefined)[] }): Promise<IApiResponse<any>> =>
 		await axiosIns.post('/jobseeker/skill/save-skills', payload),
 };

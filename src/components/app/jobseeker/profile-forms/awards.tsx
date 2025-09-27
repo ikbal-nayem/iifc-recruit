@@ -1,7 +1,5 @@
-
 'use client';
 
-import { Award } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
@@ -11,6 +9,8 @@ import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import { Award } from '@/interfaces/jobseeker.interface';
+import { makeAppDateFormat } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
@@ -21,18 +21,18 @@ import * as z from 'zod';
 
 const awardSchema = z.object({
 	name: z.string().min(1, 'Award name is required.'),
-	awardingBody: z.string().min(1, 'Awarding body is required.'),
-	dateReceived: z.string().min(1, 'Date is required.'),
+	description: z.string().min(1, 'Awarding body is required.'),
+	date: z.string().min(1, 'Date is required.'),
 });
 
 type AwardFormValues = z.infer<typeof awardSchema>;
 
-const defaultData = { name: '', awardingBody: '', dateReceived: '' };
+const defaultData = { name: '', description: '', date: '' };
 
 interface AwardFormProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onSubmit: (data: AwardFormValues, id?: string) => Promise<boolean>;
+	onSubmit: (data: AwardFormValues, id?: number) => Promise<boolean>;
 	initialData?: Award;
 	noun: string;
 }
@@ -40,21 +40,19 @@ interface AwardFormProps {
 function AwardForm({ isOpen, onClose, onSubmit, initialData, noun }: AwardFormProps) {
 	const form = useForm<AwardFormValues>({
 		resolver: zodResolver(awardSchema),
-		defaultValues: initialData ? { ...initialData, dateReceived: format(new Date(initialData.dateReceived), 'yyyy-MM-dd') } : defaultData,
+		defaultValues: initialData ? { ...initialData, date: makeAppDateFormat(initialData.date) } : defaultData,
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	useEffect(() => {
-		form.reset(initialData ? { ...initialData, dateReceived: format(new Date(initialData.dateReceived), 'yyyy-MM-dd') } : defaultData);
+		form.reset(initialData ? { ...initialData, date: makeAppDateFormat(initialData.date) } : defaultData);
 	}, [initialData, form]);
 
 	const handleSubmit = async (data: AwardFormValues) => {
 		setIsSubmitting(true);
-		const success = await onSubmit(data, initialData?.id);
-		if (success) {
-			onClose();
-		}
-		setIsSubmitting(false);
+		onSubmit(data, initialData?.id)
+			.then((res) => onClose())
+			.finally(() => setIsSubmitting(false));
 	};
 
 	return (
@@ -75,7 +73,7 @@ function AwardForm({ isOpen, onClose, onSubmit, initialData, noun }: AwardFormPr
 						/>
 						<FormInput
 							control={form.control}
-							name='awardingBody'
+							name='description'
 							label='Awarding Body'
 							placeholder='e.g., TechCorp'
 							required
@@ -83,7 +81,7 @@ function AwardForm({ isOpen, onClose, onSubmit, initialData, noun }: AwardFormPr
 						/>
 						<FormDatePicker
 							control={form.control}
-							name='dateReceived'
+							name='date'
 							label='Date Received'
 							required
 							disabled={isSubmitting}
@@ -140,7 +138,7 @@ export function ProfileFormAwards() {
 		setEditingItem(undefined);
 	};
 
-	const handleFormSubmit = async (data: AwardFormValues, id?: string) => {
+	const handleFormSubmit = async (data: AwardFormValues, id?: number) => {
 		const payload = { ...data };
 		try {
 			const response = id
@@ -155,7 +153,7 @@ export function ProfileFormAwards() {
 		}
 	};
 
-	const handleRemove = async (id: string) => {
+	const handleRemove = async (id: number) => {
 		try {
 			const response = await JobseekerProfileService.award.delete(id);
 			toast({ description: response.message || 'Award deleted successfully.', variant: 'success' });
@@ -175,7 +173,7 @@ export function ProfileFormAwards() {
 				<div>
 					<p className='font-semibold'>{item.name}</p>
 					<p className='text-sm text-muted-foreground'>
-						{item.awardingBody} - {format(new Date(item.dateReceived), 'PPP')}
+						{item.description} - {format(new Date(item.date), 'PPP')}
 					</p>
 				</div>
 				<div className='flex gap-2'>
@@ -202,7 +200,7 @@ export function ProfileFormAwards() {
 			<Card className='glassmorphism'>
 				<CardHeader>
 					<div className='flex justify-between items-center'>
-						<div className="space-y-1.5">
+						<div className='space-y-1.5'>
 							<CardTitle>Your Awards & Recognitions</CardTitle>
 							<CardDescription>Listed below are your awards and recognitions.</CardDescription>
 						</div>
