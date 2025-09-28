@@ -1,7 +1,6 @@
 
 'use client';
 
-import { Publication } from '@/app/(auth)/jobseeker/profile-edit/publications/page';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
@@ -11,6 +10,7 @@ import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import { Publication } from '@/interfaces/jobseeker.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
