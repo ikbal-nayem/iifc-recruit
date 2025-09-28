@@ -111,14 +111,14 @@ export function FilePreviewer({ file, children, className }: FilePreviewerProps)
 							{fileName}
 						</DialogTitle>
 						<div className='flex items-center gap-2'>
-							<Button variant='ghost' size='icon' className='h-8 w-8' onClick={handleDownload}>
+							<Button variant='ghost' size='icon' className='h-8 w-8 hover:bg-green-100' onClick={handleDownload}>
 								<Download className='h-4 w-4' />
 							</Button>
 							{previewUrl && (
 								<Button
 									variant='ghost'
 									size='icon'
-									className='h-8 w-8'
+									className='h-8 w-8 hover:bg-purple-100'
 									onClick={() => window.open(previewUrl, '_blank')}
 								>
 									<ExternalLink className='h-4 w-4' />
@@ -127,12 +127,12 @@ export function FilePreviewer({ file, children, className }: FilePreviewerProps)
 							<Button
 								variant='ghost'
 								size='icon'
-								className='h-8 w-8'
+								className='h-8 w-8 hover:bg-blue-100'
 								onClick={() => setIsMaximized(!isMaximized)}
 							>
 								{isMaximized ? <Minimize className='h-4 w-4' /> : <Maximize className='h-4 w-4' />}
 							</Button>
-							<Button variant='ghost' size='icon' className='h-8 w-8' onClick={handleClose}>
+							<Button variant='ghost' size='icon' className='h-8 w-8 hover:bg-red-100' onClick={handleClose}>
 								<X className='h-4 w-4' />
 							</Button>
 						</div>
