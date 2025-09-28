@@ -1,5 +1,6 @@
+
 import { ProficiancyLevel } from '@/interfaces/common.interface';
-import { addDays, format, subDays, subMonths, subYears } from 'date-fns';
+import { addDays, format, subDays, subMonths, subWeeks, subYears } from 'date-fns';
 import type { Activity, Application, Candidate, Job, Resume } from './types';
 
 export const proficiencyOptions = [
@@ -90,6 +91,7 @@ export const candidates: Candidate[] = [
 		],
 		publications: [
 			{
+				id: 'pub1',
 				title: 'The Rise of Server-Side Rendering',
 				publisher: 'Smashing Magazine',
 				publicationDate: '2023-05-20',
