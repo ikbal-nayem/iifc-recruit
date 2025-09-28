@@ -5,6 +5,7 @@ import * as React from 'react';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 
 interface FormSelectProps<TFieldValues extends FieldValues> {
 	control: Control<TFieldValues>;
@@ -35,7 +36,7 @@ export function FormSelect<TFieldValues extends FieldValues>({
 					<FormLabel required={required}>{label}</FormLabel>
 					<Select onValueChange={field.onChange} defaultValue={field.value} disabled={disabled} {...props}>
 						<FormControl>
-							<SelectTrigger>
+							<SelectTrigger className='h-11'>
 								<SelectValue placeholder={placeholder} />
 							</SelectTrigger>
 						</FormControl>
