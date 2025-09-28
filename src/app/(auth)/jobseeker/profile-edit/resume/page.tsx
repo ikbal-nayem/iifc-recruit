@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Upload, FileText, X, CheckCircle, Trash, Loader2, Download, History } from 'lucide-react';
+import { Upload, FileText, X, CheckCircle, Trash, Loader2, Download, History, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,11 +17,8 @@ import { JobseekerProfileService } from '@/services/api/jobseeker-profile.servic
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { format } from 'date-fns';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 const resumeSchema = z.object({
 	resumeFile: z
@@ -54,6 +51,7 @@ export default function JobseekerProfileResumePage() {
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [isUploading, setIsUploading] = React.useState(false);
 	const [isSubmitting, setIsSubmitting] = React.useState<number | null>(null);
+	const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
 
 	const form = useForm<ResumeFormValues>({
 		resolver: zodResolver(resumeSchema),
@@ -153,7 +151,9 @@ export default function JobseekerProfileResumePage() {
 			<Card className='glassmorphism'>
 				<CardHeader>
 					<CardTitle>Upload New Resume</CardTitle>
-					<CardDescription>Upload your CV/Resume in PDF format. The active one will be shared with recruiters.</CardDescription>
+					<CardDescription>
+						Upload your CV/Resume in PDF format. The active one will be shared with recruiters.
+					</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<Form {...form}>
@@ -193,10 +193,7 @@ export default function JobseekerProfileResumePage() {
 								)}
 							/>
 							{form.watch('resumeFile') && (
-								<FilePreview
-									file={form.watch('resumeFile')}
-									onRemove={() => form.reset({ resumeFile: null })}
-								/>
+								<FilePreview file={form.watch('resumeFile')} onRemove={() => form.reset({ resumeFile: null })} />
 							)}
 							<Button type='submit' disabled={isUploading || !form.formState.isValid}>
 								{isUploading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
@@ -225,14 +222,20 @@ export default function JobseekerProfileResumePage() {
 									<FileText className='h-8 w-8 text-primary' />
 									<div>
 										<p className='font-medium'>{activeResume.file.originalFileName}</p>
-										<p className='text-sm text-muted-foreground'>
-											{activeResume.createdOn ? `Uploaded on ${format(new Date(activeResume.createdOn), 'PPP')}` : ''}
-										</p>
+										{activeResume.createdOn && (
+											<p className='text-sm text-muted-foreground'>
+												Uploaded on {format(new Date(activeResume.createdOn), 'PPP')}
+											</p>
+										)}
 									</div>
 								</div>
 								<div className='flex gap-2 self-end sm:self-center'>
+									<Button variant='outline' size='sm' onClick={() => setPreviewUrl(`/files/get?path=${activeResume.file.filePath}`)}>
+										<Eye className='mr-2 h-4 w-4' />
+										Preview
+									</Button>
 									<Button variant='outline' size='sm' asChild>
-										<a href={activeResume.file.filePath} target='_blank' rel='noopener noreferrer'>
+										<a href={`/files/get?path=${activeResume.file.filePath}&disposition=attachment`} target='_blank' rel='noopener noreferrer'>
 											<Download className='mr-2 h-4 w-4' />
 											Download
 										</a>
@@ -243,13 +246,13 @@ export default function JobseekerProfileResumePage() {
 					</Card>
 				)
 			)}
-			
+
 			{!isLoading && historyResumes.length > 0 && (
 				<Collapsible>
-					<div className="flex justify-center">
+					<div className='flex justify-center'>
 						<CollapsibleTrigger asChild>
-							<Button variant="ghost" className="text-muted-foreground">
-								<History className="mr-2 h-4 w-4" />
+							<Button variant='ghost' className='text-muted-foreground'>
+								<History className='mr-2 h-4 w-4' />
 								View Resume History ({historyResumes.length})
 							</Button>
 						</CollapsibleTrigger>
@@ -271,12 +274,18 @@ export default function JobseekerProfileResumePage() {
 											<FileText className='h-8 w-8 text-muted-foreground' />
 											<div>
 												<p className='font-medium'>{resume.file.originalFileName}</p>
-												<p className='text-sm text-muted-foreground'>
-													{resume.createdOn ? `Uploaded on ${format(new Date(resume.createdOn), 'PPP')}` : ''}
-												</p>
+												{resume.createdOn && (
+													<p className='text-sm text-muted-foreground'>
+														Uploaded on {format(new Date(resume.createdOn), 'PPP')}
+													</p>
+												)}
 											</div>
 										</div>
 										<div className='flex gap-2 self-end sm:self-center mt-2 sm:mt-0'>
+                                            <Button variant='ghost' size='sm' onClick={() => setPreviewUrl(`/files/get?path=${resume.file.filePath}`)}>
+												<Eye className='mr-2 h-4 w-4' />
+												Preview
+											</Button>
 											<Button
 												variant='outline'
 												size='sm'
@@ -309,6 +318,18 @@ export default function JobseekerProfileResumePage() {
 					</CollapsibleContent>
 				</Collapsible>
 			)}
+
+            <Dialog open={!!previewUrl} onOpenChange={(isOpen) => !isOpen && setPreviewUrl(null)}>
+                <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
+                    <DialogHeader className="p-6 pb-0">
+                        <DialogTitle>Resume Preview</DialogTitle>
+                        <DialogDescription>Viewing a preview of the selected PDF resume.</DialogDescription>
+                    </DialogHeader>
+                    <div className="flex-1 px-6 pb-6">
+                        <iframe src={previewUrl || ''} className="w-full h-full border rounded-md" title="Resume Preview"></iframe>
+                    </div>
+                </DialogContent>
+            </Dialog>
 		</div>
 	);
 }
