@@ -1,10 +1,10 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { FilePreviewer } from '@/components/ui/file-previewer';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,11 +14,10 @@ import { Resume } from '@/lib/types';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
-import { CheckCircle, Download, Eye, FileText, History, Loader2, Trash, Upload, X } from 'lucide-react';
+import { CheckCircle, Eye, FileText, History, Loader2, Trash, Upload, X } from 'lucide-react';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { FilePreviewer } from '@/components/ui/file-previewer';
 
 const resumeSchema = z.object({
 	resumeFile: z
@@ -105,7 +104,6 @@ export default function JobseekerProfileResumePage() {
 		try {
 			const response = await JobseekerProfileService.resume.setActive(id);
 			toast({
-				title: 'Active Resume Updated',
 				description: response.message,
 				variant: 'success',
 			});
@@ -121,25 +119,25 @@ export default function JobseekerProfileResumePage() {
 		}
 	};
 
-	const handleDelete = async (id: number) => {
+	const handleDelete = (id: number) => {
 		setIsSubmitting(id);
-		try {
-			const response = await JobseekerProfileService.resume.delete(id);
-			toast({
-				title: 'Resume Deleted',
-				description: response.message,
-				variant: 'success',
-			});
-			loadResumes();
-		} catch (error: any) {
-			toast({
-				title: 'Delete Failed',
-				description: error.message || 'Could not delete resume.',
-				variant: 'danger',
-			});
-		} finally {
-			setIsSubmitting(null);
-		}
+		JobseekerProfileService.resume
+			.delete(id)
+			.then(() => {
+				toast({
+					title: 'Resume Deleted',
+					variant: 'success',
+				});
+				loadResumes();
+			})
+			.catch((error: any) => {
+				toast({
+					title: 'Delete Failed',
+					description: error.message || 'Could not delete resume.',
+					variant: 'danger',
+				});
+			})
+			.finally(() => setIsSubmitting(null));
 	};
 
 	const activeResume = resumes.find((r) => r.isActive);
