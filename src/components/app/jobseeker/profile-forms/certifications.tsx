@@ -11,18 +11,18 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import type { Candidate, Certification } from '@/lib/types';
-import { PlusCircle, Trash, Save, Edit, FileText, Upload, X, Link2 } from 'lucide-react';
+import { PlusCircle, Trash, Edit, FileText } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { FormInput } from '@/components/ui/form-input';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { FormFileUpload } from '@/components/ui/form-file-upload';
 
 const certificationSchema = z.object({
   name: z.string().min(1, 'Certificate name is required.'),
@@ -36,27 +36,6 @@ type CertificationFormValues = z.infer<typeof certificationSchema>;
 interface ProfileFormProps {
   candidate: Candidate;
 }
-
-const FilePreview = ({ file, onRemove }: { file: File | string; onRemove: () => void }) => {
-    const isFile = file instanceof File;
-    const name = isFile ? file.name : file;
-    const size = isFile ? `(${(file.size / 1024).toFixed(1)} KB)` : '';
-
-    return (
-        <div className="p-2 border rounded-lg flex items-center justify-between bg-muted/50">
-            <div className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" />
-                <div className="text-sm">
-                    <p className="font-medium truncate max-w-xs">{name}</p>
-                    {size && <p className="text-xs text-muted-foreground">{size}</p>}
-                </div>
-            </div>
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onRemove}>
-                <X className="h-4 w-4" />
-            </Button>
-        </div>
-    )
-};
 
 
 export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
@@ -133,37 +112,11 @@ export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
                                 required
                             />
                         </div>
-                        <FormField
-                          control={editForm.control}
-                          name="proofFile"
-                          render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Proof (PDF)</FormLabel>
-                                <FormControl>
-                                    <div className="relative flex items-center justify-center w-full">
-                                        <label htmlFor={`edit-file-upload-${index}`} className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
-                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                                                <p className="text-sm text-muted-foreground">
-                                                    <span className="font-semibold">Click to upload</span> or drag and drop
-                                                </p>
-                                            </div>
-                                            <Input id={`edit-file-upload-${index}`} type="file" className="hidden" onChange={(e) => field.onChange(e.target.files ? e.target.files[0] : null)} />
-                                        </label>
-                                    </div>
-                                </FormControl>
-                                {field.value ? (
-                                    <div className="mt-2">
-                                        <FilePreview file={field.value} onRemove={() => field.onChange(null)} />
-                                    </div>
-                                ) : item.proofUrl && (
-                                    <div className="mt-2">
-                                        <FilePreview file={item.proofUrl} onRemove={() => editForm.setValue('proofUrl', '')} />
-                                    </div>
-                                )}
-                                <FormMessage />
-                            </FormItem>
-                          )}
+                        <FormFileUpload
+                            control={editForm.control}
+                            name="proofFile"
+                            label="Proof"
+                            accept=".pdf"
                         />
                     </CardContent>
                     <CardFooter className="p-0 pt-4 flex justify-end gap-2">
@@ -254,33 +207,11 @@ export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
                                 required
                             />
                         </div>
-                        <FormField
-                          control={form.control}
-                          name="proofFile"
-                          render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Proof (PDF)</FormLabel>
-                                <FormControl>
-                                    <div className="relative flex items-center justify-center w-full">
-                                        <label htmlFor="add-file-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
-                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                                                <p className="text-sm text-muted-foreground">
-                                                    <span className="font-semibold">Click to upload</span> or drag and drop
-                                                </p>
-                                            </div>
-                                            <Input id="add-file-upload" type="file" className="hidden" onChange={(e) => field.onChange(e.target.files ? e.target.files[0] : null)} />
-                                        </label>
-                                    </div>
-                                </FormControl>
-                                {field.value && (
-                                    <div className="mt-2">
-                                        <FilePreview file={field.value} onRemove={() => field.onChange(null)} />
-                                    </div>
-                                )}
-                                <FormMessage />
-                            </FormItem>
-                          )}
+                        <FormFileUpload
+                            control={form.control}
+                            name="proofFile"
+                            label="Proof"
+                            accept=".pdf"
                         />
                     </CardContent>
                     <CardFooter>
