@@ -1,4 +1,4 @@
-import { ProficiancyLevel } from "./common.interface";
+import { IFile, ProficiancyLevel } from "./common.interface";
 import { ICommonMasterData } from "./master-data.interface";
 
 export type Language = {
@@ -8,9 +8,35 @@ export type Language = {
 	proficiency: ProficiancyLevel;
 };
 
+export type Publication = {
+	id?: string;
+	title: string;
+	publisher: string;
+	publicationDate: string;
+	url: string;
+};
+
 export type Award = {
 	id?: number;
 	name: string;
 	description: string;
 	date: string;
+};
+
+export type Training = {
+	id?: number;
+	name: string;
+	institutionName: string;
+	trainingTypeId: string;
+	trainingType?: ICommonMasterData;
+	startDate: string;
+	endDate: string;
+	certificate?: IFile | File;
+};
+
+export type Resume = {
+	id: number;
+	createdOn: string;
+	file: IFile;
+	isActive: boolean;
 };

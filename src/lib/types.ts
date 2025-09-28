@@ -1,6 +1,4 @@
-
-import { Publication } from "@/app/(auth)/jobseeker/profile-edit/publications/page";
-import { Award, Language } from "@/interfaces/jobseeker.interface";
+import { Award, Language, Publication, Resume, Training } from '@/interfaces/jobseeker.interface';
 
 export type UserRole = 'candidate' | 'admin';
 
@@ -67,34 +65,6 @@ export type Certification = {
 	issueDate: string;
 	proofUrl?: string;
 };
-
-
-
-export type Training = {
-	id?: string;
-	trainingName: string;
-	institutionName: string;
-	trainingTypeId: string;
-	startDate: string;
-	endDate: string;
-	certificateUrl?: string;
-};
-
-export type FileDetails = {
-    id: number;
-    originalFileName: string;
-    fileName: string;
-    fileType: string;
-    filePath: string;
-    fileSize: string;
-}
-
-export type Resume = {
-    id: number;
-    createdOn: string;
-    file: FileDetails;
-    isActive: boolean;
-}
 
 export type Candidate = {
 	id: string;

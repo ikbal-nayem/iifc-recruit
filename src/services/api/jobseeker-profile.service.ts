@@ -3,9 +3,8 @@
 
 import { axiosIns } from '@/config/api.config';
 import { IApiResponse } from '@/interfaces/common.interface';
-import { Award, Language, Publication, Training } from '@/interfaces/jobseeker.interface';
+import { Award, Language, Publication, Resume, Training } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
-import { Resume } from '@/lib/types';
 
 const createProfileCrud = <T extends { id?: number | string }>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/jobseeker/${entity}/get`),
