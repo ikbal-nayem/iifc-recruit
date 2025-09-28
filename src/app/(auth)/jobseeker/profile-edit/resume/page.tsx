@@ -1,17 +1,16 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Resume } from '@/lib/types';
-import { makeDownloadURL, makePreviewURL } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
@@ -19,6 +18,7 @@ import { CheckCircle, Download, Eye, FileText, History, Loader2, Trash, Upload, 
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { FilePreviewer } from '@/components/ui/file-previewer';
 
 const resumeSchema = z.object({
 	resumeFile: z
@@ -51,7 +51,6 @@ export default function JobseekerProfileResumePage() {
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [isUploading, setIsUploading] = React.useState(false);
 	const [isSubmitting, setIsSubmitting] = React.useState<number | null>(null);
-	const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
 
 	const form = useForm<ResumeFormValues>({
 		resolver: zodResolver(resumeSchema),
@@ -224,7 +223,7 @@ export default function JobseekerProfileResumePage() {
 								<div className='flex items-center gap-4'>
 									<FileText className='h-8 w-8 text-primary' />
 									<div>
-										<p className='font-medium'>{activeResume.file?.originalFileName}</p>
+										<p className='font-medium'>{activeResume.file.originalFileName}</p>
 										{activeResume.createdOn && (
 											<p className='text-sm text-muted-foreground'>
 												Uploaded on {format(new Date(activeResume.createdOn), 'PPP')}
@@ -233,22 +232,11 @@ export default function JobseekerProfileResumePage() {
 									</div>
 								</div>
 								<div className='flex gap-2 self-end sm:self-center'>
-									<Button
-										variant='outline'
-										size='sm'
-										onClick={() => setPreviewUrl(activeResume.file.filePath)}
-									>
-										<Eye className='h-4 w-4' />
-									</Button>
-									<Button variant='outline' size='sm' asChild>
-										<a
-											href={makeDownloadURL(activeResume.file.filePath)}
-											target='_blank'
-											rel='noopener noreferrer'
-										>
-											<Download className='h-4 w-4' />
-										</a>
-									</Button>
+									<FilePreviewer file={activeResume.file}>
+										<Button variant='outline' size='sm'>
+											<Eye className='h-4 w-4' />
+										</Button>
+									</FilePreviewer>
 								</div>
 							</div>
 						</CardContent>
@@ -291,13 +279,12 @@ export default function JobseekerProfileResumePage() {
 											</div>
 										</div>
 										<div className='flex gap-2 self-end sm:self-center mt-2 sm:mt-0'>
-											<Button
-												variant='ghost'
-												size='sm'
-												onClick={() => setPreviewUrl(`/files/get?path=${resume.file.filePath}`)}
-											>
-												<Eye className='mr-2 h-4 w-4' />
-											</Button>
+											<FilePreviewer file={resume.file}>
+												<Button variant='ghost' size='sm'>
+													<Eye className='mr-2 h-4 w-4' />
+													Preview
+												</Button>
+											</FilePreviewer>
 											<Button
 												variant='outline'
 												size='sm'
@@ -330,22 +317,6 @@ export default function JobseekerProfileResumePage() {
 					</CollapsibleContent>
 				</Collapsible>
 			)}
-
-			<Dialog open={!!previewUrl} onOpenChange={(isOpen) => !isOpen && setPreviewUrl(null)}>
-				<DialogContent className='max-w-4xl h-[90vh] flex flex-col p-0'>
-					<DialogHeader className='p-6 pb-0'>
-						<DialogTitle>Resume Preview</DialogTitle>
-						<DialogDescription>Viewing a preview of the selected PDF resume.</DialogDescription>
-					</DialogHeader>
-					<div className='flex-1 px-6 pb-6'>
-						<iframe
-							src={makePreviewURL(previewUrl)}
-							className='w-full h-full border rounded-md'
-							title='Resume Preview'
-						></iframe>
-					</div>
-				</DialogContent>
-			</Dialog>
 		</div>
 	);
 }
