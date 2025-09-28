@@ -80,6 +80,14 @@ export type Training = {
 	certificateUrl?: string;
 };
 
+export type Resume = {
+    id: string;
+    fileName: string;
+    url: string;
+    isActive: boolean;
+    createdAt: string;
+}
+
 export type Candidate = {
 	id: string;
 	personalInfo: PersonalInfo;
@@ -91,7 +99,7 @@ export type Candidate = {
 	publications: Publication[];
 	awards: Award[];
 	trainings: Training[];
-	resumeUrl?: string;
+	resumes: Resume[];
 	status: 'Active' | 'Passive' | 'Hired';
 };
 

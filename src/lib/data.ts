@@ -1,6 +1,6 @@
 import { ProficiancyLevel } from '@/interfaces/common.interface';
 import { addDays, format, subDays, subMonths, subYears } from 'date-fns';
-import type { Activity, Application, Candidate, Job } from './types';
+import type { Activity, Application, Candidate, Job, Resume } from './types';
 
 export const proficiencyOptions = [
 	{ label: 'Beginner', value: ProficiancyLevel.BEGINNER },
@@ -8,6 +8,11 @@ export const proficiencyOptions = [
 	{ label: 'Advanced', value: ProficiancyLevel.ADVANCED },
 	{ label: 'Native', value: ProficiancyLevel.NATIVE },
 ];
+
+export const resumes: Resume[] = [
+    { id: 'res1', fileName: 'Alice_Johnson_Frontend_Resume_2024.pdf', url: '/resumes/alice_johnson_resume.pdf', isActive: true, createdAt: format(subDays(new Date(), 10), 'yyyy-MM-dd') },
+    { id: 'res2', fileName: 'Alice_Johnson_FullStack_Resume_2023.pdf', url: '/resumes/alice_johnson_resume_old.pdf', isActive: false, createdAt: format(subMonths(new Date(), 6), 'yyyy-MM-dd') }
+]
 
 export const candidates: Candidate[] = [
 	{
@@ -80,8 +85,8 @@ export const candidates: Candidate[] = [
 			},
 		],
 		languages: [
-			{ name: 'English', proficiency: 'Native' },
-			{ name: 'Spanish', proficiency: 'Advanced' },
+			{ languageId: 1, name: 'English', proficiency: ProficiancyLevel.NATIVE },
+			{ languageId: 2, name: 'Spanish', proficiency: ProficiancyLevel.ADVANCED },
 		],
 		publications: [
 			{
@@ -91,9 +96,9 @@ export const candidates: Candidate[] = [
 				url: 'https://example.com',
 			},
 		],
-		awards: [{ name: 'Developer of the Year', awardingBody: 'TechCorp', dateReceived: '2021-12-20' }],
+		awards: [{ id: 1, name: 'Developer of the Year', description: 'TechCorp', date: '2021-12-20' }],
 		trainings: [],
-		resumeUrl: '/resumes/alice_johnson_resume.pdf',
+		resumes: resumes,
 		status: 'Active',
 	},
 	{
@@ -148,11 +153,13 @@ export const candidates: Candidate[] = [
 		],
 		skills: ['Product Management', 'Agile', 'JIRA', 'Market Research', 'Roadmap Planning'],
 		certifications: [],
-		languages: [{ name: 'English', proficiency: 'Native' }],
+		languages: [{ languageId: 1, name: 'English', proficiency: ProficiancyLevel.NATIVE }],
 		publications: [],
 		awards: [],
 		trainings: [],
-		resumeUrl: '/resumes/bob_smith_resume.pdf',
+		resumes: [
+             { id: 'res3', fileName: 'Bob_Smith_Product_Resume.pdf', url: '/resumes/bob_smith_resume.pdf', isActive: true, createdAt: format(subDays(new Date(), 30), 'yyyy-MM-dd') }
+        ],
 		status: 'Passive',
 	},
 	{
@@ -207,11 +214,13 @@ export const candidates: Candidate[] = [
 		],
 		skills: ['Python', 'TensorFlow', 'PyTorch', 'SQL', 'Tableau', 'Machine Learning'],
 		certifications: [],
-		languages: [{ name: 'English', proficiency: 'Native' }],
+		languages: [{ languageId: 1, name: 'English', proficiency: ProficiancyLevel.NATIVE }],
 		publications: [],
 		awards: [],
 		trainings: [],
-		resumeUrl: '/resumes/charlie_brown_resume.pdf',
+		resumes: [
+            { id: 'res4', fileName: 'Charlie_Brown_Data_Science.pdf', url: '/resumes/charlie_brown_resume.pdf', isActive: true, createdAt: format(subDays(new Date(), 5), 'yyyy-MM-dd') }
+        ],
 		status: 'Active',
 	},
 	{
@@ -263,11 +272,13 @@ export const candidates: Candidate[] = [
 		],
 		skills: ['Figma', 'Sketch', 'Adobe XD', 'User Research', 'Prototyping'],
 		certifications: [],
-		languages: [{ name: 'English', proficiency: 'Native' }],
+		languages: [{ languageId: 1, name: 'English', proficiency: ProficiancyLevel.NATIVE }],
 		publications: [],
 		awards: [],
 		trainings: [],
-		resumeUrl: '/resumes/diana_prince_resume.pdf',
+		resumes: [
+            { id: 'res5', fileName: 'Diana_Prince_UX_Portfolio_Resume.pdf', url: '/resumes/diana_prince_resume.pdf', isActive: true, createdAt: format(subWeeks(new Date(), 2), 'yyyy-MM-dd') }
+        ],
 		status: 'Hired',
 	},
 ];
@@ -592,7 +603,7 @@ export const jobs: Job[] = [
 			'Disseminating research findings to farmers.',
 		],
 		requirements: [
-			'PhD or M.Sc. in Agronomy or a related agricultural science.',
+			'M.Sc. or PhD in Agronomy or a related agricultural science.',
 			'Strong background in agricultural research.',
 			'Fieldwork experience is essential.',
 		],

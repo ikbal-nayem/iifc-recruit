@@ -37,8 +37,10 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
     publications,
     awards,
     trainings,
-    resumeUrl,
+    resumes,
   } = candidate;
+
+  const activeResume = resumes.find(r => r.isActive);
 
   const getFullName = () => {
     return [personalInfo.firstName, personalInfo.middleName, personalInfo.lastName].filter(Boolean).join(' ');
@@ -69,9 +71,9 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
                 </div>
             </div>
              <div className="flex-shrink-0">
-                {resumeUrl && (
+                {activeResume && (
                     <Button asChild>
-                        <Link href={resumeUrl} target="_blank" download>
+                        <Link href={activeResume.url} target="_blank" download>
                             <Download className="mr-2 h-4 w-4" /> Download CV
                         </Link>
                     </Button>
@@ -180,8 +182,8 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
                         </CardHeader>
                         <CardContent className="space-y-2">
                            {languages.map(lang => (
-                                <div key={lang.name} className="flex justify-between text-sm">
-                                    <span>{lang.name}</span>
+                                <div key={lang.id} className="flex justify-between text-sm">
+                                    <span>{lang.language?.name}</span>
                                     <span className="text-muted-foreground">{lang.proficiency}</span>
                                 </div>
                             ))}
@@ -229,7 +231,7 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
                            {awards.map((award, index) => (
                                <div key={index}>
                                    <p className="font-semibold text-sm">{award.name}</p>
-                                   <p className="text-xs text-muted-foreground">{award.awardingBody} - {award.dateReceived}</p>
+                                   <p className="text-xs text-muted-foreground">{award.description} - {award.date}</p>
                                </div>
                            ))}
                         </CardContent>
