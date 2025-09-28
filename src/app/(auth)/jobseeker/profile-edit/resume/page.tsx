@@ -22,7 +22,6 @@ const resumeSchema = z.object({
 	resumeFile: z
 		.any()
 		.refine((file) => file, 'Resume is required.')
-		.refine((file) => file?.size <= 5 * 1024 * 1024, `Max file size is 5MB.`)
 		.refine((file) => file?.type === 'application/pdf', 'Only .pdf files are accepted.'),
 });
 
@@ -144,6 +143,7 @@ export default function JobseekerProfileResumePage() {
 								name='resumeFile'
 								label='Resume/CV (PDF, max 5MB)'
 								accept='.pdf'
+								maxSize={5 * 1024 * 1024}
 							/>
 							<Button type='submit' disabled={isUploading || !form.formState.isValid}>
 								{isUploading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}

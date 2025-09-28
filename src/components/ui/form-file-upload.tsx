@@ -1,6 +1,6 @@
 'use client';
 
-import { Control, FieldPath, FieldValues } from 'react-hook-form';
+import { Control, FieldPath, FieldValues, useFormContext } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Upload, FileText, X } from 'lucide-react';
@@ -40,6 +40,7 @@ interface FormFileUploadProps<TFieldValues extends FieldValues> {
 	required?: boolean;
 	accept?: string;
 	multiple?: boolean;
+	maxSize?: number; // Max size in bytes
 }
 
 export function FormFileUpload<TFieldValues extends FieldValues>({
@@ -49,7 +50,30 @@ export function FormFileUpload<TFieldValues extends FieldValues>({
 	required = false,
 	accept,
 	multiple = false,
+	maxSize,
 }: FormFileUploadProps<TFieldValues>) {
+	const { setError, clearErrors } = useFormContext();
+
+	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: any) => {
+		if (e.target.files) {
+			const files = Array.from(e.target.files);
+
+			if (maxSize) {
+				const oversizedFiles = files.filter((file) => file.size > maxSize);
+				if (oversizedFiles.length > 0) {
+					setError(name, {
+						type: 'manual',
+						message: `File(s) exceed max size of ${maxSize / 1024 / 1024}MB.`,
+					});
+					return;
+				}
+			}
+
+			clearErrors(name);
+			field.onChange(multiple ? files : files[0] || null);
+		}
+	};
+
 	return (
 		<FormField
 			control={control}
@@ -75,12 +99,7 @@ export function FormFileUpload<TFieldValues extends FieldValues>({
 									multiple={multiple}
 									className='hidden'
 									accept={accept}
-									onChange={(e) => {
-										if (e.target.files) {
-											const files = Array.from(e.target.files);
-											field.onChange(multiple ? files : files[0] || null);
-										}
-									}}
+									onChange={(e) => handleFileChange(e, field)}
 								/>
 							</label>
 						</div>
@@ -94,7 +113,7 @@ export function FormFileUpload<TFieldValues extends FieldValues>({
 										onRemove={() => {
 											const newFiles = [...field.value];
 											newFiles.splice(i, 1);
-											field.onChange(newFiles);
+											field.onChange(newFiles.length > 0 ? newFiles : null);
 										}}
 									/>
 							  ))
