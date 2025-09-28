@@ -143,7 +143,12 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 								disabled={isSubmitting}
 							/>
 						</div>
-						<FormFileUpload control={form.control} name='certificate' label='Certificate' accept='.pdf' />
+						<FormFileUpload
+							control={form.control}
+							name='certificate'
+							label='Certificate'
+							accept='.pdf'
+						/>
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
 								Cancel
