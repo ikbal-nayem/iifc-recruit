@@ -11,23 +11,23 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import type { Candidate, AcademicInfo } from '@/lib/types';
-import { PlusCircle, Trash, Save, Edit, FileText, Upload, X } from 'lucide-react';
+import { PlusCircle, Trash, Edit, FileText } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { FormInput } from '@/components/ui/form-input';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { FormFileUpload } from '@/components/ui/form-file-upload';
 
 const academicInfoSchema = z.object({
   degree: z.string().min(1, 'Degree is required.'),
   institution: z.string().min(1, 'Institution is required.'),
   graduationYear: z.coerce.number().min(1950, 'Invalid year.').max(new Date().getFullYear() + 5),
-  certificateFiles: z.any().optional(),
+  certificateFiles: z.array(z.any()).optional(),
 });
 
 type AcademicFormValues = z.infer<typeof academicInfoSchema>;
@@ -35,27 +35,6 @@ type AcademicFormValues = z.infer<typeof academicInfoSchema>;
 interface ProfileFormProps {
   candidate: Candidate;
 }
-
-const FilePreview = ({ file, onRemove }: { file: File | string; onRemove: () => void }) => {
-    const isFile = file instanceof File;
-    const name = isFile ? file.name : file;
-    const size = isFile ? `(${(file.size / 1024).toFixed(1)} KB)` : '';
-
-    return (
-        <div className="p-2 border rounded-lg flex items-center justify-between bg-muted/50">
-            <div className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" />
-                <div className="text-sm">
-                    <p className="font-medium truncate max-w-xs">{name}</p>
-                    {size && <p className="text-xs text-muted-foreground">{size}</p>}
-                </div>
-            </div>
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onRemove}>
-                <X className="h-4 w-4" />
-            </Button>
-        </div>
-    )
-};
 
 
 export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
@@ -129,37 +108,12 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
                             type="number"
                             required
                         />
-                        <FormField
+                        <FormFileUpload
                             control={editForm.control}
                             name="certificateFiles"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Certificates (Multi-file)</FormLabel>
-                                    <FormControl>
-                                        <div className="relative flex items-center justify-center w-full">
-                                            <label htmlFor={`edit-file-upload-${index}`} className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
-                                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                    <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                                                    <p className="text-sm text-muted-foreground">
-                                                        <span className="font-semibold">Click to upload</span> or drag and drop
-                                                    </p>
-                                                </div>
-                                                <Input id={`edit-file-upload-${index}`} type="file" multiple className="hidden" onChange={(e) => field.onChange(Array.from(e.target.files || []))} />
-                                            </label>
-                                        </div>
-                                    </FormControl>
-                                    <div className="space-y-2 mt-2">
-                                        {field.value?.map((file: File, i: number) => (
-                                            <FilePreview key={i} file={file} onRemove={() => {
-                                                const newFiles = [...field.value];
-                                                newFiles.splice(i, 1);
-                                                field.onChange(newFiles);
-                                            }} />
-                                        ))}
-                                    </div>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
+                            label="Certificates"
+                            accept=".pdf"
+                            multiple
                         />
                     </CardContent>
                     <CardFooter className="p-0 pt-4 flex justify-end gap-2">
@@ -252,37 +206,12 @@ export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
                             type="number"
                             required
                         />
-                        <FormField
+                        <FormFileUpload
                             control={form.control}
                             name="certificateFiles"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Certificates (Multi-file)</FormLabel>
-                                    <FormControl>
-                                        <div className="relative flex items-center justify-center w-full">
-                                            <label htmlFor="add-file-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
-                                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                    <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                                                    <p className="text-sm text-muted-foreground">
-                                                        <span className="font-semibold">Click to upload</span> or drag and drop
-                                                    </p>
-                                                </div>
-                                                <Input id="add-file-upload" type="file" multiple className="hidden" onChange={(e) => field.onChange(Array.from(e.target.files || []))} />
-                                            </label>
-                                        </div>
-                                    </FormControl>
-                                    <div className="space-y-2 mt-2">
-                                        {field.value?.map((file: File, i: number) => (
-                                            <FilePreview key={i} file={file} onRemove={() => {
-                                                const newFiles = [...field.value];
-                                                newFiles.splice(i, 1);
-                                                field.onChange(newFiles);
-                                            }} />
-                                        ))}
-                                    </div>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
+                            label="Certificates"
+                            accept=".pdf"
+                            multiple
                         />
                     </CardContent>
                     <CardFooter>

@@ -33,32 +33,34 @@ export function FormDatePicker<TFieldValues extends FieldValues>({
 			name={name}
 			render={({ field }) => (
 				<FormItem>
-					<FormLabel required={required}>{label}</FormLabel>
-					<Popover>
-						<PopoverTrigger asChild>
-							<FormControl>
-								<Button
-									variant={'outline'}
-									className={cn(
-										'w-full pl-3 text-left font-normal',
-										!field.value && 'text-muted-foreground'
-									)}
-								>
-									{field.value ? format(new Date(field.value), 'PPP') : <span>{placeholder || 'Pick a date'}</span>}
-									<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-								</Button>
-							</FormControl>
-						</PopoverTrigger>
-						<PopoverContent className="w-auto p-0" align="start">
-							<Calendar
-								mode="single"
-								selected={field.value ? new Date(field.value) : undefined}
-								onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
-                                initialFocus
-								{...props}
-							/>
-						</PopoverContent>
-					</Popover>
+					<div className='space-y-2'>
+						<FormLabel required={required}>{label}</FormLabel>
+						<Popover>
+							<PopoverTrigger asChild>
+								<FormControl>
+									<Button
+										variant={'outline'}
+										className={cn(
+											'w-full pl-3 text-left font-normal h-11',
+											!field.value && 'text-muted-foreground'
+										)}
+									>
+										{field.value ? format(new Date(field.value), 'PPP') : <span>{placeholder || 'Pick a date'}</span>}
+										<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+									</Button>
+								</FormControl>
+							</PopoverTrigger>
+							<PopoverContent className="w-auto p-0" align="start">
+								<Calendar
+									mode="single"
+									selected={field.value ? new Date(field.value) : undefined}
+									onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
+	                                initialFocus
+									{...props}
+								/>
+							</PopoverContent>
+						</Popover>
+					</div>
 					<FormMessage />
 				</FormItem>
 			)}

@@ -60,12 +60,12 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
            toast({
               title: 'File Too Large',
               description: 'Please upload an image smaller than 10MB.',
-              variant: 'destructive',
+              variant: 'danger',
            });
            return;
         }
         form.setValue('avatarFile', file);
-        if (avatarPreview && avatarPreview !== user.avatar) {
+        if (avatarPreview && avatarPreview.startsWith('blob:')) {
           URL.revokeObjectURL(avatarPreview);
         }
         setAvatarPreview(URL.createObjectURL(file));

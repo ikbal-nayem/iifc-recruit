@@ -1,14 +1,15 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
+import { FormFileUpload } from '@/components/ui/form-file-upload';
 import { FormInput } from '@/components/ui/form-input';
-import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Training } from '@/interfaces/jobseeker.interface';
@@ -26,7 +27,7 @@ const trainingSchema = z
 	.object({
 		name: z.string().min(1, 'Training name is required.'),
 		institutionName: z.string().min(1, 'Institution is required.'),
-		trainingTypeId: z.string().min(1, 'Training type is required.'),
+		trainingTypeId: z.string().optional(),
 		startDate: z.string().min(1, 'Start date is required.'),
 		endDate: z.string().min(1, 'End date is required.'),
 		certificate: z.any().optional(),
@@ -43,7 +44,7 @@ const defaultData = { name: '', institutionName: '', trainingTypeId: '', startDa
 interface TrainingFormProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onSubmit: (data: TrainingFormValues, id?: number) => Promise<boolean>;
+	onSubmit: (data: FormData) => Promise<boolean>;
 	initialData?: Training;
 	noun: string;
 	trainingTypes: ICommonMasterData[];
@@ -52,17 +53,41 @@ interface TrainingFormProps {
 function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTypes }: TrainingFormProps) {
 	const form = useForm<TrainingFormValues>({
 		resolver: zodResolver(trainingSchema),
-		defaultValues: initialData || defaultData,
+		defaultValues: initialData
+			? {
+					...initialData,
+					trainingTypeId: initialData.trainingTypeId?.toString(),
+			  }
+			: defaultData,
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	useEffect(() => {
-		form.reset(initialData || defaultData);
+		form.reset(
+			initialData
+				? {
+						...initialData,
+						trainingTypeId: initialData.trainingTypeId?.toString(),
+				  }
+				: defaultData
+		);
 	}, [initialData, form]);
 
 	const handleSubmit = async (data: TrainingFormValues) => {
 		setIsSubmitting(true);
-		const success = await onSubmit(data, initialData?.id);
+		const formData = new FormData();
+		const payload: any = { ...data, id: initialData?.id };
+
+		if (data.certificate instanceof File) {
+			formData.append('certificate', data.certificate);
+			delete payload.certificate; // Don't send file object in JSON body
+		} else {
+			// If certificate is not a new file, it might be an existing IFile object or null
+			payload.certificate = initialData?.certificate || null;
+		}
+
+		formData.append('body', JSON.stringify(payload));
+		const success = await onSubmit(formData);
 		if (success) {
 			onClose();
 		}
@@ -85,25 +110,23 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 							required
 							disabled={isSubmitting}
 						/>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-							<FormInput
-								control={form.control}
-								name='institutionName'
-								label='Institution'
-								placeholder='e.g., Coursera'
-								required
-								disabled={isSubmitting}
-							/>
-							<FormAutocomplete
-								control={form.control}
-								name='trainingTypeId'
-								label='Training Type'
-								placeholder='Select type'
-								required
-								options={trainingTypes.map((t) => ({ value: t.id!, label: t.name }))}
-								disabled={isSubmitting}
-							/>
-						</div>
+						<FormInput
+							control={form.control}
+							name='institutionName'
+							label='Institution'
+							placeholder='e.g., Coursera'
+							required
+							disabled={isSubmitting}
+						/>
+						<FormAutocomplete
+							control={form.control}
+							name='trainingTypeId'
+							label='Training Type'
+							placeholder='Select type'
+							options={trainingTypes.map((t) => ({ value: t.id!.toString(), label: t.name }))}
+							disabled={isSubmitting}
+						/>
+
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 							<FormDatePicker
 								control={form.control}
@@ -120,22 +143,11 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 								disabled={isSubmitting}
 							/>
 						</div>
-						<FormField
+						<FormFileUpload
 							control={form.control}
 							name='certificate'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Certificate (Optional PDF)</FormLabel>
-									<FormControl>
-										<Input
-											type='file'
-											accept='.pdf'
-											onChange={(e) => field.onChange(e.target.files ? e.target.files[0] : null)}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
+							label='Certificate'
+							accept='.pdf'
 						/>
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
@@ -186,20 +198,9 @@ export function ProfileFormTraining({ trainingTypes }: { trainingTypes: ICommonM
 		setEditingItem(undefined);
 	};
 
-	const handleFormSubmit = async (data: TrainingFormValues, id?: number) => {
-		// In a real app, handle file upload here. For now, we'll just use the name.
-		const certificateUrl = data.certificate
-			? data.certificate.name
-			: id
-			? editingItem?.certificate
-			: undefined;
-		const payload = { ...data, certificateUrl };
-		delete (payload as any).certificate;
-
+	const handleFormSubmit = async (formData: FormData) => {
 		try {
-			const response = id
-				? await JobseekerProfileService.training.update({ ...payload, id })
-				: await JobseekerProfileService.training.add(payload);
+			const response = await JobseekerProfileService.training.save(formData);
 			toast({ description: response.message, variant: 'success' });
 			loadTrainings();
 			return true;

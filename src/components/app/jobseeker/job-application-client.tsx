@@ -5,9 +5,7 @@
 import * as React from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Send, Upload, FileText, X } from 'lucide-react';
+import { Send } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,35 +17,36 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { FormFileUpload } from '@/components/ui/form-file-upload';
+import { Form } from '@/components/ui/form';
+
+const applicationSchema = z.object({
+    coverLetter: z.any().optional(),
+});
+
+type ApplicationFormValues = z.infer<typeof applicationSchema>;
 
 export function JobApplicationClient({ jobTitle }: { jobTitle: string }) {
   const { toast } = useToast();
-  const [coverLetter, setCoverLetter] = React.useState<File | null>(null);
+  
+  const form = useForm<ApplicationFormValues>({
+    resolver: zodResolver(applicationSchema),
+  });
 
-  const handleApply = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  const handleApply = (data: ApplicationFormValues) => {
     // In a real app, you would handle the file upload here.
-    console.log('Applying with cover letter:', coverLetter?.name);
+    console.log('Applying with cover letter:', data.coverLetter?.name);
     toast({
       title: 'Application Submitted!',
       description: `Your application for the ${jobTitle} position has been sent.`,
       variant: 'success',
     });
-    setCoverLetter(null); // Reset after submission
+    form.reset(); // Reset after submission
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file && file.type === 'application/pdf') {
-        setCoverLetter(file);
-    } else if (file) {
-        toast({
-            title: 'Invalid File Type',
-            description: 'Please upload your cover letter as a PDF file.',
-            variant: 'danger',
-        });
-    }
-  };
 
   return (
     <AlertDialog>
@@ -64,41 +63,20 @@ export function JobApplicationClient({ jobTitle }: { jobTitle: string }) {
             You can optionally attach a cover letter (PDF) to your application. Your default profile will be submitted.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <div className="space-y-4 py-4">
-            <div className="grid w-full max-w-sm items-center gap-1.5">
-                <Label htmlFor="cover-letter-upload">Cover Letter (Optional PDF)</Label>
-                {!coverLetter ? (
-                  <div className="relative flex items-center justify-center w-full">
-                      <label htmlFor="cover-letter-upload" className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted">
-                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                              <Upload className="w-6 h-6 mb-2 text-muted-foreground" />
-                              <p className="text-xs text-muted-foreground">
-                                  <span className="font-semibold">Upload Cover Letter</span>
-                              </p>
-                          </div>
-                          <Input id="cover-letter-upload" type="file" className="hidden" accept=".pdf" onChange={handleFileChange} />
-                      </label>
-                  </div>
-                ) : (
-                  <div className="p-2 border rounded-lg flex items-center justify-between bg-muted/50">
-                      <div className="flex items-center gap-2">
-                          <FileText className="h-5 w-5 text-primary" />
-                          <div className="text-sm">
-                              <p className="font-medium truncate max-w-xs">{coverLetter.name}</p>
-                              <p className="text-xs text-muted-foreground">{`${(coverLetter.size / 1024).toFixed(1)} KB`}</p>
-                          </div>
-                      </div>
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setCoverLetter(null)}>
-                          <X className="h-4 w-4" />
-                      </Button>
-                  </div>
-                )}
-            </div>
-        </div>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => setCoverLetter(null)}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleApply}>Confirm & Apply</AlertDialogAction>
-        </AlertDialogFooter>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleApply)} className="space-y-4 py-4">
+                <FormFileUpload
+                    control={form.control}
+                    name="coverLetter"
+                    label="Cover Letter (Optional PDF)"
+                    accept=".pdf"
+                />
+                 <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction type="submit">Confirm & Apply</AlertDialogAction>
+                </AlertDialogFooter>
+            </form>
+        </Form>
       </AlertDialogContent>
     </AlertDialog>
   );

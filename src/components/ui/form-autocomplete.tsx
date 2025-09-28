@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -43,72 +44,20 @@ export function FormAutocomplete<TFieldValues extends FieldValues>({
 
 	if (!control) {
 		return (
-			<div className='space-y-2'>
-				{label && <FormLabel required={required}>{label}</FormLabel>}
-				<Popover open={open} onOpenChange={setOpen}>
-					<PopoverTrigger asChild>
-						<Button
-							variant='outline'
-							role='combobox'
-							className={cn('w-full justify-between', !value && 'text-muted-foreground')}
-							disabled={disabled}
-						>
-							{value ? options.find((option) => option.value === value)?.label : placeholder || 'Select...'}
-							<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-						</Button>
-					</PopoverTrigger>
-					<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
-						<Command>
-							<CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
-							<CommandList>
-								<CommandEmpty>No options found.</CommandEmpty>
-								<CommandGroup>
-									{options.map((option) => (
-										<CommandItem
-											key={option.value}
-											value={option.label}
-											onSelect={() => {
-												if (onValueChange) onValueChange(option.value);
-												setOpen(false);
-											}}
-										>
-											<Check
-												className={cn('mr-2 h-4 w-4', value === option.value ? 'opacity-100' : 'opacity-0')}
-											/>
-											{option.label}
-										</CommandItem>
-									))}
-								</CommandGroup>
-							</CommandList>
-						</Command>
-					</PopoverContent>
-				</Popover>
-			</div>
-		);
-	}
-
-	return (
-		<FormField
-			control={control}
-			name={name}
-			render={({ field }) => (
-				<FormItem>
-					<FormLabel required={required}>{label}</FormLabel>
+			<FormItem>
+				<div className='space-y-2'>
+					{label && <FormLabel required={required}>{label}</FormLabel>}
 					<Popover open={open} onOpenChange={setOpen}>
 						<PopoverTrigger asChild>
-							<FormControl>
-								<Button
-									variant='outline'
-									role='combobox'
-									className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
-									disabled={disabled}
-								>
-									{field.value
-										? options.find((option) => option.value === field.value)?.label
-										: placeholder || 'Select...'}
-									<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-								</Button>
-							</FormControl>
+							<Button
+								variant='outline'
+								role='combobox'
+								className={cn('w-full justify-between h-11', !value && 'text-muted-foreground')}
+								disabled={disabled}
+							>
+								{value ? options.find((option) => option.value === value)?.label : placeholder || 'Select...'}
+								<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+							</Button>
 						</PopoverTrigger>
 						<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
 							<Command>
@@ -121,15 +70,12 @@ export function FormAutocomplete<TFieldValues extends FieldValues>({
 												key={option.value}
 												value={option.label}
 												onSelect={() => {
-													field.onChange(option.value);
+													if (onValueChange) onValueChange(option.value);
 													setOpen(false);
 												}}
 											>
 												<Check
-													className={cn(
-														'mr-2 h-4 w-4',
-														field.value === option.value ? 'opacity-100' : 'opacity-0'
-													)}
+													className={cn('mr-2 h-4 w-4', value === option.value ? 'opacity-100' : 'opacity-0')}
 												/>
 												{option.label}
 											</CommandItem>
@@ -139,6 +85,65 @@ export function FormAutocomplete<TFieldValues extends FieldValues>({
 							</Command>
 						</PopoverContent>
 					</Popover>
+				</div>
+			</FormItem>
+		);
+	}
+
+	return (
+		<FormField
+			control={control}
+			name={name}
+			render={({ field }) => (
+				<FormItem>
+					<div className='space-y-2'>
+						<FormLabel required={required}>{label}</FormLabel>
+						<Popover open={open} onOpenChange={setOpen}>
+							<PopoverTrigger asChild>
+								<FormControl>
+									<Button
+										variant='outline'
+										role='combobox'
+										className={cn('w-full justify-between h-11', !field.value && 'text-muted-foreground')}
+										disabled={disabled}
+									>
+										{field.value
+											? options.find((option) => option.value === field.value)?.label
+											: placeholder || 'Select...'}
+										<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+									</Button>
+								</FormControl>
+							</PopoverTrigger>
+							<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
+								<Command>
+									<CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
+									<CommandList>
+										<CommandEmpty>No options found.</CommandEmpty>
+										<CommandGroup>
+											{options.map((option) => (
+												<CommandItem
+													key={option.value}
+													value={option.label}
+													onSelect={() => {
+														field.onChange(option.value);
+														setOpen(false);
+													}}
+												>
+													<Check
+														className={cn(
+															'mr-2 h-4 w-4',
+															field.value === option.value ? 'opacity-100' : 'opacity-0'
+														)}
+													/>
+													{option.label}
+												</CommandItem>
+											))}
+										</CommandGroup>
+									</CommandList>
+								</Command>
+							</PopoverContent>
+						</Popover>
+					</div>
 					<FormMessage />
 				</FormItem>
 			)}
