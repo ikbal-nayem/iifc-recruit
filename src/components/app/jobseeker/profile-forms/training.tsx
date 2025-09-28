@@ -18,7 +18,7 @@ import { makePreviewURL } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO } from 'date-fns';
-import { Edit, FileText, Loader2, PlusCircle, Trash } from 'lucide-react';
+import { Edit, FileText, Loader2, PlusCircle, Trash, Upload } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -95,14 +95,16 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 								required
 								disabled={isSubmitting}
 							/>
-							<FormAutocomplete
-								control={form.control}
-								name='trainingTypeId'
-								label='Training Type'
-								placeholder='Select type'
-								options={trainingTypes.map((t) => ({ value: t.id!, label: t.name }))}
-								disabled={isSubmitting}
-							/>
+							<div className='space-y-2'>
+								<FormAutocomplete
+									control={form.control}
+									name='trainingTypeId'
+									label='Training Type'
+									placeholder='Select type'
+									options={trainingTypes.map((t) => ({ value: t.id!, label: t.name }))}
+									disabled={isSubmitting}
+								/>
+							</div>
 						</div>
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 							<FormDatePicker
@@ -127,11 +129,26 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 								<FormItem>
 									<FormLabel>Certificate (Optional PDF)</FormLabel>
 									<FormControl>
-										<Input
-											type='file'
-											accept='.pdf'
-											onChange={(e) => field.onChange(e.target.files ? e.target.files[0] : null)}
-										/>
+										<div className='relative flex items-center justify-center w-full'>
+											<label
+												htmlFor='certificate-upload'
+												className='flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted'
+											>
+												<div className='flex flex-col items-center justify-center pt-5 pb-6'>
+													<Upload className='w-8 h-8 mb-2 text-muted-foreground' />
+													<p className='text-sm text-muted-foreground'>
+														<span className='font-semibold'>Click to upload</span> or drag and drop
+													</p>
+												</div>
+												<Input
+													id='certificate-upload'
+													type='file'
+													className='hidden'
+													accept='.pdf'
+													onChange={(e) => field.onChange(e.target.files ? e.target.files[0] : null)}
+												/>
+											</label>
+										</div>
 									</FormControl>
 									<FormMessage />
 								</FormItem>
