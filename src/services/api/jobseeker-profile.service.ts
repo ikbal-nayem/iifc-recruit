@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Publication } from '@/app/(auth)/jobseeker/profile-edit/publications/page';
@@ -7,7 +8,7 @@ import { Award, Language } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { Resume, Training } from '@/lib/types';
 
-const createProfileCrud = <T>(entity: string) => ({
+const createProfileCrud = <T extends { id?: number | string }>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/jobseeker/${entity}/get`),
 
 	add: async (payload: Omit<T, 'id'>): Promise<IApiResponse<T>> =>
@@ -21,7 +22,7 @@ const createProfileCrud = <T>(entity: string) => ({
 });
 
 export const JobseekerProfileService = {
-	publication: createProfileCrud<Omit<Publication, 'userId'>>('publication'),
+	publication: createProfileCrud<Publication>('publication'),
 	language: createProfileCrud<Language>('language'),
 	award: createProfileCrud<Award>('award'),
 	training: createProfileCrud<Training>('training'),
@@ -29,13 +30,13 @@ export const JobseekerProfileService = {
 	getSkills: async (): Promise<IApiResponse<ICommonMasterData[]>> =>
 		await axiosIns.get(`/jobseeker/skill/get-skills`),
 
-	saveSkills: async (payload: { skillIds: (number | undefined)[] }): Promise<IApiResponse<any>> =>
+	saveSkills: async (payload: { skillIds: (number | string | undefined)[] }): Promise<IApiResponse<any>> =>
 		await axiosIns.post('/jobseeker/skill/save-skills', payload),
 
 	resume: {
 		get: async (): Promise<IApiResponse<Resume[]>> => await axiosIns.get('/jobseeker/resume/get'),
 		add: async (formData: FormData): Promise<IApiResponse<Resume>> =>
-			await axiosIns.post('/jobseeker/resume/create', formData, {
+			await axiosIns.post('/jobseeker/resume/update', formData, {
 				headers: { 'Content-Type': 'multipart/form-data' },
 			}),
 		setActive: async (id: string): Promise<IApiResponse<any>> =>
