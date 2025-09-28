@@ -15,7 +15,6 @@ import { Training } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
-import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO } from 'date-fns';
 import { Edit, FileText, Loader2, PlusCircle, Trash } from 'lucide-react';
@@ -154,23 +153,18 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 	);
 }
 
-export function ProfileFormTraining() {
+export function ProfileFormTraining({ trainingTypes }: { trainingTypes: ICommonMasterData[] }) {
 	const { toast } = useToast();
 	const [history, setHistory] = useState<Training[]>([]);
 	const [editingItem, setEditingItem] = useState<Training | undefined>(undefined);
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
-	const [trainingTypes, setTrainingTypes] = useState<ICommonMasterData[]>([]);
 
 	const loadTrainings = React.useCallback(async () => {
 		setIsLoading(true);
 		try {
-			const [trainingsRes, typesRes] = await Promise.all([
-				JobseekerProfileService.training.get(),
-				MasterDataService.trainingType.get(),
-			]);
+			const [trainingsRes] = await Promise.all([JobseekerProfileService.training.get()]);
 			setHistory(trainingsRes.body);
-			setTrainingTypes(typesRes.body);
 		} catch (error) {
 			toast({ description: 'Failed to load trainings.', variant: 'danger' });
 		} finally {

@@ -1,7 +1,10 @@
 
 import { ProfileFormTraining } from '@/components/app/jobseeker/profile-forms/training';
+import { MasterDataService } from '@/services/api/master-data.service';
 
-export default function JobseekerProfileTrainingPage() {
+export default async function JobseekerProfileTrainingPage() {
 
-  return <ProfileFormTraining  />;
+  const res = await MasterDataService.trainingType.get()
+
+  return <ProfileFormTraining trainingTypes={res?.body} />;
 }
