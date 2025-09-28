@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -26,7 +27,7 @@ const trainingSchema = z
 	.object({
 		name: z.string().min(1, 'Training name is required.'),
 		institutionName: z.string().min(1, 'Institution is required.'),
-		trainingTypeId: z.string().min(1, 'Training type is required.'),
+		trainingTypeId: z.string().optional(),
 		startDate: z.string().min(1, 'Start date is required.'),
 		endDate: z.string().min(1, 'End date is required.'),
 		certificate: z.any().optional(),
@@ -99,7 +100,6 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 								name='trainingTypeId'
 								label='Training Type'
 								placeholder='Select type'
-								required
 								options={trainingTypes.map((t) => ({ value: t.id!, label: t.name }))}
 								disabled={isSubmitting}
 							/>
