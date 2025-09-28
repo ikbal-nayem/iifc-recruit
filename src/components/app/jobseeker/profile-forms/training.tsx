@@ -86,26 +86,23 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 							required
 							disabled={isSubmitting}
 						/>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-							<FormInput
-								control={form.control}
-								name='institutionName'
-								label='Institution'
-								placeholder='e.g., Coursera'
-								required
-								disabled={isSubmitting}
-							/>
-							<div className='space-y-2'>
-								<FormAutocomplete
-									control={form.control}
-									name='trainingTypeId'
-									label='Training Type'
-									placeholder='Select type'
-									options={trainingTypes.map((t) => ({ value: t.id!, label: t.name }))}
-									disabled={isSubmitting}
-								/>
-							</div>
-						</div>
+						<FormInput
+							control={form.control}
+							name='institutionName'
+							label='Institution'
+							placeholder='e.g., Coursera'
+							required
+							disabled={isSubmitting}
+						/>
+						<FormAutocomplete
+							control={form.control}
+							name='trainingTypeId'
+							label='Training Type'
+							placeholder='Select type'
+							options={trainingTypes.map((t) => ({ value: t.id!, label: t.name }))}
+							disabled={isSubmitting}
+						/>
+
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 							<FormDatePicker
 								control={form.control}
@@ -122,12 +119,7 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 								disabled={isSubmitting}
 							/>
 						</div>
-						<FormFileUpload
-							control={form.control}
-							name='certificate'
-							label='Certificate'
-							accept='.pdf'
-						/>
+						<FormFileUpload control={form.control} name='certificate' label='Certificate' accept='.pdf' />
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
 								Cancel
