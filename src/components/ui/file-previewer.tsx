@@ -48,7 +48,7 @@ export function FilePreviewer({ file, children, className }: FilePreviewerProps)
 		}
 	};
 
-	const handleOpen = () => {
+	const handleOpen = async () => {
 		if (!canBePreviewed) {
 			handleDownload();
 			return;
@@ -57,19 +57,34 @@ export function FilePreviewer({ file, children, className }: FilePreviewerProps)
 		setIsOpen(true);
 		setIsLoading(true);
 
-		if (isFileObject) {
-			setPreviewUrl(URL.createObjectURL(file));
-			setIsLoading(false);
-		} else {
-			// For IFile, we can use the helper directly
-			setPreviewUrl(makePreviewURL(filePath));
+		try {
+			if (isFileObject) {
+				setPreviewUrl(URL.createObjectURL(file));
+			} else {
+				const response = await fetch(makePreviewURL(filePath));
+				if (!response.ok) {
+					throw new Error('Failed to fetch file for preview');
+				}
+				const blob = await response.blob();
+				setPreviewUrl(URL.createObjectURL(blob));
+			}
+		} catch (error) {
+			console.error('Failed to load file for preview:', error);
+			toast({
+				title: 'Error',
+				description: 'Could not load file for preview.',
+				variant: 'danger',
+			});
+			setIsOpen(false);
+		} finally {
 			setIsLoading(false);
 		}
 	};
 
 	const handleClose = () => {
 		setIsOpen(false);
-		if (previewUrl.startsWith('blob:')) {
+		// Revoke the blob URL to free up memory
+		if (previewUrl && previewUrl.startsWith('blob:')) {
 			URL.revokeObjectURL(previewUrl);
 		}
 		setPreviewUrl('');
@@ -98,25 +113,23 @@ export function FilePreviewer({ file, children, className }: FilePreviewerProps)
 							<Button variant='ghost' size='icon' className='h-8 w-8' onClick={handleDownload}>
 								<Download className='h-4 w-4' />
 							</Button>
-							<Button
-								variant='ghost'
-								size='icon'
-								className='h-8 w-8'
-								onClick={() => window.open(previewUrl, '_blank')}
-							>
-								<ExternalLink className='h-4 w-4' />
-							</Button>
+							{previewUrl && (
+								<Button
+									variant='ghost'
+									size='icon'
+									className='h-8 w-8'
+									onClick={() => window.open(previewUrl, '_blank')}
+								>
+									<ExternalLink className='h-4 w-4' />
+								</Button>
+							)}
 							<Button
 								variant='ghost'
 								size='icon'
 								className='h-8 w-8'
 								onClick={() => setIsMaximized(!isMaximized)}
 							>
-								{isMaximized ? (
-									<Minimize className='h-4 w-4' />
-								) : (
-									<Maximize className='h-4 w-4' />
-								)}
+								{isMaximized ? <Minimize className='h-4 w-4' /> : <Maximize className='h-4 w-4' />}
 							</Button>
 							<Button variant='ghost' size='icon' className='h-8 w-8' onClick={handleClose}>
 								<X className='h-4 w-4' />
@@ -124,7 +137,7 @@ export function FilePreviewer({ file, children, className }: FilePreviewerProps)
 						</div>
 					</DialogHeader>
 
-					<div className='flex-1 flex items-center justify-center overflow-auto'>
+					<div className='flex-1 flex items-center justify-center overflow-auto bg-muted/20'>
 						{isLoading ? (
 							<div className='flex flex-col items-center gap-2'>
 								<Loader2 className='h-8 w-8 animate-spin text-primary' />
@@ -133,18 +146,10 @@ export function FilePreviewer({ file, children, className }: FilePreviewerProps)
 						) : (
 							<>
 								{isFileImage(fileType) && (
-									<img
-										src={previewUrl}
-										alt={fileName}
-										className='max-w-full max-h-full object-contain'
-									/>
+									<img src={previewUrl} alt={fileName} className='max-w-full max-h-full object-contain' />
 								)}
 								{isFilePdf(fileType) && (
-									<iframe
-										src={previewUrl}
-										className='w-full h-full border-0'
-										title={fileName}
-									/>
+									<iframe src={previewUrl} className='w-full h-full border-0' title={fileName} />
 								)}
 							</>
 						)}
