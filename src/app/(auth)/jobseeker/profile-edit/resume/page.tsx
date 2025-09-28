@@ -104,7 +104,7 @@ export default function JobseekerProfileResumePage() {
 	const handleSetActive = async (id: number) => {
 		setIsSubmitting(id);
 		try {
-			const response = await JobseekerProfileService.resume.setActive(id);
+			const response = await JobseekerProfileService.resume.setActive({ resumeId: id });
 			toast({
 				title: 'Active Resume Updated',
 				description: response.message,
