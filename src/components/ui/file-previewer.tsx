@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { IFile } from '@/interfaces/common.interface';
 import { makeDownloadURL, makePreviewURL } from '@/lib/utils';
@@ -99,6 +99,7 @@ export function FilePreviewer({ file, children, className }: FilePreviewerProps)
 
 			<Dialog open={isOpen} onOpenChange={handleClose}>
 				<DialogContent
+					hideClose
 					onPointerDownOutside={(e) => e.preventDefault()}
 					className={cn(
 						'flex flex-col p-0 gap-0 transition-all duration-300',
