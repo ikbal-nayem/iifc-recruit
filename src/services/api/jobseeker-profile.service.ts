@@ -3,9 +3,9 @@
 
 import { axiosIns } from '@/config/api.config';
 import { IApiResponse } from '@/interfaces/common.interface';
-import { Award, Language } from '@/interfaces/jobseeker.interface';
+import { Award, Language, Publication, Training } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
-import { Publication, Resume, Training } from '@/lib/types';
+import { Resume } from '@/lib/types';
 
 const createProfileCrud = <T extends { id?: number | string }>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/jobseeker/${entity}/get`),
@@ -38,8 +38,8 @@ export const JobseekerProfileService = {
 			await axiosIns.post('/jobseeker/resume/upload', formData, {
 				headers: { 'Content-Type': 'multipart/form-data' },
 			}),
-		setActive: async (payload: { resumeId: number }): Promise<IApiResponse<any>> =>
-			await axiosIns.post('/jobseeker/resume/toggle-active-status', payload),
+		setActive: async (resumeId: number): Promise<IApiResponse<any>> =>
+			await axiosIns.post(`/jobseeker/resume/toggle-active-status?resumeId=${resumeId}`),
 		delete: async (id: number): Promise<IApiResponse<void>> =>
 			await axiosIns.delete(`/jobseeker/resume/delete/${id}`),
 	},
