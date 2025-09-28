@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Upload, FileText, X, CheckCircle, Trash, Loader2, Download, Star } from 'lucide-react';
+import { Upload, FileText, X, CheckCircle, Trash, Loader2, Download, History } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,8 +16,12 @@ import { Resume } from '@/lib/types';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
-import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 
 const resumeSchema = z.object({
 	resumeFile: z
@@ -191,7 +195,7 @@ export default function JobseekerProfileResumePage() {
 							{form.watch('resumeFile') && (
 								<FilePreview
 									file={form.watch('resumeFile')}
-									onRemove={() => form.setValue('resumeFile', null)}
+									onRemove={() => form.reset({ resumeFile: null })}
 								/>
 							)}
 							<Button type='submit' disabled={isUploading || !form.formState.isValid}>
@@ -239,63 +243,72 @@ export default function JobseekerProfileResumePage() {
 					</Card>
 				)
 			)}
+			
+			{!isLoading && historyResumes.length > 0 && (
+				<Collapsible>
+					<div className="flex justify-center">
+						<CollapsibleTrigger asChild>
+							<Button variant="ghost" className="text-muted-foreground">
+								<History className="mr-2 h-4 w-4" />
+								View Resume History ({historyResumes.length})
+							</Button>
+						</CollapsibleTrigger>
+					</div>
 
-			<Card className='glassmorphism'>
-				<CardHeader>
-					<CardTitle>Resume History</CardTitle>
-					<CardDescription>Manage your previously uploaded resumes.</CardDescription>
-				</CardHeader>
-				<CardContent className='space-y-2'>
-					{isLoading ? (
-						[...Array(2)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
-					) : historyResumes.length > 0 ? (
-						historyResumes.map((resume) => (
-							<div
-								key={resume.id}
-								className='p-4 border rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4'
-							>
-								<div className='flex items-center gap-4'>
-									<FileText className='h-8 w-8 text-muted-foreground' />
-									<div>
-										<p className='font-medium'>{resume.file.originalFileName}</p>
-										<p className='text-sm text-muted-foreground'>
-											{resume.createdOn ? `Uploaded on ${format(new Date(resume.createdOn), 'PPP')}` : ''}
-										</p>
-									</div>
-								</div>
-								<div className='flex gap-2 self-end sm:self-center'>
-									<Button
-										variant='outline'
-										size='sm'
-										onClick={() => handleSetActive(resume.id!)}
-										disabled={!!isSubmitting}
+					<CollapsibleContent>
+						<Card className='glassmorphism mt-4'>
+							<CardHeader>
+								<CardTitle>Resume History</CardTitle>
+								<CardDescription>Manage your previously uploaded resumes.</CardDescription>
+							</CardHeader>
+							<CardContent className='space-y-2'>
+								{historyResumes.map((resume) => (
+									<div
+										key={resume.id}
+										className='p-4 border rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center'
 									>
-										{isSubmitting === resume.id ? (
-											<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-										) : (
-											<Star className='mr-2 h-4 w-4' />
-										)}
-										Set Active
-									</Button>
-									<ConfirmationDialog
-										trigger={
-											<Button variant='ghost' size='icon' disabled={!!isSubmitting}>
-												<Trash className='h-4 w-4 text-danger' />
+										<div className='flex items-center gap-4'>
+											<FileText className='h-8 w-8 text-muted-foreground' />
+											<div>
+												<p className='font-medium'>{resume.file.originalFileName}</p>
+												<p className='text-sm text-muted-foreground'>
+													{resume.createdOn ? `Uploaded on ${format(new Date(resume.createdOn), 'PPP')}` : ''}
+												</p>
+											</div>
+										</div>
+										<div className='flex gap-2 self-end sm:self-center mt-2 sm:mt-0'>
+											<Button
+												variant='outline'
+												size='sm'
+												onClick={() => handleSetActive(resume.id!)}
+												disabled={!!isSubmitting}
+											>
+												{isSubmitting === resume.id ? (
+													<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+												) : (
+													<CheckCircle className='mr-2 h-4 w-4' />
+												)}
+												Set Active
 											</Button>
-										}
-										title='Are you sure?'
-										description={`This will permanently delete the resume "${resume.file.originalFileName}".`}
-										onConfirm={() => handleDelete(resume.id!)}
-										confirmText='Delete'
-									/>
-								</div>
-							</div>
-						))
-					) : (
-						<p className='text-center text-muted-foreground py-4'>No other resumes found.</p>
-					)}
-				</CardContent>
-			</Card>
+											<ConfirmationDialog
+												trigger={
+													<Button variant='ghost' size='icon' disabled={!!isSubmitting}>
+														<Trash className='h-4 w-4 text-danger' />
+													</Button>
+												}
+												title='Are you sure?'
+												description={`This will permanently delete the resume "${resume.file.originalFileName}".`}
+												onConfirm={() => handleDelete(resume.id!)}
+												confirmText='Delete'
+											/>
+										</div>
+									</div>
+								))}
+							</CardContent>
+						</Card>
+					</CollapsibleContent>
+				</Collapsible>
+			)}
 		</div>
 	);
 }
