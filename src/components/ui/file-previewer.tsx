@@ -105,7 +105,7 @@ export function FilePreviewer({ file, children, className }: FilePreviewerProps)
 						isMaximized ? 'w-screen h-screen max-w-none rounded-none' : 'max-w-4xl h-[90vh]'
 					)}
 				>
-					<DialogHeader className='flex-row items-center justify-between p-4 border-b bg-muted/50 rounded-t-lg'>
+					<div className='flex items-center justify-between p-4 border-b bg-muted/50 rounded-t-lg'>
 						<DialogTitle className='truncate' title={fileName}>
 							{fileName}
 						</DialogTitle>
@@ -131,8 +131,11 @@ export function FilePreviewer({ file, children, className }: FilePreviewerProps)
 							>
 								{isMaximized ? <Minimize className='h-4 w-4' /> : <Maximize className='h-4 w-4' />}
 							</Button>
+							<Button variant='ghost' size='icon' className='h-8 w-8' onClick={handleClose}>
+								<X className='h-4 w-4' />
+							</Button>
 						</div>
-					</DialogHeader>
+					</div>
 
 					<div className='flex-1 flex items-center justify-center overflow-auto bg-muted/20'>
 						{isLoading ? (
