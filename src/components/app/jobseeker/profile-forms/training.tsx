@@ -18,7 +18,7 @@ import { makePreviewURL } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO } from 'date-fns';
-import { Edit, FileText, Loader2, PlusCircle, Trash, Upload } from 'lucide-react';
+import { Edit, FileText, Loader2, PlusCircle, Trash, Upload, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -40,6 +40,28 @@ const trainingSchema = z
 type TrainingFormValues = z.infer<typeof trainingSchema>;
 
 const defaultData = { name: '', institutionName: '', trainingTypeId: '', startDate: '', endDate: '' };
+
+const FilePreview = ({ file, onRemove }: { file: File | string; onRemove: () => void }) => {
+    const isFile = file instanceof File;
+    const name = isFile ? file.name : file;
+    const size = isFile ? `(${(file.size / 1024).toFixed(1)} KB)` : '';
+
+    return (
+        <div className="p-2 border rounded-lg flex items-center justify-between bg-muted/50">
+            <div className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-primary" />
+                <div className="text-sm">
+                    <p className="font-medium truncate max-w-xs">{name}</p>
+                    {size && <p className="text-xs text-muted-foreground">{size}</p>}
+                </div>
+            </div>
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onRemove}>
+                <X className="h-4 w-4" />
+            </Button>
+        </div>
+    )
+};
+
 
 interface TrainingFormProps {
 	isOpen: boolean;
@@ -150,6 +172,11 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 											</label>
 										</div>
 									</FormControl>
+                                    {field.value && (
+                                        <div className="mt-2">
+                                            <FilePreview file={field.value} onRemove={() => field.onChange(null)} />
+                                        </div>
+                                    )}
 									<FormMessage />
 								</FormItem>
 							)}
