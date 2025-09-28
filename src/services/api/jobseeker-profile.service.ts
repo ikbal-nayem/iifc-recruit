@@ -36,7 +36,7 @@ export const JobseekerProfileService = {
 	resume: {
 		get: async (): Promise<IApiResponse<Resume[]>> => await axiosIns.get('/jobseeker/resume/get'),
 		add: async (formData: FormData): Promise<IApiResponse<Resume>> =>
-			await axiosIns.post('/jobseeker/resume/update', formData, {
+			await axiosIns.post('/jobseeker/resume/upload', formData, {
 				headers: { 'Content-Type': 'multipart/form-data' },
 			}),
 		setActive: async (id: string): Promise<IApiResponse<any>> =>

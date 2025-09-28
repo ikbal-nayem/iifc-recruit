@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -58,7 +59,7 @@ export default function JobseekerProfileResumePage() {
 		setIsLoading(true);
 		try {
 			const response = await JobseekerProfileService.resume.get();
-			setResumes(response.body);
+			setResumes(response.body || []);
 		} catch (error) {
 			toast({
 				title: 'Error',
@@ -221,7 +222,7 @@ export default function JobseekerProfileResumePage() {
 									<div>
 										<p className='font-medium'>{activeResume.fileName}</p>
 										<p className='text-sm text-muted-foreground'>
-											Uploaded on {format(new Date(activeResume.createdAt), 'PPP')}
+											{activeResume.createdAt ? `Uploaded on ${format(new Date(activeResume.createdAt), 'PPP')}` : ''}
 										</p>
 									</div>
 								</div>
@@ -258,7 +259,7 @@ export default function JobseekerProfileResumePage() {
 									<div>
 										<p className='font-medium'>{resume.fileName}</p>
 										<p className='text-sm text-muted-foreground'>
-											Uploaded on {format(new Date(resume.createdAt), 'PPP')}
+											{resume.createdAt ? `Uploaded on ${format(new Date(resume.createdAt), 'PPP')}` : ''}
 										</p>
 									</div>
 								</div>
