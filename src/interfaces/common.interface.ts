@@ -36,3 +36,12 @@ export interface IApiRequest {
 	body?: IObject;
 	meta?: Partial<IMeta>;
 }
+
+export interface IFile {
+	id: number;
+	originalFileName: string;
+	fileName: string;
+	fileType: string;
+	filePath: string;
+	fileSize: string;
+}

@@ -10,7 +10,7 @@ import { FormInput } from '@/components/ui/form-input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Award } from '@/interfaces/jobseeker.interface';
-import { makeAppDateFormat } from '@/lib/utils';
+import { makeReqDateFormat } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
@@ -40,12 +40,12 @@ interface AwardFormProps {
 function AwardForm({ isOpen, onClose, onSubmit, initialData, noun }: AwardFormProps) {
 	const form = useForm<AwardFormValues>({
 		resolver: zodResolver(awardSchema),
-		defaultValues: initialData ? { ...initialData, date: makeAppDateFormat(initialData.date) } : defaultData,
+		defaultValues: initialData ? { ...initialData, date: makeReqDateFormat(initialData.date) } : defaultData,
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	useEffect(() => {
-		form.reset(initialData ? { ...initialData, date: makeAppDateFormat(initialData.date) } : defaultData);
+		form.reset(initialData ? { ...initialData, date: makeReqDateFormat(initialData.date) } : defaultData);
 	}, [initialData, form]);
 
 	const handleSubmit = async (data: AwardFormValues) => {
