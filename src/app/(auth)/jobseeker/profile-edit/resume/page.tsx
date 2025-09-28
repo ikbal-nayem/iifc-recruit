@@ -49,7 +49,7 @@ export default function JobseekerProfileResumePage() {
 	const [resumes, setResumes] = React.useState<Resume[]>([]);
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [isUploading, setIsUploading] = React.useState(false);
-	const [isSubmitting, setIsSubmitting] = React.useState<string | null>(null);
+	const [isSubmitting, setIsSubmitting] = React.useState<number | null>(null);
 
 	const form = useForm<ResumeFormValues>({
 		resolver: zodResolver(resumeSchema),
@@ -99,7 +99,7 @@ export default function JobseekerProfileResumePage() {
 		}
 	};
 
-	const handleSetActive = async (id: string) => {
+	const handleSetActive = async (id: number) => {
 		setIsSubmitting(id);
 		try {
 			const response = await JobseekerProfileService.resume.setActive(id);
@@ -120,7 +120,7 @@ export default function JobseekerProfileResumePage() {
 		}
 	};
 
-	const handleDelete = async (id: string) => {
+	const handleDelete = async (id: number) => {
 		setIsSubmitting(id);
 		try {
 			const response = await JobseekerProfileService.resume.delete(id);
@@ -220,15 +220,15 @@ export default function JobseekerProfileResumePage() {
 								<div className='flex items-center gap-4'>
 									<FileText className='h-8 w-8 text-primary' />
 									<div>
-										<p className='font-medium'>{activeResume.fileName}</p>
+										<p className='font-medium'>{activeResume.file.originalFileName}</p>
 										<p className='text-sm text-muted-foreground'>
-											{activeResume.createdAt ? `Uploaded on ${format(new Date(activeResume.createdAt), 'PPP')}` : ''}
+											{activeResume.createdOn ? `Uploaded on ${format(new Date(activeResume.createdOn), 'PPP')}` : ''}
 										</p>
 									</div>
 								</div>
 								<div className='flex gap-2 self-end sm:self-center'>
 									<Button variant='outline' size='sm' asChild>
-										<a href={activeResume.url} target='_blank' rel='noopener noreferrer'>
+										<a href={activeResume.file.filePath} target='_blank' rel='noopener noreferrer'>
 											<Download className='mr-2 h-4 w-4' />
 											Download
 										</a>
@@ -257,9 +257,9 @@ export default function JobseekerProfileResumePage() {
 								<div className='flex items-center gap-4'>
 									<FileText className='h-8 w-8 text-muted-foreground' />
 									<div>
-										<p className='font-medium'>{resume.fileName}</p>
+										<p className='font-medium'>{resume.file.originalFileName}</p>
 										<p className='text-sm text-muted-foreground'>
-											{resume.createdAt ? `Uploaded on ${format(new Date(resume.createdAt), 'PPP')}` : ''}
+											{resume.createdOn ? `Uploaded on ${format(new Date(resume.createdOn), 'PPP')}` : ''}
 										</p>
 									</div>
 								</div>
@@ -284,7 +284,7 @@ export default function JobseekerProfileResumePage() {
 											</Button>
 										}
 										title='Are you sure?'
-										description={`This will permanently delete the resume "${resume.fileName}".`}
+										description={`This will permanently delete the resume "${resume.file.originalFileName}".`}
 										onConfirm={() => handleDelete(resume.id!)}
 										confirmText='Delete'
 									/>

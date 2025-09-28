@@ -80,12 +80,20 @@ export type Training = {
 	certificateUrl?: string;
 };
 
-export type Resume = {
-    id: string;
+export type FileDetails = {
+    id: number;
+    originalFileName: string;
     fileName: string;
-    url: string;
+    fileType: string;
+    filePath: string;
+    fileSize: string;
+}
+
+export type Resume = {
+    id: number;
+    createdOn: string;
+    file: FileDetails;
     isActive: boolean;
-    createdAt: string;
 }
 
 export type Candidate = {

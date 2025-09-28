@@ -39,9 +39,9 @@ export const JobseekerProfileService = {
 			await axiosIns.post('/jobseeker/resume/upload', formData, {
 				headers: { 'Content-Type': 'multipart/form-data' },
 			}),
-		setActive: async (id: string): Promise<IApiResponse<any>> =>
+		setActive: async (id: number): Promise<IApiResponse<any>> =>
 			await axiosIns.put(`/jobseeker/resume/set-active/${id}`),
-		delete: async (id: string): Promise<IApiResponse<void>> =>
+		delete: async (id: number): Promise<IApiResponse<void>> =>
 			await axiosIns.delete(`/jobseeker/resume/delete/${id}`),
 	},
 };
