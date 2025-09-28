@@ -23,7 +23,16 @@ export const JobseekerProfileService = {
 	publication: createProfileCrud<Publication>('publication'),
 	language: createProfileCrud<Language>('language'),
 	award: createProfileCrud<Award>('award'),
-	training: createProfileCrud<Training>('training'),
+
+	training: {
+		get: async (): Promise<IApiResponse<Training[]>> => await axiosIns.get('/jobseeker/training/get'),
+		save: async (formData: FormData): Promise<IApiResponse<Training>> =>
+			await axiosIns.post('/jobseeker/training/save', formData, {
+				headers: { 'Content-Type': 'multipart/form-data' },
+			}),
+		delete: async (id: number): Promise<IApiResponse<void>> =>
+			await axiosIns.delete(`/jobseeker/training/delete/${id}`),
+	},
 
 	getSkills: async (): Promise<IApiResponse<ICommonMasterData[]>> =>
 		await axiosIns.get(`/jobseeker/skill/get-skills`),
