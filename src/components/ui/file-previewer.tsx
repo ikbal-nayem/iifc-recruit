@@ -146,10 +146,10 @@ export function FilePreviewer({ file, children, className }: FilePreviewerProps)
 							</div>
 						) : (
 							<>
-								{isFileImage(fileType) && (
+								{isFileImage(fileType) && previewUrl && (
 									<img src={previewUrl} alt={fileName} className='max-w-full max-h-full object-contain' />
 								)}
-								{isFilePdf(fileType) && (
+								{isFilePdf(fileType) && previewUrl && (
 									<iframe src={previewUrl} className='w-full h-full border-0' title={fileName} />
 								)}
 							</>
