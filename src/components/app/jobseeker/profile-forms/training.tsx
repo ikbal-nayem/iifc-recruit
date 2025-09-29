@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { FilePreviewer } from '@/components/ui/file-previewer';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
@@ -22,7 +23,6 @@ import { Edit, FileText, Loader2, PlusCircle, Trash } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { FilePreviewer } from '@/components/ui/file-previewer';
 
 const trainingSchema = z
 	.object({
@@ -31,7 +31,7 @@ const trainingSchema = z
 		trainingTypeId: z.string().optional(),
 		startDate: z.string().min(1, 'Start date is required.'),
 		endDate: z.string().min(1, 'End date is required.'),
-		certificate: z.any().optional(),
+		certificateFile: z.any().optional(),
 	})
 	.refine((data) => new Date(data.startDate) <= new Date(data.endDate), {
 		message: 'End date cannot be before start date.',
@@ -56,10 +56,10 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 		resolver: zodResolver(trainingSchema),
 		defaultValues: initialData
 			? {
-					...initialData,
-					trainingTypeId: initialData.trainingTypeId?.toString(),
-					certificate: initialData.certificate,
-			  }
+				...initialData,
+				trainingTypeId: initialData.trainingTypeId?.toString(),
+				certificateFile: initialData.certificateFile,
+			}
 			: defaultData,
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -68,10 +68,9 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 		form.reset(
 			initialData
 				? {
-						...initialData,
-						trainingTypeId: initialData.trainingTypeId?.toString(),
-						certificate: initialData.certificate,
-				  }
+					...initialData,
+					trainingTypeId: initialData.trainingTypeId?.toString(),
+				}
 				: defaultData
 		);
 	}, [initialData, form]);
@@ -81,7 +80,6 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 		const payload: Training = {
 			...data,
 			id: initialData?.id,
-			certificate: data.certificate || initialData?.certificate, // Preserve existing certificate if new one isn't uploaded
 		};
 
 		onSubmit(payload)
@@ -142,8 +140,8 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 						</div>
 						<FormFileUpload
 							control={form.control}
-							name='certificate'
-							label='Certificate'
+							name='certificateFile'
+							label='CertificateFile'
 							accept='.pdf, .image/*'
 						/>
 						<DialogFooter className='pt-4'>
@@ -229,11 +227,11 @@ export function ProfileFormTraining({ trainingTypes }: { trainingTypes: ICommonM
 					<p className='text-xs text-muted-foreground'>
 						{format(parseISO(item.startDate), 'MMM yyyy')} - {format(parseISO(item.endDate), 'MMM yyyy')}
 					</p>
-					{item.certificate && (
-						<FilePreviewer file={item.certificate}>
+					{item.certificateFile && (
+						<FilePreviewer file={item.certificateFile}>
 							<button className='text-xs text-primary hover:underline flex items-center gap-1 mt-1'>
 								<FileText className='h-3 w-3' />
-								View Certificate
+								View CertificateFile
 							</button>
 						</FilePreviewer>
 					)}
@@ -297,4 +295,3 @@ export function ProfileFormTraining({ trainingTypes }: { trainingTypes: ICommonM
 	);
 }
 
-    
