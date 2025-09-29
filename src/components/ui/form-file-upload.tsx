@@ -8,6 +8,7 @@ import { Upload, FileText, X } from 'lucide-react';
 import { Button } from './button';
 import * as React from 'react';
 import { IFile } from '@/interfaces/common.interface';
+import { Card, CardContent } from './card';
 
 interface FilePreviewProps {
 	file: File | IFile;
@@ -20,18 +21,26 @@ const FilePreview = ({ file, onRemove }: FilePreviewProps) => {
 	const size = isFileObject ? `(${(file.size / 1024).toFixed(1)} KB)` : '';
 
 	return (
-		<div className='p-2 border rounded-lg flex items-center justify-between bg-muted/50 mt-2'>
-			<div className='flex items-center gap-2'>
-				<FileText className='h-5 w-5 text-primary' />
-				<div className='text-sm'>
-					<p className='font-medium truncate max-w-xs'>{name}</p>
-					{size && <p className='text-xs text-muted-foreground'>{size}</p>}
+		<Card className='mt-2 overflow-hidden bg-muted/50'>
+			<CardContent className='p-3'>
+				<div className='flex items-center justify-between'>
+					<div className='flex items-center gap-3'>
+						<div className='bg-primary/10 text-primary p-2 rounded-md'>
+							<FileText className='h-6 w-6' />
+						</div>
+						<div className='text-sm'>
+							<p className='font-semibold truncate max-w-xs' title={name}>
+								{name}
+							</p>
+							{size && <p className='text-xs text-muted-foreground'>{size}</p>}
+						</div>
+					</div>
+					<Button variant='ghost' size='icon' className='h-8 w-8 text-muted-foreground' onClick={onRemove}>
+						<X className='h-4 w-4' />
+					</Button>
 				</div>
-			</div>
-			<Button variant='ghost' size='icon' className='h-6 w-6' onClick={onRemove}>
-				<X className='h-4 w-4' />
-			</Button>
-		</div>
+			</CardContent>
+		</Card>
 	);
 };
 
