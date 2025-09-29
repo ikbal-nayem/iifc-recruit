@@ -3,8 +3,9 @@
 
 import { axiosIns } from '@/config/api.config';
 import { IApiResponse } from '@/interfaces/common.interface';
-import { Award, Language, Publication, Resume, Training } from '@/interfaces/jobseeker.interface';
+import { Award, Certification, Language, Publication, Resume, Training } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { makeFormData } from '@/lib/utils';
 
 const createProfileCrud = <T extends { id?: number | string }>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/jobseeker/${entity}/get`),
@@ -33,7 +34,15 @@ export const JobseekerProfileService = {
 		delete: async (id: number): Promise<IApiResponse<void>> =>
 			await axiosIns.delete(`/jobseeker/training/delete/${id}`),
 	},
-
+	certification: {
+		get: async (): Promise<IApiResponse<Certification[]>> => await axiosIns.get('/jobseeker/certification/get'),
+		save: async (formData: FormData): Promise<IApiResponse<Certification>> =>
+			await axiosIns.post('/jobseeker/certification/save', formData, {
+				headers: { 'Content-Type': 'multipart/form-data' },
+			}),
+		delete: async (id: number): Promise<IApiResponse<void>> =>
+			await axiosIns.delete(`/jobseeker/certification/delete/${id}`),
+	},
 	getSkills: async (): Promise<IApiResponse<ICommonMasterData[]>> =>
 		await axiosIns.get(`/jobseeker/skill/get-skills`),
 
