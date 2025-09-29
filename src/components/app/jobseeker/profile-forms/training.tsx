@@ -76,10 +76,13 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 
 	const handleSubmit = (data: TrainingFormValues) => {
 		setIsSubmitting(true);
-		onSubmit({
+		const payload: Training = {
 			...data,
 			id: initialData?.id,
-		})
+			certificate: data.certificate || initialData?.certificate, // Preserve existing certificate if new one isn't uploaded
+		};
+
+		onSubmit(payload)
 			.then(() => {
 				onClose();
 			})
