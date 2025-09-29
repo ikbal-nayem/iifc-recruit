@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -17,7 +16,6 @@ import { Certification } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makeFormData } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
-import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO } from 'date-fns';
 import { Edit, FileText, Loader2, PlusCircle, Trash } from 'lucide-react';
@@ -27,9 +25,8 @@ import * as z from 'zod';
 
 const certificationSchema = z
 	.object({
-		name: z.string().min(1, 'Certificate name is required.'),
 		issuingAuthority: z.string().min(1, 'Issuing organization is required.'),
-		certificationTypeId: z.string().optional(),
+		certificationId: z.string().optional(),
 		examDate: z.string().optional(),
 		issueDate: z.string().optional(),
 		expireDate: z.string().optional(),
@@ -65,9 +62,8 @@ const certificationSchema = z
 type CertificationFormValues = z.infer<typeof certificationSchema>;
 
 const defaultData: CertificationFormValues = {
-	name: '',
 	issuingAuthority: '',
-	certificationTypeId: '',
+	certificationId: '',
 	examDate: '',
 	issueDate: '',
 	expireDate: '',
@@ -96,7 +92,7 @@ function CertificationForm({
 	const form = useForm<CertificationFormValues>({
 		resolver: zodResolver(certificationSchema),
 		defaultValues: initialData
-			? { ...initialData, certificationTypeId: initialData.certificationTypeId?.toString() }
+			? { ...initialData, certificationId: initialData.certificationId?.toString() }
 			: defaultData,
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -106,7 +102,7 @@ function CertificationForm({
 			initialData
 				? {
 						...initialData,
-						certificationTypeId: initialData.certificationTypeId?.toString(),
+						certificationId: initialData.certificationId?.toString(),
 				  }
 				: defaultData
 		);
@@ -117,8 +113,7 @@ function CertificationForm({
 		const payload: Certification = {
 			...data,
 			id: initialData?.id,
-			certificationTypeId: data.certificationTypeId ? parseInt(data.certificationTypeId) : undefined,
-			certificateFile: data.certificateFile,
+			certificationId: data.certificationId ? parseInt(data.certificationId) : undefined,
 		};
 		onSubmit(payload)
 			.then(() => onClose())
@@ -133,12 +128,12 @@ function CertificationForm({
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4'>
-						<FormInput
+						<FormAutocomplete
 							control={form.control}
-							name='name'
-							label='Certificate Name'
-							placeholder='e.g., Certified React Developer'
-							required
+							name='certificationId'
+							label='Certification'
+							placeholder='Select Certification'
+							options={certificationTypes.map((t) => ({ value: t.id!.toString(), label: t.name }))}
 							disabled={isSubmitting}
 						/>
 						<FormInput
@@ -147,14 +142,6 @@ function CertificationForm({
 							label='Issuing Authority'
 							placeholder='e.g., Vercel'
 							required
-							disabled={isSubmitting}
-						/>
-						<FormAutocomplete
-							control={form.control}
-							name='certificationTypeId'
-							label='Certification Type'
-							placeholder='Select type'
-							options={certificationTypes.map((t) => ({ value: t.id!.toString(), label: t.name }))}
 							disabled={isSubmitting}
 						/>
 						<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
@@ -205,23 +192,18 @@ function CertificationForm({
 	);
 }
 
-export default function ProfileFormCertifications() {
+export default function ProfileFormCertifications({ certification }: { certification: ICommonMasterData[] }) {
 	const { toast } = useToast();
 	const [history, setHistory] = useState<Certification[]>([]);
 	const [editingItem, setEditingItem] = useState<Certification | undefined>(undefined);
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
-	const [certificationTypes, setCertificationTypes] = useState<ICommonMasterData[]>([]);
 
 	const loadData = React.useCallback(async () => {
 		setIsLoading(true);
 		try {
-			const [certRes, typesRes] = await Promise.all([
-				JobseekerProfileService.certification.get(),
-				MasterDataService.certification.get(),
-			]);
+			const [certRes] = await Promise.all([JobseekerProfileService.certification.get()]);
 			setHistory(certRes.body);
-			setCertificationTypes(typesRes.body);
 		} catch (error) {
 			toast({
 				description: 'Failed to load certifications.',
@@ -253,7 +235,7 @@ export default function ProfileFormCertifications() {
 			loadData();
 			return true;
 		} catch (error: any) {
-			toast({ title: 'Error', description: error.message || 'An error occurred.', variant: 'danger' });
+			toast({ description: error.message || 'An error occurred.', variant: 'danger' });
 			return false;
 		}
 	};
@@ -265,7 +247,6 @@ export default function ProfileFormCertifications() {
 			loadData();
 		} catch (error: any) {
 			toast({
-				title: 'Error',
 				description: error.message || 'Failed to delete certification.',
 				variant: 'danger',
 			});
@@ -276,7 +257,7 @@ export default function ProfileFormCertifications() {
 		return (
 			<Card key={item.id} className='p-4 flex justify-between items-start'>
 				<div>
-					<p className='font-semibold'>{item.name}</p>
+					<p className='font-semibold'>{item.certification?.name}</p>
 					<p className='text-sm text-muted-foreground'>{item.issuingAuthority}</p>
 					{item.issueDate && (
 						<p className='text-xs text-muted-foreground'>
@@ -350,7 +331,7 @@ export default function ProfileFormCertifications() {
 					onSubmit={handleFormSubmit}
 					initialData={editingItem}
 					noun='Certification'
-					certificationTypes={certificationTypes}
+					certificationTypes={certification}
 				/>
 			)}
 		</div>

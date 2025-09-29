@@ -1,6 +1,5 @@
-
-import { IFile, ProficiancyLevel } from "./common.interface";
-import { ICommonMasterData } from "./master-data.interface";
+import { IFile, ProficiancyLevel } from './common.interface';
+import { ICommonMasterData } from './master-data.interface';
 
 export type Language = {
 	id?: number;
@@ -32,15 +31,14 @@ export type Training = {
 	trainingType?: ICommonMasterData;
 	startDate: string;
 	endDate: string;
-	certificate?: IFile | File;
+	certificateFile?: IFile | File;
 };
 
 export type Certification = {
 	id?: number;
-	name: string;
+	certification?: ICommonMasterData;
+	certificationId?: number;
 	issuingAuthority: string;
-	certificationTypeId?: number;
-	certificationType?: ICommonMasterData;
 	examDate?: string;
 	issueDate?: string;
 	expireDate?: string;
@@ -48,7 +46,6 @@ export type Certification = {
 	outOf?: string;
 	certificateFile?: IFile | File;
 };
-
 
 export type Resume = {
 	id: number;

@@ -1,7 +1,6 @@
-
 import { ProficiancyLevel } from '@/interfaces/common.interface';
-import { addDays, format, subDays, subMonths, subWeeks, subYears } from 'date-fns';
-import type { Activity, Application, Candidate, Job, Resume } from './types';
+import { addDays, format, subDays, subMonths, subYears } from 'date-fns';
+import type { Activity, Application, Candidate, Job } from './types';
 
 export const proficiencyOptions = [
 	{ label: 'Beginner', value: ProficiancyLevel.BEGINNER },
@@ -9,11 +8,6 @@ export const proficiencyOptions = [
 	{ label: 'Advanced', value: ProficiancyLevel.ADVANCED },
 	{ label: 'Native', value: ProficiancyLevel.NATIVE },
 ];
-
-export const resumes: Resume[] = [
-    // { id: 'res1', fileName: 'Alice_Johnson_Frontend_Resume_2024.pdf', url: '/resumes/alice_johnson_resume.pdf', isActive: true, createdAt: format(subDays(new Date(), 10), 'yyyy-MM-dd') },
-    // { id: 'res2', fileName: 'Alice_Johnson_FullStack_Resume_2023.pdf', url: '/resumes/alice_johnson_resume_old.pdf', isActive: false, createdAt: format(subMonths(new Date(), 6), 'yyyy-MM-dd') }
-]
 
 export const candidates: Candidate[] = [
 	{
@@ -100,7 +94,7 @@ export const candidates: Candidate[] = [
 		],
 		awards: [{ id: 1, name: 'Developer of the Year', description: 'TechCorp', date: '2021-12-20' }],
 		trainings: [],
-		resumes: resumes,
+		resumes: [],
 		status: 'Active',
 	},
 	{
@@ -160,8 +154,8 @@ export const candidates: Candidate[] = [
 		awards: [],
 		trainings: [],
 		resumes: [
-             // { id: 'res3', fileName: 'Bob_Smith_Product_Resume.pdf', url: '/resumes/bob_smith_resume.pdf', isActive: true, createdAt: format(subDays(new Date(), 30), 'yyyy-MM-dd') }
-        ],
+			// { id: 'res3', fileName: 'Bob_Smith_Product_Resume.pdf', url: '/resumes/bob_smith_resume.pdf', isActive: true, createdAt: format(subDays(new Date(), 30), 'yyyy-MM-dd') }
+		],
 		status: 'Passive',
 	},
 	{
@@ -221,8 +215,8 @@ export const candidates: Candidate[] = [
 		awards: [],
 		trainings: [],
 		resumes: [
-           // { id: 'res4', fileName: 'Charlie_Brown_Data_Science.pdf', url: '/resumes/charlie_brown_resume.pdf', isActive: true, createdAt: format(subDays(new Date(), 5), 'yyyy-MM-dd') }
-        ],
+			// { id: 'res4', fileName: 'Charlie_Brown_Data_Science.pdf', url: '/resumes/charlie_brown_resume.pdf', isActive: true, createdAt: format(subDays(new Date(), 5), 'yyyy-MM-dd') }
+		],
 		status: 'Active',
 	},
 	{
@@ -279,8 +273,8 @@ export const candidates: Candidate[] = [
 		awards: [],
 		trainings: [],
 		resumes: [
-           // { id: 'res5', fileName: 'Diana_Prince_UX_Portfolio_Resume.pdf', url: '/resumes/diana_prince_resume.pdf', isActive: true, createdAt: format(subWeeks(new Date(), 2), 'yyyy-MM-dd') }
-        ],
+			// { id: 'res5', fileName: 'Diana_Prince_UX_Portfolio_Resume.pdf', url: '/resumes/diana_prince_resume.pdf', isActive: true, createdAt: format(subWeeks(new Date(), 2), 'yyyy-MM-dd') }
+		],
 		status: 'Hired',
 	},
 ];
