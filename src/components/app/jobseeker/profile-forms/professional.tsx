@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ProfessionalInfo } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO } from 'date-fns';
-import { Edit, PlusCircle, Trash } from 'lucide-react';
+import { Edit, PlusCircle, Trash, FileText } from 'lucide-react';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -19,6 +19,8 @@ import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
 import { FormSwitch } from '@/components/ui/form-switch';
+import { FormFileUpload } from '@/components/ui/form-file-upload';
+import { FilePreviewer } from '@/components/ui/file-previewer';
 
 const professionalInfoSchema = z
 	.object({
@@ -35,6 +37,7 @@ const professionalInfoSchema = z
 		referenceEmail: z.string().email('Invalid email address').optional().or(z.literal('')),
 		referencePhone: z.string().optional(),
 		referencePostDept: z.string().optional(),
+		certificateFile: z.any().optional(),
 	})
 	.refine((data) => !data.isCurrent ? !!data.resignDate : true, {
 		message: 'Resign date is required unless you are currently working here.',
@@ -160,6 +163,12 @@ export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
 										</FormItem>
 									)}
 								/>
+								<FormFileUpload
+									control={editForm.control}
+									name='certificateFile'
+									label='Experience Certificate (Optional)'
+									accept='.pdf, image/*'
+								/>
 								<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 									<FormInput control={editForm.control} name='salary' label='Salary (Optional)' type='number' />
 									<FormInput control={editForm.control} name='salaryCurrency' label='Currency (e.g. BDT)' />
@@ -190,6 +199,14 @@ export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
 					<p className='text-xs text-muted-foreground'>
 						{joinDate} - {resignDate}
 					</p>
+					{item.certificateFile && (
+						<FilePreviewer file={item.certificateFile}>
+							<button className='text-xs text-primary hover:underline flex items-center gap-1 mt-1'>
+								<FileText className='h-3 w-3' />
+								View Certificate
+							</button>
+						</FilePreviewer>
+					)}
 				</div>
 				<div className='flex gap-2'>
 					<Button variant='ghost' size='icon' onClick={() => startEditing(item)}>
@@ -291,6 +308,12 @@ export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
 										<FormMessage />
 									</FormItem>
 								)}
+							/>
+							<FormFileUpload
+								control={form.control}
+								name='certificateFile'
+								label='Experience Certificate (Optional)'
+								accept='.pdf, image/*'
 							/>
 							<CardTitle className='text-lg pt-4'>Additional Information (Optional)</CardTitle>
 							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>

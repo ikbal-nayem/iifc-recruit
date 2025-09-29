@@ -1,5 +1,7 @@
+
 import { Award, Language, Publication, Resume, Training } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData, IOrganization } from '@/interfaces/master-data.interface';
+import { IFile } from './common.interface';
 
 export type UserRole = 'candidate' | 'admin';
 
@@ -65,6 +67,7 @@ export type ProfessionalInfo = {
 	referenceEmail?: string;
 	referencePhone?: string;
 	referencePostDept?: string;
+	certificateFile?: IFile | File;
 };
 
 export type Certification = {
