@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -113,7 +112,7 @@ function CertificationForm({ isOpen, onClose, onSubmit, initialData, noun }: Cer
 	);
 }
 
-export default function JobseekerProfileCertificationsPage() {
+export default function ProfileFormCertifications() {
 	const { toast } = useToast();
 	const [history, setHistory] = useState<Certification[]>([]);
 	const [editingItem, setEditingItem] = useState<Certification | undefined>(undefined);
