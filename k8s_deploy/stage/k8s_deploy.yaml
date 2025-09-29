@@ -25,8 +25,8 @@ spec:
       restartPolicy: Always
       imagePullSecrets:
       - name: imagerepo.gems.gov.bd
-#      hostAliases:
-#        - ip: 172.16.47.57
-#          hostnames:
-#            - api.cao.gov.bd
-#            - new.cao.gov.bd
+      hostAliases:
+        - ip: 123.49.62.235
+          hostnames:
+            - stage-recruit.iifc.gov.bd
+            - apidev-recruit.iifc.gov.bd
