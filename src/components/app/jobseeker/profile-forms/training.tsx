@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,7 @@ import { Edit, FileText, Loader2, PlusCircle, Trash } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { FilePreviewer } from '@/components/ui/file-previewer';
 
 const trainingSchema = z
 	.object({
@@ -29,7 +31,7 @@ const trainingSchema = z
 		trainingTypeId: z.string().optional(),
 		startDate: z.string().min(1, 'Start date is required.'),
 		endDate: z.string().min(1, 'End date is required.'),
-		certificateFile: z.any().optional(),
+		certificate: z.any().optional(),
 	})
 	.refine((data) => new Date(data.startDate) <= new Date(data.endDate), {
 		message: 'End date cannot be before start date.',
@@ -136,8 +138,8 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 						</div>
 						<FormFileUpload
 							control={form.control}
-							name='certificateFile'
-							label='CertificateFile'
+							name='certificate'
+							label='Certificate'
 							accept='.pdf, .image/*'
 						/>
 						<DialogFooter className='pt-4'>
@@ -223,16 +225,13 @@ export function ProfileFormTraining({ trainingTypes }: { trainingTypes: ICommonM
 					<p className='text-xs text-muted-foreground'>
 						{format(parseISO(item.startDate), 'MMM yyyy')} - {format(parseISO(item.endDate), 'MMM yyyy')}
 					</p>
-					{item.certificateFile && (
-						<a
-							href={makePreviewURL(item.certificateFile)}
-							target='_blank'
-							rel='noopener noreferrer'
-							className='text-xs text-primary hover:underline flex items-center gap-1 mt-1'
-						>
-							<FileText className='h-3 w-3' />
-							View CertificateFile
-						</a>
+					{item.certificate && (
+						<FilePreviewer file={item.certificate}>
+							<button className='text-xs text-primary hover:underline flex items-center gap-1 mt-1'>
+								<FileText className='h-3 w-3' />
+								View Certificate
+							</button>
+						</FilePreviewer>
 					)}
 				</div>
 				<div className='flex gap-2'>
