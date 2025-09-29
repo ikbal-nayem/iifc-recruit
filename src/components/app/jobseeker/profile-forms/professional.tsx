@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ProfessionalInfo } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO } from 'date-fns';
-import { Edit, PlusCircle, Trash, FileText } from 'lucide-react';
+import { Edit, PlusCircle, Trash, FileText, Loader2 } from 'lucide-react';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -21,6 +21,7 @@ import { FormInput } from '@/components/ui/form-input';
 import { FormSwitch } from '@/components/ui/form-switch';
 import { FormFileUpload } from '@/components/ui/form-file-upload';
 import { FilePreviewer } from '@/components/ui/file-previewer';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const professionalInfoSchema = z
 	.object({
@@ -46,51 +47,170 @@ const professionalInfoSchema = z
 
 type ProfessionalFormValues = z.infer<typeof professionalInfoSchema>;
 
+interface ProfessionalExperienceFormProps {
+	isOpen: boolean;
+	onClose: () => void;
+	onSubmit: (data: ProfessionalFormValues) => void;
+	initialData?: ProfessionalInfo;
+	masterData: ProfessionalExperienceMasterData;
+}
+
+function ProfessionalExperienceForm({
+	isOpen,
+	onClose,
+	onSubmit,
+	initialData,
+	masterData,
+}: ProfessionalExperienceFormProps) {
+	const form = useForm<ProfessionalFormValues>({
+		resolver: zodResolver(professionalInfoSchema),
+		defaultValues: initialData
+			? {
+					...initialData,
+					positionLevelId: initialData.positionLevel?.id,
+					organizationId: initialData.organization?.id,
+			  }
+			: { isCurrent: false },
+	});
+
+	const watchIsCurrent = form.watch('isCurrent');
+
+	return (
+		<Dialog open={isOpen} onOpenChange={onClose}>
+			<DialogContent className='max-w-2xl'>
+				<DialogHeader>
+					<DialogTitle>{initialData ? 'Edit Experience' : 'Add New Experience'}</DialogTitle>
+				</DialogHeader>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4 max-h-[80vh] overflow-y-auto pr-4 pl-1'>
+						<FormInput
+							control={form.control}
+							name='positionTitle'
+							label='Position Title'
+							placeholder='e.g., Software Engineer'
+							required
+						/>
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+							<FormAutocomplete
+								control={form.control}
+								name='organizationId'
+								label='Organization'
+								placeholder='Select an organization'
+								required
+								options={masterData.organizations.map((o) => ({
+									label: o.name,
+									value: o.id!,
+								}))}
+							/>
+							<FormAutocomplete
+								control={form.control}
+								name='positionLevelId'
+								label='Position Level'
+								placeholder='Select a level'
+								required
+								options={masterData.positionLevels.map((p) => ({
+									label: p.name,
+									value: p.id!,
+								}))}
+							/>
+						</div>
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
+							<FormDatePicker control={form.control} name='joinDate' label='Join Date' required />
+							<FormDatePicker
+								control={form.control}
+								name='resignDate'
+								label='Resign Date'
+								required={!watchIsCurrent}
+								disabled={watchIsCurrent}
+							/>
+						</div>
+						<FormSwitch control={form.control} name='isCurrent' label='I currently work here' />
+						<FormField
+							control={form.control}
+							name='responsibilities'
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel required>Responsibilities</FormLabel>
+									<FormControl>
+										<Textarea {...field} rows={4} placeholder='Describe your key responsibilities...' />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormFileUpload
+							control={form.control}
+							name='certificateFile'
+							label='Experience Certificate (Optional)'
+							accept='.pdf, image/*'
+						/>
+						<CardTitle className='text-lg pt-4'>Additional Information (Optional)</CardTitle>
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+							<FormInput control={form.control} name='salary' label='Salary' type='number' />
+							<FormInput control={form.control} name='salaryCurrency' label='Currency (e.g. BDT)' />
+						</div>
+						<CardTitle className='text-lg pt-4'>Reference (Optional)</CardTitle>
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+							<FormInput control={form.control} name='referenceName' label='Reference Name' />
+							<FormInput control={form.control} name='referencePostDept' label='Reference Position & Dept.' />
+						</div>
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+							<FormInput control={form.control} name='referenceEmail' label='Reference Email' type='email' />
+							<FormInput control={form.control} name='referencePhone' label='Reference Phone' />
+						</div>
+						<DialogFooter className='pt-4 sticky bottom-0 bg-background pb-2'>
+							<Button type='button' variant='ghost' onClick={onClose}>
+								Cancel
+							</Button>
+							<Button type='submit'>Save Changes</Button>
+						</DialogFooter>
+					</form>
+				</Form>
+			</DialogContent>
+		</Dialog>
+	);
+}
+
 interface ProfileFormProps {
 	masterData: ProfessionalExperienceMasterData;
 }
 
 export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
 	const { toast } = useToast();
-	// This would come from an API call in a real app
 	const [history, setHistory] = React.useState<ProfessionalInfo[]>([]);
-	const [editingId, setEditingId] = React.useState<string | null>(null);
+	const [editingItem, setEditingItem] = React.useState<ProfessionalInfo | undefined>(undefined);
+	const [isFormOpen, setIsFormOpen] = React.useState(false);
 
-	const form = useForm<ProfessionalFormValues>({
-		resolver: zodResolver(professionalInfoSchema),
-		defaultValues: { isCurrent: false },
-	});
-
-	const editForm = useForm<ProfessionalFormValues>({
-		resolver: zodResolver(professionalInfoSchema),
-	});
-
-	const handleAddNew = (data: ProfessionalFormValues) => {
-		const newEntry: ProfessionalInfo = {
-			...data,
-			id: `temp-${Date.now()}`,
-			resignDate: data.isCurrent ? undefined : data.resignDate,
-			organization: masterData.organizations.find((o) => o.id === data.organizationId),
-			positionLevel: masterData.positionLevels.find((p) => p.id === data.positionLevelId),
-		};
-		setHistory([...history, newEntry]);
-		form.reset({ isCurrent: false, positionTitle: '', responsibilities: '' });
-	};
-
-	const handleUpdate = (id: string, data: ProfessionalFormValues) => {
-		const updatedHistory = history.map((item) =>
-			item.id === id
-				? {
-						...item,
-						...data,
-						resignDate: data.isCurrent ? undefined : data.resignDate,
-						organization: masterData.organizations.find((o) => o.id === data.organizationId),
-						positionLevel: masterData.positionLevels.find((p) => p.id === data.positionLevelId),
-				  }
-				: item
-		);
-		setHistory(updatedHistory);
-		setEditingId(null);
+	const handleFormSubmit = (data: ProfessionalFormValues) => {
+		if (editingItem) {
+			// Update logic
+			setHistory(
+				history.map((item) =>
+					item.id === editingItem.id
+						? {
+								...item,
+								...data,
+								resignDate: data.isCurrent ? undefined : data.resignDate,
+								organization: masterData.organizations.find((o) => o.id === data.organizationId),
+								positionLevel: masterData.positionLevels.find((p) => p.id === data.positionLevelId),
+						  }
+						: item
+				)
+			);
+			toast({ title: 'Success', description: 'Experience updated successfully.' });
+		} else {
+			// Add logic
+			const newEntry: ProfessionalInfo = {
+				...data,
+				id: `temp-${Date.now()}`,
+				resignDate: data.isCurrent ? undefined : data.resignDate,
+				organization: masterData.organizations.find((o) => o.id === data.organizationId),
+				positionLevel: masterData.positionLevels.find((p) => p.id === data.positionLevelId),
+			};
+			setHistory([...history, newEntry]);
+			toast({ title: 'Success', description: 'Experience added successfully.' });
+		}
+		handleCloseForm();
 	};
 
 	const handleRemove = (id: string) => {
@@ -98,94 +218,17 @@ export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
 		toast({ title: 'Entry Deleted', description: 'The professional record has been removed.', variant: 'success' });
 	};
 
-	const startEditing = (item: ProfessionalInfo) => {
-		setEditingId(item.id!);
-		editForm.reset({
-			...item,
-			positionLevelId: item.positionLevelId,
-			organizationId: item.organizationId,
-		});
+	const handleOpenForm = (item?: ProfessionalInfo) => {
+		setEditingItem(item);
+		setIsFormOpen(true);
+	};
+
+	const handleCloseForm = () => {
+		setEditingItem(undefined);
+		setIsFormOpen(false);
 	};
 
 	const renderItem = (item: ProfessionalInfo) => {
-		const watchIsCurrent = editForm.watch('isCurrent');
-
-		if (editingId === item.id) {
-			return (
-				<Form {...editForm}>
-					<form onSubmit={editForm.handleSubmit((data) => handleUpdate(item.id!, data))}>
-						<Card key={item.id} className='p-4 bg-muted/50'>
-							<CardContent className='p-0 space-y-4'>
-								<FormInput control={editForm.control} name='positionTitle' label='Position Title' required />
-								<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-									<FormAutocomplete
-										control={editForm.control}
-										name='organizationId'
-										label='Organization'
-										required
-										options={masterData.organizations.map((o) => ({
-											label: o.name,
-											value: o.id!,
-										}))}
-									/>
-									<FormAutocomplete
-										control={editForm.control}
-										name='positionLevelId'
-										label='Position Level'
-										required
-										options={masterData.positionLevels.map((p) => ({
-											label: p.name,
-											value: p.id!,
-										}))}
-									/>
-								</div>
-								<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
-									<FormDatePicker control={editForm.control} name='joinDate' label='Join Date' required />
-									<FormDatePicker
-										control={editForm.control}
-										name='resignDate'
-										label='Resign Date'
-										required={!watchIsCurrent}
-										disabled={watchIsCurrent}
-									/>
-								</div>
-								<FormSwitch control={editForm.control} name='isCurrent' label='I currently work here' />
-								<FormField
-									control={editForm.control}
-									name='responsibilities'
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel required>Responsibilities</FormLabel>
-											<FormControl>
-												<Textarea {...field} rows={4} />
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormFileUpload
-									control={editForm.control}
-									name='certificateFile'
-									label='Experience Certificate (Optional)'
-									accept='.pdf, image/*'
-								/>
-								<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-									<FormInput control={editForm.control} name='salary' label='Salary (Optional)' type='number' />
-									<FormInput control={editForm.control} name='salaryCurrency' label='Currency (e.g. BDT)' />
-								</div>
-							</CardContent>
-							<CardFooter className='p-0 pt-4 flex justify-end gap-2'>
-								<Button type='button' variant='ghost' onClick={() => setEditingId(null)}>
-									Cancel
-								</Button>
-								<Button type='submit'>Save</Button>
-							</CardFooter>
-						</Card>
-					</form>
-				</Form>
-			);
-		}
-
 		const joinDate = format(parseISO(item.joinDate), 'MMM yyyy');
 		const resignDate = item.isCurrent ? 'Present' : item.resignDate ? format(parseISO(item.resignDate), 'MMM yyyy') : '';
 
@@ -209,7 +252,7 @@ export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
 					)}
 				</div>
 				<div className='flex gap-2'>
-					<Button variant='ghost' size='icon' onClick={() => startEditing(item)}>
+					<Button variant='ghost' size='icon' onClick={() => handleOpenForm(item)}>
 						<Edit className='h-4 w-4' />
 					</Button>
 					<ConfirmationDialog
@@ -231,122 +274,34 @@ export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
 		<div className='space-y-6'>
 			<Card className='glassmorphism'>
 				<CardHeader>
-					<CardTitle>Your Professional History</CardTitle>
-					<CardDescription>Listed below is your work experience.</CardDescription>
+					<div className='flex items-center justify-between'>
+						<div>
+							<CardTitle>Your Professional History</CardTitle>
+							<CardDescription>Listed below is your work experience.</CardDescription>
+						</div>
+						<Button onClick={() => handleOpenForm()}>
+							<PlusCircle className='mr-2 h-4 w-4' /> Add New
+						</Button>
+					</div>
 				</CardHeader>
 				<CardContent className='space-y-4'>
-					{history.map(renderItem)}
-					{history.length === 0 && (
+					{history.length > 0 ? (
+						history.map(renderItem)
+					) : (
 						<p className='text-center text-muted-foreground py-4'>No professional history added yet.</p>
 					)}
 				</CardContent>
 			</Card>
 
-			<Form {...form}>
-				<form onSubmit={form.handleSubmit(handleAddNew)}>
-					<Card className='glassmorphism'>
-						<CardHeader>
-							<CardTitle>Add New Experience</CardTitle>
-							<CardDescription>Add a new role to your profile.</CardDescription>
-						</CardHeader>
-						<CardContent className='space-y-4'>
-							<FormInput
-								control={form.control}
-								name='positionTitle'
-								label='Position Title'
-								placeholder='e.g., Software Engineer'
-								required
-							/>
-							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-								<FormAutocomplete
-									control={form.control}
-									name='organizationId'
-									label='Organization'
-									placeholder='Select an organization'
-									required
-									options={masterData.organizations.map((o) => ({
-										label: o.name,
-										value: o.id!,
-									}))}
-								/>
-								<FormAutocomplete
-									control={form.control}
-									name='positionLevelId'
-									label='Position Level'
-									placeholder='Select a level'
-									required
-									options={masterData.positionLevels.map((p) => ({
-										label: p.name,
-										value: p.id!,
-									}))}
-								/>
-							</div>
-							<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
-								<FormDatePicker control={form.control} name='joinDate' label='Join Date' required />
-								<FormDatePicker
-									control={form.control}
-									name='resignDate'
-									label='Resign Date'
-									required={!form.watch('isCurrent')}
-									disabled={form.watch('isCurrent')}
-								/>
-							</div>
-							<FormSwitch control={form.control} name='isCurrent' label='I currently work here' />
-							<FormField
-								control={form.control}
-								name='responsibilities'
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel required>Responsibilities</FormLabel>
-										<FormControl>
-											<Textarea
-												{...field}
-												rows={4}
-												placeholder='Describe your key responsibilities...'
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-							<FormFileUpload
-								control={form.control}
-								name='certificateFile'
-								label='Experience Certificate (Optional)'
-								accept='.pdf, image/*'
-							/>
-							<CardTitle className='text-lg pt-4'>Additional Information (Optional)</CardTitle>
-							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-								<FormInput control={form.control} name='salary' label='Salary' type='number' />
-								<FormInput control={form.control} name='salaryCurrency' label='Currency (e.g. BDT)' />
-							</div>
-							<CardTitle className='text-lg pt-4'>Reference (Optional)</CardTitle>
-							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-								<FormInput control={form.control} name='referenceName' label='Reference Name' />
-								<FormInput
-									control={form.control}
-									name='referencePostDept'
-									label='Reference Position & Dept.'
-								/>
-							</div>
-							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-								<FormInput
-									control={form.control}
-									name='referenceEmail'
-									label='Reference Email'
-									type='email'
-								/>
-								<FormInput control={form.control} name='referencePhone' label='Reference Phone' />
-							</div>
-						</CardContent>
-						<CardFooter>
-							<Button type='submit'>
-								<PlusCircle className='mr-2 h-4 w-4' /> Add Entry
-							</Button>
-						</CardFooter>
-					</Card>
-				</form>
-			</Form>
+			{isFormOpen && (
+				<ProfessionalExperienceForm
+					isOpen={isFormOpen}
+					onClose={handleCloseForm}
+					onSubmit={handleFormSubmit}
+					initialData={editingItem}
+					masterData={masterData}
+				/>
+			)}
 		</div>
 	);
 }
