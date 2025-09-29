@@ -22,6 +22,7 @@ import { FormSwitch } from '@/components/ui/form-switch';
 import { FormFileUpload } from '@/components/ui/form-file-upload';
 import { FilePreviewer } from '@/components/ui/file-previewer';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { FormSelect } from '@/components/ui/form-select';
 
 const professionalInfoSchema = z
 	.object({
@@ -33,7 +34,7 @@ const professionalInfoSchema = z
 		resignDate: z.string().optional(),
 		isCurrent: z.boolean().default(false),
 		salary: z.coerce.number().optional(),
-		salaryCurrency: z.string().optional(),
+		salaryCurrency: z.enum(['BDT', 'USD']).optional(),
 		referenceName: z.string().optional(),
 		referenceEmail: z.string().email('Invalid email address').optional().or(z.literal('')),
 		referencePhone: z.string().optional(),
@@ -70,7 +71,7 @@ function ProfessionalExperienceForm({
 					positionLevelId: initialData.positionLevel?.id,
 					organizationId: initialData.organization?.id,
 			  }
-			: { isCurrent: false },
+			: { isCurrent: false, salaryCurrency: 'BDT' },
 	});
 
 	const watchIsCurrent = form.watch('isCurrent');
@@ -81,91 +82,101 @@ function ProfessionalExperienceForm({
 				<DialogHeader>
 					<DialogTitle>{initialData ? 'Edit Experience' : 'Add New Experience'}</DialogTitle>
 				</DialogHeader>
-				<Form {...form}>
-					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4 pr-1'>
-						<FormInput
-							control={form.control}
-							name='positionTitle'
-							label='Position Title'
-							placeholder='e.g., Software Engineer'
-							required
-						/>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-							<FormAutocomplete
+				<div className='max-h-[80vh] overflow-y-auto pr-2'>
+					<Form {...form}>
+						<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4 pr-1'>
+							<FormInput
 								control={form.control}
-								name='organizationId'
-								label='Organization'
-								placeholder='Select an organization'
+								name='positionTitle'
+								label='Position Title'
+								placeholder='e.g., Software Engineer'
 								required
-								options={masterData.organizations.map((o) => ({
-									label: o.name,
-									value: o.id!,
-								}))}
 							/>
-							<FormAutocomplete
+							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+								<FormAutocomplete
+									control={form.control}
+									name='organizationId'
+									label='Organization'
+									placeholder='Select an organization'
+									required
+									options={masterData.organizations.map((o) => ({
+										label: o.name,
+										value: o.id!,
+									}))}
+								/>
+								<FormAutocomplete
+									control={form.control}
+									name='positionLevelId'
+									label='Position Level'
+									placeholder='Select a level'
+									required
+									options={masterData.positionLevels.map((p) => ({
+										label: p.name,
+										value: p.id!,
+									}))}
+								/>
+							</div>
+							<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
+								<FormDatePicker control={form.control} name='joinDate' label='Join Date' required />
+								<FormDatePicker
+									control={form.control}
+									name='resignDate'
+									label='Resign Date'
+									required={!watchIsCurrent}
+									disabled={watchIsCurrent}
+								/>
+							</div>
+							<FormSwitch control={form.control} name='isCurrent' label='I currently work here' />
+							<FormField
 								control={form.control}
-								name='positionLevelId'
-								label='Position Level'
-								placeholder='Select a level'
-								required
-								options={masterData.positionLevels.map((p) => ({
-									label: p.name,
-									value: p.id!,
-								}))}
+								name='responsibilities'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel required>Responsibilities</FormLabel>
+										<FormControl>
+											<Textarea {...field} rows={4} placeholder='Describe your key responsibilities...' />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
 							/>
-						</div>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
-							<FormDatePicker control={form.control} name='joinDate' label='Join Date' required />
-							<FormDatePicker
+							<FormFileUpload
 								control={form.control}
-								name='resignDate'
-								label='Resign Date'
-								required={!watchIsCurrent}
-								disabled={watchIsCurrent}
+								name='certificateFile'
+								label='Experience Certificate (Optional)'
+								accept='.pdf, image/*'
 							/>
-						</div>
-						<FormSwitch control={form.control} name='isCurrent' label='I currently work here' />
-						<FormField
-							control={form.control}
-							name='responsibilities'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel required>Responsibilities</FormLabel>
-									<FormControl>
-										<Textarea {...field} rows={4} placeholder='Describe your key responsibilities...' />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormFileUpload
-							control={form.control}
-							name='certificateFile'
-							label='Experience Certificate (Optional)'
-							accept='.pdf, image/*'
-						/>
-						<CardTitle className='text-lg pt-4'>Additional Information (Optional)</CardTitle>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-							<FormInput control={form.control} name='salary' label='Salary' type='number' />
-							<FormInput control={form.control} name='salaryCurrency' label='Currency (e.g. BDT)' />
-						</div>
-						<CardTitle className='text-lg pt-4'>Reference (Optional)</CardTitle>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-							<FormInput control={form.control} name='referenceName' label='Reference Name' />
-							<FormInput control={form.control} name='referencePostDept' label='Reference Position & Dept.' />
-						</div>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-							<FormInput control={form.control} name='referenceEmail' label='Reference Email' type='email' />
-							<FormInput control={form.control} name='referencePhone' label='Reference Phone' />
-						</div>
-						<DialogFooter className='pt-4 sticky bottom-0 bg-background pb-2'>
-							<Button type='button' variant='ghost' onClick={onClose}>
-								Cancel
-							</Button>
-							<Button type='submit'>Save Changes</Button>
-						</DialogFooter>
-					</form>
-				</Form>
+							<CardTitle className='text-lg pt-4'>Additional Information (Optional)</CardTitle>
+							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+								<FormInput control={form.control} name='salary' label='Salary' type='number' />
+								<FormSelect
+									control={form.control}
+									name='salaryCurrency'
+									label='Currency'
+									options={[
+										{ label: 'BDT', value: 'BDT' },
+										{ label: 'USD', value: 'USD' },
+									]}
+								/>
+							</div>
+							<CardTitle className='text-lg pt-4'>Reference (Optional)</CardTitle>
+							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+								<FormInput control={form.control} name='referenceName' label='Reference Name' />
+								<FormInput control={form.control} name='referencePostDept' label='Reference Position & Dept.' />
+							</div>
+							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+								<FormInput control={form.control} name='referenceEmail' label='Reference Email' type='email' />
+								<FormInput control={form.control} name='referencePhone' label='Reference Phone' />
+							</div>
+							<DialogFooter className='pt-4 sticky bottom-0 bg-background pb-2'>
+								<Button type='button' variant='ghost' onClick={onClose}>
+									Cancel
+								</Button>
+								<Button type='submit'>Save Changes</Button>
+							</DialogFooter>
+						</form>
+					</Form>
+				</div>
 			</DialogContent>
 		</Dialog>
 	);
