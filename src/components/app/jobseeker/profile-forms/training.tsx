@@ -107,24 +107,22 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 							required
 							disabled={isSubmitting}
 						/>
-						<div className='grid grid-cols-1 gap-4'>
-							<FormInput
-								control={form.control}
-								name='institutionName'
-								label='Institution'
-								placeholder='e.g., Coursera'
-								required
-								disabled={isSubmitting}
-							/>
-							<FormAutocomplete
-								control={form.control}
-								name='trainingTypeId'
-								label='Training Type'
-								placeholder='Select type'
-								options={trainingTypes.map((t) => ({ value: t.id!.toString(), label: t.name }))}
-								disabled={isSubmitting}
-							/>
-						</div>
+						<FormInput
+							control={form.control}
+							name='institutionName'
+							label='Institution'
+							placeholder='e.g., Coursera'
+							required
+							disabled={isSubmitting}
+						/>
+						<FormAutocomplete
+							control={form.control}
+							name='trainingTypeId'
+							label='Training Type'
+							placeholder='Select type'
+							options={trainingTypes.map((t) => ({ value: t.id!.toString(), label: t.name }))}
+							disabled={isSubmitting}
+						/>
 
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 							<FormDatePicker
@@ -298,3 +296,5 @@ export function ProfileFormTraining({ trainingTypes }: { trainingTypes: ICommonM
 		</div>
 	);
 }
+
+    
