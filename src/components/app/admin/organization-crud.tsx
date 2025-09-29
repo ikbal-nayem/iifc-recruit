@@ -267,7 +267,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 		setEditingItem(undefined);
 	};
 
-	const handleFormSubmit = async (data: Omit<IOrganization, 'id'> | IOrganization) => {
+	const handleFormSubmit = async (data: Omit<IOrganization, 'id'> | IOrganization): Promise<boolean> => {
 		try {
 			const isUpdate = 'id' in data && data.id;
 			const response = isUpdate
