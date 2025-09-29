@@ -39,7 +39,7 @@ type FormValues = z.infer<typeof formSchema>;
 interface OrganizationFormProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onSubmit: (data: Omit<IOrganization, 'id'> | IOrganization) => Promise<boolean>;
+	onSubmit: (data: FormValues) => Promise<boolean>;
 	initialData?: IOrganization;
 	noun: string;
 	masterData: FormMasterData;
@@ -73,14 +73,9 @@ function OrganizationForm({
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	const handleSubmit = async (data: FormValues) => {
+	const handleFormSubmit = async (data: FormValues) => {
 		setIsSubmitting(true);
-		const payload: Omit<IOrganization, 'id'> | IOrganization = {
-			...initialData,
-			...data,
-			isActive: initialData?.isActive ?? true,
-		};
-		const success = await onSubmit(payload);
+		const success = await onSubmit(data);
 		if (success) {
 			onClose();
 		}
@@ -94,7 +89,7 @@ function OrganizationForm({
 					<DialogTitle>{initialData ? `Edit ${noun}` : `Add ${noun}`}</DialogTitle>
 				</DialogHeader>
 				<Form {...form}>
-					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4' noValidate>
+					<form onSubmit={form.handleSubmit(handleFormSubmit)} className='space-y-4 py-4' noValidate>
 						<FormInput
 							control={form.control}
 							name='name'
@@ -267,12 +262,16 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 		setEditingItem(undefined);
 	};
 
-	const handleFormSubmit = async (data: Omit<IOrganization, 'id'> | IOrganization): Promise<boolean> => {
+	const handleFormSubmit = async (data: FormValues): Promise<boolean> => {
+		const payload = {
+			...data,
+			isActive: editingItem?.isActive ?? true,
+		};
 		try {
-			const isUpdate = 'id' in data && data.id;
+			const isUpdate = editingItem?.id;
 			const response = isUpdate
-				? await MasterDataService.organization.update(data as IOrganization)
-				: await MasterDataService.organization.add(data as Omit<IOrganization, 'id'>);
+				? await MasterDataService.organization.update({ ...payload, id: editingItem.id })
+				: await MasterDataService.organization.add(payload);
 
 			toast({ description: response.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter, organizationTypeFilter);
@@ -301,7 +300,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 
 	const handleToggleActive = async (item: IOrganization) => {
 		if (!item.id) return;
-		setIsSubmitting(item.id);
+		setIsSubmitting(item.id.toString());
 		const updatedItem = { ...item, isActive: !item.isActive };
 		try {
 			await MasterDataService.organization.update(updatedItem);
@@ -365,25 +364,25 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 				<Switch
 					checked={item.isActive}
 					onCheckedChange={() => handleToggleActive(item)}
-					disabled={isSubmitting === item.id}
+					disabled={isSubmitting === item.id?.toString()}
 				/>
 				<Button
 					variant='ghost'
 					size='icon'
 					className='h-8 w-8'
 					onClick={() => handleOpenForm(item)}
-					disabled={isSubmitting === item.id}
+					disabled={isSubmitting === item.id?.toString()}
 				>
 					<Edit className='h-4 w-4' />
 				</Button>
 				<ConfirmationDialog
 					trigger={
-						<Button variant='ghost' size='icon' className='h-8 w-8' disabled={isSubmitting === item.id}>
+						<Button variant='ghost' size='icon' className='h-8 w-8' disabled={isSubmitting === item.id?.toString()}>
 							<Trash className='h-4 w-4 text-danger' />
 						</Button>
 					}
 					description={`This will permanently delete the ${noun.toLowerCase()} "${item.name}".`}
-					onConfirm={() => handleDelete(item.id!)}
+					onConfirm={() => handleDelete(item.id!.toString())}
 					confirmText='Delete'
 				/>
 			</div>
