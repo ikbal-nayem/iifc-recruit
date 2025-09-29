@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -56,10 +55,10 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 		resolver: zodResolver(trainingSchema),
 		defaultValues: initialData
 			? {
-				...initialData,
-				trainingTypeId: initialData.trainingTypeId?.toString(),
-				certificateFile: initialData.certificateFile,
-			}
+					...initialData,
+					trainingTypeId: initialData.trainingTypeId?.toString(),
+					certificateFile: initialData.certificateFile,
+			  }
 			: defaultData,
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -68,9 +67,9 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 		form.reset(
 			initialData
 				? {
-					...initialData,
-					trainingTypeId: initialData.trainingTypeId?.toString(),
-				}
+						...initialData,
+						trainingTypeId: initialData.trainingTypeId?.toString(),
+				  }
 				: defaultData
 		);
 	}, [initialData, form]);
@@ -80,12 +79,11 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 		const payload: Training = {
 			...data,
 			id: initialData?.id,
+			trainingTypeId: data.trainingTypeId ? parseInt(data.trainingTypeId) : undefined,
 		};
 
 		onSubmit(payload)
-			.then(() => {
-				onClose();
-			})
+			.then(() => onClose())
 			.finally(() => setIsSubmitting(false));
 	};
 
@@ -294,4 +292,3 @@ export function ProfileFormTraining({ trainingTypes }: { trainingTypes: ICommonM
 		</div>
 	);
 }
-

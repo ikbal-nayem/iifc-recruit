@@ -27,7 +27,7 @@ export type Training = {
 	id?: number;
 	name: string;
 	institutionName: string;
-	trainingTypeId: string;
+	trainingTypeId?: number;
 	trainingType?: ICommonMasterData;
 	startDate: string;
 	endDate: string;
