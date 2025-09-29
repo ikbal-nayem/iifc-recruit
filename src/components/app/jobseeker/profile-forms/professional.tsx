@@ -82,7 +82,7 @@ function ProfessionalExperienceForm({
 				<DialogHeader>
 					<DialogTitle>{initialData ? 'Edit Experience' : 'Add New Experience'}</DialogTitle>
 				</DialogHeader>
-				<div className='max-h-[80vh] overflow-y-auto pr-2'>
+				
 					<Form {...form}>
 						<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4 pr-1'>
 							<FormInput
@@ -176,7 +176,7 @@ function ProfessionalExperienceForm({
 							</DialogFooter>
 						</form>
 					</Form>
-				</div>
+				
 			</DialogContent>
 		</Dialog>
 	);
