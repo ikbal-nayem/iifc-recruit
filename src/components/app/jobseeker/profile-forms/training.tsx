@@ -14,7 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Training } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
-import { makeFormData, makePreviewURL } from '@/lib/utils';
+import { makeFormData } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO } from 'date-fns';
@@ -78,7 +78,6 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 		setIsSubmitting(true);
 		onSubmit({
 			...data,
-			trainingTypeId: data?.trainingTypeId || '',
 			id: initialData?.id,
 		})
 			.then(() => {
