@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Control, FieldPath, FieldValues, useFormContext } from 'react-hook-form';
@@ -75,6 +76,22 @@ export function FormFileUpload<TFieldValues extends FieldValues>({
 		}
 	};
 
+	const formatAccept = (accept?: string) => {
+		if (!accept) return '';
+		return accept
+			.split(',')
+			.map((type) => type.replace('.', '').toUpperCase())
+			.join(', ');
+	};
+
+	const formatMaxSize = (maxSize?: number) => {
+		if (!maxSize) return '';
+		if (maxSize < 1024 * 1024) return `(max ${(maxSize / 1024).toFixed(0)}KB)`;
+		return `(max ${(maxSize / (1024 * 1024)).toFixed(0)}MB)`;
+	};
+
+	const description = [formatAccept(accept), formatMaxSize(maxSize)].filter(Boolean).join(' ');
+
 	return (
 		<FormField
 			control={control}
@@ -88,11 +105,12 @@ export function FormFileUpload<TFieldValues extends FieldValues>({
 								htmlFor={name}
 								className='flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted'
 							>
-								<div className='flex flex-col items-center justify-center pt-5 pb-6'>
+								<div className='flex flex-col items-center justify-center pt-5 pb-6 text-center'>
 									<Upload className='w-8 h-8 mb-2 text-muted-foreground' />
 									<p className='text-sm text-muted-foreground'>
 										<span className='font-semibold'>Click to upload</span> or drag and drop
 									</p>
+									{description && <p className='text-xs text-muted-foreground mt-1'>{description}</p>}
 								</div>
 								<Input
 									id={name}
