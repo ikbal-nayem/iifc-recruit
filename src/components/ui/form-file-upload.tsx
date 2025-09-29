@@ -6,15 +6,16 @@ import { Input } from '@/components/ui/input';
 import { Upload, FileText, X } from 'lucide-react';
 import { Button } from './button';
 import * as React from 'react';
+import { IFile } from '@/interfaces/common.interface';
 
 interface FilePreviewProps {
-	file: File | string;
+	file: File | IFile;
 	onRemove: () => void;
 }
 
 const FilePreview = ({ file, onRemove }: FilePreviewProps) => {
 	const isFileObject = file instanceof File;
-	const name = isFileObject ? file.name : file;
+	const name = isFileObject ? file.name : file.originalFileName;
 	const size = isFileObject ? `(${(file.size / 1024).toFixed(1)} KB)` : '';
 
 	return (
