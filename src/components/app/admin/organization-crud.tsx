@@ -2,17 +2,6 @@
 'use client';
 
 import { FormMasterData } from '@/app/(auth)/admin/master-data/organizations/page';
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -38,8 +27,8 @@ import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 const formSchema = z.object({
 	name: z.string().min(1, 'Name is required.'),
 	countryCode: z.string().min(1, 'Country is required.'),
-	organizationTypeId: z.string().min(1, 'Organization Type is required.'),
-	industryTypeId: z.string().optional(),
+	organizationTypeId: z.coerce.number().min(1, 'Organization Type is required.'),
+	industryTypeId: z.coerce.number().optional(),
 	address: z.string().optional(),
 	phone: z.string().optional(),
 	email: z.string().email('Please enter a valid email.').optional().or(z.literal('')),
@@ -65,12 +54,12 @@ function OrganizationForm({
 	masterData: { countries, industryTypes, organizationTypes },
 }: OrganizationFormProps) {
 	const defaultValues = initialData
-		? { ...initialData }
+		? { ...initialData, countryCode: initialData.country?.code }
 		: {
 				name: '',
 				countryCode: countries.find((c) => c.name === 'Bangladesh')?.code || '',
-				organizationTypeId: '',
-				industryTypeId: '',
+				organizationTypeId: undefined,
+				industryTypeId: undefined,
 				address: '',
 				phone: '',
 				email: '',
@@ -261,39 +250,10 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 		if (!isInitialLoading) {
 			loadItems(0, debouncedSearch, countryFilter, industryFilter, organizationTypeFilter);
 		}
-	}, [debouncedSearch, countryFilter, industryFilter, organizationTypeFilter]);
+	}, [debouncedSearch, countryFilter, industryFilter, organizationTypeFilter, isInitialLoading, loadItems]);
 
 	const handlePageChange = (newPage: number) => {
 		loadItems(newPage, debouncedSearch, countryFilter, industryFilter, organizationTypeFilter);
-	};
-
-	const handleAdd = async (item: Omit<IOrganization, 'id'>): Promise<boolean> => {
-		try {
-			const resp = await MasterDataService.organization.add(item);
-			toast({ description: resp.message, variant: 'success' });
-			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter, organizationTypeFilter);
-			return true;
-		} catch (error: any) {
-			console.error('Failed to add item', error);
-			toast({
-				title: 'Error',
-				description: error?.message || 'Failed to add organization.',
-				variant: 'danger',
-			});
-			return false;
-		}
-	};
-
-	const handleUpdate = async (item: IOrganization): Promise<boolean> => {
-		try {
-			const resp = await MasterDataService.organization.update(item);
-			toast({ description: resp.message, variant: 'success' });
-			return true;
-		} catch (error) {
-			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update organization.', variant: 'danger' });
-			return false;
-		}
 	};
 
 	const handleDelete = async (id: string): Promise<boolean> => {
@@ -324,30 +284,41 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 	};
 
 	const handleFormSubmit = async (data: Omit<IOrganization, 'id'> | IOrganization) => {
-		const success = editingItem
-			? await handleUpdate({ ...data, id: editingItem.id })
-			: await handleAdd(data as Omit<IOrganization, 'id'>);
-		if (success) {
-			handleCloseForm();
+		try {
+			const response = editingItem
+				? await MasterDataService.organization.update(data as IOrganization)
+				: await MasterDataService.organization.add(data as Omit<IOrganization, 'id'>);
+			toast({ description: response.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter, organizationTypeFilter);
+			return true;
+		} catch (error: any) {
+			console.error('Failed to save item', error);
+			toast({ title: 'Error', description: error.message || `Failed to save ${noun}.`, variant: 'danger' });
+			return false;
 		}
-		return success;
 	};
 
 	const handleToggleActive = async (item: IOrganization) => {
 		if (!item.id) return;
 		setIsSubmitting(item.id);
 		const updatedItem = { ...item, isActive: !item.isActive };
-		const success = await handleUpdate(updatedItem);
-		if (success) {
+		try {
+			await MasterDataService.organization.update(updatedItem);
 			setItems((prevItems) => prevItems.map((i) => (i.id === item.id ? updatedItem : i)));
 			toast({
 				title: 'Success',
 				description: 'Status updated successfully.',
 				variant: 'success',
 			});
+		} catch (error) {
+			toast({
+				title: 'Error',
+				description: 'Failed to update status.',
+				variant: 'danger',
+			});
+		} finally {
+			setIsSubmitting(null);
 		}
-		setIsSubmitting(null);
 	};
 
 	const renderViewItem = (item: IOrganization) => (
@@ -361,9 +332,8 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 				</p>
 				<div className='text-xs text-muted-foreground space-y-1'>
 					<p>
-						{masterData?.countries?.find((c) => c.code === item.countryCode)?.name} | Industry:{' '}
-						{masterData?.industryTypes?.find((i) => i.id === item.industryTypeId)?.name || 'N/A'} | Type:{' '}
-						{masterData?.organizationTypes?.find((o) => o.id === item.organizationTypeId)?.name || 'N/A'}
+						{item.country?.name} | Industry: {item.industryType?.name || 'N/A'} | Type:{' '}
+						{item.organizationType?.name || 'N/A'}
 					</p>
 					{item.address && <p className='text-xs text-muted-foreground'>{item.address}</p>}
 					<div className='flex flex-wrap items-center gap-x-4 gap-y-1 pt-1'>
