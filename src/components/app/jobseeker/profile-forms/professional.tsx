@@ -14,7 +14,7 @@ import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
@@ -71,7 +71,17 @@ function ProfessionalExperienceForm({
 					positionLevelId: initialData.positionLevel?.id,
 					organizationId: initialData.organization?.id,
 			  }
-			: { isCurrent: false, salaryCurrency: 'BDT' },
+			: {
+					positionTitle: '',
+					responsibilities: '',
+					joinDate: '',
+					isCurrent: false,
+					salaryCurrency: 'BDT',
+					referenceName: '',
+					referenceEmail: '',
+					referencePhone: '',
+					referencePostDept: '',
+			  },
 	});
 
 	const watchIsCurrent = form.watch('isCurrent');
