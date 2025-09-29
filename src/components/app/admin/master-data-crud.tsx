@@ -34,7 +34,7 @@ type FormValues = z.infer<typeof formSchema>;
 interface MasterDataFormProps<T extends MasterDataItem> {
 	isOpen: boolean;
 	onClose: () => void;
-	onSubmit: (data: T | Omit<T, 'id'>) => Promise<boolean | null>;
+	onSubmit: (data: FormValues, id?: string) => Promise<boolean | null>;
 	initialData?: T;
 	noun: string;
 }
@@ -54,8 +54,7 @@ function MasterDataForm<T extends MasterDataItem>({
 
 	const handleSubmit = async (data: FormValues) => {
 		setIsSubmitting(true);
-		const payload = { ...initialData, ...data, isActive: initialData?.isActive ?? true } as T | Omit<T, 'id'>;
-		const success = await onSubmit(payload);
+		const success = await onSubmit(data, initialData?.id);
 		if (success) {
 			onClose();
 			form.reset();
@@ -141,11 +140,13 @@ export function MasterDataCrud<T extends MasterDataItem>({
 		setEditingItem(undefined);
 	};
 
-	const handleFormSubmit = async (data: T | Omit<T, 'id'>) => {
-		if ('id' in data) {
-			return onUpdate(data as T);
+	const handleFormSubmit = async (data: FormValues, id?: string) => {
+		if (editingItem && id) {
+			const payload = { ...editingItem, name: data.name };
+			return onUpdate(payload);
+		} else {
+			return onAdd(data.name);
 		}
-		return onAdd((data as T).name);
 	};
 
 	const handleToggleActive = async (item: T) => {
