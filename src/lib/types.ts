@@ -1,4 +1,5 @@
 import { Award, Language, Publication, Resume, Training } from '@/interfaces/jobseeker.interface';
+import { ICommonMasterData, IOrganization } from '@/interfaces/master-data.interface';
 
 export type UserRole = 'candidate' | 'admin';
 
@@ -49,13 +50,21 @@ export type AcademicInfo = {
 
 export type ProfessionalInfo = {
 	id?: string;
-	company: string;
-	role: string;
-	fromDate: string;
-	toDate?: string;
-	isPresent: boolean;
-	responsibilities: string[];
-	documentUrls?: string[];
+	positionTitle: string;
+	positionLevel?: ICommonMasterData;
+	positionLevelId: number;
+	organization?: IOrganization;
+	organizationId: number;
+	responsibilities: string;
+	joinDate: string;
+	resignDate?: string;
+	isCurrent: boolean;
+	salary?: number;
+	salaryCurrency?: string;
+	referenceName?: string;
+	referenceEmail?: string;
+	referencePhone?: string;
+	referencePostDept?: string;
 };
 
 export type Certification = {

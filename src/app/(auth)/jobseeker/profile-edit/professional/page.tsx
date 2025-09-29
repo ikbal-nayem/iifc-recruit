@@ -1,8 +1,33 @@
 import { ProfileFormProfessional } from '@/components/app/jobseeker/profile-forms/professional';
-import { candidates } from '@/lib/data';
+import { ICommonMasterData, IOrganization } from '@/interfaces/master-data.interface';
+import { MasterDataService } from '@/services/api/master-data.service';
 
-export default function JobseekerProfileProfessionalPage() {
-  const candidate = candidates[0];
+export type ProfessionalExperienceMasterData = {
+	positionLevels: ICommonMasterData[];
+	organizations: IOrganization[];
+};
 
-  return <ProfileFormProfessional candidate={candidate} />;
+async function getMasterData(): Promise<ProfessionalExperienceMasterData> {
+	try {
+		const [positionLevelsRes, organizationsRes] = await Promise.all([
+			MasterDataService.positionLevel.get(),
+			MasterDataService.organization.get(),
+		]);
+		return {
+			positionLevels: positionLevelsRes.body || [],
+			organizations: organizationsRes.body || [],
+		};
+	} catch (error) {
+		console.error('Failed to load professional experience master data:', error);
+		return {
+			positionLevels: [],
+			organizations: [],
+		};
+	}
+}
+
+export default async function JobseekerProfileProfessionalPage() {
+	const masterData = await getMasterData();
+
+	return <ProfileFormProfessional masterData={masterData} />;
 }
