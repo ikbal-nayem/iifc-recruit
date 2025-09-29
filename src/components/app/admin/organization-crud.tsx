@@ -244,6 +244,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 
 	useEffect(() => {
 		loadItems(0, '', 'all', 'all', 'all');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {
@@ -254,23 +255,6 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 
 	const handlePageChange = (newPage: number) => {
 		loadItems(newPage, debouncedSearch, countryFilter, industryFilter, organizationTypeFilter);
-	};
-
-	const handleDelete = async (id: string): Promise<boolean> => {
-		try {
-			await MasterDataService.organization.delete(id);
-			toast({ title: 'Success', description: 'Organization deleted successfully.', variant: 'success' });
-			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter, organizationTypeFilter);
-			return true;
-		} catch (error: any) {
-			console.error('Failed to delete item', error);
-			toast({
-				title: 'Error',
-				description: error?.message || 'Failed to delete organization.',
-				variant: 'danger',
-			});
-			return false;
-		}
 	};
 
 	const handleOpenForm = (item?: IOrganization) => {
@@ -285,9 +269,11 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 
 	const handleFormSubmit = async (data: Omit<IOrganization, 'id'> | IOrganization) => {
 		try {
-			const response = editingItem
+			const isUpdate = 'id' in data && data.id;
+			const response = isUpdate
 				? await MasterDataService.organization.update(data as IOrganization)
 				: await MasterDataService.organization.add(data as Omit<IOrganization, 'id'>);
+
 			toast({ description: response.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter, organizationTypeFilter);
 			return true;
@@ -295,6 +281,21 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 			console.error('Failed to save item', error);
 			toast({ title: 'Error', description: error.message || `Failed to save ${noun}.`, variant: 'danger' });
 			return false;
+		}
+	};
+
+	const handleDelete = async (id: string) => {
+		try {
+			await MasterDataService.organization.delete(id);
+			toast({ title: 'Success', description: 'Organization deleted successfully.', variant: 'success' });
+			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter, organizationTypeFilter);
+		} catch (error: any) {
+			console.error('Failed to delete item', error);
+			toast({
+				title: 'Error',
+				description: error?.message || 'Failed to delete organization.',
+				variant: 'danger',
+			});
 		}
 	};
 
