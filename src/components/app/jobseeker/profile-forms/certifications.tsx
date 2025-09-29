@@ -35,7 +35,7 @@ const certificationSchema = z
 		expireDate: z.string().optional(),
 		score: z.string().optional(),
 		outOf: z.string().optional(),
-		certificateFile: z.any().optional(),
+		certificateFile: z.any().refine((file) => file, 'Certificate file is required.'),
 	})
 	.refine(
 		(data) => {
@@ -73,6 +73,7 @@ const defaultData: CertificationFormValues = {
 	expireDate: '',
 	score: '',
 	outOf: '',
+	certificateFile: null,
 };
 
 interface CertificationFormProps {
@@ -186,6 +187,7 @@ function CertificationForm({
 							name='certificateFile'
 							label='Certificate'
 							accept='.pdf, image/*'
+							required
 						/>
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
