@@ -1,3 +1,4 @@
+
 import { IFile, ProficiancyLevel } from "./common.interface";
 import { ICommonMasterData } from "./master-data.interface";
 
@@ -37,9 +38,15 @@ export type Training = {
 export type Certification = {
 	id?: number;
 	name: string;
-	issuingOrganization: string;
-	issueDate: string;
-	proof?: IFile | File;
+	issuingAuthority: string;
+	certificationTypeId?: number;
+	certificationType?: ICommonMasterData;
+	examDate?: string;
+	issueDate?: string;
+	expireDate?: string;
+	score?: string;
+	outOf?: string;
+	certificateFile?: IFile | File;
 };
 
 

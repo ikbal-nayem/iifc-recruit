@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -6,14 +7,17 @@ import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FilePreviewer } from '@/components/ui/file-previewer';
 import { Form } from '@/components/ui/form';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormFileUpload } from '@/components/ui/form-file-upload';
 import { FormInput } from '@/components/ui/form-input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Certification } from '@/interfaces/jobseeker.interface';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makeFormData } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
+import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO } from 'date-fns';
 import { Edit, FileText, Loader2, PlusCircle, Trash } from 'lucide-react';
@@ -21,16 +25,55 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-const certificationSchema = z.object({
-	name: z.string().min(1, 'Certificate name is required.'),
-	issuingOrganization: z.string().min(1, 'Issuing organization is required.'),
-	issueDate: z.string().min(1, 'Issue date is required.'),
-	proof: z.any().optional(),
-});
+const certificationSchema = z
+	.object({
+		name: z.string().min(1, 'Certificate name is required.'),
+		issuingAuthority: z.string().min(1, 'Issuing organization is required.'),
+		certificationTypeId: z.string().optional(),
+		examDate: z.string().optional(),
+		issueDate: z.string().optional(),
+		expireDate: z.string().optional(),
+		score: z.string().optional(),
+		outOf: z.string().optional(),
+		certificateFile: z.any().optional(),
+	})
+	.refine(
+		(data) => {
+			if (data.issueDate && data.expireDate) {
+				return new Date(data.issueDate) <= new Date(data.expireDate);
+			}
+			return true;
+		},
+		{
+			message: 'Expiry date cannot be before issue date.',
+			path: ['expireDate'],
+		}
+	)
+	.refine(
+		(data) => {
+			if (data.examDate && data.issueDate) {
+				return new Date(data.examDate) <= new Date(data.issueDate);
+			}
+			return true;
+		},
+		{
+			message: 'Issue date cannot be before exam date.',
+			path: ['issueDate'],
+		}
+	);
 
 type CertificationFormValues = z.infer<typeof certificationSchema>;
 
-const defaultData = { name: '', issuingOrganization: '', issueDate: '' };
+const defaultData: CertificationFormValues = {
+	name: '',
+	issuingAuthority: '',
+	certificationTypeId: '',
+	examDate: '',
+	issueDate: '',
+	expireDate: '',
+	score: '',
+	outOf: '',
+};
 
 interface CertificationFormProps {
 	isOpen: boolean;
@@ -38,23 +81,44 @@ interface CertificationFormProps {
 	onSubmit: (data: Certification) => Promise<boolean>;
 	initialData?: Certification;
 	noun: string;
+	certificationTypes: ICommonMasterData[];
 }
 
-function CertificationForm({ isOpen, onClose, onSubmit, initialData, noun }: CertificationFormProps) {
+function CertificationForm({
+	isOpen,
+	onClose,
+	onSubmit,
+	initialData,
+	noun,
+	certificationTypes,
+}: CertificationFormProps) {
 	const form = useForm<CertificationFormValues>({
 		resolver: zodResolver(certificationSchema),
-		defaultValues: initialData || defaultData,
+		defaultValues: initialData
+			? { ...initialData, certificationTypeId: initialData.certificationTypeId?.toString() }
+			: defaultData,
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	useEffect(() => {
-		form.reset(initialData || defaultData);
+		form.reset(
+			initialData
+				? {
+						...initialData,
+						certificationTypeId: initialData.certificationTypeId?.toString(),
+				  }
+				: defaultData
+		);
 	}, [initialData, form]);
 
 	const handleSubmit = (data: CertificationFormValues) => {
 		setIsSubmitting(true);
-		const payload: Certification = { ...data, id: initialData?.id };
-
+		const payload: Certification = {
+			...data,
+			id: initialData?.id,
+			certificationTypeId: data.certificationTypeId ? parseInt(data.certificationTypeId) : undefined,
+			certificateFile: data.certificateFile,
+		};
 		onSubmit(payload)
 			.then(() => onClose())
 			.finally(() => setIsSubmitting(false));
@@ -76,26 +140,53 @@ function CertificationForm({ isOpen, onClose, onSubmit, initialData, noun }: Cer
 							required
 							disabled={isSubmitting}
 						/>
+						<FormInput
+							control={form.control}
+							name='issuingAuthority'
+							label='Issuing Authority'
+							placeholder='e.g., Vercel'
+							required
+							disabled={isSubmitting}
+						/>
+						<FormAutocomplete
+							control={form.control}
+							name='certificationTypeId'
+							label='Certification Type'
+							placeholder='Select type'
+							options={certificationTypes.map((t) => ({ value: t.id!.toString(), label: t.name }))}
+							disabled={isSubmitting}
+						/>
 						<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-							<div className='md:col-span-2'>
-								<FormInput
-									control={form.control}
-									name='issuingOrganization'
-									label='Issuing Organization'
-									placeholder='e.g., Vercel'
-									required
-									disabled={isSubmitting}
-								/>
-							</div>
+							<FormDatePicker
+								control={form.control}
+								name='examDate'
+								label='Exam Date'
+								disabled={isSubmitting}
+							/>
 							<FormDatePicker
 								control={form.control}
 								name='issueDate'
 								label='Issue Date'
-								required
+								disabled={isSubmitting}
+							/>
+							<FormDatePicker
+								control={form.control}
+								name='expireDate'
+								label='Expiry Date'
 								disabled={isSubmitting}
 							/>
 						</div>
-						<FormFileUpload control={form.control} name='proof' label='Proof' accept='.pdf, image/*' />
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+							<FormInput control={form.control} name='score' label='Score' disabled={isSubmitting} />
+							<FormInput control={form.control} name='outOf' label='Out Of' disabled={isSubmitting} />
+						</div>
+
+						<FormFileUpload
+							control={form.control}
+							name='certificateFile'
+							label='Certificate'
+							accept='.pdf, image/*'
+						/>
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
 								Cancel
@@ -118,12 +209,17 @@ export default function ProfileFormCertifications() {
 	const [editingItem, setEditingItem] = useState<Certification | undefined>(undefined);
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
+	const [certificationTypes, setCertificationTypes] = useState<ICommonMasterData[]>([]);
 
-	const loadCertifications = React.useCallback(async () => {
+	const loadData = React.useCallback(async () => {
 		setIsLoading(true);
 		try {
-			const response = await JobseekerProfileService.certification.get();
-			setHistory(response.body);
+			const [certRes, typesRes] = await Promise.all([
+				JobseekerProfileService.certification.get(),
+				MasterDataService.certification.get(),
+			]);
+			setHistory(certRes.body);
+			setCertificationTypes(typesRes.body);
 		} catch (error) {
 			toast({
 				description: 'Failed to load certifications.',
@@ -135,8 +231,8 @@ export default function ProfileFormCertifications() {
 	}, [toast]);
 
 	useEffect(() => {
-		loadCertifications();
-	}, [loadCertifications]);
+		loadData();
+	}, [loadData]);
 
 	const handleOpenForm = (item?: Certification) => {
 		setEditingItem(item);
@@ -152,7 +248,7 @@ export default function ProfileFormCertifications() {
 		try {
 			const response = await JobseekerProfileService.certification.save(makeFormData(formData));
 			toast({ description: response.message, variant: 'success' });
-			loadCertifications();
+			loadData();
 			return true;
 		} catch (error: any) {
 			toast({ title: 'Error', description: error.message || 'An error occurred.', variant: 'danger' });
@@ -164,7 +260,7 @@ export default function ProfileFormCertifications() {
 		try {
 			await JobseekerProfileService.certification.delete(id);
 			toast({ description: 'Certification deleted successfully.', variant: 'success' });
-			loadCertifications();
+			loadData();
 		} catch (error: any) {
 			toast({
 				title: 'Error',
@@ -179,14 +275,23 @@ export default function ProfileFormCertifications() {
 			<Card key={item.id} className='p-4 flex justify-between items-start'>
 				<div>
 					<p className='font-semibold'>{item.name}</p>
-					<p className='text-sm text-muted-foreground'>
-						{item.issuingOrganization} - {format(parseISO(item.issueDate), 'MMM yyyy')}
-					</p>
-					{item.proof && (
-						<FilePreviewer file={item.proof}>
+					<p className='text-sm text-muted-foreground'>{item.issuingAuthority}</p>
+					{item.issueDate && (
+						<p className='text-xs text-muted-foreground'>
+							Issued: {format(parseISO(item.issueDate), 'MMM yyyy')}
+						</p>
+					)}
+					{item.score && (
+						<p className='text-xs text-muted-foreground'>
+							Score: {item.score}
+							{item.outOf && ` / ${item.outOf}`}
+						</p>
+					)}
+					{item.certificateFile && (
+						<FilePreviewer file={item.certificateFile}>
 							<button className='text-xs text-primary hover:underline flex items-center gap-1 mt-1'>
 								<FileText className='h-3 w-3' />
-								View Proof
+								View Certificate
 							</button>
 						</FilePreviewer>
 					)}
@@ -243,6 +348,7 @@ export default function ProfileFormCertifications() {
 					onSubmit={handleFormSubmit}
 					initialData={editingItem}
 					noun='Certification'
+					certificationTypes={certificationTypes}
 				/>
 			)}
 		</div>
