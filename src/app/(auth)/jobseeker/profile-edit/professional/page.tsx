@@ -10,8 +10,8 @@ export type ProfessionalExperienceMasterData = {
 async function getMasterData(): Promise<ProfessionalExperienceMasterData> {
 	try {
 		const [positionLevelsRes, organizationsRes] = await Promise.all([
-			MasterDataService.positionLevel.getList({ meta: { limit: 1000 } }),
-			MasterDataService.organization.getList({ meta: { limit: 1000 } }),
+			MasterDataService.positionLevel.get(),
+			MasterDataService.organization.get(),
 		]);
 		return {
 			positionLevels: positionLevelsRes.body || [],
