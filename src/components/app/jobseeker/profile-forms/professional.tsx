@@ -82,7 +82,7 @@ function ProfessionalExperienceForm({
 					<DialogTitle>{initialData ? 'Edit Experience' : 'Add New Experience'}</DialogTitle>
 				</DialogHeader>
 				<Form {...form}>
-					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4 max-h-[80vh] overflow-y-auto pr-4 pl-1'>
+					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4 pr-1'>
 						<FormInput
 							control={form.control}
 							name='positionTitle'
