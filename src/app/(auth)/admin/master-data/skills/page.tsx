@@ -54,7 +54,7 @@ export default function MasterSkillsPage() {
 	const handleAdd = async (name: string): Promise<boolean | null> => {
 		try {
 			const resp = await MasterDataService.skill.add({ name, isActive: true });
-			toast({ description: resp.message, variant: 'success' });
+			toast({ description: resp.message || "Skill added succesfully.", variant: 'success' });
 			// Refresh list to show the new item
 			loadSkills(meta.page, debouncedSearch);
 			return true;
@@ -69,7 +69,7 @@ export default function MasterSkillsPage() {
 		try {
 			const updatedSkill = await MasterDataService.skill.update(item);
 			setSkills(skills.map((s) => (s?.id === item?.id ? updatedSkill?.body : s)));
-			toast({ description: updatedSkill?.message, variant: 'success' });
+			toast({ description: updatedSkill?.message || "Skill updated succesfully", variant: 'success' });
 			return true;
 		} catch (error) {
 			console.error('Failed to update skill', error);

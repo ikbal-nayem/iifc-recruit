@@ -1,9 +1,16 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
@@ -18,7 +25,6 @@ import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 interface MasterDataItem {
 	id?: string;
@@ -72,7 +78,7 @@ function MasterDataForm<T extends MasterDataItem>({
 					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
-					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4'>
+					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4' noValidate>
 						<FormInput
 							control={form.control}
 							name='name'
@@ -255,7 +261,9 @@ export function MasterDataCrud<T extends MasterDataItem>({
 				</CardContent>
 				{meta && meta.totalRecords && meta.totalRecords > 0 ? (
 					<CardFooter>
-						{onPageChange && <Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} noun={noun} />}
+						{onPageChange && (
+							<Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} noun={noun} />
+						)}
 					</CardFooter>
 				) : null}
 			</Card>
