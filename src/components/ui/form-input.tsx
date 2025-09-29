@@ -1,19 +1,17 @@
-
 'use client';
 
-import * as React from 'react';
-import { Control, FieldPath, FieldValues } from 'react-hook-form';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import * as React from 'react';
+import { Control, FieldPath, FieldValues } from 'react-hook-form';
 
 interface FormInputProps<TFieldValues extends FieldValues> extends React.ComponentProps<'input'> {
 	control: Control<TFieldValues>;
 	name: FieldPath<TFieldValues>;
 	label: string;
 	required?: boolean;
-    startIcon?: React.ReactNode;
-    children?: React.ReactNode;
+	startIcon?: React.ReactNode;
 }
 
 export function FormInput<TFieldValues extends FieldValues>({
@@ -21,8 +19,8 @@ export function FormInput<TFieldValues extends FieldValues>({
 	name,
 	label,
 	required = false,
-    startIcon,
-    children,
+	startIcon,
+	children,
 	...props
 }: FormInputProps<TFieldValues>) {
 	return (
@@ -31,15 +29,12 @@ export function FormInput<TFieldValues extends FieldValues>({
 			name={name}
 			render={({ field }) => (
 				<FormItem>
-					<div className='flex items-center'>
-						<FormLabel required={required}>{label}</FormLabel>
-						{children}
-					</div>
+					<FormLabel required={required}>{label}</FormLabel>
 					<FormControl>
-                        <div className="relative flex items-center">
-                            {startIcon && <div className="absolute left-3">{startIcon}</div>}
-						    <Input {...props} {...field} className={cn(startIcon && "pl-10", 'h-11')} />
-                        </div>
+						<div className='relative flex items-center'>
+							{startIcon && <div className='absolute left-3'>{startIcon}</div>}
+							<Input {...props} {...field} className={cn(startIcon && 'pl-10', 'h-11')} />
+						</div>
 					</FormControl>
 					<FormMessage />
 				</FormItem>

@@ -36,4 +36,20 @@ export const makeDownloadURL = (file: IFile | string | null | undefined) => {
 	if (typeof file === 'string') return `${makePreviewURL(file)}&disposition=attachment`;
 	if ('filePath' in file) return `${makePreviewURL(file.filePath)}&disposition=attachment`;
 	return URL.createObjectURL(file);
-}
+};
+
+export const makeFormData = (reqData: IObject) => {
+	let data = { ...reqData };
+	const fd = new FormData();
+	Object.keys(data).forEach((key) => {
+		if (data[key] instanceof File) {
+			fd.append(key, data[key]);
+			delete data[key];
+		} else if (data[key] instanceof FileList) {
+			for (const k of Object.keys(data[key])) fd.append(key, data[key][+k]);
+			delete data[key];
+		}
+	});
+	fd.append('body', JSON.stringify(data));
+	return fd;
+};

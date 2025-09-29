@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -14,7 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Training } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
-import { makePreviewURL } from '@/lib/utils';
+import { makeFormData, makePreviewURL } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO } from 'date-fns';
@@ -30,7 +29,7 @@ const trainingSchema = z
 		trainingTypeId: z.string().optional(),
 		startDate: z.string().min(1, 'Start date is required.'),
 		endDate: z.string().min(1, 'End date is required.'),
-		certificate: z.any().optional(),
+		certificateFile: z.any().optional(),
 	})
 	.refine((data) => new Date(data.startDate) <= new Date(data.endDate), {
 		message: 'End date cannot be before start date.',
@@ -44,7 +43,7 @@ const defaultData = { name: '', institutionName: '', trainingTypeId: '', startDa
 interface TrainingFormProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onSubmit: (data: FormData) => Promise<boolean>;
+	onSubmit: (data: Training) => Promise<boolean>;
 	initialData?: Training;
 	noun: string;
 	trainingTypes: ICommonMasterData[];
@@ -73,25 +72,17 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 		);
 	}, [initialData, form]);
 
-	const handleSubmit = async (data: TrainingFormValues) => {
+	const handleSubmit = (data: TrainingFormValues) => {
 		setIsSubmitting(true);
-		const formData = new FormData();
-		const payload: any = { ...data, id: initialData?.id };
-
-		if (data.certificate instanceof File) {
-			formData.append('certificate', data.certificate);
-			delete payload.certificate; // Don't send file object in JSON body
-		} else {
-			// If certificate is not a new file, it might be an existing IFile object or null
-			payload.certificate = initialData?.certificate || null;
-		}
-
-		formData.append('body', JSON.stringify(payload));
-		const success = await onSubmit(formData);
-		if (success) {
-			onClose();
-		}
-		setIsSubmitting(false);
+		onSubmit({
+			...data,
+			trainingTypeId: data?.trainingTypeId || '',
+			id: initialData?.id,
+		})
+			.then(() => {
+				onClose();
+			})
+			.finally(() => setIsSubmitting(false));
 	};
 
 	return (
@@ -145,9 +136,9 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 						</div>
 						<FormFileUpload
 							control={form.control}
-							name='certificate'
-							label='Certificate'
-							accept='.pdf'
+							name='certificateFile'
+							label='CertificateFile'
+							accept='.pdf, .image/*'
 						/>
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
@@ -198,9 +189,9 @@ export function ProfileFormTraining({ trainingTypes }: { trainingTypes: ICommonM
 		setEditingItem(undefined);
 	};
 
-	const handleFormSubmit = async (formData: FormData) => {
+	const handleFormSubmit = async (formData: Training) => {
 		try {
-			const response = await JobseekerProfileService.training.save(formData);
+			const response = await JobseekerProfileService.training.save(makeFormData(formData));
 			toast({ description: response.message, variant: 'success' });
 			loadTrainings();
 			return true;
@@ -217,7 +208,6 @@ export function ProfileFormTraining({ trainingTypes }: { trainingTypes: ICommonM
 			loadTrainings();
 		} catch (error: any) {
 			toast({
-				title: 'Error',
 				description: error.message || 'Failed to delete training.',
 				variant: 'danger',
 			});
@@ -233,15 +223,15 @@ export function ProfileFormTraining({ trainingTypes }: { trainingTypes: ICommonM
 					<p className='text-xs text-muted-foreground'>
 						{format(parseISO(item.startDate), 'MMM yyyy')} - {format(parseISO(item.endDate), 'MMM yyyy')}
 					</p>
-					{item.certificate && (
+					{item.certificateFile && (
 						<a
-							href={makePreviewURL(item.certificate)}
+							href={makePreviewURL(item.certificateFile)}
 							target='_blank'
 							rel='noopener noreferrer'
 							className='text-xs text-primary hover:underline flex items-center gap-1 mt-1'
 						>
 							<FileText className='h-3 w-3' />
-							View Certificate
+							View CertificateFile
 						</a>
 					)}
 				</div>

@@ -31,7 +31,7 @@ export type Training = {
 	trainingType?: ICommonMasterData;
 	startDate: string;
 	endDate: string;
-	certificate?: IFile | File;
+	certificateFile?: IFile | File;
 };
 
 export type Resume = {
