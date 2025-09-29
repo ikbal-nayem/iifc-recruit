@@ -26,7 +26,7 @@ spec:
       imagePullSecrets:
       - name: imagerepo.gems.gov.bd
       hostAliases:
-        - ip: 123.49.62.235
-          hostnames:
-            - stage-recruit.iifc.gov.bd
-            - apidev-recruit.iifc.gov.bd
+#        - ip: 123.49.62.235
+#          hostnames:
+#            - stage-recruit.iifc.gov.bd
+#            - apidev-recruit.iifc.gov.bd
