@@ -14,7 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { districts, divisions, upazilas } from '@/lib/bd-divisions-districts-upazilas';
 import type { Candidate } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Linkedin, Mail, Phone, Save, Video } from 'lucide-react';
+import { Linkedin, Mail, Phone, Save, Upload, Video } from 'lucide-react';
 import Image from 'next/image';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
@@ -64,59 +64,55 @@ function ProfileImageCard({ avatar }: { avatar: string }) {
 	};
 
 	return (
-		<Card className='glassmorphism'>
-			<CardHeader>
-				<CardTitle>Profile Photo</CardTitle>
-			</CardHeader>
+		<div className='p-6 rounded-lg border bg-card text-card-foreground shadow-sm glassmorphism'>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onImageSubmit)}>
-					<CardContent className='space-y-4'>
-						<div className='flex items-center gap-6'>
-							<Image
-								src={avatarPreview || avatar}
-								alt='Candidate Avatar'
-								width={80}
-								height={80}
-								className='rounded-full object-cover w-20 h-20 border'
-								data-ai-hint='avatar person'
-							/>
+					<div className='flex items-center gap-6'>
+						<Image
+							src={avatarPreview || avatar}
+							alt='Admin Avatar'
+							width={100}
+							height={100}
+							className='rounded-full object-cover h-24 w-24 border-2 border-primary/50'
+							data-ai-hint='avatar person'
+						/>
+						<div className='flex-1 space-y-3'>
 							<FormField
 								control={form.control}
 								name='avatarFile'
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel
-											htmlFor='avatar-upload'
-											className='font-normal text-sm text-muted-foreground'
-										>
-											<Button asChild variant='outline'>
-												<span>Choose Photo</span>
-											</Button>
-											<FormControl>
-												<Input
-													id='avatar-upload'
-													type='file'
-													className='sr-only'
-													accept='image/png, image/jpeg, image/gif'
-													onChange={handleFileChange}
-												/>
-											</FormControl>
-											<p className='text-xs pt-2'>PNG, JPG, GIF up to 10MB</p>
+										<FormLabel htmlFor='avatar-upload' className='sr-only'>
+											Choose Photo
 										</FormLabel>
+										<FormControl>
+											<Input
+												id='avatar-upload'
+												type='file'
+												className='hidden'
+												accept='image/png, image/jpeg, image/gif'
+												onChange={handleFileChange}
+											/>
+										</FormControl>
+										<Button asChild variant='outline' className='cursor-pointer'>
+											<label htmlFor='avatar-upload'>
+												<Upload className='mr-2 h-4 w-4' />
+												Choose Photo
+											</label>
+										</Button>
+										<p className='text-xs text-muted-foreground'>PNG, JPG, GIF up to 10MB</p>
 										<FormMessage />
 									</FormItem>
 								)}
 							/>
+							<Button type='submit' size='sm' disabled={!form.formState.isDirty}>
+								Save Photo
+							</Button>
 						</div>
-					</CardContent>
-					<CardFooter>
-						<Button type='submit' disabled={!form.formState.isDirty}>
-							Save Photo
-						</Button>
-					</CardFooter>
+					</div>
 				</form>
 			</Form>
-		</Card>
+		</div>
 	);
 }
 
