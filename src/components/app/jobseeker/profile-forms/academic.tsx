@@ -232,7 +232,6 @@ export function ProfileFormAcademic({ masterData }: ProfileFormAcademicProps) {
 			setHistory(academicRes.body);
 		} catch (error) {
 			toast({
-				title: 'Error',
 				description: 'Failed to load academic history.',
 				variant: 'danger',
 			});

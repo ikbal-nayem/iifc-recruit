@@ -1,11 +1,15 @@
-
 import { axiosIns } from '@/config/api.config';
 import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
-import { ICommonMasterData, IEducationInstitution, IOrganization, IStatus } from '@/interfaces/master-data.interface';
+import {
+	ICommonMasterData,
+	IEducationInstitution,
+	IOrganization,
+	IStatus,
+} from '@/interfaces/master-data.interface';
 
 const createMasterDataCrud = <T extends ICommonMasterData>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[]>> =>
-		await axiosIns.get(`/master-data/${entity}/get`),
+		await axiosIns.get(`/master-data/${entity}/get?isDeleted=false`),
 	getList: async (payload: IApiRequest): Promise<IApiResponse<T[]>> =>
 		await axiosIns.post(`/master-data/${entity}/get-list`, payload),
 	add: async (payload: Omit<T, 'id'>): Promise<IApiResponse<T>> =>
@@ -29,17 +33,7 @@ export const MasterDataService = {
 	trainingType: createMasterDataCrud('training-type'),
 	country: createMasterDataCrud('country'),
 	educationInstitution: createMasterDataCrud<IEducationInstitution>('education-institution'),
-	organization: {
-		getList: async (payload: IApiRequest): Promise<IApiResponse<IOrganization[]>> =>
-			await axiosIns.post('/master-data/organization/get-list', payload),
-		get: async (): Promise<IApiResponse<IOrganization[]>> => await axiosIns.get('/master-data/organization/get'),
-		add: async (payload: Partial<IOrganization>): Promise<IApiResponse<IOrganization>> =>
-			await axiosIns.post('/master-data/organization/create', payload),
-		update: async (payload: Partial<IOrganization>): Promise<IApiResponse<IOrganization>> =>
-			await axiosIns.put('/master-data/organization/update', payload),
-		delete: async (id: string): Promise<void> =>
-			await axiosIns.delete(`/master-data/organization/delete/${id}`),
-	},
+	organization: createMasterDataCrud<IOrganization>('organization'),
 	client: {
 		getList: async (): Promise<IApiResponse<IOrganization[]>> => await axiosIns.get('/client/get-list'),
 		add: async (payload: { organizationId: string }): Promise<IApiResponse<any>> =>
