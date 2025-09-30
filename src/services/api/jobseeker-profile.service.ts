@@ -1,3 +1,4 @@
+
 'use client';
 
 import { axiosIns } from '@/config/api.config';
@@ -64,5 +65,11 @@ export const JobseekerProfileService = {
 			await axiosIns.post(`/jobseeker/resume/toggle-active-status?resumeId=${resumeId}`),
 		delete: async (id: number): Promise<IApiResponse<void>> =>
 			await axiosIns.delete(`/jobseeker/resume/delete/${id}`),
+	},
+	personalInfo: {
+		saveProfileImage: async (formData: FormData): Promise<IApiResponse<any>> =>
+			await axiosIns.post('/jobseeker/personal-info/profile-image/save', formData, {
+				headers: { 'Content-Type': 'multipart/form-data' },
+			}),
 	},
 };

@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { districts, divisions, upazilas } from '@/lib/bd-divisions-districts-upazilas';
 import type { Candidate } from '@/lib/types';
+import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Linkedin, Mail, Phone, Save, Upload, Video } from 'lucide-react';
 import Image from 'next/image';
@@ -36,6 +37,7 @@ type ProfileImageFormValues = z.infer<typeof profileImageSchema>;
 function ProfileImageCard({ avatar }: { avatar: string }) {
 	const { toast } = useToast();
 	const [avatarPreview, setAvatarPreview] = React.useState<string | null>(avatar);
+	const [isSubmitting, setIsSubmitting] = React.useState(false);
 
 	const form = useForm<ProfileImageFormValues>({
 		resolver: zodResolver(profileImageSchema),
@@ -56,13 +58,31 @@ function ProfileImageCard({ avatar }: { avatar: string }) {
 	};
 
 	const onImageSubmit = (data: ProfileImageFormValues) => {
-		console.log('New avatar file:', data.avatarFile);
-		toast({
-			title: 'Photo Updated',
-			description: 'Your new profile photo has been saved.',
-			variant: 'success',
-		});
-		// Here you would typically upload the file and then update the UI
+		setIsSubmitting(true);
+		const formData = new FormData();
+		formData.append('file', data.avatarFile);
+
+		JobseekerProfileService.personalInfo
+			.saveProfileImage(formData)
+			.then((res) => {
+				toast({
+					title: 'Photo Updated',
+					description: res.message || 'Your new profile photo has been saved.',
+					variant: 'success',
+				});
+				form.reset();
+				// Here you would typically refetch user data to get the new avatar URL
+			})
+			.catch((err) => {
+				toast({
+					title: 'Upload Failed',
+					description: err.message || 'There was a problem uploading your photo.',
+					variant: 'danger',
+				});
+			})
+			.finally(() => {
+				setIsSubmitting(false);
+			});
 	};
 
 	return (
@@ -107,7 +127,8 @@ function ProfileImageCard({ avatar }: { avatar: string }) {
 									</FormItem>
 								)}
 							/>
-							<Button type='submit' size='sm' disabled={!avatarFile}>
+							<Button type='submit' size='sm' disabled={!avatarFile || isSubmitting}>
+								{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
 								Save Photo
 							</Button>
 						</div>
