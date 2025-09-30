@@ -1,13 +1,17 @@
 import { ProfileFormPersonal } from '@/components/app/jobseeker/profile-forms/personal';
 import { candidates } from '@/lib/data';
 import { MasterDataService } from '@/services/api/master-data.service';
-import { ICommonMasterData } from '@/interfaces/master-data.interface';
+
+export type EnumOption = {
+	label: string;
+	value: string;
+};
 
 export type PersonalInfoMasterData = {
-	genders: ICommonMasterData[];
-	maritalStatuses: ICommonMasterData[];
-	professionalStatuses: ICommonMasterData[];
-	religions: ICommonMasterData[];
+	genders: EnumOption[];
+	maritalStatuses: EnumOption[];
+	professionalStatuses: EnumOption[];
+	religions: EnumOption[];
 };
 
 async function getMasterData(): Promise<PersonalInfoMasterData> {

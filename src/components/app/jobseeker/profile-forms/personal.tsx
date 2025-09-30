@@ -298,7 +298,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
                         label="Gender"
                         required
                         placeholder="Select gender"
-                        options={masterData.genders.map(g => ({ label: g.name, value: g.name }))}
+                        options={masterData.genders.map(g => ({ label: g.label, value: g.value }))}
                     />
                     <FormSelect
                         control={form.control}
@@ -306,7 +306,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
                         label="Marital Status"
                         required
                         placeholder="Select marital status"
-                        options={masterData.maritalStatuses.map(s => ({ label: s.name, value: s.name }))}
+                        options={masterData.maritalStatuses.map(s => ({ label: s.label, value: s.value }))}
                     />
                 </div>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -315,14 +315,14 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
                         name="religion" 
                         label="Religion" 
                         placeholder="Select religion"
-                        options={masterData.religions.map(r => ({ label: r.name, value: r.name }))}
+                        options={masterData.religions.map(r => ({ label: r.label, value: r.value }))}
                     />
                     <FormSelect 
                         control={form.control} 
                         name="professionalStatus" 
                         label="Professional Status"
                         placeholder="Select status"
-                        options={masterData.professionalStatuses.map(s => ({ label: s.name, value: s.name }))}
+                        options={masterData.professionalStatuses.map(s => ({ label: s.label, value: s.value }))}
                     />
                 </div>
             </CardContent>
