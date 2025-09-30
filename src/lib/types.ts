@@ -1,6 +1,6 @@
 
 import { Award, Language, Publication, Resume, Training } from '@/interfaces/jobseeker.interface';
-import { ICommonMasterData, IOrganization } from '@/interfaces/master-data.interface';
+import { ICommonMasterData, IEducationInstitution, IOrganization } from '@/interfaces/master-data.interface';
 import { IFile } from './common.interface';
 
 export type UserRole = 'candidate' | 'admin';
@@ -42,11 +42,26 @@ export type PersonalInfo = {
 	videoProfile?: string;
 };
 
+export enum ResultSystem {
+	GRADE = 'G',
+	DIVISION = 'D',
+	CLASS = 'C',
+}
+
 export type AcademicInfo = {
 	id?: string;
-	degree: string;
-	institution: string;
-	graduationYear: number;
+	degreeLevel: ICommonMasterData;
+	domain: ICommonMasterData;
+	institution: IEducationInstitution;
+	degreeTitle: string;
+	specializationArea?: string;
+	resultSystem: ResultSystem;
+	resultAchieved?: string;
+	cgpa?: number;
+	outOfCgpa?: number;
+	passingYear: string;
+	duration?: number;
+	achievement?: string;
 	certificateFile?: IFile | File;
 };
 
@@ -126,3 +141,4 @@ export type Activity = {
 	target: string;
 	timestamp: string;
 };
+
