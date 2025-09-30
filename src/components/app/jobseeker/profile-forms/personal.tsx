@@ -15,7 +15,7 @@ import { districts, divisions, upazilas } from '@/lib/bd-divisions-districts-upa
 import type { Candidate } from '@/lib/types';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Linkedin, Mail, Phone, Save, Upload, Video } from 'lucide-react';
+import { Linkedin, Mail, Phone, Save, Upload, Video, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
@@ -503,3 +503,5 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 		</div>
 	);
 }
+
+    
