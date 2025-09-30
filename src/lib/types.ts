@@ -47,7 +47,7 @@ export type AcademicInfo = {
 	degree: string;
 	institution: string;
 	graduationYear: number;
-	certificateUrls?: string[];
+	certificateFile?: IFile | File;
 };
 
 export type ProfessionalInfo = {
