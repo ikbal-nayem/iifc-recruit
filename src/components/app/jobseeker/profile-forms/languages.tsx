@@ -13,7 +13,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Language } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
-import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
 import * as React from 'react';
@@ -109,26 +108,23 @@ function LanguageForm({
 	);
 }
 
-export function ProfileFormLanguages() {
+interface ProfileFormLanguagesProps {
+	languageOptions: ICommonMasterData[];
+	proficiencyOptions: { label: string; value: string }[];
+}
+
+export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: ProfileFormLanguagesProps) {
 	const { toast } = useToast();
 	const [history, setHistory] = React.useState<Language[]>([]);
 	const [editingItem, setEditingItem] = React.useState<Language | undefined>(undefined);
 	const [isFormOpen, setIsFormOpen] = React.useState(false);
 	const [isLoading, setIsLoading] = React.useState(true);
-	const [languageOptions, setLanguageOptions] = React.useState<ICommonMasterData[]>([]);
-	const [proficiencyOptions, setProficiencyOptions] = React.useState<{ label: string; value: string }[]>([]);
 
 	const loadData = React.useCallback(async () => {
 		setIsLoading(true);
 		try {
-			const [languagesRes, masterLanguagesRes, proficiencyRes] = await Promise.all([
-				JobseekerProfileService.language.get(),
-				MasterDataService.language.get(),
-				MasterDataService.getEnum('proficiency-level'),
-			]);
+			const languagesRes = await JobseekerProfileService.language.get();
 			setHistory(languagesRes.body);
-			setLanguageOptions(masterLanguagesRes.body);
-			setProficiencyOptions(proficiencyRes.body);
 		} catch (error) {
 			toast({
 				description: 'Failed to load data.',
