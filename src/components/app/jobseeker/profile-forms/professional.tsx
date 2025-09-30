@@ -1,31 +1,30 @@
-
 'use client';
 
 import { ProfessionalExperienceMasterData } from '@/app/(auth)/jobseeker/profile-edit/professional/page';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { FilePreviewer } from '@/components/ui/file-previewer';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
+import { FormDatePicker } from '@/components/ui/form-datepicker';
+import { FormFileUpload } from '@/components/ui/form-file-upload';
+import { FormInput } from '@/components/ui/form-input';
+import { FormSelect } from '@/components/ui/form-select';
+import { FormSwitch } from '@/components/ui/form-switch';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { ProfessionalInfo } from '@/interfaces/jobseeker.interface';
+import { makeFormData } from '@/lib/utils';
+import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO } from 'date-fns';
-import { Edit, PlusCircle, Trash, FileText, Loader2 } from 'lucide-react';
+import { Edit, FileText, Loader2, PlusCircle, Trash } from 'lucide-react';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FormAutocomplete } from '@/components/ui/form-autocomplete';
-import { FormDatePicker } from '@/components/ui/form-datepicker';
-import { FormInput } from '@/components/ui/form-input';
-import { FormSwitch } from '@/components/ui/form-switch';
-import { FormFileUpload } from '@/components/ui/form-file-upload';
-import { FilePreviewer } from '@/components/ui/file-previewer';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { FormSelect } from '@/components/ui/form-select';
-import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
-import { makeFormData } from '@/lib/utils';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ProfessionalInfo } from '@/interfaces/jobseeker.interface';
 
 const professionalInfoSchema = z
 	.object({
@@ -44,7 +43,7 @@ const professionalInfoSchema = z
 		referencePostDept: z.string().optional(),
 		certificateFile: z.any().optional(),
 	})
-	.refine((data) => !data.isCurrent ? !!data.resignDate : true, {
+	.refine((data) => (!data.isCurrent ? !!data.resignDate : true), {
 		message: 'Resign date is required unless you are currently working here.',
 		path: ['resignDate'],
 	});
@@ -59,21 +58,21 @@ interface ProfessionalExperienceFormProps {
 	masterData: ProfessionalExperienceMasterData;
 }
 
-const defaultValues = {
+const defaultValues: ProfessionalInfo = {
 	positionTitle: '',
-	positionLevelId: '' as unknown as undefined,
-	organizationId: '' as unknown as undefined,
+	positionLevelId: 0,
+	organizationId: 0,
 	responsibilities: '',
 	joinDate: '',
 	resignDate: '',
 	isCurrent: false,
-	salary: '' as unknown as undefined,
+	salary: 0,
 	salaryCurrency: 'BDT',
 	referenceName: '',
 	referenceEmail: '',
 	referencePhone: '',
 	referencePostDept: '',
-	certificateFile: null,
+	certificateFile: undefined,
 };
 
 function ProfessionalExperienceForm({
@@ -306,7 +305,11 @@ export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
 
 	const renderItem = (item: ProfessionalInfo) => {
 		const joinDate = format(parseISO(item.joinDate), 'MMM yyyy');
-		const resignDate = item.isCurrent ? 'Present' : item.resignDate ? format(parseISO(item.resignDate), 'MMM yyyy') : '';
+		const resignDate = item.isCurrent
+			? 'Present'
+			: item.resignDate
+			? format(parseISO(item.resignDate), 'MMM yyyy')
+			: '';
 
 		return (
 			<Card key={item.id} className='p-4 flex justify-between items-start'>

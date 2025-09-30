@@ -77,7 +77,7 @@ export type ProfessionalInfo = {
 	resignDate?: string;
 	isCurrent: boolean;
 	salary?: number;
-	salaryCurrency?: string;
+	salaryCurrency?: "BDT" | "USD";
 	referenceName?: string;
 	referenceEmail?: string;
 	referencePhone?: string;
