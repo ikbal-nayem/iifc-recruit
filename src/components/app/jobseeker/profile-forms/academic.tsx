@@ -11,6 +11,7 @@ import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormFileUpload } from '@/components/ui/form-file-upload';
 import { FormInput } from '@/components/ui/form-input';
 import { FormRadioGroup } from '@/components/ui/form-radio-group';
+import { FormSelect } from '@/components/ui/form-select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
@@ -110,6 +111,12 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 
 	const watchResultSystem = form.watch('resultSystem');
 
+	const currentYear = new Date().getFullYear();
+	const years = Array.from({ length: currentYear - 1959 }, (_, i) => {
+		const year = currentYear - i;
+		return { value: year.toString(), label: year.toString() };
+	});
+
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent className='max-w-2xl'>
@@ -169,12 +176,13 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 							<FormInput control={form.control} name='resultAchieved' label='Result Achieved' />
 						)}
 						<div className='grid grid-cols-2 gap-4'>
-							<FormInput
+							<FormSelect
 								control={form.control}
 								name='passingYear'
 								label='Passing Year'
 								required
-								type='number'
+								options={years}
+								placeholder='Select year'
 							/>
 							<FormInput control={form.control} name='duration' label='Duration (Years)' type='number' />
 						</div>
@@ -369,4 +377,3 @@ export function ProfileFormAcademic() {
 		</div>
 	);
 }
-
