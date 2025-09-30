@@ -41,10 +41,12 @@ function ProfileImageCard({ avatar }: { avatar: string }) {
 		resolver: zodResolver(profileImageSchema),
 	});
 
+	const avatarFile = form.watch('avatarFile');
+
 	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
 		if (file) {
-			form.setValue('avatarFile', file);
+			form.setValue('avatarFile', file, { shouldValidate: true });
 			if (avatarPreview && avatarPreview.startsWith('blob:')) {
 				URL.revokeObjectURL(avatarPreview);
 			}
@@ -105,7 +107,7 @@ function ProfileImageCard({ avatar }: { avatar: string }) {
 									</FormItem>
 								)}
 							/>
-							<Button type='submit' size='sm' disabled={!form.formState.isDirty}>
+							<Button type='submit' size='sm' disabled={!avatarFile}>
 								Save Photo
 							</Button>
 						</div>
