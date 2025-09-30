@@ -1,5 +1,5 @@
-import { IFile, ProficiancyLevel } from './common.interface';
-import { ICommonMasterData } from './master-data.interface';
+import { IFile, ProficiancyLevel, ResultSystem } from './common.interface';
+import { ICommonMasterData, IEducationInstitution, IOrganization } from './master-data.interface';
 
 export type Language = {
 	id?: number;
@@ -44,6 +44,43 @@ export type Certification = {
 	expireDate?: string;
 	score?: string;
 	outOf?: string;
+	certificateFile?: IFile | File;
+};
+
+export type AcademicInfo = {
+	id?: string;
+	degreeLevel: ICommonMasterData;
+	domain: ICommonMasterData;
+	institution: IEducationInstitution;
+	degreeTitle: string;
+	specializationArea?: string;
+	resultSystem: ResultSystem;
+	resultAchieved?: string;
+	cgpa?: number;
+	outOfCgpa?: number;
+	passingYear: string;
+	duration?: number;
+	achievement?: string;
+	certificateFile?: IFile | File;
+};
+
+export type ProfessionalInfo = {
+	id?: string;
+	positionTitle: string;
+	positionLevel?: ICommonMasterData;
+	positionLevelId: number;
+	organization?: IOrganization;
+	organizationId: number;
+	responsibilities: string;
+	joinDate: string;
+	resignDate?: string;
+	isCurrent: boolean;
+	salary?: number;
+	salaryCurrency?: string;
+	referenceName?: string;
+	referenceEmail?: string;
+	referencePhone?: string;
+	referencePostDept?: string;
 	certificateFile?: IFile | File;
 };
 

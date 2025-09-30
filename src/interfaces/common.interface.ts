@@ -9,6 +9,12 @@ export enum ProficiancyLevel {
 	NATIVE = 'NATIVE',
 }
 
+export enum ResultSystem {
+	GRADE = 'G',
+	DIVISION = 'D',
+	CLASS = 'C',
+}
+
 export interface IMeta {
 	limit: number;
 	nextPage?: number;

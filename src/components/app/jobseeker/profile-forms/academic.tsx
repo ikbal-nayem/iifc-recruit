@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -14,11 +13,11 @@ import { FormRadioGroup } from '@/components/ui/form-radio-group';
 import { FormSelect } from '@/components/ui/form-select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import { ResultSystem } from '@/interfaces/common.interface';
+import { AcademicInfo } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
-import { AcademicInfo, ResultSystem } from '@/lib/types';
 import { makeFormData } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
-import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, FileText, Loader2, PlusCircle, Trash } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
@@ -211,37 +210,30 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 	);
 }
 
-export function ProfileFormAcademic() {
+interface ProfileFormAcademicProps {
+	masterData: {
+		degreeLevels: ICommonMasterData[];
+		domains: ICommonMasterData[];
+		institutions: IEducationInstitution[];
+	};
+}
+
+export function ProfileFormAcademic({ masterData }: ProfileFormAcademicProps) {
 	const { toast } = useToast();
 	const [history, setHistory] = React.useState<AcademicInfo[]>([]);
 	const [editingItem, setEditingItem] = React.useState<AcademicInfo | undefined>(undefined);
 	const [isFormOpen, setIsFormOpen] = React.useState(false);
 	const [isLoading, setIsLoading] = React.useState(true);
-	const [masterData, setMasterData] = useState({
-		degreeLevels: [],
-		domains: [],
-		institutions: [],
-	});
 
 	const loadData = React.useCallback(async () => {
 		setIsLoading(true);
 		try {
-			const [academicRes, levelsRes, domainsRes, institutionsRes] = await Promise.all([
-				JobseekerProfileService.academic.get(),
-				MasterDataService.degreeLevel.get(),
-				MasterDataService.educationDomain.get(),
-				MasterDataService.educationInstitution.get(),
-			]);
+			const academicRes = await JobseekerProfileService.academic.get();
 			setHistory(academicRes.body);
-			setMasterData({
-				degreeLevels: levelsRes.body,
-				domains: domainsRes.body,
-				institutions: institutionsRes.body,
-			});
 		} catch (error) {
 			toast({
 				title: 'Error',
-				description: 'Failed to load academic history and master data.',
+				description: 'Failed to load academic history.',
 				variant: 'danger',
 			});
 		} finally {

@@ -1,15 +1,21 @@
-
 'use client';
 
 import { axiosIns } from '@/config/api.config';
 import { IApiResponse } from '@/interfaces/common.interface';
-import { Award, Certification, Language, Publication, Resume, Training } from '@/interfaces/jobseeker.interface';
+import {
+	AcademicInfo,
+	Award,
+	Certification,
+	Language,
+	ProfessionalInfo,
+	Publication,
+	Resume,
+	Training,
+} from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
-import { AcademicInfo, ProfessionalInfo } from '@/lib/types';
-import { makeFormData } from '@/lib/utils';
 
 const createProfileCrud = <T extends { id?: number | string }>(entity: string) => ({
-	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/jobseeker/${entity}/get`),
+	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/jobseeker/${entity}/get?isDeleted=false`),
 
 	add: async (payload: Omit<T, 'id'>): Promise<IApiResponse<T>> =>
 		await axiosIns.post(`/jobseeker/${entity}/create`, payload),
@@ -21,46 +27,27 @@ const createProfileCrud = <T extends { id?: number | string }>(entity: string) =
 		await axiosIns.delete(`/jobseeker/${entity}/delete/${id}`),
 });
 
+const createProfileCrudWithFormData = <T extends { id?: number | string }>(entity: string) => ({
+	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/jobseeker/${entity}/get?isDeleted=false`),
+
+	save: async (formData: FormData): Promise<IApiResponse<T>> =>
+		await axiosIns.post(`/jobseeker/${entity}/save`, formData, {
+			headers: { 'Content-Type': 'multipart/form-data' },
+		}),
+
+	delete: async (id: number | string): Promise<IApiResponse<void>> =>
+		await axiosIns.delete(`/jobseeker/${entity}/delete/${id}`),
+});
+
 export const JobseekerProfileService = {
 	publication: createProfileCrud<Publication>('publication'),
 	language: createProfileCrud<Language>('language'),
 	award: createProfileCrud<Award>('award'),
-	academic: {
-		get: async (): Promise<IApiResponse<AcademicInfo[]>> => await axiosIns.get('/jobseeker/academic/get'),
-		save: async (formData: FormData): Promise<IApiResponse<AcademicInfo>> =>
-			await axiosIns.post('/jobseeker/academic/save', formData, {
-				headers: { 'Content-Type': 'multipart/form-data' },
-			}),
-		delete: async (id: number | string): Promise<IApiResponse<void>> =>
-			await axiosIns.delete(`/jobseeker/academic/delete/${id}`),
-	},
-	experience: {
-		get: async (): Promise<IApiResponse<ProfessionalInfo[]>> => await axiosIns.get('/jobseeker/experience/get'),
-		save: async (formData: FormData): Promise<IApiResponse<ProfessionalInfo>> =>
-			await axiosIns.post('/jobseeker/experience/save', formData, {
-				headers: { 'Content-Type': 'multipart/form-data' },
-			}),
-		delete: async (id: number | string): Promise<IApiResponse<void>> =>
-			await axiosIns.delete(`/jobseeker/experience/delete/${id}`),
-	},
-	training: {
-		get: async (): Promise<IApiResponse<Training[]>> => await axiosIns.get('/jobseeker/training/get'),
-		save: async (formData: FormData): Promise<IApiResponse<Training>> =>
-			await axiosIns.post('/jobseeker/training/save', formData, {
-				headers: { 'Content-Type': 'multipart/form-data' },
-			}),
-		delete: async (id: number): Promise<IApiResponse<void>> =>
-			await axiosIns.delete(`/jobseeker/training/delete/${id}`),
-	},
-	certification: {
-		get: async (): Promise<IApiResponse<Certification[]>> => await axiosIns.get('/jobseeker/certification/get'),
-		save: async (formData: FormData): Promise<IApiResponse<Certification>> =>
-			await axiosIns.post('/jobseeker/certification/save', formData, {
-				headers: { 'Content-Type': 'multipart/form-data' },
-			}),
-		delete: async (id: number): Promise<IApiResponse<void>> =>
-			await axiosIns.delete(`/jobseeker/certification/delete/${id}`),
-	},
+	academic: createProfileCrudWithFormData<AcademicInfo>('education'),
+	experience: createProfileCrudWithFormData<ProfessionalInfo>('experience'),
+	training: createProfileCrudWithFormData<Training>('training'),
+	certification: createProfileCrudWithFormData<Certification>('certification'),
+
 	getSkills: async (): Promise<IApiResponse<ICommonMasterData[]>> =>
 		await axiosIns.get(`/jobseeker/skill/get-skills`),
 
