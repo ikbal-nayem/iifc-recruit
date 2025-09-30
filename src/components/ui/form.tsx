@@ -124,7 +124,7 @@ const FormControl = React.forwardRef<
           ? `${formDescriptionId}`
           : `${formDescriptionId} ${formMessageId}`
       }
-      className={cn(error && "ring-2 ring-danger focus-visible:ring-danger", className)}
+      className={cn(error && "ring-2 ring-danger focus-visible:ring-danger rounded-md", className)}
       {...props}
     />
   )
