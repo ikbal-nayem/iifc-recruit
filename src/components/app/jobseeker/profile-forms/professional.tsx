@@ -61,13 +61,13 @@ interface ProfessionalExperienceFormProps {
 
 const defaultValues = {
 	positionTitle: '',
-	positionLevelId: undefined,
-	organizationId: undefined,
+	positionLevelId: '' as unknown as undefined,
+	organizationId: '' as unknown as undefined,
 	responsibilities: '',
 	joinDate: '',
 	resignDate: '',
 	isCurrent: false,
-	salary: undefined,
+	salary: '' as unknown as undefined,
 	salaryCurrency: 'BDT',
 	referenceName: '',
 	referenceEmail: '',
