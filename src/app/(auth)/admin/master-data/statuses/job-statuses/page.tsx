@@ -34,7 +34,7 @@ export default function MasterJobStatusesPage() {
 				console.error('Failed to load items', error);
 				toast({
 					title: 'Error',
-					description: 'Failed to load job statuses.',
+					description: 'Failed to load circular statuses.',
 					variant: 'danger',
 				});
 			} finally {
@@ -56,7 +56,7 @@ export default function MasterJobStatusesPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to add item', error);
-			toast({ title: 'Error', description: 'Failed to add job status.', variant: 'danger' });
+			toast({ title: 'Error', description: 'Failed to add circular status.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -69,7 +69,7 @@ export default function MasterJobStatusesPage() {
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update job status.', variant: 'danger' });
+			toast({ title: 'Error', description: 'Failed to update circular status.', variant: 'danger' });
 			return null;
 		}
 	};
@@ -77,20 +77,20 @@ export default function MasterJobStatusesPage() {
 	const handleDelete = async (id: string): Promise<boolean> => {
 		try {
 			await MasterDataService.status.delete(id);
-			toast({ title: 'Success', description: 'Job status deleted successfully.', variant: 'success' });
+			toast({ title: 'Success', description: 'Circular status deleted successfully.', variant: 'success' });
 			loadItems(debouncedSearch);
 			return true;
 		} catch (error) {
 			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: 'Failed to delete job status.', variant: 'danger' });
+			toast({ title: 'Error', description: 'Failed to delete circular status.', variant: 'danger' });
 			return false;
 		}
 	};
 
 	return (
 		<MasterDataCrud<IStatus>
-			title='Job Statuses'
-			description='Manage the statuses used for job postings (e.g., Open, Closed).'
+			title='Circular Statuses'
+			description='Manage the statuses used for job circulars (e.g., Open, Closed).'
 			noun='Status'
 			items={items}
 			meta={meta}

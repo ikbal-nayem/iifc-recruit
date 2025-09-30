@@ -85,7 +85,7 @@ export const adminNavLinks: NavLink[] = [
 				icon: ListChecks,
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/statuses'),
 				submenu: [
-					{ href: '/admin/master-data/statuses/job-statuses', label: 'Job Statuses' },
+					{ href: '/admin/master-data/statuses/job-statuses', label: 'Circular Statuses' },
 					{
 						href: '/admin/master-data/statuses/application-statuses',
 						label: 'Application Statuses',
