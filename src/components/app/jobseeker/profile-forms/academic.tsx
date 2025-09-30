@@ -63,10 +63,10 @@ const defaultValues = {
 	specializationArea: '',
 	resultSystem: ResultSystem.GRADE,
 	resultAchieved: '',
-	cgpa: undefined,
-	outOfCgpa: undefined,
+	cgpa: '' as unknown as undefined,
+	outOfCgpa: '' as unknown as undefined,
 	passingYear: '',
-	duration: undefined,
+	duration: '' as unknown as undefined,
 	achievement: '',
 	certificateFile: null,
 };
