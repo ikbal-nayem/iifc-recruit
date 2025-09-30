@@ -1,12 +1,6 @@
+
 export interface IObject {
 	[key: string]: any;
-}
-
-export enum ProficiancyLevel {
-	BEGINNER = 'BEGINNER',
-	INTERMEDIATE = 'INTERMEDIATE',
-	ADVANCED = 'ADVANCED',
-	NATIVE = 'NATIVE',
 }
 
 export enum ResultSystem {

@@ -1,13 +1,8 @@
+
 import { ProficiancyLevel } from '@/interfaces/common.interface';
 import { addDays, format, subDays, subMonths, subYears } from 'date-fns';
 import type { Activity, Application, Candidate, Job } from './types';
 
-export const proficiencyOptions = [
-	{ label: 'Beginner', value: ProficiancyLevel.BEGINNER },
-	{ label: 'Intermediate', value: ProficiancyLevel.INTERMEDIATE },
-	{ label: 'Advanced', value: ProficiancyLevel.ADVANCED },
-	{ label: 'Native', value: ProficiancyLevel.NATIVE },
-];
 
 export const candidates: Candidate[] = [
 	{
@@ -82,8 +77,8 @@ export const candidates: Candidate[] = [
 			},
 		],
 		languages: [
-			{ languageId: 1, proficiency: ProficiancyLevel.NATIVE },
-			{ languageId: 2, proficiency: ProficiancyLevel.ADVANCED },
+			{ languageId: 1, proficiency: 'NATIVE' },
+			{ languageId: 2, proficiency: 'ADVANCED' },
 		],
 		publications: [
 			{
@@ -153,7 +148,7 @@ export const candidates: Candidate[] = [
 		],
 		skills: ['Product Management', 'Agile', 'JIRA', 'Market Research', 'Roadmap Planning'],
 		certifications: [],
-		languages: [{ languageId: 1, proficiency: ProficiancyLevel.NATIVE }],
+		languages: [{ languageId: 1, proficiency: 'NATIVE' }],
 		publications: [],
 		awards: [],
 		trainings: [],
@@ -216,7 +211,7 @@ export const candidates: Candidate[] = [
 		],
 		skills: ['Python', 'TensorFlow', 'PyTorch', 'SQL', 'Tableau', 'Machine Learning'],
 		certifications: [],
-		languages: [{ languageId: 1, proficiency: ProficiancyLevel.NATIVE }],
+		languages: [{ languageId: 1, proficiency: 'NATIVE' }],
 		publications: [],
 		awards: [],
 		trainings: [],
@@ -276,7 +271,7 @@ export const candidates: Candidate[] = [
 		],
 		skills: ['Figma', 'Sketch', 'Adobe XD', 'User Research', 'Prototyping'],
 		certifications: [],
-		languages: [{ languageId: 1, proficiency: ProficiancyLevel.NATIVE }],
+		languages: [{ languageId: 1, proficiency: 'NATIVE' }],
 		publications: [],
 		awards: [],
 		trainings: [],

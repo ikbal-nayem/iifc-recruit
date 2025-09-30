@@ -1,11 +1,12 @@
-import { IFile, ProficiancyLevel, ResultSystem } from './common.interface';
+
+import { IFile, ResultSystem } from './common.interface';
 import { ICommonMasterData, IEducationInstitution, IOrganization } from './master-data.interface';
 
 export type Language = {
 	id?: number;
 	languageId: number;
 	language?: ICommonMasterData;
-	proficiency: ProficiancyLevel;
+	proficiency: string;
 };
 
 export type Publication = {

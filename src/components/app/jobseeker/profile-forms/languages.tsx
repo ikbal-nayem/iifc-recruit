@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -9,10 +10,8 @@ import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormSelect } from '@/components/ui/form-select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { ProficiancyLevel } from '@/interfaces/common.interface';
 import { Language } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
-import { proficiencyOptions } from '@/lib/data';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -23,14 +22,7 @@ import * as z from 'zod';
 
 const languageSchema = z.object({
 	languageId: z.number().min(1, 'Language is required.'),
-	proficiency: z
-		.enum([
-			ProficiancyLevel.BEGINNER,
-			ProficiancyLevel.INTERMEDIATE,
-			ProficiancyLevel.ADVANCED,
-			ProficiancyLevel.NATIVE,
-		])
-		.default(ProficiancyLevel.INTERMEDIATE),
+	proficiency: z.string().min(1, 'Proficiency is required'),
 });
 
 type LanguageFormValues = z.infer<typeof languageSchema>;
@@ -42,11 +34,20 @@ interface LanguageFormProps {
 	initialData?: Language;
 	noun: string;
 	languageOptions: { label: string; value: number }[];
+	proficiencyOptions: { label: string; value: string }[];
 }
 
-const defaultValues = { languageId: 0, proficiency: ProficiancyLevel.INTERMEDIATE };
+const defaultValues = { languageId: 0, proficiency: '' };
 
-function LanguageForm({ isOpen, onClose, onSubmit, initialData, noun, languageOptions }: LanguageFormProps) {
+function LanguageForm({
+	isOpen,
+	onClose,
+	onSubmit,
+	initialData,
+	noun,
+	languageOptions,
+	proficiencyOptions,
+}: LanguageFormProps) {
 	const form = useForm<LanguageFormValues>({
 		resolver: zodResolver(languageSchema),
 		defaultValues: initialData || defaultValues,
@@ -115,19 +116,22 @@ export function ProfileFormLanguages() {
 	const [isFormOpen, setIsFormOpen] = React.useState(false);
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [languageOptions, setLanguageOptions] = React.useState<ICommonMasterData[]>([]);
+	const [proficiencyOptions, setProficiencyOptions] = React.useState<{ label: string; value: string }[]>([]);
 
-	const loadLanguages = React.useCallback(async () => {
+	const loadData = React.useCallback(async () => {
 		setIsLoading(true);
 		try {
-			const [languagesRes, masterLanguagesRes] = await Promise.all([
+			const [languagesRes, masterLanguagesRes, proficiencyRes] = await Promise.all([
 				JobseekerProfileService.language.get(),
 				MasterDataService.language.get(),
+				MasterDataService.getEnum('proficiency-level'),
 			]);
 			setHistory(languagesRes.body);
 			setLanguageOptions(masterLanguagesRes.body);
+			setProficiencyOptions(proficiencyRes.body);
 		} catch (error) {
 			toast({
-				description: 'Failed to load languages.',
+				description: 'Failed to load data.',
 				variant: 'danger',
 			});
 		} finally {
@@ -136,8 +140,8 @@ export function ProfileFormLanguages() {
 	}, [toast]);
 
 	React.useEffect(() => {
-		loadLanguages();
-	}, [loadLanguages]);
+		loadData();
+	}, [loadData]);
 
 	const handleOpenForm = (item?: Language) => {
 		setEditingItem(item);
@@ -156,7 +160,7 @@ export function ProfileFormLanguages() {
 				? await JobseekerProfileService.language.update({ ...payload, id })
 				: await JobseekerProfileService.language.add(payload);
 			toast({ description: response.message, variant: 'success' });
-			loadLanguages();
+			loadData();
 			return true;
 		} catch (error: any) {
 			toast({ title: 'Error', description: error.message || 'An error occurred.', variant: 'danger' });
@@ -168,7 +172,7 @@ export function ProfileFormLanguages() {
 		try {
 			const response = await JobseekerProfileService.language.delete(id);
 			toast({ description: response.message || 'Language deleted successfully.', variant: 'success' });
-			loadLanguages();
+			loadData();
 		} catch (error: any) {
 			toast({
 				title: 'Error',
@@ -239,6 +243,7 @@ export function ProfileFormLanguages() {
 					initialData={editingItem}
 					noun='Language'
 					languageOptions={languageOptions.map((l) => ({ label: l.name, value: l.id as number }))}
+					proficiencyOptions={proficiencyOptions}
 				/>
 			)}
 		</div>

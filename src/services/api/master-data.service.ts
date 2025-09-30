@@ -1,3 +1,4 @@
+
 import { axiosIns } from '@/config/api.config';
 import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
 import {
@@ -20,7 +21,7 @@ const createMasterDataCrud = <T extends ICommonMasterData>(entity: string) => ({
 });
 
 export const MasterDataService = {
-	getEnum: async (enumType: 'gender' | 'marital-status' | 'professional-status' | 'religion'): Promise<IApiResponse<{label: string; value: string}[]>> =>
+	getEnum: async (enumType: 'gender' | 'marital-status' | 'professional-status' | 'religion' | 'proficiency-level'): Promise<IApiResponse<{label: string; value: string}[]>> =>
 		await axiosIns.get(`/master-data/enum/${enumType}`),
 
 	skill: createMasterDataCrud('skill'),
