@@ -93,12 +93,12 @@ const FormLabel = React.forwardRef<
     required?: boolean;
   }
 >(({ className, required, children, ...props }, ref) => {
-  const { error, formItemId } = useFormField()
+  const { formItemId } = useFormField()
 
   return (
     <Label
       ref={ref}
-      className={cn(error && "text-danger", className)}
+      className={className}
       htmlFor={formItemId}
       {...props}
     >
@@ -112,7 +112,7 @@ FormLabel.displayName = "FormLabel"
 const FormControl = React.forwardRef<
   React.ElementRef<typeof Slot>,
   React.ComponentPropsWithoutRef<typeof Slot>
->(({ ...props }, ref) => {
+>(({ className, ...props }, ref) => {
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
 
   return (
@@ -124,7 +124,7 @@ const FormControl = React.forwardRef<
           ? `${formDescriptionId}`
           : `${formDescriptionId} ${formMessageId}`
       }
-      aria-invalid={!!error}
+      className={cn(error && "ring-2 ring-danger focus-visible:ring-danger", className)}
       {...props}
     />
   )
