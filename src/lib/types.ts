@@ -25,6 +25,8 @@ export type PersonalInfo = {
 	gender: 'Male' | 'Female' | 'Other';
 	maritalStatus: 'Single' | 'Married' | 'Widow' | 'Divorce';
 	nationality: string;
+    religion?: string;
+    professionalStatus?: string;
 
 	nid?: string;
 	passportNo?: string;

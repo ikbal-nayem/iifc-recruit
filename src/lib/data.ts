@@ -24,6 +24,8 @@ export const candidates: Candidate[] = [
 			gender: 'Female',
 			maritalStatus: 'Married',
 			nationality: 'Bangladeshi',
+            religion: 'Islam',
+            professionalStatus: 'Experienced',
 			nid: '1234567890123',
 			presentAddress: {
 				line1: '123 Tech Avenue',
@@ -111,6 +113,8 @@ export const candidates: Candidate[] = [
 			gender: 'Male',
 			maritalStatus: 'Single',
 			nationality: 'Bangladeshi',
+            religion: 'Christianity',
+            professionalStatus: 'Mid-Level',
 			presentAddress: {
 				line1: '456 Innovation Drive',
 				upazila: 'Panchlaish',
@@ -172,6 +176,8 @@ export const candidates: Candidate[] = [
 			gender: 'Male',
 			maritalStatus: 'Single',
 			nationality: 'Bangladeshi',
+            religion: 'Hinduism',
+            professionalStatus: 'Entry-Level',
 			presentAddress: {
 				line1: '789 ML Lane',
 				upazila: 'Sylhet Sadar',
@@ -233,6 +239,8 @@ export const candidates: Candidate[] = [
 			gender: 'Female',
 			maritalStatus: 'Single',
 			nationality: 'Bangladeshi',
+            religion: 'Buddhism',
+            professionalStatus: 'Student',
 			presentAddress: {
 				line1: '101 Design Street',
 				upazila: 'Boalia',

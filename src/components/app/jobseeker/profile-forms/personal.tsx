@@ -44,6 +44,8 @@ const personalInfoSchema = z.object({
   gender: z.enum(['Male', 'Female', 'Other']),
   maritalStatus: z.enum(['Single', 'Married', 'Widow', 'Divorce']),
   nationality: z.string().min(1, 'Nationality is required'),
+  religion: z.string().optional(),
+  professionalStatus: z.string().optional(),
   
   nid: z.string().optional(),
   passportNo: z.string().optional(),
@@ -313,6 +315,10 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                             { label: 'Divorce', value: 'Divorce' },
                         ]}
                     />
+                </div>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormInput control={form.control} name="religion" label="Religion" />
+                    <FormInput control={form.control} name="professionalStatus" label="Professional Status" />
                 </div>
             </CardContent>
             </Card>
