@@ -36,7 +36,7 @@ export function FormSelect<TFieldValues extends FieldValues>({
 					<FormLabel required={required}>{label}</FormLabel>
 					<Select onValueChange={field.onChange} defaultValue={field.value} disabled={disabled} {...props}>
 						<FormControl>
-							<SelectTrigger className='h-11'>
+							<SelectTrigger className={cn('h-11', !field.value && 'text-muted-foreground')}>
 								<SelectValue placeholder={placeholder} />
 							</SelectTrigger>
 						</FormControl>
