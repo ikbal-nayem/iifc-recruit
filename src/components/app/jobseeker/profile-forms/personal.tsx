@@ -25,9 +25,11 @@ import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormCheckbox } from '@/components/ui/form-checkbox';
+import { PersonalInfoMasterData } from '@/app/(auth)/jobseeker/profile-edit/page';
 
 interface ProfileFormProps {
   candidate: Candidate;
+  masterData: PersonalInfoMasterData;
 }
 
 const personalInfoSchema = z.object({
@@ -41,8 +43,8 @@ const personalInfoSchema = z.object({
   headline: z.string().min(1, 'Headline is required'),
   
   dateOfBirth: z.string().min(1, 'Date of birth is required'),
-  gender: z.enum(['Male', 'Female', 'Other']),
-  maritalStatus: z.enum(['Single', 'Married', 'Widow', 'Divorce']),
+  gender: z.string().min(1, 'Gender is required'),
+  maritalStatus: z.string().min(1, 'Marital status is required'),
   nationality: z.string().min(1, 'Nationality is required'),
   religion: z.string().optional(),
   professionalStatus: z.string().optional(),
@@ -77,7 +79,7 @@ const personalInfoSchema = z.object({
 
 type PersonalInfoFormValues = z.infer<typeof personalInfoSchema>;
 
-export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
+export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps) {
   const { toast } = useToast();
   const [avatarPreview, setAvatarPreview] = React.useState<string | null>(candidate.personalInfo.avatar);
 
@@ -296,11 +298,7 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                         label="Gender"
                         required
                         placeholder="Select gender"
-                        options={[
-                            { label: 'Male', value: 'Male' },
-                            { label: 'Female', value: 'Female' },
-                            { label: 'Other', value: 'Other' },
-                        ]}
+                        options={masterData.genders.map(g => ({ label: g.name, value: g.name }))}
                     />
                     <FormSelect
                         control={form.control}
@@ -308,17 +306,24 @@ export function ProfileFormPersonal({ candidate }: ProfileFormProps) {
                         label="Marital Status"
                         required
                         placeholder="Select marital status"
-                        options={[
-                            { label: 'Single', value: 'Single' },
-                            { label: 'Married', value: 'Married' },
-                            { label: 'Widow', value: 'Widow' },
-                            { label: 'Divorce', value: 'Divorce' },
-                        ]}
+                        options={masterData.maritalStatuses.map(s => ({ label: s.name, value: s.name }))}
                     />
                 </div>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormInput control={form.control} name="religion" label="Religion" />
-                    <FormInput control={form.control} name="professionalStatus" label="Professional Status" />
+                    <FormSelect 
+                        control={form.control} 
+                        name="religion" 
+                        label="Religion" 
+                        placeholder="Select religion"
+                        options={masterData.religions.map(r => ({ label: r.name, value: r.name }))}
+                    />
+                    <FormSelect 
+                        control={form.control} 
+                        name="professionalStatus" 
+                        label="Professional Status"
+                        placeholder="Select status"
+                        options={masterData.professionalStatuses.map(s => ({ label: s.name, value: s.name }))}
+                    />
                 </div>
             </CardContent>
             </Card>
