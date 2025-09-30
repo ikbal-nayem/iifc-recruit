@@ -6,7 +6,6 @@ import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { ProfessionalInfo } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO } from 'date-fns';
 import { Edit, PlusCircle, Trash, FileText, Loader2 } from 'lucide-react';
@@ -26,6 +25,7 @@ import { FormSelect } from '@/components/ui/form-select';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { makeFormData } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ProfessionalInfo } from '@/interfaces/jobseeker.interface';
 
 const professionalInfoSchema = z
 	.object({
@@ -103,7 +103,6 @@ function ProfessionalExperienceForm({
 						...initialData,
 						positionLevelId: initialData.positionLevel?.id,
 						organizationId: initialData.organization?.id,
-						certificateFile: initialData.certificateFile || null,
 				  }
 				: defaultValues
 		);
