@@ -12,7 +12,7 @@ import { Calendar, CalendarProps } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 
 interface FormDatePickerProps<TFieldValues extends FieldValues> extends Omit<CalendarProps, 'onSelect' | 'selected' | 'mode'> {
-	control: Control<TFieldValues>;
+	control: Control<TFieldValues> | any;
 	name: FieldPath<TFieldValues>;
 	label: string;
 	required?: boolean;
