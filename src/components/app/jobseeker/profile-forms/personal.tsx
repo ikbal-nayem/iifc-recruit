@@ -216,25 +216,6 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 	const watchPermanentDivisionId = form.watch('permanentDivisionId');
 	const watchPermanentDistrictId = form.watch('permanentDistrictId');
 	const watchSameAsPresent = form.watch('sameAsPresentAddress');
-	const watchPresentAddressFields = form.watch([
-		'presentDivisionId',
-		'presentDistrictId',
-		'presentUpazilaId',
-		'presentAddress',
-		'presentPostCode',
-	]);
-
-	React.useEffect(() => {
-		if (watchSameAsPresent) {
-			form.setValue('permanentDivisionId', watchPresentAddressFields[0]);
-			form.setValue('permanentDistrictId', watchPresentAddressFields[1]);
-			form.setValue('permanentUpazilaId', watchPresentAddressFields[2]);
-			form.setValue('permanentAddress', watchPresentAddressFields[3]);
-			form.setValue('permanentPostCode', watchPresentAddressFields[4]);
-			setPermanentDistricts(presentDistricts);
-			setPermanentUpazilas(presentUpazilas);
-		}
-	}, [watchSameAsPresent, watchPresentAddressFields, form, presentDistricts, presentUpazilas]);
 
 	const useFetchDependentData = (
 		watchId: number | undefined,
@@ -295,6 +276,34 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 		setIsLoadingPermanentUpazilas,
 		() => form.setValue('permanentUpazilaId', undefined)
 	);
+
+	const handleSameAsPresentChange = (checked: boolean) => {
+		if (checked) {
+			const presentValues = form.getValues([
+				'presentDivisionId',
+				'presentDistrictId',
+				'presentUpazilaId',
+				'presentAddress',
+				'presentPostCode',
+			]);
+			form.setValue('permanentDivisionId', presentValues[0]);
+			form.setValue('permanentDistrictId', presentValues[1]);
+			form.setValue('permanentUpazilaId', presentValues[2]);
+			form.setValue('permanentAddress', presentValues[3]);
+			form.setValue('permanentPostCode', presentValues[4]);
+
+			setPermanentDistricts(presentDistricts);
+			setPermanentUpazilas(presentUpazilas);
+		} else {
+			// Optionally clear permanent address fields when unchecked
+			form.setValue('permanentDivisionId', undefined);
+			form.setValue('permanentDistrictId', undefined);
+			form.setValue('permanentUpazilaId', undefined);
+			form.setValue('permanentAddress', '');
+			form.setValue('permanentPostCode', undefined);
+		}
+	};
+
 
 	const onSubmit = (data: PersonalInfoFormValues) => {
 		toast({
@@ -444,7 +453,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												disabled={isMasterDataMissing}
 												options={masterData.divisions.map((d) => ({
 													label: d.name,
-													value: d.id!.toString(),
+													value: d.id!,
 												}))}
 											/>
 											<FormSelect
@@ -453,7 +462,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												label='District'
 												placeholder='Select district'
 												disabled={isLoadingPresentDistricts || isMasterDataMissing}
-												options={presentDistricts.map((d) => ({ label: d.name, value: d.id!.toString() }))}
+												options={presentDistricts.map((d) => ({ label: d.name, value: d.id! }))}
 											/>
 											<FormSelect
 												control={form.control}
@@ -461,7 +470,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												label='Upazila / Thana'
 												placeholder='Select upazila'
 												disabled={isLoadingPresentUpazilas || isMasterDataMissing}
-												options={presentUpazilas.map((u) => ({ label: u.name, value: u.id!.toString() }))}
+												options={presentUpazilas.map((u) => ({ label: u.name, value: u.id! }))}
 											/>
 										</div>
 										<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -477,11 +486,23 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 								</div>
 								<div>
 									<h3 className='text-md font-medium mb-2'>Permanent Address</h3>
-									<FormCheckbox
+									<FormField
 										control={form.control}
 										name='sameAsPresentAddress'
-										label='Same as present address'
+										render={({ field }) => (
+											<FormItem className='flex flex-row items-start space-x-3 space-y-0'>
+												<FormControl>
+													<FormCheckbox
+														control={form.control}
+														name='sameAsPresentAddress'
+														label='Same as present address'
+														onCheckedChange={(checked) => handleSameAsPresentChange(Boolean(checked))}
+													/>
+												</FormControl>
+											</FormItem>
+										)}
 									/>
+
 									<div className='mt-4 space-y-4 rounded-md border p-4'>
 										<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
 											<FormSelect
@@ -492,7 +513,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												disabled={watchSameAsPresent || isMasterDataMissing}
 												options={masterData.divisions.map((d) => ({
 													label: d.name,
-													value: d.id!.toString(),
+													value: d.id!,
 												}))}
 											/>
 											<FormSelect
@@ -503,7 +524,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												disabled={watchSameAsPresent || isLoadingPermanentDistricts || isMasterDataMissing}
 												options={permanentDistricts.map((d) => ({
 													label: d.name,
-													value: d.id!.toString(),
+													value: d.id!,
 												}))}
 											/>
 											<FormSelect
@@ -514,7 +535,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												disabled={watchSameAsPresent || isLoadingPermanentUpazilas || isMasterDataMissing}
 												options={permanentUpazilas.map((u) => ({
 													label: u.name,
-													value: u.id!.toString(),
+													value: u.id!,
 												}))}
 											/>
 										</div>
@@ -579,3 +600,5 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 		</div>
 	);
 }
+
+    
