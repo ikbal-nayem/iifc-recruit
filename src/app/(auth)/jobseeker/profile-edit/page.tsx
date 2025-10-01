@@ -26,12 +26,15 @@ async function getMasterData(): Promise<PersonalInfoMasterData> {
 		MasterDataService.country.getDivisions(),
 	]);
 
-	const getFulfilledValue = <T>(result: PromiseSettledResult<T>, defaultValue: any[] = []): any[] => {
+	const getFulfilledValue = <T,>(
+		result: PromiseSettledResult<T>,
+		defaultValue: any[] = []
+	): any[] => {
 		if (result.status === 'fulfilled' && 'body' in result.value && Array.isArray(result.value.body)) {
 			return result.value.body;
 		}
 		if (result.status === 'rejected') {
-			console.error('Failed to load master data:', result.reason);
+			// console.error('Failed to load master data for personal info:', result.reason);
 		}
 		return defaultValue;
 	};
