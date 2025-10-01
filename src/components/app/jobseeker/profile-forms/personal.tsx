@@ -243,66 +243,51 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 		}
 	}, [watchSameAsPresent, watchPresentAddressFields, form, presentDistricts, presentUpazilas]);
 
-	// Fetch districts when division changes
-	const useFetchDistricts = (
-		divisionId: number,
-		setDistricts: React.Dispatch<React.SetStateAction<ICommonMasterData[]>>,
+	const useFetchDependentData = (
+		watchId: number,
+		fetcher: (id: string) => Promise<IApiResponse<ICommonMasterData[]>>,
+		setData: React.Dispatch<React.SetStateAction<ICommonMasterData[]>>,
 		setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
-		resetDistrict: () => void
+		resetFields: () => void
 	) => {
 		React.useEffect(() => {
-			if (!divisionId) {
-				setDistricts([]);
+			if (!watchId) {
+				setData([]);
+				resetFields();
 				return;
 			}
 			setIsLoading(true);
-			MasterDataService.country
-				.getDistricts(String(divisionId))
-				.then((res) => {
-					setDistricts(res.body);
-					resetDistrict();
-				})
-				.catch(() => setDistricts([]))
+			fetcher(String(watchId))
+				.then((res) => setData(res.body))
+				.catch(() => setData([]))
 				.finally(() => setIsLoading(false));
-		}, [divisionId]);
-	};
-
-	// Fetch upazilas when district changes
-	const useFetchUpazilas = (
-		districtId: number,
-		setUpazilas: React.Dispatch<React.SetStateAction<ICommonMasterData[]>>,
-		setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
-		resetUpazila: () => void
-	) => {
-		React.useEffect(() => {
-			if (!districtId) {
-				setUpazilas([]);
-				return;
-			}
-			setIsLoading(true);
-			MasterDataService.country
-				.getUpazilas(String(districtId))
-				.then((res) => {
-					setUpazilas(res.body);
-					resetUpazila();
-				})
-				.catch(() => setUpazilas([]))
-				.finally(() => setIsLoading(false));
-		}, [districtId]);
+			resetFields();
+		}, [watchId]);
 	};
 
 	// Hooks for Present Address
-	useFetchDistricts(watchPresentDivisionId, setPresentDistricts, setIsLoadingPresentDistricts, () => {
-		form.setValue('presentDistrictId', 0);
-		form.setValue('presentUpazilaId', 0);
-	});
-	useFetchUpazilas(watchPresentDistrictId, setPresentUpazilas, setIsLoadingPresentUpazilas, () =>
-		form.setValue('presentUpazilaId', 0)
+	useFetchDependentData(
+		watchPresentDivisionId,
+		MasterDataService.country.getDistricts,
+		setPresentDistricts,
+		setIsLoadingPresentDistricts,
+		() => {
+			form.setValue('presentDistrictId', 0);
+			form.setValue('presentUpazilaId', 0);
+		}
+	);
+	useFetchDependentData(
+		watchPresentDistrictId,
+		MasterDataService.country.getUpazilas,
+		setPresentUpazilas,
+		setIsLoadingPresentUpazilas,
+		() => form.setValue('presentUpazilaId', 0)
 	);
 
 	// Hooks for Permanent Address (only if not same as present)
-	useFetchDistricts(
+	useFetchDependentData(
 		!watchSameAsPresent ? watchPermanentDivisionId : 0,
+		MasterDataService.country.getDistricts,
 		setPermanentDistricts,
 		setIsLoadingPermanentDistricts,
 		() => {
@@ -310,8 +295,9 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 			form.setValue('permanentUpazilaId', 0);
 		}
 	);
-	useFetchUpazilas(
+	useFetchDependentData(
 		!watchSameAsPresent ? watchPermanentDistrictId : 0,
+		MasterDataService.country.getUpazilas,
 		setPermanentUpazilas,
 		setIsLoadingPermanentUpazilas,
 		() => form.setValue('permanentUpazilaId', 0)
@@ -478,7 +464,6 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												label='Division'
 												placeholder='Select division'
 												required
-												disabled={isMasterDataMissing}
 												options={masterData.divisions.map((d) => ({
 													label: d.name,
 													value: d.id!.toString(),
@@ -490,7 +475,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												label='District'
 												placeholder='Select district'
 												required
-												disabled={isLoadingPresentDistricts || isMasterDataMissing}
+												disabled={isLoadingPresentDistricts}
 												options={presentDistricts.map((d) => ({ label: d.name, value: d.id!.toString() }))}
 											/>
 											<FormSelect
@@ -499,7 +484,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												label='Upazila / Thana'
 												placeholder='Select upazila'
 												required
-												disabled={isLoadingPresentUpazilas || isMasterDataMissing}
+												disabled={isLoadingPresentUpazilas}
 												options={presentUpazilas.map((u) => ({ label: u.name, value: u.id!.toString() }))}
 											/>
 										</div>
@@ -531,7 +516,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												label='Division'
 												placeholder='Select division'
 												required
-												disabled={watchSameAsPresent || isMasterDataMissing}
+												disabled={watchSameAsPresent}
 												options={masterData.divisions.map((d) => ({
 													label: d.name,
 													value: d.id!.toString(),
@@ -543,7 +528,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												label='District'
 												placeholder='Select district'
 												required
-												disabled={watchSameAsPresent || isLoadingPermanentDistricts || isMasterDataMissing}
+												disabled={watchSameAsPresent || isLoadingPermanentDistricts}
 												options={permanentDistricts.map((d) => ({
 													label: d.name,
 													value: d.id!.toString(),
@@ -555,7 +540,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												label='Upazila / Thana'
 												placeholder='Select upazila'
 												required
-												disabled={watchSameAsPresent || isLoadingPermanentUpazilas || isMasterDataMissing}
+												disabled={watchSameAsPresent || isLoadingPermanentUpazilas}
 												options={permanentUpazilas.map((u) => ({
 													label: u.name,
 													value: u.id!.toString(),
