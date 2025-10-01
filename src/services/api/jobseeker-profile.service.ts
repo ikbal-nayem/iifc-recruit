@@ -1,4 +1,3 @@
-
 import { axiosIns } from '@/config/api.config';
 import { IApiResponse } from '@/interfaces/common.interface';
 import {
@@ -41,10 +40,9 @@ const createProfileCrudWithFormData = <T extends { id?: number | string }>(entit
 
 export const JobseekerProfileService = {
 	personalInfo: {
-		get: async (): Promise<IApiResponse<PersonalInfo>> =>
-			await axiosIns.get('/jobseeker/profile/personal-info'),
+		get: async (): Promise<IApiResponse<PersonalInfo>> => await axiosIns.get('/jobseeker/profile/personal-info'),
 		update: async (payload: PersonalInfo): Promise<IApiResponse<PersonalInfo>> =>
-			await axiosIns.post('/jobseeker/profile/personal-info/update', payload),
+			await axiosIns.post('/jobseeker/profile/personal-info/save', payload),
 		saveProfileImage: async (formData: FormData): Promise<IApiResponse<any>> =>
 			await axiosIns.post('/jobseeker/profile/profile-image/save', formData, {
 				headers: { 'Content-Type': 'multipart/form-data' },
