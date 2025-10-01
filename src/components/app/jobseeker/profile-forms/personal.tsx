@@ -41,7 +41,7 @@ type ProfileImageFormValues = z.infer<typeof profileImageSchema>;
 
 function ProfileImageCard({ profileImage, firstName, lastName }: { profileImage?: IFile, firstName?:string, lastName?:string }) {
 	const { toast } = useToast();
-	const [avatarPreview, setAvatarPreview] = React.useState<string | null>(profileImage?.filePath || null);
+	const [avatarPreview, setAvatarPreview] = React.useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
 
 	const form = useForm<ProfileImageFormValues>({
@@ -94,9 +94,9 @@ function ProfileImageCard({ profileImage, firstName, lastName }: { profileImage?
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onImageSubmit)}>
 					<div className='flex items-center gap-6'>
-						<Avatar className='h-24 w-24 border-2 border-primary/50'>
+						<Avatar className='h-24 w-24 border-2 border-primary/10'>
 							<AvatarImage
-								src={makePreviewURL(avatarPreview) || makePreviewURL(profileImage?.filePath)}
+								src={avatarPreview || makePreviewURL(profileImage?.filePath)}
 								alt='Admin Avatar'
 							/>
 							<AvatarFallback className='text-3xl'>{firstName?.[0]}{lastName?.[0]}</AvatarFallback>
@@ -611,3 +611,5 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 		</div>
 	);
 }
+
+    
