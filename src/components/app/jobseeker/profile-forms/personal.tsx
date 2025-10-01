@@ -20,7 +20,7 @@ import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { IApiResponse, ICommonMasterData } from '@/interfaces/master-data.interface';
-import { Alert, AlertTitle } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { makePreviewURL } from '@/lib/utils';
 import { IFile } from '@/interfaces/common.interface';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -203,6 +203,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 		resolver: zodResolver(personalInfoSchema),
 		defaultValues: {
 			...candidate.personalInfo,
+			sameAsPresentAddress: candidate.personalInfo.sameAsPresentAddress ?? true,
 			user: {
 				email: candidate.personalInfo.user?.email || '',
 				phone: candidate.personalInfo.user?.phone || '',
@@ -511,58 +512,60 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 										)}
 									/>
 
-									<div className='mt-4 space-y-4 rounded-md border p-4'>
-										<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-											<FormSelect
-												control={form.control}
-												name='permanentDivisionId'
-												label='Division'
-												placeholder='Select division'
-												disabled={watchSameAsPresent}
-												options={masterData.divisions.map((d) => ({
-													label: d.name,
-													value: d.id!,
-												}))}
-											/>
-											<FormSelect
-												control={form.control}
-												name='permanentDistrictId'
-												label='District'
-												placeholder='Select district'
-												disabled={watchSameAsPresent || isLoadingPermanentDistricts}
-												options={permanentDistricts.map((d) => ({
-													label: d.name,
-													value: d.id!,
-												}))}
-											/>
-											<FormSelect
-												control={form.control}
-												name='permanentUpazilaId'
-												label='Upazila / Thana'
-												placeholder='Select upazila'
-												disabled={watchSameAsPresent || isLoadingPermanentUpazilas}
-												options={permanentUpazilas.map((u) => ({
-													label: u.name,
-													value: u.id!,
-												}))}
-											/>
+									{!watchSameAsPresent && (
+										<div className='mt-4 space-y-4 rounded-md border p-4'>
+											<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+												<FormSelect
+													control={form.control}
+													name='permanentDivisionId'
+													label='Division'
+													placeholder='Select division'
+													disabled={watchSameAsPresent}
+													options={masterData.divisions.map((d) => ({
+														label: d.name,
+														value: d.id!,
+													}))}
+												/>
+												<FormSelect
+													control={form.control}
+													name='permanentDistrictId'
+													label='District'
+													placeholder='Select district'
+													disabled={watchSameAsPresent || isLoadingPermanentDistricts}
+													options={permanentDistricts.map((d) => ({
+														label: d.name,
+														value: d.id!,
+													}))}
+												/>
+												<FormSelect
+													control={form.control}
+													name='permanentUpazilaId'
+													label='Upazila / Thana'
+													placeholder='Select upazila'
+													disabled={watchSameAsPresent || isLoadingPermanentUpazilas}
+													options={permanentUpazilas.map((u) => ({
+														label: u.name,
+														value: u.id!,
+													}))}
+												/>
+											</div>
+											<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+												<FormInput
+													control={form.control}
+													name='permanentAddress'
+													label='Address Line'
+													disabled={watchSameAsPresent}
+												/>
+												<FormInput
+													control={form.control}
+													name='permanentPostCode'
+													label='Post Code'
+													type='number'
+													disabled={watchSameAsPresent}
+												/>
+											</div>
 										</div>
-										<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-											<FormInput
-												control={form.control}
-												name='permanentAddress'
-												label='Address Line'
-												disabled={watchSameAsPresent}
-											/>
-											<FormInput
-												control={form.control}
-												name='permanentPostCode'
-												label='Post Code'
-												type='number'
-												disabled={watchSameAsPresent}
-											/>
-										</div>
-									</div>
+									)}
 								</div>
 							</CardContent>
 						</Card>
