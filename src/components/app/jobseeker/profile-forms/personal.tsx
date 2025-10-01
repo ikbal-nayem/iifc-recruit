@@ -31,10 +31,10 @@ const profileImageSchema = z.object({
 		.any()
 		.refine((file) => !!file, 'Please select an image.')
 		.refine(
-			(file) => ['image/jpeg', 'image/png', 'image/gif'].includes(file?.type),
-			'Only .jpg, .png, and .gif formats are supported.'
+			(file) => ['image/jpeg', 'image/png'].includes(file?.type),
+			'Only .jpg and .png formats are supported.'
 		)
-		.refine((file) => file?.size <= 10 * 1024 * 1024, `Max file size is 10MB.`),
+		.refine((file) => file?.size <= 2 * 1024 * 1024, `Max file size is 2MB.`),
 });
 
 type ProfileImageFormValues = z.infer<typeof profileImageSchema>;
@@ -116,7 +116,7 @@ function ProfileImageCard({ profileImage, firstName, lastName }: { profileImage?
 												id='avatar-upload'
 												type='file'
 												className='hidden'
-												accept='image/png, image/jpeg, image/gif'
+												accept='image/png, image/jpeg'
 												onChange={handleFileChange}
 											/>
 										</FormControl>
@@ -126,7 +126,7 @@ function ProfileImageCard({ profileImage, firstName, lastName }: { profileImage?
 												Choose Photo
 											</label>
 										</Button>
-										<p className='text-xs text-muted-foreground'>PNG, JPG, GIF up to 10MB</p>
+										<p className='text-xs text-muted-foreground'>PNG, JPG up to 2MB</p>
 										<FormMessage />
 									</FormItem>
 								)}
@@ -611,5 +611,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 		</div>
 	);
 }
+
+    
 
     
