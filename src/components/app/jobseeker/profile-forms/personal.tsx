@@ -599,7 +599,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 							</CardContent>
 						</Card>
 
-						<div className="pt-2">
+						<div className="pt-2 flex justify-center">
 							<Button type='submit'>
 								<Save className='mr-2 h-4 w-4' />
 								Save Changes
