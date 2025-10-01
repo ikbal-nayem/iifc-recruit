@@ -21,6 +21,8 @@ import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 const profileImageSchema = z.object({
 	avatarFile: z
@@ -160,17 +162,17 @@ const personalInfoSchema = z.object({
 	passportNo: z.string().optional(),
 	birthCertificate: z.string().optional(),
 
-	presentDivisionId: z.number().min(1, 'Division is required'),
-	presentDistrictId: z.number().min(1, 'District is required'),
-	presentUpazilaId: z.number().min(1, 'Upazila is required'),
+	presentDivisionId: z.coerce.number().min(1, 'Division is required'),
+	presentDistrictId: z.coerce.number().min(1, 'District is required'),
+	presentUpazilaId: z.coerce.number().min(1, 'Upazila is required'),
 	presentAddress: z.string().min(1, 'Address line is required'),
 	presentPostCode: z.coerce.number().min(1000, 'Post code is required'),
 
 	sameAsPresentAddress: z.boolean().default(false),
 
-	permanentDivisionId: z.number().min(1, 'Division is required'),
-	permanentDistrictId: z.number().min(1, 'District is required'),
-	permanentUpazilaId: z.number().min(1, 'Upazila is required'),
+	permanentDivisionId: z.coerce.number().min(1, 'Division is required'),
+	permanentDistrictId: z.coerce.number().min(1, 'District is required'),
+	permanentUpazilaId: z.coerce.number().min(1, 'Upazila is required'),
 	permanentAddress: z.string().min(1, 'Address line is required'),
 	permanentPostCode: z.coerce.number().min(1000, 'Post code is required'),
 
@@ -187,6 +189,16 @@ interface ProfileFormProps {
 
 export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps) {
 	const { toast } = useToast();
+
+	const [presentDistricts, setPresentDistricts] = React.useState<ICommonMasterData[]>([]);
+	const [presentUpazilas, setPresentUpazilas] = React.useState<ICommonMasterData[]>([]);
+	const [permanentDistricts, setPermanentDistricts] = React.useState<ICommonMasterData[]>([]);
+	const [permanentUpazilas, setPermanentUpazilas] = React.useState<ICommonMasterData[]>([]);
+
+	const [isLoadingPresentDistricts, setIsLoadingPresentDistricts] = React.useState(false);
+	const [isLoadingPresentUpazilas, setIsLoadingPresentUpazilas] = React.useState(false);
+	const [isLoadingPermanentDistricts, setIsLoadingPermanentDistricts] = React.useState(false);
+	const [isLoadingPermanentUpazilas, setIsLoadingPermanentUpazilas] = React.useState(false);
 
 	const form = useForm<PersonalInfoFormValues>({
 		resolver: zodResolver(personalInfoSchema),
@@ -218,16 +230,6 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 		'presentAddress',
 		'presentPostCode',
 	]);
-
-	const [presentDistricts, setPresentDistricts] = React.useState<ICommonMasterData[]>([]);
-	const [presentUpazilas, setPresentUpazilas] = React.useState<ICommonMasterData[]>([]);
-	const [permanentDistricts, setPermanentDistricts] = React.useState<ICommonMasterData[]>([]);
-	const [permanentUpazilas, setPermanentUpazilas] = React.useState<ICommonMasterData[]>([]);
-
-	const [isLoadingPresentDistricts, setIsLoadingPresentDistricts] = React.useState(false);
-	const [isLoadingPresentUpazilas, setIsLoadingPresentUpazilas] = React.useState(false);
-	const [isLoadingPermanentDistricts, setIsLoadingPermanentDistricts] = React.useState(false);
-	const [isLoadingPermanentUpazilas, setIsLoadingPermanentUpazilas] = React.useState(false);
 
 	// Copy present address to permanent address if checkbox is ticked
 	React.useEffect(() => {
@@ -263,7 +265,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 				})
 				.catch(() => setDistricts([]))
 				.finally(() => setIsLoading(false));
-		}, [divisionId, setDistricts, setIsLoading, resetDistrict]);
+		}, [divisionId]);
 	};
 
 	// Fetch upazilas when district changes
@@ -287,7 +289,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 				})
 				.catch(() => setUpazilas([]))
 				.finally(() => setIsLoading(false));
-		}, [districtId, setUpazilas, setIsLoading, resetUpazila]);
+		}, [districtId]);
 	};
 
 	// Hooks for Present Address
@@ -324,6 +326,19 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 		});
 		console.log(data);
 	};
+
+	if (!masterData.divisions || masterData.divisions.length === 0) {
+		return (
+			<Alert variant='danger'>
+				<AlertCircle className='h-4 w-4' />
+				<AlertTitle>Error</AlertTitle>
+				<AlertDescription>
+					Could not load essential master data for addresses. Please try refreshing the page or contact support if
+					the problem persists.
+				</AlertDescription>
+			</Alert>
+		);
+	}
 
 	return (
 		<div className='space-y-6'>
