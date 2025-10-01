@@ -5,25 +5,25 @@ import { PersonalInfoMasterData } from '@/app/(auth)/jobseeker/profile-edit/page
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { FormCheckbox } from '@/components/ui/form-checkbox';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import type { Candidate } from '@/lib/types';
+import type { Candidate, PersonalInfo } from '@/lib/types';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Linkedin, Mail, Phone, Save, Upload, Video, Loader2, AlertCircle } from 'lucide-react';
+import { Linkedin, Mail, Phone, Save, Upload, Video, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { IApiResponse, ICommonMasterData } from '@/interfaces/master-data.interface';
-import { Alert, AlertTitle } from '@/components/ui/alert';
+import { Alert } from '@/components/ui/alert';
 import { makePreviewURL } from '@/lib/utils';
 import { IFile } from '@/interfaces/common.interface';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const profileImageSchema = z.object({
 	avatarFile: z
@@ -457,7 +457,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												name='presentDivisionId'
 												label='Division'
 												placeholder='Select division'
-												disabled={isMasterDataMissing}
+												
 												options={masterData.divisions.map((d) => ({
 													label: d.name,
 													value: d.id!,
@@ -609,5 +609,3 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 		</div>
 	);
 }
-
-    
