@@ -20,7 +20,7 @@ import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { IApiResponse, ICommonMasterData } from '@/interfaces/master-data.interface';
-import { Alert } from '@/components/ui/alert';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 import { makePreviewURL } from '@/lib/utils';
 import { IFile } from '@/interfaces/common.interface';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -146,6 +146,7 @@ function ProfileImageCard({ profileImage }: { profileImage?: IFile }) {
 }
 
 const personalInfoSchema = z.object({
+    id: z.number().optional(),
 	firstName: z.string().min(1, 'First name is required'),
 	middleName: z.string().optional(),
 	lastName: z.string().min(1, 'Last name is required'),

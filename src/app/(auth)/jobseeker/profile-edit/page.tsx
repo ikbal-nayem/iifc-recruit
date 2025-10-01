@@ -35,7 +35,6 @@ async function getMasterData(): Promise<PersonalInfoMasterData> {
 			return result.value.body;
 		}
 		if (result.status === 'rejected') {
-            // Fail silently. The form will show an error state.
 		}
 		return defaultValue;
 	};
@@ -52,6 +51,7 @@ async function getMasterData(): Promise<PersonalInfoMasterData> {
 const emptyCandidate: Candidate = {
 	id: '',
 	personalInfo: {
+        id: undefined,
 		firstName: '',
         middleName: '',
 		lastName: '',
@@ -91,14 +91,12 @@ const emptyCandidate: Candidate = {
 async function getCandidateData(): Promise<Candidate> {
 	try {
 		const response = await JobseekerProfileService.personalInfo.get();
-		// The API returns only PersonalInfo, so we construct a partial Candidate object
 		return {
 			...emptyCandidate,
 			personalInfo: response.body as PersonalInfo,
 		};
 	} catch (error) {
 		console.error('Failed to load candidate profile:', error);
-		// Return a default empty structure if the profile can't be loaded
 		return emptyCandidate;
 	}
 }

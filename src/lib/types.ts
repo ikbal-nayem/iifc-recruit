@@ -4,18 +4,8 @@ import { IFile } from './interfaces/common.interface';
 
 export type UserRole = 'candidate' | 'admin';
 
-export type Address = {
-	divisionId: number;
-	districtId: number;
-	upazilaId: number;
-	line1: string;
-	upazila: string;
-	district: string;
-	division: string;
-	postCode: number | string;
-};
-
 export type PersonalInfo = {
+    id?: number;
     // Basic Info
 	firstName: string;
 	middleName?: string;
@@ -25,7 +15,7 @@ export type PersonalInfo = {
 	dateOfBirth: string;
 	gender: string;
 	nationality: string;
-	careerObjective?: string; // Replaces headline
+	careerObjective?: string;
 
     // User Info (nested)
     user: {
