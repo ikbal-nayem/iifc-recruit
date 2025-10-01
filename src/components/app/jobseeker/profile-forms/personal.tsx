@@ -94,7 +94,7 @@ function ProfileImageCard({ profileImage, firstName, lastName }: { profileImage?
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onImageSubmit)}>
 					<div className='flex items-center gap-6'>
-						<Avatar className='h-24 w-24 border-2 border-primary/10'>
+						<Avatar className='h-28 w-28 border-2 border-primary/10'>
 							<AvatarImage
 								src={avatarPreview || makePreviewURL(profileImage?.filePath)}
 								alt='Admin Avatar'
