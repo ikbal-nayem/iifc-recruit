@@ -1,5 +1,6 @@
 
 
+
 'use client';
 
 import * as React from 'react';
@@ -61,7 +62,7 @@ export function JobseekerManagement() {
   const [applicationsJobseeker, setApplicationsJobseeker] = React.useState<Candidate | null>(null);
   const [contactJobseeker, setContactJobseeker] = React.useState<Candidate | null>(null);
 
-  const uniqueLocations = ['all', ...Array.from(new Set(initialCandidates.map(c => c.personalInfo.address?.district).filter(Boolean)))];
+  const uniqueLocations = ['all', ...Array.from(new Set(initialCandidates.map(c => c.personalInfo.presentAddress).filter(Boolean)))];
   const uniqueStatuses = ['all', 'Active', 'Passive', 'Hired'];
 
   const getJobseekerApplications = (jobseekerId: string): ApplicationWithJob[] => {
@@ -83,17 +84,17 @@ export function JobseekerManagement() {
       accessorKey: 'personalInfo',
       header: 'Jobseeker',
       cell: ({ row }) => {
-        const { email, avatar } = row.original.personalInfo;
+        const { user } = row.original.personalInfo;
         const name = getFullName(row.original.personalInfo);
         return (
           <div className="flex items-center gap-3">
             <Avatar>
-              <AvatarImage src={avatar} alt={name} data-ai-hint="avatar" />
+              <AvatarImage src={row.original.personalInfo.profileImage?.filePath} alt={name} data-ai-hint="avatar" />
               <AvatarFallback>{name?.charAt(0)}</AvatarFallback>
             </Avatar>
             <div>
               <div className="font-medium">{name}</div>
-              <div className="text-sm text-muted-foreground">{email}</div>
+              <div className="text-sm text-muted-foreground">{user?.email}</div>
             </div>
           </div>
         );
@@ -114,10 +115,10 @@ export function JobseekerManagement() {
       },
     },
      {
-      accessorKey: 'personalInfo.address.district',
+      accessorKey: 'personalInfo.presentAddress',
       header: 'Location',
        cell: ({ row }) => {
-        return row.original.personalInfo.address?.district || 'N/A';
+        return row.original.personalInfo.presentAddress || 'N/A';
       },
     },
     {
@@ -179,12 +180,12 @@ export function JobseekerManagement() {
       <div className="p-4 flex justify-between items-start">
         <div className="flex items-center gap-4">
           <Avatar>
-            <AvatarImage src={jobseeker.personalInfo.avatar} alt={getFullName(jobseeker.personalInfo)} data-ai-hint="avatar" />
+            <AvatarImage src={jobseeker.personalInfo.profileImage?.filePath} alt={getFullName(jobseeker.personalInfo)} data-ai-hint="avatar" />
             <AvatarFallback>{jobseeker.personalInfo.firstName?.charAt(0)}</AvatarFallback>
           </Avatar>
           <div>
             <p className="font-semibold">{getFullName(jobseeker.personalInfo)}</p>
-            <p className="text-sm text-muted-foreground">{jobseeker.personalInfo.email}</p>
+            <p className="text-sm text-muted-foreground">{jobseeker.personalInfo.user?.email}</p>
             <div className="flex flex-wrap gap-1 mt-2">
                 {jobseeker.skills.slice(0, 3).map((skill) => (
                     <Badge key={skill} variant="secondary">{skill}</Badge>
@@ -244,9 +245,9 @@ export function JobseekerManagement() {
               }
             />
              <Select
-              value={(table.getColumn('personalInfo_address_district')?.getFilterValue() as string) ?? 'all'}
+              value={(table.getColumn('personalInfo_presentAddress')?.getFilterValue() as string) ?? 'all'}
               onValueChange={(value) =>
-                table.getColumn('personalInfo_address_district')?.setFilterValue(value === 'all' ? null : value)
+                table.getColumn('personalInfo_presentAddress')?.setFilterValue(value === 'all' ? null : value)
               }
             >
               <SelectTrigger>
@@ -401,16 +402,16 @@ export function JobseekerManagement() {
                 <div className="space-y-4 py-4">
                      <div className="flex items-center gap-4">
                         <Mail className="h-5 w-5 text-muted-foreground" />
-                        <a href={`mailto:${contactJobseeker.personalInfo.email}`} className="text-sm hover:underline">{contactJobseeker.personalInfo.email}</a>
+                        <a href={`mailto:${contactJobseeker.personalInfo.user?.email}`} className="text-sm hover:underline">{contactJobseeker.personalInfo.user?.email}</a>
                      </div>
                       <div className="flex items-center gap-4">
                         <Phone className="h-5 w-5 text-muted-foreground" />
-                        <a href={`tel:${contactJobseeker.personalInfo.phone}`} className="text-sm hover:underline">{contactJobseeker.personalInfo.phone}</a>
+                        <a href={`tel:${contactJobseeker.personalInfo.user?.phone}`} className="text-sm hover:underline">{contactJobseeker.personalInfo.user?.phone}</a>
                      </div>
                       <div className="flex items-start gap-4">
                         <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
                         <p className="text-sm">
-                            {contactJobseeker.personalInfo.address.line1}, {contactJobseeker.personalInfo.address.upazila}, {contactJobseeker.personalInfo.address.district}
+                            {contactJobseeker.personalInfo.presentAddress}
                         </p>
                      </div>
                 </div>

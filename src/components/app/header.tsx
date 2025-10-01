@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React from 'react';
@@ -42,9 +43,14 @@ export default function Header() {
     // In a real app, you'd get user data from a session.
     // Here we just pick a user based on role for demonstration.
     const role = pathname.split('/')[1] || 'guest';
-    let user = { firstName: 'Admin', lastName: 'User', email: 'admin@iifc.com', avatar: 'https://picsum.photos/seed/admin/100/100' };
+    let user = { firstName: 'Admin', lastName: 'User', email: 'admin@iifc.com', profileImage: { filePath: 'https://picsum.photos/seed/admin/100/100' } };
     if (role === 'jobseeker') {
-        user = candidates[0].personalInfo;
+        user = {
+            firstName: candidates[0].personalInfo.firstName,
+            lastName: candidates[0].personalInfo.lastName,
+            email: candidates[0].personalInfo.user.email,
+            profileImage: candidates[0].personalInfo.profileImage,
+        };
     } 
 
     const handleLogout = () => {
@@ -83,7 +89,7 @@ export default function Header() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-9 w-9 rounded-full">
             <Avatar>
-              <AvatarImage src={user.avatar} alt={getFullName()} data-ai-hint="avatar" />
+              <AvatarImage src={user.profileImage?.filePath} alt={getFullName()} data-ai-hint="avatar" />
               <AvatarFallback>{user.firstName.charAt(0)}</AvatarFallback>
             </Avatar>
           </Button>

@@ -35,7 +35,7 @@ async function getMasterData(): Promise<PersonalInfoMasterData> {
 			return result.value.body;
 		}
 		if (result.status === 'rejected') {
-			// Fail silently. The form will show an error state.
+            // Fail silently. The form will show an error state.
 		}
 		return defaultValue;
 	};
@@ -54,19 +54,17 @@ const emptyCandidate: Candidate = {
 	personalInfo: {
 		firstName: '',
 		lastName: '',
-		name: '',
 		fatherName: '',
 		motherName: '',
-		email: '',
-		phone: '',
+        user: {
+            email: '',
+            phone: '',
+        },
 		dateOfBirth: '',
 		gender: 'Male',
 		maritalStatus: 'Single',
 		nationality: 'Bangladeshi',
-		headline: '',
-		presentAddress: {} as any,
-		permanentAddress: {} as any,
-		avatar: '',
+		careerObjective: '',
 	},
 	academicInfo: [],
 	professionalInfo: [],

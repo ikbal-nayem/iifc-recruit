@@ -1,5 +1,6 @@
 
 import { AcademicInfo, Award, Language, ProfessionalInfo, Publication, Resume, Training } from '@/interfaces/jobseeker.interface';
+import { IFile } from './interfaces/common.interface';
 
 export type UserRole = 'candidate' | 'admin';
 
@@ -15,35 +16,52 @@ export type Address = {
 };
 
 export type PersonalInfo = {
+    // Basic Info
 	firstName: string;
 	middleName?: string;
 	lastName: string;
-	name: string; // Concatenation of first, middle, last
 	fatherName: string;
 	motherName: string;
-	email: string;
-	phone: string;
-
 	dateOfBirth: string;
-	gender: 'Male' | 'Female' | 'Other';
-	maritalStatus: 'Single' | 'Married' | 'Widow' | 'Divorce';
+	gender: string;
 	nationality: string;
-    religion?: string;
-    professionalStatus?: string;
+	careerObjective?: string; // Replaces headline
 
+    // User Info (nested)
+    user: {
+        email: string;
+        phone: string;
+    }
+
+    // Identity
 	nid?: string;
 	passportNo?: string;
 	birthCertificate?: string;
 
-	presentAddress: Address;
+    // Status
+	maritalStatus: string;
+	religion?: string;
+	professionalStatus?: string;
+
+    // Address
+	presentDivisionId?: number;
+	presentDistrictId?: number;
+	presentUpazilaId?: number;
+	presentAddress?: string;
+	presentPostCode?: number;
 	sameAsPresentAddress?: boolean;
-	permanentAddress: Address;
+	permanentDivisionId?: number;
+	permanentDistrictId?: number;
+	permanentUpazilaId?: number;
+	permanentAddress?: string;
+	permanentPostCode?: number;
 
-	avatar: string;
-	headline: string;
-
+    // Socials
 	linkedInProfile?: string;
 	videoProfile?: string;
+    
+    // Media
+	profileImage?: IFile;
 };
 
 

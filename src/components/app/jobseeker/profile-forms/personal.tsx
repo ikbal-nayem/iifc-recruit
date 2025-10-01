@@ -3,7 +3,7 @@
 
 import { PersonalInfoMasterData } from '@/app/(auth)/jobseeker/profile-edit/page';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { FormCheckbox } from '@/components/ui/form-checkbox';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
@@ -15,7 +15,7 @@ import type { Candidate } from '@/lib/types';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Linkedin, Mail, Phone, Save, Upload, Video, Loader2 } from 'lucide-react';
+import { Linkedin, Mail, Phone, Save, Upload, Video, Loader2, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
@@ -23,6 +23,7 @@ import * as z from 'zod';
 import { IApiResponse, ICommonMasterData } from '@/interfaces/master-data.interface';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { makePreviewURL } from '@/lib/utils';
+import { IFile } from '@/interfaces/common.interface';
 
 const profileImageSchema = z.object({
 	avatarFile: z
@@ -37,9 +38,9 @@ const profileImageSchema = z.object({
 
 type ProfileImageFormValues = z.infer<typeof profileImageSchema>;
 
-function ProfileImageCard({ avatar }: { avatar: string }) {
+function ProfileImageCard({ profileImage }: { profileImage?: IFile }) {
 	const { toast } = useToast();
-	const [avatarPreview, setAvatarPreview] = React.useState<string | null>(avatar);
+	const [avatarPreview, setAvatarPreview] = React.useState<string | null>(profileImage?.filePath || null);
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
 
 	const form = useForm<ProfileImageFormValues>({
@@ -93,7 +94,7 @@ function ProfileImageCard({ avatar }: { avatar: string }) {
 				<form onSubmit={form.handleSubmit(onImageSubmit)}>
 					<div className='flex items-center gap-6'>
 						<Image
-							src={avatarPreview || makePreviewURL(avatar) || '/default-avatar.png'}
+							src={makePreviewURL(avatarPreview) || '/default-avatar.png'}
 							alt='Admin Avatar'
 							width={100}
 							height={100}
@@ -150,35 +151,31 @@ const personalInfoSchema = z.object({
 	lastName: z.string().min(1, 'Last name is required'),
 	fatherName: z.string().min(1, "Father's name is required"),
 	motherName: z.string().min(1, "Mother's name is required"),
-	email: z.string().email(),
-	phone: z.string().min(1, 'Phone number is required'),
-	headline: z.string().min(1, 'Headline is required'),
-
+	user: z.object({
+		email: z.string().email(),
+		phone: z.string().min(1, 'Phone number is required'),
+	}),
+	careerObjective: z.string().min(1, 'Career objective is required'),
 	dateOfBirth: z.string().min(1, 'Date of birth is required'),
 	gender: z.string().min(1, 'Gender is required'),
 	maritalStatus: z.string().min(1, 'Marital status is required'),
 	nationality: z.string().min(1, 'Nationality is required'),
 	religion: z.string().optional(),
 	professionalStatus: z.string().optional(),
-
 	nid: z.string().optional(),
 	passportNo: z.string().optional(),
 	birthCertificate: z.string().optional(),
-
-	presentDivisionId: z.coerce.number().min(1, 'Division is required'),
-	presentDistrictId: z.coerce.number().min(1, 'District is required'),
-	presentUpazilaId: z.coerce.number().min(1, 'Upazila is required'),
-	presentAddress: z.string().min(1, 'Address line is required'),
-	presentPostCode: z.coerce.number().min(1000, 'Post code is required'),
-
+	presentDivisionId: z.coerce.number().optional(),
+	presentDistrictId: z.coerce.number().optional(),
+	presentUpazilaId: z.coerce.number().optional(),
+	presentAddress: z.string().optional(),
+	presentPostCode: z.coerce.number().optional(),
 	sameAsPresentAddress: z.boolean().default(false),
-
-	permanentDivisionId: z.coerce.number().min(1, 'Division is required'),
-	permanentDistrictId: z.coerce.number().min(1, 'District is required'),
-	permanentUpazilaId: z.coerce.number().min(1, 'Upazila is required'),
-	permanentAddress: z.string().min(1, 'Address line is required'),
-	permanentPostCode: z.coerce.number().min(1000, 'Post code is required'),
-
+	permanentDivisionId: z.coerce.number().optional(),
+	permanentDistrictId: z.coerce.number().optional(),
+	permanentUpazilaId: z.coerce.number().optional(),
+	permanentAddress: z.string().optional(),
+	permanentPostCode: z.coerce.number().optional(),
 	linkedInProfile: z.string().url().optional().or(z.literal('')),
 	videoProfile: z.string().url().optional().or(z.literal('')),
 });
@@ -206,36 +203,11 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 	const form = useForm<PersonalInfoFormValues>({
 		resolver: zodResolver(personalInfoSchema),
 		defaultValues: {
-			firstName: candidate.personalInfo.firstName || '',
-			middleName: candidate.personalInfo.middleName || '',
-			lastName: candidate.personalInfo.lastName || '',
-			fatherName: candidate.personalInfo.fatherName || '',
-			motherName: candidate.personalInfo.motherName || '',
-			email: candidate.personalInfo.email || '',
-			phone: candidate.personalInfo.phone || '',
-			headline: candidate.personalInfo.headline || '',
-			dateOfBirth: candidate.personalInfo.dateOfBirth || '',
-			gender: candidate.personalInfo.gender || '',
-			maritalStatus: candidate.personalInfo.maritalStatus || '',
-			nationality: candidate.personalInfo.nationality || 'Bangladeshi',
-			religion: candidate.personalInfo.religion || '',
-			professionalStatus: candidate.personalInfo.professionalStatus || '',
-			nid: candidate.personalInfo.nid || '',
-			passportNo: candidate.personalInfo.passportNo || '',
-			birthCertificate: candidate.personalInfo.birthCertificate || '',
-			presentDivisionId: candidate.personalInfo.presentAddress?.divisionId || 0,
-			presentDistrictId: candidate.personalInfo.presentAddress?.districtId || 0,
-			presentUpazilaId: candidate.personalInfo.presentAddress?.upazilaId || 0,
-			presentAddress: candidate.personalInfo.presentAddress?.line1 || '',
-			presentPostCode: (candidate.personalInfo.presentAddress?.postCode as number) || 0,
-			permanentDivisionId: candidate.personalInfo.permanentAddress?.divisionId || 0,
-			permanentDistrictId: candidate.personalInfo.permanentAddress?.districtId || 0,
-			permanentUpazilaId: candidate.personalInfo.permanentAddress?.upazilaId || 0,
-			permanentAddress: candidate.personalInfo.permanentAddress?.line1 || '',
-			permanentPostCode: (candidate.personalInfo.permanentAddress?.postCode as number) || 0,
-			sameAsPresentAddress: false,
-			linkedInProfile: candidate.personalInfo.linkedInProfile || '',
-			videoProfile: candidate.personalInfo.videoProfile || '',
+			...candidate.personalInfo,
+            user: {
+                email: candidate.personalInfo.user?.email || '',
+                phone: candidate.personalInfo.user?.phone || '',
+            }
 		},
 	});
 
@@ -252,7 +224,6 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 		'presentPostCode',
 	]);
 
-	// Copy present address to permanent address if checkbox is ticked
 	React.useEffect(() => {
 		if (watchSameAsPresent) {
 			form.setValue('permanentDivisionId', watchPresentAddressFields[0]);
@@ -266,7 +237,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 	}, [watchSameAsPresent, watchPresentAddressFields, form, presentDistricts, presentUpazilas]);
 
 	const useFetchDependentData = (
-		watchId: number,
+		watchId: number | undefined,
 		fetcher: (id: string) => Promise<IApiResponse<ICommonMasterData[]>>,
 		setData: React.Dispatch<React.SetStateAction<ICommonMasterData[]>>,
 		setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
@@ -287,42 +258,42 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 		}, [watchId]);
 	};
 
-	// Hooks for Present Address
 	useFetchDependentData(
 		watchPresentDivisionId,
 		MasterDataService.country.getDistricts,
 		setPresentDistricts,
 		setIsLoadingPresentDistricts,
 		() => {
-			form.setValue('presentDistrictId', 0);
-			form.setValue('presentUpazilaId', 0);
+			form.setValue('presentDistrictId', undefined);
+			form.setValue('presentUpazilaId', undefined);
 		}
 	);
+
 	useFetchDependentData(
 		watchPresentDistrictId,
 		MasterDataService.country.getUpazilas,
 		setPresentUpazilas,
 		setIsLoadingPresentUpazilas,
-		() => form.setValue('presentUpazilaId', 0)
+		() => form.setValue('presentUpazilaId', undefined)
 	);
 
-	// Hooks for Permanent Address (only if not same as present)
 	useFetchDependentData(
-		!watchSameAsPresent ? watchPermanentDivisionId : 0,
+		!watchSameAsPresent ? watchPermanentDivisionId : undefined,
 		MasterDataService.country.getDistricts,
 		setPermanentDistricts,
 		setIsLoadingPermanentDistricts,
 		() => {
-			form.setValue('permanentDistrictId', 0);
-			form.setValue('permanentUpazilaId', 0);
+			form.setValue('permanentDistrictId', undefined);
+			form.setValue('permanentUpazilaId', undefined);
 		}
 	);
+	
 	useFetchDependentData(
-		!watchSameAsPresent ? watchPermanentDistrictId : 0,
+		!watchSameAsPresent ? watchPermanentDistrictId : undefined,
 		MasterDataService.country.getUpazilas,
 		setPermanentUpazilas,
 		setIsLoadingPermanentUpazilas,
-		() => form.setValue('permanentUpazilaId', 0)
+		() => form.setValue('permanentUpazilaId', undefined)
 	);
 
 	const onSubmit = (data: PersonalInfoFormValues) => {
@@ -338,7 +309,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 
 	return (
 		<div className='space-y-6'>
-			<ProfileImageCard avatar={candidate.personalInfo.avatar} />
+			<ProfileImageCard profileImage={candidate.personalInfo.profileImage} />
 
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)}>
@@ -347,8 +318,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 							<Alert variant='warning'>
 								<AlertTitle>Master Data Unavailable</AlertTitle>
 								<AlertDescription>
-									Could not load necessary data for addresses. The address fields will be disabled. Please try
-									refreshing the page or contact support.
+									Could not load necessary data for addresses. The address fields may not work correctly. Please try refreshing the page or contact support.
 								</AlertDescription>
 							</Alert>
 						)}
@@ -382,9 +352,9 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 								</div>
 								<FormInput
 									control={form.control}
-									name='headline'
-									label='Headline'
-									placeholder='e.g. Senior Frontend Developer'
+									name='careerObjective'
+									label='Career Objective / Headline'
+									placeholder='e.g. Senior Frontend Developer seeking new challenges...'
 									required
 								/>
 								<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
@@ -443,37 +413,22 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 							</CardHeader>
 							<CardContent className='space-y-6'>
 								<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-									<FormField
+									<FormInput
 										control={form.control}
-										name='email'
-										render={({ field }) => (
-											<FormItem>
-												<FormLabel required>Email</FormLabel>
-												<FormControl>
-													<div className='relative flex items-center'>
-														<Mail className='absolute left-3 h-4 w-4 text-muted-foreground' />
-														<Input type='email' {...field} className='pl-10 h-11' />
-													</div>
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										)}
+										name='user.email'
+										label='Email'
+										type='email'
+										placeholder='you@example.com'
+										required
+										startIcon={<Mail className='h-4 w-4 text-muted-foreground' />}
 									/>
-									<FormField
+									<FormInput
 										control={form.control}
-										name='phone'
-										render={({ field }) => (
-											<FormItem>
-												<FormLabel required>Phone</FormLabel>
-												<FormControl>
-													<div className='relative flex items-center'>
-														<Phone className='absolute left-3 h-4 w-4 text-muted-foreground' />
-														<Input {...field} className='pl-10 h-11' />
-													</div>
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										)}
+										name='user.phone'
+										label='Phone'
+										placeholder='+8801...'
+										required
+										startIcon={<Phone className='h-4 w-4 text-muted-foreground' />}
 									/>
 								</div>
 								<div>
@@ -485,7 +440,6 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												name='presentDivisionId'
 												label='Division'
 												placeholder='Select division'
-												required
 												options={masterData.divisions.map((d) => ({
 													label: d.name,
 													value: d.id!.toString(),
@@ -496,7 +450,6 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												name='presentDistrictId'
 												label='District'
 												placeholder='Select district'
-												required
 												disabled={isLoadingPresentDistricts}
 												options={presentDistricts.map((d) => ({ label: d.name, value: d.id!.toString() }))}
 											/>
@@ -505,19 +458,17 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												name='presentUpazilaId'
 												label='Upazila / Thana'
 												placeholder='Select upazila'
-												required
 												disabled={isLoadingPresentUpazilas}
 												options={presentUpazilas.map((u) => ({ label: u.name, value: u.id!.toString() }))}
 											/>
 										</div>
 										<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-											<FormInput control={form.control} name='presentAddress' label='Address Line' required />
+											<FormInput control={form.control} name='presentAddress' label='Address Line' />
 											<FormInput
 												control={form.control}
 												name='presentPostCode'
 												label='Post Code'
 												type='number'
-												required
 											/>
 										</div>
 									</div>
@@ -528,7 +479,6 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 										control={form.control}
 										name='sameAsPresentAddress'
 										label='Same as present address'
-										disabled={isMasterDataMissing}
 									/>
 									<div className='mt-4 space-y-4 rounded-md border p-4'>
 										<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
@@ -537,7 +487,6 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												name='permanentDivisionId'
 												label='Division'
 												placeholder='Select division'
-												required
 												disabled={watchSameAsPresent}
 												options={masterData.divisions.map((d) => ({
 													label: d.name,
@@ -549,7 +498,6 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												name='permanentDistrictId'
 												label='District'
 												placeholder='Select district'
-												required
 												disabled={watchSameAsPresent || isLoadingPermanentDistricts}
 												options={permanentDistricts.map((d) => ({
 													label: d.name,
@@ -561,7 +509,6 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												name='permanentUpazilaId'
 												label='Upazila / Thana'
 												placeholder='Select upazila'
-												required
 												disabled={watchSameAsPresent || isLoadingPermanentUpazilas}
 												options={permanentUpazilas.map((u) => ({
 													label: u.name,
@@ -575,7 +522,6 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												name='permanentAddress'
 												label='Address Line'
 												disabled={watchSameAsPresent}
-												required
 											/>
 											<FormInput
 												control={form.control}
@@ -583,7 +529,6 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												label='Post Code'
 												type='number'
 												disabled={watchSameAsPresent}
-												required
 											/>
 										</div>
 									</div>
@@ -602,37 +547,19 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 									<FormInput control={form.control} name='birthCertificate' label='Birth Certificate No.' />
 								</div>
 								<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-									<FormField
+									<FormInput
 										control={form.control}
 										name='linkedInProfile'
-										render={({ field }) => (
-											<FormItem>
-												<FormLabel>LinkedIn Profile</FormLabel>
-												<FormControl>
-													<div className='relative flex items-center'>
-														<Linkedin className='absolute left-3 h-4 w-4 text-muted-foreground' />
-														<Input {...field} className='pl-10' placeholder='https://linkedin.com/in/...' />
-													</div>
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										)}
+										label='LinkedIn Profile'
+										placeholder='https://linkedin.com/in/...'
+										startIcon={<Linkedin className='h-4 w-4 text-muted-foreground' />}
 									/>
-									<FormField
+									<FormInput
 										control={form.control}
 										name='videoProfile'
-										render={({ field }) => (
-											<FormItem>
-												<FormLabel>Video Profile</FormLabel>
-												<FormControl>
-													<div className='relative flex items-center'>
-														<Video className='absolute left-3 h-4 w-4 text-muted-foreground' />
-														<Input {...field} className='pl-10' placeholder='https://youtube.com/watch?v=...' />
-													</div>
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										)}
+										label='Video Profile'
+										placeholder='https://youtube.com/watch?v=...'
+										startIcon={<Video className='h-4 w-4 text-muted-foreground' />}
 									/>
 								</div>
 							</CardContent>
