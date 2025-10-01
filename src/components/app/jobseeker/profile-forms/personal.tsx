@@ -537,5 +537,3 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 		</div>
 	);
 }
-
-    
