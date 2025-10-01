@@ -15,14 +15,13 @@ import type { Candidate } from '@/lib/types';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Linkedin, Mail, Phone, Save, Upload, Video, Loader2 } from 'lucide-react';
+import { Linkedin, Mail, Phone, Save, Upload, Video, Loader2, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
 
 const profileImageSchema = z.object({
 	avatarFile: z
@@ -327,18 +326,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 		console.log(data);
 	};
 
-	if (!masterData.divisions || masterData.divisions.length === 0) {
-		return (
-			<Alert variant='danger'>
-				<AlertCircle className='h-4 w-4' />
-				<AlertTitle>Error</AlertTitle>
-				<AlertDescription>
-					Could not load essential master data for addresses. Please try refreshing the page or contact support if
-					the problem persists.
-				</AlertDescription>
-			</Alert>
-		);
-	}
+	const isMasterDataMissing = !masterData.divisions || masterData.divisions.length === 0;
 
 	return (
 		<div className='space-y-6'>
@@ -347,6 +335,17 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)}>
 					<div className='space-y-6'>
+						{isMasterDataMissing && (
+							<Alert variant='warning'>
+								<AlertCircle className='h-4 w-4' />
+								<AlertTitle>Master Data Unavailable</AlertTitle>
+								<AlertDescription>
+									Could not load necessary data for addresses. The address fields will be disabled. Please try
+									refreshing the page or contact support.
+								</AlertDescription>
+							</Alert>
+						)}
+
 						<Card className='glassmorphism'>
 							<CardHeader>
 								<CardTitle>Basic Information</CardTitle>
@@ -480,6 +479,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												label='Division'
 												placeholder='Select division'
 												required
+												disabled={isMasterDataMissing}
 												options={masterData.divisions.map((d) => ({
 													label: d.name,
 													value: d.id!.toString(),
@@ -491,7 +491,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												label='District'
 												placeholder='Select district'
 												required
-												disabled={isLoadingPresentDistricts}
+												disabled={isLoadingPresentDistricts || isMasterDataMissing}
 												options={presentDistricts.map((d) => ({ label: d.name, value: d.id!.toString() }))}
 											/>
 											<FormSelect
@@ -500,7 +500,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												label='Upazila / Thana'
 												placeholder='Select upazila'
 												required
-												disabled={isLoadingPresentUpazilas}
+												disabled={isLoadingPresentUpazilas || isMasterDataMissing}
 												options={presentUpazilas.map((u) => ({ label: u.name, value: u.id!.toString() }))}
 											/>
 										</div>
@@ -518,7 +518,12 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 								</div>
 								<div>
 									<h3 className='text-md font-medium mb-2'>Permanent Address</h3>
-									<FormCheckbox control={form.control} name='sameAsPresentAddress' label='Same as present address' />
+									<FormCheckbox
+										control={form.control}
+										name='sameAsPresentAddress'
+										label='Same as present address'
+										disabled={isMasterDataMissing}
+									/>
 									<div className='mt-4 space-y-4 rounded-md border p-4'>
 										<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
 											<FormSelect
@@ -527,7 +532,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												label='Division'
 												placeholder='Select division'
 												required
-												disabled={watchSameAsPresent}
+												disabled={watchSameAsPresent || isMasterDataMissing}
 												options={masterData.divisions.map((d) => ({
 													label: d.name,
 													value: d.id!.toString(),
@@ -539,7 +544,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												label='District'
 												placeholder='Select district'
 												required
-												disabled={watchSameAsPresent || isLoadingPermanentDistricts}
+												disabled={watchSameAsPresent || isLoadingPermanentDistricts || isMasterDataMissing}
 												options={permanentDistricts.map((d) => ({
 													label: d.name,
 													value: d.id!.toString(),
@@ -551,7 +556,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												label='Upazila / Thana'
 												placeholder='Select upazila'
 												required
-												disabled={watchSameAsPresent || isLoadingPermanentUpazilas}
+												disabled={watchSameAsPresent || isLoadingPermanentUpazilas || isMasterDataMissing}
 												options={permanentUpazilas.map((u) => ({
 													label: u.name,
 													value: u.id!.toString(),
