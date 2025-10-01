@@ -337,7 +337,6 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 					<div className='space-y-6'>
 						{isMasterDataMissing && (
 							<Alert variant='warning'>
-								<AlertCircle className='h-4 w-4' />
 								<AlertTitle>Master Data Unavailable</AlertTitle>
 								<AlertDescription>
 									Could not load necessary data for addresses. The address fields will be disabled. Please try
