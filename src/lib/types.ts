@@ -4,11 +4,15 @@ import { AcademicInfo, Award, Language, ProfessionalInfo, Publication, Resume, T
 export type UserRole = 'candidate' | 'admin';
 
 export type Address = {
-	line1: string;
+	divisionId: number;
+	districtId: number;
+	upazilaId: number;
+	address: string;
+	line1: string; // for backward compatibility in mock data
 	upazila: string;
 	district: string;
 	division: string;
-	postCode: string;
+	postCode: number | string;
 };
 
 export type PersonalInfo = {
@@ -33,6 +37,7 @@ export type PersonalInfo = {
 	birthCertificate?: string;
 
 	presentAddress: Address;
+	sameAsPresentAddress?: boolean;
 	permanentAddress: Address;
 
 	avatar: string;
@@ -99,4 +104,3 @@ export type Activity = {
 	target: string;
 	timestamp: string;
 };
-

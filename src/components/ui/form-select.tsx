@@ -34,7 +34,12 @@ export function FormSelect<TFieldValues extends FieldValues>({
 			render={({ field }) => (
 				<FormItem>
 					<FormLabel required={required}>{label}</FormLabel>
-					<Select onValueChange={field.onChange} defaultValue={field.value} disabled={disabled} {...props}>
+					<Select
+						onValueChange={(value) => field.onChange(value ? parseInt(value) || value : value)}
+						defaultValue={field.value?.toString()}
+						disabled={disabled}
+						{...props}
+					>
 						<FormControl>
 							<SelectTrigger className={cn('h-11', !field.value && 'text-muted-foreground')}>
 								<SelectValue placeholder={placeholder} />
@@ -42,7 +47,7 @@ export function FormSelect<TFieldValues extends FieldValues>({
 						</FormControl>
 						<SelectContent>
 							{options.map((option) => (
-								<SelectItem key={option.value} value={option.value}>
+								<SelectItem key={option.value} value={option.value.toString()}>
 									{option.label}
 								</SelectItem>
 							))}
