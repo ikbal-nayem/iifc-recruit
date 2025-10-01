@@ -249,12 +249,11 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 			};
 
 			if (watchDivision) {
-				fetchDistricts();
 				form.setValue(`${type}.district`, '');
 				form.setValue(`${type}.upazila`, '');
-				setUpazilas([]);
+				fetchDistricts();
 			}
-		}, [watchDivision, type, form]);
+		}, [watchDivision, type]);
 
 		React.useEffect(() => {
 			const fetchUpazilas = async () => {
@@ -275,10 +274,10 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 			};
 
 			if (watchDistrict) {
-				fetchUpazilas();
 				form.setValue(`${type}.upazila`, '');
+				fetchUpazilas();
 			}
-		}, [watchDistrict, type, form, districts]);
+		}, [watchDistrict, type, districts]);
 
 		return (
 			<div className='space-y-4'>
