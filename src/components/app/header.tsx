@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { candidates } from '@/lib/data';
+import { makePreviewURL } from '@/lib/utils';
 
 const getBreadcrumbs = (pathname: string) => {
     const parts = pathname.split('/').filter(Boolean);
@@ -89,8 +90,8 @@ export default function Header() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-9 w-9 rounded-full">
             <Avatar>
-              <AvatarImage src={user.profileImage?.filePath} alt={getFullName()} data-ai-hint="avatar" />
-              <AvatarFallback>{user.firstName.charAt(0)}</AvatarFallback>
+              <AvatarImage src={makePreviewURL(user.profileImage?.filePath)} alt={getFullName()} />
+              <AvatarFallback>{user.firstName?.charAt(0)}{user.lastName?.charAt(0)}</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>

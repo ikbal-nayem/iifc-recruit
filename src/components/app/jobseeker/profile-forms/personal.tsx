@@ -24,6 +24,7 @@ import { Alert, AlertTitle } from '@/components/ui/alert';
 import { makePreviewURL } from '@/lib/utils';
 import { IFile } from '@/interfaces/common.interface';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const profileImageSchema = z.object({
 	avatarFile: z
@@ -38,7 +39,7 @@ const profileImageSchema = z.object({
 
 type ProfileImageFormValues = z.infer<typeof profileImageSchema>;
 
-function ProfileImageCard({ profileImage }: { profileImage?: IFile }) {
+function ProfileImageCard({ profileImage, firstName, lastName }: { profileImage?: IFile, firstName?:string, lastName?:string }) {
 	const { toast } = useToast();
 	const [avatarPreview, setAvatarPreview] = React.useState<string | null>(profileImage?.filePath || null);
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -93,17 +94,14 @@ function ProfileImageCard({ profileImage }: { profileImage?: IFile }) {
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onImageSubmit)}>
 					<div className='flex items-center gap-6'>
-						<Image
-							src={makePreviewURL(avatarPreview) || '/default-avatar.png'}
-							alt='Admin Avatar'
-							width={100}
-							height={100}
-							className='rounded-full object-cover h-24 w-24 border-2 border-primary/50'
-							data-ai-hint='avatar person'
-							onError={(e) => {
-								e.currentTarget.src = '/default-avatar.png';
-							}}
-						/>
+						<Avatar className='h-24 w-24 border-2 border-primary/50'>
+							<AvatarImage
+								src={makePreviewURL(avatarPreview) || makePreviewURL(profileImage?.filePath)}
+								alt='Admin Avatar'
+							/>
+							<AvatarFallback className='text-3xl'>{firstName?.[0]}{lastName?.[0]}</AvatarFallback>
+						</Avatar>
+						
 						<div className='flex-1 space-y-3'>
 							<FormField
 								control={form.control}
@@ -326,7 +324,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 
 	return (
 		<div className='space-y-6'>
-			<ProfileImageCard profileImage={candidate.personalInfo.profileImage} />
+			<ProfileImageCard profileImage={candidate.personalInfo.profileImage} firstName={candidate.personalInfo.firstName} lastName={candidate.personalInfo.lastName} />
 
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)}>
@@ -334,10 +332,10 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 						{isMasterDataMissing && (
 							<Alert variant='warning'>
 								<AlertTitle>Master Data Unavailable</AlertTitle>
-								<CardDescription>
+								<AlertDescription>
 									Could not load necessary data for addresses. The address fields will be disabled. Please try
 									refreshing the page or contact support.
-								</CardDescription>
+								</AlertDescription>
 							</Alert>
 						)}
 
