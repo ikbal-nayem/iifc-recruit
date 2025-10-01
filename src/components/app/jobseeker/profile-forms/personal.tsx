@@ -72,7 +72,6 @@ function ProfileImageCard({ avatar }: { avatar: string }) {
 					variant: 'success',
 				});
 				form.reset();
-				// Here you would typically refetch user data to get the new avatar URL
 			})
 			.catch((err) => {
 				toast({
@@ -231,11 +230,9 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 		const [isLoadingDistricts, setIsLoadingDistricts] = React.useState(false);
 		const [isLoadingUpazilas, setIsLoadingUpazilas] = React.useState(false);
 
-		const selectedDivision = masterData.divisions.find((d) => d.name === watchDivision);
-		const selectedDistrict = districts.find((d) => d.name === watchDistrict);
-
 		React.useEffect(() => {
 			const fetchDistricts = async () => {
+				const selectedDivision = masterData.divisions.find((d) => d.name === watchDivision);
 				if (selectedDivision?.id) {
 					setIsLoadingDistricts(true);
 					try {
@@ -250,11 +247,18 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 					setDistricts([]);
 				}
 			};
-			fetchDistricts();
-		}, [selectedDivision]);
+
+			if (watchDivision) {
+				fetchDistricts();
+				form.setValue(`${type}.district`, '');
+				form.setValue(`${type}.upazila`, '');
+				setUpazilas([]);
+			}
+		}, [watchDivision, type, form]);
 
 		React.useEffect(() => {
 			const fetchUpazilas = async () => {
+				const selectedDistrict = districts.find((d) => d.name === watchDistrict);
 				if (selectedDistrict?.id) {
 					setIsLoadingUpazilas(true);
 					try {
@@ -269,31 +273,12 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 					setUpazilas([]);
 				}
 			};
-			fetchUpazilas();
-		}, [selectedDistrict]);
 
-		const usePrevious = <T,>(value: T) => {
-			const ref = React.useRef<T>();
-			React.useEffect(() => {
-				ref.current = value;
-			});
-			return ref.current;
-		};
-		const prevDivision = usePrevious(watchDivision);
-		const prevDistrict = usePrevious(watchDistrict);
-
-		React.useEffect(() => {
-			if (prevDivision !== watchDivision && form.getValues(`${type}.district`)) {
-				form.setValue(`${type}.district`, '');
+			if (watchDistrict) {
+				fetchUpazilas();
 				form.setValue(`${type}.upazila`, '');
 			}
-		}, [watchDivision, prevDivision, form, type]);
-
-		React.useEffect(() => {
-			if (prevDistrict !== watchDistrict && form.getValues(`${type}.upazila`)) {
-				form.setValue(`${type}.upazila`, '');
-			}
-		}, [watchDistrict, prevDistrict, form, type]);
+		}, [watchDistrict, type, form, districts]);
 
 		return (
 			<div className='space-y-4'>
