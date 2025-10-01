@@ -41,7 +41,20 @@ const createProfileCrudWithFormData = <T extends { id?: number | string }>(entit
 		await axiosIns.delete(`/jobseeker/${entity}/delete/${id}`),
 });
 
+const createPersonalInfoCrud = () => ({
+	get: async (): Promise<IApiResponse<PersonalInfo>> =>
+		await axiosIns.get('/jobseeker/profile/personal-info'),
+	save: async (payload: PersonalInfo): Promise<IApiResponse<PersonalInfo>> =>
+		await axiosIns.post('/jobseeker/personal-info/save', payload),
+	saveProfileImage: async (formData: FormData): Promise<IApiResponse<any>> =>
+		await axiosIns.post('/jobseeker/personal-info/profile-image/save', formData, {
+			headers: { 'Content-Type': 'multipart/form-data' },
+		}),
+});
+
+
 export const JobseekerProfileService = {
+	personalInfo: createPersonalInfoCrud(),
 	publication: createProfileCrud<Publication>('publication'),
 	language: createProfileCrud<Language>('language'),
 	award: createProfileCrud<Award>('award'),
@@ -66,13 +79,5 @@ export const JobseekerProfileService = {
 			await axiosIns.post(`/jobseeker/resume/toggle-active-status?resumeId=${resumeId}`),
 		delete: async (id: number): Promise<IApiResponse<void>> =>
 			await axiosIns.delete(`/jobseeker/resume/delete/${id}`),
-	},
-	personalInfo: {
-		get: async (): Promise<IApiResponse<PersonalInfo>> =>
-			await axiosIns.get('/jobseeker/profile/personal-info'),
-		saveProfileImage: async (formData: FormData): Promise<IApiResponse<any>> =>
-			await axiosIns.post('/jobseeker/personal-info/profile-image/save', formData, {
-				headers: { 'Content-Type': 'multipart/form-data' },
-			}),
 	},
 };
