@@ -184,6 +184,69 @@ const personalInfoSchema = z.object({
 
 type PersonalInfoFormValues = z.infer<typeof personalInfoSchema>;
 
+interface AddressFieldsProps {
+	type: 'presentAddress' | 'permanentAddress';
+	form: any; // React Hook Form's form object
+	masterData: PersonalInfoMasterData;
+	districts: ICommonMasterData[];
+	upazilas: ICommonMasterData[];
+	isLoadingDistricts: boolean;
+	isLoadingUpazilas: boolean;
+	disabled?: boolean;
+}
+
+const AddressFields = ({
+	type,
+	form,
+	masterData,
+	districts,
+	upazilas,
+	isLoadingDistricts,
+	isLoadingUpazilas,
+	disabled = false,
+}: AddressFieldsProps) => {
+	const watchDivision = form.watch(`${type}.division`);
+	const watchDistrict = form.watch(`${type}.district`);
+
+	return (
+		<div className='space-y-4'>
+			<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+				<FormSelect
+					control={form.control}
+					name={`${type}.division`}
+					label='Division'
+					placeholder='Select division'
+					required
+					disabled={disabled}
+					options={masterData.divisions.map((d) => ({ label: d.name, value: d.name }))}
+				/>
+				<FormSelect
+					control={form.control}
+					name={`${type}.district`}
+					label='District'
+					placeholder='Select district'
+					required
+					disabled={disabled || !watchDivision || isLoadingDistricts}
+					options={districts.map((d) => ({ label: d.name, value: d.name }))}
+				/>
+				<FormSelect
+					control={form.control}
+					name={`${type}.upazila`}
+					label='Upazila / Thana'
+					placeholder='Select upazila'
+					required
+					disabled={disabled || !watchDistrict || isLoadingUpazilas}
+					options={upazilas.map((u) => ({ label: u.name, value: u.name }))}
+				/>
+			</div>
+			<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+				<FormInput control={form.control} name={`${type}.line1`} label='Address Line' disabled={disabled} required />
+				<FormInput control={form.control} name={`${type}.postCode`} label='Post Code' disabled={disabled} required />
+			</div>
+		</div>
+	);
+};
+
 interface ProfileFormProps {
 	candidate: Candidate;
 	masterData: PersonalInfoMasterData;
@@ -204,12 +267,131 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 
 	const watchPresentAddress = form.watch('presentAddress');
 	const usePresentForPermanent = form.watch('usePresentForPermanent');
+	const watchPresentDivision = form.watch('presentAddress.division');
+	const watchPresentDistrict = form.watch('presentAddress.district');
+	const watchPermanentDivision = form.watch('permanentAddress.division');
+	const watchPermanentDistrict = form.watch('permanentAddress.district');
+
+	// State for dynamic dropdowns
+	const [presentDistricts, setPresentDistricts] = React.useState<ICommonMasterData[]>([]);
+	const [presentUpazilas, setPresentUpazilas] = React.useState<ICommonMasterData[]>([]);
+	const [permanentDistricts, setPermanentDistricts] = React.useState<ICommonMasterData[]>([]);
+	const [permanentUpazilas, setPermanentUpazilas] = React.useState<ICommonMasterData[]>([]);
+
+	const [isLoadingPresentDistricts, setIsLoadingPresentDistricts] = React.useState(false);
+	const [isLoadingPresentUpazilas, setIsLoadingPresentUpazilas] = React.useState(false);
+	const [isLoadingPermanentDistricts, setIsLoadingPermanentDistricts] = React.useState(false);
+	const [isLoadingPermanentUpazilas, setIsLoadingPermanentUpazilas] = React.useState(false);
 
 	React.useEffect(() => {
 		if (usePresentForPermanent) {
 			form.setValue('permanentAddress', watchPresentAddress);
+			setPermanentDistricts(presentDistricts);
+			setPermanentUpazilas(presentUpazilas);
 		}
-	}, [usePresentForPermanent, watchPresentAddress, form]);
+	}, [usePresentForPermanent, watchPresentAddress, form, presentDistricts, presentUpazilas]);
+
+	// Fetch districts for present address
+	React.useEffect(() => {
+		const fetchDistricts = async () => {
+			const selectedDivision = masterData.divisions.find((d) => d.name === watchPresentDivision);
+			if (selectedDivision?.id) {
+				setIsLoadingPresentDistricts(true);
+				try {
+					const res = await MasterDataService.country.getDistricts(selectedDivision.id.toString());
+					setPresentDistricts(res.body);
+				} catch (error) {
+					setPresentDistricts([]);
+				} finally {
+					setIsLoadingPresentDistricts(false);
+				}
+			} else {
+				setPresentDistricts([]);
+			}
+		};
+
+		if (watchPresentDivision) {
+			form.setValue('presentAddress.district', '');
+			form.setValue('presentAddress.upazila', '');
+			fetchDistricts();
+		}
+	}, [watchPresentDivision, form, masterData.divisions]);
+
+	// Fetch upazilas for present address
+	React.useEffect(() => {
+		const fetchUpazilas = async () => {
+			const selectedDistrict = presentDistricts.find((d) => d.name === watchPresentDistrict);
+			if (selectedDistrict?.id) {
+				setIsLoadingPresentUpazilas(true);
+				try {
+					const res = await MasterDataService.country.getUpazilas(selectedDistrict.id.toString());
+					setPresentUpazilas(res.body);
+				} catch (error) {
+					setPresentUpazilas([]);
+				} finally {
+					setIsLoadingPresentUpazilas(false);
+				}
+			} else {
+				setPresentUpazilas([]);
+			}
+		};
+
+		if (watchPresentDistrict) {
+			form.setValue('presentAddress.upazila', '');
+			fetchUpazilas();
+		}
+	}, [watchPresentDistrict, form, presentDistricts]);
+
+	// Fetch districts for permanent address
+	React.useEffect(() => {
+		const fetchDistricts = async () => {
+			const selectedDivision = masterData.divisions.find((d) => d.name === watchPermanentDivision);
+			if (selectedDivision?.id) {
+				setIsLoadingPermanentDistricts(true);
+				try {
+					const res = await MasterDataService.country.getDistricts(selectedDivision.id.toString());
+					setPermanentDistricts(res.body);
+				} catch (error) {
+					setPermanentDistricts([]);
+				} finally {
+					setIsLoadingPermanentDistricts(false);
+				}
+			} else {
+				setPermanentDistricts([]);
+			}
+		};
+
+		if (watchPermanentDivision && !usePresentForPermanent) {
+			form.setValue('permanentAddress.district', '');
+			form.setValue('permanentAddress.upazila', '');
+			fetchDistricts();
+		}
+	}, [watchPermanentDivision, form, masterData.divisions, usePresentForPermanent]);
+
+	// Fetch upazilas for permanent address
+	React.useEffect(() => {
+		const fetchUpazilas = async () => {
+			const selectedDistrict = permanentDistricts.find((d) => d.name === watchPermanentDistrict);
+			if (selectedDistrict?.id) {
+				setIsLoadingPermanentUpazilas(true);
+				try {
+					const res = await MasterDataService.country.getUpazilas(selectedDistrict.id.toString());
+					setPermanentUpazilas(res.body);
+				} catch (error) {
+					setPermanentUpazilas([]);
+				} finally {
+					setIsLoadingPermanentUpazilas(false);
+				}
+			} else {
+				setPermanentUpazilas([]);
+			}
+		};
+
+		if (watchPermanentDistrict && !usePresentForPermanent) {
+			form.setValue('permanentAddress.upazila', '');
+			fetchUpazilas();
+		}
+	}, [watchPermanentDistrict, form, permanentDistricts, usePresentForPermanent]);
 
 	const onSubmit = (data: PersonalInfoFormValues) => {
 		toast({
@@ -218,104 +400,6 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 			variant: 'success',
 		});
 		console.log(data);
-	};
-
-	const AddressFields = ({ type }: { type: 'presentAddress' | 'permanentAddress' }) => {
-		const watchDivision = form.watch(`${type}.division`);
-		const watchDistrict = form.watch(`${type}.district`);
-		const disabled = type === 'permanentAddress' && usePresentForPermanent;
-
-		const [districts, setDistricts] = React.useState<ICommonMasterData[]>([]);
-		const [upazilas, setUpazilas] = React.useState<ICommonMasterData[]>([]);
-		const [isLoadingDistricts, setIsLoadingDistricts] = React.useState(false);
-		const [isLoadingUpazilas, setIsLoadingUpazilas] = React.useState(false);
-
-		React.useEffect(() => {
-			const fetchDistricts = async () => {
-				const selectedDivision = masterData.divisions.find((d) => d.name === watchDivision);
-				if (selectedDivision?.id) {
-					setIsLoadingDistricts(true);
-					try {
-						const res = await MasterDataService.country.getDistricts(selectedDivision.id.toString());
-						setDistricts(res.body);
-					} catch (error) {
-						setDistricts([]);
-					} finally {
-						setIsLoadingDistricts(false);
-					}
-				} else {
-					setDistricts([]);
-				}
-			};
-
-			if (watchDivision) {
-				form.setValue(`${type}.district`, '');
-				form.setValue(`${type}.upazila`, '');
-				fetchDistricts();
-			}
-		}, [watchDivision, type]);
-
-		React.useEffect(() => {
-			const fetchUpazilas = async () => {
-				const selectedDistrict = districts.find((d) => d.name === watchDistrict);
-				if (selectedDistrict?.id) {
-					setIsLoadingUpazilas(true);
-					try {
-						const res = await MasterDataService.country.getUpazilas(selectedDistrict.id.toString());
-						setUpazilas(res.body);
-					} catch (error) {
-						setUpazilas([]);
-					} finally {
-						setIsLoadingUpazilas(false);
-					}
-				} else {
-					setUpazilas([]);
-				}
-			};
-
-			if (watchDistrict) {
-				form.setValue(`${type}.upazila`, '');
-				fetchUpazilas();
-			}
-		}, [watchDistrict, type, districts]);
-
-		return (
-			<div className='space-y-4'>
-				<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-					<FormSelect
-						control={form.control}
-						name={`${type}.division`}
-						label='Division'
-						placeholder='Select division'
-						required
-						disabled={disabled}
-						options={masterData.divisions.map((d) => ({ label: d.name, value: d.name }))}
-					/>
-					<FormSelect
-						control={form.control}
-						name={`${type}.district`}
-						label='District'
-						placeholder='Select district'
-						required
-						disabled={disabled || !watchDivision || isLoadingDistricts}
-						options={districts.map((d) => ({ label: d.name, value: d.name }))}
-					/>
-					<FormSelect
-						control={form.control}
-						name={`${type}.upazila`}
-						label='Upazila / Thana'
-						placeholder='Select upazila'
-						required
-						disabled={disabled || !watchDistrict || isLoadingUpazilas}
-						options={upazilas.map((u) => ({ label: u.name, value: u.name }))}
-					/>
-				</div>
-				<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-					<FormInput control={form.control} name={`${type}.line1`} label='Address Line' disabled={disabled} required />
-					<FormInput control={form.control} name={`${type}.postCode`} label='Post Code' disabled={disabled} required />
-				</div>
-			</div>
-		);
 	};
 
 	return (
@@ -450,13 +534,30 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 								</div>
 								<div>
 									<h3 className='text-md font-medium mb-2'>Present Address</h3>
-									<AddressFields type='presentAddress' />
+									<AddressFields
+										type='presentAddress'
+										form={form}
+										masterData={masterData}
+										districts={presentDistricts}
+										upazilas={presentUpazilas}
+										isLoadingDistricts={isLoadingPresentDistricts}
+										isLoadingUpazilas={isLoadingPresentUpazilas}
+									/>
 								</div>
 								<div>
 									<h3 className='text-md font-medium mb-2'>Permanent Address</h3>
 									<FormCheckbox control={form.control} name='usePresentForPermanent' label='Same as present address' />
 									<div className='mt-4'>
-										<AddressFields type='permanentAddress' />
+										<AddressFields
+											type='permanentAddress'
+											form={form}
+											masterData={masterData}
+											districts={permanentDistricts}
+											upazilas={permanentUpazilas}
+											isLoadingDistricts={isLoadingPermanentDistricts}
+											isLoadingUpazilas={isLoadingPermanentUpazilas}
+											disabled={usePresentForPermanent}
+										/>
 									</div>
 								</div>
 							</CardContent>
