@@ -22,17 +22,23 @@ export default function MasterOrganizationsPage() {
 	useEffect(() => {
 		async function fetchMasterData() {
 			try {
-				const [countriesRes, industryTypesRes, orgTypesRes] = await Promise.all([
+				const [countriesRes, industryTypesRes, orgTypesRes] = await Promise.allSettled([
 					MasterDataService.country.get(),
 					MasterDataService.industryType.get(),
 					MasterDataService.organizationType.get(),
 				]);
 
 				setMasterData({
-					countries: countriesRes.body,
-					industryTypes: industryTypesRes.body,
-					organizationTypes: orgTypesRes.body,
+					countries: countriesRes.status === 'fulfilled' ? countriesRes.value.body : [],
+					industryTypes: industryTypesRes.status === 'fulfilled' ? industryTypesRes.value.body : [],
+					organizationTypes: orgTypesRes.status === 'fulfilled' ? orgTypesRes.value.body : [],
 				});
+
+				if (countriesRes.status === 'rejected') console.error('Failed to load countries:', countriesRes.reason);
+				if (industryTypesRes.status === 'rejected')
+					console.error('Failed to load industry types:', industryTypesRes.reason);
+				if (orgTypesRes.status === 'rejected')
+					console.error('Failed to load organization types:', orgTypesRes.reason);
 			} catch (error) {
 				console.error('Failed to load master data for organizations', error);
 			} finally {

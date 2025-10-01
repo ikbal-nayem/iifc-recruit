@@ -8,22 +8,26 @@ export type ProfessionalExperienceMasterData = {
 };
 
 async function getMasterData(): Promise<ProfessionalExperienceMasterData> {
-	try {
-		const [positionLevelsRes, organizationsRes] = await Promise.all([
-			MasterDataService.positionLevel.get(),
-			MasterDataService.organization.get(),
-		]);
-		return {
-			positionLevels: positionLevelsRes.body || [],
-			organizations: organizationsRes.body || [],
-		};
-	} catch (error) {
-		console.error('Failed to load professional experience master data:', error);
-		return {
-			positionLevels: [],
-			organizations: [],
-		};
+	const [positionLevelsRes, organizationsRes] = await Promise.allSettled([
+		MasterDataService.positionLevel.get(),
+		MasterDataService.organization.get(),
+	]);
+
+	const positionLevels =
+		positionLevelsRes.status === 'fulfilled' ? positionLevelsRes.value.body || [] : [];
+	const organizations = organizationsRes.status === 'fulfilled' ? organizationsRes.value.body || [] : [];
+
+	if (positionLevelsRes.status === 'rejected') {
+		console.error('Failed to load position levels:', positionLevelsRes.reason);
 	}
+	if (organizationsRes.status === 'rejected') {
+		console.error('Failed to load organizations:', organizationsRes.reason);
+	}
+
+	return {
+		positionLevels,
+		organizations,
+	};
 }
 
 export default async function JobseekerProfileProfessionalPage() {

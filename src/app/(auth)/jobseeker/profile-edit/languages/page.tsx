@@ -10,5 +10,12 @@ export default async function JobseekerProfileLanguagesPage() {
 	const languageOptions = masterLanguagesRes.status === 'fulfilled' ? masterLanguagesRes.value.body : [];
 	const proficiencyOptions = proficiencyRes.status === 'fulfilled' ? proficiencyRes.value.body : [];
 
+	if (masterLanguagesRes.status === 'rejected') {
+		console.error('Failed to load languages:', masterLanguagesRes.reason);
+	}
+	if (proficiencyRes.status === 'rejected') {
+		console.error('Failed to load proficiency levels:', proficiencyRes.reason);
+	}
+
 	return <ProfileFormLanguages languageOptions={languageOptions} proficiencyOptions={proficiencyOptions} />;
 }

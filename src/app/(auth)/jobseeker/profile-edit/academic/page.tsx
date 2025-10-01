@@ -14,5 +14,15 @@ export default async function JobseekerProfileAcademicPage() {
 		institutions: institutionsResult.status === 'fulfilled' ? institutionsResult.value.body || [] : [],
 	};
 
+	if (levelsResult.status === 'rejected') {
+		console.error('Failed to load degree levels:', levelsResult.reason);
+	}
+	if (domainsResult.status === 'rejected') {
+		console.error('Failed to load domains:', domainsResult.reason);
+	}
+	if (institutionsResult.status === 'rejected') {
+		console.error('Failed to load institutions:', institutionsResult.reason);
+	}
+
 	return <ProfileFormAcademic masterData={masterData} />;
 }

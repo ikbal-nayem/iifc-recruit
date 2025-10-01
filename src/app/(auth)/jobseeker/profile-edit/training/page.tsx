@@ -1,15 +1,16 @@
 import { ProfileFormTraining } from '@/components/app/jobseeker/profile-forms/training';
 import { MasterDataService } from '@/services/api/master-data.service';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
 
 export default async function JobseekerProfileTrainingPage() {
-	let res;
+	let trainingTypes: ICommonMasterData[] = [];
 
 	try {
-		res = await MasterDataService.trainingType.get();
+		const res = await MasterDataService.trainingType.get();
+		trainingTypes = res.body || [];
 	} catch (error) {
-		res = { body: [] };
-		console.log(error);
+		console.error('Failed to load training types:', error);
 	}
 
-	return <ProfileFormTraining trainingTypes={res?.body} />;
+	return <ProfileFormTraining trainingTypes={trainingTypes} />;
 }

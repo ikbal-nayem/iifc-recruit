@@ -18,32 +18,31 @@ export type PersonalInfoMasterData = {
 };
 
 async function getMasterData(): Promise<PersonalInfoMasterData> {
-	try {
-		const [gendersRes, maritalRes, professionalRes, religionRes, divisionsRes] = await Promise.all([
-			MasterDataService.getEnum('gender'),
-			MasterDataService.getEnum('marital-status'),
-			MasterDataService.getEnum('professional-status'),
-			MasterDataService.getEnum('religion'),
-			MasterDataService.country.getDivisions(),
-		]);
+	const [gendersRes, maritalRes, professionalRes, religionRes, divisionsRes] = await Promise.allSettled([
+		MasterDataService.getEnum('gender'),
+		MasterDataService.getEnum('marital-status'),
+		MasterDataService.getEnum('professional-status'),
+		MasterDataService.getEnum('religion'),
+		MasterDataService.country.getDivisions(),
+	]);
 
-		return {
-			genders: gendersRes.body || [],
-			maritalStatuses: maritalRes.body || [],
-			professionalStatuses: professionalRes.body || [],
-			religions: religionRes.body || [],
-			divisions: divisionsRes.body || [],
-		};
-	} catch (error) {
-		console.error('Failed to load master data for personal info:', error);
-		return {
-			genders: [],
-			maritalStatuses: [],
-			professionalStatuses: [],
-			religions: [],
-			divisions: [],
-		};
-	}
+	const getFulfilledValue = <T>(result: PromiseSettledResult<T>, defaultValue: any[] = []): any[] => {
+		if (result.status === 'fulfilled' && 'body' in result.value && Array.isArray(result.value.body)) {
+			return result.value.body;
+		}
+		if (result.status === 'rejected') {
+			console.error('Failed to load master data:', result.reason);
+		}
+		return defaultValue;
+	};
+
+	return {
+		genders: getFulfilledValue(gendersRes),
+		maritalStatuses: getFulfilledValue(maritalRes),
+		professionalStatuses: getFulfilledValue(professionalRes),
+		religions: getFulfilledValue(religionRes),
+		divisions: getFulfilledValue(divisionsRes),
+	};
 }
 
 export default async function JobseekerProfilePersonalPage() {
