@@ -599,12 +599,12 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 							</CardContent>
 						</Card>
 
-						<CardFooter>
+						<div className="pt-2">
 							<Button type='submit'>
 								<Save className='mr-2 h-4 w-4' />
 								Save Changes
 							</Button>
-						</CardFooter>
+						</div>
 					</div>
 				</form>
 			</Form>
