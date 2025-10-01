@@ -1,3 +1,4 @@
+
 import { ProfileFormPersonal } from '@/components/app/jobseeker/profile-forms/personal';
 import { candidates } from '@/lib/data';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';

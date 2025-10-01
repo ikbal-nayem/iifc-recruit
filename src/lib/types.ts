@@ -7,8 +7,7 @@ export type Address = {
 	divisionId: number;
 	districtId: number;
 	upazilaId: number;
-	address: string;
-	line1: string; // for backward compatibility in mock data
+	line1: string;
 	upazila: string;
 	district: string;
 	division: string;
