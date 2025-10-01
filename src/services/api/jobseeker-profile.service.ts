@@ -14,6 +14,7 @@ import {
 	Training,
 } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { PersonalInfo } from '@/lib/types';
 
 const createProfileCrud = <T extends { id?: number | string }>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/jobseeker/${entity}/get?isDeleted=false`),
@@ -67,6 +68,8 @@ export const JobseekerProfileService = {
 			await axiosIns.delete(`/jobseeker/resume/delete/${id}`),
 	},
 	personalInfo: {
+		get: async (): Promise<IApiResponse<PersonalInfo>> =>
+			await axiosIns.get('/jobseeker/profile/personal-info'),
 		saveProfileImage: async (formData: FormData): Promise<IApiResponse<any>> =>
 			await axiosIns.post('/jobseeker/personal-info/profile-image/save', formData, {
 				headers: { 'Content-Type': 'multipart/form-data' },

@@ -15,13 +15,14 @@ import type { Candidate } from '@/lib/types';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Linkedin, Mail, Phone, Save, Upload, Video, Loader2, AlertCircle } from 'lucide-react';
+import { Linkedin, Mail, Phone, Save, Upload, Video, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { IApiResponse, ICommonMasterData } from '@/interfaces/master-data.interface';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { makePreviewURL } from '@/lib/utils';
 
 const profileImageSchema = z.object({
 	avatarFile: z
@@ -92,12 +93,15 @@ function ProfileImageCard({ avatar }: { avatar: string }) {
 				<form onSubmit={form.handleSubmit(onImageSubmit)}>
 					<div className='flex items-center gap-6'>
 						<Image
-							src={avatarPreview || avatar}
+							src={avatarPreview || makePreviewURL(avatar) || '/default-avatar.png'}
 							alt='Admin Avatar'
 							width={100}
 							height={100}
 							className='rounded-full object-cover h-24 w-24 border-2 border-primary/50'
 							data-ai-hint='avatar person'
+							onError={(e) => {
+								e.currentTarget.src = '/default-avatar.png';
+							}}
 						/>
 						<div className='flex-1 space-y-3'>
 							<FormField
@@ -202,18 +206,36 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 	const form = useForm<PersonalInfoFormValues>({
 		resolver: zodResolver(personalInfoSchema),
 		defaultValues: {
-			...candidate.personalInfo,
-			presentDivisionId: candidate.personalInfo.presentAddress.divisionId,
-			presentDistrictId: candidate.personalInfo.presentAddress.districtId,
-			presentUpazilaId: candidate.personalInfo.presentAddress.upazilaId,
-			presentAddress: candidate.personalInfo.presentAddress.line1,
-			presentPostCode: candidate.personalInfo.presentAddress.postCode as number,
-			permanentDivisionId: candidate.personalInfo.permanentAddress.divisionId,
-			permanentDistrictId: candidate.personalInfo.permanentAddress.districtId,
-			permanentUpazilaId: candidate.personalInfo.permanentAddress.upazilaId,
-			permanentAddress: candidate.personalInfo.permanentAddress.line1,
-			permanentPostCode: candidate.personalInfo.permanentAddress.postCode as number,
+			firstName: candidate.personalInfo.firstName || '',
+			middleName: candidate.personalInfo.middleName || '',
+			lastName: candidate.personalInfo.lastName || '',
+			fatherName: candidate.personalInfo.fatherName || '',
+			motherName: candidate.personalInfo.motherName || '',
+			email: candidate.personalInfo.email || '',
+			phone: candidate.personalInfo.phone || '',
+			headline: candidate.personalInfo.headline || '',
+			dateOfBirth: candidate.personalInfo.dateOfBirth || '',
+			gender: candidate.personalInfo.gender || '',
+			maritalStatus: candidate.personalInfo.maritalStatus || '',
+			nationality: candidate.personalInfo.nationality || 'Bangladeshi',
+			religion: candidate.personalInfo.religion || '',
+			professionalStatus: candidate.personalInfo.professionalStatus || '',
+			nid: candidate.personalInfo.nid || '',
+			passportNo: candidate.personalInfo.passportNo || '',
+			birthCertificate: candidate.personalInfo.birthCertificate || '',
+			presentDivisionId: candidate.personalInfo.presentAddress?.divisionId || 0,
+			presentDistrictId: candidate.personalInfo.presentAddress?.districtId || 0,
+			presentUpazilaId: candidate.personalInfo.presentAddress?.upazilaId || 0,
+			presentAddress: candidate.personalInfo.presentAddress?.line1 || '',
+			presentPostCode: (candidate.personalInfo.presentAddress?.postCode as number) || 0,
+			permanentDivisionId: candidate.personalInfo.permanentAddress?.divisionId || 0,
+			permanentDistrictId: candidate.personalInfo.permanentAddress?.districtId || 0,
+			permanentUpazilaId: candidate.personalInfo.permanentAddress?.upazilaId || 0,
+			permanentAddress: candidate.personalInfo.permanentAddress?.line1 || '',
+			permanentPostCode: (candidate.personalInfo.permanentAddress?.postCode as number) || 0,
 			sameAsPresentAddress: false,
+			linkedInProfile: candidate.personalInfo.linkedInProfile || '',
+			videoProfile: candidate.personalInfo.videoProfile || '',
 		},
 	});
 
