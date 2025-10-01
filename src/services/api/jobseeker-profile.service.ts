@@ -46,7 +46,7 @@ export const JobseekerProfileService = {
 		save: async (payload: PersonalInfo): Promise<IApiResponse<PersonalInfo>> =>
 			await axiosIns.post('/jobseeker/personal-info/save', payload),
 		saveProfileImage: async (formData: FormData): Promise<IApiResponse<any>> =>
-			await axiosIns.post('/jobseeker/personal-info/profile-image/save', formData, {
+			await axiosIns.post('/jobseeker/profile/profile-image/save', formData, {
 				headers: { 'Content-Type': 'multipart/form-data' },
 			}),
 	},
