@@ -13,7 +13,7 @@ interface FormSelectProps<TFieldValues extends FieldValues> {
 	label: string;
 	placeholder?: string;
 	required?: boolean;
-	options: { label: string; value: string }[];
+	options: { label: string; value: string | number }[];
 	disabled?: boolean;
 }
 
@@ -35,7 +35,7 @@ export function FormSelect<TFieldValues extends FieldValues>({
 				<FormItem>
 					<FormLabel required={required}>{label}</FormLabel>
 					<Select
-						onValueChange={(value) => field.onChange(value ? parseInt(value) || value : value)}
+						onValueChange={field.onChange}
 						defaultValue={field.value?.toString()}
 						disabled={disabled}
 						{...props}
