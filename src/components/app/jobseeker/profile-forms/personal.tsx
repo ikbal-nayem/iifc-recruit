@@ -11,15 +11,16 @@ import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { districts, divisions, upazilas } from '@/lib/bd-divisions-districts-upazilas';
 import type { Candidate } from '@/lib/types';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
+import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Linkedin, Mail, Phone, Save, Upload, Video, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
 
 const profileImageSchema = z.object({
 	avatarFile: z
@@ -225,19 +226,52 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 		const watchDistrict = form.watch(`${type}.district`);
 		const disabled = type === 'permanentAddress' && usePresentForPermanent;
 
-		const filteredDistricts = React.useMemo(() => {
-			const selectedDivision = divisions.find((d) => d.name === watchDivision);
-			if (!selectedDivision) return [];
-			return districts.filter((d) => d.division_id === selectedDivision.id);
-		}, [watchDivision]);
+		const [districts, setDistricts] = React.useState<ICommonMasterData[]>([]);
+		const [upazilas, setUpazilas] = React.useState<ICommonMasterData[]>([]);
+		const [isLoadingDistricts, setIsLoadingDistricts] = React.useState(false);
+		const [isLoadingUpazilas, setIsLoadingUpazilas] = React.useState(false);
 
-		const filteredUpazilas = React.useMemo(() => {
-			const selectedDistrict = districts.find((d) => d.name === watchDistrict);
-			if (!selectedDistrict) return [];
-			return upazilas.filter((u) => u.district_id === selectedDistrict.id);
-		}, [watchDistrict]);
+		const selectedDivision = masterData.divisions.find((d) => d.name === watchDivision);
+		const selectedDistrict = districts.find((d) => d.name === watchDistrict);
 
-		// This custom hook prevents infinite loops by only acting on actual changes.
+		React.useEffect(() => {
+			const fetchDistricts = async () => {
+				if (selectedDivision?.id) {
+					setIsLoadingDistricts(true);
+					try {
+						const res = await MasterDataService.country.getDistricts(selectedDivision.id.toString());
+						setDistricts(res.body);
+					} catch (error) {
+						setDistricts([]);
+					} finally {
+						setIsLoadingDistricts(false);
+					}
+				} else {
+					setDistricts([]);
+				}
+			};
+			fetchDistricts();
+		}, [selectedDivision]);
+
+		React.useEffect(() => {
+			const fetchUpazilas = async () => {
+				if (selectedDistrict?.id) {
+					setIsLoadingUpazilas(true);
+					try {
+						const res = await MasterDataService.country.getUpazilas(selectedDistrict.id.toString());
+						setUpazilas(res.body);
+					} catch (error) {
+						setUpazilas([]);
+					} finally {
+						setIsLoadingUpazilas(false);
+					}
+				} else {
+					setUpazilas([]);
+				}
+			};
+			fetchUpazilas();
+		}, [selectedDistrict]);
+
 		const usePrevious = <T,>(value: T) => {
 			const ref = React.useRef<T>();
 			React.useEffect(() => {
@@ -271,7 +305,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 						placeholder='Select division'
 						required
 						disabled={disabled}
-						options={divisions.map((d) => ({ label: d.name, value: d.name }))}
+						options={masterData.divisions.map((d) => ({ label: d.name, value: d.name }))}
 					/>
 					<FormSelect
 						control={form.control}
@@ -279,8 +313,8 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 						label='District'
 						placeholder='Select district'
 						required
-						disabled={disabled || !watchDivision}
-						options={filteredDistricts.map((d) => ({ label: d.name, value: d.name }))}
+						disabled={disabled || !watchDivision || isLoadingDistricts}
+						options={districts.map((d) => ({ label: d.name, value: d.name }))}
 					/>
 					<FormSelect
 						control={form.control}
@@ -288,8 +322,8 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 						label='Upazila / Thana'
 						placeholder='Select upazila'
 						required
-						disabled={disabled || !watchDistrict}
-						options={filteredUpazilas.map((u) => ({ label: u.name, value: u.name }))}
+						disabled={disabled || !watchDistrict || isLoadingUpazilas}
+						options={upazilas.map((u) => ({ label: u.name, value: u.name }))}
 					/>
 				</div>
 				<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>

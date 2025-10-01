@@ -35,7 +35,15 @@ export const MasterDataService = {
 	positionLevel: createMasterDataCrud('position-level'),
 	certification: createMasterDataCrud('certification-type'),
 	trainingType: createMasterDataCrud('training-type'),
-	country: createMasterDataCrud('country'),
+	country: {
+		...createMasterDataCrud('country'),
+		getDivisions: async (): Promise<IApiResponse<ICommonMasterData[]>> =>
+			await axiosIns.get('/master-data/country/divisions'),
+		getDistricts: async (divisionId: string): Promise<IApiResponse<ICommonMasterData[]>> =>
+			await axiosIns.get(`/master-data/country/districts?divisionId=${divisionId}`),
+		getUpazilas: async (districtId: string): Promise<IApiResponse<ICommonMasterData[]>> =>
+			await axiosIns.get(`/master-data/country/upazilas?districtId=${districtId}`),
+	},
 	educationInstitution: createMasterDataCrud<IEducationInstitution>('education-institution'),
 	organization: createMasterDataCrud<IOrganization>('organization'),
 	client: {
@@ -46,3 +54,4 @@ export const MasterDataService = {
 			await axiosIns.delete(`/client/delete/${organizationId}`),
 	},
 };
+
