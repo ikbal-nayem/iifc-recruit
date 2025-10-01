@@ -21,7 +21,7 @@ import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { IApiResponse, ICommonMasterData } from '@/interfaces/master-data.interface';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 import { makePreviewURL } from '@/lib/utils';
 import { IFile } from '@/interfaces/common.interface';
 
@@ -306,12 +306,19 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 
 
 	const onSubmit = (data: PersonalInfoFormValues) => {
-		toast({
-			title: 'Profile Updated',
-			description: 'Your personal information has been saved.',
-			variant: 'success',
+		JobseekerProfileService.personalInfo.update(data as PersonalInfo).then(() => {
+			toast({
+				title: 'Profile Updated',
+				description: 'Your personal information has been saved.',
+				variant: 'success',
+			});
+		}).catch((err) => {
+			toast({
+				title: 'Update Failed',
+				description: err.message || 'There was a problem saving your profile.',
+				variant: 'danger',
+			})
 		});
-		console.log(data);
 	};
 
 	const isMasterDataMissing = !masterData.divisions || masterData.divisions.length === 0;
@@ -326,10 +333,10 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 						{isMasterDataMissing && (
 							<Alert variant='warning'>
 								<AlertTitle>Master Data Unavailable</AlertTitle>
-								<AlertDescription>
+								<CardDescription>
 									Could not load necessary data for addresses. The address fields will be disabled. Please try
 									refreshing the page or contact support.
-								</AlertDescription>
+								</CardDescription>
 							</Alert>
 						)}
 
@@ -461,7 +468,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												name='presentDistrictId'
 												label='District'
 												placeholder='Select district'
-												disabled={isLoadingPresentDistricts || isMasterDataMissing}
+												disabled={isLoadingPresentDistricts}
 												options={presentDistricts.map((d) => ({ label: d.name, value: d.id! }))}
 											/>
 											<FormSelect
@@ -469,7 +476,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												name='presentUpazilaId'
 												label='Upazila / Thana'
 												placeholder='Select upazila'
-												disabled={isLoadingPresentUpazilas || isMasterDataMissing}
+												disabled={isLoadingPresentUpazilas}
 												options={presentUpazilas.map((u) => ({ label: u.name, value: u.id! }))}
 											/>
 										</div>
@@ -492,13 +499,15 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 										render={({ field }) => (
 											<FormItem className='flex flex-row items-start space-x-3 space-y-0'>
 												<FormControl>
-													<FormCheckbox
-														control={form.control}
-														name='sameAsPresentAddress'
-														label='Same as present address'
-														onCheckedChange={(checked) => handleSameAsPresentChange(Boolean(checked))}
+													<Checkbox
+														checked={field.value}
+														onCheckedChange={(checked) => {
+															field.onChange(checked);
+															handleSameAsPresentChange(Boolean(checked));
+														}}
 													/>
 												</FormControl>
+												<FormLabel>Same as present address</FormLabel>
 											</FormItem>
 										)}
 									/>
@@ -510,7 +519,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												name='permanentDivisionId'
 												label='Division'
 												placeholder='Select division'
-												disabled={watchSameAsPresent || isMasterDataMissing}
+												disabled={watchSameAsPresent}
 												options={masterData.divisions.map((d) => ({
 													label: d.name,
 													value: d.id!,
@@ -521,7 +530,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												name='permanentDistrictId'
 												label='District'
 												placeholder='Select district'
-												disabled={watchSameAsPresent || isLoadingPermanentDistricts || isMasterDataMissing}
+												disabled={watchSameAsPresent || isLoadingPermanentDistricts}
 												options={permanentDistricts.map((d) => ({
 													label: d.name,
 													value: d.id!,
@@ -532,7 +541,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												name='permanentUpazilaId'
 												label='Upazila / Thana'
 												placeholder='Select upazila'
-												disabled={watchSameAsPresent || isLoadingPermanentUpazilas || isMasterDataMissing}
+												disabled={watchSameAsPresent || isLoadingPermanentUpazilas}
 												options={permanentUpazilas.map((u) => ({
 													label: u.name,
 													value: u.id!,
