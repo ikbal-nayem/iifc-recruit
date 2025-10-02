@@ -1,7 +1,9 @@
+
 import { ProfileFormFamily } from '@/components/app/jobseeker/profile-forms/family';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { EnumOption } from '../page';
+import { FamilyInfo } from '@/interfaces/jobseeker.interface';
 
 export default async function JobseekerProfileFamilyPage() {
 	const [districtsRes, spouseInfoRes, childrenInfoRes, spouseStatusRes] = await Promise.allSettled([
@@ -15,12 +17,11 @@ export default async function JobseekerProfileFamilyPage() {
 	const spouseInfo = spouseInfoRes.status === 'fulfilled' ? spouseInfoRes.value.body : undefined;
 	const childrenInfo = childrenInfoRes.status === 'fulfilled' ? childrenInfoRes.value.body : [];
 	const spouseStatuses =
-		spouseStatusRes.status === 'fulfilled'
-			? (spouseStatusRes.value.body as EnumOption[])
-			: [];
-            
-    const familyInfo = spouseInfo ? { ...spouseInfo, children: childrenInfo } : { children: childrenInfo, spouseName: '', spouseProfession: '' };
+		spouseStatusRes.status === 'fulfilled' ? (spouseStatusRes.value.body as EnumOption[]) : [];
 
+	const familyInfo: FamilyInfo | undefined = spouseInfo
+		? { ...spouseInfo, children: childrenInfo }
+		: undefined;
 
 	if (districtsRes.status === 'rejected') {
 		console.error('Failed to load districts:', districtsRes.reason);

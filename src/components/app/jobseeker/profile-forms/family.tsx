@@ -15,7 +15,7 @@ import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, PlusCircle, Save, Trash } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -52,13 +52,24 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses }: Pr
 		resolver: zodResolver(familySchema),
 		defaultValues: {
 			id: initialData?.id,
-			name: initialData?.spouseName,
-			profession: initialData?.spouseProfession,
-			status: initialData?.spouseStatus,
-			ownDistrictId: initialData?.spouseOwnDistrictId,
+			name: initialData?.name,
+			profession: initialData?.profession,
+			status: initialData?.status,
+			ownDistrictId: initialData?.ownDistrictId,
 			children: initialData?.children || [],
 		},
 	});
+
+	useEffect(() => {
+		form.reset({
+			id: initialData?.id,
+			name: initialData?.name,
+			profession: initialData?.profession,
+			status: initialData?.status,
+			ownDistrictId: initialData?.ownDistrictId,
+			children: initialData?.children || [],
+		});
+	}, [initialData, form]);
 
 	const { fields, append, remove } = useFieldArray({
 		control: form.control,
@@ -89,10 +100,10 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses }: Pr
 			// The API might return the full object, so we sync form state
 			form.reset({
 				id: spouseResponse.body.id,
-				name: spouseResponse.body.spouseName,
-				profession: spouseResponse.body.spouseProfession,
-				status: spouseResponse.body.spouseStatus,
-				ownDistrictId: spouseResponse.body.spouseOwnDistrictId,
+				name: spouseResponse.body.name,
+				profession: spouseResponse.body.profession,
+				status: spouseResponse.body.status,
+				ownDistrictId: spouseResponse.body.ownDistrictId,
 				children: form.getValues('children'), // Preserve children state
 			});
 		} catch (error: any) {
