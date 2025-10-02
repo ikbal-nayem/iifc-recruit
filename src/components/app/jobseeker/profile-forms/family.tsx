@@ -28,10 +28,10 @@ const childSchema = z.object({
 
 const familySchema = z.object({
 	id: z.number().optional(),
-	spouseName: z.string().min(1, "Spouse's name is required."),
-	spouseProfession: z.string().min(1, "Spouse's profession is required."),
-	spouseStatus: z.string().optional(),
-	spouseOwnDistrictId: z.coerce.number().optional(),
+	name: z.string().min(1, "Spouse's name is required."),
+	profession: z.string().min(1, "Spouse's profession is required."),
+	status: z.string().optional(),
+	ownDistrictId: z.coerce.number().optional(),
 	children: z.array(childSchema).optional(),
 });
 
@@ -51,7 +51,11 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses }: Pr
 	const form = useForm<FamilyFormValues>({
 		resolver: zodResolver(familySchema),
 		defaultValues: {
-			...initialData,
+			id: initialData?.id,
+			name: initialData?.spouseName,
+			profession: initialData?.spouseProfession,
+			status: initialData?.spouseStatus,
+			ownDistrictId: initialData?.spouseOwnDistrictId,
 			children: initialData?.children || [],
 		},
 	});
@@ -63,12 +67,7 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses }: Pr
 
 	const onSpouseSubmit = async () => {
 		setIsSavingSpouse(true);
-		const spouseFieldNames: (keyof FamilyFormValues)[] = [
-			'spouseName',
-			'spouseProfession',
-			'spouseStatus',
-			'spouseOwnDistrictId',
-		];
+		const spouseFieldNames: (keyof FamilyFormValues)[] = ['name', 'profession', 'status', 'ownDistrictId'];
 		const validationResult = await form.trigger(spouseFieldNames);
 		if (!validationResult) {
 			setIsSavingSpouse(false);
@@ -78,16 +77,24 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses }: Pr
 		const spouseData = form.getValues();
 		const spousePayload = {
 			id: initialData?.id,
-			spouseName: spouseData.spouseName,
-			spouseProfession: spouseData.spouseProfession,
-			spouseStatus: spouseData.spouseStatus,
-			spouseOwnDistrictId: spouseData.spouseOwnDistrictId,
+			name: spouseData.name,
+			profession: spouseData.profession,
+			status: spouseData.status,
+			ownDistrictId: spouseData.ownDistrictId,
 		};
 
 		try {
 			const spouseResponse = await JobseekerProfileService.spouse.update(spousePayload as FamilyInfo);
 			toast({ description: spouseResponse.message || 'Spouse information saved.', variant: 'success' });
-			form.reset({ ...form.getValues(), ...spousePayload });
+			// The API might return the full object, so we sync form state
+			form.reset({
+				id: spouseResponse.body.id,
+				name: spouseResponse.body.spouseName,
+				profession: spouseResponse.body.spouseProfession,
+				status: spouseResponse.body.spouseStatus,
+				ownDistrictId: spouseResponse.body.spouseOwnDistrictId,
+				children: form.getValues('children'), // Preserve children state
+			});
 		} catch (error: any) {
 			toast({
 				title: 'Error',
@@ -142,14 +149,14 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses }: Pr
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 							<FormInput
 								control={form.control}
-								name='spouseName'
+								name='name'
 								label="Spouse's Name"
 								required
 								placeholder="Spouse's full name"
 							/>
 							<FormInput
 								control={form.control}
-								name='spouseProfession'
+								name='profession'
 								label="Spouse's Profession"
 								required
 								placeholder='e.g., Doctor, Teacher'
@@ -158,14 +165,14 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses }: Pr
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 							<FormSelect
 								control={form.control}
-								name='spouseStatus'
+								name='status'
 								label='Spouse Status'
 								placeholder='Select a status'
 								options={spouseStatuses}
 							/>
 							<FormAutocomplete
 								control={form.control}
-								name='spouseOwnDistrictId'
+								name='ownDistrictId'
 								label="Spouse's Home District"
 								placeholder='Select a district'
 								options={districts.map((d) => ({ value: d.id!, label: d.name }))}
