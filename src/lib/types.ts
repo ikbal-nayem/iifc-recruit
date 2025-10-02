@@ -1,6 +1,7 @@
 import {
 	AcademicInfo,
 	Award,
+	Certification,
 	Language,
 	PersonalInfo,
 	ProfessionalInfo,
@@ -11,13 +12,6 @@ import {
 
 export type UserRole = 'candidate' | 'admin';
 
-export type Certification = {
-	id?: string;
-	name: string;
-	issuingOrganization: string;
-	issueDate: string;
-	proofUrl?: string;
-};
 
 export type Candidate = {
 	id: string;
