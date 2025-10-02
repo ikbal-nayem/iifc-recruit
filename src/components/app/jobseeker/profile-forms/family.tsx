@@ -118,12 +118,19 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses }: Pr
 
 		try {
 			if (childrenData) {
-				for (const child of childrenData) {
-					if (child.id) {
-						await JobseekerProfileService.children.update(child as ChildInfo);
-					} else {
-						await JobseekerProfileService.children.add(child);
-					}
+				const results = await Promise.allSettled(
+					childrenData.map((child) => {
+						if (child.id) {
+							return JobseekerProfileService.children.update(child as ChildInfo);
+						} else {
+							return JobseekerProfileService.children.add(child);
+						}
+					})
+				);
+
+				const errors = results.filter((r) => r.status === 'rejected');
+				if (errors.length > 0) {
+					throw new Error('Some children could not be saved.');
 				}
 			}
 			toast({ description: "Children's information saved successfully.", variant: 'success' });

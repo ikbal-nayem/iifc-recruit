@@ -1,5 +1,6 @@
+
 import { axiosIns } from '@/config/api.config';
-import { IApiResponse } from '@/interfaces/common.interface';
+import { IApiResponse, IObject } from '@/interfaces/common.interface';
 import {
 	AcademicInfo,
 	Award,
@@ -55,7 +56,16 @@ export const JobseekerProfileService = {
 		update: async (payload: FamilyInfo): Promise<IApiResponse<FamilyInfo>> =>
 			await axiosIns.put('/jobseeker/spouse/update', payload),
 	},
-	children: createProfileCrud<ChildInfo>('children'),
+	children: {
+		get: async (): Promise<IApiResponse<ChildInfo[]>> =>
+			await axiosIns.get('/jobseeker/children/get-by-user'),
+		add: async (payload: Omit<ChildInfo, 'id'>): Promise<IApiResponse<ChildInfo>> =>
+			await axiosIns.post('/jobseeker/children/create', payload),
+		update: async (payload: ChildInfo): Promise<IApiResponse<ChildInfo>> =>
+			await axiosIns.put('/jobseeker/children/update', payload),
+		delete: async (id: number | string): Promise<IApiResponse<void>> =>
+			await axiosIns.delete(`/jobseeker/children/delete/${id}`),
+	},
 	publication: createProfileCrud<Publication>('publication'),
 	language: createProfileCrud<Language>('language'),
 	award: createProfileCrud<Award>('award'),
