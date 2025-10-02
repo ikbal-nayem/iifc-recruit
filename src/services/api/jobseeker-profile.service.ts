@@ -4,6 +4,7 @@ import {
 	AcademicInfo,
 	Award,
 	Certification,
+	FamilyInfo,
 	Language,
 	PersonalInfo,
 	ProfessionalInfo,
@@ -47,6 +48,11 @@ export const JobseekerProfileService = {
 			await axiosIns.post('/jobseeker/profile/profile-image/save', formData, {
 				headers: { 'Content-Type': 'multipart/form-data' },
 			}),
+	},
+	family: {
+		get: async (): Promise<IApiResponse<FamilyInfo>> => await axiosIns.get('/jobseeker/family/get'),
+		save: async (payload: FamilyInfo): Promise<IApiResponse<FamilyInfo>> =>
+			await axiosIns.post('/jobseeker/family/save', payload),
 	},
 	publication: createProfileCrud<Publication>('publication'),
 	language: createProfileCrud<Language>('language'),

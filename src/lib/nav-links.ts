@@ -1,4 +1,3 @@
-
 import type { LucideIcon } from 'lucide-react';
 import {
 	Award,
@@ -11,6 +10,7 @@ import {
 	Globe,
 	GraduationCap,
 	Handshake,
+	Heart,
 	Languages,
 	LayoutDashboard,
 	ListChecks,
@@ -155,6 +155,7 @@ export const jobseekerNavLinks: NavLink[] = [
 				icon: User,
 				isActive: (pathname) => pathname === '/jobseeker/profile-edit',
 			},
+			{ href: '/jobseeker/profile-edit/family', label: 'Family', icon: Heart },
 			{ href: '/jobseeker/profile-edit/academic', label: 'Academic', icon: GraduationCap },
 			{ href: '/jobseeker/profile-edit/professional', label: 'Professional', icon: Briefcase },
 			{ href: '/jobseeker/profile-edit/skills', label: 'Skills', icon: Star },

@@ -91,6 +91,21 @@ export type Resume = {
 	isActive: boolean;
 };
 
+export type ChildInfo = {
+	id?: number;
+	name: string;
+	gender: string;
+	dateOfBirth: string;
+};
+
+export type FamilyInfo = {
+	id?: number;
+	spouseName: string;
+	spouseProfession: string;
+	spouseOwnDistrictId?: number;
+	children: ChildInfo[];
+};
+
 export type PersonalInfo = {
 	id?: number;
 	// Basic Info

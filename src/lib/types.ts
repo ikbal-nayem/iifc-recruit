@@ -2,6 +2,7 @@ import {
 	AcademicInfo,
 	Award,
 	Certification,
+	FamilyInfo,
 	Language,
 	PersonalInfo,
 	ProfessionalInfo,
@@ -18,6 +19,7 @@ export type Candidate = {
 	personalInfo: PersonalInfo;
 	academicInfo: AcademicInfo[];
 	professionalInfo: ProfessionalInfo[];
+	familyInfo: FamilyInfo;
 	skills: string[];
 	certifications: Certification[];
 	languages: Language[];
