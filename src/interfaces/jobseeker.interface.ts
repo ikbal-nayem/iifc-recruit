@@ -103,6 +103,7 @@ export type FamilyInfo = {
 	spouseName: string;
 	spouseProfession: string;
 	spouseOwnDistrictId?: number;
+	spouseStatus?: string;
 	children: ChildInfo[];
 };
 

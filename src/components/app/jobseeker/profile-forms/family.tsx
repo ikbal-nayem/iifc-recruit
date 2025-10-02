@@ -1,5 +1,6 @@
 'use client';
 
+import { EnumOption } from '@/app/(auth)/jobseeker/profile-edit/page';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
@@ -28,6 +29,7 @@ const familySchema = z.object({
 	id: z.number().optional(),
 	spouseName: z.string().min(1, "Spouse's name is required."),
 	spouseProfession: z.string().min(1, "Spouse's profession is required."),
+	spouseStatus: z.string().min(1, 'Spouse status is required.'),
 	spouseOwnDistrictId: z.coerce.number().optional(),
 	children: z.array(childSchema).optional(),
 });
@@ -37,9 +39,10 @@ type FamilyFormValues = z.infer<typeof familySchema>;
 interface ProfileFormFamilyProps {
 	districts: ICommonMasterData[];
 	initialData?: FamilyInfo;
+	spouseStatuses: EnumOption[];
 }
 
-export function ProfileFormFamily({ districts, initialData }: ProfileFormFamilyProps) {
+export function ProfileFormFamily({ districts, initialData, spouseStatuses }: ProfileFormFamilyProps) {
 	const { toast } = useToast();
 	const [isSaving, setIsSaving] = useState(false);
 
@@ -98,13 +101,23 @@ export function ProfileFormFamily({ districts, initialData }: ProfileFormFamilyP
 								placeholder='e.g., Doctor, Teacher'
 							/>
 						</div>
-						<FormAutocomplete
-							control={form.control}
-							name='spouseOwnDistrictId'
-							label="Spouse's Home District"
-							placeholder='Select a district'
-							options={districts.map((d) => ({ value: d.id!, label: d.name }))}
-						/>
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+							<FormSelect
+								control={form.control}
+								name='spouseStatus'
+								label='Spouse Status'
+								required
+								placeholder='Select a status'
+								options={spouseStatuses}
+							/>
+							<FormAutocomplete
+								control={form.control}
+								name='spouseOwnDistrictId'
+								label="Spouse's Home District"
+								placeholder='Select a district'
+								options={districts.map((d) => ({ value: d.id!, label: d.name }))}
+							/>
+						</div>
 					</CardContent>
 				</Card>
 
