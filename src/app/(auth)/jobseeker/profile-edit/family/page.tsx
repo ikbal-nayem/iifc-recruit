@@ -4,7 +4,7 @@ import { JobseekerProfileService } from '@/services/api/jobseeker-profile.servic
 
 export default async function JobseekerProfileFamilyPage() {
 	const [districtsRes, familyInfoRes] = await Promise.allSettled([
-		MasterDataService.country.getDistricts('1'), // Assuming '1' is Bangladesh
+		MasterDataService.country.getDistricts(),
 		JobseekerProfileService.family.get(),
 	]);
 

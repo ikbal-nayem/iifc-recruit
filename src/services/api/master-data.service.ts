@@ -39,8 +39,10 @@ export const MasterDataService = {
 		...createMasterDataCrud('country'),
 		getDivisions: async (): Promise<IApiResponse<ICommonMasterData[]>> =>
 			await axiosIns.get('/master-data/country/divisions'),
-		getDistricts: async (divisionId: string): Promise<IApiResponse<ICommonMasterData[]>> =>
-			await axiosIns.get(`/master-data/country/districts?divisionId=${divisionId}`),
+		getDistricts: async (divisionId?: string): Promise<IApiResponse<ICommonMasterData[]>> => {
+			const url = divisionId ? `/master-data/country/districts?divisionId=${divisionId}` : '/master-data/country/districts';
+			return await axiosIns.get(url);
+		},
 		getUpazilas: async (districtId: string): Promise<IApiResponse<ICommonMasterData[]>> =>
 			await axiosIns.get(`/master-data/country/upazilas?districtId=${districtId}`),
 	},
@@ -54,4 +56,3 @@ export const MasterDataService = {
 			await axiosIns.delete(`/client/delete/${organizationId}`),
 	},
 };
-
