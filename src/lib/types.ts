@@ -1,59 +1,15 @@
-
-import { AcademicInfo, Award, Language, ProfessionalInfo, Publication, Resume, Training } from '@/interfaces/jobseeker.interface';
-import { IFile } from './interfaces/common.interface';
+import {
+	AcademicInfo,
+	Award,
+	Language,
+	PersonalInfo,
+	ProfessionalInfo,
+	Publication,
+	Resume,
+	Training,
+} from '@/interfaces/jobseeker.interface';
 
 export type UserRole = 'candidate' | 'admin';
-
-export type PersonalInfo = {
-    id?: number;
-    // Basic Info
-	firstName: string;
-	middleName?: string;
-	lastName: string;
-	fatherName: string;
-	motherName: string;
-	dateOfBirth: string;
-	gender: string;
-	nationality: string;
-	careerObjective?: string;
-
-    // User Info (nested)
-    user: {
-        email: string;
-        phone: string;
-    }
-
-    // Identity
-	nid?: string;
-	passportNo?: string;
-	birthCertificate?: string;
-
-    // Status
-	maritalStatus: string;
-	religion?: string;
-	professionalStatus?: string;
-
-    // Address
-	presentDivisionId?: number;
-	presentDistrictId?: number;
-	presentUpazilaId?: number;
-	presentAddress?: string;
-	presentPostCode?: number;
-	sameAsPresentAddress?: boolean;
-	permanentDivisionId?: number;
-	permanentDistrictId?: number;
-	permanentUpazilaId?: number;
-	permanentAddress?: string;
-	permanentPostCode?: number;
-
-    // Socials
-	linkedInProfile?: string;
-	videoProfile?: string;
-    
-    // Media
-	profileImage?: IFile;
-};
-
 
 export type Certification = {
 	id?: string;

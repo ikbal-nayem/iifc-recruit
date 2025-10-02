@@ -1,4 +1,3 @@
-
 import { IFile, ResultSystem } from './common.interface';
 import { ICommonMasterData, IEducationInstitution, IOrganization } from './master-data.interface';
 
@@ -77,7 +76,7 @@ export type ProfessionalInfo = {
 	resignDate?: string;
 	isCurrent: boolean;
 	salary?: number;
-	salaryCurrency?: "BDT" | "USD";
+	salaryCurrency?: 'BDT' | 'USD';
 	referenceName?: string;
 	referenceEmail?: string;
 	referencePhone?: string;
@@ -90,4 +89,54 @@ export type Resume = {
 	createdOn: string;
 	file: IFile;
 	isActive: boolean;
+};
+
+export type PersonalInfo = {
+	id?: number;
+	// Basic Info
+	firstName: string;
+	middleName?: string;
+	lastName: string;
+	fatherName: string;
+	motherName: string;
+	dateOfBirth: string;
+	gender: string;
+	nationality: string;
+	careerObjective?: string;
+
+	// User Info (nested)
+	user: {
+		email: string;
+		phone: string;
+	};
+
+	// Identity
+	nid?: string;
+	passportNo?: string;
+	birthCertificate?: string;
+
+	// Status
+	maritalStatus: string;
+	religion?: string;
+	// professionalStatus?: string;
+
+	// Address
+	presentDivisionId?: number;
+	presentDistrictId?: number;
+	presentUpazilaId?: number;
+	presentAddress?: string;
+	presentPostCode?: number;
+	sameAsPresentAddress?: boolean;
+	permanentDivisionId?: number;
+	permanentDistrictId?: number;
+	permanentUpazilaId?: number;
+	permanentAddress?: string;
+	permanentPostCode?: number;
+
+	// Socials
+	linkedInProfile?: string;
+	videoProfile?: string;
+
+	// Media
+	profileImage?: IFile;
 };

@@ -1,9 +1,9 @@
-
 import { ProfileFormPersonal } from '@/components/app/jobseeker/profile-forms/personal';
-import { IApiResponse, ICommonMasterData } from '@/interfaces/master-data.interface';
-import { MasterDataService } from '@/services/api/master-data.service';
-import { Candidate, PersonalInfo } from '@/lib/types';
+import { IApiResponse } from '@/interfaces/common.interface';
+import { PersonalInfo } from '@/interfaces/jobseeker.interface';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
+import { MasterDataService } from '@/services/api/master-data.service';
 
 export type EnumOption = {
 	label: string;
@@ -13,16 +13,16 @@ export type EnumOption = {
 export type PersonalInfoMasterData = {
 	genders: EnumOption[];
 	maritalStatuses: EnumOption[];
-	professionalStatuses: EnumOption[];
+	// professionalStatuses: EnumOption[];
 	religions: EnumOption[];
 	divisions: ICommonMasterData[];
 };
 
 async function getMasterData(): Promise<PersonalInfoMasterData> {
-	const [gendersRes, maritalRes, professionalRes, religionRes, divisionsRes] = await Promise.allSettled([
+	const [gendersRes, maritalRes, religionRes, divisionsRes] = await Promise.allSettled([
 		MasterDataService.getEnum('gender'),
 		MasterDataService.getEnum('marital-status'),
-		MasterDataService.getEnum('professional-status'),
+		// MasterDataService.getEnum('professional-status'),
 		MasterDataService.getEnum('religion'),
 		MasterDataService.country.getDivisions(),
 	]);
@@ -42,67 +42,51 @@ async function getMasterData(): Promise<PersonalInfoMasterData> {
 	return {
 		genders: getFulfilledValue(gendersRes as PromiseSettledResult<IApiResponse<EnumOption[]>>),
 		maritalStatuses: getFulfilledValue(maritalRes as PromiseSettledResult<IApiResponse<EnumOption[]>>),
-		professionalStatuses: getFulfilledValue(professionalRes as PromiseSettledResult<IApiResponse<EnumOption[]>>),
+		// professionalStatuses: getFulfilledValue(professionalRes as PromiseSettledResult<IApiResponse<EnumOption[]>>),
 		religions: getFulfilledValue(religionRes as PromiseSettledResult<IApiResponse<EnumOption[]>>),
 		divisions: getFulfilledValue(divisionsRes as PromiseSettledResult<IApiResponse<ICommonMasterData[]>>),
 	};
 }
 
-const emptyCandidate: Candidate = {
-	id: '',
-	personalInfo: {
-        id: undefined,
-		firstName: '',
-        middleName: '',
-		lastName: '',
-		fatherName: '',
-		motherName: '',
-        user: {
-            email: '',
-            phone: '',
-        },
-		dateOfBirth: '',
-		gender: 'Male',
-		maritalStatus: 'Single',
-		nationality: 'Bangladeshi',
-		careerObjective: '',
-        nid: '',
-        passportNo: '',
-        birthCertificate: '',
-        religion: '',
-        professionalStatus: '',
-        presentAddress: '',
-        permanentAddress: '',
-        linkedInProfile: '',
-        videoProfile: '',
+const emptyPersonalInfo: PersonalInfo = {
+	id: undefined,
+	firstName: '',
+	middleName: '',
+	lastName: '',
+	fatherName: '',
+	motherName: '',
+	user: {
+		email: '',
+		phone: '',
 	},
-	academicInfo: [],
-	professionalInfo: [],
-	skills: [],
-	certifications: [],
-	languages: [],
-	publications: [],
-	awards: [],
-	trainings: [],
-	resumes: [],
-	status: 'Active',
+	dateOfBirth: '',
+	gender: 'Male',
+	maritalStatus: 'Single',
+	nationality: 'Bangladeshi',
+	careerObjective: '',
+	nid: '',
+	passportNo: '',
+	birthCertificate: '',
+	religion: '',
+	// professionalStatus: '',
+	presentAddress: '',
+	permanentAddress: '',
+	linkedInProfile: '',
+	videoProfile: '',
 };
 
-async function getCandidateData(): Promise<Candidate> {
+async function getCandidateData(): Promise<PersonalInfo> {
 	try {
 		const response = await JobseekerProfileService.personalInfo.get();
-		return {
-			...emptyCandidate,
-			personalInfo: response.body as PersonalInfo,
-		};
+		return response.body as PersonalInfo;
 	} catch (error) {
 		console.error('Failed to load candidate profile:', error);
-		return emptyCandidate;
+		return emptyPersonalInfo;
 	}
 }
 
 export default async function JobseekerProfilePersonalPage() {
-	const [candidate, masterData] = await Promise.all([getCandidateData(), getMasterData()]);
+	const [personalInfo, masterData] = await Promise.all([getCandidateData(), getMasterData()]);
 
-	return <ProfileFormPersonal candidate={candidate} masterData={masterData} />;
+	return <ProfileFormPersonal personalInfo={personalInfo} masterData={masterData} />;
 }

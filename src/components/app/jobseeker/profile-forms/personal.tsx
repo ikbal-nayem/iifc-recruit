@@ -1,30 +1,28 @@
-
 'use client';
 
 import { PersonalInfoMasterData } from '@/app/(auth)/jobseeker/profile-edit/page';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import type { Candidate, PersonalInfo } from '@/lib/types';
+import { IApiResponse, IFile } from '@/interfaces/common.interface';
+import { PersonalInfo } from '@/interfaces/jobseeker.interface';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { makePreviewURL } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Linkedin, Mail, Phone, Save, Upload, Video, Loader2 } from 'lucide-react';
-import Image from 'next/image';
+import { Linkedin, Loader2, Mail, Phone, Save, Upload, Video } from 'lucide-react';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { IApiResponse, ICommonMasterData } from '@/interfaces/master-data.interface';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { makePreviewURL } from '@/lib/utils';
-import { IFile } from '@/interfaces/common.interface';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const profileImageSchema = z.object({
 	avatarFile: z
@@ -39,7 +37,15 @@ const profileImageSchema = z.object({
 
 type ProfileImageFormValues = z.infer<typeof profileImageSchema>;
 
-function ProfileImageCard({ profileImage, firstName, lastName }: { profileImage?: IFile, firstName?:string, lastName?:string }) {
+function ProfileImageCard({
+	profileImage,
+	firstName,
+	lastName,
+}: {
+	profileImage?: IFile;
+	firstName?: string;
+	lastName?: string;
+}) {
 	const { toast } = useToast();
 	const [avatarPreview, setAvatarPreview] = React.useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -95,13 +101,13 @@ function ProfileImageCard({ profileImage, firstName, lastName }: { profileImage?
 				<form onSubmit={form.handleSubmit(onImageSubmit)}>
 					<div className='flex items-center gap-6'>
 						<Avatar className='h-28 w-28 border-2 border-primary/10'>
-							<AvatarImage
-								src={avatarPreview || makePreviewURL(profileImage?.filePath)}
-								alt='Admin Avatar'
-							/>
-							<AvatarFallback className='text-3xl'>{firstName?.[0]}{lastName?.[0]}</AvatarFallback>
+							<AvatarImage src={avatarPreview || makePreviewURL(profileImage?.filePath)} alt='Admin Avatar' />
+							<AvatarFallback className='text-3xl'>
+								{firstName?.[0]}
+								{lastName?.[0]}
+							</AvatarFallback>
 						</Avatar>
-						
+
 						<div className='flex-1 space-y-3'>
 							<FormField
 								control={form.control}
@@ -144,7 +150,7 @@ function ProfileImageCard({ profileImage, firstName, lastName }: { profileImage?
 }
 
 const personalInfoSchema = z.object({
-    id: z.number().optional(),
+	id: z.number().optional(),
 	firstName: z.string().min(1, 'First name is required'),
 	middleName: z.string().optional(),
 	lastName: z.string().min(1, 'Last name is required'),
@@ -160,7 +166,7 @@ const personalInfoSchema = z.object({
 	maritalStatus: z.string().min(1, 'Marital status is required'),
 	nationality: z.string().min(1, 'Nationality is required'),
 	religion: z.string().optional(),
-	professionalStatus: z.string().optional(),
+	// professionalStatus: z.string().optional(),
 	nid: z.string().optional(),
 	passportNo: z.string().optional(),
 	birthCertificate: z.string().optional(),
@@ -182,11 +188,11 @@ const personalInfoSchema = z.object({
 type PersonalInfoFormValues = z.infer<typeof personalInfoSchema>;
 
 interface ProfileFormProps {
-	candidate: Candidate;
+	personalInfo: PersonalInfo;
 	masterData: PersonalInfoMasterData;
 }
 
-export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps) {
+export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormProps) {
 	const { toast } = useToast();
 
 	const [presentDistricts, setPresentDistricts] = React.useState<ICommonMasterData[]>([]);
@@ -202,11 +208,11 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 	const form = useForm<PersonalInfoFormValues>({
 		resolver: zodResolver(personalInfoSchema),
 		defaultValues: {
-			...candidate.personalInfo,
-			sameAsPresentAddress: candidate.personalInfo.sameAsPresentAddress ?? true,
+			...personalInfo,
+			sameAsPresentAddress: personalInfo.sameAsPresentAddress ?? true,
 			user: {
-				email: candidate.personalInfo.user?.email || '',
-				phone: candidate.personalInfo.user?.phone || '',
+				email: personalInfo.user?.email || '',
+				phone: personalInfo.user?.phone || '',
 			},
 		},
 	});
@@ -304,28 +310,33 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 		}
 	};
 
-
 	const onSubmit = (data: PersonalInfoFormValues) => {
-		JobseekerProfileService.personalInfo.update(data as PersonalInfo).then(() => {
-			toast({
-				title: 'Profile Updated',
-				description: 'Your personal information has been saved.',
-				variant: 'success',
-			});
-		}).catch((err) => {
-			toast({
-				title: 'Update Failed',
-				description: err.message || 'There was a problem saving your profile.',
-				variant: 'danger',
+		JobseekerProfileService.personalInfo
+			.update(data as PersonalInfo)
+			.then((res) => {
+				toast({
+					description: res.message || 'Your personal information has been saved.',
+					variant: 'success',
+				});
 			})
-		});
+			.catch((err) => {
+				toast({
+					title: 'Update Failed',
+					description: err.message || 'There was a problem saving your profile.',
+					variant: 'danger',
+				});
+			});
 	};
 
 	const isMasterDataMissing = !masterData.divisions || masterData.divisions.length === 0;
 
 	return (
 		<div className='space-y-6'>
-			<ProfileImageCard profileImage={candidate.personalInfo.profileImage} firstName={candidate.personalInfo.firstName} lastName={candidate.personalInfo.lastName} />
+			<ProfileImageCard
+				profileImage={personalInfo.profileImage}
+				firstName={personalInfo.firstName}
+				lastName={personalInfo.lastName}
+			/>
 
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)}>
@@ -413,13 +424,13 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 										placeholder='Select religion'
 										options={masterData.religions.map((r) => ({ label: r.label, value: r.value }))}
 									/>
-									<FormSelect
+									{/* <FormSelect
 										control={form.control}
 										name='professionalStatus'
 										label='Professional Status'
 										placeholder='Select status'
 										options={masterData.professionalStatuses.map((s) => ({ label: s.label, value: s.value }))}
-									/>
+									/> */}
 								</div>
 							</CardContent>
 						</Card>
@@ -457,7 +468,6 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 												name='presentDivisionId'
 												label='Division'
 												placeholder='Select division'
-												
 												options={masterData.divisions.map((d) => ({
 													label: d.name,
 													value: d.id!,
@@ -599,7 +609,7 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 							</CardContent>
 						</Card>
 
-						<div className="pt-2 flex justify-center">
+						<div className='pt-2 flex justify-center'>
 							<Button type='submit'>
 								<Save className='mr-2 h-4 w-4' />
 								Save Changes
@@ -611,7 +621,3 @@ export function ProfileFormPersonal({ candidate, masterData }: ProfileFormProps)
 		</div>
 	);
 }
-
-    
-
-    
