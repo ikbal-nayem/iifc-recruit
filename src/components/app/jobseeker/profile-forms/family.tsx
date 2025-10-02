@@ -29,7 +29,7 @@ const familySchema = z.object({
 	id: z.number().optional(),
 	spouseName: z.string().min(1, "Spouse's name is required."),
 	spouseProfession: z.string().min(1, "Spouse's profession is required."),
-	spouseStatus: z.string().min(1, 'Spouse status is required.'),
+	spouseStatus: z.string().optional(),
 	spouseOwnDistrictId: z.coerce.number().optional(),
 	children: z.array(childSchema).optional(),
 });
@@ -62,10 +62,23 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses }: Pr
 	const onSubmit = async (data: FamilyFormValues) => {
 		setIsSaving(true);
 		try {
-			const response = await JobseekerProfileService.family.save(data as FamilyInfo);
-			toast({ description: response.message || 'Family information saved.', variant: 'success' });
-			// The API might return the updated data with new IDs, so we reset the form with it.
-			form.reset(response.body);
+			const { children, ...spouseData } = data;
+
+			const spousePayload = { ...initialData, ...spouseData };
+			const spouseResponse = await JobseekerProfileService.spouse.update(spousePayload as FamilyInfo);
+
+			if (children) {
+				for (const child of children) {
+					if (child.id) {
+						await JobseekerProfileService.children.update(child as ChildInfo);
+					} else {
+						await JobseekerProfileService.children.add(child);
+					}
+				}
+			}
+
+			toast({ description: spouseResponse.message || 'Family information saved.', variant: 'success' });
+			form.reset(data);
 		} catch (error: any) {
 			toast({
 				title: 'Error',
@@ -106,7 +119,6 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses }: Pr
 								control={form.control}
 								name='spouseStatus'
 								label='Spouse Status'
-								required
 								placeholder='Select a status'
 								options={spouseStatuses}
 							/>

@@ -4,24 +4,32 @@ import { JobseekerProfileService } from '@/services/api/jobseeker-profile.servic
 import { EnumOption } from '../page';
 
 export default async function JobseekerProfileFamilyPage() {
-	const [districtsRes, familyInfoRes, spouseStatusRes] = await Promise.allSettled([
+	const [districtsRes, spouseInfoRes, childrenInfoRes, spouseStatusRes] = await Promise.allSettled([
 		MasterDataService.country.getDistricts(),
-		JobseekerProfileService.family.get(),
+		JobseekerProfileService.spouse.get(),
+		JobseekerProfileService.children.get(),
 		MasterDataService.getEnum('spouse-status'),
 	]);
 
 	const districts = districtsRes.status === 'fulfilled' ? districtsRes.value.body : [];
-	const familyInfo = familyInfoRes.status === 'fulfilled' ? familyInfoRes.value.body : undefined;
+	const spouseInfo = spouseInfoRes.status === 'fulfilled' ? spouseInfoRes.value.body : undefined;
+	const childrenInfo = childrenInfoRes.status === 'fulfilled' ? childrenInfoRes.value.body : [];
 	const spouseStatuses =
 		spouseStatusRes.status === 'fulfilled'
 			? (spouseStatusRes.value.body as EnumOption[])
 			: [];
+            
+    const familyInfo = spouseInfo ? { ...spouseInfo, children: childrenInfo } : { children: childrenInfo, spouseName: '', spouseProfession: '' };
+
 
 	if (districtsRes.status === 'rejected') {
 		console.error('Failed to load districts:', districtsRes.reason);
 	}
-	if (familyInfoRes.status === 'rejected') {
-		console.error('Failed to load family info:', familyInfoRes.reason);
+	if (spouseInfoRes.status === 'rejected') {
+		console.error('Failed to load spouse info:', spouseInfoRes.reason);
+	}
+	if (childrenInfoRes.status === 'rejected') {
+		console.error('Failed to load children info:', childrenInfoRes.reason);
 	}
 	if (spouseStatusRes.status === 'rejected') {
 		console.error('Failed to load spouse statuses:', spouseStatusRes.reason);

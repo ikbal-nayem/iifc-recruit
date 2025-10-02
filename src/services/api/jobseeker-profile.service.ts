@@ -4,6 +4,7 @@ import {
 	AcademicInfo,
 	Award,
 	Certification,
+	ChildInfo,
 	FamilyInfo,
 	Language,
 	PersonalInfo,
@@ -49,11 +50,12 @@ export const JobseekerProfileService = {
 				headers: { 'Content-Type': 'multipart/form-data' },
 			}),
 	},
-	family: {
-		get: async (): Promise<IApiResponse<FamilyInfo>> => await axiosIns.get('/jobseeker/family/get'),
-		save: async (payload: FamilyInfo): Promise<IApiResponse<FamilyInfo>> =>
-			await axiosIns.post('/jobseeker/family/save', payload),
+	spouse: {
+		get: async (): Promise<IApiResponse<FamilyInfo>> => await axiosIns.get('/jobseeker/spouse/get-by-user'),
+		update: async (payload: FamilyInfo): Promise<IApiResponse<FamilyInfo>> =>
+			await axiosIns.put('/jobseeker/spouse/update', payload),
 	},
+	children: createProfileCrud<ChildInfo>('children'),
 	publication: createProfileCrud<Publication>('publication'),
 	language: createProfileCrud<Language>('language'),
 	award: createProfileCrud<Award>('award'),
