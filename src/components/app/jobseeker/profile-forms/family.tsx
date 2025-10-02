@@ -1,8 +1,9 @@
+
 'use client';
 
 import { EnumOption } from '@/app/(auth)/jobseeker/profile-edit/page';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
@@ -44,7 +45,8 @@ interface ProfileFormFamilyProps {
 
 export function ProfileFormFamily({ districts, initialData, spouseStatuses }: ProfileFormFamilyProps) {
 	const { toast } = useToast();
-	const [isSaving, setIsSaving] = useState(false);
+	const [isSavingSpouse, setIsSavingSpouse] = useState(false);
+	const [isSavingChildren, setIsSavingChildren] = useState(false);
 
 	const form = useForm<FamilyFormValues>({
 		resolver: zodResolver(familySchema),
@@ -59,16 +61,57 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses }: Pr
 		name: 'children',
 	});
 
-	const onSubmit = async (data: FamilyFormValues) => {
-		setIsSaving(true);
+	const onSpouseSubmit = async () => {
+		setIsSavingSpouse(true);
+		const spouseFieldNames: (keyof FamilyFormValues)[] = [
+			'spouseName',
+			'spouseProfession',
+			'spouseStatus',
+			'spouseOwnDistrictId',
+		];
+		const validationResult = await form.trigger(spouseFieldNames);
+		if (!validationResult) {
+			setIsSavingSpouse(false);
+			return;
+		}
+
+		const spouseData = form.getValues();
+		const spousePayload = {
+			id: initialData?.id,
+			spouseName: spouseData.spouseName,
+			spouseProfession: spouseData.spouseProfession,
+			spouseStatus: spouseData.spouseStatus,
+			spouseOwnDistrictId: spouseData.spouseOwnDistrictId,
+		};
+
 		try {
-			const { children, ...spouseData } = data;
-
-			const spousePayload = { ...initialData, ...spouseData };
 			const spouseResponse = await JobseekerProfileService.spouse.update(spousePayload as FamilyInfo);
+			toast({ description: spouseResponse.message || 'Spouse information saved.', variant: 'success' });
+			form.reset({ ...form.getValues(), ...spousePayload });
+		} catch (error: any) {
+			toast({
+				title: 'Error',
+				description: error?.message || 'Failed to save spouse information.',
+				variant: 'danger',
+			});
+		} finally {
+			setIsSavingSpouse(false);
+		}
+	};
 
-			if (children) {
-				for (const child of children) {
+	const onChildrenSubmit = async () => {
+		setIsSavingChildren(true);
+		const validationResult = await form.trigger('children');
+		if (!validationResult) {
+			setIsSavingChildren(false);
+			return;
+		}
+
+		const childrenData = form.getValues('children');
+
+		try {
+			if (childrenData) {
+				for (const child of childrenData) {
 					if (child.id) {
 						await JobseekerProfileService.children.update(child as ChildInfo);
 					} else {
@@ -76,23 +119,21 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses }: Pr
 					}
 				}
 			}
-
-			toast({ description: spouseResponse.message || 'Family information saved.', variant: 'success' });
-			form.reset(data);
+			toast({ description: "Children's information saved successfully.", variant: 'success' });
 		} catch (error: any) {
 			toast({
 				title: 'Error',
-				description: error?.message || 'Failed to save family information.',
+				description: error?.message || "Failed to save children's information.",
 				variant: 'danger',
 			});
 		} finally {
-			setIsSaving(false);
+			setIsSavingChildren(false);
 		}
 	};
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+			<form onSubmit={(e) => e.preventDefault()} className='space-y-6'>
 				<Card className='glassmorphism'>
 					<CardHeader>
 						<CardTitle>Spouse Information</CardTitle>
@@ -131,6 +172,16 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses }: Pr
 							/>
 						</div>
 					</CardContent>
+					<CardFooter>
+						<Button type='button' onClick={onSpouseSubmit} disabled={isSavingSpouse}>
+							{isSavingSpouse ? (
+								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+							) : (
+								<Save className='mr-2 h-4 w-4' />
+							)}
+							Save Spouse Information
+						</Button>
+					</CardFooter>
 				</Card>
 
 				<Card className='glassmorphism'>
@@ -204,14 +255,19 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses }: Pr
 							<p className='text-center text-muted-foreground py-4'>No children added yet.</p>
 						)}
 					</CardContent>
+					{fields.length > 0 && (
+						<CardFooter>
+							<Button type='button' onClick={onChildrenSubmit} disabled={isSavingChildren}>
+								{isSavingChildren ? (
+									<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+								) : (
+									<Save className='mr-2 h-4 w-4' />
+								)}
+								Save Children
+							</Button>
+						</CardFooter>
+					)}
 				</Card>
-
-				<div className='flex justify-center pt-4'>
-					<Button type='submit' disabled={isSaving}>
-						{isSaving ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Save className='mr-2 h-4 w-4' />}
-						Save Family Information
-					</Button>
-				</div>
 			</form>
 		</Form>
 	);
