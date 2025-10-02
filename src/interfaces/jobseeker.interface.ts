@@ -104,11 +104,8 @@ export type PersonalInfo = {
 	nationality: string;
 	careerObjective?: string;
 
-	// User Info (nested)
-	user: {
-		email: string;
-		phone: string;
-	};
+	email: string;
+	phone: string;
 
 	// Identity
 	nid?: string;

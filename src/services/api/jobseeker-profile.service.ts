@@ -5,13 +5,13 @@ import {
 	Award,
 	Certification,
 	Language,
+	PersonalInfo,
 	ProfessionalInfo,
 	Publication,
 	Resume,
 	Training,
 } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
-import { PersonalInfo } from '@/lib/types';
 
 const createProfileCrud = <T extends { id?: number | string }>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/jobseeker/${entity}/get?isDeleted=false`),

@@ -55,10 +55,8 @@ const emptyPersonalInfo: PersonalInfo = {
 	lastName: '',
 	fatherName: '',
 	motherName: '',
-	user: {
-		email: '',
-		phone: '',
-	},
+	email: '',
+	phone: '',
 	dateOfBirth: '',
 	gender: 'Male',
 	maritalStatus: 'Single',

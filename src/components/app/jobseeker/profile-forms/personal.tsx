@@ -156,10 +156,8 @@ const personalInfoSchema = z.object({
 	lastName: z.string().min(1, 'Last name is required'),
 	fatherName: z.string().min(1, "Father's name is required"),
 	motherName: z.string().min(1, "Mother's name is required"),
-	user: z.object({
-		email: z.string().email(),
-		phone: z.string().min(1, 'Phone number is required'),
-	}),
+	email: z.string().email(),
+	phone: z.string().min(1, 'Phone number is required'),
 	careerObjective: z.string().min(1, 'Career objective is required'),
 	dateOfBirth: z.string().min(1, 'Date of birth is required'),
 	gender: z.string().min(1, 'Gender is required'),
@@ -210,10 +208,6 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 		defaultValues: {
 			...personalInfo,
 			sameAsPresentAddress: personalInfo.sameAsPresentAddress ?? true,
-			user: {
-				email: personalInfo.user?.email || '',
-				phone: personalInfo.user?.phone || '',
-			},
 		},
 	});
 
@@ -339,7 +333,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 			/>
 
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)}>
+				<form onSubmit={form.handleSubmit(onSubmit)} noValidate>
 					<div className='space-y-6'>
 						{isMasterDataMissing && (
 							<Alert variant='warning'>
@@ -443,7 +437,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 								<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 									<FormInput
 										control={form.control}
-										name='user.email'
+										name='email'
 										label='Email'
 										type='email'
 										placeholder='you@example.com'
@@ -452,7 +446,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 									/>
 									<FormInput
 										control={form.control}
-										name='user.phone'
+										name='phone'
 										label='Phone'
 										placeholder='+8801...'
 										required
