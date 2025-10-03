@@ -14,11 +14,16 @@ import { ChildInfo, FamilyInfo } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, PlusCircle, Save, Trash } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { Edit, Loader2, PlusCircle, Save, Trash } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { Skeleton } from '@/components/ui/skeleton';
+import { format } from 'date-fns';
 
+// Zod schema for a single child
 const childSchema = z.object({
 	id: z.number().optional(),
 	name: z.string().min(1, 'Child name is required.'),
@@ -27,13 +32,94 @@ const childSchema = z.object({
 	serialNo: z.coerce.number().min(1, 'Serial number is required.'),
 });
 
+type ChildFormValues = z.infer<typeof childSchema>;
+
+// Child Form Component (for Dialog)
+interface ChildFormProps {
+	isOpen: boolean;
+	onClose: () => void;
+	onSubmit: (data: ChildFormValues) => Promise<boolean>;
+	initialData?: ChildFormValues;
+	genders: EnumOption[];
+}
+
+function ChildForm({ isOpen, onClose, onSubmit, initialData, genders }: ChildFormProps) {
+	const form = useForm<ChildFormValues>({
+		resolver: zodResolver(childSchema),
+		defaultValues: initialData || { name: '', gender: '', dob: '', serialNo: 1 },
+	});
+	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	useEffect(() => {
+		form.reset(initialData || { name: '', gender: '', dob: '', serialNo: 1 });
+	}, [initialData, form]);
+
+	const handleSubmit = async (data: ChildFormValues) => {
+		setIsSubmitting(true);
+		const success = await onSubmit(data);
+		if (success) {
+			onClose();
+		}
+		setIsSubmitting(false);
+	};
+
+	return (
+		<Dialog open={isOpen} onOpenChange={onClose}>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>{initialData?.id ? 'Edit Child' : 'Add New Child'}</DialogTitle>
+				</DialogHeader>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4'>
+						<FormInput
+							control={form.control}
+							name='serialNo'
+							label='Serial No.'
+							required
+							type='number'
+							placeholder='e.g. 1'
+						/>
+						<FormInput control={form.control} name='name' label='Name' required placeholder="Child's Name" />
+						<FormSelect
+							control={form.control}
+							name='gender'
+							label='Gender'
+							required
+							placeholder='Select gender'
+							options={genders}
+						/>
+						<FormDatePicker
+							control={form.control}
+							name='dob'
+							label='Date of Birth'
+							required
+							fromYear={new Date().getFullYear() - 50}
+							toYear={new Date().getFullYear()}
+							captionLayout='dropdown-buttons'
+						/>
+						<DialogFooter className='pt-4'>
+							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
+								Cancel
+							</Button>
+							<Button type='submit' disabled={isSubmitting}>
+								{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+								{initialData?.id ? 'Save Changes' : 'Add Child'}
+							</Button>
+						</DialogFooter>
+					</form>
+				</Form>
+			</DialogContent>
+		</Dialog>
+	);
+}
+
+// Main Family Form Component
 const familySchema = z.object({
 	id: z.number().optional(),
 	name: z.string().min(1, "Spouse's name is required."),
 	profession: z.string().min(1, "Spouse's profession is required."),
 	status: z.string().optional(),
 	ownDistrictId: z.coerce.number().optional(),
-	children: z.array(childSchema).optional(),
 });
 
 type FamilyFormValues = z.infer<typeof familySchema>;
@@ -48,7 +134,10 @@ interface ProfileFormFamilyProps {
 export function ProfileFormFamily({ districts, initialData, spouseStatuses, genders }: ProfileFormFamilyProps) {
 	const { toast } = useToast();
 	const [isSavingSpouse, setIsSavingSpouse] = useState(false);
-	const [isSavingChildren, setIsSavingChildren] = useState(false);
+	const [children, setChildren] = useState<ChildInfo[]>(initialData?.children || []);
+	const [isChildFormOpen, setIsChildFormOpen] = useState(false);
+	const [editingChild, setEditingChild] = useState<ChildInfo | undefined>(undefined);
+	const [isLoadingChildren, setIsLoadingChildren] = useState(true);
 
 	const form = useForm<FamilyFormValues>({
 		resolver: zodResolver(familySchema),
@@ -58,9 +147,25 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses, gend
 			profession: initialData?.profession,
 			status: initialData?.status,
 			ownDistrictId: initialData?.ownDistrictId,
-			children: initialData?.children || [],
 		},
 	});
+
+	const loadChildren = useCallback(async () => {
+		setIsLoadingChildren(true);
+		try {
+			const res = await JobseekerProfileService.children.get();
+			setChildren(res.body || []);
+		} catch (error) {
+			console.error('Failed to load children:', error);
+			toast({ title: 'Error', description: "Could not load children's information." });
+		} finally {
+			setIsLoadingChildren(false);
+		}
+	}, [toast]);
+
+	useEffect(() => {
+		loadChildren();
+	}, [loadChildren]);
 
 	useEffect(() => {
 		form.reset({
@@ -69,45 +174,23 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses, gend
 			profession: initialData?.profession,
 			status: initialData?.status,
 			ownDistrictId: initialData?.ownDistrictId,
-			children: initialData?.children || [],
 		});
 	}, [initialData, form]);
 
-	const { fields, append, remove } = useFieldArray({
-		control: form.control,
-		name: 'children',
-	});
-
-	const onSpouseSubmit = async () => {
+	const onSpouseSubmit = async (data: FamilyFormValues) => {
 		setIsSavingSpouse(true);
-		const spouseFieldNames: (keyof FamilyFormValues)[] = ['name', 'profession', 'status', 'ownDistrictId'];
-		const validationResult = await form.trigger(spouseFieldNames);
-		if (!validationResult) {
-			setIsSavingSpouse(false);
-			return;
-		}
-
-		const spouseData = form.getValues();
 		const spousePayload = {
 			id: initialData?.id,
-			name: spouseData.name,
-			profession: spouseData.profession,
-			status: spouseData.status,
-			ownDistrictId: spouseData.ownDistrictId,
+			name: data.name,
+			profession: data.profession,
+			status: data.status,
+			ownDistrictId: data.ownDistrictId,
 		};
 
 		try {
 			const spouseResponse = await JobseekerProfileService.spouse.update(spousePayload as FamilyInfo);
 			toast({ description: spouseResponse.message || 'Spouse information saved.', variant: 'success' });
-			// The API might return the full object, so we sync form state
-			form.reset({
-				id: spouseResponse.body.id,
-				name: spouseResponse.body.name,
-				profession: spouseResponse.body.profession,
-				status: spouseResponse.body.status,
-				ownDistrictId: spouseResponse.body.ownDistrictId,
-				children: form.getValues('children'), // Preserve children state
-			});
+			form.reset({ ...form.getValues(), id: spouseResponse.body.id });
 		} catch (error: any) {
 			toast({
 				title: 'Error',
@@ -119,187 +202,155 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses, gend
 		}
 	};
 
-	const onChildrenSubmit = async () => {
-		setIsSavingChildren(true);
-		const validationResult = await form.trigger('children');
-		if (!validationResult) {
-			setIsSavingChildren(false);
-			return;
-		}
+	const handleOpenChildForm = (child?: ChildInfo) => {
+		setEditingChild(child);
+		setIsChildFormOpen(true);
+	};
 
-		const childrenData = form.getValues('children');
+	const handleCloseChildForm = () => {
+		setEditingChild(undefined);
+		setIsChildFormOpen(false);
+	};
 
+	const handleChildFormSubmit = async (data: ChildFormValues) => {
 		try {
-			if (childrenData) {
-				const results = await Promise.allSettled(
-					childrenData.map((child) => {
-						if (child.id) {
-							return JobseekerProfileService.children.update(child as ChildInfo);
-						} else {
-							return JobseekerProfileService.children.add(child);
-						}
-					})
-				);
-
-				const errors = results.filter((r) => r.status === 'rejected');
-				if (errors.length > 0) {
-					throw new Error('Some children could not be saved.');
-				}
-			}
-			toast({ description: "Children's information saved successfully.", variant: 'success' });
+			const isUpdate = !!data.id;
+			const response = isUpdate
+				? await JobseekerProfileService.children.update(data as ChildInfo)
+				: await JobseekerProfileService.children.add(data);
+			toast({ description: response.message, variant: 'success' });
+			loadChildren(); // Reload children list
+			return true;
 		} catch (error: any) {
-			toast({
-				title: 'Error',
-				description: error?.message || "Failed to save children's information.",
-				variant: 'danger',
-			});
-		} finally {
-			setIsSavingChildren(false);
+			toast({ title: 'Error', description: error.message, variant: 'danger' });
+			return false;
+		}
+	};
+
+	const handleChildDelete = async (id: number) => {
+		try {
+			await JobseekerProfileService.children.delete(id);
+			toast({ description: 'Child successfully deleted.', variant: 'success' });
+			loadChildren();
+		} catch (error: any) {
+			toast({ title: 'Error', description: error.message, variant: 'danger' });
 		}
 	};
 
 	return (
-		<Form {...form}>
-			<form onSubmit={(e) => e.preventDefault()} className='space-y-6'>
-				<Card className='glassmorphism'>
-					<CardHeader>
-						<CardTitle>Spouse Information</CardTitle>
-					</CardHeader>
-					<CardContent className='space-y-4'>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-							<FormInput
-								control={form.control}
-								name='name'
-								label="Spouse's Name"
-								required
-								placeholder="Spouse's full name"
-							/>
-							<FormInput
-								control={form.control}
-								name='profession'
-								label="Spouse's Profession"
-								required
-								placeholder='e.g., Doctor, Teacher'
-							/>
-						</div>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-							<FormSelect
-								control={form.control}
-								name='status'
-								label='Spouse Status'
-								placeholder='Select a status'
-								options={spouseStatuses}
-							/>
-							<FormAutocomplete
-								control={form.control}
-								name='ownDistrictId'
-								label="Spouse's Home District"
-								placeholder='Select a district'
-								options={districts.map((d) => ({ value: d.id!, label: d.name }))}
-							/>
-						</div>
-					</CardContent>
-					<CardFooter>
-						<Button type='button' onClick={onSpouseSubmit} disabled={isSavingSpouse}>
-							{isSavingSpouse ? (
-								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-							) : (
-								<Save className='mr-2 h-4 w-4' />
-							)}
-							Save Spouse Information
-						</Button>
-					</CardFooter>
-				</Card>
-
-				<Card className='glassmorphism'>
-					<CardHeader>
-						<div className='flex justify-between items-center'>
-							<div>
-								<CardTitle>Children Information</CardTitle>
-								<CardDescription>Add details for each of your children.</CardDescription>
+		<div className='space-y-6'>
+			<Form {...form}>
+				<form onSubmit={form.handleSubmit(onSpouseSubmit)} className='space-y-6'>
+					<Card className='glassmorphism'>
+						<CardHeader>
+							<CardTitle>Spouse Information</CardTitle>
+						</CardHeader>
+						<CardContent className='space-y-4'>
+							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+								<FormInput
+									control={form.control}
+									name='name'
+									label="Spouse's Name"
+									required
+									placeholder="Spouse's full name"
+								/>
+								<FormInput
+									control={form.control}
+									name='profession'
+									label="Spouse's Profession"
+									required
+									placeholder='e.g., Doctor, Teacher'
+								/>
 							</div>
-							<Button
-								type='button'
-								variant='outline'
-								onClick={() =>
-									append({
-										name: '',
-										gender: '',
-										dob: '',
-										serialNo: (fields.length || 0) + 1,
-									})
-								}
-							>
-								<PlusCircle className='mr-2 h-4 w-4' /> Add Child
-							</Button>
-						</div>
-					</CardHeader>
-					<CardContent className='space-y-4'>
-						{fields.map((field, index) => (
-							<div key={field.id} className='p-4 border rounded-lg relative space-y-4'>
-								<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end'>
-									<FormInput
-										control={form.control}
-										name={`children.${index}.serialNo`}
-										label='Serial No.'
-										required
-										type='number'
-										placeholder='e.g. 1'
-									/>
-									<FormInput
-										control={form.control}
-										name={`children.${index}.name`}
-										label='Name'
-										required
-										placeholder="Child's Name"
-									/>
-									<FormSelect
-										control={form.control}
-										name={`children.${index}.gender`}
-										label='Gender'
-										required
-										placeholder='Select gender'
-										options={genders}
-									/>
-									<FormDatePicker
-										control={form.control}
-										name={`children.${index}.dob`}
-										label='Date of Birth'
-										required
-										fromYear={new Date().getFullYear() - 50}
-										toYear={new Date().getFullYear()}
-										captionLayout='dropdown-buttons'
-									/>
-								</div>
-								<Button
-									type='button'
-									variant='ghost'
-									size='icon'
-									className='absolute top-2 right-2 h-8 w-8'
-									onClick={() => remove(index)}
-								>
-									<Trash className='h-4 w-4 text-danger' />
-								</Button>
+							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+								<FormSelect
+									control={form.control}
+									name='status'
+									label='Spouse Status'
+									placeholder='Select a status'
+									options={spouseStatuses}
+								/>
+								<FormAutocomplete
+									control={form.control}
+									name='ownDistrictId'
+									label="Spouse's Home District"
+									placeholder='Select a district'
+									options={districts.map((d) => ({ value: d.id!, label: d.name }))}
+								/>
 							</div>
-						))}
-						{fields.length === 0 && (
-							<p className='text-center text-muted-foreground py-4'>No children added yet.</p>
-						)}
-					</CardContent>
-					{fields.length > 0 && (
+						</CardContent>
 						<CardFooter>
-							<Button type='button' onClick={onChildrenSubmit} disabled={isSavingChildren}>
-								{isSavingChildren ? (
+							<Button type='submit' disabled={isSavingSpouse}>
+								{isSavingSpouse ? (
 									<Loader2 className='mr-2 h-4 w-4 animate-spin' />
 								) : (
 									<Save className='mr-2 h-4 w-4' />
 								)}
-								Save Children
+								Save Spouse Information
 							</Button>
 						</CardFooter>
+					</Card>
+				</form>
+			</Form>
+
+			<Card className='glassmorphism'>
+				<CardHeader>
+					<div className='flex justify-between items-center'>
+						<div>
+							<CardTitle>Children Information</CardTitle>
+							<CardDescription>Add details for each of your children.</CardDescription>
+						</div>
+						<Button type='button' variant='outline' onClick={() => handleOpenChildForm()}>
+							<PlusCircle className='mr-2 h-4 w-4' /> Add Child
+						</Button>
+					</div>
+				</CardHeader>
+				<CardContent className='space-y-4'>
+					{isLoadingChildren ? (
+						<Skeleton className='h-20 w-full' />
+					) : children.length > 0 ? (
+						children.map((child) => (
+							<Card key={child.id} className='p-4 flex justify-between items-start'>
+								<div>
+									<p className='font-semibold'>
+										{child.serialNo}. {child.name}
+									</p>
+									<p className='text-sm text-muted-foreground'>
+										{child.gender} - Born on {format(new Date(child.dob), 'PPP')}
+									</p>
+								</div>
+								<div className='flex items-center'>
+									<Button variant='ghost' size='icon' onClick={() => handleOpenChildForm(child)}>
+										<Edit className='h-4 w-4' />
+									</Button>
+									<ConfirmationDialog
+										trigger={
+											<Button variant='ghost' size='icon'>
+												<Trash className='h-4 w-4 text-danger' />
+											</Button>
+										}
+										onConfirm={() => handleChildDelete(child.id!)}
+										description={`Are you sure you want to delete ${child.name}? This action cannot be undone.`}
+										confirmText='Delete'
+									/>
+								</div>
+							</Card>
+						))
+					) : (
+						<p className='text-center text-muted-foreground py-8'>No children added yet.</p>
 					)}
-				</Card>
-			</form>
-		</Form>
+				</CardContent>
+			</Card>
+
+			{isChildFormOpen && (
+				<ChildForm
+					isOpen={isChildFormOpen}
+					onClose={handleCloseChildForm}
+					onSubmit={handleChildFormSubmit}
+					initialData={editingChild}
+					genders={genders}
+				/>
+			)}
+		</div>
 	);
 }
