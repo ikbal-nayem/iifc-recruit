@@ -306,7 +306,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 
 	const onSubmit = (data: PersonalInfoFormValues) => {
 		JobseekerProfileService.personalInfo
-			.update(data as PersonalInfo)
+			.save(data as PersonalInfo)
 			.then((res) => {
 				toast({
 					description: res.message || 'Your personal information has been saved.',

@@ -1,28 +1,27 @@
-
 'use client';
 
 import { EnumOption } from '@/app/(auth)/jobseeker/profile-edit/page';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { ChildInfo, FamilyInfo } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { makeReqDateFormat } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { format } from 'date-fns';
 import { Edit, Loader2, PlusCircle, Save, Trash } from 'lucide-react';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
-import { Skeleton } from '@/components/ui/skeleton';
-import { format } from 'date-fns';
-import { makeReqDateFormat } from '@/lib/utils';
 
 // Zod schema for a single child
 const childSchema = z.object({
@@ -132,7 +131,12 @@ interface ProfileFormFamilyProps {
 	genders: EnumOption[];
 }
 
-export function ProfileFormFamily({ districts, initialData, spouseStatuses, genders }: ProfileFormFamilyProps) {
+export function ProfileFormFamily({
+	districts,
+	initialData,
+	spouseStatuses,
+	genders,
+}: ProfileFormFamilyProps) {
 	const { toast } = useToast();
 	const [isSavingSpouse, setIsSavingSpouse] = useState(false);
 	const [children, setChildren] = useState<ChildInfo[]>(initialData?.children || []);
@@ -180,16 +184,8 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses, gend
 
 	const onSpouseSubmit = async (data: FamilyFormValues) => {
 		setIsSavingSpouse(true);
-		const spousePayload = {
-			id: initialData?.id,
-			name: data.name,
-			profession: data.profession,
-			status: data.status,
-			ownDistrictId: data.ownDistrictId,
-		};
-
 		try {
-			const spouseResponse = await JobseekerProfileService.spouse.update(spousePayload as FamilyInfo);
+			const spouseResponse = await JobseekerProfileService.spouse.save(data as FamilyInfo);
 			toast({ description: spouseResponse.message || 'Spouse information saved.', variant: 'success' });
 			form.reset({ ...form.getValues(), id: spouseResponse.body.id });
 		} catch (error: any) {
