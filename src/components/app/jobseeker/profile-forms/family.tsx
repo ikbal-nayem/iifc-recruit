@@ -22,6 +22,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
+import { makeReqDateFormat } from '@/lib/utils';
 
 // Zod schema for a single child
 const childSchema = z.object({
@@ -309,18 +310,27 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses, gend
 					{isLoadingChildren ? (
 						<Skeleton className='h-20 w-full' />
 					) : children.length > 0 ? (
-						children.map((child) => (
+						children.map((child: any) => (
 							<Card key={child.id} className='p-4 flex justify-between items-start'>
 								<div>
 									<p className='font-semibold'>
 										{child.serialNo}. {child.name}
 									</p>
 									<p className='text-sm text-muted-foreground'>
-										{child.gender} - Born on {format(new Date(child.dob), 'PPP')}
+										{child.genderDTO?.label || child.gender} - Born on {format(new Date(child.dob), 'PPP')}
 									</p>
 								</div>
 								<div className='flex items-center'>
-									<Button variant='ghost' size='icon' onClick={() => handleOpenChildForm(child)}>
+									<Button
+										variant='ghost'
+										size='icon'
+										onClick={() =>
+											handleOpenChildForm({
+												...child,
+												dob: makeReqDateFormat(child.dob),
+											})
+										}
+									>
 										<Edit className='h-4 w-4' />
 									</Button>
 									<ConfirmationDialog
