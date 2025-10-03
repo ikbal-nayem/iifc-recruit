@@ -42,9 +42,10 @@ interface ProfileFormFamilyProps {
 	districts: ICommonMasterData[];
 	initialData?: FamilyInfo;
 	spouseStatuses: EnumOption[];
+	genders: EnumOption[];
 }
 
-export function ProfileFormFamily({ districts, initialData, spouseStatuses }: ProfileFormFamilyProps) {
+export function ProfileFormFamily({ districts, initialData, spouseStatuses, genders }: ProfileFormFamilyProps) {
 	const { toast } = useToast();
 	const [isSavingSpouse, setIsSavingSpouse] = useState(false);
 	const [isSavingChildren, setIsSavingChildren] = useState(false);
@@ -258,11 +259,7 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses }: Pr
 										label='Gender'
 										required
 										placeholder='Select gender'
-										options={[
-											{ value: 'Male', label: 'Male' },
-											{ value: 'Female', label: 'Female' },
-											{ value: 'Other', label: 'Other' },
-										]}
+										options={genders}
 									/>
 									<FormDatePicker
 										control={form.control}

@@ -6,11 +6,12 @@ import { EnumOption } from '../page';
 import { FamilyInfo } from '@/interfaces/jobseeker.interface';
 
 export default async function JobseekerProfileFamilyPage() {
-	const [districtsRes, spouseInfoRes, childrenInfoRes, spouseStatusRes] = await Promise.allSettled([
+	const [districtsRes, spouseInfoRes, childrenInfoRes, spouseStatusRes, genderRes] = await Promise.allSettled([
 		MasterDataService.country.getDistricts(),
 		JobseekerProfileService.spouse.get(),
 		JobseekerProfileService.children.get(),
 		MasterDataService.getEnum('spouse-status'),
+		MasterDataService.getEnum('gender'),
 	]);
 
 	const districts = districtsRes.status === 'fulfilled' ? districtsRes.value.body : [];
@@ -18,6 +19,7 @@ export default async function JobseekerProfileFamilyPage() {
 	const childrenInfo = childrenInfoRes.status === 'fulfilled' ? childrenInfoRes.value.body : [];
 	const spouseStatuses =
 		spouseStatusRes.status === 'fulfilled' ? (spouseStatusRes.value.body as EnumOption[]) : [];
+	const genders = genderRes.status === 'fulfilled' ? (genderRes.value.body as EnumOption[]) : [];
 
 	const familyInfo: FamilyInfo | undefined = spouseInfo
 		? { ...spouseInfo, children: childrenInfo }
@@ -35,6 +37,16 @@ export default async function JobseekerProfileFamilyPage() {
 	if (spouseStatusRes.status === 'rejected') {
 		console.error('Failed to load spouse statuses:', spouseStatusRes.reason);
 	}
+	if (genderRes.status === 'rejected') {
+		console.error('Failed to load genders:', genderRes.reason);
+	}
 
-	return <ProfileFormFamily districts={districts} initialData={familyInfo} spouseStatuses={spouseStatuses} />;
+	return (
+		<ProfileFormFamily
+			districts={districts}
+			initialData={familyInfo}
+			spouseStatuses={spouseStatuses}
+			genders={genders}
+		/>
+	);
 }
