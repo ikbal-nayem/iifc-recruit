@@ -1,6 +1,5 @@
-
 import { axiosIns } from '@/config/api.config';
-import { IApiResponse, IObject } from '@/interfaces/common.interface';
+import { IApiResponse } from '@/interfaces/common.interface';
 import {
 	AcademicInfo,
 	Award,
@@ -17,7 +16,7 @@ import {
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 
 const createProfileCrud = <T extends { id?: number | string }>(entity: string) => ({
-	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/jobseeker/${entity}/get?isDeleted=false`),
+	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/jobseeker/${entity}/get-by-user`),
 
 	add: async (payload: Omit<T, 'id'>): Promise<IApiResponse<T>> =>
 		await axiosIns.post(`/jobseeker/${entity}/create`, payload),
@@ -30,7 +29,7 @@ const createProfileCrud = <T extends { id?: number | string }>(entity: string) =
 });
 
 const createProfileCrudWithFormData = <T extends { id?: number | string }>(entity: string) => ({
-	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/jobseeker/${entity}/get?isDeleted=false`),
+	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/jobseeker/${entity}/get-by-user`),
 
 	save: async (formData: FormData): Promise<IApiResponse<T>> =>
 		await axiosIns.post(`/jobseeker/${entity}/save`, formData, {
@@ -43,7 +42,8 @@ const createProfileCrudWithFormData = <T extends { id?: number | string }>(entit
 
 export const JobseekerProfileService = {
 	personalInfo: {
-		get: async (): Promise<IApiResponse<PersonalInfo>> => await axiosIns.get('/jobseeker/profile/personal-info'),
+		get: async (): Promise<IApiResponse<PersonalInfo>> =>
+			await axiosIns.get('/jobseeker/profile/personal-info'),
 		update: async (payload: PersonalInfo): Promise<IApiResponse<PersonalInfo>> =>
 			await axiosIns.post('/jobseeker/profile/personal-info/save', payload),
 		saveProfileImage: async (formData: FormData): Promise<IApiResponse<any>> =>
@@ -56,16 +56,7 @@ export const JobseekerProfileService = {
 		update: async (payload: FamilyInfo): Promise<IApiResponse<FamilyInfo>> =>
 			await axiosIns.put('/jobseeker/spouse/update', payload),
 	},
-	children: {
-		get: async (): Promise<IApiResponse<ChildInfo[]>> =>
-			await axiosIns.get('/jobseeker/children/get-by-user'),
-		add: async (payload: Omit<ChildInfo, 'id'>): Promise<IApiResponse<ChildInfo>> =>
-			await axiosIns.post('/jobseeker/children/create', payload),
-		update: async (payload: ChildInfo): Promise<IApiResponse<ChildInfo>> =>
-			await axiosIns.put('/jobseeker/children/update', payload),
-		delete: async (id: number | string): Promise<IApiResponse<void>> =>
-			await axiosIns.delete(`/jobseeker/children/delete/${id}`),
-	},
+	children: createProfileCrud<ChildInfo>('children'),
 	publication: createProfileCrud<Publication>('publication'),
 	language: createProfileCrud<Language>('language'),
 	award: createProfileCrud<Award>('award'),
