@@ -190,7 +190,7 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
 			<div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
 				<div className='lg:col-span-2 space-y-6'>
 					{experiences?.length > 0 && (
-						<Card className='glassmorphism'>
+						<Card className='shadow-none border'>
 							<CardHeader>
 								<CardTitle className='flex items-center gap-2'>
 									<Briefcase className='h-5 w-5' /> Professional Experience
@@ -216,7 +216,7 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
 					)}
 
 					{education?.length > 0 && (
-						<Card className='glassmorphism'>
+						<Card className='shadow-none border'>
 							<CardHeader>
 								<CardTitle className='flex items-center gap-2'>
 									<GraduationCap className='h-5 w-5' /> Academic History
@@ -235,7 +235,7 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
 					)}
 
 					{(spouse || children?.length > 0) && (
-						<Card className='glassmorphism'>
+						<Card className='shadow-none border'>
 							<CardHeader>
 								<CardTitle className='flex items-center gap-2'>
 									<Heart className='h-5 w-5' /> Family Information
@@ -279,7 +279,7 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
 
 				<div className='lg:col-span-1 space-y-6'>
 					{skills?.length > 0 && (
-						<Card className='glassmorphism'>
+						<Card className='shadow-none border'>
 							<CardHeader>
 								<CardTitle className='flex items-center gap-2'>
 									<Star className='h-5 w-5' /> Skills
@@ -295,7 +295,7 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
 						</Card>
 					)}
 					{trainings?.length > 0 && (
-						<Card className='glassmorphism'>
+						<Card className='shadow-none border'>
 							<CardHeader>
 								<CardTitle className='flex items-center gap-2'>
 									<BookCopy className='h-5 w-5' /> Trainings
@@ -312,7 +312,7 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
 						</Card>
 					)}
 					{languages?.length > 0 && (
-						<Card className='glassmorphism'>
+						<Card className='shadow-none border'>
 							<CardHeader>
 								<CardTitle className='flex items-center gap-2'>
 									<Languages className='h-5 w-5' /> Languages
@@ -329,7 +329,7 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
 						</Card>
 					)}
 					{certifications?.length > 0 && (
-						<Card className='glassmorphism'>
+						<Card className='shadow-none border'>
 							<CardHeader>
 								<CardTitle className='flex items-center gap-2'>
 									<FileText className='h-5 w-5' /> Certifications
@@ -349,7 +349,7 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
 					)}
 
 					{publications?.length > 0 && (
-						<Card className='glassmorphism'>
+						<Card className='shadow-none border'>
 							<CardHeader>
 								<CardTitle className='flex items-center gap-2'>
 									<BookOpen className='h-5 w-5' /> Publications
@@ -376,7 +376,7 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
 					)}
 
 					{awards?.length > 0 && (
-						<Card className='glassmorphism'>
+						<Card className='shadow-none border'>
 							<CardHeader>
 								<CardTitle className='flex items-center gap-2'>
 									<Award className='h-5 w-5' /> Awards
@@ -399,5 +399,3 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
 		</div>
 	);
 }
-
-    
