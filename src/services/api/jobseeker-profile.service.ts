@@ -41,7 +41,7 @@ const createProfileCrudWithFormData = <T extends { id?: number | string }>(entit
 
 export const JobseekerProfileService = {
 	getProfile: async (): Promise<IApiResponse<Candidate>> =>
-		await axiosIns.get('/jobseeker/profile/get-by-id'),
+		await axiosIns.get('/jobseeker/profile/get-by-user'),
 
 	personalInfo: {
 		...createProfileCrudWithFormData<PersonalInfo>('personal-info'),
