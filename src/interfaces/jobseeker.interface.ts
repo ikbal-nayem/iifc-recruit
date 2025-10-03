@@ -95,15 +95,16 @@ export type ChildInfo = {
 	id?: number;
 	name: string;
 	gender: string;
-	dateOfBirth: string;
+	dob: string;
+	serialNo: number;
 };
 
 export type FamilyInfo = {
 	id?: number;
-	spouseName: string;
-	spouseProfession: string;
-	spouseOwnDistrictId?: number;
-	spouseStatus?: string;
+	name: string;
+	profession: string;
+	ownDistrictId?: number;
+	status?: string;
 	children: ChildInfo[];
 };
 

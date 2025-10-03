@@ -23,7 +23,8 @@ const childSchema = z.object({
 	id: z.number().optional(),
 	name: z.string().min(1, 'Child name is required.'),
 	gender: z.string().min(1, 'Gender is required.'),
-	dateOfBirth: z.string().min(1, 'Date of birth is required.'),
+	dob: z.string().min(1, 'Date of birth is required.'),
+	serialNo: z.coerce.number().min(1, 'Serial number is required.'),
 });
 
 const familySchema = z.object({
@@ -223,7 +224,8 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses }: Pr
 									append({
 										name: '',
 										gender: '',
-										dateOfBirth: '',
+										dob: '',
+										serialNo: (fields.length || 0) + 1,
 									})
 								}
 							>
@@ -234,8 +236,15 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses }: Pr
 					<CardContent className='space-y-4'>
 						{fields.map((field, index) => (
 							<div key={field.id} className='p-4 border rounded-lg relative space-y-4'>
-								<p className='font-medium'>Child {index + 1}</p>
-								<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+								<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end'>
+									<FormInput
+										control={form.control}
+										name={`children.${index}.serialNo`}
+										label='Serial No.'
+										required
+										type='number'
+										placeholder='e.g. 1'
+									/>
 									<FormInput
 										control={form.control}
 										name={`children.${index}.name`}
@@ -257,7 +266,7 @@ export function ProfileFormFamily({ districts, initialData, spouseStatuses }: Pr
 									/>
 									<FormDatePicker
 										control={form.control}
-										name={`children.${index}.dateOfBirth`}
+										name={`children.${index}.dob`}
 										label='Date of Birth'
 										required
 										fromYear={new Date().getFullYear() - 50}
