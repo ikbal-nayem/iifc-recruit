@@ -3,6 +3,7 @@ import { IApiResponse } from '@/interfaces/common.interface';
 import {
 	AcademicInfo,
 	Award,
+	Candidate,
 	Certification,
 	ChildInfo,
 	FamilyInfo,
@@ -39,6 +40,9 @@ const createProfileCrudWithFormData = <T extends { id?: number | string }>(entit
 });
 
 export const JobseekerProfileService = {
+	getProfile: async (): Promise<IApiResponse<Candidate>> =>
+		await axiosIns.get('/jobseeker/profile/get-by-id'),
+
 	personalInfo: {
 		...createProfileCrudWithFormData<PersonalInfo>('personal-info'),
 		saveProfileImage: async (formData: FormData): Promise<IApiResponse<any>> =>
@@ -46,8 +50,18 @@ export const JobseekerProfileService = {
 				headers: { 'Content-Type': 'multipart/form-data' },
 			}),
 	},
-	spouse: createProfileCrudWithFormData<FamilyInfo>('spouse'),
-	children: createProfileCrud<ChildInfo>('children'),
+	spouse: {
+		get: async (): Promise<IApiResponse<FamilyInfo>> => await axiosIns.get('/jobseeker/spouse/get-by-user'),
+		save: async (payload: FamilyInfo): Promise<IApiResponse<FamilyInfo>> =>
+			await axiosIns.post('/jobseeker/spouse/save', payload),
+	},
+	children: {
+		...createProfileCrud<ChildInfo>('children'),
+		get: async (): Promise<IApiResponse<ChildInfo[]>> =>
+			await axiosIns.get('/jobseeker/children/get-by-user'),
+		update: async (payload: ChildInfo): Promise<IApiResponse<ChildInfo>> =>
+			await axiosIns.put('/jobseeker/children/update', payload),
+	},
 	publication: createProfileCrud<Publication>('publication'),
 	language: createProfileCrud<Language>('language'),
 	award: createProfileCrud<Award>('award'),

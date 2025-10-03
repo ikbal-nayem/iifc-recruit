@@ -1,35 +1,35 @@
-
 'use client';
 
 import {
-  Award,
-  BookCopy,
-  BookOpen,
-  Briefcase,
-  Building,
-  Cake,
-  Download,
-  FileText,
-  GraduationCap,
-  Languages,
-  Linkedin,
-  Mail,
-  MapPin,
-  Phone,
-  Star,
-  User,
-  Video,
+	Award,
+	BookCopy,
+	BookOpen,
+	Briefcase,
+	Cake,
+	Download,
+	FileText,
+	GraduationCap,
+	Heart,
+	Languages,
+	Linkedin,
+	Mail,
+	MapPin,
+	Phone,
+	Star,
+	User,
+	Users,
+	Video,
 } from 'lucide-react';
 import Link from 'next/link';
-
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '../ui/separator';
-import type { Candidate } from '@/lib/types';
+import { Candidate } from '@/interfaces/jobseeker.interface';
 import { format, parseISO } from 'date-fns';
 import { makeDownloadURL, makePreviewURL } from '@/lib/utils';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
 
 interface JobseekerProfileViewProps {
 	candidate: Candidate;
@@ -44,18 +44,18 @@ const formatDateRange = (fromDate: string, toDate?: string, isPresent?: boolean)
 export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
 	const {
 		personalInfo,
-		professionalInfo,
-		academicInfo,
+		spouse,
+		children,
+		education,
+		experiences,
 		skills,
 		certifications,
 		languages,
 		publications,
 		awards,
 		trainings,
-		resumes,
+		resume,
 	} = candidate;
-
-	const activeResume = resumes.find((r) => r.isActive);
 
 	const getFullName = () => {
 		return [personalInfo.firstName, personalInfo.middleName, personalInfo.lastName].filter(Boolean).join(' ');
@@ -111,9 +111,9 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
 					</div>
 				</div>
 				<div className='flex-shrink-0'>
-					{activeResume && (
+					{resume && (
 						<Button asChild>
-							<Link href={makeDownloadURL(activeResume.file)} target='_blank' download>
+							<Link href={makeDownloadURL(resume.file)} target='_blank' download>
 								<Download className='mr-2 h-4 w-4' /> Download CV
 							</Link>
 						</Button>
@@ -176,33 +176,19 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
 					<h4 className='font-semibold text-sm text-muted-foreground flex items-center gap-2'>
 						<MapPin className='h-4 w-4' /> Present Address
 					</h4>
-					<address className='text-sm not-italic'>
-						{personalInfo.presentAddress}
-						<br />
-						{/* {personalInfo.presentAddress.upazila}, {personalInfo.presentAddress.district} -{' '}
-						{personalInfo.presentAddress.postCode}
-						<br />
-						{personalInfo.presentAddress.division} */}
-					</address>
+					<address className='text-sm not-italic'>{personalInfo.presentAddress}</address>
 				</div>
 				<div className='space-y-2'>
 					<h4 className='font-semibold text-sm text-muted-foreground flex items-center gap-2'>
 						<MapPin className='h-4 w-4' /> Permanent Address
 					</h4>
-					<address className='text-sm not-italic'>
-						{personalInfo.permanentAddress}
-						<br />
-						{/* {personalInfo.permanentAddress.upazila}, {personalInfo.permanentAddress.district} -{' '}
-						{personalInfo.permanentAddress.postCode}
-						<br />
-						{personalInfo.permanentAddress.division} */}
-					</address>
+					<address className='text-sm not-italic'>{personalInfo.permanentAddress}</address>
 				</div>
 			</div>
 
 			<div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
 				<div className='lg:col-span-2 space-y-6'>
-					{professionalInfo?.length > 0 && (
+					{experiences?.length > 0 && (
 						<Card className='glassmorphism'>
 							<CardHeader>
 								<CardTitle className='flex items-center gap-2'>
@@ -210,7 +196,7 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
 								</CardTitle>
 							</CardHeader>
 							<CardContent className='space-y-4'>
-								{professionalInfo.map((exp, index) => (
+								{experiences.map((exp, index) => (
 									<div key={index} className='border-l-2 border-primary pl-4'>
 										<h3 className='font-semibold'>{exp.positionTitle}</h3>
 										<p className='text-sm text-muted-foreground'>{exp.organization?.name}</p>
@@ -228,7 +214,7 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
 						</Card>
 					)}
 
-					{academicInfo?.length > 0 && (
+					{education?.length > 0 && (
 						<Card className='glassmorphism'>
 							<CardHeader>
 								<CardTitle className='flex items-center gap-2'>
@@ -236,13 +222,55 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
 								</CardTitle>
 							</CardHeader>
 							<CardContent className='space-y-4'>
-								{academicInfo.map((edu, index) => (
+								{education.map((edu, index) => (
 									<div key={index}>
 										<h3 className='font-semibold'>{edu.degreeTitle}</h3>
 										<p className='text-sm text-muted-foreground'>{edu.institution.name}</p>
 										<p className='text-xs text-muted-foreground'>Graduated: {edu.passingYear}</p>
 									</div>
 								))}
+							</CardContent>
+						</Card>
+					)}
+
+					{(spouse || children?.length > 0) && (
+						<Card className='glassmorphism'>
+							<CardHeader>
+								<CardTitle className='flex items-center gap-2'>
+									<Heart className='h-5 w-5' /> Family Information
+								</CardTitle>
+							</CardHeader>
+							<CardContent className='space-y-4'>
+								{spouse && (
+									<div>
+										<h3 className='font-semibold text-md mb-2'>Spouse</h3>
+										<div className='text-sm space-y-1'>
+											<p>
+												<span className='font-medium'>Name:</span> {spouse.name}
+											</p>
+											<p>
+												<span className='font-medium'>Profession:</span> {spouse.profession}
+											</p>
+										</div>
+									</div>
+								)}
+								{children && children.length > 0 && (
+									<div>
+										<h3 className='font-semibold text-md mb-2'>Children</h3>
+										<div className='space-y-2'>
+											{children.map((child, index) => (
+												<div key={index} className='text-sm'>
+													<p>
+														<span className='font-medium'>{child.name}</span> ({child.genderDTO?.label || child.gender})
+													</p>
+													<p className='text-xs text-muted-foreground'>
+														Born on {format(parseISO(child.dob), 'do MMM, yyyy')}
+													</p>
+												</div>
+											))}
+										</div>
+									</div>
+								)}
 							</CardContent>
 						</Card>
 					)}
@@ -257,9 +285,9 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
 								</CardTitle>
 							</CardHeader>
 							<CardContent className='flex flex-wrap gap-2'>
-								{skills.map((skill) => (
-									<Badge key={skill} variant='secondary'>
-										{skill}
+								{skills.map((skill: ICommonMasterData) => (
+									<Badge key={skill.id} variant='secondary'>
+										{skill.name}
 									</Badge>
 								))}
 							</CardContent>

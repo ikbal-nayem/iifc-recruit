@@ -13,7 +13,6 @@ import {
 
 export type UserRole = 'candidate' | 'admin';
 
-
 export type Candidate = {
 	id: string;
 	personalInfo: PersonalInfo;
@@ -26,6 +25,7 @@ export type Candidate = {
 	publications: Publication[];
 	awards: Award[];
 	trainings: Training[];
+	resume: Resume;
 	resumes: Resume[];
 	status: 'Active' | 'Passive' | 'Hired';
 };

@@ -95,6 +95,10 @@ export type ChildInfo = {
 	id?: number;
 	name: string;
 	gender: string;
+	genderDTO?: {
+		label: string;
+		value: string;
+	};
 	dob: string;
 	serialNo: number;
 };
@@ -121,8 +125,10 @@ export type PersonalInfo = {
 	nationality: string;
 	careerObjective?: string;
 
-	email: string;
-	phone: string;
+	user?: {
+		email: string;
+		phone: string;
+	};
 
 	// Identity
 	nid?: string;
@@ -132,7 +138,7 @@ export type PersonalInfo = {
 	// Status
 	maritalStatus: string;
 	religion?: string;
-	// professionalStatus?: string;
+	professionalStatus?: string;
 
 	// Address
 	presentDivisionId?: number;
@@ -153,4 +159,20 @@ export type PersonalInfo = {
 
 	// Media
 	profileImage?: IFile;
+};
+
+export type Candidate = {
+	id?: string;
+	personalInfo: PersonalInfo;
+	spouse?: FamilyInfo;
+	children?: ChildInfo[];
+	education: AcademicInfo[];
+	experiences: ProfessionalInfo[];
+	certifications: Certification[];
+	trainings: Training[];
+	languages: Language[];
+	publications: Publication[];
+	awards: Award[];
+	skills: ICommonMasterData[];
+	resume: Resume;
 };
