@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -398,3 +399,5 @@ export function JobseekerProfileView({ candidate }: JobseekerProfileViewProps) {
 		</div>
 	);
 }
+
+    
