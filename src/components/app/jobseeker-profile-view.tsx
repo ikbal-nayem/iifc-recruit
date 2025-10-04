@@ -77,9 +77,9 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 
 	const DetailItem = ({ label, value }: { label: string; value?: React.ReactNode }) =>
 		value ? (
-			<div className='flex justify-between'>
-				<p className='text-muted-foreground'>{label}</p>
-				<p className='font-medium text-right'>{value}</p>
+			<div>
+				<p className='text-sm text-muted-foreground'>{label}</p>
+				<p className='font-medium'>{value}</p>
 			</div>
 		) : null;
 
@@ -147,77 +147,77 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 			</div>
 
 			<Separator />
+            
+            <Card className='border'>
+                <CardHeader>
+                    <CardTitle className='flex items-center gap-3'>
+                        <div className='bg-primary/10 text-primary p-2 rounded-full'>
+                            <User className='h-5 w-5' />
+                        </div>
+                        Personal Information
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className='space-y-6 text-sm'>
+                    <div className='grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-6'>
+                        <DetailItem label="Father's Name" value={personalInfo.fatherName} />
+                        <DetailItem label="Mother's Name" value={personalInfo.motherName} />
+                        {personalInfo.dateOfBirth && (
+                            <DetailItem
+                                label='Date of Birth'
+                                value={format(parseISO(personalInfo.dateOfBirth), 'do MMM, yyyy')}
+                            />
+                        )}
+                        <DetailItem label='Gender' value={personalInfo.genderDTO?.label || personalInfo.gender} />
+                        <DetailItem
+                            label='Marital Status'
+                            value={personalInfo.maritalStatusDTO?.label || personalInfo.maritalStatus}
+                        />
+                        <DetailItem label='Nationality' value={personalInfo.nationality} />
+                        <DetailItem label='Religion' value={personalInfo.religionDTO?.label || personalInfo.religion} />
+                        <DetailItem label='NID' value={personalInfo.nid} />
+                        <DetailItem label='Passport No.' value={personalInfo.passportNo} />
+                    </div>
+                    <Separator />
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6'>
+                        <div>
+                            <h4 className='font-semibold text-muted-foreground mb-2 flex items-center gap-2'>
+                                <MapPin className='h-4 w-4' /> Present Address
+                            </h4>
+                            <address className='not-italic'>
+                                {formatAddress(
+                                    personalInfo.presentAddress,
+                                    personalInfo.presentUpazila,
+                                    personalInfo.presentDistrict,
+                                    personalInfo.presentDivision,
+                                    personalInfo.presentPostCode
+                                )}
+                            </address>
+                        </div>
+                        <div>
+                            <h4 className='font-semibold text-muted-foreground mb-2 flex items-center gap-2'>
+                                <MapPin className='h-4 w-4' /> Permanent Address
+                            </h4>
+                            <address className='not-italic'>
+                                {formatAddress(
+                                    personalInfo.permanentAddress,
+                                    personalInfo.permanentUpazila,
+                                    personalInfo.permanentDistrict,
+                                    personalInfo.permanentDivision,
+                                    personalInfo.permanentPostCode
+                                )}
+                            </address>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
 
 			<div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
 				<div className='lg:col-span-2 space-y-6'>
-					<Card className='border'>
-						<CardHeader>
-							<CardTitle className='flex items-center gap-3'>
-								<div className='bg-primary/10 text-primary p-2 rounded-lg'>
-									<User className='h-5 w-5' />
-								</div>
-								Personal Information
-							</CardTitle>
-						</CardHeader>
-						<CardContent className='space-y-6 text-sm'>
-							<div className='grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4'>
-								<DetailItem label="Father's Name" value={personalInfo.fatherName} />
-								<DetailItem label="Mother's Name" value={personalInfo.motherName} />
-								{personalInfo.dateOfBirth && (
-									<DetailItem
-										label='Date of Birth'
-										value={format(parseISO(personalInfo.dateOfBirth), 'do MMM, yyyy')}
-									/>
-								)}
-								<DetailItem label='Gender' value={personalInfo.genderDTO?.label || personalInfo.gender} />
-								<DetailItem
-									label='Marital Status'
-									value={personalInfo.maritalStatusDTO?.label || personalInfo.maritalStatus}
-								/>
-								<DetailItem label='Nationality' value={personalInfo.nationality} />
-								<DetailItem label='Religion' value={personalInfo.religionDTO?.label || personalInfo.religion} />
-								<DetailItem label='NID' value={personalInfo.nid} />
-								<DetailItem label='Passport No.' value={personalInfo.passportNo} />
-							</div>
-							<Separator />
-							<div className='grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4'>
-								<div>
-									<h4 className='font-semibold text-muted-foreground mb-2 flex items-center gap-2'>
-										<MapPin className='h-4 w-4' /> Present Address
-									</h4>
-									<address className='not-italic'>
-										{formatAddress(
-											personalInfo.presentAddress,
-											personalInfo.presentUpazila,
-											personalInfo.presentDistrict,
-											personalInfo.presentDivision,
-											personalInfo.presentPostCode
-										)}
-									</address>
-								</div>
-								<div>
-									<h4 className='font-semibold text-muted-foreground mb-2 flex items-center gap-2'>
-										<MapPin className='h-4 w-4' /> Permanent Address
-									</h4>
-									<address className='not-italic'>
-										{formatAddress(
-											personalInfo.permanentAddress,
-											personalInfo.permanentUpazila,
-											personalInfo.permanentDistrict,
-											personalInfo.permanentDivision,
-											personalInfo.permanentPostCode
-										)}
-									</address>
-								</div>
-							</div>
-						</CardContent>
-					</Card>
-
 					{experiences?.length > 0 && (
 						<Card className='border'>
 							<CardHeader>
 								<CardTitle className='flex items-center gap-3'>
-									<div className='bg-primary/10 text-primary p-2 rounded-lg'>
+									<div className='bg-primary/10 text-primary p-2 rounded-full'>
 										<Briefcase className='h-5 w-5' />
 									</div>
 									Professional Experience
@@ -250,7 +250,7 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 						<Card className='border'>
 							<CardHeader>
 								<CardTitle className='flex items-center gap-3'>
-									<div className='bg-primary/10 text-primary p-2 rounded-lg'>
+									<div className='bg-primary/10 text-primary p-2 rounded-full'>
 										<GraduationCap className='h-5 w-5' />
 									</div>
 									Academic History
@@ -272,7 +272,7 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 						<Card className='border'>
 							<CardHeader>
 								<CardTitle className='flex items-center gap-3'>
-									<div className='bg-primary/10 text-primary p-2 rounded-lg'>
+									<div className='bg-primary/10 text-primary p-2 rounded-full'>
 										<Heart className='h-5 w-5' />
 									</div>
 									Family Information
@@ -320,7 +320,7 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 						<Card className='border'>
 							<CardHeader>
 								<CardTitle className='flex items-center gap-3'>
-									<div className='bg-primary/10 text-primary p-2 rounded-lg'>
+									<div className='bg-primary/10 text-primary p-2 rounded-full'>
 										<Star className='h-5 w-5' />
 									</div>
 									Skills
