@@ -1,4 +1,3 @@
-
 import { ProfileCompletion } from '@/components/app/jobseeker/profile-completion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,65 +9,56 @@ import Link from 'next/link';
 export default function JobseekerDashboardPage() {
 	const jobseeker = jobseekers[0];
 	const jobseekerApplications = applications.filter((app) => app.jobseekerId === jobseeker.id);
-    const recentApplications = jobseekerApplications.slice(0, 3);
+	const recentApplications = jobseekerApplications.slice(0, 3);
 
-    const stats = {
-        totalApplications: jobseekerApplications.length,
-        interviews: jobseekerApplications.filter(app => app.status === 'Interview').length,
-        activeApplications: jobseekerApplications.filter(app => !['Hired', 'Rejected', 'Closed'].includes(app.status)).length
-    }
+	const stats = {
+		totalApplications: jobseekerApplications.length,
+		interviews: jobseekerApplications.filter((app) => app.status === 'Interview').length,
+		activeApplications: jobseekerApplications.filter((app) => !['Hired', 'Rejected', 'Closed'].includes(app.status))
+			.length,
+	};
 
 	return (
 		<div className='space-y-8'>
-			<div className='grid grid-cols-1 lg:grid-cols-3 gap-8 items-start'>
-				<div className='lg:col-span-2 space-y-2'>
-					<h1 className='text-3xl font-headline font-bold'>Welcome, {jobseeker.personalInfo.firstName}!</h1>
-					<p className='text-muted-foreground'>Here's an overview of your job search journey.</p>
-				</div>
-				<div className='lg:col-span-1 row-start-1 lg:row-start-auto'>
-					<ProfileCompletion jobseeker={jobseeker} />
-				</div>
+			<div>
+				<h1 className='text-3xl font-headline font-bold'>Welcome, {jobseeker.personalInfo.firstName}!</h1>
+				<p className='text-muted-foreground'>Here's an overview of your job search journey.</p>
 			</div>
 
+			<ProfileCompletion jobseeker={jobseeker} />
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                <Card className="glassmorphism card-hover">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
-                        <FileText className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{stats.totalApplications}</div>
-                        <p className="text-xs text-muted-foreground">
-                        Across all jobs
-                        </p>
-                    </CardContent>
-                </Card>
-                 <Card className="glassmorphism card-hover">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Active Applications</CardTitle>
-                        <Briefcase className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{stats.activeApplications}</div>
-                        <p className="text-xs text-muted-foreground">
-                        Currently in consideration
-                        </p>
-                    </CardContent>
-                </Card>
-                 <Card className="glassmorphism card-hover">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Interviews</CardTitle>
-                        <Star className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{stats.interviews}</div>
-                        <p className="text-xs text-muted-foreground">
-                        Scheduled or completed
-                        </p>
-                    </CardContent>
-                </Card>
-            </div>
+			<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
+				<Card className='glassmorphism card-hover'>
+					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+						<CardTitle className='text-sm font-medium'>Total Applications</CardTitle>
+						<FileText className='h-4 w-4 text-muted-foreground' />
+					</CardHeader>
+					<CardContent>
+						<div className='text-2xl font-bold'>{stats.totalApplications}</div>
+						<p className='text-xs text-muted-foreground'>Across all jobs</p>
+					</CardContent>
+				</Card>
+				<Card className='glassmorphism card-hover'>
+					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+						<CardTitle className='text-sm font-medium'>Active Applications</CardTitle>
+						<Briefcase className='h-4 w-4 text-muted-foreground' />
+					</CardHeader>
+					<CardContent>
+						<div className='text-2xl font-bold'>{stats.activeApplications}</div>
+						<p className='text-xs text-muted-foreground'>Currently in consideration</p>
+					</CardContent>
+				</Card>
+				<Card className='glassmorphism card-hover'>
+					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+						<CardTitle className='text-sm font-medium'>Interviews</CardTitle>
+						<Star className='h-4 w-4 text-muted-foreground' />
+					</CardHeader>
+					<CardContent>
+						<div className='text-2xl font-bold'>{stats.interviews}</div>
+						<p className='text-xs text-muted-foreground'>Scheduled or completed</p>
+					</CardContent>
+				</Card>
+			</div>
 
 			<Card className='glassmorphism'>
 				<CardHeader>
@@ -94,11 +84,11 @@ export default function JobseekerDashboardPage() {
 							</div>
 						);
 					})}
-                     {recentApplications.length === 0 && (
-                        <div className="text-center py-8 text-muted-foreground">
-                            <p>You haven't applied to any jobs recently.</p>
-                        </div>
-                    )}
+					{recentApplications.length === 0 && (
+						<div className='text-center py-8 text-muted-foreground'>
+							<p>You haven't applied to any jobs recently.</p>
+						</div>
+					)}
 				</CardContent>
 				<CardFooter>
 					<Button asChild variant='link' className='group'>
