@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -9,22 +10,22 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Candidate } from '@/lib/types';
+import { Jobseeker } from '@/lib/types';
 import { CheckCircle, Circle } from 'lucide-react';
 
-function calculateProfileCompletion(candidate: Candidate): number {
+function calculateProfileCompletion(jobseeker: Jobseeker): number {
   let score = 0;
   const totalFields = 9; // personal, academic, professional, skills, certs, langs, pubs, awards, trainings
 
-  if (candidate.personalInfo.firstName && candidate.personalInfo.lastName && candidate.personalInfo.email) score++;
-  if (candidate.academicInfo.length > 0) score++;
-  if (candidate.professionalInfo.length > 0) score++;
-  if (candidate.skills.length > 0) score++;
-  if (candidate.certifications.length > 0) score++;
-  if (candidate.languages.length > 0) score++;
-  if (candidate.publications.length > 0) score++;
-  if (candidate.awards.length > 0) score++;
-  if (candidate.trainings.length > 0) score++;
+  if (jobseeker.personalInfo.firstName && jobseeker.personalInfo.lastName && jobseeker.personalInfo.email) score++;
+  if (jobseeker.academicInfo.length > 0) score++;
+  if (jobseeker.professionalInfo.length > 0) score++;
+  if (jobseeker.skills.length > 0) score++;
+  if (jobseeker.certifications.length > 0) score++;
+  if (jobseeker.languages.length > 0) score++;
+  if (jobseeker.publications.length > 0) score++;
+  if (jobseeker.awards.length > 0) score++;
+  if (jobseeker.trainings.length > 0) score++;
   
   return (score / totalFields) * 100;
 }
@@ -41,10 +42,10 @@ const checklistItems = [
     { id: 'awards', label: 'Awards' },
 ]
 
-function isSectionComplete(candidate: Candidate, section: string): boolean {
+function isSectionComplete(jobseeker: Jobseeker, section: string): boolean {
     switch (section) {
         case 'personalInfo':
-            return !!(candidate.personalInfo.firstName && candidate.personalInfo.lastName && candidate.personalInfo.email);
+            return !!(jobseeker.personalInfo.firstName && jobseeker.personalInfo.lastName && jobseeker.personalInfo.email);
         case 'academicInfo':
         case 'professionalInfo':
         case 'skills':
@@ -53,15 +54,15 @@ function isSectionComplete(candidate: Candidate, section: string): boolean {
         case 'publications':
         case 'awards':
         case 'trainings':
-            return Array.isArray(candidate[section as keyof Candidate]) && (candidate[section as keyof Candidate] as any[]).length > 0;
+            return Array.isArray(jobseeker[section as keyof Jobseeker]) && (jobseeker[section as keyof Jobseeker] as any[]).length > 0;
         default:
             return false;
     }
 }
 
 
-export function ProfileCompletion({ candidate }: { candidate: Candidate }) {
-  const completionPercentage = calculateProfileCompletion(candidate);
+export function ProfileCompletion({ jobseeker }: { jobseeker: Jobseeker }) {
+  const completionPercentage = calculateProfileCompletion(jobseeker);
 
   return (
     <Card className="glassmorphism">
@@ -78,7 +79,7 @@ export function ProfileCompletion({ candidate }: { candidate: Candidate }) {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {checklistItems.map(item => {
-                 const completed = isSectionComplete(candidate, item.id);
+                 const completed = isSectionComplete(jobseeker, item.id);
                  return (
                     <div key={item.id} className="flex items-center gap-2">
                         {completed ? <CheckCircle className="h-5 w-5 text-primary" /> : <Circle className="h-5 w-5 text-muted-foreground" />}

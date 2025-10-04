@@ -1,10 +1,10 @@
 
 import { ProficiancyLevel } from '@/interfaces/common.interface';
 import { addDays, format, subDays, subMonths, subYears } from 'date-fns';
-import type { Activity, Application, Candidate, Job } from './types';
+import type { Activity, Application, Jobseeker, Job } from './types';
 
 
-export const candidates: Candidate[] = [
+export const jobseekers: Jobseeker[] = [
 	{
 		id: 'c1',
 		personalInfo: {
@@ -751,56 +751,56 @@ export const applications: Application[] = [
 	{
 		id: 'app1',
 		jobId: 'j1',
-		candidateId: 'c1',
+		jobseekerId: 'c1',
 		status: 'Interview',
 		applicationDate: format(subDays(new Date(), 1), 'yyyy-MM-dd'),
 	},
 	{
 		id: 'app2',
 		jobId: 'j2',
-		candidateId: 'c2',
+		jobseekerId: 'c2',
 		status: 'Applied',
 		applicationDate: format(subDays(new Date(), 8), 'yyyy-MM-dd'),
 	},
 	{
 		id: 'app3',
 		jobId: 'j3',
-		candidateId: 'c3',
+		jobseekerId: 'c3',
 		status: 'Hired',
 		applicationDate: format(subDays(new Date(), 25), 'yyyy-MM-dd'),
 	},
 	{
 		id: 'app4',
 		jobId: 'j1',
-		candidateId: 'c3',
+		jobseekerId: 'c3',
 		status: 'Screening',
 		applicationDate: format(subDays(new Date(), 1), 'yyyy-MM-dd'),
 	},
 	{
 		id: 'app5',
 		jobId: 'j5',
-		candidateId: 'c1',
+		jobseekerId: 'c1',
 		status: 'Offered',
 		applicationDate: format(subDays(new Date(), 3), 'yyyy-MM-dd'),
 	},
 	{
 		id: 'app6',
 		jobId: 'j6',
-		candidateId: 'c2',
+		jobseekerId: 'c2',
 		status: 'Rejected',
 		applicationDate: format(subDays(new Date(), 14), 'yyyy-MM-dd'),
 	},
 	{
 		id: 'app7',
 		jobId: 'j1',
-		candidateId: 'c2',
+		jobseekerId: 'c2',
 		status: 'Shortlisted',
 		applicationDate: format(subDays(new Date(), 2), 'yyyy-MM-dd'),
 	},
 	{
 		id: 'app8',
 		jobId: 'j1',
-		candidateId: 'c4',
+		jobseekerId: 'c4',
 		status: 'Applied',
 		applicationDate: format(subDays(new Date(), 3), 'yyyy-MM-dd'),
 	},

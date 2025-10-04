@@ -12,7 +12,7 @@ const applicationData = [
   { name: 'UX Designer', applications: 8 },
 ];
 
-const candidateData = [
+const jobseekerData = [
   { month: 'Jan', count: 15 },
   { month: 'Feb', count: 20 },
   { month: 'Mar', count: 18 },
@@ -49,10 +49,10 @@ export function AdminDashboardCharts() {
                 </div>
             </div>
             <div>
-                <h3 className="text-lg font-semibold mb-4 ml-2">Candidate Acquisition</h3>
+                <h3 className="text-lg font-semibold mb-4 ml-2">Jobseeker Acquisition</h3>
                 <div className="h-[250px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={candidateData}>
+                    <LineChart data={jobseekerData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                     <YAxis tick={{ fontSize: 12 }} />
@@ -63,7 +63,7 @@ export function AdminDashboardCharts() {
                         }}
                     />
                     <Legend wrapperStyle={{ fontSize: '14px' }}/>
-                    <Line type="monotone" dataKey="count" name="New Candidates" stroke="hsl(var(--accent))" strokeWidth={2} />
+                    <Line type="monotone" dataKey="count" name="New Jobseekers" stroke="hsl(var(--accent))" strokeWidth={2} />
                     </LineChart>
                 </ResponsiveContainer>
                 </div>

@@ -1,14 +1,15 @@
 
+
 'use client';
 import * as React from 'react';
-import type { Candidate, Application, Job } from '@/lib/types';
-import { candidates as allCandidates, applications as allApplications, jobs } from '@/lib/data';
+import type { Jobseeker, Application, Job } from '@/lib/types';
+import { jobseekers as allJobseekers, applications as allApplications, jobs } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import { JobApplicantsTable } from '@/components/app/admin/job-applicants-table';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Building2 } from 'lucide-react';
 
-type Applicant = Candidate & { application: Application };
+type Applicant = Jobseeker & { application: Application };
 
 async function getJobApplicants(jobId: string): Promise<{ job: Job, applicants: Applicant[] }> {
   const job = jobs.find(j => j.id === jobId);
@@ -20,10 +21,10 @@ async function getJobApplicants(jobId: string): Promise<{ job: Job, applicants: 
   const applicantsForJob = allApplications
     .filter(app => app.jobId === jobId)
     .map(app => {
-      const candidate = allCandidates.find(c => c.id === app.candidateId);
-      if (!candidate) return null;
+      const jobseeker = allJobseekers.find(c => c.id === app.jobseekerId);
+      if (!jobseeker) return null;
       return {
-        ...candidate,
+        ...jobseeker,
         application: app,
       };
     })

@@ -11,9 +11,9 @@ import {
 	Training,
 } from '@/interfaces/jobseeker.interface';
 
-export type UserRole = 'candidate' | 'admin';
+export type UserRole = 'jobseeker' | 'admin';
 
-export type Candidate = {
+export type Jobseeker = {
 	id: string;
 	personalInfo: PersonalInfo;
 	academicInfo: AcademicInfo[];
@@ -48,7 +48,7 @@ export type Job = {
 export type Application = {
 	id: string;
 	jobId: string;
-	candidateId: string;
+	jobseekerId: string;
 	status: 'Applied' | 'Screening' | 'Interview' | 'Offered' | 'Rejected' | 'Hired' | 'Shortlisted';
 	applicationDate: string;
 };

@@ -19,7 +19,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { candidates } from '@/lib/data';
+import { jobseekers } from '@/lib/data';
 import { makePreviewURL } from '@/lib/utils';
 
 const getBreadcrumbs = (pathname: string) => {
@@ -47,10 +47,10 @@ export default function Header() {
     let user = { firstName: 'Admin', lastName: 'User', email: 'admin@iifc.com', profileImage: { filePath: 'https://picsum.photos/seed/admin/100/100' } };
     if (role === 'jobseeker') {
         user = {
-            firstName: candidates[0].personalInfo.firstName,
-            lastName: candidates[0].personalInfo.lastName,
-            email: candidates[0].personalInfo.user.email,
-            profileImage: candidates[0].personalInfo.profileImage,
+            firstName: jobseekers[0].personalInfo.firstName,
+            lastName: jobseekers[0].personalInfo.lastName,
+            email: jobseekers[0].personalInfo.user.email,
+            profileImage: jobseekers[0].personalInfo.profileImage,
         };
     } 
 

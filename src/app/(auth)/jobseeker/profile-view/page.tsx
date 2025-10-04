@@ -6,15 +6,15 @@ async function getProfileData() {
 		const response = await JobseekerProfileService.getProfile();
 		return response.body;
 	} catch (error) {
-		console.error('Failed to load candidate profile:', error);
+		console.error('Failed to load jobseeker profile:', error);
 		return null;
 	}
 }
 
 export default async function JobseekerPublicProfilePage() {
-	const candidate = await getProfileData();
+	const jobseeker = await getProfileData();
 
-	if (!candidate) {
+	if (!jobseeker) {
 		return (
 			<div className='flex flex-col items-center justify-center h-full'>
 				<p className='text-muted-foreground'>Could not load profile. Please try again later.</p>
@@ -29,7 +29,7 @@ export default async function JobseekerPublicProfilePage() {
 				<p className='text-muted-foreground'>This is how your profile appears to recruiters.</p>
 			</div>
 			<div className='border rounded-lg bg-card text-card-foreground shadow-sm'>
-				<JobseekerProfileView candidate={candidate} />
+				<JobseekerProfileView jobseeker={jobseeker} />
 			</div>
 		</div>
 	);

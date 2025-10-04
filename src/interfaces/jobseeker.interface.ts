@@ -161,7 +161,7 @@ export type PersonalInfo = {
 	profileImage?: IFile;
 };
 
-export type Candidate = {
+export type Jobseeker = {
 	id?: string;
 	personalInfo: PersonalInfo;
 	spouse?: FamilyInfo;

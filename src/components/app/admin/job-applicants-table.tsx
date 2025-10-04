@@ -1,6 +1,7 @@
 
 
 
+
 'use client';
 
 import * as React from 'react';
@@ -48,7 +49,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MoreHorizontal, FileText, UserCheck, UserX, Star, Send, Bell } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { Candidate, Application } from '@/lib/types';
+import type { Jobseeker, Application } from '@/lib/types';
 import { JobseekerProfileView } from '@/components/app/jobseeker-profile-view';
 import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
@@ -57,7 +58,7 @@ import { Form } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { FormRadioGroup } from '@/components/ui/form-radio-group';
 
-type Applicant = Candidate & { application: Application };
+type Applicant = Jobseeker & { application: Application };
 
 interface JobApplicantsTableProps {
     applicants: Applicant[];
@@ -69,7 +70,7 @@ export function JobApplicantsTable({ applicants }: JobApplicantsTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
-  const [selectedApplicant, setSelectedApplicant] = React.useState<Candidate | null>(null);
+  const [selectedApplicant, setSelectedApplicant] = React.useState<Jobseeker | null>(null);
   const [isNotifyDialogOpen, setIsNotifyDialogOpen] = React.useState(false);
   
   const notifyForm = useForm({
@@ -385,7 +386,7 @@ export function JobApplicantsTable({ applicants }: JobApplicantsTableProps) {
        <Dialog open={!!selectedApplicant} onOpenChange={(isOpen) => !isOpen && setSelectedApplicant(null)}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           {selectedApplicant && (
-             <JobseekerProfileView candidate={selectedApplicant} />
+             <JobseekerProfileView jobseeker={selectedApplicant} />
           )}
         </DialogContent>
       </Dialog>

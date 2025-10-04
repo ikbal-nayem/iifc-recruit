@@ -15,7 +15,7 @@ export function AdminDashboardRecentActivity() {
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
             <CardDescription>
-              Updates from your team and candidates.
+              Updates from your team and jobseekers.
             </CardDescription>
           </CardHeader>
           <CardContent>

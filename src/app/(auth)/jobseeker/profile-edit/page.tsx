@@ -73,18 +73,18 @@ const emptyPersonalInfo: PersonalInfo = {
 	videoProfile: '',
 };
 
-async function getCandidateData(): Promise<PersonalInfo> {
+async function getJobseekerData(): Promise<PersonalInfo> {
 	try {
 		const response = await JobseekerProfileService.personalInfo.get();
 		return response.body as PersonalInfo;
 	} catch (error) {
-		console.error('Failed to load candidate profile:', error);
+		console.error('Failed to load jobseeker profile:', error);
 		return emptyPersonalInfo;
 	}
 }
 
 export default async function JobseekerProfilePersonalPage() {
-	const [personalInfo, masterData] = await Promise.all([getCandidateData(), getMasterData()]);
+	const [personalInfo, masterData] = await Promise.all([getJobseekerData(), getMasterData()]);
 
 	return <ProfileFormPersonal personalInfo={personalInfo} masterData={masterData} />;
 }
