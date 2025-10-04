@@ -65,6 +65,15 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 		return [addressLine, upazila?.name, district?.name, division?.name, postCode].filter(Boolean).join(', ');
 	};
 
+	const skillColors = [
+		'bg-sky-100 text-sky-800 border-sky-200',
+		'bg-emerald-100 text-emerald-800 border-emerald-200',
+		'bg-rose-100 text-rose-800 border-rose-200',
+		'bg-amber-100 text-amber-800 border-amber-200',
+		'bg-violet-100 text-violet-800 border-violet-200',
+		'bg-lime-100 text-lime-800 border-lime-200',
+	];
+
 	return (
 		<div className='p-2 sm:p-4 md:p-6 space-y-6'>
 			{/* Header */}
@@ -130,104 +139,106 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 
 			<Separator />
 
-			<Card className='border'>
-				<CardHeader>
-					<CardTitle className='flex items-center gap-3'>
-						<div className='bg-primary/10 text-primary p-2 rounded-lg'>
-							<User className='h-5 w-5' />
-						</div>{' '}
-						Personal Information
-					</CardTitle>
-				</CardHeader>
-				<CardContent className='grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8 text-sm'>
-					<div className='space-y-4'>
-						<div>
-							<h4 className='font-semibold text-muted-foreground mb-2'>Basic Details</h4>
-							<div className='space-y-1'>
-								<p>
-									<span className='font-medium w-28 inline-block'>Father&apos;s Name:</span>{' '}
-									{personalInfo.fatherName}
-								</p>
-								<p>
-									<span className='font-medium w-28 inline-block'>Mother&apos;s Name:</span>{' '}
-									{personalInfo.motherName}
-								</p>
-								{personalInfo.dateOfBirth && (
-									<p>
-										<span className='font-medium w-28 inline-block'>Date of Birth:</span>{' '}
-										{format(parseISO(personalInfo.dateOfBirth), 'do MMM, yyyy')}
-									</p>
-								)}
-								<p>
-									<span className='font-medium w-28 inline-block'>Gender:</span>{' '}
-									{personalInfo.genderDTO?.label || personalInfo.gender}
-								</p>
-								<p>
-									<span className='font-medium w-28 inline-block'>Marital Status:</span>{' '}
-									{personalInfo.maritalStatusDTO?.label || personalInfo.maritalStatus}
-								</p>
-								<p>
-									<span className='font-medium w-28 inline-block'>Nationality:</span> {personalInfo.nationality}
-								</p>
-								{personalInfo.religion && (
-									<p>
-										<span className='font-medium w-28 inline-block'>Religion:</span>{' '}
-										{personalInfo.religionDTO?.label || personalInfo.religion}
-									</p>
-								)}
-							</div>
-						</div>
-						<div>
-							<h4 className='font-semibold text-muted-foreground mb-2'>Identity</h4>
-							<div className='space-y-1'>
-								{personalInfo.nid && (
-									<p>
-										<span className='font-medium w-28 inline-block'>NID:</span> {personalInfo.nid}
-									</p>
-								)}
-								{personalInfo.passportNo && (
-									<p>
-										<span className='font-medium w-28 inline-block'>Passport:</span> {personalInfo.passportNo}
-									</p>
-								)}
-							</div>
-						</div>
-					</div>
-					<div className='space-y-4'>
-						<div>
-							<h4 className='font-semibold text-muted-foreground mb-2 flex items-center gap-2'>
-								<MapPin className='h-4 w-4' /> Present Address
-							</h4>
-							<address className='not-italic'>
-								{formatAddress(
-									personalInfo.presentAddress,
-									personalInfo.presentUpazila,
-									personalInfo.presentDistrict,
-									personalInfo.presentDivision,
-									personalInfo.presentPostCode
-								)}
-							</address>
-						</div>
-						<div>
-							<h4 className='font-semibold text-muted-foreground mb-2 flex items-center gap-2'>
-								<MapPin className='h-4 w-4' /> Permanent Address
-							</h4>
-							<address className='not-italic'>
-								{formatAddress(
-									personalInfo.permanentAddress,
-									personalInfo.permanentUpazila,
-									personalInfo.permanentDistrict,
-									personalInfo.permanentDivision,
-									personalInfo.permanentPostCode
-								)}
-							</address>
-						</div>
-					</div>
-				</CardContent>
-			</Card>
-
 			<div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
 				<div className='lg:col-span-2 space-y-6'>
+					<Card className='border'>
+						<CardHeader>
+							<CardTitle className='flex items-center gap-3'>
+								<div className='bg-primary/10 text-primary p-2 rounded-lg'>
+									<User className='h-5 w-5' />
+								</div>{' '}
+								Personal Information
+							</CardTitle>
+						</CardHeader>
+						<CardContent className='grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8 text-sm'>
+							<div className='space-y-4'>
+								<div>
+									<h4 className='font-semibold text-muted-foreground mb-2'>Basic Details</h4>
+									<div className='space-y-1'>
+										<p>
+											<span className='font-medium w-28 inline-block'>Father&apos;s Name:</span>{' '}
+											{personalInfo.fatherName}
+										</p>
+										<p>
+											<span className='font-medium w-28 inline-block'>Mother&apos;s Name:</span>{' '}
+											{personalInfo.motherName}
+										</p>
+										{personalInfo.dateOfBirth && (
+											<p>
+												<span className='font-medium w-28 inline-block'>Date of Birth:</span>{' '}
+												{format(parseISO(personalInfo.dateOfBirth), 'do MMM, yyyy')}
+											</p>
+										)}
+										<p>
+											<span className='font-medium w-28 inline-block'>Gender:</span>{' '}
+											{personalInfo.genderDTO?.label || personalInfo.gender}
+										</p>
+										<p>
+											<span className='font-medium w-28 inline-block'>Marital Status:</span>{' '}
+											{personalInfo.maritalStatusDTO?.label || personalInfo.maritalStatus}
+										</p>
+										<p>
+											<span className='font-medium w-28 inline-block'>Nationality:</span>{' '}
+											{personalInfo.nationality}
+										</p>
+										{personalInfo.religion && (
+											<p>
+												<span className='font-medium w-28 inline-block'>Religion:</span>{' '}
+												{personalInfo.religionDTO?.label || personalInfo.religion}
+											</p>
+										)}
+									</div>
+								</div>
+								<div>
+									<h4 className='font-semibold text-muted-foreground mb-2'>Identity</h4>
+									<div className='space-y-1'>
+										{personalInfo.nid && (
+											<p>
+												<span className='font-medium w-28 inline-block'>NID:</span> {personalInfo.nid}
+											</p>
+										)}
+										{personalInfo.passportNo && (
+											<p>
+												<span className='font-medium w-28 inline-block'>Passport:</span>{' '}
+												{personalInfo.passportNo}
+											</p>
+										)}
+									</div>
+								</div>
+							</div>
+							<div className='space-y-4'>
+								<div>
+									<h4 className='font-semibold text-muted-foreground mb-2 flex items-center gap-2'>
+										<MapPin className='h-4 w-4' /> Present Address
+									</h4>
+									<address className='not-italic'>
+										{formatAddress(
+											personalInfo.presentAddress,
+											personalInfo.presentUpazila,
+											personalInfo.presentDistrict,
+											personalInfo.presentDivision,
+											personalInfo.presentPostCode
+										)}
+									</address>
+								</div>
+								<div>
+									<h4 className='font-semibold text-muted-foreground mb-2 flex items-center gap-2'>
+										<MapPin className='h-4 w-4' /> Permanent Address
+									</h4>
+									<address className='not-italic'>
+										{formatAddress(
+											personalInfo.permanentAddress,
+											personalInfo.permanentUpazila,
+											personalInfo.permanentDistrict,
+											personalInfo.permanentDivision,
+											personalInfo.permanentPostCode
+										)}
+									</address>
+								</div>
+							</div>
+						</CardContent>
+					</Card>
+
 					{experiences?.length > 0 && (
 						<Card className='border'>
 							<CardHeader>
@@ -240,10 +251,10 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 							</CardHeader>
 							<CardContent className='space-y-4'>
 								<div className='relative pl-6'>
-									<div className='absolute left-0 top-0 h-full w-0.5 bg-border'></div>
+									<div className='absolute left-[7px] top-1 h-full w-0.5 bg-border -z-10'></div>
 									{experiences.map((exp, index) => (
-										<div key={index} className='relative pl-6 pb-6'>
-											<div className='absolute -left-1.5 top-1 h-3 w-3 rounded-full bg-primary'></div>
+										<div key={index} className='relative pl-6 pb-6 last:pb-0'>
+											<div className='absolute -left-1.5 top-1 h-4 w-4 rounded-full bg-primary border-4 border-background'></div>
 											<h3 className='font-semibold'>{exp.positionTitle}</h3>
 											<p className='text-sm text-muted-foreground'>{exp.organization?.name}</p>
 											<p className='text-xs text-muted-foreground'>
@@ -342,8 +353,11 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 								</CardTitle>
 							</CardHeader>
 							<CardContent className='flex flex-wrap gap-2'>
-								{skills.map((skill: ICommonMasterData) => (
-									<Badge key={skill.id} variant='default'>
+								{skills.map((skill: ICommonMasterData, index) => (
+									<Badge
+										key={skill.id}
+										className={skillColors[index % skillColors.length]}
+									>
 										{skill.name}
 									</Badge>
 								))}
