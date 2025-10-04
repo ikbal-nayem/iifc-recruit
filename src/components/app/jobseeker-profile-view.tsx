@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -74,6 +75,14 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 		'bg-lime-100 text-lime-800 border-lime-200',
 	];
 
+	const DetailItem = ({ label, value }: { label: string; value?: React.ReactNode }) =>
+		value ? (
+			<div className='flex justify-between'>
+				<p className='text-muted-foreground'>{label}</p>
+				<p className='font-medium text-right'>{value}</p>
+			</div>
+		) : null;
+
 	return (
 		<div className='p-2 sm:p-4 md:p-6 space-y-6'>
 			{/* Header */}
@@ -146,67 +155,32 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 							<CardTitle className='flex items-center gap-3'>
 								<div className='bg-primary/10 text-primary p-2 rounded-lg'>
 									<User className='h-5 w-5' />
-								</div>{' '}
+								</div>
 								Personal Information
 							</CardTitle>
 						</CardHeader>
-						<CardContent className='grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8 text-sm'>
-							<div className='space-y-4'>
-								<div>
-									<h4 className='font-semibold text-muted-foreground mb-2'>Basic Details</h4>
-									<div className='space-y-1'>
-										<p>
-											<span className='font-medium w-28 inline-block'>Father&apos;s Name:</span>{' '}
-											{personalInfo.fatherName}
-										</p>
-										<p>
-											<span className='font-medium w-28 inline-block'>Mother&apos;s Name:</span>{' '}
-											{personalInfo.motherName}
-										</p>
-										{personalInfo.dateOfBirth && (
-											<p>
-												<span className='font-medium w-28 inline-block'>Date of Birth:</span>{' '}
-												{format(parseISO(personalInfo.dateOfBirth), 'do MMM, yyyy')}
-											</p>
-										)}
-										<p>
-											<span className='font-medium w-28 inline-block'>Gender:</span>{' '}
-											{personalInfo.genderDTO?.label || personalInfo.gender}
-										</p>
-										<p>
-											<span className='font-medium w-28 inline-block'>Marital Status:</span>{' '}
-											{personalInfo.maritalStatusDTO?.label || personalInfo.maritalStatus}
-										</p>
-										<p>
-											<span className='font-medium w-28 inline-block'>Nationality:</span>{' '}
-											{personalInfo.nationality}
-										</p>
-										{personalInfo.religion && (
-											<p>
-												<span className='font-medium w-28 inline-block'>Religion:</span>{' '}
-												{personalInfo.religionDTO?.label || personalInfo.religion}
-											</p>
-										)}
-									</div>
-								</div>
-								<div>
-									<h4 className='font-semibold text-muted-foreground mb-2'>Identity</h4>
-									<div className='space-y-1'>
-										{personalInfo.nid && (
-											<p>
-												<span className='font-medium w-28 inline-block'>NID:</span> {personalInfo.nid}
-											</p>
-										)}
-										{personalInfo.passportNo && (
-											<p>
-												<span className='font-medium w-28 inline-block'>Passport:</span>{' '}
-												{personalInfo.passportNo}
-											</p>
-										)}
-									</div>
-								</div>
+						<CardContent className='space-y-6 text-sm'>
+							<div className='grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4'>
+								<DetailItem label="Father's Name" value={personalInfo.fatherName} />
+								<DetailItem label="Mother's Name" value={personalInfo.motherName} />
+								{personalInfo.dateOfBirth && (
+									<DetailItem
+										label='Date of Birth'
+										value={format(parseISO(personalInfo.dateOfBirth), 'do MMM, yyyy')}
+									/>
+								)}
+								<DetailItem label='Gender' value={personalInfo.genderDTO?.label || personalInfo.gender} />
+								<DetailItem
+									label='Marital Status'
+									value={personalInfo.maritalStatusDTO?.label || personalInfo.maritalStatus}
+								/>
+								<DetailItem label='Nationality' value={personalInfo.nationality} />
+								<DetailItem label='Religion' value={personalInfo.religionDTO?.label || personalInfo.religion} />
+								<DetailItem label='NID' value={personalInfo.nid} />
+								<DetailItem label='Passport No.' value={personalInfo.passportNo} />
 							</div>
-							<div className='space-y-4'>
+							<Separator />
+							<div className='grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4'>
 								<div>
 									<h4 className='font-semibold text-muted-foreground mb-2 flex items-center gap-2'>
 										<MapPin className='h-4 w-4' /> Present Address
@@ -354,10 +328,7 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 							</CardHeader>
 							<CardContent className='flex flex-wrap gap-2'>
 								{skills.map((skill: ICommonMasterData, index) => (
-									<Badge
-										key={skill.id}
-										className={skillColors[index % skillColors.length]}
-									>
+									<Badge key={skill.id} className={skillColors[index % skillColors.length]}>
 										{skill.name}
 									</Badge>
 								))}
