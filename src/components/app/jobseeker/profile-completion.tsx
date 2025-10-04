@@ -74,7 +74,7 @@ function calculateProfileCompletion(jobseeker: Jobseeker): {
 
 export function ProfileCompletion({ jobseeker }: { jobseeker: Jobseeker }) {
 	const { percentage, nextStep, completionStatus } = calculateProfileCompletion(jobseeker);
-    const [isOpen, setIsOpen] = React.useState(false);
+    const [isOpen, setIsOpen] = React.useState(true);
 
 	return (
 		<Card className='glassmorphism w-full'>
