@@ -1,13 +1,17 @@
-
-
 'use client';
 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Jobseeker } from '@/interfaces/jobseeker.interface';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { makeDownloadURL, makePreviewURL } from '@/lib/utils';
+import { format, parseISO } from 'date-fns';
 import {
 	Award,
 	BookCopy,
 	BookOpen,
 	Briefcase,
-	Cake,
 	Download,
 	FileText,
 	GraduationCap,
@@ -19,19 +23,11 @@ import {
 	Phone,
 	Star,
 	User,
-	Users,
 	Video,
 } from 'lucide-react';
 import Link from 'next/link';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '../ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '../ui/separator';
-import { Jobseeker } from '@/interfaces/jobseeker.interface';
-import { format, parseISO } from 'date-fns';
-import { makeDownloadURL, makePreviewURL } from '@/lib/utils';
-import { ICommonMasterData } from '@/interfaces/master-data.interface';
 
 interface JobseekerProfileViewProps {
 	jobseeker: Jobseeker;
@@ -78,14 +74,14 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 					<h1 className='text-3xl font-bold font-headline'>{getFullName()}</h1>
 					<p className='text-lg text-muted-foreground'>{personalInfo.careerObjective}</p>
 					<div className='flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground mt-2'>
-						{personalInfo.user?.email && (
+						{personalInfo?.email && (
 							<span className='flex items-center gap-2'>
-								<Mail className='h-4 w-4' /> {personalInfo.user.email}
+								<Mail className='h-4 w-4' /> {personalInfo.email}
 							</span>
 						)}
-						{personalInfo.user?.phone && (
+						{personalInfo?.phone && (
 							<span className='flex items-center gap-2'>
-								<Phone className='h-4 w-4' /> {personalInfo.user.phone}
+								<Phone className='h-4 w-4' /> {personalInfo.phone}
 							</span>
 						)}
 					</div>
@@ -235,7 +231,7 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 						</Card>
 					)}
 
-					{(spouse || children?.length > 0) && (
+					{(spouse || (children && children?.length > 0)) && (
 						<Card className='border'>
 							<CardHeader>
 								<CardTitle className='flex items-center gap-2'>
@@ -263,7 +259,8 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 											{children.map((child, index) => (
 												<div key={index} className='text-sm'>
 													<p>
-														<span className='font-medium'>{child.name}</span> ({child.genderDTO?.label || child.gender})
+														<span className='font-medium'>{child.name}</span> (
+														{child.genderDTO?.label || child.gender})
 													</p>
 													<p className='text-xs text-muted-foreground'>
 														Born on {format(parseISO(child.dob), 'do MMM, yyyy')}
@@ -341,7 +338,8 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 									<div key={index}>
 										<p className='font-semibold text-sm'>{cert.certification?.name}</p>
 										<p className='text-xs text-muted-foreground'>
-											{cert.issuingAuthority} - {cert.issueDate && format(parseISO(cert.issueDate), 'MMM yyyy')}
+											{cert.issuingAuthority} -{' '}
+											{cert.issueDate && format(parseISO(cert.issueDate), 'MMM yyyy')}
 										</p>
 									</div>
 								))}
