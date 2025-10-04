@@ -132,11 +132,14 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 
 			<Card className='border'>
 				<CardHeader>
-					<CardTitle className='flex items-center gap-2'>
-						<User className='h-5 w-5' /> Personal Information
+					<CardTitle className='flex items-center gap-3'>
+						<div className='bg-primary/10 text-primary p-2 rounded-lg'>
+							<User className='h-5 w-5' />
+						</div>{' '}
+						Personal Information
 					</CardTitle>
 				</CardHeader>
-				<CardContent className='grid grid-cols-1 md:grid-cols-2 gap-6 text-sm'>
+				<CardContent className='grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8 text-sm'>
 					<div className='space-y-4'>
 						<div>
 							<h4 className='font-semibold text-muted-foreground mb-2'>Basic Details</h4>
@@ -228,25 +231,32 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 					{experiences?.length > 0 && (
 						<Card className='border'>
 							<CardHeader>
-								<CardTitle className='flex items-center gap-2'>
-									<Briefcase className='h-5 w-5' /> Professional Experience
+								<CardTitle className='flex items-center gap-3'>
+									<div className='bg-primary/10 text-primary p-2 rounded-lg'>
+										<Briefcase className='h-5 w-5' />
+									</div>
+									Professional Experience
 								</CardTitle>
 							</CardHeader>
 							<CardContent className='space-y-4'>
-								{experiences.map((exp, index) => (
-									<div key={index} className='border-l-2 border-primary pl-4'>
-										<h3 className='font-semibold'>{exp.positionTitle}</h3>
-										<p className='text-sm text-muted-foreground'>{exp.organization?.name}</p>
-										<p className='text-xs text-muted-foreground'>
-											{formatDateRange(exp.joinDate, exp.resignDate, exp.isCurrent)}
-										</p>
-										<ul className='list-disc list-inside mt-2 text-sm text-muted-foreground space-y-1'>
-											{exp.responsibilities.split('\n').map((resp, i) => (
-												<li key={i}>{resp}</li>
-											))}
-										</ul>
-									</div>
-								))}
+								<div className='relative pl-6'>
+									<div className='absolute left-0 top-0 h-full w-0.5 bg-border'></div>
+									{experiences.map((exp, index) => (
+										<div key={index} className='relative pl-6 pb-6'>
+											<div className='absolute -left-1.5 top-1 h-3 w-3 rounded-full bg-primary'></div>
+											<h3 className='font-semibold'>{exp.positionTitle}</h3>
+											<p className='text-sm text-muted-foreground'>{exp.organization?.name}</p>
+											<p className='text-xs text-muted-foreground'>
+												{formatDateRange(exp.joinDate, exp.resignDate, exp.isCurrent)}
+											</p>
+											<ul className='list-disc list-inside mt-2 text-sm text-muted-foreground space-y-1'>
+												{exp.responsibilities.split('\n').map((resp, i) => (
+													<li key={i}>{resp}</li>
+												))}
+											</ul>
+										</div>
+									))}
+								</div>
 							</CardContent>
 						</Card>
 					)}
@@ -254,8 +264,11 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 					{education?.length > 0 && (
 						<Card className='border'>
 							<CardHeader>
-								<CardTitle className='flex items-center gap-2'>
-									<GraduationCap className='h-5 w-5' /> Academic History
+								<CardTitle className='flex items-center gap-3'>
+									<div className='bg-primary/10 text-primary p-2 rounded-lg'>
+										<GraduationCap className='h-5 w-5' />
+									</div>
+									Academic History
 								</CardTitle>
 							</CardHeader>
 							<CardContent className='space-y-4'>
@@ -273,8 +286,11 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 					{(spouse || (children && children?.length > 0)) && (
 						<Card className='border'>
 							<CardHeader>
-								<CardTitle className='flex items-center gap-2'>
-									<Heart className='h-5 w-5' /> Family Information
+								<CardTitle className='flex items-center gap-3'>
+									<div className='bg-primary/10 text-primary p-2 rounded-lg'>
+										<Heart className='h-5 w-5' />
+									</div>
+									Family Information
 								</CardTitle>
 							</CardHeader>
 							<CardContent className='space-y-4'>
@@ -318,13 +334,16 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 					{skills?.length > 0 && (
 						<Card className='border'>
 							<CardHeader>
-								<CardTitle className='flex items-center gap-2'>
-									<Star className='h-5 w-5' /> Skills
+								<CardTitle className='flex items-center gap-3'>
+									<div className='bg-primary/10 text-primary p-2 rounded-lg'>
+										<Star className='h-5 w-5' />
+									</div>
+									Skills
 								</CardTitle>
 							</CardHeader>
 							<CardContent className='flex flex-wrap gap-2'>
 								{skills.map((skill: ICommonMasterData) => (
-									<Badge key={skill.id} variant='secondary'>
+									<Badge key={skill.id} variant='default'>
 										{skill.name}
 									</Badge>
 								))}
@@ -334,8 +353,11 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 					{trainings?.length > 0 && (
 						<Card className='border'>
 							<CardHeader>
-								<CardTitle className='flex items-center gap-2'>
-									<BookCopy className='h-5 w-5' /> Trainings
+								<CardTitle className='flex items-center gap-3'>
+									<div className='bg-primary/10 text-primary p-2 rounded-lg'>
+										<BookCopy className='h-5 w-5' />
+									</div>
+									Trainings
 								</CardTitle>
 							</CardHeader>
 							<CardContent className='space-y-3'>
@@ -351,8 +373,11 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 					{languages?.length > 0 && (
 						<Card className='border'>
 							<CardHeader>
-								<CardTitle className='flex items-center gap-2'>
-									<Languages className='h-5 w-5' /> Languages
+								<CardTitle className='flex items-center gap-3'>
+									<div className='bg-primary/10 text-primary p-2 rounded-lg'>
+										<Languages className='h-5 w-5' />
+									</div>
+									Languages
 								</CardTitle>
 							</CardHeader>
 							<CardContent className='space-y-2'>
@@ -368,8 +393,11 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 					{certifications?.length > 0 && (
 						<Card className='border'>
 							<CardHeader>
-								<CardTitle className='flex items-center gap-2'>
-									<FileText className='h-5 w-5' /> Certifications
+								<CardTitle className='flex items-center gap-3'>
+									<div className='bg-primary/10 text-primary p-2 rounded-lg'>
+										<FileText className='h-5 w-5' />
+									</div>
+									Certifications
 								</CardTitle>
 							</CardHeader>
 							<CardContent className='space-y-3'>
@@ -389,8 +417,11 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 					{publications?.length > 0 && (
 						<Card className='border'>
 							<CardHeader>
-								<CardTitle className='flex items-center gap-2'>
-									<BookOpen className='h-5 w-5' /> Publications
+								<CardTitle className='flex items-center gap-3'>
+									<div className='bg-primary/10 text-primary p-2 rounded-lg'>
+										<BookOpen className='h-5 w-5' />
+									</div>
+									Publications
 								</CardTitle>
 							</CardHeader>
 							<CardContent className='space-y-3'>
@@ -416,8 +447,11 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 					{awards?.length > 0 && (
 						<Card className='border'>
 							<CardHeader>
-								<CardTitle className='flex items-center gap-2'>
-									<Award className='h-5 w-5' /> Awards
+								<CardTitle className='flex items-center gap-3'>
+									<div className='bg-primary/10 text-primary p-2 rounded-lg'>
+										<Award className='h-5 w-5' />
+									</div>
+									Awards
 								</CardTitle>
 							</CardHeader>
 							<CardContent className='space-y-3'>
