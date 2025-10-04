@@ -130,88 +130,98 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 
 			<Separator />
 
-			<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-				<div className='space-y-2'>
-					<h4 className='font-semibold text-sm text-muted-foreground flex items-center gap-2'>
-						<User className='h-4 w-4' /> Personal Details
-					</h4>
-					<div className='text-sm space-y-1'>
-						<p>
-							<span className='font-medium'>Father's Name:</span> {personalInfo.fatherName}
-						</p>
-						<p>
-							<span className='font-medium'>Mother's Name:</span> {personalInfo.motherName}
-						</p>
-						{personalInfo.dateOfBirth && (
-							<p>
-								<span className='font-medium'>Date of Birth:</span>{' '}
-								{format(parseISO(personalInfo.dateOfBirth), 'do MMM, yyyy')}
-							</p>
-						)}
-						<p>
-							<span className='font-medium'>Gender:</span>{' '}
-							{personalInfo.genderDTO?.label || personalInfo.gender}
-						</p>
-						<p>
-							<span className='font-medium'>Marital Status:</span>{' '}
-							{personalInfo.maritalStatusDTO?.label || personalInfo.maritalStatus}
-						</p>
-						<p>
-							<span className='font-medium'>Nationality:</span> {personalInfo.nationality}
-						</p>
-						{personalInfo.religion && (
-							<p>
-								<span className='font-medium'>Religion:</span>{' '}
-								{personalInfo.religionDTO?.label || personalInfo.religion}
-							</p>
-						)}
-						{personalInfo.professionalStatus && (
-							<p>
-								<span className='font-medium'>Professional Status:</span>{' '}
-								{personalInfo.professionalStatusDTO?.label || personalInfo.professionalStatus}
-							</p>
-						)}
-						{personalInfo.nid && (
-							<p>
-								<span className='font-medium'>NID:</span> {personalInfo.nid}
-							</p>
-						)}
-						{personalInfo.passportNo && (
-							<p>
-								<span className='font-medium'>Passport:</span> {personalInfo.passportNo}
-							</p>
-						)}
+			<Card className='border'>
+				<CardHeader>
+					<CardTitle className='flex items-center gap-2'>
+						<User className='h-5 w-5' /> Personal Information
+					</CardTitle>
+				</CardHeader>
+				<CardContent className='grid grid-cols-1 md:grid-cols-2 gap-6 text-sm'>
+					<div className='space-y-4'>
+						<div>
+							<h4 className='font-semibold text-muted-foreground mb-2'>Basic Details</h4>
+							<div className='space-y-1'>
+								<p>
+									<span className='font-medium w-28 inline-block'>Father&apos;s Name:</span>{' '}
+									{personalInfo.fatherName}
+								</p>
+								<p>
+									<span className='font-medium w-28 inline-block'>Mother&apos;s Name:</span>{' '}
+									{personalInfo.motherName}
+								</p>
+								{personalInfo.dateOfBirth && (
+									<p>
+										<span className='font-medium w-28 inline-block'>Date of Birth:</span>{' '}
+										{format(parseISO(personalInfo.dateOfBirth), 'do MMM, yyyy')}
+									</p>
+								)}
+								<p>
+									<span className='font-medium w-28 inline-block'>Gender:</span>{' '}
+									{personalInfo.genderDTO?.label || personalInfo.gender}
+								</p>
+								<p>
+									<span className='font-medium w-28 inline-block'>Marital Status:</span>{' '}
+									{personalInfo.maritalStatusDTO?.label || personalInfo.maritalStatus}
+								</p>
+								<p>
+									<span className='font-medium w-28 inline-block'>Nationality:</span> {personalInfo.nationality}
+								</p>
+								{personalInfo.religion && (
+									<p>
+										<span className='font-medium w-28 inline-block'>Religion:</span>{' '}
+										{personalInfo.religionDTO?.label || personalInfo.religion}
+									</p>
+								)}
+							</div>
+						</div>
+						<div>
+							<h4 className='font-semibold text-muted-foreground mb-2'>Identity</h4>
+							<div className='space-y-1'>
+								{personalInfo.nid && (
+									<p>
+										<span className='font-medium w-28 inline-block'>NID:</span> {personalInfo.nid}
+									</p>
+								)}
+								{personalInfo.passportNo && (
+									<p>
+										<span className='font-medium w-28 inline-block'>Passport:</span> {personalInfo.passportNo}
+									</p>
+								)}
+							</div>
+						</div>
 					</div>
-				</div>
-				<div className='space-y-2'>
-					<h4 className='font-semibold text-sm text-muted-foreground flex items-center gap-2'>
-						<MapPin className='h-4 w-4' /> Present Address
-					</h4>
-					<address className='text-sm not-italic'>
-						{formatAddress(
-							personalInfo.presentAddress,
-							personalInfo.presentUpazila,
-							personalInfo.presentDistrict,
-							personalInfo.presentDivision,
-							personalInfo.presentPostCode
-						)}
-					</address>
-				</div>
-				<div className='space-y-2'>
-					<h4 className='font-semibold text-sm text-muted-foreground flex items-center gap-2'>
-						<MapPin className='h-4 w-4' /> Permanent Address
-					</h4>
-					<address className='text-sm not-italic'>
-						{formatAddress(
-							personalInfo.permanentAddress,
-							personalInfo.permanentUpazila,
-							personalInfo.permanentDistrict,
-							personalInfo.permanentDivision,
-							personalInfo.permanentPostCode
-						)}
-					</address>
-				</div>
-			</div>
+					<div className='space-y-4'>
+						<div>
+							<h4 className='font-semibold text-muted-foreground mb-2 flex items-center gap-2'>
+								<MapPin className='h-4 w-4' /> Present Address
+							</h4>
+							<address className='not-italic'>
+								{formatAddress(
+									personalInfo.presentAddress,
+									personalInfo.presentUpazila,
+									personalInfo.presentDistrict,
+									personalInfo.presentDivision,
+									personalInfo.presentPostCode
+								)}
+							</address>
+						</div>
+						<div>
+							<h4 className='font-semibold text-muted-foreground mb-2 flex items-center gap-2'>
+								<MapPin className='h-4 w-4' /> Permanent Address
+							</h4>
+							<address className='not-italic'>
+								{formatAddress(
+									personalInfo.permanentAddress,
+									personalInfo.permanentUpazila,
+									personalInfo.permanentDistrict,
+									personalInfo.permanentDivision,
+									personalInfo.permanentPostCode
+								)}
+							</address>
+						</div>
+					</div>
+				</CardContent>
+			</Card>
 
 			<div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
 				<div className='lg:col-span-2 space-y-6'>
