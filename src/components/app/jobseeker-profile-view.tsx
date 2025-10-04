@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -57,6 +58,18 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 
 	const getFullName = () => {
 		return [personalInfo.firstName, personalInfo.middleName, personalInfo.lastName].filter(Boolean).join(' ');
+	};
+
+	const formatAddress = (
+		addressLine?: string,
+		upazila?: ICommonMasterData,
+		district?: ICommonMasterData,
+		division?: ICommonMasterData,
+		postCode?: number
+	) => {
+		return [addressLine, upazila?.name, district?.name, division?.name, postCode]
+			.filter(Boolean)
+			.join(', ');
 	};
 
 	return (
@@ -174,13 +187,29 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 					<h4 className='font-semibold text-sm text-muted-foreground flex items-center gap-2'>
 						<MapPin className='h-4 w-4' /> Present Address
 					</h4>
-					<address className='text-sm not-italic'>{personalInfo.presentAddress}</address>
+					<address className='text-sm not-italic'>
+						{formatAddress(
+							personalInfo.presentAddress,
+							personalInfo.presentUpazila,
+							personalInfo.presentDistrict,
+							personalInfo.presentDivision,
+							personalInfo.presentPostCode
+						)}
+					</address>
 				</div>
 				<div className='space-y-2'>
 					<h4 className='font-semibold text-sm text-muted-foreground flex items-center gap-2'>
 						<MapPin className='h-4 w-4' /> Permanent Address
 					</h4>
-					<address className='text-sm not-italic'>{personalInfo.permanentAddress}</address>
+					<address className='text-sm not-italic'>
+						{formatAddress(
+							personalInfo.permanentAddress,
+							personalInfo.permanentUpazila,
+							personalInfo.permanentDistrict,
+							personalInfo.permanentDivision,
+							personalInfo.permanentPostCode
+						)}
+					</address>
 				</div>
 			</div>
 

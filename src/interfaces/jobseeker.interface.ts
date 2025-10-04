@@ -1,3 +1,4 @@
+
 import { IFile, ResultSystem } from './common.interface';
 import { ICommonMasterData, IEducationInstitution, IOrganization } from './master-data.interface';
 
@@ -149,6 +150,13 @@ export type PersonalInfo = {
 	permanentUpazilaId?: number;
 	permanentAddress?: string;
 	permanentPostCode?: number;
+
+    presentDivision?: ICommonMasterData;
+    presentDistrict?: ICommonMasterData;
+    presentUpazila?: ICommonMasterData;
+    permanentDivision?: ICommonMasterData;
+    permanentDistrict?: ICommonMasterData;
+    permanentUpazila?: ICommonMasterData;
 
 	// Socials
 	linkedInProfile?: string;
