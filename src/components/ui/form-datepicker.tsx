@@ -25,6 +25,9 @@ export function FormDatePicker<TFieldValues extends FieldValues>({
 	label,
 	required = false,
     placeholder,
+	captionLayout = 'dropdown-buttons',
+	fromYear = 1960,
+	toYear = new Date().getFullYear(),
     ...props
 }: FormDatePickerProps<TFieldValues>) {
 	return (
@@ -56,6 +59,9 @@ export function FormDatePicker<TFieldValues extends FieldValues>({
 									selected={field.value ? new Date(field.value) : undefined}
 									onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
 	                                initialFocus
+									captionLayout={captionLayout}
+									fromYear={fromYear}
+									toYear={toYear}
 									{...props}
 								/>
 							</PopoverContent>
