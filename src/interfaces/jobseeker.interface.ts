@@ -125,12 +125,9 @@ export type PersonalInfo = {
 	nationality: string;
 	careerObjective?: string;
 
-	user?: {
-		email: string;
-		phone: string;
-	};
+	email: string;
+	phone: string;
 
-	// Identity
 	nid?: string;
 	passportNo?: string;
 	birthCertificate?: string;

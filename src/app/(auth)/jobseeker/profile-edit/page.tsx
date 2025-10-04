@@ -13,7 +13,6 @@ export type EnumOption = {
 export type PersonalInfoMasterData = {
 	genders: EnumOption[];
 	maritalStatuses: EnumOption[];
-	// professionalStatuses: EnumOption[];
 	religions: EnumOption[];
 	divisions: ICommonMasterData[];
 };
@@ -22,7 +21,6 @@ async function getMasterData(): Promise<PersonalInfoMasterData> {
 	const [gendersRes, maritalRes, religionRes, divisionsRes] = await Promise.allSettled([
 		MasterDataService.getEnum('gender'),
 		MasterDataService.getEnum('marital-status'),
-		// MasterDataService.getEnum('professional-status'),
 		MasterDataService.getEnum('religion'),
 		MasterDataService.country.getDivisions(),
 	]);
@@ -42,7 +40,6 @@ async function getMasterData(): Promise<PersonalInfoMasterData> {
 	return {
 		genders: getFulfilledValue(gendersRes as PromiseSettledResult<IApiResponse<EnumOption[]>>),
 		maritalStatuses: getFulfilledValue(maritalRes as PromiseSettledResult<IApiResponse<EnumOption[]>>),
-		// professionalStatuses: getFulfilledValue(professionalRes as PromiseSettledResult<IApiResponse<EnumOption[]>>),
 		religions: getFulfilledValue(religionRes as PromiseSettledResult<IApiResponse<EnumOption[]>>),
 		divisions: getFulfilledValue(divisionsRes as PromiseSettledResult<IApiResponse<ICommonMasterData[]>>),
 	};
@@ -58,15 +55,14 @@ const emptyPersonalInfo: PersonalInfo = {
 	email: '',
 	phone: '',
 	dateOfBirth: '',
-	gender: 'Male',
-	maritalStatus: 'Single',
+	gender: 'MALE',
+	maritalStatus: 'SINGLE',
 	nationality: 'Bangladeshi',
 	careerObjective: '',
 	nid: '',
 	passportNo: '',
 	birthCertificate: '',
 	religion: '',
-	// professionalStatus: '',
 	presentAddress: '',
 	permanentAddress: '',
 	linkedInProfile: '',

@@ -3,10 +3,10 @@ import { IApiResponse } from '@/interfaces/common.interface';
 import {
 	AcademicInfo,
 	Award,
-	Candidate,
 	Certification,
 	ChildInfo,
 	FamilyInfo,
+	Jobseeker,
 	Language,
 	PersonalInfo,
 	ProfessionalInfo,
@@ -30,7 +30,7 @@ const createProfileCrud = <T extends { id?: number | string }>(entity: string) =
 });
 
 const createProfileCrudWithFormData = <T extends { id?: number | string }>(entity: string) => ({
-	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/jobseeker/${entity}/get-by-user`),
+	get: async (): Promise<IApiResponse<T[] | T>> => await axiosIns.get(`/jobseeker/${entity}/get-by-user`),
 
 	save: async (formData: FormData | T): Promise<IApiResponse<T>> =>
 		await axiosIns.post(`/jobseeker/${entity}/save`, formData),
@@ -40,7 +40,7 @@ const createProfileCrudWithFormData = <T extends { id?: number | string }>(entit
 });
 
 export const JobseekerProfileService = {
-	getProfile: async (): Promise<IApiResponse<Candidate>> =>
+	getProfile: async (): Promise<IApiResponse<Jobseeker>> =>
 		await axiosIns.get('/jobseeker/profile/get-by-user'),
 
 	personalInfo: {
