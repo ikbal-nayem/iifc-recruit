@@ -153,22 +153,26 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 							</p>
 						)}
 						<p>
-							<span className='font-medium'>Gender:</span> {personalInfo.gender}
+							<span className='font-medium'>Gender:</span>{' '}
+							{personalInfo.genderDTO?.label || personalInfo.gender}
 						</p>
 						<p>
-							<span className='font-medium'>Marital Status:</span> {personalInfo.maritalStatus}
+							<span className='font-medium'>Marital Status:</span>{' '}
+							{personalInfo.maritalStatusDTO?.label || personalInfo.maritalStatus}
 						</p>
 						<p>
 							<span className='font-medium'>Nationality:</span> {personalInfo.nationality}
 						</p>
 						{personalInfo.religion && (
 							<p>
-								<span className='font-medium'>Religion:</span> {personalInfo.religion}
+								<span className='font-medium'>Religion:</span>{' '}
+								{personalInfo.religionDTO?.label || personalInfo.religion}
 							</p>
 						)}
 						{personalInfo.professionalStatus && (
 							<p>
-								<span className='font-medium'>Professional Status:</span> {personalInfo.professionalStatus}
+								<span className='font-medium'>Professional Status:</span>{' '}
+								{personalInfo.professionalStatusDTO?.label || personalInfo.professionalStatus}
 							</p>
 						)}
 						{personalInfo.nid && (

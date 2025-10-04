@@ -113,6 +113,11 @@ export type FamilyInfo = {
 	children: ChildInfo[];
 };
 
+export type EnumDTO = {
+	label: string;
+	value: string;
+};
+
 export type PersonalInfo = {
 	id?: number;
 	// Basic Info
@@ -123,6 +128,7 @@ export type PersonalInfo = {
 	motherName: string;
 	dateOfBirth: string;
 	gender: string;
+	genderDTO?: EnumDTO;
 	nationality: string;
 	careerObjective?: string;
 
@@ -135,8 +141,11 @@ export type PersonalInfo = {
 
 	// Status
 	maritalStatus: string;
+	maritalStatusDTO?: EnumDTO;
 	religion?: string;
+	religionDTO?: EnumDTO;
 	professionalStatus?: string;
+	professionalStatusDTO?: EnumDTO;
 
 	// Address
 	presentDivisionId?: number;
@@ -151,12 +160,12 @@ export type PersonalInfo = {
 	permanentAddress?: string;
 	permanentPostCode?: number;
 
-    presentDivision?: ICommonMasterData;
-    presentDistrict?: ICommonMasterData;
-    presentUpazila?: ICommonMasterData;
-    permanentDivision?: ICommonMasterData;
-    permanentDistrict?: ICommonMasterData;
-    permanentUpazila?: ICommonMasterData;
+	presentDivision?: ICommonMasterData;
+	presentDistrict?: ICommonMasterData;
+	presentUpazila?: ICommonMasterData;
+	permanentDivision?: ICommonMasterData;
+	permanentDistrict?: ICommonMasterData;
+	permanentUpazila?: ICommonMasterData;
 
 	// Socials
 	linkedInProfile?: string;
