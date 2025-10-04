@@ -2,6 +2,11 @@
 import { STATUS_TYPE } from "@/constants/common.constant";
 import { IObject } from "./common.interface";
 
+export type EnumDTO = {
+	label: string;
+	value: string;
+};
+
 export interface ICommonMasterData {
 	id?: number;
 	name: string;

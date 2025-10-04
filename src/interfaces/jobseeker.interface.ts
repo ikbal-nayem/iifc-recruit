@@ -1,6 +1,6 @@
 
 import { IFile, ResultSystem } from './common.interface';
-import { ICommonMasterData, IEducationInstitution, IOrganization } from './master-data.interface';
+import { EnumDTO, ICommonMasterData, IEducationInstitution, IOrganization } from './master-data.interface';
 
 export type Language = {
 	id?: number;
@@ -113,14 +113,10 @@ export type FamilyInfo = {
 	children: ChildInfo[];
 };
 
-export type EnumDTO = {
-	label: string;
-	value: string;
-};
-
 export type PersonalInfo = {
 	id?: number;
 	// Basic Info
+	fullName?: string;
 	firstName: string;
 	middleName?: string;
 	lastName: string;

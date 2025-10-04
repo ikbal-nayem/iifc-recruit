@@ -1,7 +1,7 @@
-
 import { axiosIns } from '@/config/api.config';
 import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
 import {
+	EnumDTO,
 	ICommonMasterData,
 	IEducationInstitution,
 	IOrganization,
@@ -21,8 +21,9 @@ const createMasterDataCrud = <T extends ICommonMasterData>(entity: string) => ({
 });
 
 export const MasterDataService = {
-	getEnum: async (enumType: 'gender' | 'marital-status' | 'professional-status' | 'religion' | 'proficiency-level'): Promise<IApiResponse<{label: string; value: string}[]>> =>
-		await axiosIns.get(`/master-data/enum/${enumType}`),
+	getEnum: async (
+		enumType: 'gender' | 'marital-status' | 'professional-status' | 'religion' | 'proficiency-level'
+	): Promise<IApiResponse<EnumDTO[]>> => await axiosIns.get(`/master-data/enum/${enumType}`),
 
 	skill: createMasterDataCrud('skill'),
 	department: createMasterDataCrud('department'),
@@ -40,7 +41,9 @@ export const MasterDataService = {
 		getDivisions: async (): Promise<IApiResponse<ICommonMasterData[]>> =>
 			await axiosIns.get('/master-data/country/divisions'),
 		getDistricts: async (divisionId?: string): Promise<IApiResponse<ICommonMasterData[]>> => {
-			const url = divisionId ? `/master-data/country/districts?divisionId=${divisionId}` : '/master-data/country/districts';
+			const url = divisionId
+				? `/master-data/country/districts?divisionId=${divisionId}`
+				: '/master-data/country/districts';
 			return await axiosIns.get(url);
 		},
 		getUpazilas: async (districtId: string): Promise<IApiResponse<ICommonMasterData[]>> =>

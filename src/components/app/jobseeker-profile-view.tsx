@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -56,10 +55,6 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 		resume,
 	} = jobseeker;
 
-	const getFullName = () => {
-		return [personalInfo.firstName, personalInfo.middleName, personalInfo.lastName].filter(Boolean).join(' ');
-	};
-
 	const formatAddress = (
 		addressLine?: string,
 		upazila?: ICommonMasterData,
@@ -67,9 +62,7 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 		division?: ICommonMasterData,
 		postCode?: number
 	) => {
-		return [addressLine, upazila?.name, district?.name, division?.name, postCode]
-			.filter(Boolean)
-			.join(', ');
+		return [addressLine, upazila?.name, district?.name, division?.name, postCode].filter(Boolean).join(', ');
 	};
 
 	return (
@@ -77,14 +70,17 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 			{/* Header */}
 			<div className='flex flex-col sm:flex-row items-start gap-6'>
 				<Avatar className='h-28 w-28 border-4 border-background shadow-md'>
-					<AvatarImage src={makePreviewURL(personalInfo.profileImage?.filePath)} alt={getFullName()} />
+					<AvatarImage
+						src={makePreviewURL(personalInfo.profileImage?.filePath)}
+						alt={personalInfo.fullName}
+					/>
 					<AvatarFallback>
 						{personalInfo.firstName?.[0]}
 						{personalInfo.lastName?.[0]}
 					</AvatarFallback>
 				</Avatar>
 				<div className='flex-1'>
-					<h1 className='text-3xl font-bold font-headline'>{getFullName()}</h1>
+					<h1 className='text-3xl font-bold font-headline'>{personalInfo.fullName}</h1>
 					<p className='text-lg text-muted-foreground'>{personalInfo.careerObjective}</p>
 					<div className='flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground mt-2'>
 						{personalInfo?.email && (
