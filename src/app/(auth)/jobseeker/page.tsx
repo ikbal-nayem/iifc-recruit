@@ -3,31 +3,75 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { applications, jobseekers, jobs } from '@/lib/data';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Briefcase, FileText, Star } from 'lucide-react';
 import Link from 'next/link';
 
 export default function JobseekerDashboardPage() {
 	const jobseeker = jobseekers[0];
-	const jobseekerApplications = applications.filter((app) => app.jobseekerId === jobseeker.id).slice(0, 3);
+	const jobseekerApplications = applications.filter((app) => app.jobseekerId === jobseeker.id);
+    const recentApplications = jobseekerApplications.slice(0, 3);
+
+    const stats = {
+        totalApplications: jobseekerApplications.length,
+        interviews: jobseekerApplications.filter(app => app.status === 'Interview').length,
+        activeApplications: jobseekerApplications.filter(app => !['Hired', 'Rejected', 'Closed'].includes(app.status)).length
+    }
 
 	return (
 		<div className='space-y-8'>
 			<div>
 				<h1 className='text-3xl font-headline font-bold'>Welcome, {jobseeker.personalInfo.firstName}!</h1>
-				<p className='text-muted-foreground'>Here's an overview of your profile and applications.</p>
+				<p className='text-muted-foreground'>Here's an overview of your job search journey.</p>
 			</div>
 
-			<div className='grid grid-cols-1 gap-8'>
-				<div className='space-y-8'>
-					<ProfileCompletion jobseeker={jobseeker} />
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <Card className="glassmorphism card-hover">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
+                        <FileText className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{stats.totalApplications}</div>
+                        <p className="text-xs text-muted-foreground">
+                        Across all jobs
+                        </p>
+                    </CardContent>
+                </Card>
+                 <Card className="glassmorphism card-hover">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Active Applications</CardTitle>
+                        <Briefcase className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{stats.activeApplications}</div>
+                        <p className="text-xs text-muted-foreground">
+                        Currently in consideration
+                        </p>
+                    </CardContent>
+                </Card>
+                 <Card className="glassmorphism card-hover">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Interviews</CardTitle>
+                        <Star className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{stats.interviews}</div>
+                        <p className="text-xs text-muted-foreground">
+                        Scheduled or completed
+                        </p>
+                    </CardContent>
+                </Card>
+            </div>
 
+			<div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
+				<div className='lg:col-span-2 space-y-8'>
 					<Card className='glassmorphism'>
 						<CardHeader>
 							<CardTitle>Recent Applications</CardTitle>
 							<CardDescription>Track the status of your latest job applications.</CardDescription>
 						</CardHeader>
 						<CardContent className='space-y-4'>
-							{jobseekerApplications.map((app) => {
+							{recentApplications.map((app) => {
 								const job = jobs.find((j) => j.id === app.jobId);
 								if (!job) return null;
 								return (
@@ -36,7 +80,7 @@ export default function JobseekerDashboardPage() {
 										className='flex items-center justify-between p-3 rounded-lg border bg-background/50'
 									>
 										<div>
-											<Link href={`/jobs/${job.id}`} className='font-semibold hover:underline'>
+											<Link href={`/jobseeker/jobs/${job.id}`} className='font-semibold hover:underline'>
 												{job.title}
 											</Link>
 											<p className='text-sm text-muted-foreground'>{job.department}</p>
@@ -56,6 +100,9 @@ export default function JobseekerDashboardPage() {
 						</CardFooter>
 					</Card>
 				</div>
+                <div className="lg:col-span-1">
+                    <ProfileCompletion jobseeker={jobseeker} />
+                </div>
 			</div>
 		</div>
 	);
