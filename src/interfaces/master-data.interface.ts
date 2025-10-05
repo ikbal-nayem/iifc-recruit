@@ -20,6 +20,14 @@ export interface IOutsourcingCategory {
 	isActive: boolean;
 }
 
+export interface IOutsourcingZone {
+	id?: number;
+	nameEn: string;
+	nameBn: string;
+	isActive: boolean;
+}
+
+
 export interface IEducationInstitution extends ICommonMasterData {
 	countryId: string;
 	country?: IObject;

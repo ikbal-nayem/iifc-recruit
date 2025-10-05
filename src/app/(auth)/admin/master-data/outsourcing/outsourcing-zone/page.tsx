@@ -1,19 +1,18 @@
-
 'use client';
 
-import { MasterDataCrud } from '@/components/app/admin/master-data-crud';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
-import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { useCallback, useEffect, useState } from 'react';
+import { IOutsourcingZone } from '@/interfaces/master-data.interface';
+import { OutsourcingZoneCrud } from '@/components/app/admin/outsourcing-zone-crud';
 
 const initMeta: IMeta = { page: 0, limit: 20 };
 
 export default function MasterOutsourcingZonePage() {
 	const { toast } = useToast();
-	const [items, setItems] = useState<ICommonMasterData[]>([]);
+	const [items, setItems] = useState<IOutsourcingZone[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState('');
@@ -24,7 +23,7 @@ export default function MasterOutsourcingZonePage() {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { name: search },
+					body: { nameEn: search },
 					meta: { page: page, limit: meta.limit },
 				};
 				const response = await MasterDataService.outsourcingZone.getList(payload);
@@ -52,9 +51,9 @@ export default function MasterOutsourcingZonePage() {
 		loadItems(newPage, debouncedSearch);
 	};
 
-	const handleAdd = async (name: string): Promise<boolean | null> => {
+	const handleAdd = async (data: { nameEn: string; nameBn: string }): Promise<boolean | null> => {
 		try {
-			const resp = await MasterDataService.outsourcingZone.add({ name, isActive: true });
+			const resp = await MasterDataService.outsourcingZone.add({ ...data, isActive: true });
 			toast({ description: resp.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch);
 			return true;
@@ -65,7 +64,7 @@ export default function MasterOutsourcingZonePage() {
 		}
 	};
 
-	const handleUpdate = async (item: ICommonMasterData): Promise<boolean | null> => {
+	const handleUpdate = async (item: IOutsourcingZone): Promise<boolean | null> => {
 		try {
 			const updatedItem = await MasterDataService.outsourcingZone.update(item);
 			setItems(items.map((i) => (i?.id === item?.id ? updatedItem?.body : i)));
@@ -92,7 +91,7 @@ export default function MasterOutsourcingZonePage() {
 	};
 
 	return (
-		<MasterDataCrud<ICommonMasterData>
+		<OutsourcingZoneCrud
 			title='Outsourcing Zones'
 			description='Manage outsourcing zones.'
 			noun='Outsourcing Zone'

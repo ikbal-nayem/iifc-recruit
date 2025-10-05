@@ -6,6 +6,7 @@ import {
 	IEducationInstitution,
 	IOrganization,
 	IOutsourcingCategory,
+	IOutsourcingZone,
 } from '@/interfaces/master-data.interface';
 
 const createMasterDataCrud = <T extends ICommonMasterData>(entity: string) => ({
@@ -20,7 +21,9 @@ const createMasterDataCrud = <T extends ICommonMasterData>(entity: string) => ({
 	delete: async (id: string): Promise<void> => await axiosIns.delete(`/master-data/${entity}/delete/${id}`),
 });
 
-const createOutsourcingCategoryCrud = <T extends IOutsourcingCategory>(entity: string) => ({
+const createBilingualMasterDataCrud = <T extends { id?: number; nameEn: string; nameBn: string }>(
+	entity: string
+) => ({
 	get: async (): Promise<IApiResponse<T[]>> =>
 		await axiosIns.get(`/master-data/${entity}/get?isDeleted=false`),
 	getList: async (payload: IApiRequest): Promise<IApiResponse<T[]>> =>
@@ -69,8 +72,8 @@ export const MasterDataService = {
 		delete: async (organizationId: string): Promise<void> =>
 			await axiosIns.delete(`/client/delete/${organizationId}`),
 	},
-	outsourcingCategory: createOutsourcingCategoryCrud('outsourcing-category'),
-	outsourcingZone: createMasterDataCrud('outsourcing-zone'),
+	outsourcingCategory: createBilingualMasterDataCrud<IOutsourcingCategory>('outsourcing-category'),
+	outsourcingZone: createBilingualMasterDataCrud<IOutsourcingZone>('outsourcing-zone'),
 	outsourcingService: createMasterDataCrud('outsourcing-service'),
 	outsourcingCharge: createMasterDataCrud('outsourcing-charge'),
 };
