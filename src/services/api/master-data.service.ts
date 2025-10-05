@@ -5,10 +5,23 @@ import {
 	ICommonMasterData,
 	IEducationInstitution,
 	IOrganization,
+	IOutsourcingCategory,
 	IStatus,
 } from '@/interfaces/master-data.interface';
 
 const createMasterDataCrud = <T extends ICommonMasterData>(entity: string) => ({
+	get: async (): Promise<IApiResponse<T[]>> =>
+		await axiosIns.get(`/master-data/${entity}/get?isDeleted=false`),
+	getList: async (payload: IApiRequest): Promise<IApiResponse<T[]>> =>
+		await axiosIns.post(`/master-data/${entity}/get-list`, payload),
+	add: async (payload: Omit<T, 'id'>): Promise<IApiResponse<T>> =>
+		await axiosIns.post(`/master-data/${entity}/create`, payload),
+	update: async (payload: T): Promise<IApiResponse<T>> =>
+		await axiosIns.put(`/master-data/${entity}/update`, payload),
+	delete: async (id: string): Promise<void> => await axiosIns.delete(`/master-data/${entity}/delete/${id}`),
+});
+
+const createOutsourcingCategoryCrud = <T extends IOutsourcingCategory>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[]>> =>
 		await axiosIns.get(`/master-data/${entity}/get?isDeleted=false`),
 	getList: async (payload: IApiRequest): Promise<IApiResponse<T[]>> =>
@@ -57,7 +70,7 @@ export const MasterDataService = {
 		delete: async (organizationId: string): Promise<void> =>
 			await axiosIns.delete(`/client/delete/${organizationId}`),
 	},
-	outsourcingCategory: createMasterDataCrud('outsourcing-category'),
+	outsourcingCategory: createOutsourcingCategoryCrud('outsourcing-category'),
 	outsourcingZone: createMasterDataCrud('outsourcing-zone'),
 	outsourcingService: createMasterDataCrud('outsourcing-service'),
 	outsourcingCharge: createMasterDataCrud('outsourcing-charge'),

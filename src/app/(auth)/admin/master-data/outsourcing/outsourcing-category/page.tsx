@@ -1,19 +1,18 @@
-
 'use client';
 
-import { MasterDataCrud } from '@/components/app/admin/master-data-crud';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
-import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { useCallback, useEffect, useState } from 'react';
+import { IOutsourcingCategory } from '@/interfaces/master-data.interface';
+import { OutsourcingCategoryCrud } from '@/components/app/admin/outsourcing-category-crud';
 
 const initMeta: IMeta = { page: 0, limit: 20 };
 
 export default function MasterOutsourcingCategoryPage() {
 	const { toast } = useToast();
-	const [items, setItems] = useState<ICommonMasterData[]>([]);
+	const [items, setItems] = useState<IOutsourcingCategory[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState('');
@@ -52,9 +51,9 @@ export default function MasterOutsourcingCategoryPage() {
 		loadItems(newPage, debouncedSearch);
 	};
 
-	const handleAdd = async (name: string): Promise<boolean | null> => {
+	const handleAdd = async (data: { nameEn: string; nameBn: string }): Promise<boolean | null> => {
 		try {
-			const resp = await MasterDataService.outsourcingCategory.add({ name, isActive: true });
+			const resp = await MasterDataService.outsourcingCategory.add({ ...data, isActive: true });
 			toast({ description: resp.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch);
 			return true;
@@ -65,7 +64,7 @@ export default function MasterOutsourcingCategoryPage() {
 		}
 	};
 
-	const handleUpdate = async (item: ICommonMasterData): Promise<boolean | null> => {
+	const handleUpdate = async (item: IOutsourcingCategory): Promise<boolean | null> => {
 		try {
 			const updatedItem = await MasterDataService.outsourcingCategory.update(item);
 			setItems(items.map((i) => (i?.id === item?.id ? updatedItem?.body : i)));
@@ -92,7 +91,7 @@ export default function MasterOutsourcingCategoryPage() {
 	};
 
 	return (
-		<MasterDataCrud<ICommonMasterData>
+		<OutsourcingCategoryCrud
 			title='Outsourcing Categories'
 			description='Manage outsourcing categories.'
 			noun='Outsourcing Category'
