@@ -114,6 +114,18 @@ export const adminNavLinks: NavLink[] = [
 					{ href: '/admin/master-data/training/certifications', label: 'Certifications' },
 				],
 			},
+			{
+				href: '/admin/master-data/outsourcing/outsourcing-category',
+				label: 'Outsourcing',
+				icon: ListChecks,
+				isActive: (pathname) => pathname.startsWith('/admin/master-data/outsourcing'),
+				submenu: [
+					{ href: '/admin/master-data/outsourcing/outsourcing-category', label: 'OutsourcingCategory' },
+					{ href: '/admin/master-data/outsourcing/outsourcing-zone', label: 'OutsourcingZone' },
+					{ href: '/admin/master-data/outsourcing/outsourcing-service', label: 'OutsourcingService' },
+					{ href: '/admin/master-data/outsourcing/outsourcing-charge', label: 'OutsourcingCharge' },
+				],
+			},
 		],
 	},
 ];

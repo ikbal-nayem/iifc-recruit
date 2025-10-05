@@ -22,13 +22,12 @@ const createMasterDataCrud = <T extends ICommonMasterData>(entity: string) => ({
 
 export const MasterDataService = {
 	getEnum: async (
-		enumType: 'gender' | 'marital-status' | 'professional-status' | 'religion' | 'proficiency-level'
+		enumType: 'gender' | 'marital-status' | 'professional-status' | 'religion' | 'proficiency-level' | 'spouse-status'
 	): Promise<IApiResponse<EnumDTO[]>> => await axiosIns.get(`/master-data/enum/${enumType}`),
 
 	skill: createMasterDataCrud('skill'),
 	department: createMasterDataCrud('department'),
 	language: createMasterDataCrud('language'),
-	status: createMasterDataCrud<IStatus>('status'),
 	degreeLevel: createMasterDataCrud('education-degree-level'),
 	educationDomain: createMasterDataCrud('education-domain'),
 	industryType: createMasterDataCrud('industry-type'),
@@ -58,4 +57,8 @@ export const MasterDataService = {
 		delete: async (organizationId: string): Promise<void> =>
 			await axiosIns.delete(`/client/delete/${organizationId}`),
 	},
+	outsourcingCategory: createMasterDataCrud('outsourcing-category'),
+	outsourcingZone: createMasterDataCrud('outsourcing-zone'),
+	outsourcingService: createMasterDataCrud('outsourcing-service'),
+	outsourcingCharge: createMasterDataCrud('outsourcing-charge'),
 };
