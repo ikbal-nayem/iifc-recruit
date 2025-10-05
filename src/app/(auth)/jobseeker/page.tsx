@@ -2,7 +2,7 @@ import { ProfileCompletion } from '@/components/app/jobseeker/profile-completion
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { applications, jobseekers, jobs } from '@/lib/data';
+import { applications, jobs, jobseekers } from '@/lib/data';
 import { ArrowRight, Briefcase, FileText, Star } from 'lucide-react';
 import Link from 'next/link';
 
@@ -14,8 +14,9 @@ export default function JobseekerDashboardPage() {
 	const stats = {
 		totalApplications: jobseekerApplications.length,
 		interviews: jobseekerApplications.filter((app) => app.status === 'Interview').length,
-		activeApplications: jobseekerApplications.filter((app) => !['Hired', 'Rejected', 'Closed'].includes(app.status))
-			.length,
+		activeApplications: jobseekerApplications.filter(
+			(app) => !['Hired', 'Rejected', 'Closed'].includes(app.status)
+		).length,
 	};
 
 	return (

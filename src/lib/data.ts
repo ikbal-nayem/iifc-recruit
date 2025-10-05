@@ -1,8 +1,5 @@
-
-import { ProficiancyLevel } from '@/interfaces/common.interface';
 import { addDays, format, subDays, subMonths, subYears } from 'date-fns';
-import type { Activity, Application, Jobseeker, Job } from './types';
-
+import type { Activity, Application, Job, Jobseeker } from './types';
 
 export const jobseekers: Jobseeker[] = [
 	{
@@ -12,16 +9,14 @@ export const jobseekers: Jobseeker[] = [
 			lastName: 'Johnson',
 			fatherName: 'George Johnson',
 			motherName: 'Mary Johnson',
-            user: {
-			    email: 'alice.j@example.com',
-			    phone: '123-456-7890',
-            },
+			email: 'alice.j@example.com',
+			phone: '123-456-7890',
 			dateOfBirth: format(subYears(new Date(), 30), 'yyyy-MM-dd'),
 			gender: 'Female',
 			maritalStatus: 'Married',
 			nationality: 'Bangladeshi',
-            religion: 'Islam',
-            professionalStatus: 'Experienced',
+			religion: 'Islam',
+			professionalStatus: 'Experienced',
 			nid: '1234567890123',
 			presentAddress: '123 Tech Avenue, Gulshan, Dhaka, 1212',
 			permanentAddress: '456 Home Street, Savar, Dhaka, 1340',
@@ -90,16 +85,14 @@ export const jobseekers: Jobseeker[] = [
 			lastName: 'Smith',
 			fatherName: 'Robert Smith',
 			motherName: 'Susan Smith',
-			user: {
-                email: 'bob.s@example.com',
-			    phone: '234-567-8901',
-            },
+			email: 'bob.s@example.com',
+			phone: '234-567-8901',
 			dateOfBirth: format(subYears(new Date(), 35), 'yyyy-MM-dd'),
 			gender: 'Male',
 			maritalStatus: 'Single',
 			nationality: 'Bangladeshi',
-            religion: 'Christianity',
-            professionalStatus: 'Mid-Level',
+			religion: 'Christianity',
+			professionalStatus: 'Mid-Level',
 			presentAddress: '456 Innovation Drive, Panchlaish, Chattogram, 4203',
 			permanentAddress: '456 Innovation Drive, Panchlaish, Chattogram, 4203',
 			profileImage: { filePath: 'https://picsum.photos/seed/bob/100/100' } as any,
@@ -142,16 +135,14 @@ export const jobseekers: Jobseeker[] = [
 			lastName: 'Brown',
 			fatherName: 'Charles Brown Sr.',
 			motherName: 'Sally Brown',
-            user: {
-			    email: 'charlie.b@example.com',
-			    phone: '345-678-9012',
-            },
+			email: 'charlie.b@example.com',
+			phone: '345-678-9012',
 			dateOfBirth: format(subYears(new Date(), 28), 'yyyy-MM-dd'),
 			gender: 'Male',
 			maritalStatus: 'Single',
 			nationality: 'Bangladeshi',
-            religion: 'Hinduism',
-            professionalStatus: 'Entry-Level',
+			religion: 'Hinduism',
+			professionalStatus: 'Entry-Level',
 			presentAddress: '789 ML Lane, Sylhet Sadar, Sylhet, 3100',
 			permanentAddress: '789 ML Lane, Sylhet Sadar, Sylhet, 3100',
 			profileImage: { filePath: 'https://picsum.photos/seed/charlie/100/100' } as any,
@@ -194,16 +185,14 @@ export const jobseekers: Jobseeker[] = [
 			lastName: 'Prince',
 			fatherName: 'Zeus',
 			motherName: 'Hippolyta',
-			user: {
-                email: 'diana.p@example.com',
-			    phone: '456-789-0123',
-            },
+			email: 'diana.p@example.com',
+			phone: '456-789-0123',
 			dateOfBirth: format(subYears(new Date(), 26), 'yyyy-MM-dd'),
 			gender: 'Female',
 			maritalStatus: 'Single',
 			nationality: 'Bangladeshi',
-            religion: 'Buddhism',
-            professionalStatus: 'Student',
+			religion: 'Buddhism',
+			professionalStatus: 'Student',
 			presentAddress: '101 Design Street, Boalia, Rajshahi, 6000',
 			permanentAddress: '101 Design Street, Boalia, Rajshahi, 6000',
 			profileImage: { filePath: 'https://picsum.photos/seed/diana/100/100' } as any,
