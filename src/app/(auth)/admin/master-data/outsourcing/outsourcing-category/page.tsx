@@ -23,7 +23,7 @@ export default function MasterOutsourcingCategoryPage() {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { name: search },
+					body: { nameEn: search },
 					meta: { page: page, limit: meta.limit },
 				};
 				const response = await MasterDataService.outsourcingCategory.getList(payload);
