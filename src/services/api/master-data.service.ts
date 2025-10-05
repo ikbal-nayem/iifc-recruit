@@ -6,7 +6,6 @@ import {
 	IEducationInstitution,
 	IOrganization,
 	IOutsourcingCategory,
-	IStatus,
 } from '@/interfaces/master-data.interface';
 
 const createMasterDataCrud = <T extends ICommonMasterData>(entity: string) => ({
