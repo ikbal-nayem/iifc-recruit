@@ -80,19 +80,6 @@ export const adminNavLinks: NavLink[] = [
 			{ href: '/admin/master-data/skills', label: 'Skills', icon: Award },
 			{ href: '/admin/master-data/languages', label: 'Languages', icon: Globe },
 			{
-				href: '#',
-				label: 'Statuses',
-				icon: ListChecks,
-				isActive: (pathname) => pathname.startsWith('/admin/master-data/statuses'),
-				submenu: [
-					{ href: '/admin/master-data/statuses/job-statuses', label: 'Circular Statuses' },
-					{
-						href: '/admin/master-data/statuses/application-statuses',
-						label: 'Application Statuses',
-					},
-				],
-			},
-			{
 				href: '/admin/master-data/education/degree-levels',
 				label: 'Education',
 				icon: GraduationCap,
