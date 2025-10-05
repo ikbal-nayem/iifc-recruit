@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -79,16 +78,16 @@ function OutsourcingCategoryForm({
 						<FormInput
 							control={form.control}
 							name='nameEn'
-							label='English Name'
-							placeholder='English Name'
+							label='Name (English)'
+							placeholder='e.g., Data Entry'
 							required
 							disabled={isSubmitting}
 						/>
 						<FormInput
 							control={form.control}
 							name='nameBn'
-							label='Bengali Name'
-							placeholder='Bengali Name'
+							label='Name (Bangla)'
+							placeholder='e.g., ডেটা এন্ট্রি'
 							required
 							disabled={isSubmitting}
 						/>
