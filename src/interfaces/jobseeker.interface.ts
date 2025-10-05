@@ -1,4 +1,3 @@
-
 import { IFile, ResultSystem } from './common.interface';
 import { EnumDTO, ICommonMasterData, IEducationInstitution, IOrganization } from './master-data.interface';
 
@@ -186,3 +185,11 @@ export type Jobseeker = {
 	skills: ICommonMasterData[];
 	resume: Resume;
 };
+
+export interface IProfileCompletionStatus {
+	completionPercentage: number;
+	formCompletionStatus: {
+		form: string;
+		isComplete: boolean;
+	}[];
+}

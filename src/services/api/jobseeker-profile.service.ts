@@ -6,6 +6,7 @@ import {
 	Certification,
 	ChildInfo,
 	FamilyInfo,
+	IProfileCompletionStatus,
 	Jobseeker,
 	Language,
 	PersonalInfo,
@@ -42,6 +43,9 @@ const createProfileCrudWithFormData = <T extends { id?: number | string }>(entit
 export const JobseekerProfileService = {
 	getProfile: async (): Promise<IApiResponse<Jobseeker>> =>
 		await axiosIns.get('/jobseeker/profile/get-by-user'),
+	
+	getProfileCompletion: async (): Promise<IApiResponse<IProfileCompletionStatus>> =>
+		await axiosIns.get('/jobseeker/profile/get-profile-completion'),
 
 	personalInfo: {
 		...createProfileCrudWithFormData<PersonalInfo>('personal-info'),
