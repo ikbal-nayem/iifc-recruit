@@ -1,14 +1,12 @@
-
 'use client';
 
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { ArrowRight, CheckCircle, Circle } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import React from 'react';
 import { IProfileCompletionStatus } from '@/interfaces/jobseeker.interface';
+import { cn } from '@/lib/utils';
+import { ArrowRight, CheckCircle, Circle } from 'lucide-react';
+import Link from 'next/link';
 
 const formToHrefMap: Record<string, string> = {
 	'Personal Info': '/jobseeker/profile-edit',
@@ -31,7 +29,6 @@ interface ProfileCompletionProps {
 
 export function ProfileCompletion({ profileCompletion }: ProfileCompletionProps) {
 	const { completionPercentage, formCompletionStatus } = profileCompletion;
-	const [isOpen, setIsOpen] = React.useState(true);
 
 	const checklistItems = formCompletionStatus.map((item) => ({
 		id: item.form.replace(/\s+/g, '-').toLowerCase(),
@@ -72,7 +69,7 @@ export function ProfileCompletion({ profileCompletion }: ProfileCompletionProps)
 								className='flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors group'
 							>
 								{item.isComplete ? (
-									<CheckCircle className='h-4 w-4 text-green-500 shrink-0' />
+									<CheckCircle className='h-4 w-4 text-green-600 shrink-0' />
 								) : (
 									<Circle className='h-4 w-4 text-muted-foreground/50 shrink-0' />
 								)}
