@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React from 'react';
@@ -44,12 +43,17 @@ export default function Header() {
     // In a real app, you'd get user data from a session.
     // Here we just pick a user based on role for demonstration.
     const role = pathname.split('/')[1] || 'guest';
-    let user = { firstName: 'Admin', lastName: 'User', email: 'admin@iifc.com', profileImage: { filePath: 'https://picsum.photos/seed/admin/100/100' } };
+    let user = {
+			firstName: 'Admin',
+			lastName: 'User',
+			email: 'admin@iifc.com',
+			profileImage: { filePath: 'https://picsum.photos/seed/admin/100/100' },
+		};
     if (role === 'jobseeker') {
         user = {
             firstName: jobseekers[0].personalInfo.firstName,
             lastName: jobseekers[0].personalInfo.lastName,
-            email: jobseekers[0].personalInfo.user.email,
+            email: jobseekers[0].personalInfo.email,
             profileImage: jobseekers[0].personalInfo.profileImage,
         };
     } 
