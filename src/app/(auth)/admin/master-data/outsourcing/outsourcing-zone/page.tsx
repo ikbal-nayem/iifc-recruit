@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useDebounce } from '@/hooks/use-debounce';
@@ -6,7 +7,7 @@ import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { useCallback, useEffect, useState } from 'react';
 import { IBilingualMasterData } from '@/interfaces/master-data.interface';
-import { BilingualMasterDataCrud } from '@/components/app/admin/bilingual-master-data-crud';
+import { CommonBilingualCrud } from '@/components/app/admin/bilingual-master-data-crud';
 
 const initMeta: IMeta = { page: 0, limit: 20 };
 
@@ -91,7 +92,7 @@ export default function MasterOutsourcingZonePage() {
 	};
 
 	return (
-		<BilingualMasterDataCrud
+		<CommonBilingualCrud
 			title='Outsourcing Zones'
 			description='Manage outsourcing zones.'
 			noun='Outsourcing Zone'

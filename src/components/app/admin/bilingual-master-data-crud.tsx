@@ -22,6 +22,7 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { IMeta } from '@/interfaces/common.interface';
 import { IBilingualMasterData } from '@/interfaces/master-data.interface';
+import { isBangla, isEnglish } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useState } from 'react';
@@ -29,18 +30,16 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 const formSchema = z.object({
-	nameEn: z
-		.string()
-		.min(1, 'English name is required.')
-		.regex(/^[a-zA-Z0-9 .,_()-\s]*$/, 'Only English characters, numbers, and some special characters are allowed.'),
-	nameBn: z
-		.string()
-		.min(1, 'Bengali name is required.')
-		.regex(/^[\u0980-\u09FF0-9 .,_()-\s]*$/, 'Only Bengali characters, numbers, and some special characters are allowed.'),
+	nameEn: z.string().min(1, 'English name is required.').refine(isEnglish, {
+		message: 'Only English characters, numbers, and some special characters are allowed.',
+	}),
+	nameBn: z.string().min(1, 'Bengali name is required.').refine(isBangla, {
+		message: 'Only Bengali characters, numbers, and some special characters are allowed.',
+	}),
 });
 type FormValues = z.infer<typeof formSchema>;
 
-interface BilingualMasterDataFormProps {
+interface CommonBilingualFormProps {
 	isOpen: boolean;
 	onClose: () => void;
 	onSubmit: (data: FormValues, id?: string) => Promise<boolean | null>;
@@ -48,13 +47,13 @@ interface BilingualMasterDataFormProps {
 	noun: string;
 }
 
-function BilingualMasterDataForm({
+function CommonBilingualForm({
 	isOpen,
 	onClose,
 	onSubmit,
 	initialData,
 	noun,
-}: BilingualMasterDataFormProps) {
+}: CommonBilingualFormProps) {
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues: { nameEn: initialData?.nameEn || '', nameBn: initialData?.nameBn || '' },
@@ -114,7 +113,7 @@ function BilingualMasterDataForm({
 	);
 }
 
-interface BilingualMasterDataCrudProps {
+interface CommonBilingualCrudProps {
 	title: string;
 	description: string;
 	noun: string;
@@ -128,7 +127,7 @@ interface BilingualMasterDataCrudProps {
 	onSearch: (query: string) => void;
 }
 
-export function BilingualMasterDataCrud({
+export function CommonBilingualCrud({
 	title,
 	description,
 	noun,
@@ -140,7 +139,7 @@ export function BilingualMasterDataCrud({
 	onDelete,
 	onPageChange,
 	onSearch,
-}: BilingualMasterDataCrudProps) {
+}: CommonBilingualCrudProps) {
 	const { toast } = useToast();
 	const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
 	const [isFormOpen, setIsFormOpen] = useState(false);
@@ -280,7 +279,7 @@ export function BilingualMasterDataCrud({
 			</Card>
 
 			{isFormOpen && (
-				<BilingualMasterDataForm
+				<CommonBilingualForm
 					isOpen={isFormOpen}
 					onClose={handleCloseForm}
 					onSubmit={handleFormSubmit}
