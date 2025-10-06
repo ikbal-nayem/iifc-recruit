@@ -1,4 +1,3 @@
-
 'use client';
 import { OrganizationCrud } from '@/components/app/admin/master-data/organization-crud';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';

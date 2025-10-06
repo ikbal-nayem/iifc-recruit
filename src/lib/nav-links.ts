@@ -77,7 +77,18 @@ export const adminNavLinks: NavLink[] = [
 		icon: Settings,
 		isActive: (pathname) => pathname.startsWith('/admin/master-data'),
 		submenu: [
-			{ href: '/admin/master-data/organizations', label: 'Organizations', icon: Building2 },
+			{
+				href: '/admin/master-data/company/organizations',
+				label: 'Company',
+				icon: Building2,
+				isActive: (pathname) => pathname.startsWith('/admin/master-data/company'),
+				submenu: [
+					{ href: '/admin/master-data/company/organizations', label: 'Organizations' },
+					{ href: '/admin/master-data/industry-types', label: 'Industry Types' },
+					{ href: '/admin/master-data/organization-types', label: 'Organization Types' },
+					{ href: '/admin/master-data/position-levels', label: 'Position Levels' },
+				],
+			},
 			{ href: '/admin/master-data/skills', label: 'Skills', icon: Award },
 			{ href: '/admin/master-data/languages', label: 'Languages', icon: Globe },
 			{
@@ -89,20 +100,6 @@ export const adminNavLinks: NavLink[] = [
 					{ href: '/admin/master-data/education/degree-levels', label: 'Degree Levels' },
 					{ href: '/admin/master-data/education/domains', label: 'Domains' },
 					{ href: '/admin/master-data/education/institutions', label: 'Institutions' },
-				],
-			},
-			{
-				href: '#',
-				label: 'Company Data',
-				icon: Network,
-				isActive: (pathname) =>
-					pathname.startsWith('/admin/master-data/industry-types') ||
-					pathname.startsWith('/admin/master-data/organization-types') ||
-					pathname.startsWith('/admin/master-data/position-levels'),
-				submenu: [
-					{ href: '/admin/master-data/industry-types', label: 'Industry Types' },
-					{ href: '/admin/master-data/organization-types', label: 'Organization Types' },
-					{ href: '/admin/master-data/position-levels', label: 'Position Levels' },
 				],
 			},
 			{
