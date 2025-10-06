@@ -1,5 +1,3 @@
-
-
 import { JobListings } from '@/components/app/public/job-listings';
 import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';

@@ -1,7 +1,8 @@
+
 import { Suspense } from 'react';
-import { AdminDashboardCards, AdminDashboardCardsSkeleton } from '@/components/app/admin/dashboard-cards';
-import { AdminDashboardCharts, AdminDashboardChartsSkeleton } from '@/components/app/admin/dashboard-charts';
-import { AdminDashboardRecentActivity, AdminDashboardRecentActivitySkeleton } from '@/components/app/admin/dashboard-recent-activity';
+import { AdminDashboardCards, AdminDashboardCardsSkeleton } from '@/components/app/admin/dashboard/dashboard-cards';
+import { AdminDashboardCharts, AdminDashboardChartsSkeleton } from '@/components/app/admin/dashboard/dashboard-charts';
+import { AdminDashboardRecentActivity, AdminDashboardRecentActivitySkeleton } from '@/components/app/admin/dashboard/dashboard-recent-activity';
 import { jobs, jobseekers, applications } from '@/lib/data';
 
 async function getDashboardData() {

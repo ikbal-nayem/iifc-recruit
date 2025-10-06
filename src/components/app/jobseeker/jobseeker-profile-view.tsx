@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -27,8 +26,8 @@ import {
 	Video,
 } from 'lucide-react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
+import { Button } from '../../ui/button';
+import { Separator } from '../../ui/separator';
 
 interface JobseekerProfileViewProps {
 	jobseeker: Jobseeker;

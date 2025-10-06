@@ -1,51 +1,44 @@
-import { cn } from '@/lib/utils';
-import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { MainLayout } from '@/components/main-layout';
+import { Inter, Source_Code_Pro, Space_Grotesk } from 'next/font/google';
+import { Suspense } from 'react';
+import './globals.css';
 
-interface SplashScreenProps {
-	onFinish: () => void;
-}
+const inter = Inter({
+	subsets: ['latin'],
+	variable: '--font-inter',
+});
 
-export default function SplashScreen({ onFinish }: SplashScreenProps) {
-	const [isFinished, setIsFinished] = useState(false);
-	const [isMounted, setIsMounted] = useState(false);
+const spaceGrotesk = Space_Grotesk({
+	subsets: ['latin'],
+	variable: '--font-space-grotesk',
+});
 
-	useEffect(() => {
-		setIsMounted(true);
-		const timer = setTimeout(() => {
-			setIsFinished(true);
-			setTimeout(onFinish, 500); // Allow fade out animation to complete
-		}, 1500);
-		return () => clearTimeout(timer);
-	}, [onFinish]);
+const sourceCodePro = Source_Code_Pro({
+	subsets: ['latin'],
+	variable: '--font-source-code-pro',
+});
 
-	if (!isMounted) {
-		return null;
-	}
-
+export default function RootLayout({
+	children,
+	params: { locale },
+}: Readonly<{
+	children: React.ReactNode;
+	params: { locale: string };
+}>) {
 	return (
-		<div
-			className={cn(
-				'fixed inset-0 z-50 flex flex-col items-center justify-center bg-background transition-opacity duration-500 ease-out',
-				isFinished ? 'opacity-0 pointer-events-none' : 'opacity-100'
-			)}
+		<html
+			lang={locale}
+			className={`h-full ${inter.variable} ${spaceGrotesk.variable} ${sourceCodePro.variable}`}
 		>
-			<div className='flex flex-col items-center gap-4'>
-				<Image
-					src='/iifc-logo.png'
-					alt='IIFC Logo'
-					width={80}
-					height={80}
-					className='h-20 w-auto animate-pulse'
-				/>
-				<h1 className='text-4xl font-headline font-bold'>IIFC Jobs</h1>
-				<div className='flex justify-center items-center space-x-2 mt-4'>
-					<div className='h-3 w-3 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]'></div>
-					<div className='h-3 w-3 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]'></div>
-					<div className='h-3 w-3 bg-primary rounded-full animate-bounce'></div>
-				</div>
-				<p className='mt-2 text-muted-foreground'>Loading, please wait...</p>
-			</div>
-		</div>
+			<head>
+				<title>IIFC Jobs</title>
+				<meta name='description' content='Streamlining the recruitment process.' />
+			</head>
+			<body className='font-body antialiased flex flex-col min-h-screen'>
+				<Suspense>
+					<MainLayout>{children}</MainLayout>
+				</Suspense>
+			</body>
+		</html>
 	);
 }

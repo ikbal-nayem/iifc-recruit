@@ -1,4 +1,3 @@
-
 import PublicFooter from "@/components/app/public/public-footer";
 import PublicHeader from "@/components/app/public/public-header";
 

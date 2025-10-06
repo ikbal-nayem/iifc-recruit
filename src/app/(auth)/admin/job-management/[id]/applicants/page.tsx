@@ -5,7 +5,7 @@ import * as React from 'react';
 import type { Jobseeker, Application, Job } from '@/lib/types';
 import { jobseekers as allJobseekers, applications as allApplications, jobs } from '@/lib/data';
 import { notFound } from 'next/navigation';
-import { JobApplicantsTable } from '@/components/app/admin/job-applicants-table';
+import { JobApplicantsTable } from '@/components/app/admin/job/job-applicants-table';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Building2 } from 'lucide-react';
 
