@@ -29,6 +29,17 @@ export interface IOutsourcingService extends IBilingualMasterData {
 	category?: IOutsourcingCategory;
 }
 
+export interface IOutsourcingCharge {
+	id?: number;
+	categoryId: number;
+	zoneId: number;
+	monthlyServiceCharge: number;
+	isActive: boolean;
+	category?: IOutsourcingCategory;
+	zone?: IOutsourcingZone;
+}
+
+
 export interface IEducationInstitution extends ICommonMasterData {
 	countryId: string;
 	country?: IObject;
