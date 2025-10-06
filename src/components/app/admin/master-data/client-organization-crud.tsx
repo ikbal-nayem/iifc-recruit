@@ -1,18 +1,33 @@
-
 'use client';
 
 import { FormMasterData } from '@/app/(auth)/admin/client-organizations/page';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Switch } from '@/components/ui/switch';
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
@@ -20,7 +35,26 @@ import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { isBangla, isEnglish } from '@/lib/utils';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Edit, Globe, Loader2, Mail, Phone, PlusCircle, Search, Trash } from 'lucide-react';
+import {
+	ColumnDef,
+	flexRender,
+	getCoreRowModel,
+	getPaginationRowModel,
+	useReactTable,
+} from '@tanstack/react-table';
+import {
+	Edit,
+	Globe,
+	Loader2,
+	Mail,
+	MoreHorizontal,
+	Phone,
+	PlusCircle,
+	Search,
+	Trash,
+	UserPlus,
+	View,
+} from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -199,9 +233,7 @@ export function ClientOrganizationCrud({ title, description, noun, masterData }:
 	const [items, setItems] = useState<IClientOrganization[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 
-	const [isInitialLoading, setIsInitialLoading] = useState(true);
-	const [isLoading, setIsLoading] = useState(false);
-	const [isSubmitting, setIsSubmitting] = useState<number | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
 
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
@@ -209,38 +241,34 @@ export function ClientOrganizationCrud({ title, description, noun, masterData }:
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [editingItem, setEditingItem] = useState<IClientOrganization | undefined>(undefined);
 
-	const loadItems = useCallback(async (page: number, search: string) => {
-		setIsLoading(true);
-		try {
-			const payload: IApiRequest = {
-				body: { nameEn: search },
-				meta: { page: page, limit: meta.limit },
-			};
-			const response = await MasterDataService.clientOrganization.getList(payload);
-			setItems(response.body);
-			setMeta(response.meta);
-		} catch (error) {
-			console.error('Failed to load items', error);
-			toast({
-				title: 'Error',
-				description: 'Failed to load client organizations.',
-				variant: 'danger',
-			});
-		} finally {
-			setIsLoading(false);
-			setIsInitialLoading(false);
-		}
-	}, [meta.limit, toast]);
+	const loadItems = useCallback(
+		async (page: number, search: string) => {
+			setIsLoading(true);
+			try {
+				const payload: IApiRequest = {
+					body: { nameEn: search },
+					meta: { page: page, limit: meta.limit },
+				};
+				const response = await MasterDataService.clientOrganization.getList(payload);
+				setItems(response.body);
+				setMeta(response.meta);
+			} catch (error) {
+				console.error('Failed to load items', error);
+				toast({
+					title: 'Error',
+					description: 'Failed to load client organizations.',
+					variant: 'danger',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[meta.limit, toast]
+	);
 
 	useEffect(() => {
-		loadItems(0, '');
-	}, []);
-
-	useEffect(() => {
-		if (!isInitialLoading) {
-			loadItems(0, debouncedSearch);
-		}
-	}, [debouncedSearch, isInitialLoading, loadItems]);
+		loadItems(0, debouncedSearch);
+	}, [debouncedSearch, loadItems]);
 
 	const handlePageChange = (newPage: number) => {
 		loadItems(newPage, debouncedSearch);
@@ -288,82 +316,98 @@ export function ClientOrganizationCrud({ title, description, noun, masterData }:
 		}
 	};
 
-	const handleToggleActive = async (item: IClientOrganization) => {
-		if (!item.id) return;
-		setIsSubmitting(item.id);
-		const updatedItem = { ...item, isActive: !item.isActive };
-		try {
-			await MasterDataService.clientOrganization.update(updatedItem);
-			setItems((prevItems) => prevItems.map((i) => (i.id === item.id ? updatedItem : i)));
-			toast({
-				title: 'Success',
-				description: 'Status updated successfully.',
-				variant: 'success',
-			});
-		} catch (error) {
-			toast({
-				title: 'Error',
-				description: 'Failed to update status.',
-				variant: 'danger',
-			});
-		} finally {
-			setIsSubmitting(null);
-		}
-	};
+	const columns: ColumnDef<IClientOrganization>[] = [
+		{
+			accessorKey: 'nameEn',
+			header: 'Organization Name',
+			cell: ({ row }) => {
+				const item = row.original;
+				return (
+					<div className='flex items-center gap-3'>
+						<Avatar className='h-9 w-9'>
+							<AvatarFallback>{item.nameEn.charAt(0)}</AvatarFallback>
+						</Avatar>
+						<div>
+							<div className='font-medium'>{item.nameEn}</div>
+							<div className='text-sm text-muted-foreground'>{item.nameBn}</div>
+						</div>
+					</div>
+				);
+			},
+		},
+		{
+			accessorKey: 'organizationType.name',
+			header: 'Type',
+		},
+		{
+			accessorKey: 'contactPersonName',
+			header: 'Contact Person',
+			cell: ({ row }) => {
+				const item = row.original;
+				return (
+					<div>
+						<div>{item.contactPersonName}</div>
+						<div className='text-sm text-muted-foreground'>{item.contactNumber}</div>
+					</div>
+				);
+			},
+		},
+		{
+			id: 'actions',
+			cell: ({ row }) => {
+				const item = row.original;
+				return (
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant='ghost' className='h-8 w-8 p-0'>
+								<span className='sr-only'>Open menu</span>
+								<MoreHorizontal className='h-4 w-4' />
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align='end'>
+							<DropdownMenuLabel>Actions</DropdownMenuLabel>
+							<DropdownMenuItem onClick={() => toast({ description: 'Viewing details (not implemented).' })}>
+								<View className='mr-2 h-4 w-4' />
+								View Details
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={() => toast({ description: 'User creation (not implemented).' })}>
+								<UserPlus className='mr-2 h-4 w-4' />
+								Create User
+							</DropdownMenuItem>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem onClick={() => handleOpenForm(item)}>
+								<Edit className='mr-2 h-4 w-4' />
+								Edit
+							</DropdownMenuItem>
+							<ConfirmationDialog
+								trigger={
+									<Button
+										variant='ghost'
+										className='w-full justify-start p-2 h-auto font-normal text-danger hover:bg-danger/10 hover:text-danger'
+									>
+										<Trash className='mr-2 h-4 w-4' />
+										Delete
+									</Button>
+								}
+								description={`This will permanently delete the organization "${item.nameEn}".`}
+								onConfirm={() => handleDelete(item.id!)}
+								confirmText='Delete'
+							/>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				);
+			},
+		},
+	];
 
-	const renderViewItem = (item: IClientOrganization) => (
-		<Card
-			key={item.id}
-			className='p-4 flex flex-col sm:flex-row justify-between items-start bg-background/50 gap-4'
-		>
-			<div className='flex-1 space-y-1'>
-				<p className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}>{item.nameEn}</p>
-				<p className='text-sm text-muted-foreground'>{item.nameBn}</p>
-				<p className='text-xs text-muted-foreground'>Type: {item.organizationType?.name || 'N/A'}</p>
-				<div className='flex flex-wrap items-center gap-x-4 gap-y-1 pt-1'>
-					{item.contactPersonName && (
-						<span className='text-xs text-muted-foreground'>Contact: {item.contactPersonName}</span>
-					)}
-					{item.contactNumber && (
-						<span className='flex items-center gap-1.5 text-xs text-muted-foreground'>
-							<Phone className='h-3 w-3' /> {item.contactNumber}
-						</span>
-					)}
-					{item.email && (
-						<span className='flex items-center gap-1.5 text-xs text-muted-foreground'>
-							<Mail className='h-3 w-3' /> {item.email}
-						</span>
-					)}
-				</div>
-			</div>
-			<div className='flex items-center gap-2 self-start'>
-				<Switch
-					checked={item.isActive}
-					onCheckedChange={() => handleToggleActive(item)}
-					disabled={isSubmitting === item.id}
-				/>
-				<Button
-					variant='ghost'
-					size='icon'
-					className='h-8 w-8'
-					onClick={() => handleOpenForm(item)}
-					disabled={isSubmitting === item.id}
-				>
-					<Edit className='h-4 w-4' />
-				</Button>
-				<ConfirmationDialog
-					trigger={
-						<Button variant='ghost' size='icon' className='h-8 w-8' disabled={isSubmitting === item.id}>
-							<Trash className='h-4 w-4 text-danger' />
-						</Button>
-					}
-					description={`This will permanently delete the ${noun.toLowerCase()} "${item.nameEn}".`}
-					onConfirm={() => handleDelete(item.id!)}
-					confirmText='Delete'
-				/>
-			</div>
-		</Card>
-	);
+	const table = useReactTable({
+		data: items,
+		columns,
+		getCoreRowModel: getCoreRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+		manualPagination: true,
+		pageCount: meta.totalPageCount,
+	});
 
 	return (
 		<div className='space-y-8'>
@@ -387,18 +431,54 @@ export function ClientOrganizationCrud({ title, description, noun, masterData }:
 							className='pl-10'
 						/>
 					</div>
-					<div className='space-y-2 pt-4'>
-						{isInitialLoading
-							? [...Array(5)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
-							: items.map(renderViewItem)}
-						{!isInitialLoading && items.length === 0 && (
-							<p className='text-center text-sm text-muted-foreground py-4'>
-								No {noun.toLowerCase()}s found.
-							</p>
-						)}
+					<div className='mt-4 rounded-md border'>
+						<Table>
+							<TableHeader>
+								{table.getHeaderGroups().map((headerGroup) => (
+									<TableRow key={headerGroup.id}>
+										{headerGroup.headers.map((header) => {
+											return (
+												<TableHead key={header.id}>
+													{header.isPlaceholder
+														? null
+														: flexRender(header.column.columnDef.header, header.getContext())}
+												</TableHead>
+											);
+										})}
+									</TableRow>
+								))}
+							</TableHeader>
+							<TableBody>
+								{isLoading ? (
+									[...Array(meta.limit)].map((_, i) => (
+										<TableRow key={i}>
+											<TableCell colSpan={columns.length}>
+												<Skeleton className='h-10 w-full' />
+											</TableCell>
+										</TableRow>
+									))
+								) : table.getRowModel().rows?.length ? (
+									table.getRowModel().rows.map((row) => (
+										<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+											{row.getVisibleCells().map((cell) => (
+												<TableCell key={cell.id}>
+													{flexRender(cell.column.columnDef.cell, cell.getContext())}
+												</TableCell>
+											))}
+										</TableRow>
+									))
+								) : (
+									<TableRow>
+										<TableCell colSpan={columns.length} className='h-24 text-center'>
+											No results.
+										</TableCell>
+									</TableRow>
+								)}
+							</TableBody>
+						</Table>
 					</div>
 				</CardContent>
-				{meta && meta.totalRecords && meta.totalRecords > 0 && !isInitialLoading ? (
+				{meta && meta.totalRecords && meta.totalRecords > 0 ? (
 					<CardFooter>
 						<Pagination meta={meta} isLoading={isLoading} onPageChange={handlePageChange} noun={noun} />
 					</CardFooter>
