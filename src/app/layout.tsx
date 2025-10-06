@@ -1,4 +1,4 @@
-import { ClientLayout } from '@/components/client-layout';
+import { MainLayout } from '@/components/main-layout';
 import { Inter, Source_Code_Pro, Space_Grotesk } from 'next/font/google';
 import { Suspense } from 'react';
 import './globals.css';
@@ -36,7 +36,7 @@ export default function RootLayout({
 			</head>
 			<body className='font-body antialiased flex flex-col min-h-screen'>
 				<Suspense>
-					<ClientLayout>{children}</ClientLayout>
+					<MainLayout>{children}</MainLayout>
 				</Suspense>
 			</body>
 		</html>

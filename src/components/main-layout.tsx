@@ -9,7 +9,7 @@ import { SessionStorageService } from '@/services/storage.service';
 
 const SPLASH_SHOWN_KEY = 'splash_shown';
 
-export function ClientLayout({ children }: { children: React.ReactNode }) {
+export function MainLayout({ children }: { children: React.ReactNode }) {
   const [showSplash, setShowSplash] = useState<boolean | null>(null);
 
   useEffect(() => {
