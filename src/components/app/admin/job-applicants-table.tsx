@@ -2,6 +2,7 @@
 
 
 
+
 'use client';
 
 import * as React from 'react';
@@ -50,7 +51,7 @@ import { MoreHorizontal, FileText, UserCheck, UserX, Star, Send, Bell } from 'lu
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Jobseeker, Application } from '@/lib/types';
-import { JobseekerProfileView } from '@/components/app/jobseeker-profile-view';
+import { JobseekerProfileView } from '@/components/app/jobseeker/jobseeker-profile-view';
 import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';

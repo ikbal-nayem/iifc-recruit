@@ -1,6 +1,7 @@
 
 
 
+
 'use client';
 
 import * as React from 'react';
@@ -46,7 +47,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MoreHorizontal, FileText, Star, Send, Briefcase, Mail, Phone, MapPin, Filter } from 'lucide-react';
 import type { Candidate, Application, Job } from '@/lib/types';
 import { candidates as initialCandidates, applications as allApplications, jobs as allJobs } from '@/lib/data';
-import { JobseekerProfileView } from '@/components/app/jobseeker-profile-view';
+import { JobseekerProfileView } from '@/components/app/jobseeker/jobseeker-profile-view';
 import { Card } from '@/components/ui/card';
 import Link from 'next/link';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -357,7 +358,7 @@ export function JobseekerManagement() {
        <Dialog open={!!selectedJobseeker} onOpenChange={(isOpen) => !isOpen && setSelectedJobseeker(null)}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           {selectedJobseeker && (
-             <JobseekerProfileView candidate={selectedJobseeker} />
+             <JobseekerProfileView jobseeker={selectedJobseeker} />
           )}
         </DialogContent>
       </Dialog>

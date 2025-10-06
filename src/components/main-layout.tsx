@@ -1,8 +1,9 @@
+
 'use client';
 
 import { Toaster } from '@/components/ui/toaster';
 import { TopLoader } from '@/components/ui/top-loader';
-import SplashScreen from '@/components/app/splash-screen';
+import SplashScreen from '@/components/splash-screen';
 import { useEffect, useState } from 'react';
 import { initializeAuthHeader } from '@/config/api.config';
 import { SessionStorageService } from '@/services/storage.service';

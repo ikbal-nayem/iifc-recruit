@@ -1,4 +1,5 @@
-import { JobseekerProfileView } from '@/components/app/jobseeker-profile-view';
+
+import { JobseekerProfileView } from '@/components/app/jobseeker/jobseeker-profile-view';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 
 async function getProfileData() {

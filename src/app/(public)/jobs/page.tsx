@@ -1,7 +1,8 @@
+
 'use client';
 
 import { Suspense } from 'react';
-import { JobListings } from '@/components/app/job-listings';
+import { JobListings } from '@/components/app/public/job-listings';
 import JobListingsLoading from './loading';
 
 export default function AllJobsPage() {
