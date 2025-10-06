@@ -51,7 +51,7 @@ function OutsourcingChargeForm({
 	const defaultValues = {
 		categoryId: initialData?.categoryId,
 		zoneId: initialData?.zoneId,
-		monthlyServiceCharge: initialData?.monthlyServiceCharge,
+		monthlyServiceCharge: initialData?.monthlyServiceCharge || undefined,
 	};
 
 	const form = useForm<FormValues>({
