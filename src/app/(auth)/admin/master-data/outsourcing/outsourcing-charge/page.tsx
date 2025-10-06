@@ -1,10 +1,13 @@
-
 'use client';
 
 import { OutsourcingChargeCrud } from '@/components/app/admin/outsourcing-charge-crud';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
-import { IOutsourcingCategory, IOutsourcingCharge, IOutsourcingZone } from '@/interfaces/master-data.interface';
+import {
+	IOutsourcingCategory,
+	IOutsourcingCharge,
+	IOutsourcingZone,
+} from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -99,7 +102,11 @@ export default function MasterOutsourcingChargePage() {
 	const handleDelete = async (id: number): Promise<boolean> => {
 		try {
 			await MasterDataService.outsourcingCharge.delete(id.toString());
-			toast({ title: 'Success', description: 'Outsourcing charge deleted successfully.', variant: 'success' });
+			toast({
+				title: 'Success',
+				description: 'Outsourcing charge deleted successfully.',
+				variant: 'success',
+			});
 			loadItems(meta.page);
 			return true;
 		} catch (error) {
