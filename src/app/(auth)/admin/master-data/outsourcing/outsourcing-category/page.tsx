@@ -32,7 +32,6 @@ export default function MasterOutsourcingCategoryPage() {
 			} catch (error) {
 				console.error('Failed to load items', error);
 				toast({
-					title: 'Error',
 					description: 'Failed to load outsourcing categories.',
 					variant: 'danger',
 				});
