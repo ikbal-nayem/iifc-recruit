@@ -1,19 +1,15 @@
+
 import { ProfileFormPersonal } from '@/components/app/jobseeker/profile-forms/personal';
 import { IApiResponse } from '@/interfaces/common.interface';
 import { PersonalInfo } from '@/interfaces/jobseeker.interface';
-import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { ICommonMasterData, EnumDTO } from '@/interfaces/master-data.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 
-export type EnumOption = {
-	label: string;
-	value: string;
-};
-
 export type PersonalInfoMasterData = {
-	genders: EnumOption[];
-	maritalStatuses: EnumOption[];
-	religions: EnumOption[];
+	genders: EnumDTO[];
+	maritalStatuses: EnumDTO[];
+	religions: EnumDTO[];
 	divisions: ICommonMasterData[];
 };
 
@@ -38,9 +34,9 @@ async function getMasterData(): Promise<PersonalInfoMasterData> {
 	};
 
 	return {
-		genders: getFulfilledValue(gendersRes as PromiseSettledResult<IApiResponse<EnumOption[]>>),
-		maritalStatuses: getFulfilledValue(maritalRes as PromiseSettledResult<IApiResponse<EnumOption[]>>),
-		religions: getFulfilledValue(religionRes as PromiseSettledResult<IApiResponse<EnumOption[]>>),
+		genders: getFulfilledValue(gendersRes as PromiseSettledResult<IApiResponse<EnumDTO[]>>),
+		maritalStatuses: getFulfilledValue(maritalRes as PromiseSettledResult<IApiResponse<EnumDTO[]>>),
+		religions: getFulfilledValue(religionRes as PromiseSettledResult<IApiResponse<EnumDTO[]>>),
 		divisions: getFulfilledValue(divisionsRes as PromiseSettledResult<IApiResponse<ICommonMasterData[]>>),
 	};
 }

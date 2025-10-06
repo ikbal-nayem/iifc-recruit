@@ -1,3 +1,4 @@
+
 import { IFile, ResultSystem } from './common.interface';
 import { EnumDTO, ICommonMasterData, IEducationInstitution, IOrganization } from './master-data.interface';
 
@@ -95,10 +96,7 @@ export type ChildInfo = {
 	id?: number;
 	name: string;
 	gender: string;
-	genderDTO?: {
-		label: string;
-		value: string;
-	};
+	genderDTO?: EnumDTO;
 	dob: string;
 	serialNo: number;
 };

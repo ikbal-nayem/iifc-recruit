@@ -1,3 +1,4 @@
+
 'use client';
 
 import { PersonalInfoMasterData } from '@/app/(auth)/jobseeker/profile-edit/page';
@@ -399,7 +400,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 										label='Gender'
 										required
 										placeholder='Select gender'
-										options={masterData.genders.map((g) => ({ label: g.label, value: g.value }))}
+										options={masterData.genders.map((g) => ({ label: g.labelEn, value: g.value }))}
 									/>
 									<FormSelect
 										control={form.control}
@@ -407,7 +408,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 										label='Marital Status'
 										required
 										placeholder='Select marital status'
-										options={masterData.maritalStatuses.map((s) => ({ label: s.label, value: s.value }))}
+										options={masterData.maritalStatuses.map((s) => ({ label: s.labelEn, value: s.value }))}
 									/>
 								</div>
 								<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -416,7 +417,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 										name='religion'
 										label='Religion'
 										placeholder='Select religion'
-										options={masterData.religions.map((r) => ({ label: r.label, value: r.value }))}
+										options={masterData.religions.map((r) => ({ label: r.labelEn, value: r.value }))}
 									/>
 									{/* <FormSelect
 										control={form.control}

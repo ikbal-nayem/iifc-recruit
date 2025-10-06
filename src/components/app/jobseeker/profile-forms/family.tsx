@@ -1,6 +1,7 @@
+
 'use client';
 
-import { EnumOption } from '@/app/(auth)/jobseeker/profile-edit/page';
+import { EnumDTO } from '@/interfaces/master-data.interface';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
@@ -40,7 +41,7 @@ interface ChildFormProps {
 	onClose: () => void;
 	onSubmit: (data: ChildFormValues) => Promise<boolean>;
 	initialData?: ChildFormValues;
-	genders: EnumOption[];
+	genders: EnumDTO[];
 }
 
 function ChildForm({ isOpen, onClose, onSubmit, initialData, genders }: ChildFormProps) {
@@ -86,7 +87,7 @@ function ChildForm({ isOpen, onClose, onSubmit, initialData, genders }: ChildFor
 							label='Gender'
 							required
 							placeholder='Select gender'
-							options={genders}
+							options={genders.map((g) => ({ label: g.labelEn, value: g.value }))}
 						/>
 						<FormDatePicker
 							control={form.control}
@@ -127,8 +128,8 @@ type FamilyFormValues = z.infer<typeof familySchema>;
 interface ProfileFormFamilyProps {
 	districts: ICommonMasterData[];
 	initialData?: FamilyInfo;
-	spouseStatuses: EnumOption[];
-	genders: EnumOption[];
+	spouseStatuses: EnumDTO[];
+	genders: EnumDTO[];
 }
 
 export function ProfileFormFamily({
@@ -265,7 +266,7 @@ export function ProfileFormFamily({
 									name='status'
 									label='Spouse Status'
 									placeholder='Select a status'
-									options={spouseStatuses}
+									options={spouseStatuses.map((s) => ({ label: s.labelEn, value: s.value }))}
 								/>
 								<FormAutocomplete
 									control={form.control}
@@ -313,7 +314,7 @@ export function ProfileFormFamily({
 										{child.serialNo}. {child.name}
 									</p>
 									<p className='text-sm text-muted-foreground'>
-										{child.genderDTO?.label || child.gender} - Born on {format(new Date(child.dob), 'PPP')}
+										{child.genderDTO?.labelEn || child.gender} - Born on {format(new Date(child.dob), 'PPP')}
 									</p>
 								</div>
 								<div className='flex items-center'>

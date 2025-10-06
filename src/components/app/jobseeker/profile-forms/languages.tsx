@@ -11,7 +11,7 @@ import { FormSelect } from '@/components/ui/form-select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Language } from '@/interfaces/jobseeker.interface';
-import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { ICommonMasterData, EnumDTO } from '@/interfaces/master-data.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
@@ -110,7 +110,7 @@ function LanguageForm({
 
 interface ProfileFormLanguagesProps {
 	languageOptions: ICommonMasterData[];
-	proficiencyOptions: { label: string; value: string }[];
+	proficiencyOptions: EnumDTO[];
 }
 
 export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: ProfileFormLanguagesProps) {
@@ -239,7 +239,7 @@ export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: Pr
 					initialData={editingItem}
 					noun='Language'
 					languageOptions={languageOptions.map((l) => ({ label: l.name, value: l.id as number }))}
-					proficiencyOptions={proficiencyOptions}
+					proficiencyOptions={proficiencyOptions.map((p) => ({ label: p.labelEn, value: p.value }))}
 				/>
 			)}
 		</div>

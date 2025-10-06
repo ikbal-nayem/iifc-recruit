@@ -2,8 +2,8 @@
 import { ProfileFormFamily } from '@/components/app/jobseeker/profile-forms/family';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
-import { EnumOption } from '../page';
 import { FamilyInfo } from '@/interfaces/jobseeker.interface';
+import { EnumDTO } from '@/interfaces/master-data.interface';
 
 export default async function JobseekerProfileFamilyPage() {
 	const [districtsRes, spouseInfoRes, childrenInfoRes, spouseStatusRes, genderRes] = await Promise.allSettled([
@@ -18,8 +18,8 @@ export default async function JobseekerProfileFamilyPage() {
 	const spouseInfo = spouseInfoRes.status === 'fulfilled' ? spouseInfoRes.value.body : undefined;
 	const childrenInfo = childrenInfoRes.status === 'fulfilled' ? childrenInfoRes.value.body : [];
 	const spouseStatuses =
-		spouseStatusRes.status === 'fulfilled' ? (spouseStatusRes.value.body as EnumOption[]) : [];
-	const genders = genderRes.status === 'fulfilled' ? (genderRes.value.body as EnumOption[]) : [];
+		spouseStatusRes.status === 'fulfilled' ? (spouseStatusRes.value.body as EnumDTO[]) : [];
+	const genders = genderRes.status === 'fulfilled' ? (genderRes.value.body as EnumDTO[]) : [];
 
 	const familyInfo: FamilyInfo | undefined = spouseInfo
 		? { ...spouseInfo, children: childrenInfo }
