@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -133,7 +134,9 @@ function CertificationForm({
 							name='certificationId'
 							label='Certification'
 							placeholder='Select Certification'
-							options={certificationTypes.map((t) => ({ value: t.id!.toString(), label: t.name }))}
+							options={certificationTypes}
+							getOptionValue={(option) => option.id!.toString()}
+							getOptionLabel={(option) => option.name}
 							disabled={isSubmitting}
 						/>
 						<FormInput

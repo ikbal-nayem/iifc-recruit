@@ -183,7 +183,9 @@ export default function OurClientsPage() {
 								label='Organization'
 								placeholder='Search for an organization...'
 								required
-								options={availableOrganizations.map((org) => ({ value: org.id!, label: org.name }))}
+								options={availableOrganizations}
+								getOptionValue={(option) => option.id!.toString()}
+								getOptionLabel={(option) => option.name}
 								disabled={isSubmitting}
 							/>
 							<DialogFooter className='pt-4'>

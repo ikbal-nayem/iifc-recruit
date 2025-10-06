@@ -96,7 +96,9 @@ function OutsourcingChargeForm({
 							label='Category'
 							placeholder='Select Category'
 							required
-							options={categories.map((c) => ({ value: c.id!, label: c.nameEn }))}
+							options={categories}
+							getOptionValue={(option) => option.id!.toString()}
+							getOptionLabel={(option) => option.nameEn}
 							disabled={isSubmitting}
 						/>
 						<FormAutocomplete
@@ -105,7 +107,9 @@ function OutsourcingChargeForm({
 							label='Zone'
 							placeholder='Select Zone'
 							required
-							options={zones.map((z) => ({ value: z.id!, label: z.nameEn }))}
+							options={zones}
+							getOptionValue={(option) => option.id!.toString()}
+							getOptionLabel={(option) => option.nameEn}
 							disabled={isSubmitting}
 						/>
 						<FormInput
@@ -243,10 +247,9 @@ export function OutsourcingChargeCrud({
 							name='categoryFilter'
 							label=''
 							placeholder='Filter by Category...'
-							options={[
-								{ value: 'all', label: 'All Categories' },
-								...categories.map((c) => ({ value: c.id!.toString(), label: c.nameEn })),
-							]}
+							options={[{ id: 'all', nameEn: 'All Categories' }, ...categories]}
+							getOptionValue={(option) => option.id!.toString()}
+							getOptionLabel={(option) => option.nameEn}
 							onValueChange={(val) => onCategoryChange(val.toString())}
 							value={categoryFilter}
 						/>
@@ -255,10 +258,9 @@ export function OutsourcingChargeCrud({
 							name='zoneFilter'
 							label=''
 							placeholder='Filter by Zone...'
-							options={[
-								{ value: 'all', label: 'All Zones' },
-								...zones.map((z) => ({ value: z.id!.toString(), label: z.nameEn })),
-							]}
+							options={[{ id: 'all', nameEn: 'All Zones' }, ...zones]}
+							getOptionValue={(option) => option.id!.toString()}
+							getOptionLabel={(option) => option.nameEn}
 							onValueChange={(val) => onZoneChange(val.toString())}
 							value={zoneFilter}
 						/>

@@ -90,7 +90,9 @@ function OutsourcingServiceForm({ isOpen, onClose, onSubmit, initialData, catego
 							label='Category'
 							placeholder='Select Category'
 							required
-							options={categories.map((c) => ({ value: c.id!, label: c.nameEn }))}
+							options={categories}
+							getOptionValue={(option) => option.id!.toString()}
+							getOptionLabel={(option) => option.nameEn}
 							disabled={isSubmitting}
 						/>
 						<FormInput
@@ -230,10 +232,9 @@ export function OutsourcingServiceCrud({
 								name='categoryFilter'
 								label=''
 								placeholder='Filter by Category...'
-								options={[
-									{ value: 'all', label: 'All Categories' },
-									...categories.map((c) => ({ value: c.id!.toString(), label: c.nameEn })),
-								]}
+								options={[{ id: 'all', nameEn: 'All Categories' }, ...categories]}
+								getOptionValue={(option) => option.id!.toString()}
+								getOptionLabel={(option) => option.nameEn}
 								onValueChange={(val) => onCategoryChange(val.toString())}
 								value={categoryFilter}
 							/>

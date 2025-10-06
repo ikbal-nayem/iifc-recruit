@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -130,14 +131,18 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 								name='degreeLevelId'
 								label='Degree Level'
 								required
-								options={masterData.degreeLevels.map((d) => ({ value: d.id!, label: d.name }))}
+								options={masterData.degreeLevels}
+								getOptionValue={(option) => option.id!.toString()}
+								getOptionLabel={(option) => option.name}
 							/>
 							<FormAutocomplete
 								control={form.control}
 								name='domainId'
 								label='Domain / Subject'
 								required
-								options={masterData.domains.map((d) => ({ value: d.id!, label: d.name }))}
+								options={masterData.domains}
+								getOptionValue={(option) => option.id!.toString()}
+								getOptionLabel={(option) => option.name}
 							/>
 						</div>
 						<FormAutocomplete
@@ -145,7 +150,9 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 							name='institutionId'
 							label='Institution'
 							required
-							options={masterData.institutions.map((i) => ({ value: i.id!, label: i.name }))}
+							options={masterData.institutions}
+							getOptionValue={(option) => option.id!.toString()}
+							getOptionLabel={(option) => option.name}
 						/>
 						<FormInput
 							control={form.control}

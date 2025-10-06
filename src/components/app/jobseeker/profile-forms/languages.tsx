@@ -81,8 +81,8 @@ function LanguageForm({
 							placeholder='Select a language'
 							required
 							options={languageOptions}
-							labelKey='name'
-							valueKey='id'
+							getOptionLabel={(option) => option.name}
+							getOptionValue={(option) => option.id!}
 							disabled={isSubmitting}
 						/>
 						<FormSelect

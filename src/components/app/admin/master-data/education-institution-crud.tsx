@@ -99,24 +99,16 @@ function EducationInstitutionForm({
 							required
 							disabled={isSubmitting}
 						/>
-						<FormField
+						<FormAutocomplete
 							control={form.control}
 							name='fkCountry'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel required>Country</FormLabel>
-									<FormAutocomplete
-										control={form.control}
-										name='fkCountry'
-										label=''
-										placeholder='Select Country'
-										required
-										options={countries.map((c) => ({ value: c.id!, label: c.name }))}
-										disabled={isSubmitting}
-									/>
-									<FormMessage />
-								</FormItem>
-							)}
+							label='Country'
+							placeholder='Select Country'
+							required
+							options={countries}
+							getOptionValue={(option) => option.id!.toString()}
+							getOptionLabel={(option) => option.name}
+							disabled={isSubmitting}
 						/>
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>

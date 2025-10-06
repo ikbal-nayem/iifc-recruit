@@ -436,7 +436,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 								label=''
 								placeholder='Filter by Type...'
 								options={[{ id: 'all', name: 'All Types' }, ...(masterData?.organizationTypes || [])]}
-								getOptionValue={(option) => option.id!}
+								getOptionValue={(option) => option.id!.toString()}
 								getOptionLabel={(option) => option.name}
 								onValueChange={(val) => setOrganizationTypeFilter(val as string)}
 								value={organizationTypeFilter}
@@ -447,7 +447,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 								label=''
 								placeholder='Filter by Industry...'
 								options={[{ id: 'all', name: 'All Industries' }, ...(masterData?.industryTypes || [])]}
-								getOptionValue={(option) => option.id!}
+								getOptionValue={(option) => option.id!.toString()}
 								getOptionLabel={(option) => option.name}
 								onValueChange={(val) => setIndustryFilter(val as string)}
 								value={industryFilter}

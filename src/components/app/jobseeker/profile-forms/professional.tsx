@@ -143,8 +143,8 @@ function ProfessionalExperienceForm({
 								placeholder='Select an organization'
 								required
 								options={masterData.organizations}
-								labelKey='name'
-								valueKey='id'
+								getOptionValue={(option) => option.id!.toString()}
+								getOptionLabel={(option) => option.name}
 							/>
 							<FormAutocomplete
 								control={form.control}
@@ -153,8 +153,8 @@ function ProfessionalExperienceForm({
 								placeholder='Select a level'
 								required
 								options={masterData.positionLevels}
-								labelKey='name'
-								valueKey='id'
+								getOptionValue={(option) => option.id!.toString()}
+								getOptionLabel={(option) => option.name}
 							/>
 						</div>
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>

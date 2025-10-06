@@ -277,7 +277,9 @@ export function ProfileFormFamily({
 									name='ownDistrictId'
 									label="Spouse's Home District"
 									placeholder='Select a district'
-									options={districts.map((d) => ({ value: d.id!, label: d.name }))}
+									options={districts}
+									getOptionValue={(option) => option.id!.toString()}
+									getOptionLabel={(option) => option.name}
 								/>
 							</div>
 						</CardContent>
