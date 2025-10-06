@@ -64,7 +64,7 @@ export const adminNavLinks: NavLink[] = [
 		],
 	},
 	{ href: '/admin/jobseekers', label: 'Jobseekers', icon: Users },
-	{ href: '/admin/master-data/client-organizations', label: 'Client Organizations', icon: Handshake },
+	{ href: '/admin/client-organizations', label: 'Client Organizations', icon: Handshake },
 	{
 		href: '#',
 		label: 'Separator',
