@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { IApiResponse, IFile } from '@/interfaces/common.interface';
 import { PersonalInfo } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
-import { makePreviewURL } from '@/lib/utils';
+import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';

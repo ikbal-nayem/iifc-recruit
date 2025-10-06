@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -6,12 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
-import { makeDownloadURL, makePreviewURL } from '@/lib/utils';
+import { makeDownloadURL, makePreviewURL } from '@/lib/file-oparations';
 import { format, parseISO } from 'date-fns';
 import {
 	Award,
 	BookCopy,
-	BookMarked,
 	BookOpen,
 	Briefcase,
 	Download,

@@ -1,15 +1,13 @@
-
 'use client';
 
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { IFile } from '@/interfaces/common.interface';
-import { makeDownloadURL, makePreviewURL } from '@/lib/utils';
+import { isFileImage, isFilePdf, makeDownloadURL, makePreviewURL } from '@/lib/file-oparations';
+import { cn } from '@/lib/utils';
 import { Download, ExternalLink, Loader2, Maximize, Minimize, X } from 'lucide-react';
 import React, { useState } from 'react';
 import { Button } from './button';
-import { cn } from '@/lib/utils';
-import { isFileImage, isFilePdf } from '@/lib/file-type-checker';
 
 type FilePreviewerProps = {
 	file: IFile | File;
@@ -111,7 +109,12 @@ export function FilePreviewer({ file, children, className }: FilePreviewerProps)
 							{fileName}
 						</DialogTitle>
 						<div className='flex items-center gap-2'>
-							<Button variant='ghost' size='icon' className='h-8 w-8 hover:bg-green-100' onClick={handleDownload}>
+							<Button
+								variant='ghost'
+								size='icon'
+								className='h-8 w-8 hover:bg-green-100'
+								onClick={handleDownload}
+							>
 								<Download className='h-4 w-4' />
 							</Button>
 							{previewUrl && (

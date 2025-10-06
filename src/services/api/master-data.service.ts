@@ -2,6 +2,7 @@ import { axiosIns } from '@/config/api.config';
 import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
 import {
 	EnumDTO,
+	IBilingualMasterData,
 	ICommonMasterData,
 	IEducationInstitution,
 	IOrganization,
@@ -21,9 +22,7 @@ const createMasterDataCrud = <T extends ICommonMasterData>(entity: string) => ({
 	delete: async (id: string): Promise<void> => await axiosIns.delete(`/master-data/${entity}/delete/${id}`),
 });
 
-const createBilingualMasterDataCrud = <T extends { id?: number; nameEn: string; nameBn: string }>(
-	entity: string
-) => ({
+const createBilingualMasterDataCrud = <T extends IBilingualMasterData>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[]>> =>
 		await axiosIns.get(`/master-data/${entity}/get?isDeleted=false`),
 	getList: async (payload: IApiRequest): Promise<IApiResponse<T[]>> =>
@@ -37,7 +36,7 @@ const createBilingualMasterDataCrud = <T extends { id?: number; nameEn: string; 
 
 export const MasterDataService = {
 	getEnum: async (
-		enumType: 'gender' | 'marital-status' | 'professional-status' | 'religion' | 'proficiency-level' | 'spouse-status'
+		enumType: 'gender' | 'marital-status' | 'religion' | 'proficiency-level' | 'spouse-status'
 	): Promise<IApiResponse<EnumDTO[]>> => await axiosIns.get(`/master-data/enum/${enumType}`),
 
 	skill: createMasterDataCrud('skill'),
