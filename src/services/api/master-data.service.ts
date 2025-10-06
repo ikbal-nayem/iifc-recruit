@@ -5,6 +5,7 @@ import {
 	ICommonMasterData,
 	IEducationInstitution,
 	IOrganization,
+    IClientOrganization,
 	IOutsourcingCategory,
 	IOutsourcingCharge,
 	IOutsourcingService,
@@ -53,6 +54,7 @@ export const MasterDataService = {
 	},
 	educationInstitution: createMasterDataCrud<IEducationInstitution>('education-institution'),
 	organization: createMasterDataCrud<IOrganization>('organization'),
+    clientOrganization: createMasterDataCrud<IClientOrganization>('client-organization'),
 	client: {
 		getList: async (): Promise<IApiResponse<IOrganization[]>> => await axiosIns.get('/client/get-list'),
 		add: async (payload: { organizationId: string }): Promise<IApiResponse<any>> =>

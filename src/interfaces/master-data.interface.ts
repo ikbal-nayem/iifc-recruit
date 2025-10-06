@@ -61,6 +61,20 @@ export interface IOrganization extends ICommonMasterData {
 	industryType?: ICommonMasterData;
 }
 
+export interface IClientOrganization {
+    id?: number;
+    nameEn: string;
+    nameBn: string;
+    organizationTypeId: number;
+    organizationType?: ICommonMasterData;
+    address?: string;
+    contactPersonName?: string;
+    contactNumber?: string;
+    email?: string;
+    website?: string;
+    isActive: boolean;
+}
+
 export interface IStatus extends ICommonMasterData {
 	statusType: typeof STATUS_TYPE[keyof typeof STATUS_TYPE];
 }
