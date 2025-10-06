@@ -1,3 +1,4 @@
+
 import type { LucideIcon } from 'lucide-react';
 import {
 	Award,
@@ -63,6 +64,7 @@ export const adminNavLinks: NavLink[] = [
 		],
 	},
 	{ href: '/admin/jobseekers', label: 'Jobseekers', icon: Users },
+	{ href: '/admin/master-data/client-organizations', label: 'Client Organizations', icon: Handshake },
 	{
 		href: '#',
 		label: 'Separator',
@@ -76,7 +78,6 @@ export const adminNavLinks: NavLink[] = [
 		isActive: (pathname) => pathname.startsWith('/admin/master-data'),
 		submenu: [
 			{ href: '/admin/master-data/organizations', label: 'Organizations', icon: Building2 },
-            { href: '/admin/master-data/client-organizations', label: 'Client Organizations', icon: Handshake },
 			{ href: '/admin/master-data/skills', label: 'Skills', icon: Award },
 			{ href: '/admin/master-data/languages', label: 'Languages', icon: Globe },
 			{
