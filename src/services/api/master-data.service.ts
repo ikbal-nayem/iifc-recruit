@@ -2,27 +2,16 @@ import { axiosIns } from '@/config/api.config';
 import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
 import {
 	EnumDTO,
-	IBilingualMasterData,
 	ICommonMasterData,
 	IEducationInstitution,
 	IOrganization,
 	IOutsourcingCategory,
+	IOutsourcingCharge,
+	IOutsourcingService,
 	IOutsourcingZone,
 } from '@/interfaces/master-data.interface';
 
-const createMasterDataCrud = <T extends ICommonMasterData>(entity: string) => ({
-	get: async (): Promise<IApiResponse<T[]>> =>
-		await axiosIns.get(`/master-data/${entity}/get?isDeleted=false`),
-	getList: async (payload: IApiRequest): Promise<IApiResponse<T[]>> =>
-		await axiosIns.post(`/master-data/${entity}/get-list`, payload),
-	add: async (payload: Omit<T, 'id'>): Promise<IApiResponse<T>> =>
-		await axiosIns.post(`/master-data/${entity}/create`, payload),
-	update: async (payload: T): Promise<IApiResponse<T>> =>
-		await axiosIns.put(`/master-data/${entity}/update`, payload),
-	delete: async (id: string): Promise<void> => await axiosIns.delete(`/master-data/${entity}/delete/${id}`),
-});
-
-const createBilingualMasterDataCrud = <T extends IBilingualMasterData>(entity: string) => ({
+const createMasterDataCrud = <T>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[]>> =>
 		await axiosIns.get(`/master-data/${entity}/get?isDeleted=false`),
 	getList: async (payload: IApiRequest): Promise<IApiResponse<T[]>> =>
@@ -71,8 +60,8 @@ export const MasterDataService = {
 		delete: async (organizationId: string): Promise<void> =>
 			await axiosIns.delete(`/client/delete/${organizationId}`),
 	},
-	outsourcingCategory: createBilingualMasterDataCrud<IOutsourcingCategory>('outsourcing-category'),
-	outsourcingZone: createBilingualMasterDataCrud<IOutsourcingZone>('outsourcing-zone'),
-	outsourcingService: createMasterDataCrud('outsourcing-service'),
-	outsourcingCharge: createMasterDataCrud('outsourcing-charge'),
+	outsourcingCategory: createMasterDataCrud<IOutsourcingCategory>('outsourcing-category'),
+	outsourcingZone: createMasterDataCrud<IOutsourcingZone>('outsourcing-zone'),
+	outsourcingService: createMasterDataCrud<IOutsourcingService>('outsourcing-service'),
+	outsourcingCharge: createMasterDataCrud<IOutsourcingCharge>('outsourcing-charge'),
 };
