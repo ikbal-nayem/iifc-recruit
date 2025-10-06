@@ -1,7 +1,7 @@
 
 'use client';
 
-import { FormMasterData } from '@/app/(auth)/admin/master-data/client-organizations/page';
+import { FormMasterData } from '@/app/(auth)/admin/client-organizations/page';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
@@ -261,7 +261,7 @@ export function ClientOrganizationCrud({ title, description, noun, masterData }:
 		try {
 			const response = editingItem?.id
 				? await MasterDataService.clientOrganization.update(payload)
-				: await MasterDataService.clientOrganization.add(payload);
+				: await MasterDataService.clientOrganization.add({ ...payload, isActive: true });
 
 			toast({ description: response.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch);
