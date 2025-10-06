@@ -87,7 +87,9 @@ function ChildForm({ isOpen, onClose, onSubmit, initialData, genders }: ChildFor
 							label='Gender'
 							required
 							placeholder='Select gender'
-							options={genders.map((g) => ({ label: g.labelEn, value: g.value }))}
+							options={genders}
+							labelKey='labelEn'
+							valueKey='value'
 						/>
 						<FormDatePicker
 							control={form.control}
@@ -266,7 +268,9 @@ export function ProfileFormFamily({
 									name='status'
 									label='Spouse Status'
 									placeholder='Select a status'
-									options={spouseStatuses.map((s) => ({ label: s.labelEn, value: s.value }))}
+									options={spouseStatuses}
+									labelKey='labelEn'
+									valueKey='value'
 								/>
 								<FormAutocomplete
 									control={form.control}

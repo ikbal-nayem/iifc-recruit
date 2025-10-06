@@ -13,8 +13,10 @@ interface FormSelectProps<TFieldValues extends FieldValues> {
 	label: string;
 	placeholder?: string;
 	required?: boolean;
-	options: { label: string; value: string | number }[];
+	options: any[];
 	disabled?: boolean;
+	labelKey?: string;
+	valueKey?: string;
 }
 
 export function FormSelect<TFieldValues extends FieldValues>({
@@ -25,6 +27,8 @@ export function FormSelect<TFieldValues extends FieldValues>({
 	required = false,
 	options,
 	disabled = false,
+	labelKey = 'label',
+	valueKey = 'value',
 	...props
 }: FormSelectProps<TFieldValues>) {
 	return (
@@ -47,8 +51,8 @@ export function FormSelect<TFieldValues extends FieldValues>({
 						</FormControl>
 						<SelectContent>
 							{options.map((option) => (
-								<SelectItem key={option.value} value={option.value.toString()}>
-									{option.label}
+								<SelectItem key={option[valueKey]} value={option[valueKey]?.toString()}>
+									{option[labelKey]}
 								</SelectItem>
 							))}
 						</SelectContent>

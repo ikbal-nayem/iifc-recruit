@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ProfessionalExperienceMasterData } from '@/app/(auth)/jobseeker/profile-edit/professional/page';
@@ -141,10 +142,9 @@ function ProfessionalExperienceForm({
 								label='Organization'
 								placeholder='Select an organization'
 								required
-								options={masterData.organizations.map((o) => ({
-									label: o.name,
-									value: o.id!,
-								}))}
+								options={masterData.organizations}
+								labelKey='name'
+								valueKey='id'
 							/>
 							<FormAutocomplete
 								control={form.control}
@@ -152,10 +152,9 @@ function ProfessionalExperienceForm({
 								label='Position Level'
 								placeholder='Select a level'
 								required
-								options={masterData.positionLevels.map((p) => ({
-									label: p.name,
-									value: p.id!,
-								}))}
+								options={masterData.positionLevels}
+								labelKey='name'
+								valueKey='id'
 							/>
 						</div>
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>

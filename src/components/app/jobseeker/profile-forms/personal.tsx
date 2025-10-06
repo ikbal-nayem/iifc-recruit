@@ -400,7 +400,9 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 										label='Gender'
 										required
 										placeholder='Select gender'
-										options={masterData.genders.map((g) => ({ label: g.labelEn, value: g.value }))}
+										options={masterData.genders}
+										labelKey='labelEn'
+										valueKey='value'
 									/>
 									<FormSelect
 										control={form.control}
@@ -408,7 +410,9 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 										label='Marital Status'
 										required
 										placeholder='Select marital status'
-										options={masterData.maritalStatuses.map((s) => ({ label: s.labelEn, value: s.value }))}
+										options={masterData.maritalStatuses}
+										labelKey='labelEn'
+										valueKey='value'
 									/>
 								</div>
 								<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -417,7 +421,9 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 										name='religion'
 										label='Religion'
 										placeholder='Select religion'
-										options={masterData.religions.map((r) => ({ label: r.labelEn, value: r.value }))}
+										options={masterData.religions}
+										labelKey='labelEn'
+										valueKey='value'
 									/>
 									{/* <FormSelect
 										control={form.control}
@@ -463,10 +469,9 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 												name='presentDivisionId'
 												label='Division'
 												placeholder='Select division'
-												options={masterData.divisions.map((d) => ({
-													label: d.name,
-													value: d.id!,
-												}))}
+												options={masterData.divisions}
+												labelKey='name'
+												valueKey='id'
 											/>
 											<FormSelect
 												control={form.control}
@@ -474,7 +479,9 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 												label='District'
 												placeholder='Select district'
 												disabled={isLoadingPresentDistricts}
-												options={presentDistricts.map((d) => ({ label: d.name, value: d.id! }))}
+												options={presentDistricts}
+												labelKey='name'
+												valueKey='id'
 											/>
 											<FormSelect
 												control={form.control}
@@ -482,7 +489,9 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 												label='Upazila / Thana'
 												placeholder='Select upazila'
 												disabled={isLoadingPresentUpazilas}
-												options={presentUpazilas.map((u) => ({ label: u.name, value: u.id! }))}
+												options={presentUpazilas}
+												labelKey='name'
+												valueKey='id'
 											/>
 										</div>
 										<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -526,10 +535,9 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 													label='Division'
 													placeholder='Select division'
 													disabled={watchSameAsPresent}
-													options={masterData.divisions.map((d) => ({
-														label: d.name,
-														value: d.id!,
-													}))}
+													options={masterData.divisions}
+													labelKey='name'
+													valueKey='id'
 												/>
 												<FormSelect
 													control={form.control}
@@ -537,10 +545,9 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 													label='District'
 													placeholder='Select district'
 													disabled={watchSameAsPresent || isLoadingPermanentDistricts}
-													options={permanentDistricts.map((d) => ({
-														label: d.name,
-														value: d.id!,
-													}))}
+													options={permanentDistricts}
+													labelKey='name'
+													valueKey='id'
 												/>
 												<FormSelect
 													control={form.control}
@@ -548,10 +555,9 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 													label='Upazila / Thana'
 													placeholder='Select upazila'
 													disabled={watchSameAsPresent || isLoadingPermanentUpazilas}
-													options={permanentUpazilas.map((u) => ({
-														label: u.name,
-														value: u.id!,
-													}))}
+													options={permanentUpazilas}
+													labelKey='name'
+													valueKey='id'
 												/>
 											</div>
 											<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>

@@ -32,8 +32,8 @@ interface LanguageFormProps {
 	onSubmit: (data: LanguageFormValues, id?: number) => Promise<boolean>;
 	initialData?: Language;
 	noun: string;
-	languageOptions: { label: string; value: number }[];
-	proficiencyOptions: { label: string; value: string }[];
+	languageOptions: ICommonMasterData[];
+	proficiencyOptions: EnumDTO[];
 }
 
 const defaultValues = { languageId: 0, proficiency: '' };
@@ -81,6 +81,8 @@ function LanguageForm({
 							placeholder='Select a language'
 							required
 							options={languageOptions}
+							labelKey='name'
+							valueKey='id'
 							disabled={isSubmitting}
 						/>
 						<FormSelect
@@ -90,6 +92,8 @@ function LanguageForm({
 							required
 							options={proficiencyOptions}
 							placeholder='Select proficiency'
+							labelKey='labelEn'
+							valueKey='value'
 							disabled={isSubmitting}
 						/>
 						<DialogFooter className='pt-4'>
@@ -238,8 +242,8 @@ export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: Pr
 					onSubmit={handleFormSubmit}
 					initialData={editingItem}
 					noun='Language'
-					languageOptions={languageOptions.map((l) => ({ label: l.name, value: l.id as number }))}
-					proficiencyOptions={proficiencyOptions.map((p) => ({ label: p.labelEn, value: p.value }))}
+					languageOptions={languageOptions}
+					proficiencyOptions={proficiencyOptions}
 				/>
 			)}
 		</div>
