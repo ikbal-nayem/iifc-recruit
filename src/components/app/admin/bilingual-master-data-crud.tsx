@@ -20,12 +20,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { IMeta } from '@/interfaces/common.interface';
+import { IBilingualMasterData } from '@/interfaces/master-data.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { IOutsourcingCategory } from '@/interfaces/master-data.interface';
 
 const formSchema = z.object({
 	nameEn: z.string().min(1, 'English name is required.'),
@@ -33,21 +33,21 @@ const formSchema = z.object({
 });
 type FormValues = z.infer<typeof formSchema>;
 
-interface OutsourcingCategoryFormProps {
+interface BilingualMasterDataFormProps {
 	isOpen: boolean;
 	onClose: () => void;
 	onSubmit: (data: FormValues, id?: string) => Promise<boolean | null>;
-	initialData?: IOutsourcingCategory;
+	initialData?: IBilingualMasterData;
 	noun: string;
 }
 
-function OutsourcingCategoryForm({
+function BilingualMasterDataForm({
 	isOpen,
 	onClose,
 	onSubmit,
 	initialData,
 	noun,
-}: OutsourcingCategoryFormProps) {
+}: BilingualMasterDataFormProps) {
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues: { nameEn: initialData?.nameEn || '', nameBn: initialData?.nameBn || '' },
@@ -107,21 +107,21 @@ function OutsourcingCategoryForm({
 	);
 }
 
-interface OutsourcingCategoryCrudProps {
+interface BilingualMasterDataCrudProps {
 	title: string;
 	description: string;
 	noun: string;
-	items: IOutsourcingCategory[];
+	items: IBilingualMasterData[];
 	meta: IMeta;
 	isLoading: boolean;
 	onAdd: (data: { nameEn: string; nameBn: string }) => Promise<boolean | null>;
-	onUpdate: (item: IOutsourcingCategory) => Promise<boolean | null>;
+	onUpdate: (item: IBilingualMasterData) => Promise<boolean | null>;
 	onDelete: (id: string) => Promise<boolean>;
 	onPageChange?: (page: number) => void;
 	onSearch: (query: string) => void;
 }
 
-export function OutsourcingCategoryCrud({
+export function BilingualMasterDataCrud({
 	title,
 	description,
 	noun,
@@ -133,13 +133,13 @@ export function OutsourcingCategoryCrud({
 	onDelete,
 	onPageChange,
 	onSearch,
-}: OutsourcingCategoryCrudProps) {
+}: BilingualMasterDataCrudProps) {
 	const { toast } = useToast();
 	const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
 	const [isFormOpen, setIsFormOpen] = useState(false);
-	const [editingItem, setEditingItem] = useState<IOutsourcingCategory | undefined>(undefined);
+	const [editingItem, setEditingItem] = useState<IBilingualMasterData | undefined>(undefined);
 
-	const handleOpenForm = (item?: IOutsourcingCategory) => {
+	const handleOpenForm = (item?: IBilingualMasterData) => {
 		setEditingItem(item);
 		setIsFormOpen(true);
 	};
@@ -158,7 +158,7 @@ export function OutsourcingCategoryCrud({
 		}
 	};
 
-	const handleToggleActive = async (item: IOutsourcingCategory) => {
+	const handleToggleActive = async (item: IBilingualMasterData) => {
 		if (!item.id) return;
 		setIsSubmitting(item.id.toString());
 		const success = await onUpdate({ ...item, isActive: !item.isActive });
@@ -273,7 +273,7 @@ export function OutsourcingCategoryCrud({
 			</Card>
 
 			{isFormOpen && (
-				<OutsourcingCategoryForm
+				<BilingualMasterDataForm
 					isOpen={isFormOpen}
 					onClose={handleCloseForm}
 					onSubmit={handleFormSubmit}

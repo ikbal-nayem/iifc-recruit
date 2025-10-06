@@ -5,14 +5,14 @@ import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { useCallback, useEffect, useState } from 'react';
-import { IOutsourcingCategory } from '@/interfaces/master-data.interface';
-import { OutsourcingCategoryCrud } from '@/components/app/admin/outsourcing-category-crud';
+import { IBilingualMasterData } from '@/interfaces/master-data.interface';
+import { BilingualMasterDataCrud } from '@/components/app/admin/bilingual-master-data-crud';
 
 const initMeta: IMeta = { page: 0, limit: 20 };
 
 export default function MasterOutsourcingCategoryPage() {
 	const { toast } = useToast();
-	const [items, setItems] = useState<IOutsourcingCategory[]>([]);
+	const [items, setItems] = useState<IBilingualMasterData[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState('');
@@ -63,7 +63,7 @@ export default function MasterOutsourcingCategoryPage() {
 		}
 	};
 
-	const handleUpdate = async (item: IOutsourcingCategory): Promise<boolean | null> => {
+	const handleUpdate = async (item: IBilingualMasterData): Promise<boolean | null> => {
 		try {
 			const updatedItem = await MasterDataService.outsourcingCategory.update(item);
 			setItems(items.map((i) => (i?.id === item?.id ? updatedItem?.body : i)));
@@ -90,7 +90,7 @@ export default function MasterOutsourcingCategoryPage() {
 	};
 
 	return (
-		<OutsourcingCategoryCrud
+		<BilingualMasterDataCrud
 			title='Outsourcing Categories'
 			description='Manage outsourcing categories.'
 			noun='Outsourcing Category'

@@ -13,20 +13,16 @@ export interface ICommonMasterData {
 	code?: string;
 }
 
-export interface IOutsourcingCategory {
+export interface IBilingualMasterData {
 	id?: number;
 	nameEn: string;
 	nameBn: string;
 	isActive: boolean;
 }
 
-export interface IOutsourcingZone {
-	id?: number;
-	nameEn: string;
-	nameBn: string;
-	isActive: boolean;
-}
+export interface IOutsourcingCategory extends IBilingualMasterData {}
 
+export interface IOutsourcingZone extends IBilingualMasterData {}
 
 export interface IEducationInstitution extends ICommonMasterData {
 	countryId: string;

@@ -5,14 +5,14 @@ import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { useCallback, useEffect, useState } from 'react';
-import { IOutsourcingZone } from '@/interfaces/master-data.interface';
-import { OutsourcingZoneCrud } from '@/components/app/admin/outsourcing-zone-crud';
+import { IBilingualMasterData } from '@/interfaces/master-data.interface';
+import { BilingualMasterDataCrud } from '@/components/app/admin/bilingual-master-data-crud';
 
 const initMeta: IMeta = { page: 0, limit: 20 };
 
 export default function MasterOutsourcingZonePage() {
 	const { toast } = useToast();
-	const [items, setItems] = useState<IOutsourcingZone[]>([]);
+	const [items, setItems] = useState<IBilingualMasterData[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState('');
@@ -64,7 +64,7 @@ export default function MasterOutsourcingZonePage() {
 		}
 	};
 
-	const handleUpdate = async (item: IOutsourcingZone): Promise<boolean | null> => {
+	const handleUpdate = async (item: IBilingualMasterData): Promise<boolean | null> => {
 		try {
 			const updatedItem = await MasterDataService.outsourcingZone.update(item);
 			setItems(items.map((i) => (i?.id === item?.id ? updatedItem?.body : i)));
@@ -91,7 +91,7 @@ export default function MasterOutsourcingZonePage() {
 	};
 
 	return (
-		<OutsourcingZoneCrud
+		<BilingualMasterDataCrud
 			title='Outsourcing Zones'
 			description='Manage outsourcing zones.'
 			noun='Outsourcing Zone'
