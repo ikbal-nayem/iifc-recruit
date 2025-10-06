@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -28,8 +29,14 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 const formSchema = z.object({
-	nameEn: z.string().min(1, 'English name is required.'),
-	nameBn: z.string().min(1, 'Bengali name is required.'),
+	nameEn: z
+		.string()
+		.min(1, 'English name is required.')
+		.regex(/^[a-zA-Z0-9 .,_()-\s]*$/, 'Only English characters, numbers, and some special characters are allowed.'),
+	nameBn: z
+		.string()
+		.min(1, 'Bengali name is required.')
+		.regex(/^[\u0980-\u09FF0-9 .,_()-\s]*$/, 'Only Bengali characters, numbers, and some special characters are allowed.'),
 });
 type FormValues = z.infer<typeof formSchema>;
 
