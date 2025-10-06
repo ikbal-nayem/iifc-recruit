@@ -55,13 +55,6 @@ export const MasterDataService = {
 	educationInstitution: createMasterDataCrud<IEducationInstitution>('education-institution'),
 	organization: createMasterDataCrud<IOrganization>('organization'),
     clientOrganization: createMasterDataCrud<IClientOrganization>('client-organization'),
-	client: {
-		getList: async (): Promise<IApiResponse<IOrganization[]>> => await axiosIns.get('/client/get-list'),
-		add: async (payload: { organizationId: string }): Promise<IApiResponse<any>> =>
-			await axiosIns.post('/client/create', payload),
-		delete: async (organizationId: string): Promise<void> =>
-			await axiosIns.delete(`/client/delete/${organizationId}`),
-	},
 	outsourcingCategory: createMasterDataCrud<IOutsourcingCategory>('outsourcing-category'),
 	outsourcingZone: createMasterDataCrud<IOutsourcingZone>('outsourcing-zone'),
 	outsourcingService: createMasterDataCrud<IOutsourcingService>('outsourcing-service'),
