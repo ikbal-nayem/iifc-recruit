@@ -40,7 +40,7 @@ export default function MasterSkillsPage() {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit]
+		[meta.limit, toast]
 	);
 
 	useEffect(() => {
