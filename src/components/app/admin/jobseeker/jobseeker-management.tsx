@@ -42,7 +42,7 @@ import { JobseekerProfileView } from '@/components/app/jobseeker/jobseeker-profi
 import type { Jobseeker } from '@/lib/types';
 import { jobseekers as initialJobseekers } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
-import { Card } from '../ui/card';
+import { Card } from '@/components/ui/card';
 
 export function JobseekerManagement() {
   const [data, setData] = React.useState<Jobseeker[]>(initialJobseekers);
