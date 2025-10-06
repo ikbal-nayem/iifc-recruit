@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -17,32 +16,45 @@ import { Check, ChevronsUpDown } from 'lucide-react';
 import * as React from 'react';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
 
-interface FormAutocompleteProps<TFieldValues extends FieldValues> {
+interface FormAutocompleteProps<
+	TFieldValues extends FieldValues,
+	TOption = { value: string | number; label: string },
+> {
 	control: Control<TFieldValues> | any;
 	name: FieldPath<TFieldValues>;
 	label: string;
 	placeholder?: string;
 	required?: boolean;
-	options: { value: string | number; label: string }[];
+	options: TOption[];
+	getOptionValue: (option: TOption) => string | number;
+	getOptionLabel: (option: TOption) => string;
+	renderOption?: (option: TOption) => React.ReactNode;
 	disabled?: boolean;
 	onValueChange?: (value: string | number) => void;
 	value?: string;
 }
 
-export function FormAutocomplete<TFieldValues extends FieldValues>({
+export function FormAutocomplete<
+	TFieldValues extends FieldValues,
+	TOption extends { [key: string]: any },
+>({
 	control,
 	name,
 	label,
 	placeholder,
 	required = false,
 	options,
+	getOptionValue,
+	getOptionLabel,
+	renderOption,
 	disabled = false,
 	onValueChange,
 	value,
-}: FormAutocompleteProps<TFieldValues>) {
+}: FormAutocompleteProps<TFieldValues, TOption>) {
 	const [open, setOpen] = React.useState(false);
 
 	if (!control) {
+		const selectedOption = options.find((option) => getOptionValue(option) === value);
 		return (
 			<FormItem>
 				<div className='space-y-2'>
@@ -55,7 +67,7 @@ export function FormAutocomplete<TFieldValues extends FieldValues>({
 								className={cn('w-full justify-between h-11', !value && 'text-muted-foreground')}
 								disabled={disabled}
 							>
-								{value ? options.find((option) => option.value === value)?.label : placeholder || 'Select...'}
+								{value && selectedOption ? getOptionLabel(selectedOption) : placeholder || 'Select...'}
 								<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
 							</Button>
 						</PopoverTrigger>
@@ -67,17 +79,20 @@ export function FormAutocomplete<TFieldValues extends FieldValues>({
 									<CommandGroup>
 										{options.map((option) => (
 											<CommandItem
-												key={option.value}
-												value={option.label}
+												key={getOptionValue(option)}
+												value={getOptionLabel(option)}
 												onSelect={() => {
-													if (onValueChange) onValueChange(option.value);
+													if (onValueChange) onValueChange(getOptionValue(option));
 													setOpen(false);
 												}}
 											>
 												<Check
-													className={cn('mr-2 h-4 w-4', value === option.value ? 'opacity-100' : 'opacity-0')}
+													className={cn(
+														'mr-2 h-4 w-4',
+														value === getOptionValue(option) ? 'opacity-100' : 'opacity-0'
+													)}
 												/>
-												{option.label}
+												{renderOption ? renderOption(option) : getOptionLabel(option)}
 											</CommandItem>
 										))}
 									</CommandGroup>
@@ -108,7 +123,7 @@ export function FormAutocomplete<TFieldValues extends FieldValues>({
 										disabled={disabled}
 									>
 										{field.value
-											? options.find((option) => option.value === field.value)?.label
+											? getOptionLabel(options.find((option) => getOptionValue(option) === field.value)!)
 											: placeholder || 'Select...'}
 										<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
 									</Button>
@@ -122,20 +137,20 @@ export function FormAutocomplete<TFieldValues extends FieldValues>({
 										<CommandGroup>
 											{options.map((option) => (
 												<CommandItem
-													key={option.value}
-													value={option.label}
+													key={getOptionValue(option)}
+													value={getOptionLabel(option)}
 													onSelect={() => {
-														field.onChange(option.value);
+														field.onChange(getOptionValue(option));
 														setOpen(false);
 													}}
 												>
 													<Check
 														className={cn(
 															'mr-2 h-4 w-4',
-															field.value === option.value ? 'opacity-100' : 'opacity-0'
+															field.value === getOptionValue(option) ? 'opacity-100' : 'opacity-0'
 														)}
 													/>
-													{option.label}
+													{renderOption ? renderOption(option) : getOptionLabel(option)}
 												</CommandItem>
 											))}
 										</CommandGroup>

@@ -105,7 +105,9 @@ function OrganizationForm({
 								label='Country'
 								placeholder='Select Country'
 								required
-								options={countries.map((c) => ({ value: c.code!, label: c.name }))}
+								options={countries}
+								getOptionValue={(option) => option.code!}
+								getOptionLabel={(option) => option.name}
 								disabled={isSubmitting}
 							/>
 							<FormAutocomplete
@@ -114,7 +116,9 @@ function OrganizationForm({
 								label='Organization Type'
 								required
 								placeholder='Select Organization Type'
-								options={organizationTypes.map((o) => ({ value: o.id!, label: o.name }))}
+								options={organizationTypes}
+								getOptionValue={(option) => option.id!}
+								getOptionLabel={(option) => option.name}
 								disabled={isSubmitting}
 							/>
 						</div>
@@ -123,7 +127,9 @@ function OrganizationForm({
 							name='industryTypeId'
 							label='Industry Type'
 							placeholder='Select Industry Type'
-							options={industryTypes.map((i) => ({ value: i.id!, label: i.name }))}
+							options={industryTypes}
+							getOptionValue={(option) => option.id!}
+							getOptionLabel={(option) => option.name}
 							disabled={isSubmitting}
 						/>
 						<FormInput
@@ -418,11 +424,10 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 								name='countryFilter'
 								label=''
 								placeholder='Filter by Country...'
-								options={[
-									{ value: 'all', label: 'All Countries' },
-									...masterData?.countries?.map((c) => ({ value: c.code!, label: c.name })),
-								]}
-								onValueChange={setCountryFilter}
+								options={[{ id: 'all', name: 'All Countries', code: 'all' }, ...(masterData?.countries || [])]}
+								getOptionValue={(option) => option.code!}
+								getOptionLabel={(option) => option.name}
+								onValueChange={(val) => setCountryFilter(val as string)}
 								value={countryFilter}
 							/>
 							<FormAutocomplete
@@ -430,11 +435,10 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 								name='organizationTypeFilter'
 								label=''
 								placeholder='Filter by Type...'
-								options={[
-									{ value: 'all', label: 'All Types' },
-									...masterData?.organizationTypes?.map((c) => ({ value: c.id!, label: c.name })),
-								]}
-								onValueChange={setOrganizationTypeFilter}
+								options={[{ id: 'all', name: 'All Types' }, ...(masterData?.organizationTypes || [])]}
+								getOptionValue={(option) => option.id!}
+								getOptionLabel={(option) => option.name}
+								onValueChange={(val) => setOrganizationTypeFilter(val as string)}
 								value={organizationTypeFilter}
 							/>
 							<FormAutocomplete
@@ -442,11 +446,10 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 								name='industryFilter'
 								label=''
 								placeholder='Filter by Industry...'
-								options={[
-									{ value: 'all', label: 'All Industries' },
-									...masterData?.industryTypes?.map((i) => ({ value: i.id!, label: i.name })),
-								]}
-								onValueChange={setIndustryFilter}
+								options={[{ id: 'all', name: 'All Industries' }, ...(masterData?.industryTypes || [])]}
+								getOptionValue={(option) => option.id!}
+								getOptionLabel={(option) => option.name}
+								onValueChange={(val) => setIndustryFilter(val as string)}
 								value={industryFilter}
 							/>
 						</div>
