@@ -4,8 +4,8 @@ import { IObject } from './common.interface';
 
 export type EnumDTO = {
 	value: string;
-	labelEn: string;
-	labelBn: string;
+	nameEn: string;
+	nameBn: string;
 };
 
 export interface ICommonMasterData {

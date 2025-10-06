@@ -167,13 +167,13 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 								value={format(parseISO(personalInfo.dateOfBirth), 'do MMM, yyyy')}
 							/>
 						)}
-						<DetailItem label='Gender' value={personalInfo.genderDTO?.labelEn || personalInfo.gender} />
+						<DetailItem label='Gender' value={personalInfo.genderDTO?.nameEn || personalInfo.gender} />
 						<DetailItem
 							label='Marital Status'
-							value={personalInfo.maritalStatusDTO?.labelEn || personalInfo.maritalStatus}
+							value={personalInfo.maritalStatusDTO?.nameEn || personalInfo.maritalStatus}
 						/>
 						<DetailItem label='Nationality' value={personalInfo.nationality} />
-						<DetailItem label='Religion' value={personalInfo.religionDTO?.labelEn || personalInfo.religion} />
+						<DetailItem label='Religion' value={personalInfo.religionDTO?.nameEn || personalInfo.religion} />
 						<DetailItem label='NID' value={personalInfo.nid} />
 						<DetailItem label='Passport No.' value={personalInfo.passportNo} />
 					</div>
@@ -300,7 +300,7 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 												<div key={index} className='text-sm'>
 													<p>
 														<span className='font-medium'>{child.name}</span> (
-														{child.genderDTO?.labelEn || child.gender})
+														{child.genderDTO?.nameEn || child.gender})
 													</p>
 													<p className='text-xs text-muted-foreground'>
 														Born on {format(parseISO(child.dob), 'do MMM, yyyy')}

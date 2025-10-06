@@ -92,7 +92,7 @@ function LanguageForm({
 							required
 							options={proficiencyOptions}
 							placeholder='Select proficiency'
-							labelKey='labelEn'
+							labelKey='nameEn'
 							valueKey='value'
 							disabled={isSubmitting}
 						/>

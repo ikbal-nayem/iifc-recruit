@@ -88,7 +88,7 @@ function ChildForm({ isOpen, onClose, onSubmit, initialData, genders }: ChildFor
 							required
 							placeholder='Select gender'
 							options={genders}
-							labelKey='labelEn'
+							labelKey='nameEn'
 							valueKey='value'
 						/>
 						<FormDatePicker
@@ -269,7 +269,7 @@ export function ProfileFormFamily({
 									label='Spouse Status'
 									placeholder='Select a status'
 									options={spouseStatuses}
-									labelKey='labelEn'
+									labelKey='nameEn'
 									valueKey='value'
 								/>
 								<FormAutocomplete
@@ -318,7 +318,7 @@ export function ProfileFormFamily({
 										{child.serialNo}. {child.name}
 									</p>
 									<p className='text-sm text-muted-foreground'>
-										{child.genderDTO?.labelEn || child.gender} - Born on {format(new Date(child.dob), 'PPP')}
+										{child.genderDTO?.nameEn || child.gender} - Born on {format(new Date(child.dob), 'PPP')}
 									</p>
 								</div>
 								<div className='flex items-center'>

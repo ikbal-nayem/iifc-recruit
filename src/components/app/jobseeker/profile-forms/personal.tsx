@@ -401,7 +401,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 										required
 										placeholder='Select gender'
 										options={masterData.genders}
-										labelKey='labelEn'
+										labelKey='nameEn'
 										valueKey='value'
 									/>
 									<FormSelect
@@ -411,7 +411,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 										required
 										placeholder='Select marital status'
 										options={masterData.maritalStatuses}
-										labelKey='labelEn'
+										labelKey='nameEn'
 										valueKey='value'
 									/>
 								</div>
@@ -422,7 +422,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 										label='Religion'
 										placeholder='Select religion'
 										options={masterData.religions}
-										labelKey='labelEn'
+										labelKey='nameEn'
 										valueKey='value'
 									/>
 									{/* <FormSelect
@@ -430,7 +430,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 										name='professionalStatus'
 										label='Professional Status'
 										placeholder='Select status'
-										options={masterData.professionalStatuses.map((s) => ({ label: s.label, value: s.value }))}
+										options={masterData.professionalStatuses.map((s) => ({ label: s.nameEn, value: s.value }))}
 									/> */}
 								</div>
 							</CardContent>
