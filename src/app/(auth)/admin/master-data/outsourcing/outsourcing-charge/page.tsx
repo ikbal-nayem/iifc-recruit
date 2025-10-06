@@ -1,7 +1,7 @@
 
 'use client';
 
-import { OutsourcingChargeCrud } from '@/components/app/admin/outsourcing-charge-crud';
+import { OutsourcingChargeCrud } from '@/components/app/admin/master-data/outsourcing-charge-crud';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';

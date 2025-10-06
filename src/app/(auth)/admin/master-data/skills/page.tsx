@@ -1,6 +1,6 @@
 'use client';
 
-import { MasterDataCrud } from '@/components/app/admin/master-data-crud';
+import { MasterDataCrud } from '@/components/app/admin/master-data/master-data-crud';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';

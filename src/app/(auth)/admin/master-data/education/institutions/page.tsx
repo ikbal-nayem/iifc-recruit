@@ -1,6 +1,6 @@
 'use client';
 
-import { EducationInstitutionCrud } from '@/components/app/admin/education-institution-crud';
+import { EducationInstitutionCrud } from '@/components/app/admin/master-data/education-institution-crud';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';

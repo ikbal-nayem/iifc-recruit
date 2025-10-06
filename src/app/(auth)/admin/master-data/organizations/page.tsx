@@ -1,6 +1,6 @@
 
 'use client';
-import { OrganizationCrud } from '@/components/app/admin/organization-crud';
+import { OrganizationCrud } from '@/components/app/admin/master-data/organization-crud';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { useEffect, useState } from 'react';
