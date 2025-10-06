@@ -24,6 +24,11 @@ export interface IOutsourcingCategory extends IBilingualMasterData {}
 
 export interface IOutsourcingZone extends IBilingualMasterData {}
 
+export interface IOutsourcingService extends IBilingualMasterData {
+	categoryId: number;
+	category?: IOutsourcingCategory;
+}
+
 export interface IEducationInstitution extends ICommonMasterData {
 	countryId: string;
 	country?: IObject;
