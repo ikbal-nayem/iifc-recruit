@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormInput } from '@/components/ui/form-input';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -15,7 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { IMeta } from '@/interfaces/common.interface';
 import { IOutsourcingCategory, IOutsourcingCharge, IOutsourcingZone } from '@/interfaces/master-data.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
+import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -145,6 +146,11 @@ interface OutsourcingChargeCrudProps {
 	onUpdate: (item: IOutsourcingCharge) => Promise<boolean>;
 	onDelete: (id: number) => Promise<boolean>;
 	onPageChange: (page: number) => void;
+	onSearch: (query: string) => void;
+	categoryFilter: string;
+	onCategoryChange: (categoryId: string) => void;
+	zoneFilter: string;
+	onZoneChange: (zoneId: string) => void;
 }
 
 export function OutsourcingChargeCrud({
@@ -160,6 +166,11 @@ export function OutsourcingChargeCrud({
 	onUpdate,
 	onDelete,
 	onPageChange,
+	onSearch,
+	categoryFilter,
+	onCategoryChange,
+	zoneFilter,
+	onZoneChange,
 }: OutsourcingChargeCrudProps) {
 	const { toast } = useToast();
 	const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
@@ -217,6 +228,41 @@ export function OutsourcingChargeCrud({
 			</div>
 			<Card className='glassmorphism'>
 				<CardContent className='space-y-4 pt-6'>
+					<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+						<div className='relative md:col-span-1'>
+							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+							<Input
+								placeholder='Search by charge amount...'
+								onChange={(e) => onSearch(e.target.value)}
+								className='pl-10'
+								type='number'
+							/>
+						</div>
+						<FormAutocomplete
+							control={undefined as any}
+							name='categoryFilter'
+							label=''
+							placeholder='Filter by Category...'
+							options={[
+								{ value: 'all', label: 'All Categories' },
+								...categories.map((c) => ({ value: c.id!.toString(), label: c.nameEn })),
+							]}
+							onValueChange={(val) => onCategoryChange(val.toString())}
+							value={categoryFilter}
+						/>
+						<FormAutocomplete
+							control={undefined as any}
+							name='zoneFilter'
+							label=''
+							placeholder='Filter by Zone...'
+							options={[
+								{ value: 'all', label: 'All Zones' },
+								...zones.map((z) => ({ value: z.id!.toString(), label: z.nameEn })),
+							]}
+							onValueChange={(val) => onZoneChange(val.toString())}
+							value={zoneFilter}
+						/>
+					</div>
 					<div className='space-y-2 pt-4'>
 						{isLoading
 							? [...Array(5)].map((_, i) => <Skeleton key={i} className='h-16 w-full' />)

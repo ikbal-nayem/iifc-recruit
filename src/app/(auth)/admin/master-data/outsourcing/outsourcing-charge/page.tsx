@@ -1,6 +1,8 @@
+
 'use client';
 
 import { OutsourcingChargeCrud } from '@/components/app/admin/outsourcing-charge-crud';
+import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import {
@@ -20,6 +22,10 @@ export default function MasterOutsourcingChargePage() {
 	const [isLoading, setIsLoading] = useState(true);
 	const [categories, setCategories] = useState<IOutsourcingCategory[]>([]);
 	const [zones, setZones] = useState<IOutsourcingZone[]>([]);
+	const [searchQuery, setSearchQuery] = useState('');
+	const [categoryFilter, setCategoryFilter] = useState('all');
+	const [zoneFilter, setZoneFilter] = useState('all');
+	const debouncedSearch = useDebounce(searchQuery, 500);
 
 	useEffect(() => {
 		const fetchMasterData = async () => {
@@ -42,10 +48,15 @@ export default function MasterOutsourcingChargePage() {
 	}, [toast]);
 
 	const loadItems = useCallback(
-		async (page: number) => {
+		async (page: number, search: string, categoryId: string, zoneId: string) => {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
+					body: {
+						...(search && { monthlyServiceCharge: search }),
+						...(categoryId !== 'all' && { categoryId }),
+						...(zoneId !== 'all' && { zoneId }),
+					},
 					meta: { page: page, limit: meta.limit },
 				};
 				const response = await MasterDataService.outsourcingCharge.getList(payload);
@@ -66,18 +77,18 @@ export default function MasterOutsourcingChargePage() {
 	);
 
 	useEffect(() => {
-		loadItems(0);
-	}, [loadItems]);
+		loadItems(0, debouncedSearch, categoryFilter, zoneFilter);
+	}, [loadItems, debouncedSearch, categoryFilter, zoneFilter]);
 
 	const handlePageChange = (newPage: number) => {
-		loadItems(newPage);
+		loadItems(newPage, debouncedSearch, categoryFilter, zoneFilter);
 	};
 
 	const handleAdd = async (item: Omit<IOutsourcingCharge, 'id'>): Promise<boolean> => {
 		try {
 			const resp = await MasterDataService.outsourcingCharge.add(item);
 			toast({ description: resp.message, variant: 'success' });
-			loadItems(meta.page);
+			loadItems(meta.page, debouncedSearch, categoryFilter, zoneFilter);
 			return true;
 		} catch (error) {
 			console.error('Failed to add item', error);
@@ -90,7 +101,7 @@ export default function MasterOutsourcingChargePage() {
 		try {
 			const resp = await MasterDataService.outsourcingCharge.update(item);
 			toast({ description: resp.message, variant: 'success' });
-			loadItems(meta.page);
+			loadItems(meta.page, debouncedSearch, categoryFilter, zoneFilter);
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
@@ -107,7 +118,7 @@ export default function MasterOutsourcingChargePage() {
 				description: 'Outsourcing charge deleted successfully.',
 				variant: 'success',
 			});
-			loadItems(meta.page);
+			loadItems(meta.page, debouncedSearch, categoryFilter, zoneFilter);
 			return true;
 		} catch (error) {
 			console.error('Failed to delete item', error);
@@ -130,6 +141,11 @@ export default function MasterOutsourcingChargePage() {
 			onUpdate={handleUpdate}
 			onDelete={handleDelete}
 			onPageChange={handlePageChange}
+			onSearch={setSearchQuery}
+			categoryFilter={categoryFilter}
+			onCategoryChange={setCategoryFilter}
+			zoneFilter={zoneFilter}
+			onZoneChange={setZoneFilter}
 		/>
 	);
 }
