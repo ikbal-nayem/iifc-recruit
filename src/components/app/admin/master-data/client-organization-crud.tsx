@@ -62,22 +62,28 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Badge } from '@/components/ui/badge';
 
-const formSchema = z.object({
-	nameEn: z.string().min(1, 'English name is required.').refine(isEnglish, {
-		message: 'Only English characters, numbers, and some special characters are allowed.',
-	}),
-	nameBn: z.string().min(1, 'Bengali name is required.').refine(isBangla, {
-		message: 'Only Bengali characters, numbers, and some special characters are allowed.',
-	}),
-	organizationTypeId: z.coerce.number().min(1, 'Organization Type is required.'),
-	address: z.string().optional(),
-	contactPersonName: z.string().optional(),
-	contactNumber: z.string().optional(),
-	email: z.string().email('Please enter a valid email.').optional().or(z.literal('')),
-	website: z.string().url('Please enter a valid URL.').optional().or(z.literal('')),
-	isClient: z.boolean().default(false),
-	isExaminer: z.boolean().default(false),
-});
+const formSchema = z
+	.object({
+		nameEn: z.string().min(1, 'English name is required.').refine(isEnglish, {
+			message: 'Only English characters, numbers, and some special characters are allowed.',
+		}),
+		nameBn: z.string().min(1, 'Bengali name is required.').refine(isBangla, {
+			message: 'Only Bengali characters, numbers, and some special characters are allowed.',
+		}),
+		organizationTypeId: z.coerce.number().min(1, 'Organization Type is required.'),
+		address: z.string().optional(),
+		contactPersonName: z.string().optional(),
+		contactNumber: z.string().optional(),
+		email: z.string().email('Please enter a valid email.').optional().or(z.literal('')),
+		website: z.string().url('Please enter a valid URL.').optional().or(z.literal('')),
+		isClient: z.boolean().default(false),
+		isExaminer: z.boolean().default(false),
+	})
+	.refine((data) => data.isClient || data.isExaminer, {
+		message: 'At least one role (Client or Examiner) must be selected.',
+		path: ['isClient'], // You can assign the error to one of the fields
+	});
+
 type FormValues = z.infer<typeof formSchema>;
 
 interface ClientOrganizationFormProps {
