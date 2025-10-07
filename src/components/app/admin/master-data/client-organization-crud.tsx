@@ -1,3 +1,4 @@
+
 'use client';
 
 import { FormMasterData } from '@/app/(auth)/admin/client-organizations/page';
@@ -16,6 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
+import { FormCheckbox } from '@/components/ui/form-checkbox';
 import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
@@ -58,6 +60,7 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { Badge } from '@/components/ui/badge';
 
 const formSchema = z.object({
 	nameEn: z.string().min(1, 'English name is required.').refine(isEnglish, {
@@ -72,6 +75,8 @@ const formSchema = z.object({
 	contactNumber: z.string().optional(),
 	email: z.string().email('Please enter a valid email.').optional().or(z.literal('')),
 	website: z.string().url('Please enter a valid URL.').optional().or(z.literal('')),
+	isClient: z.boolean().default(false),
+	isExaminer: z.boolean().default(false),
 });
 type FormValues = z.infer<typeof formSchema>;
 
@@ -103,6 +108,8 @@ function ClientOrganizationForm({
 				contactNumber: '',
 				email: '',
 				website: '',
+				isClient: false,
+				isExaminer: false,
 		  };
 
 	const form = useForm<FormValues>({
@@ -158,6 +165,10 @@ function ClientOrganizationForm({
 							getOptionLabel={(option) => option.name}
 							disabled={isSubmitting}
 						/>
+						<div className='flex gap-4'>
+							<FormCheckbox control={form.control} name='isClient' label='Is Client' />
+							<FormCheckbox control={form.control} name='isExaminer' label='Is Examiner' />
+						</div>
 						<FormInput
 							control={form.control}
 							name='address'
@@ -338,6 +349,18 @@ export function ClientOrganizationCrud({ title, description, noun, masterData }:
 		{
 			accessorKey: 'organizationType.name',
 			header: 'Type',
+		},
+		{
+			header: 'Roles',
+			cell: ({ row }) => {
+				const item = row.original;
+				return (
+					<div className='flex gap-2'>
+						{item.isClient && <Badge variant='secondary'>Client</Badge>}
+						{item.isExaminer && <Badge variant='secondary'>Examiner</Badge>}
+					</div>
+				);
+			},
 		},
 		{
 			accessorKey: 'contactPersonName',

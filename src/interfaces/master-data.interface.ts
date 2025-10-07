@@ -73,6 +73,8 @@ export interface IClientOrganization {
     email?: string;
     website?: string;
     isActive: boolean;
+    isClient?: boolean;
+    isExaminer?: boolean;
 }
 
 export interface IStatus extends ICommonMasterData {
