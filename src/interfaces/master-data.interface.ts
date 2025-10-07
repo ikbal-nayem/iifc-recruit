@@ -1,4 +1,5 @@
 
+
 import { STATUS_TYPE } from '@/constants/common.constant';
 import { IObject } from './common.interface';
 
@@ -76,6 +77,16 @@ export interface IClientOrganization {
     isClient?: boolean;
     isExaminer?: boolean;
 }
+
+export interface IOrganizationUser {
+    id: string;
+    name: string;
+    email: string;
+    role: 'Admin' | 'Member';
+    status: 'Active' | 'Inactive';
+    avatar: string;
+}
+
 
 export interface IStatus extends ICommonMasterData {
 	statusType: typeof STATUS_TYPE[keyof typeof STATUS_TYPE];

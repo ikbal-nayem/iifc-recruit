@@ -57,6 +57,7 @@ import {
 	UserPlus,
 	View,
 } from 'lucide-react';
+import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -395,9 +396,11 @@ export function ClientOrganizationCrud({ title, description, noun, masterData }:
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align='end'>
 							<DropdownMenuLabel>Actions</DropdownMenuLabel>
-							<DropdownMenuItem onClick={() => toast({ description: 'Viewing details (not implemented).' })}>
-								<View className='mr-2 h-4 w-4' />
-								View Details
+							<DropdownMenuItem asChild>
+								<Link href={`/admin/client-organizations/${item.id}`}>
+									<View className='mr-2 h-4 w-4' />
+									View Details
+								</Link>
 							</DropdownMenuItem>
 							<DropdownMenuItem onClick={() => toast({ description: 'User creation (not implemented).' })}>
 								<UserPlus className='mr-2 h-4 w-4' />

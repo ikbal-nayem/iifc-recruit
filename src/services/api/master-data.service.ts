@@ -18,6 +18,8 @@ const createMasterDataCrud = <T>(entity: string) => ({
 		await axiosIns.get(`/master-data/${entity}/get?isDeleted=false`),
 	getList: async (payload: IApiRequest): Promise<IApiResponse<T[]>> =>
 		await axiosIns.post(`/master-data/${entity}/get-list`, payload),
+	getDetails: async (id: string): Promise<IApiResponse<T>> =>
+		await axiosIns.get(`/master-data/${entity}/get/${id}`),
 	add: async (payload: Omit<T, 'id'>): Promise<IApiResponse<T>> =>
 		await axiosIns.post(`/master-data/${entity}/create`, payload),
 	update: async (payload: T): Promise<IApiResponse<T>> =>
