@@ -237,7 +237,7 @@ function ClientOrganizationForm({
 	);
 }
 
-const initMeta: IMeta = { page: 0, limit: 10 };
+const initMeta: IMeta = { page: 0, limit: 20 };
 
 interface ClientOrganizationCrudProps {
 	title: string;
@@ -273,7 +273,6 @@ export function ClientOrganizationCrud({ title, description, noun, masterData }:
 			} catch (error) {
 				console.error('Failed to load items', error);
 				toast({
-					title: 'Error',
 					description: 'Failed to load client organizations.',
 					variant: 'danger',
 				});
@@ -303,7 +302,7 @@ export function ClientOrganizationCrud({ title, description, noun, masterData }:
 	};
 
 	const handleFormSubmit = async (data: FormValues): Promise<boolean> => {
-		const payload = { ...editingItem, ...data };
+		const payload = { ...editingItem, ...data, isActive: editingItem?.isActive ?? true };
 		try {
 			const response = editingItem?.id
 				? await MasterDataService.clientOrganization.update(payload)
