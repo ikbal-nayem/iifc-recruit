@@ -1,4 +1,3 @@
-
 'use client';
 
 import { OrganizationUserManagement } from '@/components/app/admin/client-organizations/organization-user-management';
@@ -78,7 +77,8 @@ export default function ClientOrganizationDetailsPage() {
 								<div>
 									<p className='font-medium'>Contact Person</p>
 									<p className='text-muted-foreground'>
-										{organization.contactPersonName} ({organization.contactNumber})
+										{organization.contactPersonName}{' '}
+										{organization?.contactNumber && <>({organization.contactNumber})</>}
 									</p>
 								</div>
 							</div>
