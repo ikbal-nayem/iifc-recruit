@@ -3,8 +3,10 @@
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { Eye, EyeOff } from 'lucide-react';
 import * as React from 'react';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
+import { Button } from './button';
 
 interface FormInputProps<TFieldValues extends FieldValues> extends React.ComponentProps<'input'> {
 	control: Control<TFieldValues>;
@@ -20,9 +22,13 @@ export function FormInput<TFieldValues extends FieldValues>({
 	label,
 	required = false,
 	startIcon,
+	type,
 	children,
 	...props
 }: FormInputProps<TFieldValues>) {
+	const [showPassword, setShowPassword] = React.useState(false);
+	const isPassword = type === 'password';
+
 	return (
 		<FormField
 			control={control}
@@ -33,7 +39,23 @@ export function FormInput<TFieldValues extends FieldValues>({
 					<FormControl>
 						<div className='relative flex items-center'>
 							{startIcon && <div className='absolute left-3'>{startIcon}</div>}
-							<Input {...props} {...field} className={cn(startIcon && 'pl-10', 'h-11')} />
+							<Input
+								{...props}
+								{...field}
+								type={isPassword ? (showPassword ? 'text' : 'password') : type}
+								className={cn(startIcon && 'pl-10', isPassword && 'pr-10', 'h-11')}
+							/>
+							{isPassword && (
+								<Button
+									type='button'
+									variant='ghost'
+									size='icon'
+									className='absolute right-1 h-8 w-8 text-muted-foreground hover:bg-transparent'
+									onClick={() => setShowPassword(!showPassword)}
+								>
+									{showPassword ? <EyeOff className='h-4 w-4' /> : <Eye className='h-4 w-4' />}
+								</Button>
+							)}
 						</div>
 					</FormControl>
 					<FormMessage />
