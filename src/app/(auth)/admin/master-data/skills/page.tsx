@@ -53,7 +53,7 @@ export default function MasterSkillsPage() {
 
 	const handleAdd = async (data: { nameEn: string, nameBn: string }): Promise<boolean | null> => {
 		try {
-			const resp = await MasterDataService.skill.add({ ...data, isActive: true });
+			const resp = await MasterDataService.skill.add({ ...data, active: true });
 			toast({ description: resp.message || "Skill added succesfully.", variant: 'success' });
 			// Refresh list to show the new item
 			loadSkills(meta.page, debouncedSearch);

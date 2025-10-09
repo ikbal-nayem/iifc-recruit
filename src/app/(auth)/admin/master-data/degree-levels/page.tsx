@@ -1,17 +1,16 @@
-
 'use client';
 
+import { MasterDataCrud } from '@/components/app/admin/master-data/master-data-crud';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { useCallback, useEffect, useState } from 'react';
-import { ICommonMasterData } from '@/interfaces/master-data.interface';
-import { MasterDataCrud } from '@/components/app/admin/master-data/master-data-crud';
 
 const initMeta: IMeta = { page: 0, limit: 20 };
 
-export default function MasterOutsourcingCategoryPage() {
+export default function MasterDegreeLevelsPage() {
 	const { toast } = useToast();
 	const [items, setItems] = useState<ICommonMasterData[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
@@ -27,13 +26,14 @@ export default function MasterOutsourcingCategoryPage() {
 					body: { nameEn: search },
 					meta: { page: page, limit: meta.limit },
 				};
-				const response = await MasterDataService.outsourcingCategory.getList(payload);
+				const response = await MasterDataService.degreeLevel.getList(payload);
 				setItems(response.body);
 				setMeta(response.meta);
 			} catch (error) {
 				console.error('Failed to load items', error);
 				toast({
-					description: 'Failed to load outsourcing categories.',
+					title: 'Error',
+					description: 'Failed to load degree levels.',
 					variant: 'danger',
 				});
 			} finally {
@@ -51,50 +51,50 @@ export default function MasterOutsourcingCategoryPage() {
 		loadItems(newPage, debouncedSearch);
 	};
 
-	const handleAdd = async (data: { nameEn: string; nameBn: string }): Promise<boolean | null> => {
+	const handleAdd = async (data: { nameEn: string, nameBn: string }): Promise<boolean | null> => {
 		try {
-			const resp = await MasterDataService.outsourcingCategory.add({ ...data, active: true });
+			const resp = await MasterDataService.degreeLevel.add({ ...data, active: true });
 			toast({ description: resp.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch);
 			return true;
 		} catch (error) {
 			console.error('Failed to add item', error);
-			toast({ title: 'Error', description: 'Failed to add outsourcing category.', variant: 'danger' });
+			toast({ title: 'Error', description: 'Failed to add degree level.', variant: 'danger' });
 			return null;
 		}
 	};
 
 	const handleUpdate = async (item: ICommonMasterData): Promise<boolean | null> => {
 		try {
-			const updatedItem = await MasterDataService.outsourcingCategory.update(item);
+			const updatedItem = await MasterDataService.degreeLevel.update(item);
 			setItems(items.map((i) => (i?.id === item?.id ? updatedItem?.body : i)));
 			toast({ description: updatedItem?.message, variant: 'success' });
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update outsourcing category.', variant: 'danger' });
+			toast({ title: 'Error', description: 'Failed to update degree level.', variant: 'danger' });
 			return null;
 		}
 	};
 
 	const handleDelete = async (id: string): Promise<boolean> => {
 		try {
-			await MasterDataService.outsourcingCategory.delete(id);
-			toast({ title: 'Success', description: 'Outsourcing category deleted successfully.', variant: 'success' });
+			await MasterDataService.degreeLevel.delete(id);
+			toast({ title: 'Success', description: 'Degree level deleted successfully.', variant: 'success' });
 			loadItems(meta.page, debouncedSearch);
 			return true;
 		} catch (error) {
 			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: 'Failed to delete outsourcing category.', variant: 'danger' });
+			toast({ title: 'Error', description: 'Failed to delete degree level.', variant: 'danger' });
 			return false;
 		}
 	};
 
 	return (
 		<MasterDataCrud
-			title='Outsourcing Categories'
-			description='Manage outsourcing categories.'
-			noun='Outsourcing Category'
+			title='Degree Levels'
+			description="Manage the academic degree levels (e.g., Bachelor's, Master's)."
+			noun='Degree Level'
 			items={items}
 			meta={meta}
 			isLoading={isLoading}

@@ -54,7 +54,7 @@ export default function MasterIndustryTypesPage() {
 
 	const handleAdd = async (data: { nameEn: string, nameBn: string }): Promise<boolean | null> => {
 		try {
-			const resp = await MasterDataService.industryType.add({ ...data, isActive: true });
+			const resp = await MasterDataService.industryType.add({ ...data, active: true });
 			toast({ description: resp.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch);
 			return true;

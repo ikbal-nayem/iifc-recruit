@@ -53,7 +53,7 @@ export default function MasterEducationDomainsPage() {
 
 	const handleAdd = async (data: { nameEn: string, nameBn: string }): Promise<boolean | null> => {
 		try {
-			const resp = await MasterDataService.educationDomain.add({ ...data, isActive: true });
+			const resp = await MasterDataService.educationDomain.add({ ...data, active: true });
 			toast({ description: resp.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch);
 			return true;
