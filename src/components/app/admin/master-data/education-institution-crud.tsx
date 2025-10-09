@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -49,11 +48,12 @@ function EducationInstitutionForm({
 	noun,
 }: EducationInstitutionFormProps) {
 	const defaultValues = {
-		name: initialData?.name || '',
+		nameEn: initialData?.nameEn || '',
+		nameBn: initialData?.nameBn || '',
 		fkCountry: initialData?.fkCountry || '',
 	};
 
-	const form = useForm<FormValues>({
+	const form = useForm<any>({
 		resolver: zodResolver(formSchema),
 		defaultValues,
 	});
@@ -93,8 +93,16 @@ function EducationInstitutionForm({
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4'>
 						<FormInput
 							control={form.control}
-							name='name'
-							label='Name'
+							name='nameEn'
+							label='Name (English)'
+							placeholder='Institution Name'
+							required
+							disabled={isSubmitting}
+						/>
+            <FormInput
+							control={form.control}
+							name='nameBn'
+							label='Name (Bangla)'
 							placeholder='Institution Name'
 							required
 							disabled={isSubmitting}
@@ -185,7 +193,7 @@ export function EducationInstitutionCrud({
 
 	const handleToggleActive = async (item: IEducationInstitution) => {
 		if (!item.id) return;
-		setIsSubmitting(item.id);
+		setIsSubmitting(item.id.toString());
 		const success = await onUpdate({ ...item, isActive: !item.isActive });
 		if (success) {
 			toast({
@@ -197,9 +205,9 @@ export function EducationInstitutionCrud({
 		setIsSubmitting(null);
 	};
 
-	const handleRemove = async (id?: string) => {
+	const handleRemove = async (id?: number) => {
 		if (!id) return;
-		await onDelete(id);
+		await onDelete(id.toString());
 	};
 
 	return (
@@ -236,7 +244,7 @@ export function EducationInstitutionCrud({
 									>
 										{countryFilter === 'all'
 											? 'All Countries'
-											: countries.find((c) => c.id === countryFilter)?.name || 'All Countries'}
+											: countries.find((c) => c.id?.toString() === countryFilter)?.name || 'All Countries'}
 										<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
 									</Button>
 								</PopoverTrigger>
@@ -266,14 +274,14 @@ export function EducationInstitutionCrud({
 														key={c.id}
 														value={c.name}
 														onSelect={() => {
-															onCountryChange(c.id!);
+															onCountryChange(c.id!.toString());
 															setCountryFilterPopoverOpen(false);
 														}}
 													>
 														<Check
 															className={cn(
 																'mr-2 h-4 w-4',
-																countryFilter === c.id ? 'opacity-100' : 'opacity-0'
+																countryFilter === c.id?.toString() ? 'opacity-100' : 'opacity-0'
 															)}
 														/>
 														{c.name}
@@ -298,10 +306,10 @@ export function EducationInstitutionCrud({
 											<p
 												className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}
 											>
-												{item.name}
+												{item.nameEn}
 											</p>
 											<p className='text-sm text-muted-foreground'>
-												{countries.find((c) => c.id === item.fkCountry)?.name || 'Unknown Country'}
+												{countries.find((c) => c.id?.toString() === item.fkCountry)?.name || 'Unknown Country'}
 											</p>
 										</div>
 										<div className='flex items-center gap-2 w-full sm:w-auto justify-between'>
@@ -309,7 +317,7 @@ export function EducationInstitutionCrud({
 												<Switch
 													checked={item.isActive}
 													onCheckedChange={() => handleToggleActive(item)}
-													disabled={isSubmitting === item.id}
+													disabled={isSubmitting === item.id?.toString()}
 												/>
 												<Label className='text-sm'>{item.isActive ? 'Active' : 'Inactive'}</Label>
 											</div>
@@ -319,7 +327,7 @@ export function EducationInstitutionCrud({
 													size='icon'
 													className='h-8 w-8'
 													onClick={() => handleOpenForm(item)}
-													disabled={isSubmitting === item.id}
+													disabled={isSubmitting === item.id?.toString()}
 												>
 													<Edit className='h-4 w-4' />
 												</Button>
@@ -329,12 +337,12 @@ export function EducationInstitutionCrud({
 															variant='ghost'
 															size='icon'
 															className='h-8 w-8'
-															disabled={isSubmitting === item.id}
+															disabled={isSubmitting === item.id?.toString()}
 														>
 															<Trash className='h-4 w-4 text-danger' />
 														</Button>
 													}
-													description={`This will permanently delete the ${noun.toLowerCase()} "${item.name}".`}
+													description={`This will permanently delete the ${noun.toLowerCase()} "${item.nameEn}".`}
 													onConfirm={() => handleRemove(item.id)}
 												/>
 											</div>

@@ -43,12 +43,12 @@ export interface IOutsourcingCharge {
 }
 
 
-export interface IEducationInstitution extends ICommonMasterData {
+export interface IEducationInstitution extends IBilingualMasterData {
 	countryId: string;
 	country?: IObject;
 }
 
-export interface IOrganization extends ICommonMasterData {
+export interface IOrganization extends IBilingualMasterData {
 	countryCode: string;
 	organizationTypeId: number;
 	industryTypeId?: number;
@@ -58,8 +58,8 @@ export interface IOrganization extends ICommonMasterData {
 	website?: string;
 
 	country?: ICommonMasterData;
-	organizationType?: ICommonMasterData;
-	industryType?: ICommonMasterData;
+	organizationType?: IBilingualMasterData;
+	industryType?: IBilingualMasterData;
 }
 
 export interface IClientOrganization {
@@ -67,7 +67,7 @@ export interface IClientOrganization {
     nameEn: string;
     nameBn: string;
     organizationTypeId: number;
-    organizationType?: ICommonMasterData;
+    organizationType?: IBilingualMasterData;
     address?: string;
     contactPersonName?: string;
     contactNumber?: string;
@@ -88,7 +88,6 @@ export interface IOrganizationUser {
 }
 
 
-export interface IStatus extends ICommonMasterData {
+export interface IStatus extends IBilingualMasterData {
 	statusType: typeof STATUS_TYPE[keyof typeof STATUS_TYPE];
 }
-

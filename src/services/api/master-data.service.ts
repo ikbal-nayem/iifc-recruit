@@ -11,6 +11,7 @@ import {
 	IOutsourcingCharge,
 	IOutsourcingService,
 	IOutsourcingZone,
+	IBilingualMasterData,
 } from '@/interfaces/master-data.interface';
 
 const createMasterDataCrud = <T>(entity: string) => ({
@@ -32,18 +33,18 @@ export const MasterDataService = {
 		enumType: 'gender' | 'marital-status' | 'religion' | 'proficiency-level' | 'spouse-status'
 	): Promise<IApiResponse<EnumDTO[]>> => await axiosIns.get(`/master-data/enum/${enumType}`),
 
-	skill: createMasterDataCrud('skill'),
-	department: createMasterDataCrud('department'),
-	language: createMasterDataCrud('language'),
-	degreeLevel: createMasterDataCrud('education-degree-level'),
-	educationDomain: createMasterDataCrud('education-domain'),
-	industryType: createMasterDataCrud('industry-type'),
-	organizationType: createMasterDataCrud<ICommonMasterData>('organization-type'),
-	positionLevel: createMasterDataCrud('position-level'),
-	certification: createMasterDataCrud('certification-type'),
-	trainingType: createMasterDataCrud('training-type'),
+	skill: createMasterDataCrud<IBilingualMasterData>('skill'),
+	department: createMasterDataCrud<IBilingualMasterData>('department'),
+	language: createMasterDataCrud<IBilingualMasterData>('language'),
+	degreeLevel: createMasterDataCrud<IBilingualMasterData>('education-degree-level'),
+	educationDomain: createMasterDataCrud<IBilingualMasterData>('education-domain'),
+	industryType: createMasterDataCrud<IBilingualMasterData>('industry-type'),
+	organizationType: createMasterDataCrud<IBilingualMasterData>('organization-type'),
+	positionLevel: createMasterDataCrud<IBilingualMasterData>('position-level'),
+	certification: createMasterDataCrud<IBilingualMasterData>('certification-type'),
+	trainingType: createMasterDataCrud<IBilingualMasterData>('training-type'),
 	country: {
-		...createMasterDataCrud('country'),
+		...createMasterDataCrud<ICommonMasterData>('country'),
 		getDivisions: async (): Promise<IApiResponse<ICommonMasterData[]>> =>
 			await axiosIns.get('/master-data/country/divisions'),
 		getDistricts: async (divisionId?: string): Promise<IApiResponse<ICommonMasterData[]>> => {

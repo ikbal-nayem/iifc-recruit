@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ProfessionalExperienceMasterData } from '@/app/(auth)/jobseeker/profile-edit/professional/page';
@@ -154,7 +153,7 @@ function ProfessionalExperienceForm({
 								required
 								options={masterData.positionLevels}
 								getOptionValue={(option) => option.id!.toString()}
-								getOptionLabel={(option) => option.name}
+								getOptionLabel={(option) => option.nameEn}
 							/>
 						</div>
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
@@ -315,7 +314,7 @@ export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
 				<div>
 					<p className='font-semibold'>{item.positionTitle}</p>
 					<p className='text-sm text-muted-foreground'>
-						{item.organization?.name} &middot; {item.positionLevel?.name}
+						{item.organization?.name} &middot; {item.positionLevel?.nameEn}
 					</p>
 					<p className='text-xs text-muted-foreground'>
 						{joinDate} - {resignDate}

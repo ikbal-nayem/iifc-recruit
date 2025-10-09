@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -42,7 +41,7 @@ type FormValues = z.infer<typeof formSchema>;
 interface CommonBilingualFormProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onSubmit: (data: FormValues, id?: string) => Promise<boolean | null>;
+	onSubmit: (data: FormValues, id?: number) => Promise<boolean | null>;
 	initialData?: IBilingualMasterData;
 	noun: string;
 }
@@ -62,7 +61,7 @@ function CommonBilingualForm({
 
 	const handleSubmit = async (data: FormValues) => {
 		setIsSubmitting(true);
-		const success = await onSubmit(data, initialData?.id?.toString());
+		const success = await onSubmit(data, initialData?.id);
 		if (success) {
 			onClose();
 			form.reset();
@@ -155,7 +154,7 @@ export function CommonBilingualCrud({
 		setEditingItem(undefined);
 	};
 
-	const handleFormSubmit = async (data: FormValues, id?: string) => {
+	const handleFormSubmit = async (data: FormValues, id?: number) => {
 		if (editingItem && id) {
 			const payload = { ...editingItem, nameEn: data.nameEn, nameBn: data.nameBn };
 			return onUpdate(payload);
