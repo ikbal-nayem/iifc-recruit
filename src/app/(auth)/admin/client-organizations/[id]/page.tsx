@@ -3,10 +3,11 @@
 import { OrganizationUserManagement } from '@/components/app/admin/client-organizations/organization-user-management';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageLoader } from '@/components/ui/page-loader';
 import { useToast } from '@/hooks/use-toast';
 import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
-import { Globe, Mail, Phone, MapPin } from 'lucide-react';
+import { Globe, Mail, MapPin, Phone } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -26,7 +27,6 @@ export default function ClientOrganizationDetailsPage() {
 				})
 				.catch((err) => {
 					toast({
-						title: 'Error',
 						description: err.message || 'Failed to load organization details.',
 						variant: 'danger',
 					});
@@ -36,7 +36,7 @@ export default function ClientOrganizationDetailsPage() {
 	}, [id, toast]);
 
 	if (loading) {
-		return <div>Loading organization details...</div>;
+		return <PageLoader />;
 	}
 
 	if (!organization) {
