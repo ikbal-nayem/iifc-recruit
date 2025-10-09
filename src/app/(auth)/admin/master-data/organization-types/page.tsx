@@ -23,7 +23,7 @@ export default function MasterOrganizationTypesPage() {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { name: search },
+					body: { nameEn: search },
 					meta: { page: page, limit: meta.limit },
 				};
 				const response = await MasterDataService.organizationType.getList(payload);
@@ -51,9 +51,9 @@ export default function MasterOrganizationTypesPage() {
 		loadItems(newPage, debouncedSearch);
 	};
 
-	const handleAdd = async (name: string): Promise<boolean | null> => {
+	const handleAdd = async (data: { nameEn: string, nameBn: string }): Promise<boolean | null> => {
 		try {
-			const resp = await MasterDataService.organizationType.add({ name, isActive: true });
+			const resp = await MasterDataService.organizationType.add({ ...data, isActive: true });
 			toast({ description: resp.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch);
 			return true;
@@ -91,7 +91,7 @@ export default function MasterOrganizationTypesPage() {
 	};
 
 	return (
-		<MasterDataCrud<ICommonMasterData>
+		<MasterDataCrud
 			title='Organization Types'
 			description='Manage the types of organizations.'
 			noun='Organization Type'

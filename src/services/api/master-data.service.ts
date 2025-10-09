@@ -1,4 +1,3 @@
-
 import { axiosIns } from '@/config/api.config';
 import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
 import {
@@ -11,7 +10,6 @@ import {
 	IOutsourcingCharge,
 	IOutsourcingService,
 	IOutsourcingZone,
-	IBilingualMasterData,
 } from '@/interfaces/master-data.interface';
 
 const createMasterDataCrud = <T>(entity: string) => ({
@@ -33,18 +31,23 @@ export const MasterDataService = {
 		enumType: 'gender' | 'marital-status' | 'religion' | 'proficiency-level' | 'spouse-status'
 	): Promise<IApiResponse<EnumDTO[]>> => await axiosIns.get(`/master-data/enum/${enumType}`),
 
-	skill: createMasterDataCrud<IBilingualMasterData>('skill'),
-	department: createMasterDataCrud<IBilingualMasterData>('department'),
-	language: createMasterDataCrud<IBilingualMasterData>('language'),
-	degreeLevel: createMasterDataCrud<IBilingualMasterData>('education-degree-level'),
-	educationDomain: createMasterDataCrud<IBilingualMasterData>('education-domain'),
-	industryType: createMasterDataCrud<IBilingualMasterData>('industry-type'),
-	organizationType: createMasterDataCrud<IBilingualMasterData>('organization-type'),
-	positionLevel: createMasterDataCrud<IBilingualMasterData>('position-level'),
-	certification: createMasterDataCrud<IBilingualMasterData>('certification-type'),
-	trainingType: createMasterDataCrud<IBilingualMasterData>('training-type'),
+	skill: createMasterDataCrud<ICommonMasterData>('skill'),
+	department: createMasterDataCrud<ICommonMasterData>('department'),
+	language: createMasterDataCrud<ICommonMasterData>('language'),
+	degreeLevel: createMasterDataCrud<ICommonMasterData>('education-degree-level'),
+	educationDomain: createMasterDataCrud<ICommonMasterData>('education-domain'),
+	industryType: createMasterDataCrud<ICommonMasterData>('industry-type'),
+	organizationType: createMasterDataCrud<ICommonMasterData>('organization-type'),
+	positionLevel: createMasterDataCrud<ICommonMasterData>('position-level'),
+	certification: createMasterDataCrud<ICommonMasterData>('certification-type'),
+	trainingType: createMasterDataCrud<ICommonMasterData>('training-type'),
 	country: {
-		...createMasterDataCrud<ICommonMasterData>('country'),
+		get: async (): Promise<IApiResponse<ICommonMasterData[]>> =>
+			await axiosIns.get(`/master-data/country/get?isDeleted=false`),
+		getList: async (payload: IApiRequest): Promise<IApiResponse<ICommonMasterData[]>> =>
+			await axiosIns.post(`/master-data/country/get-list`, payload),
+		getDetails: async (id: string): Promise<IApiResponse<ICommonMasterData>> =>
+			await axiosIns.get(`/master-data/country/get-by-id/${id}`),
 		getDivisions: async (): Promise<IApiResponse<ICommonMasterData[]>> =>
 			await axiosIns.get('/master-data/country/divisions'),
 		getDistricts: async (divisionId?: string): Promise<IApiResponse<ICommonMasterData[]>> => {

@@ -24,7 +24,7 @@ export default function MasterIndustryTypesPage() {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { name: search },
+					body: { nameEn: search },
 					meta: { page: page, limit: meta.limit },
 				};
 				const response = await MasterDataService.industryType.getList(payload);
@@ -52,9 +52,9 @@ export default function MasterIndustryTypesPage() {
 		loadItems(newPage, debouncedSearch);
 	};
 
-	const handleAdd = async (name: string): Promise<boolean | null> => {
+	const handleAdd = async (data: { nameEn: string, nameBn: string }): Promise<boolean | null> => {
 		try {
-			const resp = await MasterDataService.industryType.add({ name, isActive: true });
+			const resp = await MasterDataService.industryType.add({ ...data, isActive: true });
 			toast({ description: resp.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch);
 			return true;
@@ -92,7 +92,7 @@ export default function MasterIndustryTypesPage() {
 	};
 
 	return (
-		<MasterDataCrud<ICommonMasterData>
+		<MasterDataCrud
 			title='Industry Types'
 			description='Manage the types of industries for organizations.'
 			noun='Industry Type'

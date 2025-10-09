@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -133,7 +132,7 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 								required
 								options={masterData.degreeLevels}
 								getOptionValue={(option) => option.id!.toString()}
-								getOptionLabel={(option) => option.name}
+								getOptionLabel={(option) => option.nameEn}
 							/>
 							<FormAutocomplete
 								control={form.control}
@@ -142,7 +141,7 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 								required
 								options={masterData.domains}
 								getOptionValue={(option) => option.id!.toString()}
-								getOptionLabel={(option) => option.name}
+								getOptionLabel={(option) => option.nameEn}
 							/>
 						</div>
 						<FormAutocomplete
@@ -152,7 +151,7 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 							required
 							options={masterData.institutions}
 							getOptionValue={(option) => option.id!.toString()}
-							getOptionLabel={(option) => option.name}
+							getOptionLabel={(option) => option.nameEn}
 						/>
 						<FormInput
 							control={form.control}
@@ -303,7 +302,7 @@ export function ProfileFormAcademic({ masterData }: ProfileFormAcademicProps) {
 				<div>
 					<p className='font-semibold'>{item.degreeTitle}</p>
 					<p className='text-sm text-muted-foreground'>
-						{item.institution.name} | {item.degreeLevel.name} in {item.domain.name}
+						{item.institution.nameEn} | {item.degreeLevel.nameEn} in {item.domain.nameEn}
 					</p>
 					<p className='text-xs text-muted-foreground'>
 						{item.passingYear} | {resultText}

@@ -23,7 +23,7 @@ export default function MasterSkillsPage() {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { name: search },
+					body: { nameEn: search },
 					meta: { page: page, limit: meta.limit },
 				};
 				const response = await MasterDataService.skill.getList(payload);
@@ -51,9 +51,9 @@ export default function MasterSkillsPage() {
 		loadSkills(newPage, debouncedSearch);
 	};
 
-	const handleAdd = async (name: string): Promise<boolean | null> => {
+	const handleAdd = async (data: { nameEn: string, nameBn: string }): Promise<boolean | null> => {
 		try {
-			const resp = await MasterDataService.skill.add({ name, isActive: true });
+			const resp = await MasterDataService.skill.add({ ...data, isActive: true });
 			toast({ description: resp.message || "Skill added succesfully.", variant: 'success' });
 			// Refresh list to show the new item
 			loadSkills(meta.page, debouncedSearch);
@@ -92,7 +92,7 @@ export default function MasterSkillsPage() {
 	};
 
 	return (
-		<MasterDataCrud<ICommonMasterData>
+		<MasterDataCrud
 			title='Skills'
 			description='Manage the skills used in candidate profiles.'
 			noun='Skill'

@@ -1,10 +1,10 @@
 'use client';
 
-import { CommonBilingualCrud } from '@/components/app/admin/master-data/bilingual-master-data-crud';
+import { MasterDataCrud } from '@/components/app/admin/master-data/master-data-crud';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
-import { IBilingualMasterData } from '@/interfaces/master-data.interface';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -12,7 +12,7 @@ const initMeta: IMeta = { page: 0, limit: 20 };
 
 export default function MasterPositionLevelsPage() {
 	const { toast } = useToast();
-	const [items, setItems] = useState<IBilingualMasterData[]>([]);
+	const [items, setItems] = useState<ICommonMasterData[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState('');
@@ -64,7 +64,7 @@ export default function MasterPositionLevelsPage() {
 		}
 	};
 
-	const handleUpdate = async (item: IBilingualMasterData): Promise<boolean | null> => {
+	const handleUpdate = async (item: ICommonMasterData): Promise<boolean | null> => {
 		try {
 			const updatedItem = await MasterDataService.positionLevel.update(item);
 			setItems(items.map((i) => (i?.id === item?.id ? updatedItem?.body : i)));
@@ -91,7 +91,7 @@ export default function MasterPositionLevelsPage() {
 	};
 
 	return (
-		<CommonBilingualCrud
+		<MasterDataCrud
 			title='Position Levels'
 			description='Manage the seniority levels for job positions.'
 			noun='Position Level'

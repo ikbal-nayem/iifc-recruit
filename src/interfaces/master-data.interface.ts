@@ -11,23 +11,18 @@ export type EnumDTO = {
 
 export interface ICommonMasterData {
 	id?: number;
-	name: string;
+	nameEn: string;
+	nameBn: string;
 	isActive: boolean;
 	code?: string;
 }
 
-export interface IBilingualMasterData {
-	id?: number;
-	nameEn: string;
-	nameBn: string;
-	isActive: boolean;
-}
 
-export interface IOutsourcingCategory extends IBilingualMasterData {}
+export interface IOutsourcingCategory extends ICommonMasterData {}
 
-export interface IOutsourcingZone extends IBilingualMasterData {}
+export interface IOutsourcingZone extends ICommonMasterData {}
 
-export interface IOutsourcingService extends IBilingualMasterData {
+export interface IOutsourcingService extends ICommonMasterData {
 	categoryId: number;
 	category?: IOutsourcingCategory;
 }
@@ -43,12 +38,12 @@ export interface IOutsourcingCharge {
 }
 
 
-export interface IEducationInstitution extends IBilingualMasterData {
+export interface IEducationInstitution extends ICommonMasterData {
 	countryId: string;
 	country?: IObject;
 }
 
-export interface IOrganization extends IBilingualMasterData {
+export interface IOrganization extends ICommonMasterData {
 	countryCode: string;
 	organizationTypeId: number;
 	industryTypeId?: number;
@@ -58,8 +53,8 @@ export interface IOrganization extends IBilingualMasterData {
 	website?: string;
 
 	country?: ICommonMasterData;
-	organizationType?: IBilingualMasterData;
-	industryType?: IBilingualMasterData;
+	organizationType?: ICommonMasterData;
+	industryType?: ICommonMasterData;
 }
 
 export interface IClientOrganization {
@@ -67,7 +62,7 @@ export interface IClientOrganization {
     nameEn: string;
     nameBn: string;
     organizationTypeId: number;
-    organizationType?: IBilingualMasterData;
+    organizationType?: ICommonMasterData;
     address?: string;
     contactPersonName?: string;
     contactNumber?: string;
@@ -88,6 +83,6 @@ export interface IOrganizationUser {
 }
 
 
-export interface IStatus extends IBilingualMasterData {
+export interface IStatus extends ICommonMasterData {
 	statusType: typeof STATUS_TYPE[keyof typeof STATUS_TYPE];
 }

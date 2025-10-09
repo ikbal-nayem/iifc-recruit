@@ -20,41 +20,42 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { IMeta } from '@/interfaces/common.interface';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { isBangla, isEnglish } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-interface MasterDataItem {
-	id?: string;
-	name: string;
-	isActive: boolean;
-}
-
 const formSchema = z.object({
-	name: z.string().min(1, 'Name is required.'),
+	nameEn: z.string().min(1, 'English name is required.').refine(isEnglish, {
+		message: 'Only English characters, numbers, and some special characters are allowed.',
+	}),
+	nameBn: z.string().min(1, 'Bengali name is required.').refine(isBangla, {
+		message: 'Only Bengali characters, numbers, and some special characters are allowed.',
+	}),
 });
 type FormValues = z.infer<typeof formSchema>;
 
-interface MasterDataFormProps<T extends MasterDataItem> {
+interface MasterDataFormProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onSubmit: (data: FormValues, id?: string) => Promise<boolean | null>;
-	initialData?: T;
+	onSubmit: (data: FormValues, id?: number) => Promise<boolean | null>;
+	initialData?: ICommonMasterData;
 	noun: string;
 }
 
-function MasterDataForm<T extends MasterDataItem>({
+function MasterDataForm({
 	isOpen,
 	onClose,
 	onSubmit,
 	initialData,
 	noun,
-}: MasterDataFormProps<T>) {
+}: MasterDataFormProps) {
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
-		defaultValues: { name: initialData?.name || '' },
+		defaultValues: { nameEn: initialData?.nameEn || '', nameBn: initialData?.nameBn || '' },
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -81,9 +82,17 @@ function MasterDataForm<T extends MasterDataItem>({
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4' noValidate>
 						<FormInput
 							control={form.control}
-							name='name'
-							label='Name'
-							placeholder={`${noun} Name`}
+							name='nameEn'
+							label='Name (English)'
+							placeholder='e.g., Data Entry'
+							required
+							disabled={isSubmitting}
+						/>
+						<FormInput
+							control={form.control}
+							name='nameBn'
+							label='Name (Bangla)'
+							placeholder='e.g., ডেটা এন্ট্রি'
 							required
 							disabled={isSubmitting}
 						/>
@@ -103,22 +112,21 @@ function MasterDataForm<T extends MasterDataItem>({
 	);
 }
 
-interface MasterDataCrudProps<T extends MasterDataItem> {
+interface MasterDataCrudProps {
 	title: string;
 	description: string;
 	noun: string;
-	items: T[];
+	items: ICommonMasterData[];
 	meta: IMeta;
 	isLoading: boolean;
-	onAdd: (name: string) => Promise<boolean | null>;
-	onUpdate: (item: T) => Promise<boolean | null>;
+	onAdd: (data: { nameEn: string; nameBn: string }) => Promise<boolean | null>;
+	onUpdate: (item: ICommonMasterData) => Promise<boolean | null>;
 	onDelete: (id: string) => Promise<boolean>;
-	onToggle?: (id: string) => Promise<T | boolean | null>;
 	onPageChange?: (page: number) => void;
 	onSearch: (query: string) => void;
 }
 
-export function MasterDataCrud<T extends MasterDataItem>({
+export function MasterDataCrud({
 	title,
 	description,
 	noun,
@@ -130,13 +138,13 @@ export function MasterDataCrud<T extends MasterDataItem>({
 	onDelete,
 	onPageChange,
 	onSearch,
-}: MasterDataCrudProps<T>) {
+}: MasterDataCrudProps) {
 	const { toast } = useToast();
 	const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
 	const [isFormOpen, setIsFormOpen] = useState(false);
-	const [editingItem, setEditingItem] = useState<T | undefined>(undefined);
+	const [editingItem, setEditingItem] = useState<ICommonMasterData | undefined>(undefined);
 
-	const handleOpenForm = (item?: T) => {
+	const handleOpenForm = (item?: ICommonMasterData) => {
 		setEditingItem(item);
 		setIsFormOpen(true);
 	};
@@ -146,18 +154,18 @@ export function MasterDataCrud<T extends MasterDataItem>({
 		setEditingItem(undefined);
 	};
 
-	const handleFormSubmit = async (data: FormValues, id?: string) => {
+	const handleFormSubmit = async (data: FormValues, id?: number) => {
 		if (editingItem && id) {
-			const payload = { ...editingItem, name: data.name };
+			const payload = { ...editingItem, nameEn: data.nameEn, nameBn: data.nameBn };
 			return onUpdate(payload);
 		} else {
-			return onAdd(data.name);
+			return onAdd(data);
 		}
 	};
 
-	const handleToggleActive = async (item: T) => {
+	const handleToggleActive = async (item: ICommonMasterData) => {
 		if (!item.id) return;
-		setIsSubmitting(item.id);
+		setIsSubmitting(item.id.toString());
 		const success = await onUpdate({ ...item, isActive: !item.isActive });
 		if (success) {
 			toast({
@@ -169,9 +177,9 @@ export function MasterDataCrud<T extends MasterDataItem>({
 		setIsSubmitting(null);
 	};
 
-	const handleRemove = async (id?: string) => {
+	const handleRemove = async (id?: number) => {
 		if (!id) return;
-		await onDelete(id);
+		await onDelete(id.toString());
 	};
 
 	return (
@@ -210,15 +218,16 @@ export function MasterDataCrud<T extends MasterDataItem>({
 											<p
 												className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}
 											>
-												{item.name}
+												{item.nameEn}
 											</p>
+											<p className='text-sm text-muted-foreground'>{item.nameBn}</p>
 										</div>
 										<div className='flex items-center gap-2 w-full sm:w-auto justify-between'>
 											<div className='flex items-center gap-2'>
 												<Switch
 													checked={item.isActive}
 													onCheckedChange={() => handleToggleActive(item)}
-													disabled={isSubmitting === item.id}
+													disabled={isSubmitting === item.id?.toString()}
 												/>
 												<Label className='text-sm'>{item.isActive ? 'Active' : 'Inactive'}</Label>
 											</div>
@@ -228,7 +237,7 @@ export function MasterDataCrud<T extends MasterDataItem>({
 													size='icon'
 													className='h-8 w-8'
 													onClick={() => handleOpenForm(item)}
-													disabled={isSubmitting === item.id}
+													disabled={isSubmitting === item.id?.toString()}
 												>
 													<Edit className='h-4 w-4' />
 												</Button>
@@ -238,13 +247,13 @@ export function MasterDataCrud<T extends MasterDataItem>({
 															variant='ghost'
 															size='icon'
 															className='h-8 w-8'
-															disabled={isSubmitting === item.id}
+															disabled={isSubmitting === item.id?.toString()}
 														>
 															<Trash className='h-4 w-4 text-danger' />
 														</Button>
 													}
 													description={`This will permanently delete the ${noun.toLowerCase()} "${
-														item.name
+														item.nameEn
 													}".`}
 													onConfirm={() => handleRemove(item.id)}
 												/>

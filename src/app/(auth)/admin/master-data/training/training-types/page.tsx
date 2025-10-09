@@ -24,7 +24,7 @@ export default function MasterTrainingTypesPage() {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { name: search },
+					body: { nameEn: search },
 					meta: { page: page, limit: meta.limit },
 				};
 				const response = await MasterDataService.trainingType.getList(payload);
@@ -52,9 +52,9 @@ export default function MasterTrainingTypesPage() {
 		loadItems(newPage, debouncedSearch);
 	};
 
-	const handleAdd = async (name: string): Promise<boolean | null> => {
+	const handleAdd = async (data: { nameEn: string, nameBn: string }): Promise<boolean | null> => {
 		try {
-			const resp = await MasterDataService.trainingType.add({ name, isActive: true });
+			const resp = await MasterDataService.trainingType.add({ ...data, isActive: true });
 			toast({ description: resp.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch);
 			return true;
@@ -92,7 +92,7 @@ export default function MasterTrainingTypesPage() {
 	};
 
 	return (
-		<MasterDataCrud<ICommonMasterData>
+		<MasterDataCrud
 			title='Training Types'
 			description='Manage the types of professional trainings.'
 			noun='Training Type'

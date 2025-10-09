@@ -1,7 +1,7 @@
 
 'use client';
 
-import { FormMasterData } from '@/app/(auth)/admin/master-data/organizations/page';
+import { FormMasterData } from '@/app/(auth)/admin/master-data/company/organizations/page';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -57,7 +57,7 @@ function OrganizationForm({
 		? { ...initialData, countryCode: initialData.country?.code }
 		: {
 				name: '',
-				countryCode: countries.find((c) => c.name === 'Bangladesh')?.code || '',
+				countryCode: countries.find((c) => c.nameEn === 'Bangladesh')?.code || '',
 				organizationTypeId: undefined,
 				industryTypeId: undefined,
 				address: '',
@@ -107,7 +107,7 @@ function OrganizationForm({
 								required
 								options={countries}
 								getOptionValue={(option) => option.code!}
-								getOptionLabel={(option) => option.name}
+								getOptionLabel={(option) => option.nameEn}
 								disabled={isSubmitting}
 							/>
 							<FormAutocomplete
@@ -118,7 +118,7 @@ function OrganizationForm({
 								placeholder='Select Organization Type'
 								options={organizationTypes}
 								getOptionValue={(option) => option.id!}
-								getOptionLabel={(option) => option.name}
+								getOptionLabel={(option) => option.nameEn}
 								disabled={isSubmitting}
 							/>
 						</div>
@@ -129,7 +129,7 @@ function OrganizationForm({
 							placeholder='Select Industry Type'
 							options={industryTypes}
 							getOptionValue={(option) => option.id!}
-							getOptionLabel={(option) => option.name}
+							getOptionLabel={(option) => option.nameEn}
 							disabled={isSubmitting}
 						/>
 						<FormInput
@@ -276,8 +276,8 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 		try {
 			const isUpdate = editingItem?.id;
 			const response = isUpdate
-				? await MasterDataService.organization.update({ ...payload, id: editingItem.id })
-				: await MasterDataService.organization.add(payload);
+				? await MasterDataService.organization.update({ ...payload, id: editingItem.id, nameEn: '', nameBn: '' })
+				: await MasterDataService.organization.add({ ...payload, nameEn: '', nameBn: '' });
 
 			toast({ description: response.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter, organizationTypeFilter);
@@ -334,12 +334,12 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 		>
 			<div className='flex-1 space-y-1'>
 				<p className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}>
-					{item.name}
+					{item.nameEn}
 				</p>
 				<div className='text-xs text-muted-foreground space-y-1'>
 					<p>
-						{item.country?.name} | Industry: {item.industryType?.name || 'N/A'} | Type:{' '}
-						{item.organizationType?.name || 'N/A'}
+						{item.country?.nameEn} | Industry: {item.industryType?.nameEn || 'N/A'} | Type:{' '}
+						{item.organizationType?.nameEn || 'N/A'}
 					</p>
 					{item.address && <p className='text-xs text-muted-foreground'>{item.address}</p>}
 					<div className='flex flex-wrap items-center gap-x-4 gap-y-1 pt-1'>
@@ -387,7 +387,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 							<Trash className='h-4 w-4 text-danger' />
 						</Button>
 					}
-					description={`This will permanently delete the ${noun.toLowerCase()} "${item.name}".`}
+					description={`This will permanently delete the ${noun.toLowerCase()} "${item.nameEn}".`}
 					onConfirm={() => handleDelete(item.id!.toString())}
 					confirmText='Delete'
 				/>
@@ -424,9 +424,9 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 								name='countryFilter'
 								label=''
 								placeholder='Filter by Country...'
-								options={[{ id: 'all', name: 'All Countries', code: 'all' }, ...(masterData?.countries || [])]}
+								options={[{ id: 'all', nameEn: 'All Countries', code: 'all' }, ...(masterData?.countries || [])]}
 								getOptionValue={(option) => option.code!}
-								getOptionLabel={(option) => option.name}
+								getOptionLabel={(option) => option.nameEn}
 								onValueChange={(val) => setCountryFilter(val as string)}
 								value={countryFilter}
 							/>
@@ -435,9 +435,9 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 								name='organizationTypeFilter'
 								label=''
 								placeholder='Filter by Type...'
-								options={[{ id: 'all', name: 'All Types' }, ...(masterData?.organizationTypes || [])]}
+								options={[{ id: 'all', nameEn: 'All Types' }, ...(masterData?.organizationTypes || [])]}
 								getOptionValue={(option) => option.id!.toString()}
-								getOptionLabel={(option) => option.name}
+								getOptionLabel={(option) => option.nameEn}
 								onValueChange={(val) => setOrganizationTypeFilter(val as string)}
 								value={organizationTypeFilter}
 							/>
@@ -446,9 +446,9 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 								name='industryFilter'
 								label=''
 								placeholder='Filter by Industry...'
-								options={[{ id: 'all', name: 'All Industries' }, ...(masterData?.industryTypes || [])]}
+								options={[{ id: 'all', nameEn: 'All Industries' }, ...(masterData?.industryTypes || [])]}
 								getOptionValue={(option) => option.id!.toString()}
-								getOptionLabel={(option) => option.name}
+								getOptionLabel={(option) => option.nameEn}
 								onValueChange={(val) => setIndustryFilter(val as string)}
 								value={industryFilter}
 							/>
