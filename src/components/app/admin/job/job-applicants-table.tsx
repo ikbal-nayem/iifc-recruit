@@ -24,14 +24,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -43,7 +35,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MoreHorizontal, FileText, UserCheck, UserX, Star, Send, Bell } from 'lucide-react';
+import { FileText, UserCheck, UserX, Star, Send, Bell } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Jobseeker, Application } from '@/lib/types';
@@ -54,6 +46,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { FormRadioGroup } from '@/components/ui/form-radio-group';
+import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 
 type Applicant = Jobseeker & { application: Application };
 
@@ -89,6 +82,31 @@ export function JobApplicantsTable({ applicants }: JobApplicantsTableProps) {
         variant: 'success'
     })
   }
+
+  const getActionItems = (applicant: Applicant): ActionItem[] => [
+		{
+			label: 'View Profile',
+			icon: <FileText className='mr-2 h-4 w-4' />,
+			onClick: () => setSelectedApplicant(applicant),
+		},
+		{ isSeparator: true },
+		{
+			label: 'Shortlist',
+			icon: <UserCheck className='mr-2 h-4 w-4' />,
+			onClick: () => handleStatusChange(applicant.application.id, applicant.personalInfo.name, 'Shortlisted'),
+		},
+		{
+			label: 'Schedule Interview',
+			icon: <Star className='mr-2 h-4 w-4' />,
+			onClick: () => handleStatusChange(applicant.application.id, applicant.personalInfo.name, 'Interview'),
+		},
+		{
+			label: 'Reject',
+			icon: <UserX className='mr-2 h-4 w-4' />,
+			onClick: () => handleStatusChange(applicant.application.id, applicant.personalInfo.name, 'Rejected'),
+			variant: 'danger',
+		},
+  ];
 
   const columns: ColumnDef<Applicant>[] = [
     {
@@ -155,32 +173,7 @@ export function JobApplicantsTable({ applicants }: JobApplicantsTableProps) {
       id: 'actions',
       cell: ({ row }) => {
         const applicant = row.original;
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => setSelectedApplicant(applicant)}>
-                <FileText className="mr-2 h-4 w-4" /> View Profile
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handleStatusChange(applicant.application.id, applicant.personalInfo.name, 'Shortlisted')}>
-                <UserCheck className="mr-2 h-4 w-4" /> Shortlist
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleStatusChange(applicant.application.id, applicant.personalInfo.name, 'Interview')}>
-                <Star className="mr-2 h-4 w-4" /> Schedule Interview
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-red-500" onClick={() => handleStatusChange(applicant.application.id, applicant.personalInfo.name, 'Rejected')}>
-                <UserX className="mr-2 h-4 w-4" /> Reject
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )
+        return <ActionMenu label='Actions' items={getActionItems(applicant)} />
       },
     },
   ];
@@ -222,29 +215,7 @@ export function JobApplicantsTable({ applicants }: JobApplicantsTableProps) {
                 'secondary'} className="mt-2">{applicant.application.status}</Badge>
           </div>
         </div>
-         <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setSelectedApplicant(applicant)}>
-                <FileText className="mr-2 h-4 w-4" /> View Profile
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handleStatusChange(applicant.application.id, applicant.personalInfo.name, 'Shortlisted')}>
-                <UserCheck className="mr-2 h-4 w-4" /> Shortlist
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleStatusChange(applicant.application.id, applicant.personalInfo.name, 'Interview')}>
-                <Star className="mr-2 h-4 w-4" /> Schedule Interview
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-red-500" onClick={() => handleStatusChange(applicant.application.id, applicant.personalInfo.name, 'Rejected')}>
-                <UserX className="mr-2 h-4 w-4" /> Reject
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <ActionMenu items={getActionItems(applicant)} />
       </div>
     </Card>
   );
