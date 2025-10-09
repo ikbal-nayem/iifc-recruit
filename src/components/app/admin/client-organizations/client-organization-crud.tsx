@@ -169,7 +169,7 @@ function ClientOrganizationForm({
 							placeholder='Select Organization Type'
 							options={organizationTypes}
 							getOptionValue={(option) => option.id!}
-							getOptionLabel={(option) => option.name}
+							getOptionLabel={(option) => option.nameEn}
 							disabled={isSubmitting}
 						/>
 						<div className='flex gap-4'>
@@ -302,11 +302,11 @@ export function ClientOrganizationCrud({ title, description, noun, masterData }:
 	};
 
 	const handleFormSubmit = async (data: FormValues): Promise<boolean> => {
-		const payload = { ...editingItem, ...data, isActive: editingItem?.isActive ?? true };
+		const payload = { ...editingItem, ...data, active: editingItem?.active ?? true };
 		try {
 			const response = editingItem?.id
 				? await MasterDataService.clientOrganization.update(payload)
-				: await MasterDataService.clientOrganization.add({ ...payload, isActive: true });
+				: await MasterDataService.clientOrganization.add({ ...payload, active: true });
 
 			toast({ description: response.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch);
@@ -353,7 +353,7 @@ export function ClientOrganizationCrud({ title, description, noun, masterData }:
 			},
 		},
 		{
-			accessorKey: 'organizationType.name',
+			accessorKey: 'organizationType.nameEn',
 			header: 'Type',
 		},
 		{

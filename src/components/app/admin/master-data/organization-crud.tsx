@@ -271,7 +271,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 	const handleFormSubmit = async (data: FormValues): Promise<boolean> => {
 		const payload = {
 			...data,
-			isActive: editingItem?.isActive ?? true,
+			active: editingItem?.active ?? true,
 		};
 		try {
 			const isUpdate = editingItem?.id;
@@ -307,7 +307,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 	const handleToggleActive = async (item: IOrganization) => {
 		if (!item.id) return;
 		setIsSubmitting(item.id.toString());
-		const updatedItem = { ...item, isActive: !item.isActive };
+		const updatedItem = { ...item, active: !item.active };
 		try {
 			await MasterDataService.organization.update(updatedItem);
 			setItems((prevItems) => prevItems.map((i) => (i.id === item.id ? updatedItem : i)));
@@ -333,7 +333,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 			className='p-4 flex flex-col sm:flex-row justify-between items-start bg-background/50 gap-4'
 		>
 			<div className='flex-1 space-y-1'>
-				<p className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}>
+				<p className={`font-semibold ${!item.active && 'text-muted-foreground line-through'}`}>
 					{item.nameEn}
 				</p>
 				<div className='text-xs text-muted-foreground space-y-1'>
@@ -368,7 +368,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 			</div>
 			<div className='flex items-center gap-2 self-start'>
 				<Switch
-					checked={item.isActive}
+					checked={item.active}
 					onCheckedChange={() => handleToggleActive(item)}
 					disabled={isSubmitting === item.id?.toString()}
 				/>

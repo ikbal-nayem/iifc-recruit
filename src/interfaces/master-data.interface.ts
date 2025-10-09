@@ -1,5 +1,4 @@
 
-
 import { STATUS_TYPE } from '@/constants/common.constant';
 import { IObject } from './common.interface';
 
@@ -13,7 +12,7 @@ export interface ICommonMasterData {
 	id?: number;
 	nameEn: string;
 	nameBn: string;
-	isActive: boolean;
+	active: boolean;
 	code?: string;
 }
 
@@ -32,7 +31,7 @@ export interface IOutsourcingCharge {
 	categoryId: number;
 	zoneId: number;
 	monthlyServiceCharge: number;
-	isActive: boolean;
+	active: boolean;
 	category?: IOutsourcingCategory;
 	zone?: IOutsourcingZone;
 }
@@ -68,7 +67,7 @@ export interface IClientOrganization {
     contactNumber?: string;
     email?: string;
     website?: string;
-    isActive: boolean;
+    active: boolean;
     isClient?: boolean;
     isExaminer?: boolean;
 }

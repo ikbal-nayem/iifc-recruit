@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -25,7 +26,8 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 const formSchema = z.object({
-	name: z.string().min(1, 'Name is required.'),
+	nameEn: z.string().min(1, 'Name is required.'),
+	nameBn: z.string().min(1, 'Name is required.'),
 	fkCountry: z.string().min(1, 'Country is required.'),
 });
 type FormValues = z.infer<typeof formSchema>;
@@ -65,7 +67,7 @@ function EducationInstitutionForm({
 		const payload = {
 			...initialData,
 			...data,
-			isActive: initialData?.isActive ?? true,
+			active: initialData?.active ?? true,
 		};
 		const success = await onSubmit(payload);
 		if (success) {
@@ -115,7 +117,7 @@ function EducationInstitutionForm({
 							required
 							options={countries}
 							getOptionValue={(option) => option.id!.toString()}
-							getOptionLabel={(option) => option.name}
+							getOptionLabel={(option) => option.nameEn}
 							disabled={isSubmitting}
 						/>
 						<DialogFooter className='pt-4'>
@@ -194,7 +196,7 @@ export function EducationInstitutionCrud({
 	const handleToggleActive = async (item: IEducationInstitution) => {
 		if (!item.id) return;
 		setIsSubmitting(item.id.toString());
-		const success = await onUpdate({ ...item, isActive: !item.isActive });
+		const success = await onUpdate({ ...item, active: !item.active });
 		if (success) {
 			toast({
 				title: 'Success',
@@ -244,7 +246,7 @@ export function EducationInstitutionCrud({
 									>
 										{countryFilter === 'all'
 											? 'All Countries'
-											: countries.find((c) => c.id?.toString() === countryFilter)?.name || 'All Countries'}
+											: countries.find((c) => c.id?.toString() === countryFilter)?.nameEn || 'All Countries'}
 										<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
 									</Button>
 								</PopoverTrigger>
@@ -272,7 +274,7 @@ export function EducationInstitutionCrud({
 												{countries.map((c) => (
 													<CommandItem
 														key={c.id}
-														value={c.name}
+														value={c.nameEn}
 														onSelect={() => {
 															onCountryChange(c.id!.toString());
 															setCountryFilterPopoverOpen(false);
@@ -284,7 +286,7 @@ export function EducationInstitutionCrud({
 																countryFilter === c.id?.toString() ? 'opacity-100' : 'opacity-0'
 															)}
 														/>
-														{c.name}
+														{c.nameEn}
 													</CommandItem>
 												))}
 											</CommandGroup>
@@ -304,22 +306,22 @@ export function EducationInstitutionCrud({
 									>
 										<div className='flex-1 mb-4 sm:mb-0'>
 											<p
-												className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}
+												className={`font-semibold ${!item.active && 'text-muted-foreground line-through'}`}
 											>
 												{item.nameEn}
 											</p>
 											<p className='text-sm text-muted-foreground'>
-												{countries.find((c) => c.id?.toString() === item.fkCountry)?.name || 'Unknown Country'}
+												{countries.find((c) => c.id?.toString() === item.fkCountry)?.nameEn || 'Unknown Country'}
 											</p>
 										</div>
 										<div className='flex items-center gap-2 w-full sm:w-auto justify-between'>
 											<div className='flex items-center gap-2'>
 												<Switch
-													checked={item.isActive}
+													checked={item.active}
 													onCheckedChange={() => handleToggleActive(item)}
 													disabled={isSubmitting === item.id?.toString()}
 												/>
-												<Label className='text-sm'>{item.isActive ? 'Active' : 'Inactive'}</Label>
+												<Label className='text-sm'>{item.active ? 'Active' : 'Inactive'}</Label>
 											</div>
 											<div className='flex'>
 												<Button

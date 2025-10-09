@@ -1,3 +1,4 @@
+
 import { axiosIns } from '@/config/api.config';
 import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
 import {
@@ -14,7 +15,7 @@ import {
 
 const createMasterDataCrud = <T>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[]>> =>
-		await axiosIns.get(`/master-data/${entity}/get?isDeleted=false`),
+		await axiosIns.get(`/master-data/${entity}/get?deleted=false`),
 	getList: async (payload: IApiRequest): Promise<IApiResponse<T[]>> =>
 		await axiosIns.post(`/master-data/${entity}/get-list`, payload),
 	getDetails: async (id: string): Promise<IApiResponse<T>> =>
@@ -43,7 +44,7 @@ export const MasterDataService = {
 	trainingType: createMasterDataCrud<ICommonMasterData>('training-type'),
 	country: {
 		get: async (): Promise<IApiResponse<ICommonMasterData[]>> =>
-			await axiosIns.get(`/master-data/country/get?isDeleted=false`),
+			await axiosIns.get(`/master-data/country/get?deleted=false`),
 		getList: async (payload: IApiRequest): Promise<IApiResponse<ICommonMasterData[]>> =>
 			await axiosIns.post(`/master-data/country/get-list`, payload),
 		getDetails: async (id: string): Promise<IApiResponse<ICommonMasterData>> =>

@@ -66,7 +66,7 @@ function OutsourcingChargeForm({
 		const payload = {
 			...initialData,
 			...data,
-			isActive: initialData?.isActive ?? true,
+			active: initialData?.active ?? true,
 		};
 		const success = await onSubmit(payload);
 		if (success) {
@@ -202,7 +202,7 @@ export function OutsourcingChargeCrud({
 	const handleToggleActive = async (item: IOutsourcingCharge) => {
 		if (!item.id) return;
 		setIsSubmitting(item.id.toString());
-		const success = await onUpdate({ ...item, isActive: !item.isActive });
+		const success = await onUpdate({ ...item, active: !item.active });
 		if (success) {
 			toast({
 				title: 'Success',
@@ -282,11 +282,11 @@ export function OutsourcingChargeCrud({
 										<div className='flex items-center gap-2 w-full sm:w-auto justify-between'>
 											<div className='flex items-center gap-2'>
 												<Switch
-													checked={item.isActive}
+													checked={item.active}
 													onCheckedChange={() => handleToggleActive(item)}
 													disabled={isSubmitting === item.id?.toString()}
 												/>
-												<Label className='text-sm'>{item.isActive ? 'Active' : 'Inactive'}</Label>
+												<Label className='text-sm'>{item.active ? 'Active' : 'Inactive'}</Label>
 											</div>
 											<div className='flex'>
 												<Button

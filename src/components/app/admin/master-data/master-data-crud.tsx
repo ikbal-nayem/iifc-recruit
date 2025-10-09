@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -166,7 +167,7 @@ export function MasterDataCrud({
 	const handleToggleActive = async (item: ICommonMasterData) => {
 		if (!item.id) return;
 		setIsSubmitting(item.id.toString());
-		const success = await onUpdate({ ...item, isActive: !item.isActive });
+		const success = await onUpdate({ ...item, active: !item.active });
 		if (success) {
 			toast({
 				title: 'Success',
@@ -216,7 +217,7 @@ export function MasterDataCrud({
 									>
 										<div className='flex-1 mb-4 sm:mb-0'>
 											<p
-												className={`font-semibold ${!item.isActive && 'text-muted-foreground line-through'}`}
+												className={`font-semibold ${!item.active && 'text-muted-foreground line-through'}`}
 											>
 												{item.nameEn}
 											</p>
@@ -225,11 +226,11 @@ export function MasterDataCrud({
 										<div className='flex items-center gap-2 w-full sm:w-auto justify-between'>
 											<div className='flex items-center gap-2'>
 												<Switch
-													checked={item.isActive}
+													checked={item.active}
 													onCheckedChange={() => handleToggleActive(item)}
 													disabled={isSubmitting === item.id?.toString()}
 												/>
-												<Label className='text-sm'>{item.isActive ? 'Active' : 'Inactive'}</Label>
+												<Label className='text-sm'>{item.active ? 'Active' : 'Inactive'}</Label>
 											</div>
 											<div className='flex'>
 												<Button
