@@ -91,3 +91,4 @@ export interface IOrganizationUser {
 export interface IStatus extends ICommonMasterData {
 	statusType: typeof STATUS_TYPE[keyof typeof STATUS_TYPE];
 }
+

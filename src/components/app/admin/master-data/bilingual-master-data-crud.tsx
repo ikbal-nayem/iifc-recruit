@@ -192,7 +192,7 @@ export function CommonBilingualCrud({
 				</div>
 				<Button className='w-full sm:w-auto' onClick={() => handleOpenForm()}>
 					<PlusCircle className='mr-2 h-4 w-4' />
-					Add {noun}
+					Add New {noun}
 				</Button>
 			</div>
 			<Card className='glassmorphism'>
