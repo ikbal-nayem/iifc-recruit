@@ -38,7 +38,7 @@ export interface IOutsourcingCharge {
 
 
 export interface IEducationInstitution extends ICommonMasterData {
-	countryId: string;
+	fkCountry: string;
 	country?: IObject;
 }
 

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ProfessionalExperienceMasterData } from '@/app/(auth)/jobseeker/profile-edit/professional/page';
@@ -143,7 +144,7 @@ function ProfessionalExperienceForm({
 								required
 								options={masterData.organizations}
 								getOptionValue={(option) => option.id!.toString()}
-								getOptionLabel={(option) => option.name}
+								getOptionLabel={(option) => option.nameEn}
 							/>
 							<FormAutocomplete
 								control={form.control}
@@ -314,7 +315,7 @@ export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
 				<div>
 					<p className='font-semibold'>{item.positionTitle}</p>
 					<p className='text-sm text-muted-foreground'>
-						{item.organization?.name} &middot; {item.positionLevel?.nameEn}
+						{item.organization?.nameEn} &middot; {item.positionLevel?.nameEn}
 					</p>
 					<p className='text-xs text-muted-foreground'>
 						{joinDate} - {resignDate}

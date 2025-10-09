@@ -16,6 +16,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { IOrganization } from '@/interfaces/master-data.interface';
+import { isBangla, isEnglish } from '@/lib/utils';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Globe, Loader2, Mail, Phone, PlusCircle, Search, Trash } from 'lucide-react';
@@ -25,7 +26,12 @@ import { z } from 'zod';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 const formSchema = z.object({
-	name: z.string().min(1, 'Name is required.'),
+	nameEn: z.string().min(1, 'English name is required.').refine(isEnglish, {
+		message: 'Only English characters, numbers, and some special characters are allowed.',
+	}),
+	nameBn: z.string().min(1, 'Bengali name is required.').refine(isBangla, {
+		message: 'Only Bengali characters, numbers, and some special characters are allowed.',
+	}),
 	countryCode: z.string().min(1, 'Country is required.'),
 	organizationTypeId: z.coerce.number().min(1, 'Organization Type is required.'),
 	industryTypeId: z.coerce.number().optional(),
@@ -56,7 +62,8 @@ function OrganizationForm({
 	const defaultValues = initialData
 		? { ...initialData, countryCode: initialData.country?.code }
 		: {
-				name: '',
+				nameEn: '',
+				nameBn: '',
 				countryCode: countries.find((c) => c.nameEn === 'Bangladesh')?.code || '',
 				organizationTypeId: undefined,
 				industryTypeId: undefined,
@@ -90,14 +97,24 @@ function OrganizationForm({
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleFormSubmit)} className='space-y-4 py-4' noValidate>
-						<FormInput
-							control={form.control}
-							name='name'
-							label='Name'
-							placeholder='Organization Name'
-							required
-							disabled={isSubmitting}
-						/>
+						<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+							<FormInput
+								control={form.control}
+								name='nameEn'
+								label='Name (English)'
+								placeholder='Organization Name'
+								required
+								disabled={isSubmitting}
+							/>
+							<FormInput
+								control={form.control}
+								name='nameBn'
+								label='Name (Bangla)'
+								placeholder='প্রতিষ্ঠানের নাম'
+								required
+								disabled={isSubmitting}
+							/>
+						</div>
 						<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
 							<FormAutocomplete
 								control={form.control}
@@ -218,7 +235,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 			try {
 				const payload: IApiRequest = {
 					body: {
-						name: search,
+						nameEn: search,
 						...(countryCode !== 'all' && { countryCode }),
 						...(industryId !== 'all' && { industryTypeId: industryId }),
 						...(orgTypeId !== 'all' && { organizationTypeId: orgTypeId }),
@@ -276,8 +293,8 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 		try {
 			const isUpdate = editingItem?.id;
 			const response = isUpdate
-				? await MasterDataService.organization.update({ ...payload, id: editingItem.id, nameEn: '', nameBn: '' })
-				: await MasterDataService.organization.add({ ...payload, nameEn: '', nameBn: '' });
+				? await MasterDataService.organization.update({ ...payload, id: editingItem.id })
+				: await MasterDataService.organization.add(payload);
 
 			toast({ description: response.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter, organizationTypeFilter);
@@ -336,6 +353,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 				<p className={`font-semibold ${!item.active && 'text-muted-foreground line-through'}`}>
 					{item.nameEn}
 				</p>
+				<p className={`text-sm text-muted-foreground ${!item.active && 'line-through'}`}>{item.nameBn}</p>
 				<div className='text-xs text-muted-foreground space-y-1'>
 					<p>
 						{item.country?.nameEn} | Industry: {item.industryType?.nameEn || 'N/A'} | Type:{' '}
