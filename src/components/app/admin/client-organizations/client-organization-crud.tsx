@@ -243,14 +243,13 @@ export function ClientOrganizationCrud({ title, description, noun, masterData }:
 	const { toast } = useToast();
 	const [items, setItems] = useState<IClientOrganization[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
-
 	const [isLoading, setIsLoading] = useState(true);
-
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
 
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [editingItem, setEditingItem] = useState<IClientOrganization | undefined>(undefined);
+	const [itemToDelete, setItemToDelete] = useState<IClientOrganization | null>(null);
 
 	const loadItems = useCallback(
 		async (page: number, search: string) => {
@@ -311,9 +310,10 @@ export function ClientOrganizationCrud({ title, description, noun, masterData }:
 		}
 	};
 
-	const handleDelete = async (id: number) => {
+	const handleDelete = async () => {
+		if (!itemToDelete) return;
 		try {
-			await MasterDataService.clientOrganization.delete(id.toString());
+			await MasterDataService.clientOrganization.delete(itemToDelete.id!.toString());
 			toast({ title: 'Success', description: 'Client organization deleted successfully.', variant: 'success' });
 			loadItems(meta.page, debouncedSearch);
 		} catch (error: any) {
@@ -323,6 +323,8 @@ export function ClientOrganizationCrud({ title, description, noun, masterData }:
 				description: error?.message || 'Failed to delete client organization.',
 				variant: 'danger',
 			});
+		} finally {
+			setItemToDelete(null);
 		}
 	};
 
@@ -347,25 +349,7 @@ export function ClientOrganizationCrud({ title, description, noun, masterData }:
 			label: 'Delete',
 			icon: <Trash className='mr-2 h-4 w-4' />,
 			variant: 'danger',
-			onClick: () => {
-				const dialog = document.createElement('div');
-				document.body.appendChild(dialog);
-				const root = require('react-dom/client').createRoot(dialog);
-				root.render(
-					React.createElement(ConfirmationDialog, {
-						trigger: React.createElement('span'),
-						open: true,
-						onOpenChange: (open) => !open && root.unmount(),
-						title: 'Are you sure?',
-						description: `This will permanently delete the organization "${item.nameEn}".`,
-						onConfirm: () => {
-							handleDelete(item.id!);
-							root.unmount();
-						},
-						confirmText: 'Delete',
-					})
-				);
-			},
+			onClick: () => setItemToDelete(item),
 		},
 	];
 
@@ -520,6 +504,14 @@ export function ClientOrganizationCrud({ title, description, noun, masterData }:
 					masterData={masterData}
 				/>
 			)}
+			<ConfirmationDialog
+				open={!!itemToDelete}
+				onOpenChange={(open) => !open && setItemToDelete(null)}
+				title='Are you sure?'
+				description={`This will permanently delete the organization "${itemToDelete?.nameEn}".`}
+				onConfirm={handleDelete}
+				confirmText='Delete'
+			/>
 		</div>
 	);
 }

@@ -60,6 +60,7 @@ export function JobManagement() {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [selectedJob, setSelectedJob] = React.useState<Job | null>(null);
+  const [jobToDelete, setJobToDelete] = React.useState<Job | null>(null);
   const [departmentPopoverOpen, setDepartmentPopoverOpen] = React.useState(false);
   const { toast } = useToast();
 
@@ -67,13 +68,15 @@ export function JobManagement() {
   const uniqueLocations = ['all', ...Array.from(new Set(initialJobs.map(job => job.location)))];
   const uniqueStatuses = ['all', 'Open', 'Closed', 'Archived'];
 
-  const handleDeleteJob = (jobId: string) => {
-    setData(prev => prev.filter(j => j.id !== jobId));
+  const handleDeleteJob = () => {
+    if (!jobToDelete) return;
+    setData(prev => prev.filter(j => j.id !== jobToDelete.id));
     toast({
         title: "Job Deleted",
         description: "The job posting has been successfully deleted.",
         variant: 'success'
     });
+    setJobToDelete(null);
   }
 
     const getActionItems = (job: Job): ActionItem[] => [
@@ -97,25 +100,7 @@ export function JobManagement() {
             label: "Delete",
             icon: <Trash className="mr-2 h-4 w-4" />,
             variant: "danger",
-            onClick: () => {
-                 const dialog = document.createElement('div');
-				document.body.appendChild(dialog);
-				const root = require('react-dom/client').createRoot(dialog);
-                root.render(
-                    React.createElement(ConfirmationDialog, {
-                        trigger: React.createElement('span'),
-                        open: true,
-                        onOpenChange: (open) => !open && root.unmount(),
-                        title:"Are you absolutely sure?",
-                        description: `This action cannot be undone. This will permanently delete the job posting "${job.title}" and all related application data.`,
-                        onConfirm: () => {
-                            handleDeleteJob(job.id);
-                            root.unmount();
-                        },
-                        confirmText:'Continue'
-                    })
-                )
-            }
+            onClick: () => setJobToDelete(job),
         }
     ]
 
@@ -359,6 +344,14 @@ export function JobManagement() {
           )}
         </DialogContent>
       </Dialog>
+      <ConfirmationDialog
+        open={!!jobToDelete}
+        onOpenChange={(open) => !open && setJobToDelete(null)}
+        title="Are you absolutely sure?"
+        description={`This action cannot be undone. This will permanently delete the job posting "${jobToDelete?.title}" and all related application data.`}
+        onConfirm={handleDeleteJob}
+        confirmText="Continue"
+      />
     </div>
   );
 }
