@@ -48,6 +48,16 @@ export const adminNavLinks: NavLink[] = [
 		isActive: (pathname) => pathname.startsWith('/admin/job-management'),
 		submenu: [
 			{
+				href: '/admin/job-management/request/create',
+				label: 'New Job Request',
+				icon: PlusCircle,
+			},
+			{
+				href: '/admin/job-management/requests',
+				label: 'Manage Requests',
+				icon: ListChecks,
+			},
+			{
 				href: '/admin/job-management',
 				label: 'All Jobs',
 				icon: Briefcase,
@@ -59,16 +69,6 @@ export const adminNavLinks: NavLink[] = [
 				href: '/admin/job-management/create',
 				label: 'Create New Job',
 				icon: PlusCircle,
-			},
-			{
-				href: '/admin/job-management/request/create',
-				label: 'New Job Request',
-				icon: PlusCircle,
-			},
-			{
-				href: '/admin/job-management/requests',
-				label: 'Manage Requests',
-				icon: ListChecks,
 			},
 		],
 	},
