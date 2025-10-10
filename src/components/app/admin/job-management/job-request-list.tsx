@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -26,7 +25,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
-import { Check, Clock, X } from 'lucide-react';
+import { Check, Clock, Edit, X } from 'lucide-react';
 import type { JobRequest } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
@@ -84,9 +83,17 @@ export function JobRequestList() {
 	};
 
 	const getActionItems = (request: JobRequest): ActionItem[] => {
-		const items: ActionItem[] = [];
+		const items: ActionItem[] = [
+      {
+        label: 'Edit',
+        icon: <Edit className='mr-2 h-4 w-4' />,
+        href: `/admin/job-management/request/${request.id}/edit`,
+      },
+    ];
+
 		if (request.status === 'Pending') {
 			items.push(
+        { isSeparator: true},
 				{
 					label: 'Approve',
 					icon: <Check className='mr-2 h-4 w-4' />,
@@ -100,7 +107,9 @@ export function JobRequestList() {
 				}
 			);
 		} else {
-			items.push({
+			items.push(
+        { isSeparator: true},
+        {
 				label: 'Set to Pending',
 				icon: <Clock className='mr-2 h-4 w-4' />,
 				onClick: () => handleStatusChange(request.id, 'Pending'),
