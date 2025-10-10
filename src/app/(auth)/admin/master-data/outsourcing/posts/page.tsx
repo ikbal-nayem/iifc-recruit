@@ -1,19 +1,19 @@
 
 'use client';
 
-import { OutsourcingServiceCrud } from '@/components/app/admin/master-data/outsourcing-service-crud';
+import { PostCrud } from '@/components/app/admin/master-data/post-crud';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
-import { IOutsourcingCategory, IOutsourcingService } from '@/interfaces/master-data.interface';
+import { IOutsourcingCategory, IPost } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { useCallback, useEffect, useState } from 'react';
 
 const initMeta: IMeta = { page: 0, limit: 10 };
 
-export default function MasterOutsourcingServicePage() {
+export default function MasterPostsPage() {
 	const { toast } = useToast();
-	const [items, setItems] = useState<IOutsourcingService[]>([]);
+	const [items, setItems] = useState<IPost[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState('');
@@ -48,14 +48,14 @@ export default function MasterOutsourcingServicePage() {
 					},
 					meta: { page: page, limit: meta.limit },
 				};
-				const response = await MasterDataService.outsourcingService.getList(payload);
+				const response = await MasterDataService.post.getList(payload);
 				setItems(response.body);
 				setMeta(response.meta);
 			} catch (error) {
 				console.error('Failed to load items', error);
 				toast({
 					title: 'Error',
-					description: 'Failed to load services.',
+					description: 'Failed to load posts.',
 					variant: 'danger',
 				});
 			} finally {
@@ -73,50 +73,50 @@ export default function MasterOutsourcingServicePage() {
 		loadItems(newPage, debouncedSearch, categoryFilter);
 	};
 
-	const handleAdd = async (item: Omit<IOutsourcingService, 'id'>): Promise<boolean> => {
+	const handleAdd = async (item: Omit<IPost, 'id'>): Promise<boolean> => {
 		try {
-			const resp = await MasterDataService.outsourcingService.add(item);
+			const resp = await MasterDataService.post.add(item);
 			toast({ description: resp.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch, categoryFilter);
 			return true;
-		} catch (error) {
+		} catch (error: any) {
 			console.error('Failed to add item', error);
-			toast({ title: 'Error', description: 'Failed to add service.', variant: 'danger' });
+			toast({ title: 'Error', description: error.message || 'Failed to add post.', variant: 'danger' });
 			return false;
 		}
 	};
 
-	const handleUpdate = async (item: IOutsourcingService): Promise<boolean> => {
+	const handleUpdate = async (item: IPost): Promise<boolean> => {
 		try {
-			const resp = await MasterDataService.outsourcingService.update(item);
+			const resp = await MasterDataService.post.update(item);
 			toast({ description: resp.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch, categoryFilter);
 			return true;
-		} catch (error) {
+		} catch (error: any) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update service.', variant: 'danger' });
+			toast({ title: 'Error', description: error.message || 'Failed to update post.', variant: 'danger' });
 			return false;
 		}
 	};
 
 	const handleDelete = async (id: string): Promise<boolean> => {
 		try {
-			await MasterDataService.outsourcingService.delete(id);
-			toast({ title: 'Success', description: 'Service deleted successfully.', variant: 'success' });
+			await MasterDataService.post.delete(id);
+			toast({ title: 'Success', description: 'Post deleted successfully.', variant: 'success' });
 			loadItems(meta.page, debouncedSearch, categoryFilter);
 			return true;
-		} catch (error) {
+		} catch (error: any) {
 			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: 'Failed to delete service.', variant: 'danger' });
+			toast({ title: 'Error', description: error.message || 'Failed to delete post.', variant: 'danger' });
 			return false;
 		}
 	};
 
 	return (
-		<OutsourcingServiceCrud
-			title='Outsourcing Services'
-			description='Manage outsourcing services.'
-			noun='Service'
+		<PostCrud
+			title='Posts'
+			description='Manage all job posts, both permanent and outsourcing.'
+			noun='Post'
 			items={items}
 			meta={meta}
 			isLoading={isLoading}
@@ -131,4 +131,3 @@ export default function MasterOutsourcingServicePage() {
 		/>
 	);
 }
-

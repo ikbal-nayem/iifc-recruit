@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,13 +15,12 @@ import { FormInput } from '@/components/ui/form-input';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import {
 	IClientOrganization,
-	IOutsourcingService,
 	IOutsourcingZone,
+    IPost,
 } from '@/interfaces/master-data.interface';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormRadioGroup } from '@/components/ui/form-radio-group';
-import { Separator } from '@/components/ui/separator';
-import { JobRequest, RequestedPost } from '@/lib/types';
+import { JobRequest } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 
 const requestedPostSchema = z.object({
@@ -50,14 +50,14 @@ type JobRequestFormValues = z.infer<typeof jobRequestSchema>;
 
 interface JobRequestFormProps {
 	clientOrganizations: IClientOrganization[];
-	outsourcingServices: IOutsourcingService[]; // Assuming this is the "Post"
+	posts: IPost[];
 	outsourcingZones: IOutsourcingZone[];
   initialData?: JobRequest;
 }
 
 export function JobRequestForm({
 	clientOrganizations,
-	outsourcingServices,
+	posts,
 	outsourcingZones,
   initialData,
 }: JobRequestFormProps) {
@@ -166,7 +166,7 @@ export function JobRequestForm({
 												label='Post'
 												required
 												placeholder='Select Post'
-												options={outsourcingServices}
+												options={posts}
 												getOptionValue={(opt) => opt.id!.toString()}
 												getOptionLabel={(opt) => opt.nameEn}
 											/>

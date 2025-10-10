@@ -1,3 +1,4 @@
+
 'use client'
 import { JobRequestForm } from '@/components/app/admin/job-management/job-request-form';
 import { MasterDataService } from '@/services/api/master-data.service';
@@ -51,25 +52,25 @@ async function getJobRequest(id: string) {
 
 async function getMasterData() {
 	try {
-		const [clientOrgsRes, servicesRes, zonesRes] = await Promise.allSettled([
+		const [clientOrgsRes, postsRes, zonesRes] = await Promise.allSettled([
 			MasterDataService.clientOrganization.get(),
-			MasterDataService.outsourcingService.get(),
+			MasterDataService.post.get(),
 			MasterDataService.outsourcingZone.get(),
 		]);
 
 		const clientOrganizations = clientOrgsRes.status === 'fulfilled' ? clientOrgsRes.value.body : [];
-		const outsourcingServices = servicesRes.status === 'fulfilled' ? servicesRes.value.body : [];
+		const posts = postsRes.status === 'fulfilled' ? postsRes.value.body : [];
 		const outsourcingZones = zonesRes.status === 'fulfilled' ? zonesRes.value.body : [];
 
-		return { clientOrganizations, outsourcingServices, outsourcingZones };
+		return { clientOrganizations, posts, outsourcingZones };
 	} catch (error) {
 		console.error('Failed to load master data for job request form', error);
-		return { clientOrganizations: [], outsourcingServices: [], outsourcingZones: [] };
+		return { clientOrganizations: [], posts: [], outsourcingZones: [] };
 	}
 }
 
 export default async function EditJobRequestPage({ params }: { params: { id: string } }) {
-	const { clientOrganizations, outsourcingServices, outsourcingZones } = await getMasterData();
+	const { clientOrganizations, posts, outsourcingZones } = await getMasterData();
   const jobRequest = await getJobRequest(params.id);
 
   if (!jobRequest) {
@@ -87,7 +88,7 @@ export default async function EditJobRequestPage({ params }: { params: { id: str
 			<JobRequestForm
         initialData={jobRequest}
 				clientOrganizations={clientOrganizations}
-				outsourcingServices={outsourcingServices}
+				posts={posts}
 				outsourcingZones={outsourcingZones}
 			/>
 		</div>

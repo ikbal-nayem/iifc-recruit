@@ -21,8 +21,9 @@ export interface IOutsourcingCategory extends ICommonMasterData {}
 
 export interface IOutsourcingZone extends ICommonMasterData {}
 
-export interface IOutsourcingService extends ICommonMasterData {
-	categoryId: number;
+export interface IPost extends ICommonMasterData {
+	outsourcing?: boolean;
+	categoryId?: number;
 	category?: IOutsourcingCategory;
 }
 

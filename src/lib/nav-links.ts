@@ -1,3 +1,4 @@
+
 import type { LucideIcon } from 'lucide-react';
 import {
 	Award,
@@ -117,14 +118,14 @@ export const adminNavLinks: NavLink[] = [
 				],
 			},
 			{
-				href: '/admin/master-data/outsourcing/outsourcing-category',
+				href: '/admin/master-data/outsourcing/posts',
 				label: 'Outsourcing',
 				icon: ListChecks,
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/outsourcing'),
 				submenu: [
+					{ href: '/admin/master-data/outsourcing/posts', label: 'Posts' },
 					{ href: '/admin/master-data/outsourcing/outsourcing-category', label: 'Category' },
 					{ href: '/admin/master-data/outsourcing/outsourcing-zone', label: 'Zone' },
-					{ href: '/admin/master-data/outsourcing/outsourcing-service', label: 'Service' },
 					{ href: '/admin/master-data/outsourcing/outsourcing-charge', label: 'Charge' },
 				],
 			},

@@ -14,7 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { IMeta } from '@/interfaces/common.interface';
-import { IOutsourcingCategory, IOutsourcingService } from '@/interfaces/master-data.interface';
+import { IOutsourcingCategory, IPost } from '@/interfaces/master-data.interface';
 import { isBangla, isEnglish } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
@@ -22,27 +22,34 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { FormCheckbox } from '@/components/ui/form-checkbox';
 
 const formSchema = z.object({
 	nameEn: z.string().min(1, 'English name is required.').refine(isEnglish, 'Only English characters are allowed.'),
 	nameBn: z.string().min(1, 'Bengali name is required.').refine(isBangla, 'Only Bengali characters are allowed.'),
-	categoryId: z.coerce.number().min(1, 'Category is required.'),
+	outsourcing: z.boolean().default(false),
+	categoryId: z.coerce.number().optional(),
+}).refine(data => !data.outsourcing || (data.outsourcing && data.categoryId), {
+    message: 'Category is required for outsourcing posts.',
+    path: ['categoryId'],
 });
+
 type FormValues = z.infer<typeof formSchema>;
 
-interface OutsourcingServiceFormProps {
+interface PostFormProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onSubmit: (data: IOutsourcingService | Omit<IOutsourcingService, 'id'>) => Promise<boolean>;
-	initialData?: IOutsourcingService;
+	onSubmit: (data: IPost | Omit<IPost, 'id'>) => Promise<boolean>;
+	initialData?: IPost;
 	categories: IOutsourcingCategory[];
 	noun: string;
 }
 
-function OutsourcingServiceForm({ isOpen, onClose, onSubmit, initialData, categories, noun }: OutsourcingServiceFormProps) {
+function PostForm({ isOpen, onClose, onSubmit, initialData, categories, noun }: PostFormProps) {
 	const defaultValues = {
 		nameEn: initialData?.nameEn || '',
 		nameBn: initialData?.nameBn || '',
+		outsourcing: initialData?.outsourcing || false,
 		categoryId: initialData?.categoryId,
 	};
 
@@ -52,6 +59,7 @@ function OutsourcingServiceForm({ isOpen, onClose, onSubmit, initialData, catego
 	});
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
+    const watchOutsourcing = form.watch('outsourcing');
 
 	const handleSubmit = async (data: FormValues) => {
 		setIsSubmitting(true);
@@ -78,28 +86,17 @@ function OutsourcingServiceForm({ isOpen, onClose, onSubmit, initialData, catego
 					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
 					<DialogDescription>
 						{initialData
-							? 'Update the details of the service.'
+							? 'Update the details of the post.'
 							: `Enter the details for the new ${noun.toLowerCase()}.`}
 					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4'>
-						<FormAutocomplete
-							control={form.control}
-							name='categoryId'
-							label='Category'
-							placeholder='Select Category'
-							required
-							options={categories}
-							getOptionValue={(option) => option.id!.toString()}
-							getOptionLabel={(option) => option.nameEn}
-							disabled={isSubmitting}
-						/>
 						<FormInput
 							control={form.control}
 							name='nameEn'
 							label='Name (English)'
-							placeholder='Service Name'
+							placeholder='Post Name'
 							required
 							disabled={isSubmitting}
 						/>
@@ -107,11 +104,28 @@ function OutsourcingServiceForm({ isOpen, onClose, onSubmit, initialData, catego
 							control={form.control}
 							name='nameBn'
 							label='Name (Bangla)'
-							placeholder='সেবার নাম'
+							placeholder='পোস্টের নাম'
 							required
 							disabled={isSubmitting}
 						/>
-
+                        <FormCheckbox
+                            control={form.control}
+                            name='outsourcing'
+                            label='This is an outsourcing post'
+                        />
+						{watchOutsourcing && (
+                            <FormAutocomplete
+                                control={form.control}
+                                name='categoryId'
+                                label='Outsourcing Category'
+                                placeholder='Select Category'
+                                required
+                                options={categories}
+                                getOptionValue={(option) => option.id!.toString()}
+                                getOptionLabel={(option) => option.nameEn}
+                                disabled={isSubmitting}
+                            />
+                        )}
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
 								Cancel
@@ -128,16 +142,16 @@ function OutsourcingServiceForm({ isOpen, onClose, onSubmit, initialData, catego
 	);
 }
 
-interface OutsourcingServiceCrudProps {
+interface PostCrudProps {
 	title: string;
 	description: string;
 	noun: string;
-	items: IOutsourcingService[];
+	items: IPost[];
 	meta: IMeta;
 	isLoading: boolean;
 	categories: IOutsourcingCategory[];
-	onAdd: (item: Omit<IOutsourcingService, 'id'>) => Promise<boolean>;
-	onUpdate: (item: IOutsourcingService) => Promise<boolean>;
+	onAdd: (item: Omit<IPost, 'id'>) => Promise<boolean>;
+	onUpdate: (item: IPost) => Promise<boolean>;
 	onDelete: (id: string) => Promise<boolean>;
 	onPageChange: (page: number) => void;
 	onSearch: (query: string) => void;
@@ -145,7 +159,7 @@ interface OutsourcingServiceCrudProps {
 	onCategoryChange: (categoryId: string) => void;
 }
 
-export function OutsourcingServiceCrud({
+export function PostCrud({
 	title,
 	description,
 	noun,
@@ -160,14 +174,15 @@ export function OutsourcingServiceCrud({
 	onSearch,
 	categoryFilter,
 	onCategoryChange,
-}: OutsourcingServiceCrudProps) {
+}: PostCrudProps) {
 	const { toast } = useToast();
 	const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
 
 	const [isFormOpen, setIsFormOpen] = useState(false);
-	const [editingItem, setEditingItem] = useState<IOutsourcingService | undefined>(undefined);
+	const [editingItem, setEditingItem] = useState<IPost | undefined>(undefined);
+	const [itemToDelete, setItemToDelete] = useState<IPost | null>(null);
 
-	const handleOpenForm = (item?: IOutsourcingService) => {
+	const handleOpenForm = (item?: IPost) => {
 		setEditingItem(item);
 		setIsFormOpen(true);
 	};
@@ -177,14 +192,14 @@ export function OutsourcingServiceCrud({
 		setEditingItem(undefined);
 	};
 
-	const handleFormSubmit = async (data: IOutsourcingService | Omit<IOutsourcingService, 'id'>) => {
+	const handleFormSubmit = async (data: IPost | Omit<IPost, 'id'>) => {
 		if ('id' in data) {
-			return onUpdate(data as IOutsourcingService);
+			return onUpdate(data as IPost);
 		}
-		return onAdd(data as Omit<IOutsourcingService, 'id'>);
+		return onAdd(data as Omit<IPost, 'id'>);
 	};
 
-	const handleToggleActive = async (item: IOutsourcingService) => {
+	const handleToggleActive = async (item: IPost) => {
 		if (!item.id) return;
 		setIsSubmitting(item.id.toString());
 		const success = await onUpdate({ ...item, active: !item.active });
@@ -198,9 +213,10 @@ export function OutsourcingServiceCrud({
 		setIsSubmitting(null);
 	};
 
-	const handleRemove = async (id?: number) => {
-		if (!id) return;
-		await onDelete(id.toString());
+	const handleRemove = async () => {
+		if (!itemToDelete || !itemToDelete.id) return;
+		await onDelete(itemToDelete.id.toString());
+		setItemToDelete(null);
 	};
 
 	return (
@@ -279,21 +295,22 @@ export function OutsourcingServiceCrud({
 													<Edit className='h-4 w-4' />
 												</Button>
 												<ConfirmationDialog
-													trigger={
-														<Button
-															variant='ghost'
-															size='icon'
-															className='h-8 w-8'
-															disabled={isSubmitting === item.id?.toString()}
-														>
-															<Trash className='h-4 w-4 text-danger' />
-														</Button>
-													}
+													open={itemToDelete?.id === item.id}
+													onOpenChange={(open) => !open && setItemToDelete(null)}
 													description={`This will permanently delete the ${noun.toLowerCase()} "${
 														item.nameEn
 													}".`}
-													onConfirm={() => handleRemove(item.id)}
+													onConfirm={handleRemove}
 												/>
+												<Button
+													variant='ghost'
+													size='icon'
+													className='h-8 w-8'
+													onClick={() => setItemToDelete(item)}
+													disabled={isSubmitting === item.id?.toString()}
+												>
+													<Trash className='h-4 w-4 text-danger' />
+												</Button>
 											</div>
 										</div>
 									</Card>
@@ -305,15 +322,15 @@ export function OutsourcingServiceCrud({
 						)}
 					</div>
 				</CardContent>
-				{meta && meta.totalRecords && meta.totalRecords > 0 && (
+				{meta && meta.totalRecords && meta.totalRecords > 0 ? (
 					<CardFooter>
 						<Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} noun={noun} />
 					</CardFooter>
-				)}
+				) : null}
 			</Card>
 
 			{isFormOpen && (
-				<OutsourcingServiceForm
+				<PostForm
 					isOpen={isFormOpen}
 					onClose={handleCloseForm}
 					onSubmit={handleFormSubmit}

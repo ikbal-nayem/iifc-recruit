@@ -9,8 +9,8 @@ import {
 	IClientOrganization,
 	IOutsourcingCategory,
 	IOutsourcingCharge,
-	IOutsourcingService,
 	IOutsourcingZone,
+	IPost,
 } from '@/interfaces/master-data.interface';
 
 const createMasterDataCrud = <T>(entity: string) => ({
@@ -65,6 +65,6 @@ export const MasterDataService = {
 	clientOrganization: createMasterDataCrud<IClientOrganization>('client-organization'),
 	outsourcingCategory: createMasterDataCrud<IOutsourcingCategory>('outsourcing-category'),
 	outsourcingZone: createMasterDataCrud<IOutsourcingZone>('outsourcing-zone'),
-	outsourcingService: createMasterDataCrud<IOutsourcingService>('outsourcing-service'),
+	post: createMasterDataCrud<IPost>('post'),
 	outsourcingCharge: createMasterDataCrud<IOutsourcingCharge>('outsourcing-charge'),
 };
