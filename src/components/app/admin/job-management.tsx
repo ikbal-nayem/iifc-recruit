@@ -103,7 +103,7 @@ export function JobManagement() {
 				const root = require('react-dom/client').createRoot(dialog);
                 root.render(
                     React.createElement(ConfirmationDialog, {
-                        trigger: <></>,
+                        trigger: React.createElement('span'),
                         open: true,
                         onOpenChange: (open) => !open && root.unmount(),
                         title:"Are you absolutely sure?",

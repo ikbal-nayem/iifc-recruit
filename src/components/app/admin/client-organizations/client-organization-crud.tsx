@@ -1,6 +1,7 @@
 
 'use client';
 
+import * as React from 'react';
 import { FormMasterData } from '@/app/(auth)/admin/client-organizations/page';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -49,7 +50,6 @@ import {
 	View,
 } from 'lucide-react';
 import Link from 'next/link';
-import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -353,7 +353,7 @@ export function ClientOrganizationCrud({ title, description, noun, masterData }:
 				const root = require('react-dom/client').createRoot(dialog);
 				root.render(
 					React.createElement(ConfirmationDialog, {
-						trigger: <></>, // The trigger is handled manually
+						trigger: React.createElement('span'),
 						open: true,
 						onOpenChange: (open) => !open && root.unmount(),
 						title: 'Are you sure?',
