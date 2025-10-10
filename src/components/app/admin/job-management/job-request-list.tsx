@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -28,7 +29,7 @@ import { Badge } from '@/components/ui/badge';
 import { Check, Clock, X } from 'lucide-react';
 import type { JobRequest } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { ActionItem, ActionMenu } from '../../ui/action-menu';
+import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 
 const mockRequests: JobRequest[] = [
 	{
