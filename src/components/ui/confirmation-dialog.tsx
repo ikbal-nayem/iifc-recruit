@@ -11,13 +11,13 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Button, buttonVariants } from './button';
+import { buttonVariants } from './button';
 import { cn } from '@/lib/utils';
 
 interface ConfirmationDialogProps {
-	trigger: React.ReactNode;
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
 	title?: string;
 	description?: string;
 	onConfirm: () => void;
@@ -27,7 +27,8 @@ interface ConfirmationDialogProps {
 }
 
 export function ConfirmationDialog({
-	trigger,
+	open,
+	onOpenChange,
 	title = 'Are you absolutely sure?',
 	description = 'This action cannot be undone.',
 	onConfirm,
@@ -36,8 +37,7 @@ export function ConfirmationDialog({
 	cancelText = 'Cancel',
 }: ConfirmationDialogProps) {
 	return (
-		<AlertDialog>
-			<AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
+		<AlertDialog open={open} onOpenChange={onOpenChange}>
 			<AlertDialogContent>
 				<AlertDialogHeader>
 					<AlertDialogTitle>{title}</AlertDialogTitle>

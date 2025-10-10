@@ -175,6 +175,7 @@ export function EducationInstitutionCrud({
 
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [editingItem, setEditingItem] = useState<IEducationInstitution | undefined>(undefined);
+	const [itemToDelete, setItemToDelete] = useState<IEducationInstitution | null>(null);
 
 	const handleOpenForm = (item?: IEducationInstitution) => {
 		setEditingItem(item);
@@ -207,9 +208,10 @@ export function EducationInstitutionCrud({
 		setIsSubmitting(null);
 	};
 
-	const handleRemove = async (id?: number) => {
-		if (!id) return;
-		await onDelete(id.toString());
+	const handleRemove = async () => {
+		if (!itemToDelete || !itemToDelete.id) return;
+		await onDelete(itemToDelete.id.toString());
+		setItemToDelete(null);
 	};
 
 	return (
@@ -333,20 +335,15 @@ export function EducationInstitutionCrud({
 												>
 													<Edit className='h-4 w-4' />
 												</Button>
-												<ConfirmationDialog
-													trigger={
-														<Button
-															variant='ghost'
-															size='icon'
-															className='h-8 w-8'
-															disabled={isSubmitting === item.id?.toString()}
-														>
-															<Trash className='h-4 w-4 text-danger' />
-														</Button>
-													}
-													description={`This will permanently delete the ${noun.toLowerCase()} "${item.nameEn}".`}
-													onConfirm={() => handleRemove(item.id)}
-												/>
+												<Button
+													variant='ghost'
+													size='icon'
+													className='h-8 w-8'
+													onClick={() => setItemToDelete(item)}
+													disabled={isSubmitting === item.id?.toString()}
+												>
+													<Trash className='h-4 w-4 text-danger' />
+												</Button>
 											</div>
 										</div>
 									</Card>
@@ -375,6 +372,12 @@ export function EducationInstitutionCrud({
 					noun={noun}
 				/>
 			)}
+			<ConfirmationDialog
+				open={!!itemToDelete}
+				onOpenChange={(open) => !open && setItemToDelete(null)}
+				description={`This will permanently delete the ${noun.toLowerCase()} "${itemToDelete?.nameEn}".`}
+				onConfirm={handleRemove}
+			/>
 		</div>
 	);
 }

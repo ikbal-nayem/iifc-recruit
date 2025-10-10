@@ -136,7 +136,7 @@ function CertificationForm({
 							placeholder='Select Certification'
 							options={certificationTypes}
 							getOptionValue={(option) => option.id!.toString()}
-							getOptionLabel={(option) => option.name}
+							getOptionLabel={(option) => option.nameEn}
 							disabled={isSubmitting}
 						/>
 						<FormInput
@@ -199,6 +199,7 @@ export default function ProfileFormCertifications({ certification }: { certifica
 	const { toast } = useToast();
 	const [history, setHistory] = useState<Certification[]>([]);
 	const [editingItem, setEditingItem] = useState<Certification | undefined>(undefined);
+	const [itemToDelete, setItemToDelete] = useState<Certification | null>(null);
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -243,9 +244,10 @@ export default function ProfileFormCertifications({ certification }: { certifica
 		}
 	};
 
-	const handleRemove = async (id: number) => {
+	const handleRemove = async () => {
+		if (!itemToDelete?.id) return;
 		try {
-			await JobseekerProfileService.certification.delete(id);
+			await JobseekerProfileService.certification.delete(itemToDelete.id);
 			toast({ description: 'Certification deleted successfully.', variant: 'success' });
 			loadData();
 		} catch (error: any) {
@@ -253,6 +255,8 @@ export default function ProfileFormCertifications({ certification }: { certifica
 				description: error.message || 'Failed to delete certification.',
 				variant: 'danger',
 			});
+		} finally {
+			setItemToDelete(null);
 		}
 	};
 
@@ -260,7 +264,7 @@ export default function ProfileFormCertifications({ certification }: { certifica
 		return (
 			<Card key={item.id} className='p-4 flex justify-between items-start'>
 				<div>
-					<p className='font-semibold'>{item.certification?.name}</p>
+					<p className='font-semibold'>{item.certification?.nameEn}</p>
 					<p className='text-sm text-muted-foreground'>{item.issuingAuthority}</p>
 					{item.issueDate && (
 						<p className='text-xs text-muted-foreground'>
@@ -286,16 +290,9 @@ export default function ProfileFormCertifications({ certification }: { certifica
 					<Button variant='ghost' size='icon' onClick={() => handleOpenForm(item)}>
 						<Edit className='h-4 w-4' />
 					</Button>
-					<ConfirmationDialog
-						trigger={
-							<Button variant='ghost' size='icon'>
-								<Trash className='h-4 w-4 text-danger' />
-							</Button>
-						}
-						description='This will permanently delete this certification.'
-						onConfirm={() => handleRemove(item.id!)}
-						confirmText='Delete'
-					/>
+					<Button variant='ghost' size='icon' onClick={() => setItemToDelete(item)}>
+						<Trash className='h-4 w-4 text-danger' />
+					</Button>
 				</div>
 			</Card>
 		);
@@ -337,6 +334,13 @@ export default function ProfileFormCertifications({ certification }: { certifica
 					certificationTypes={certification}
 				/>
 			)}
+			<ConfirmationDialog
+				open={!!itemToDelete}
+				onOpenChange={(open) => !open && setItemToDelete(null)}
+				description='This will permanently delete this certification.'
+				onConfirm={handleRemove}
+				confirmText='Delete'
+			/>
 		</div>
 	);
 }

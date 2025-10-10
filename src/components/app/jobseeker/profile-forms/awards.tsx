@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -106,6 +107,7 @@ export function ProfileFormAwards() {
 	const { toast } = useToast();
 	const [history, setHistory] = React.useState<Award[]>([]);
 	const [editingItem, setEditingItem] = React.useState<Award | undefined>(undefined);
+	const [itemToDelete, setItemToDelete] = React.useState<Award | null>(null);
 	const [isFormOpen, setIsFormOpen] = React.useState(false);
 	const [isLoading, setIsLoading] = React.useState(true);
 
@@ -153,9 +155,10 @@ export function ProfileFormAwards() {
 		}
 	};
 
-	const handleRemove = async (id: number) => {
+	const handleRemove = async () => {
+		if (!itemToDelete?.id) return;
 		try {
-			const response = await JobseekerProfileService.award.delete(id);
+			const response = await JobseekerProfileService.award.delete(itemToDelete.id);
 			toast({ description: response.message || 'Award deleted successfully.', variant: 'success' });
 			loadAwards();
 		} catch (error: any) {
@@ -164,6 +167,8 @@ export function ProfileFormAwards() {
 				description: error.message || 'Failed to delete award.',
 				variant: 'danger',
 			});
+		} finally {
+			setItemToDelete(null);
 		}
 	};
 
@@ -180,16 +185,9 @@ export function ProfileFormAwards() {
 					<Button variant='ghost' size='icon' onClick={() => handleOpenForm(item)}>
 						<Edit className='h-4 w-4' />
 					</Button>
-					<ConfirmationDialog
-						trigger={
-							<Button variant='ghost' size='icon'>
-								<Trash className='h-4 w-4 text-danger' />
-							</Button>
-						}
-						description='This action cannot be undone. This will permanently delete this award.'
-						onConfirm={() => handleRemove(item.id!)}
-						confirmText='Delete'
-					/>
+					<Button variant='ghost' size='icon' onClick={() => setItemToDelete(item)}>
+						<Trash className='h-4 w-4 text-danger' />
+					</Button>
 				</div>
 			</Card>
 		);
@@ -230,6 +228,14 @@ export function ProfileFormAwards() {
 					noun='Award'
 				/>
 			)}
+
+			<ConfirmationDialog
+				open={!!itemToDelete}
+				onOpenChange={(open) => !open && setItemToDelete(null)}
+				description='This action cannot be undone. This will permanently delete this award.'
+				onConfirm={handleRemove}
+				confirmText='Delete'
+			/>
 		</div>
 	);
 }
