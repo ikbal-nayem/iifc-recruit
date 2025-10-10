@@ -94,6 +94,7 @@ export const adminNavLinks: NavLink[] = [
 					{ href: '/admin/master-data/position-levels', label: 'Position Levels' },
 				],
 			},
+			{ href: '/admin/master-data/posts', label: 'Posts', icon: Briefcase },
 			{ href: '/admin/master-data/skills', label: 'Skills', icon: Award },
 			{ href: '/admin/master-data/languages', label: 'Languages', icon: Globe },
 			{
@@ -118,12 +119,11 @@ export const adminNavLinks: NavLink[] = [
 				],
 			},
 			{
-				href: '/admin/master-data/outsourcing/posts',
+				href: '/admin/master-data/outsourcing/outsourcing-category',
 				label: 'Outsourcing',
 				icon: ListChecks,
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/outsourcing'),
 				submenu: [
-					{ href: '/admin/master-data/outsourcing/posts', label: 'Posts' },
 					{ href: '/admin/master-data/outsourcing/outsourcing-category', label: 'Category' },
 					{ href: '/admin/master-data/outsourcing/outsourcing-zone', label: 'Zone' },
 					{ href: '/admin/master-data/outsourcing/outsourcing-charge', label: 'Charge' },
