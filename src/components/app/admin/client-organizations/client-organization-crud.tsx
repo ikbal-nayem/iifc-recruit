@@ -7,14 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormCheckbox } from '@/components/ui/form-checkbox';
@@ -49,7 +41,6 @@ import {
 	Globe,
 	Loader2,
 	Mail,
-	MoreHorizontal,
 	Phone,
 	PlusCircle,
 	Search,
@@ -62,6 +53,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Badge } from '@/components/ui/badge';
+import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 
 const formSchema = z
 	.object({
@@ -333,6 +325,49 @@ export function ClientOrganizationCrud({ title, description, noun, masterData }:
 		}
 	};
 
+	const getActionItems = (item: IClientOrganization): ActionItem[] => [
+		{
+			label: 'View Details',
+			icon: <View className='mr-2 h-4 w-4' />,
+			href: `/admin/client-organizations/${item.id}`,
+		},
+		{
+			label: 'Create User',
+			icon: <UserPlus className='mr-2 h-4 w-4' />,
+			onClick: () => toast({ description: 'User creation (not implemented).' }),
+		},
+		{ isSeparator: true },
+		{
+			label: 'Edit',
+			icon: <Edit className='mr-2 h-4 w-4' />,
+			onClick: () => handleOpenForm(item),
+		},
+		{
+			label: 'Delete',
+			icon: <Trash className='mr-2 h-4 w-4' />,
+			variant: 'danger',
+			onClick: () => {
+				const dialog = document.createElement('div');
+				document.body.appendChild(dialog);
+				const root = require('react-dom/client').createRoot(dialog);
+				root.render(
+					React.createElement(ConfirmationDialog, {
+						trigger: <></>, // The trigger is handled manually
+						open: true,
+						onOpenChange: (open) => !open && root.unmount(),
+						title: 'Are you sure?',
+						description: `This will permanently delete the organization "${item.nameEn}".`,
+						onConfirm: () => {
+							handleDelete(item.id!);
+							root.unmount();
+						},
+						confirmText: 'Delete',
+					})
+				);
+			},
+		},
+	];
+
 	const columns: ColumnDef<IClientOrganization>[] = [
 		{
 			accessorKey: 'nameEn',
@@ -385,48 +420,7 @@ export function ClientOrganizationCrud({ title, description, noun, masterData }:
 			id: 'actions',
 			cell: ({ row }) => {
 				const item = row.original;
-				return (
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button variant='ghost' className='h-8 w-8 p-0'>
-								<span className='sr-only'>Open menu</span>
-								<MoreHorizontal className='h-4 w-4' />
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align='end'>
-							<DropdownMenuLabel>Actions</DropdownMenuLabel>
-							<DropdownMenuItem asChild>
-								<Link href={`/admin/client-organizations/${item.id}`}>
-									<View className='mr-2 h-4 w-4' />
-									View Details
-								</Link>
-							</DropdownMenuItem>
-							<DropdownMenuItem onClick={() => toast({ description: 'User creation (not implemented).' })}>
-								<UserPlus className='mr-2 h-4 w-4' />
-								Create User
-							</DropdownMenuItem>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem onClick={() => handleOpenForm(item)}>
-								<Edit className='mr-2 h-4 w-4' />
-								Edit
-							</DropdownMenuItem>
-							<ConfirmationDialog
-								trigger={
-									<Button
-										variant='ghost'
-										className='w-full justify-start p-2 h-auto font-normal text-danger hover:bg-danger/10 hover:text-danger'
-									>
-										<Trash className='mr-2 h-4 w-4' />
-										Delete
-									</Button>
-								}
-								description={`This will permanently delete the organization "${item.nameEn}".`}
-								onConfirm={() => handleDelete(item.id!)}
-								confirmText='Delete'
-							/>
-						</DropdownMenuContent>
-					</DropdownMenu>
-				);
+				return <ActionMenu label='Actions' items={getActionItems(item)} />;
 			},
 		},
 	];

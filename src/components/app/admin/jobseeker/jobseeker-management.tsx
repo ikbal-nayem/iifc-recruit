@@ -22,27 +22,20 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
-import { MoreHorizontal, FileText, Send, Star, UserX } from 'lucide-react';
+import { FileText, Send, Star, UserX } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { JobseekerProfileView } from '@/components/app/jobseeker/jobseeker-profile-view';
 import type { Jobseeker } from '@/lib/types';
 import { jobseekers as initialJobseekers } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
+import { ActionItem, ActionMenu } from '../../ui/action-menu';
 
 export function JobseekerManagement() {
   const [data, setData] = React.useState<Jobseeker[]>(initialJobseekers);
@@ -61,6 +54,30 @@ export function JobseekerManagement() {
         variant: 'success'
     })
   }
+
+  const getActionItems = (jobseeker: Jobseeker): ActionItem[] => [
+    {
+        label: "View Full Profile",
+        icon: <FileText className="mr-2 h-4 w-4" />,
+        onClick: () => setSelectedJobseeker(jobseeker)
+    },
+    {
+        label: "Contact",
+        icon: <Send className="mr-2 h-4 w-4" />,
+        onClick: () => toast({ description: `Contacting ${jobseeker.personalInfo.name}... (not implemented)`})
+    },
+    { isSeparator: true },
+    {
+        label: "Mark as Active",
+        icon: <Star className="mr-2 h-4 w-4" />,
+        onClick: () => handleStatusChange(jobseeker.id, 'Active')
+    },
+    {
+        label: "Mark as Passive",
+        icon: <UserX className="mr-2 h-4 w-4" />,
+        onClick: () => handleStatusChange(jobseeker.id, 'Passive')
+    }
+  ];
 
   const columns: ColumnDef<Jobseeker>[] = [
     {
@@ -104,34 +121,7 @@ export function JobseekerManagement() {
       id: 'actions',
       cell: ({ row }) => {
         const jobseeker = row.original;
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => setSelectedJobseeker(jobseeker)}>
-                <FileText className="mr-2 h-4 w-4" />
-                View Full Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Send className="mr-2 h-4 w-4" />
-                Contact
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-               <DropdownMenuItem onClick={() => handleStatusChange(jobseeker.id, 'Active')}>
-                <Star className="mr-2 h-4 w-4" /> Mark as Active
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleStatusChange(jobseeker.id, 'Passive')}>
-                <UserX className="mr-2 h-4 w-4" /> Mark as Passive
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
+        return <ActionMenu label='Actions' items={getActionItems(jobseeker)} />
       },
     },
   ];
@@ -168,29 +158,7 @@ export function JobseekerManagement() {
             </div>
           </div>
         </div>
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setSelectedJobseeker(jobseeker)}>
-                <FileText className="mr-2 h-4 w-4" /> View Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Send className="mr-2 h-4 w-4" /> Contact
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handleStatusChange(jobseeker.id, 'Active')}>
-                <Star className="mr-2 h-4 w-4" /> Mark as Active
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleStatusChange(jobseeker.id, 'Passive')}>
-                <UserX className="mr-2 h-4 w-4" /> Mark as Passive
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <ActionMenu items={getActionItems(jobseeker)} />
       </div>
     </Card>
   );

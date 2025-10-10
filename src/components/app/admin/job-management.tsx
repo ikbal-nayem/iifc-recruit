@@ -23,14 +23,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -53,7 +45,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 
-import { MoreHorizontal, PlusCircle, Trash, Edit, FileText, Users, Check, ChevronsUpDown } from 'lucide-react';
+import { PlusCircle, Trash, Edit, FileText, Users, Check, ChevronsUpDown } from 'lucide-react';
 import Link from 'next/link';
 
 import type { Job } from '@/lib/types';
@@ -61,6 +53,7 @@ import { jobs as initialJobs } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { ActionItem, ActionMenu } from '../ui/action-menu';
 
 export function JobManagement() {
   const [data, setData] = React.useState<Job[]>(initialJobs);
@@ -82,6 +75,49 @@ export function JobManagement() {
         variant: 'success'
     });
   }
+
+    const getActionItems = (job: Job): ActionItem[] => [
+        {
+            label: "View Details",
+            icon: <FileText className="mr-2 h-4 w-4" />,
+            onClick: () => setSelectedJob(job)
+        },
+        {
+            label: "View Applicants",
+            icon: <Users className="mr-2 h-4 w-4" />,
+            href: `/admin/job-management/${job.id}/applicants`
+        },
+        {
+            label: "Edit",
+            icon: <Edit className="mr-2 h-4 w-4" />,
+            href: `/admin/job-management/${job.id}/edit`
+        },
+        { isSeparator: true },
+        {
+            label: "Delete",
+            icon: <Trash className="mr-2 h-4 w-4" />,
+            variant: "danger",
+            onClick: () => {
+                 const dialog = document.createElement('div');
+				document.body.appendChild(dialog);
+				const root = require('react-dom/client').createRoot(dialog);
+                root.render(
+                    React.createElement(ConfirmationDialog, {
+                        trigger: <></>,
+                        open: true,
+                        onOpenChange: (open) => !open && root.unmount(),
+                        title:"Are you absolutely sure?",
+                        description: `This action cannot be undone. This will permanently delete the job posting "${job.title}" and all related application data.`,
+                        onConfirm: () => {
+                            handleDeleteJob(job.id);
+                            root.unmount();
+                        },
+                        confirmText:'Continue'
+                    })
+                )
+            }
+        }
+    ]
 
   const columns: ColumnDef<Job>[] = [
     {
@@ -125,48 +161,7 @@ export function JobManagement() {
       id: 'actions',
       cell: ({ row }) => {
         const job = row.original;
-        return (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <span className="sr-only">Open menu</span>
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => setSelectedJob(job)}>
-                  <FileText className="mr-2 h-4 w-4" />
-                  View Details
-                </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                  <Link href={`/admin/job-management/${job.id}/applicants`}>
-                      <Users className="mr-2 h-4 w-4" />
-                      View Applicants
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href={`/admin/job-management/${job.id}/edit`}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Edit
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <ConfirmationDialog
-                  trigger={
-                    <Button variant="ghost" className="w-full justify-start p-2 h-auto font-normal text-danger hover:bg-danger/10 hover:text-danger">
-                        <Trash className="mr-2 h-4 w-4" />
-                        Delete
-                    </Button>
-                  }
-                  title="Are you absolutely sure?"
-                  description={`This action cannot be undone. This will permanently delete the job posting "${job.title}" and all related application data.`}
-                  onConfirm={() => handleDeleteJob(job.id)}
-                  confirmText='Continue'
-                />
-              </DropdownMenuContent>
-            </DropdownMenu>
-        )
+        return <ActionMenu items={getActionItems(job)} />
       },
     },
   ];
