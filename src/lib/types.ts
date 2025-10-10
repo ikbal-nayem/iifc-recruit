@@ -45,6 +45,15 @@ export type Job = {
 	applicationDeadline: string;
 };
 
+export type JobRequest = {
+	id: string;
+	clientOrganization: string;
+	title: string;
+	positionType: 'Permanent' | 'Outsourcing';
+	requestDate: string;
+	status: 'Pending' | 'Approved' | 'Rejected';
+};
+
 export type Application = {
 	id: string;
 	jobId: string;
