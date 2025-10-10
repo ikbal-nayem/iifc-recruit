@@ -45,13 +45,29 @@ export type Job = {
 	applicationDeadline: string;
 };
 
+export type RequestedPost = {
+	id?: number;
+	postId: number;
+	vacancy: number;
+	outsourcingZoneId?: number;
+	fromDate?: string;
+	toDate?: string;
+	salaryFrom?: number;
+	salaryTo?: number;
+};
+
 export type JobRequest = {
 	id: string;
-	clientOrganization: string;
-	title: string;
-	positionType: 'Permanent' | 'Outsourcing';
+	memoNo: string;
+	clientOrganizationId: number;
+	clientOrganization?: string;
+	subject: string;
+	description: string;
 	requestDate: string;
+	deadline: string;
+	type: 'Permanent' | 'Outsourcing';
 	status: 'Pending' | 'Approved' | 'Rejected';
+	requestedPosts: RequestedPost[];
 };
 
 export type Application = {

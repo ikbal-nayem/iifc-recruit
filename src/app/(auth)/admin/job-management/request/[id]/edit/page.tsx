@@ -1,6 +1,5 @@
 'use client'
 import { JobRequestForm } from '@/components/app/admin/job-management/job-request-form';
-import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { JobRequest } from '@/lib/types';
 import { notFound } from 'next/navigation';
@@ -10,33 +9,34 @@ const mockRequests: JobRequest[] = [
 		id: 'req1',
 		clientOrganization: 'Apex Solutions',
     clientOrganizationId: 1,
-		title: 'Senior Backend Engineer',
-		positionType: 'Permanent',
+		subject: 'Senior Backend Engineer post',
+		type: 'Permanent',
 		requestDate: '2024-07-28',
 		status: 'Pending',
-    department: 'Engineering',
-    location: 'Dhaka',
-    vacancyCount: 2,
-    applicationDeadline: '2024-08-20',
+    memoNo: 'MEMO-001',
+    deadline: '2024-08-20',
     description: 'Looking for a skilled backend engineer.',
-    responsibilities: 'Develop APIs\nMaintain databases',
-    requirements: '5+ years experience\nExpert in Node.js',
+		requestedPosts: [{
+			postId: 1,
+			vacancy: 2,
+			salaryFrom: 80000,
+			salaryTo: 120000,
+		}]
 	},
 	{
 		id: 'req2',
 		clientOrganization: 'Innovatech Ltd.',
     clientOrganizationId: 2,
-		title: 'Data Entry Operator',
-		positionType: 'Outsourcing',
+		subject: 'Urgent need for Data Entry',
+		type: 'Outsourcing',
 		requestDate: '2024-07-27',
 		status: 'Approved',
-    applicationDeadline: '2024-08-15',
+    memoNo: 'MEMO-002',
+    deadline: '2024-08-15',
     description: 'Data entry operators needed.',
-    responsibilities: 'Enter data\nVerify data',
-    requirements: 'Typing speed 40wpm',
-    outsourcingVacancies: [
-      { serviceId: 1, zoneId: 1, vacancyCount: 10 },
-      { serviceId: 2, zoneId: 2, vacancyCount: 5 },
+    requestedPosts: [
+      { postId: 2, outsourcingZoneId: 1, vacancy: 10 },
+      { postId: 2, outsourcingZoneId: 2, vacancy: 5 },
     ]
 	},
 ];

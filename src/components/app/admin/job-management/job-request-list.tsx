@@ -34,34 +34,41 @@ const mockRequests: JobRequest[] = [
 	{
 		id: 'req1',
 		clientOrganization: 'Apex Solutions',
-		title: 'Senior Backend Engineer',
-		positionType: 'Permanent',
+		clientOrganizationId: 1,
+		subject: 'Request for Senior Backend Engineer',
+		memoNo: 'MEMO-001',
+		type: 'Permanent',
 		requestDate: '2024-07-28',
+		deadline: '2024-08-28',
 		status: 'Pending',
+		description: '',
+		requestedPosts: [],
 	},
 	{
 		id: 'req2',
 		clientOrganization: 'Innovatech Ltd.',
-		title: 'Data Entry Operator',
-		positionType: 'Outsourcing',
+		clientOrganizationId: 2,
+		subject: 'Urgent need for Data Entry Operators',
+		memoNo: 'MEMO-002',
+		type: 'Outsourcing',
 		requestDate: '2024-07-27',
+		deadline: '2024-08-15',
 		status: 'Approved',
+		description: '',
+		requestedPosts: [],
 	},
 	{
 		id: 'req3',
 		clientOrganization: 'Synergy Corp',
-		title: 'Marketing Manager',
-		positionType: 'Permanent',
+		clientOrganizationId: 3,
+		subject: 'Hiring Marketing Manager',
+		memoNo: 'MEMO-003',
+		type: 'Permanent',
 		requestDate: '2024-07-26',
+		deadline: '2024-09-01',
 		status: 'Rejected',
-	},
-	{
-		id: 'req4',
-		clientOrganization: 'Apex Solutions',
-		title: 'Junior QA Tester',
-		positionType: 'Outsourcing',
-		requestDate: '2024-07-25',
-		status: 'Pending',
+		description: '',
+		requestedPosts: [],
 	},
 ];
 
@@ -84,16 +91,16 @@ export function JobRequestList() {
 
 	const getActionItems = (request: JobRequest): ActionItem[] => {
 		const items: ActionItem[] = [
-      {
-        label: 'Edit',
-        icon: <Edit className='mr-2 h-4 w-4' />,
-        href: `/admin/job-management/request/${request.id}/edit`,
-      },
-    ];
+			{
+				label: 'Edit',
+				icon: <Edit className='mr-2 h-4 w-4' />,
+				href: `/admin/job-management/request/${request.id}/edit`,
+			},
+		];
 
 		if (request.status === 'Pending') {
 			items.push(
-        { isSeparator: true},
+				{ isSeparator: true },
 				{
 					label: 'Approve',
 					icon: <Check className='mr-2 h-4 w-4' />,
@@ -107,9 +114,7 @@ export function JobRequestList() {
 				}
 			);
 		} else {
-			items.push(
-        { isSeparator: true},
-        {
+			items.push({ isSeparator: true }, {
 				label: 'Set to Pending',
 				icon: <Clock className='mr-2 h-4 w-4' />,
 				onClick: () => handleStatusChange(request.id, 'Pending'),
@@ -120,21 +125,23 @@ export function JobRequestList() {
 
 	const columns: ColumnDef<JobRequest>[] = [
 		{
-			accessorKey: 'title',
-			header: 'Job Title',
+			accessorKey: 'subject',
+			header: 'Subject',
 			cell: ({ row }) => {
 				const request = row.original;
 				return (
 					<div>
-						<div className='font-medium'>{request.title}</div>
-						<div className='text-sm text-muted-foreground'>{request.clientOrganization}</div>
+						<div className='font-medium'>{request.subject}</div>
+						<div className='text-sm text-muted-foreground'>
+							{request.clientOrganization} ({request.memoNo})
+						</div>
 					</div>
 				);
 			},
 		},
 		{
-			accessorKey: 'positionType',
-			header: 'Position Type',
+			accessorKey: 'type',
+			header: 'Request Type',
 		},
 		{
 			accessorKey: 'requestDate',
@@ -183,9 +190,9 @@ export function JobRequestList() {
 	return (
 		<div className='space-y-4'>
 			<Input
-				placeholder='Filter by job title or organization...'
-				value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
-				onChange={(event) => table.getColumn('title')?.setFilterValue(event.target.value)}
+				placeholder='Filter by subject or organization...'
+				value={(table.getColumn('subject')?.getFilterValue() as string) ?? ''}
+				onChange={(event) => table.getColumn('subject')?.setFilterValue(event.target.value)}
 				className='max-w-sm'
 			/>
 			<div className='rounded-md border glassmorphism'>

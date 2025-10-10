@@ -1,5 +1,4 @@
 import { JobRequestForm } from '@/components/app/admin/job-management/job-request-form';
-import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 
 async function getMasterData() {

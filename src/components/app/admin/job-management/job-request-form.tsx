@@ -6,15 +6,8 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import {
 	Form,
-	FormControl,
-	FormDescription,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
 } from '@/components/ui/form';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Send, PlusCircle, Trash, Save } from 'lucide-react';
 import { FormInput } from '@/components/ui/form-input';
@@ -26,43 +19,30 @@ import {
 } from '@/interfaces/master-data.interface';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormRadioGroup } from '@/components/ui/form-radio-group';
-import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
-import { JobRequest } from '@/lib/types';
+import { JobRequest, RequestedPost } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 
-const outsourcingVacancySchema = z.object({
-	serviceId: z.coerce.number().min(1, 'Service Post is required.'),
-	zoneId: z.coerce.number().min(1, 'Zone is required.'),
-	vacancyCount: z.coerce.number().min(1, 'Number of vacancies must be at least 1.'),
+const requestedPostSchema = z.object({
+	id: z.number().optional(),
+	postId: z.coerce.number().min(1, 'Post is required.'),
+	vacancy: z.coerce.number().min(1, 'Vacancy must be at least 1.'),
+	outsourcingZoneId: z.coerce.number().optional(),
+	fromDate: z.string().optional(),
+	toDate: z.string().optional(),
+	salaryFrom: z.coerce.number().optional(),
+	salaryTo: z.coerce.number().optional(),
 });
 
 const jobRequestSchema = z.object({
+	memoNo: z.string().min(1, 'Memo No. is required.'),
 	clientOrganizationId: z.coerce.number().min(1, 'Client Organization is required.'),
-	positionType: z.enum(['Permanent', 'Outsourcing']),
-	// Permanent position fields
-	title: z.string().optional(),
-	department: z.string().optional(),
-	location: z.string().optional(),
-	vacancyCount: z.coerce.number().optional(),
-	// Outsourcing fields
-	outsourcingVacancies: z.array(outsourcingVacancySchema).optional(),
-	// Common fields
-	applicationDeadline: z.string().min(1, 'Application deadline is required.'),
-	description: z.string().min(10, 'Description must be at least 10 characters.'),
-	responsibilities: z.string().min(10, 'Responsibilities must be at least 10 characters.'),
-	requirements: z.string().min(10, 'Requirements must be at least 10 characters.'),
-}).refine((data) => {
-    if (data.positionType === 'Permanent') {
-        return !!data.title && !!data.department && !!data.location && (data.vacancyCount || 0) > 0;
-    }
-    if (data.positionType === 'Outsourcing') {
-        return !!data.outsourcingVacancies && data.outsourcingVacancies.length > 0;
-    }
-    return false;
-}, {
-    message: "Please fill in the required fields for the selected position type.",
-    path: ["title"], // This error will be shown on a field that is always visible
+	subject: z.string().min(1, 'Subject is required.'),
+	description: z.string().optional(),
+	requestDate: z.string().min(1, 'Request date is required.'),
+	deadline: z.string().min(1, 'Deadline is required.'),
+	type: z.enum(['Permanent', 'Outsourcing']),
+	requestedPosts: z.array(requestedPostSchema).min(1, 'At least one post is required.'),
 });
 
 
@@ -70,7 +50,7 @@ type JobRequestFormValues = z.infer<typeof jobRequestSchema>;
 
 interface JobRequestFormProps {
 	clientOrganizations: IClientOrganization[];
-	outsourcingServices: IOutsourcingService[];
+	outsourcingServices: IOutsourcingService[]; // Assuming this is the "Post"
 	outsourcingZones: IOutsourcingZone[];
   initialData?: JobRequest;
 }
@@ -87,17 +67,17 @@ export function JobRequestForm({
 	const form = useForm<JobRequestFormValues>({
 		resolver: zodResolver(jobRequestSchema),
 		defaultValues: initialData || {
-			positionType: 'Permanent',
-            outsourcingVacancies: [{ serviceId: undefined, zoneId: undefined, vacancyCount: 1 }]
+			type: 'Permanent',
+            requestedPosts: [{ postId: undefined, vacancy: 1 }]
 		},
 	});
 
 	const { fields, append, remove } = useFieldArray({
 		control: form.control,
-		name: 'outsourcingVacancies',
+		name: 'requestedPosts',
 	});
 
-	const watchPositionType = form.watch('positionType');
+	const watchPositionType = form.watch('type');
 
 	function onSubmit(data: JobRequestFormValues) {
 		console.log(data);
@@ -114,7 +94,7 @@ export function JobRequestForm({
 			<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
 				<Card className='glassmorphism'>
 					<CardHeader>
-						<CardTitle>Job Request Details</CardTitle>
+						<CardTitle>Request Details</CardTitle>
 					</CardHeader>
 					<CardContent className='space-y-6'>
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-6 items-start'>
@@ -128,104 +108,99 @@ export function JobRequestForm({
 								getOptionValue={(option) => option.id!.toString()}
 								getOptionLabel={(option) => option.nameEn}
 							/>
-							<FormRadioGroup
-								control={form.control}
-								name='positionType'
-								label='Position Type'
-								required
-								options={[
-									{ label: 'Permanent', value: 'Permanent' },
-									{ label: 'Outsourcing', value: 'Outsourcing' },
-								]}
-							/>
+                            <FormInput
+                                control={form.control}
+                                name="memoNo"
+                                label="Memo No."
+                                placeholder="Enter memo number"
+                                required
+                            />
 						</div>
 
-						<div
-							className={cn(
-								'space-y-6 animate-in fade-in',
-								watchPositionType !== 'Permanent' && 'hidden'
-							)}
-						>
-							<Separator />
-							<h3 className='font-medium text-lg'>Permanent Position Details</h3>
-							<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-								<FormInput
-									control={form.control}
-									name='title'
-									label='Job Title'
-									placeholder='e.g. Senior Frontend Developer'
-									required={watchPositionType === 'Permanent'}
-								/>
-								<FormInput
-									control={form.control}
-									name='department'
-									label='Department'
-									placeholder='e.g. Engineering'
-									required={watchPositionType === 'Permanent'}
-								/>
-							</div>
-							<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-								<FormInput
-									control={form.control}
-									name='location'
-									label='Location'
-									placeholder='e.g. Dhaka, Bangladesh'
-									required={watchPositionType === 'Permanent'}
-								/>
-								<FormInput
-									control={form.control}
-									name='vacancyCount'
-									label='Number of Vacancies'
-									type='number'
-									placeholder='e.g. 5'
-									required={watchPositionType === 'Permanent'}
-								/>
-							</div>
-						</div>
+                        <FormInput
+                            control={form.control}
+                            name="subject"
+                            label="Subject"
+                            placeholder="Enter request subject"
+                            required
+                        />
 
-						<div
-							className={cn(
-								'space-y-4 animate-in fade-in',
-								watchPositionType !== 'Outsourcing' && 'hidden'
-							)}
-						>
-							<Separator />
-							<h3 className='font-medium text-lg'>Outsourcing Position Details</h3>
-							{fields.map((field, index) => (
+						<div className='grid grid-cols-1 md:grid-cols-3 gap-6 items-start'>
+                             <FormDatePicker control={form.control} name="requestDate" label="Request Date" required />
+                             <FormDatePicker control={form.control} name="deadline" label="Application Deadline" required />
+                            <FormRadioGroup
+                                control={form.control}
+                                name='type'
+                                label='Position Type'
+                                required
+                                options={[
+                                    { label: 'Permanent', value: 'Permanent' },
+                                    { label: 'Outsourcing', value: 'Outsourcing' },
+                                ]}
+                            />
+                        </div>
+                         <FormInput
+                            control={form.control}
+                            name="description"
+                            label="Description"
+                            placeholder="Enter a brief description for the request"
+                        />
+
+						
+					</CardContent>
+				</Card>
+
+                <Card className='glassmorphism'>
+                    <CardHeader>
+                        <CardTitle>Requested Posts</CardTitle>
+                        <CardDescription>Add the details for each requested post.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {fields.map((field, index) => (
 								<Card key={field.id} className='p-4 relative bg-muted/50'>
 									<CardContent className='p-0 space-y-4'>
-										<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-											<FormAutocomplete
+                                        <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                                            <FormAutocomplete
 												control={form.control}
-												name={`outsourcingVacancies.${index}.serviceId`}
-												label='Service Post'
+												name={`requestedPosts.${index}.postId`}
+												label='Post'
 												required
-												placeholder='Select Service'
+												placeholder='Select Post'
 												options={outsourcingServices}
 												getOptionValue={(opt) => opt.id!.toString()}
 												getOptionLabel={(opt) => opt.nameEn}
 											/>
-											<FormAutocomplete
+                                            <FormInput
 												control={form.control}
-												name={`outsourcingVacancies.${index}.zoneId`}
-												label='Zone'
-												required
-												placeholder='Select Zone'
-												options={outsourcingZones}
-												getOptionValue={(opt) => opt.id!.toString()}
-												getOptionLabel={(opt) => opt.nameEn}
-											/>
-											<FormInput
-												control={form.control}
-												name={`outsourcingVacancies.${index}.vacancyCount`}
+												name={`requestedPosts.${index}.vacancy`}
 												label='Vacancies'
 												required
 												type='number'
 												placeholder='e.g., 10'
 											/>
-										</div>
+                                            { watchPositionType === 'Outsourcing' && (
+                                                <FormAutocomplete
+                                                    control={form.control}
+                                                    name={`requestedPosts.${index}.outsourcingZoneId`}
+                                                    label='Zone'
+                                                    required
+                                                    placeholder='Select Zone'
+                                                    options={outsourcingZones}
+                                                    getOptionValue={(opt) => opt.id!.toString()}
+                                                    getOptionLabel={(opt) => opt.nameEn}
+                                                />
+                                            )}
+                                        </div>
+										<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                                            <FormDatePicker control={form.control} name={`requestedPosts.${index}.fromDate`} label="From Date" />
+                                            <FormDatePicker control={form.control} name={`requestedPosts.${index}.toDate`} label="To Date" />
+                                        </div>
+                                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                                            <FormInput control={form.control} name={`requestedPosts.${index}.salaryFrom`} label="Salary From" type="number" />
+                                            <FormInput control={form.control} name={`requestedPosts.${index}.salaryTo`} label="Salary To" type="number" />
+                                        </div>
 									</CardContent>
-									{index > 0 && (
+									{fields.length > 1 && (
 										<Button
 											type='button'
 											variant='ghost'
@@ -243,82 +218,23 @@ export function JobRequestForm({
 								variant='outline'
 								onClick={() =>
 									append({
-										serviceId: undefined,
-										zoneId: undefined,
-										vacancyCount: 1,
+										postId: undefined,
+										vacancy: 1,
 									})
 								}
 							>
-								<PlusCircle className='mr-2 h-4 w-4' /> Add Another Service Post
+								<PlusCircle className='mr-2 h-4 w-4' /> Add Another Post
 							</Button>
-						</div>
-
-						<Separator />
-						<h3 className='font-medium text-lg'>Common Details</h3>
-
-						<FormDatePicker control={form.control} name='applicationDeadline' label='Application Deadline' required />
-
-						<FormField
-							control={form.control}
-							name='description'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Job Description</FormLabel>
-									<FormControl>
-										<Textarea
-											placeholder='Provide a detailed description of the job.'
-											className='min-h-[150px]'
-											{...field}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name='responsibilities'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Responsibilities</FormLabel>
-									<FormControl>
-										<Textarea
-											placeholder='List the key responsibilities. Enter each on a new line.'
-											className='min-h-[150px]'
-											{...field}
-										/>
-									</FormControl>
-									<FormDescription>Enter each responsibility on a new line.</FormDescription>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name='requirements'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Requirements</FormLabel>
-									<FormControl>
-										<Textarea
-											placeholder='List the job requirements. Enter each on a new line.'
-											className='min-h-[150px]'
-											{...field}
-										/>
-									</FormControl>
-									<FormDescription>Enter each requirement on a new line.</FormDescription>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-					</CardContent>
-					<CardFooter>
+                    </CardContent>
+                    <CardFooter>
 						<Button type='submit'>
 							{initialData ? <Save className='mr-2 h-4 w-4' /> : <Send className='mr-2 h-4 w-4' />}
 							{initialData ? 'Save Changes' : 'Submit Request'}
 						</Button>
-					</CardFooter>
-				</Card>
+                    </CardFooter>
+                </Card>
+
+
 			</form>
 		</Form>
 	);
