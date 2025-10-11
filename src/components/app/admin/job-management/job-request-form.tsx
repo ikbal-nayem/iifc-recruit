@@ -43,7 +43,7 @@ const jobRequestSchema = z.object({
 	description: z.string().optional(),
 	requestDate: z.string().min(1, 'Request date is required.'),
 	deadline: z.string().min(1, 'Deadline is required.'),
-	type: z.string().min(1, 'Request type is required.'),
+	requestType: z.string().min(1, 'Request type is required.'),
 	requestedPosts: z.array(requestedPostSchema).min(1, 'At least one post is required.'),
 });
 
@@ -70,10 +70,11 @@ export function JobRequestForm({
 
 	const form = useForm<JobRequestFormValues>({
 		resolver: zodResolver(jobRequestSchema),
-		values: initialData || {
-			type: 'PERMANENT',
-            requestedPosts: [{ postId: undefined, vacancy: 1 }]
-		},
+		values: initialData,
+    defaultValues: initialData || {
+      requestType: 'OUTSOURCING',
+      requestedPosts: [{ postId: undefined, vacancy: 1 }]
+    }
 	});
 
 	const { fields, append, remove } = useFieldArray({
@@ -81,13 +82,7 @@ export function JobRequestForm({
 		name: 'requestedPosts',
 	});
 
-	useEffect(() => {
-		if (initialData) {
-			form.reset(initialData);
-		}
-	}, [initialData, form]);
-
-	const watchPositionType = form.watch('type');
+	const watchRequestType = form.watch('requestType');
 
 	function onSubmit(data: JobRequestFormValues) {
 		console.log(data);
@@ -140,7 +135,7 @@ export function JobRequestForm({
                              <FormDatePicker control={form.control} name="deadline" label="Application Deadline" required />
                             <FormRadioGroup
                                 control={form.control}
-                                name='type'
+                                name='requestType'
                                 label='Position Type'
                                 required
                                 options={requestTypes.map(rt => ({label: rt.nameEn, value: rt.value}))}
@@ -185,7 +180,7 @@ export function JobRequestForm({
 												type='number'
 												placeholder='e.g., 10'
 											/>
-                                            { watchPositionType === 'OUTSOURCING' && (
+                                            { watchRequestType === 'OUTSOURCING' && (
                                                 <FormAutocomplete
                                                     control={form.control}
                                                     name={`requestedPosts.${index}.outsourcingZoneId`}

@@ -1,20 +1,28 @@
 
 import { JobRequestForm } from '@/components/app/admin/job-management/job-request-form';
+import { IClientOrganization, IPost, IOutsourcingZone, EnumDTO } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 
-async function getMasterData() {
+type MasterData = {
+    clientOrganizations: IClientOrganization[];
+    posts: IPost[];
+    outsourcingZones: IOutsourcingZone[];
+    requestTypes: EnumDTO[];
+}
+
+async function getMasterData(): Promise<MasterData> {
 	try {
 		const [clientOrgsRes, postsRes, zonesRes, requestTypesRes] = await Promise.allSettled([
 			MasterDataService.clientOrganization.get(),
 			MasterDataService.post.get(),
 			MasterDataService.outsourcingZone.get(),
-      MasterDataService.getEnum('job-request-type')
+            MasterDataService.getEnum('job-request-type')
 		]);
 
 		const clientOrganizations = clientOrgsRes.status === 'fulfilled' ? clientOrgsRes.value.body : [];
 		const posts = postsRes.status === 'fulfilled' ? postsRes.value.body : [];
 		const outsourcingZones = zonesRes.status === 'fulfilled' ? zonesRes.value.body : [];
-    const requestTypes = requestTypesRes.status === 'fulfilled' ? requestTypesRes.value.body : [];
+        const requestTypes = requestTypesRes.status === 'fulfilled' ? requestTypesRes.value.body as EnumDTO[] : [];
 
 		return { clientOrganizations, posts, outsourcingZones, requestTypes };
 	} catch (error) {
@@ -24,7 +32,7 @@ async function getMasterData() {
 }
 
 export default async function CreateJobRequestPage() {
-	const { clientOrganizations, posts, outsourcingZones, requestTypes } = await getMasterData();
+	const masterData = await getMasterData();
 	return (
 		<div className='space-y-8'>
 			<div>
@@ -34,10 +42,10 @@ export default async function CreateJobRequestPage() {
 				</p>
 			</div>
 			<JobRequestForm
-				clientOrganizations={clientOrganizations}
-				posts={posts}
-				outsourcingZones={outsourcingZones}
-        requestTypes={requestTypes}
+				clientOrganizations={masterData.clientOrganizations}
+				posts={masterData.posts}
+				outsourcingZones={masterData.outsourcingZones}
+        requestTypes={masterData.requestTypes}
 			/>
 		</div>
 	);
