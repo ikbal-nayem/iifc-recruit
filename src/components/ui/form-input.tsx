@@ -1,3 +1,4 @@
+
 'use client';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -9,7 +10,7 @@ import { Control, FieldPath, FieldValues } from 'react-hook-form';
 import { Button } from './button';
 
 interface FormInputProps<TFieldValues extends FieldValues> extends React.ComponentProps<'input'> {
-	control: Control<TFieldValues>;
+	control: Control<any>;
 	name: FieldPath<TFieldValues>;
 	label: string;
 	required?: boolean;
