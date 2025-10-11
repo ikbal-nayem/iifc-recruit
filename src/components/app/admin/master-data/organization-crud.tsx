@@ -75,7 +75,7 @@ function OrganizationForm({
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
-		defaultValues,
+		values: defaultValues,
 	});
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -228,6 +228,7 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [editingItem, setEditingItem] = useState<IOrganization | undefined>(undefined);
+    const [itemToDelete, setItemToDelete] = useState<IOrganization | null>(null);
 
 	const loadItems = useCallback(
 		async (page: number, search: string, countryCode: string, industryId: string, orgTypeId: string) => {
@@ -306,9 +307,10 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 		}
 	};
 
-	const handleDelete = async (id: string) => {
+	const handleRemove = async () => {
+		if (!itemToDelete) return;
 		try {
-			await MasterDataService.organization.delete(id);
+			await MasterDataService.organization.delete(itemToDelete.id!.toString());
 			toast({ title: 'Success', description: 'Organization deleted successfully.', variant: 'success' });
 			loadItems(meta.page, debouncedSearch, countryFilter, industryFilter, organizationTypeFilter);
 		} catch (error: any) {
@@ -318,6 +320,8 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 				description: error?.message || 'Failed to delete organization.',
 				variant: 'danger',
 			});
+		} finally {
+			setItemToDelete(null);
 		}
 	};
 
@@ -399,16 +403,15 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 				>
 					<Edit className='h-4 w-4' />
 				</Button>
-				<ConfirmationDialog
-					trigger={
-						<Button variant='ghost' size='icon' className='h-8 w-8' disabled={isSubmitting === item.id?.toString()}>
-							<Trash className='h-4 w-4 text-danger' />
-						</Button>
-					}
-					description={`This will permanently delete the ${noun.toLowerCase()} "${item.nameEn}".`}
-					onConfirm={() => handleDelete(item.id!.toString())}
-					confirmText='Delete'
-				/>
+				<Button
+                    variant='ghost'
+                    size='icon'
+                    className='h-8 w-8'
+                    onClick={() => setItemToDelete(item)}
+                    disabled={isSubmitting === item.id?.toString()}
+                >
+                    <Trash className='h-4 w-4 text-danger' />
+                </Button>
 			</div>
 		</Card>
 	);
@@ -499,6 +502,13 @@ export function OrganizationCrud({ title, description, noun, masterData }: Organ
 					masterData={masterData}
 				/>
 			)}
+			<ConfirmationDialog
+				open={!!itemToDelete}
+				onOpenChange={(open) => !open && setItemToDelete(null)}
+				description={`This will permanently delete the ${noun.toLowerCase()} "${itemToDelete?.nameEn}".`}
+				onConfirm={handleRemove}
+				confirmText='Delete'
+			/>
 		</div>
 	);
 }
