@@ -22,7 +22,12 @@ import {
 	User,
 	UserCircle,
 	UserCog,
-	Users
+	Users,
+	FolderKanban,
+	DollarSign,
+	Map,
+	Type,
+	Network,
 } from 'lucide-react';
 
 export interface NavLink {
@@ -44,7 +49,7 @@ export const adminNavLinks: NavLink[] = [
 	{
 		href: '/admin/job-management',
 		label: 'Job Management',
-		icon: Briefcase,
+		icon: FolderKanban,
 		isActive: (pathname) => pathname.startsWith('/admin/job-management'),
 		submenu: [
 			{
@@ -93,7 +98,7 @@ export const adminNavLinks: NavLink[] = [
 					{ href: '/admin/master-data/position-levels', label: 'Position Levels' },
 				],
 			},
-			{ href: '/admin/master-data/posts', label: 'Posts', icon: Briefcase },
+			{ href: '/admin/master-data/posts', label: 'Posts', icon: UserCog },
 			{ href: '/admin/master-data/skills', label: 'Skills', icon: Award },
 			{ href: '/admin/master-data/languages', label: 'Languages', icon: Globe },
 			{
@@ -120,7 +125,7 @@ export const adminNavLinks: NavLink[] = [
 			{
 				href: '/admin/master-data/outsourcing/outsourcing-category',
 				label: 'Outsourcing',
-				icon: ListChecks,
+				icon: Network,
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/outsourcing'),
 				submenu: [
 					{ href: '/admin/master-data/outsourcing/outsourcing-category', label: 'Category' },
