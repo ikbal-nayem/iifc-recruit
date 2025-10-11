@@ -1,3 +1,4 @@
+
 'use client';
 
 import { FormMasterData } from '@/app/(auth)/admin/client-organizations/page';
@@ -30,8 +31,8 @@ import {
 	getPaginationRowModel,
 	useReactTable,
 } from '@tanstack/react-table';
-import { Edit, Globe, Loader2, Mail, Phone, PlusCircle, Search, Trash, UserPlus, View } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { Edit, Globe, Loader2, Mail, Phone, PlusCircle, Search, Trash, UserPlus, Eye } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -54,7 +55,7 @@ const formSchema = z
 	})
 	.refine((data) => data.isClient || data.isExaminer, {
 		message: 'At least one role (Client or Examiner) must be selected.',
-		path: ['isClient'], // You can assign the error to one of the fields
+		path: ['isClient'],
 	});
 
 type FormValues = z.infer<typeof formSchema>;
@@ -76,21 +77,20 @@ function ClientOrganizationForm({
 	noun,
 	masterData: { organizationTypes },
 }: ClientOrganizationFormProps) {
-	const defaultValues = {
-		nameEn: '',
-		nameBn: '',
-		organizationTypeId: undefined,
-		address: '',
-		contactPersonName: '',
-		contactNumber: '',
-		email: '',
-		website: '',
-		isClient: false,
-		isExaminer: false,
-	};
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
-		values: initialData || defaultValues,
+		values: initialData || {
+			nameEn: '',
+			nameBn: '',
+			organizationTypeId: undefined,
+			address: '',
+			contactPersonName: '',
+			contactNumber: '',
+			email: '',
+			website: '',
+			isClient: false,
+			isExaminer: false,
+		},
 	});
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -206,7 +206,7 @@ function ClientOrganizationForm({
 	);
 }
 
-const initMeta: IMeta = { page: 0, limit: 20 };
+const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0, totalPageCount: 1 };
 
 interface ClientOrganizationCrudProps {
 	title: string;
@@ -237,7 +237,7 @@ export function ClientOrganizationCrud({
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { nameEn: search },
+					body: { name: search },
 					meta: { page: page, limit: meta.limit },
 				};
 				const response = await MasterDataService.clientOrganization.getList(payload);
@@ -275,11 +275,16 @@ export function ClientOrganizationCrud({
 	};
 
 	const handleFormSubmit = async (data: FormValues): Promise<boolean> => {
-		const payload = { ...editingItem, ...data, active: editingItem?.active ?? true };
+		const isUpdate = !!editingItem?.id;
+		const payload = {
+			...data,
+			...(isUpdate && { id: editingItem.id }),
+			active: editingItem?.active ?? true,
+		};
 		try {
-			const response = editingItem?.id
-				? await MasterDataService.clientOrganization.update(payload)
-				: await MasterDataService.clientOrganization.add({ ...payload, active: true });
+			const response = isUpdate
+				? await MasterDataService.clientOrganization.update(payload as IClientOrganization)
+				: await MasterDataService.clientOrganization.add(payload);
 
 			toast({ description: response.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch);
@@ -312,31 +317,6 @@ export function ClientOrganizationCrud({
 			setItemToDelete(null);
 		}
 	};
-
-	const getActionItems = (item: IClientOrganization): ActionItem[] => [
-		{
-			label: 'View Details',
-			icon: <View className='mr-2 h-4 w-4' />,
-			href: `/admin/client-organizations/${item.id}`,
-		},
-		{
-			label: 'Create User',
-			icon: <UserPlus className='mr-2 h-4 w-4' />,
-			onClick: () => toast({ description: 'User creation (not implemented).' }),
-		},
-		{ isSeparator: true },
-		{
-			label: 'Edit',
-			icon: <Edit className='mr-2 h-4 w-4' />,
-			onClick: () => handleOpenForm(item),
-		},
-		{
-			label: 'Delete',
-			icon: <Trash className='mr-2 h-4 w-4' />,
-			variant: 'danger',
-			onClick: () => setItemToDelete(item),
-		},
-	];
 
 	const columns: ColumnDef<IClientOrganization>[] = [
 		{
@@ -390,7 +370,34 @@ export function ClientOrganizationCrud({
 			id: 'actions',
 			cell: ({ row }) => {
 				const item = row.original;
-				return <ActionMenu label='Actions' items={getActionItems(item)} />;
+				return (
+					<ActionMenu
+						items={[
+							{
+								label: 'View Details',
+								icon: <Eye className='mr-2 h-4 w-4' />,
+								href: `/admin/client-organizations/${item.id}`,
+							},
+							{
+								label: 'Create User',
+								icon: <UserPlus className='mr-2 h-4 w-4' />,
+								onClick: () => toast({ description: 'User creation (not implemented).' }),
+							},
+							{ isSeparator: true },
+							{
+								label: 'Edit',
+								icon: <Edit className='mr-2 h-4 w-4' />,
+								onClick: () => handleOpenForm(item),
+							},
+							{
+								label: 'Delete',
+								icon: <Trash className='mr-2 h-4 w-4' />,
+								variant: 'danger',
+								onClick: () => setItemToDelete(item),
+							},
+						]}
+					/>
+				);
 			},
 		},
 	];
@@ -481,6 +488,7 @@ export function ClientOrganizationCrud({
 			</Card>
 			{isFormOpen && (
 				<ClientOrganizationForm
+					key={editingItem?.id || 'new'}
 					isOpen={isFormOpen}
 					onClose={handleCloseForm}
 					onSubmit={handleFormSubmit}
@@ -500,3 +508,5 @@ export function ClientOrganizationCrud({
 		</div>
 	);
 }
+
+    
