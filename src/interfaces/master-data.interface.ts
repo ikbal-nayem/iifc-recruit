@@ -61,7 +61,7 @@ export interface IClientOrganization {
     id?: number;
     nameEn: string;
     nameBn: string;
-    organizationTypeId: number;
+    organizationTypeId?: number;
     organizationType?: ICommonMasterData;
     address?: string;
     contactPersonName?: string;

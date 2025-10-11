@@ -15,7 +15,6 @@ import {
 	Languages,
 	LayoutDashboard,
 	ListChecks,
-	Network,
 	PlusCircle,
 	Search,
 	Settings,
@@ -23,7 +22,7 @@ import {
 	User,
 	UserCircle,
 	UserCog,
-	Users,
+	Users
 } from 'lucide-react';
 
 export interface NavLink {
@@ -49,8 +48,8 @@ export const adminNavLinks: NavLink[] = [
 		isActive: (pathname) => pathname.startsWith('/admin/job-management'),
 		submenu: [
 			{
-				href: '/admin/job-management/requests',
-				label: 'Manage Requests',
+				href: '/admin/job-management/request',
+				label: 'Job Requests',
 				icon: ListChecks,
 			},
 			{

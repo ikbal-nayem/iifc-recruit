@@ -32,7 +32,7 @@ import {
 } from '@tanstack/react-table';
 import { Edit, Eye, Globe, Loader2, Mail, Phone, PlusCircle, Search, Trash, UserPlus } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 const formSchema = z
@@ -81,7 +81,7 @@ function ClientOrganizationForm({
 		values: {
 			nameEn: initialData?.nameEn || '',
 			nameBn: initialData?.nameBn || '',
-			organizationTypeId: initialData?.organizationTypeId,
+			organizationTypeId: initialData?.organizationTypeId as number,
 			address: initialData?.address || '',
 			contactPersonName: initialData?.contactPersonName || '',
 			contactNumber: initialData?.contactNumber || '',
@@ -94,7 +94,7 @@ function ClientOrganizationForm({
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	const handleFormSubmit = async (data: FormValues) => {
+	const handleFormSubmit = async (data: any) => {
 		setIsSubmitting(true);
 		await onSubmit(data);
 		// Assuming onSubmit will handle success and error, we might not need to check for success here to close.
