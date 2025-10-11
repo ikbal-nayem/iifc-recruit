@@ -15,7 +15,7 @@ import { JobRequestService } from '@/services/api/job-request.service';
 import { format } from 'date-fns';
 import { Check, Clock, Edit, Search, X } from 'lucide-react';
 import * as React from 'react';
-import { ActionItem, ActionMenu } from '../../ui/action-menu';
+import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
