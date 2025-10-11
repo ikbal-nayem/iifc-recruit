@@ -4,9 +4,11 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
@@ -15,8 +17,6 @@ import { JobRequestService } from '@/services/api/job-request.service';
 import { format } from 'date-fns';
 import { Check, Clock, Edit, Search, X } from 'lucide-react';
 import * as React from 'react';
-import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
-import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
 
@@ -152,8 +152,8 @@ export function JobRequestList() {
 				</div>
 				<div className='flex items-center gap-4 w-full sm:w-auto justify-between'>
 					<div className='flex items-center gap-2'>
-						<Badge variant={variant as any}>{status}</Badge>
-						<Badge variant='outline'>{item.requestType}</Badge>
+						<Badge variant={variant as any}>{item.statusDTO?.nameEn || item.status}</Badge>
+						<Badge variant='outline'>{item.requestTypeDTO?.nameEn || item.requestType}</Badge>
 					</div>
 					<ActionMenu items={getActionItems(item)} />
 				</div>
