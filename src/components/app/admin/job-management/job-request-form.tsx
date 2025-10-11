@@ -11,6 +11,7 @@ import { FormRadioGroup } from '@/components/ui/form-radio-group';
 import { useToast } from '@/hooks/use-toast';
 import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from '@/interfaces/master-data.interface';
 import { JobRequest } from '@/lib/types';
+import { JobRequestService } from '@/services/api/job-request.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PlusCircle, Save, Send, Trash } from 'lucide-react';
@@ -18,7 +19,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { JobRequestService } from '@/services/api/job-request.service';
+import { format } from 'date-fns';
 
 const requestedPostSchema = z.object({
 	id: z.number().optional(),
@@ -70,6 +71,7 @@ export function JobRequestForm({
 		defaultValues: initialData
 			? undefined
 			: {
+					requestDate: format(new Date(), 'yyyy-MM-dd'),
 					requestType: 'OUTSOURCING',
 					requestedPosts: [{ postId: undefined, vacancy: 1 }],
 			  },
@@ -106,11 +108,25 @@ export function JobRequestForm({
 	}, [watchRequestType, toast]);
 
 	async function onSubmit(data: JobRequestFormValues) {
+		const cleanedData = { ...data };
+
+		// Clean up requestedPosts based on requestType
+		cleanedData.requestedPosts = cleanedData.requestedPosts.map((post) => {
+			const newPost = { ...post };
+			if (cleanedData.requestType === 'PERMANENT') {
+				delete newPost.outsourcingZoneId;
+			} else if (cleanedData.requestType === 'OUTSOURCING') {
+				delete newPost.salaryFrom;
+				delete newPost.salaryTo;
+			}
+			return newPost;
+		});
+
 		try {
 			if (initialData) {
-				await JobRequestService.update({ ...data, id: initialData.id });
+				await JobRequestService.update({ ...cleanedData, id: initialData.id });
 			} else {
-				await JobRequestService.create(data);
+				await JobRequestService.create(cleanedData);
 			}
 			toast({
 				title: initialData ? 'Job Request Updated!' : 'Job Request Submitted!',
