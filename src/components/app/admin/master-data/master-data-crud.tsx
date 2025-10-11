@@ -56,7 +56,7 @@ function MasterDataForm({
 }: MasterDataFormProps) {
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
-		defaultValues: { nameEn: initialData?.nameEn || '', nameBn: initialData?.nameBn || '' },
+		values: initialData || { nameEn: '', nameBn: '' },
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -144,6 +144,7 @@ export function MasterDataCrud({
 	const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [editingItem, setEditingItem] = useState<ICommonMasterData | undefined>(undefined);
+	const [itemToDelete, setItemToDelete] = useState<ICommonMasterData | null>(null);
 
 	const handleOpenForm = (item?: ICommonMasterData) => {
 		setEditingItem(item);
@@ -178,9 +179,10 @@ export function MasterDataCrud({
 		setIsSubmitting(null);
 	};
 
-	const handleRemove = async (id?: number) => {
-		if (!id) return;
-		await onDelete(id.toString());
+	const handleRemove = async () => {
+		if (!itemToDelete?.id) return;
+		await onDelete(itemToDelete.id.toString());
+		setItemToDelete(null);
 	};
 
 	return (
@@ -242,22 +244,15 @@ export function MasterDataCrud({
 												>
 													<Edit className='h-4 w-4' />
 												</Button>
-												<ConfirmationDialog
-													trigger={
-														<Button
-															variant='ghost'
-															size='icon'
-															className='h-8 w-8'
-															disabled={isSubmitting === item.id?.toString()}
-														>
-															<Trash className='h-4 w-4 text-danger' />
-														</Button>
-													}
-													description={`This will permanently delete the ${noun.toLowerCase()} "${
-														item.nameEn
-													}".`}
-													onConfirm={() => handleRemove(item.id)}
-												/>
+												<Button
+													variant='ghost'
+													size='icon'
+													className='h-8 w-8'
+													onClick={() => setItemToDelete(item)}
+													disabled={isSubmitting === item.id?.toString()}
+												>
+													<Trash className='h-4 w-4 text-danger' />
+												</Button>
 											</div>
 										</div>
 									</Card>
@@ -287,6 +282,12 @@ export function MasterDataCrud({
 					noun={noun}
 				/>
 			)}
+			<ConfirmationDialog
+				open={!!itemToDelete}
+				onOpenChange={(open) => !open && setItemToDelete(null)}
+				description={`This will permanently delete the ${noun.toLowerCase()} "${itemToDelete?.nameEn}".`}
+				onConfirm={handleRemove}
+			/>
 		</div>
 	);
 }

@@ -97,24 +97,21 @@ function ClientOrganizationForm({
 	noun,
 	masterData: { organizationTypes },
 }: ClientOrganizationFormProps) {
-	const defaultValues = initialData
-		? { ...initialData }
-		: {
-				nameEn: '',
-				nameBn: '',
-				organizationTypeId: undefined,
-				address: '',
-				contactPersonName: '',
-				contactNumber: '',
-				email: '',
-				website: '',
-				isClient: false,
-				isExaminer: false,
-		  };
-
+	const defaultValues = {
+		nameEn: '',
+		nameBn: '',
+		organizationTypeId: undefined,
+		address: '',
+		contactPersonName: '',
+		contactNumber: '',
+		email: '',
+		website: '',
+		isClient: false,
+		isExaminer: false,
+	};
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
-		defaultValues,
+		values: initialData || defaultValues,
 	});
 
 	const [isSubmitting, setIsSubmitting] = useState(false);

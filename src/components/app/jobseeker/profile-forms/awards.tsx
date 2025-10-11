@@ -41,13 +41,9 @@ interface AwardFormProps {
 function AwardForm({ isOpen, onClose, onSubmit, initialData, noun }: AwardFormProps) {
 	const form = useForm<AwardFormValues>({
 		resolver: zodResolver(awardSchema),
-		defaultValues: initialData ? { ...initialData, date: makeReqDateFormat(initialData.date) } : defaultData,
+		values: initialData ? { ...initialData, date: makeReqDateFormat(initialData.date) } : defaultData,
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
-
-	useEffect(() => {
-		form.reset(initialData ? { ...initialData, date: makeReqDateFormat(initialData.date) } : defaultData);
-	}, [initialData, form]);
 
 	const handleSubmit = async (data: AwardFormValues) => {
 		setIsSubmitting(true);

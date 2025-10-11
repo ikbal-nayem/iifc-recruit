@@ -20,7 +20,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 const languageSchema = z.object({
-	languageId: z.number().min(1, 'Language is required.'),
+	languageId: z.coerce.number().min(1, 'Language is required.'),
 	proficiency: z.string().min(1, 'Proficiency is required'),
 });
 
@@ -36,7 +36,7 @@ interface LanguageFormProps {
 	proficiencyOptions: EnumDTO[];
 }
 
-const defaultValues = { languageId: 0, proficiency: '' };
+const defaultValues = { languageId: undefined, proficiency: '' };
 
 function LanguageForm({
 	isOpen,
@@ -49,13 +49,9 @@ function LanguageForm({
 }: LanguageFormProps) {
 	const form = useForm<LanguageFormValues>({
 		resolver: zodResolver(languageSchema),
-		defaultValues: initialData || defaultValues,
+		values: initialData || defaultValues,
 	});
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
-
-	React.useEffect(() => {
-		form.reset(initialData || defaultValues);
-	}, [initialData, form]);
 
 	const handleSubmit = async (data: LanguageFormValues) => {
 		setIsSubmitting(true);
@@ -121,6 +117,7 @@ export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: Pr
 	const { toast } = useToast();
 	const [history, setHistory] = React.useState<Language[]>([]);
 	const [editingItem, setEditingItem] = React.useState<Language | undefined>(undefined);
+	const [itemToDelete, setItemToDelete] = React.useState<Language | null>(null);
 	const [isFormOpen, setIsFormOpen] = React.useState(false);
 	const [isLoading, setIsLoading] = React.useState(true);
 
@@ -168,9 +165,10 @@ export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: Pr
 		}
 	};
 
-	const handleRemove = async (id: number) => {
+	const handleRemove = async () => {
+		if (!itemToDelete?.id) return;
 		try {
-			const response = await JobseekerProfileService.language.delete(id);
+			const response = await JobseekerProfileService.language.delete(itemToDelete.id);
 			toast({ description: response.message || 'Language deleted successfully.', variant: 'success' });
 			loadData();
 		} catch (error: any) {
@@ -179,6 +177,8 @@ export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: Pr
 				description: error.message || 'Failed to delete language.',
 				variant: 'danger',
 			});
+		} finally {
+			setItemToDelete(null);
 		}
 	};
 
@@ -194,16 +194,9 @@ export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: Pr
 					<Button variant='ghost' size='icon' onClick={() => handleOpenForm(item)}>
 						<Edit className='h-4 w-4' />
 					</Button>
-					<ConfirmationDialog
-						trigger={
-							<Button variant='ghost' size='icon'>
-								<Trash className='h-4 w-4 text-danger' />
-							</Button>
-						}
-						description='This action cannot be undone. This will permanently delete this language from your profile.'
-						onConfirm={() => handleRemove(item.id!)}
-						confirmText='Delete'
-					/>
+					<Button variant='ghost' size='icon' onClick={() => setItemToDelete(item)}>
+						<Trash className='h-4 w-4 text-danger' />
+					</Button>
 				</div>
 			</Card>
 		);
@@ -246,6 +239,13 @@ export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: Pr
 					proficiencyOptions={proficiencyOptions}
 				/>
 			)}
+			<ConfirmationDialog
+				open={!!itemToDelete}
+				onOpenChange={(open) => !open && setItemToDelete(null)}
+				description='This action cannot be undone. This will permanently delete this language from your profile.'
+				onConfirm={handleRemove}
+				confirmText='Delete'
+			/>
 		</div>
 	);
 }

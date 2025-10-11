@@ -41,13 +41,9 @@ interface PublicationFormProps {
 function PublicationForm({ isOpen, onClose, onSubmit, initialData, noun }: PublicationFormProps) {
 	const form = useForm<PublicationFormValues>({
 		resolver: zodResolver(publicationSchema),
-		defaultValues: initialData || defaultData,
+		values: initialData || defaultData,
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
-
-	useEffect(() => {
-		form.reset(initialData || defaultData);
-	}, [initialData, form]);
 
 	const handleSubmit = async (data: PublicationFormValues) => {
 		setIsSubmitting(true);
