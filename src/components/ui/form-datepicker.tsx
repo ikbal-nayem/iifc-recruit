@@ -27,7 +27,7 @@ export function FormDatePicker<TFieldValues extends FieldValues>({
     placeholder,
 	captionLayout = 'dropdown-buttons',
 	fromYear = 1960,
-	toYear = new Date().getFullYear(),
+	toYear,
     ...props
 }: FormDatePickerProps<TFieldValues>) {
 	return (
