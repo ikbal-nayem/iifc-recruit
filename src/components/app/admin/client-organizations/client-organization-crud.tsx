@@ -1,9 +1,9 @@
-
 'use client';
 
-import * as React from 'react';
 import { FormMasterData } from '@/app/(auth)/admin/client-organizations/page';
+import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
@@ -15,14 +15,7 @@ import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
@@ -37,24 +30,10 @@ import {
 	getPaginationRowModel,
 	useReactTable,
 } from '@tanstack/react-table';
-import {
-	Edit,
-	Globe,
-	Loader2,
-	Mail,
-	Phone,
-	PlusCircle,
-	Search,
-	Trash,
-	UserPlus,
-	View,
-} from 'lucide-react';
-import Link from 'next/link';
+import { Edit, Globe, Loader2, Mail, Phone, PlusCircle, Search, Trash, UserPlus, View } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Badge } from '@/components/ui/badge';
-import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 
 const formSchema = z
 	.object({
@@ -236,7 +215,12 @@ interface ClientOrganizationCrudProps {
 	masterData: FormMasterData;
 }
 
-export function ClientOrganizationCrud({ title, description, noun, masterData }: ClientOrganizationCrudProps) {
+export function ClientOrganizationCrud({
+	title,
+	description,
+	noun,
+	masterData,
+}: ClientOrganizationCrudProps) {
 	const { toast } = useToast();
 	const [items, setItems] = useState<IClientOrganization[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
@@ -311,7 +295,11 @@ export function ClientOrganizationCrud({ title, description, noun, masterData }:
 		if (!itemToDelete) return;
 		try {
 			await MasterDataService.clientOrganization.delete(itemToDelete.id!.toString());
-			toast({ title: 'Success', description: 'Client organization deleted successfully.', variant: 'success' });
+			toast({
+				title: 'Success',
+				description: 'Client organization deleted successfully.',
+				variant: 'success',
+			});
 			loadItems(meta.page, debouncedSearch);
 		} catch (error: any) {
 			console.error('Failed to delete item', error);
