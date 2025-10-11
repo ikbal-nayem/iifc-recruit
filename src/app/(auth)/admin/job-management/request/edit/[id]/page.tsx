@@ -23,6 +23,7 @@ const mockRequests: JobRequest[] = [
 			vacancy: 2,
 			salaryFrom: 80000,
 			salaryTo: 120000,
+			status: 'PENDING',
 		}]
 	},
 	{
@@ -36,8 +37,8 @@ const mockRequests: JobRequest[] = [
     deadline: '2024-08-15',
     description: 'Data entry operators needed.',
     requestedPosts: [
-      { postId: 2, outsourcingZoneId: 1, vacancy: 10 },
-      { postId: 2, outsourcingZoneId: 2, vacancy: 5 },
+      { postId: 2, outsourcingZoneId: 1, vacancy: 10, status: 'EXAM' },
+      { postId: 2, outsourcingZoneId: 2, vacancy: 5, status: 'PENDING' },
     ]
 	},
 ];

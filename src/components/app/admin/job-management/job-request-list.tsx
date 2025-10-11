@@ -15,7 +15,7 @@ import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequest } from '@/interfaces/job.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { format } from 'date-fns';
-import { Check, Clock, Edit, Eye, Search, X, Loader, Play } from 'lucide-react';
+import { Check, Clock, Edit, Eye, Search, X, Loader, Play, Settings } from 'lucide-react';
 import * as React from 'react';
 import {
 	Dialog,
@@ -30,9 +30,24 @@ import Link from 'next/link';
 const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 	if (!request) return null;
 
-	const status = request.status;
-	const variant =
-		status === 'Success' ? 'success' : status === 'IN_PROGRESS' ? 'warning' : 'warning';
+	const requestStatus = request.status;
+	const requestStatusVariant =
+		requestStatus === 'Success' ? 'success' : requestStatus === 'IN_PROGRESS' ? 'warning' : 'warning';
+	
+	const getPostStatusVariant = (status?: string) => {
+		switch (status) {
+			case 'PENDING':
+				return 'warning';
+			case 'IN_PROGRESS':
+				return 'info';
+			case 'EXAM':
+				return 'default';
+			case 'INTERVIEW':
+				return 'success';
+			default:
+				return 'secondary';
+		}
+	}
 
 
 	return (
@@ -61,7 +76,7 @@ const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 					<div>
 						<p className='font-medium text-muted-foreground'>Status</p>
 						<Badge
-							variant={variant}
+							variant={requestStatusVariant}
 						>
 							{request.statusDTO?.nameEn}
 						</Badge>
@@ -80,8 +95,15 @@ const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 					<div className='space-y-3'>
 						{request.requestedPosts.map((post, index) => (
 							<div key={index} className='p-3 border rounded-md bg-muted/50'>
-								<p className='font-semibold'>{post.post?.nameEn}</p>
-								<div className='flex justify-between items-center text-muted-foreground'>
+								<div className='flex justify-between items-start'>
+									<p className='font-semibold'>{post.post?.nameEn}</p>
+									<Button asChild variant="outline" size="sm">
+										<Link href="/admin/job-management">
+											<Settings className="h-3 w-3 mr-2" /> Manage
+										</Link>
+									</Button>
+								</div>
+								<div className='flex justify-between items-center text-muted-foreground mt-1'>
 									<span>Vacancy: {post.vacancy}</span>
 									{request.requestType === 'OUTSOURCING' ? (
 										<span>Zone: {post.outsourcingZoneId}</span>
@@ -90,6 +112,7 @@ const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 											Salary: {post.salaryFrom} - {post.salaryTo}
 										</span>
 									)}
+									<Badge variant={getPostStatusVariant(post.status)}>{post.statusDTO?.nameEn}</Badge>
 								</div>
 							</div>
 						))}
@@ -248,7 +271,7 @@ export function JobRequestList() {
 				</div>
 				<div className='flex items-center gap-4 w-full sm:w-auto justify-between'>
 					<div className='flex items-center gap-2'>
-						<Badge variant={variant as any}>{item.statusDTO?.nameEn}</Badge>
+						<Badge variant={variant}>{item.statusDTO?.nameEn}</Badge>
 						<Badge variant='outline'>{item.requestTypeDTO?.nameEn}</Badge>
 					</div>
 					<ActionMenu items={getActionItems(item)} />
