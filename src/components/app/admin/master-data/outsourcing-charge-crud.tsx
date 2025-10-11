@@ -50,15 +50,13 @@ function OutsourcingChargeForm({
 }: OutsourcingChargeFormProps) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	const defaultValues = {
-		categoryId: initialData?.categoryId,
-		zoneId: initialData?.zoneId,
-		monthlyServiceCharge: initialData?.monthlyServiceCharge || undefined,
-	};
-	
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
-		values: defaultValues,
+		values: {
+			categoryId: initialData?.categoryId,
+			zoneId: initialData?.zoneId,
+			monthlyServiceCharge: initialData?.monthlyServiceCharge,
+		},
 	});
 
 
