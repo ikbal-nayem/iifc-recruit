@@ -1,8 +1,9 @@
-import { EnumDTO, IClientOrganization } from "./master-data.interface";
+import { EnumDTO, IClientOrganization, IPost } from "./master-data.interface";
 
 export type RequestedPost = {
 	id?: number;
 	postId: number;
+    post?: IPost;
 	vacancy: number;
 	outsourcingZoneId?: number;
 	fromDate?: string;

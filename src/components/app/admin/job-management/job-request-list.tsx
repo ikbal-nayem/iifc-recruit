@@ -15,8 +15,100 @@ import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequest } from '@/interfaces/job.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { format } from 'date-fns';
-import { Check, Clock, Edit, Search, X } from 'lucide-react';
+import { Check, Clock, Edit, Eye, Search, X } from 'lucide-react';
 import * as React from 'react';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
+import Link from 'next/link';
+
+const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
+	if (!request) return null;
+
+	return (
+		<div>
+			<DialogHeader className='mb-4'>
+				<DialogTitle className='text-2xl'>{request.subject}</DialogTitle>
+				<DialogDescription>
+					From: {request.clientOrganization?.nameEn} | Memo: {request.memoNo}
+				</DialogDescription>
+			</DialogHeader>
+
+			<div className='space-y-6 text-sm'>
+				<div className='grid grid-cols-2 gap-4 rounded-md border p-4'>
+					<div>
+						<p className='font-medium text-muted-foreground'>Request Date</p>
+						<p>{format(new Date(request.requestDate), 'PPP')}</p>
+					</div>
+					<div>
+						<p className='font-medium text-muted-foreground'>Deadline</p>
+						<p>{format(new Date(request.deadline), 'PPP')}</p>
+					</div>
+					<div>
+						<p className='font-medium text-muted-foreground'>Request Type</p>
+						<p>{request.requestTypeDTO?.nameEn}</p>
+					</div>
+					<div>
+						<p className='font-medium text-muted-foreground'>Status</p>
+						<Badge
+							variant={
+								request.status === 'Approved'
+									? 'success'
+									: request.status === 'Rejected'
+									? 'danger'
+									: 'warning'
+							}
+						>
+							{request.statusDTO?.nameEn}
+						</Badge>
+					</div>
+				</div>
+
+				{request.description && (
+					<div>
+						<h4 className='font-semibold mb-1'>Description</h4>
+						<p className='text-muted-foreground'>{request.description}</p>
+					</div>
+				)}
+
+				<div>
+					<h4 className='font-semibold mb-2'>Requested Posts</h4>
+					<div className='space-y-3'>
+						{request.requestedPosts.map((post, index) => (
+							<div key={index} className='p-3 border rounded-md bg-muted/50'>
+								<p className='font-semibold'>{post.post?.nameEn}</p>
+								<div className='flex justify-between items-center text-muted-foreground'>
+									<span>Vacancy: {post.vacancy}</span>
+									{request.requestType === 'OUTSOURCING' ? (
+										<span>Zone: {post.outsourcingZoneId}</span>
+									) : (
+										<span>
+											Salary: {post.salaryFrom} - {post.salaryTo}
+										</span>
+									)}
+								</div>
+							</div>
+						))}
+					</div>
+				</div>
+			</div>
+
+			<DialogFooter className='mt-6'>
+				<Button asChild>
+					<Link href={`/admin/job-management/request/edit/${request.id}`}>
+						<Edit className='mr-2 h-4 w-4' /> Edit Request
+					</Link>
+				</Button>
+			</DialogFooter>
+		</div>
+	);
+};
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
 
@@ -28,6 +120,7 @@ export function JobRequestList() {
 	const debouncedSearch = useDebounce(searchQuery, 500);
 	const { toast } = useToast();
 	const [itemToDelete, setItemToDelete] = React.useState<JobRequest | null>(null);
+	const [itemToView, setItemToView] = React.useState<JobRequest | null>(null);
 
 	const loadItems = React.useCallback(
 		async (page: number, search: string) => {
@@ -62,7 +155,6 @@ export function JobRequestList() {
 	};
 
 	const handleStatusChange = (requestId: string, newStatus: JobRequest['status']) => {
-		// This should ideally be an API call to update status
 		setData((prevData) =>
 			prevData.map((req) => (req.id === requestId ? { ...req, status: newStatus } : req))
 		);
@@ -92,6 +184,11 @@ export function JobRequestList() {
 
 	const getActionItems = (request: JobRequest): ActionItem[] => {
 		const items: ActionItem[] = [
+			{
+				label: 'View Details',
+				icon: <Eye className='mr-2 h-4 w-4' />,
+				onClick: () => setItemToView(request),
+			},
 			{
 				label: 'Edit',
 				icon: <Edit className='mr-2 h-4 w-4' />,
@@ -196,6 +293,12 @@ export function JobRequestList() {
 				description='This will permanently delete the job request. This action cannot be undone.'
 				onConfirm={handleDelete}
 			/>
+
+			<Dialog open={!!itemToView} onOpenChange={(open) => !open && setItemToView(null)}>
+				<DialogContent className='max-w-3xl max-h-[90vh] overflow-y-auto'>
+					{itemToView && <JobRequestDetailView request={itemToView} />}
+				</DialogContent>
+			</Dialog>
 		</Card>
 	);
 }
