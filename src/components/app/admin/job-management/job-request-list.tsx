@@ -1,92 +1,93 @@
+
 'use client';
 
-import * as React from 'react';
-import {
-	ColumnDef,
-	flexRender,
-	getCoreRowModel,
-	getFilteredRowModel,
-	getPaginationRowModel,
-	getSortedRowModel,
-	useReactTable,
-	SortingState,
-	ColumnFiltersState,
-} from '@tanstack/react-table';
-
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-
-import { Check, Clock, Edit, X } from 'lucide-react';
-import type { JobRequest } from '@/lib/types';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Pagination } from '@/components/ui/pagination';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
-import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
+import { IApiRequest, IMeta } from '@/interfaces/common.interface';
+import { JobRequest } from '@/interfaces/job.interface';
+import { JobRequestService } from '@/services/api/job-request.service';
+import { format } from 'date-fns';
+import { Check, Clock, Edit, Search, X } from 'lucide-react';
+import * as React from 'react';
+import { ActionItem, ActionMenu } from '../../ui/action-menu';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
-const mockRequests: JobRequest[] = [
-	{
-		id: 'req1',
-		clientOrganization: 'Apex Solutions',
-		clientOrganizationId: 1,
-		subject: 'Request for Senior Backend Engineer',
-		memoNo: 'MEMO-001',
-		requestType: 'Permanent',
-		requestDate: '2024-07-28',
-		deadline: '2024-08-28',
-		status: 'Pending',
-		description: '',
-		requestedPosts: [],
-	},
-	{
-		id: 'req2',
-		clientOrganization: 'Innovatech Ltd.',
-		clientOrganizationId: 2,
-		subject: 'Urgent need for Data Entry Operators',
-		memoNo: 'MEMO-002',
-		requestType: 'Outsourcing',
-		requestDate: '2024-07-27',
-		deadline: '2024-08-15',
-		status: 'Approved',
-		description: '',
-		requestedPosts: [],
-	},
-	{
-		id: 'req3',
-		clientOrganization: 'Synergy Corp',
-		clientOrganizationId: 3,
-		subject: 'Hiring Marketing Manager',
-		memoNo: 'MEMO-003',
-		requestType: 'Permanent',
-		requestDate: '2024-07-26',
-		deadline: '2024-09-01',
-		status: 'Rejected',
-		description: '',
-		requestedPosts: [],
-	},
-];
+const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
 
 export function JobRequestList() {
-	const [data, setData] = React.useState<JobRequest[]>(mockRequests);
-	const [sorting, setSorting] = React.useState<SortingState>([]);
-	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+	const [data, setData] = React.useState<JobRequest[]>([]);
+	const [meta, setMeta] = React.useState<IMeta>(initMeta);
+	const [isLoading, setIsLoading] = React.useState(true);
+	const [searchQuery, setSearchQuery] = React.useState('');
+	const debouncedSearch = useDebounce(searchQuery, 500);
 	const { toast } = useToast();
+	const [itemToDelete, setItemToDelete] = React.useState<JobRequest | null>(null);
+
+	const loadItems = React.useCallback(
+		async (page: number, search: string) => {
+			setIsLoading(true);
+			try {
+				const payload: IApiRequest = {
+					body: { subject: search },
+					meta: { page, limit: meta.limit },
+				};
+				const response = await JobRequestService.getList(payload);
+				setData(response.body);
+				setMeta(response.meta);
+			} catch (error: any) {
+				toast({
+					title: 'Error',
+					description: error.message || 'Failed to load job requests.',
+					variant: 'danger',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[meta.limit, toast]
+	);
+
+	React.useEffect(() => {
+		loadItems(0, debouncedSearch);
+	}, [debouncedSearch, loadItems]);
+
+	const handlePageChange = (newPage: number) => {
+		loadItems(newPage, debouncedSearch);
+	};
 
 	const handleStatusChange = (requestId: string, newStatus: JobRequest['status']) => {
+		// This should ideally be an API call to update status
 		setData((prevData) =>
 			prevData.map((req) => (req.id === requestId ? { ...req, status: newStatus } : req))
 		);
 		toast({
 			title: 'Request Updated',
-			description: `The job request has been ${newStatus.toLowerCase()}.`,
+			description: `The job request has been ${newStatus?.toLowerCase()}.`,
 			variant: 'success',
 		});
+	};
+
+	const handleDelete = async () => {
+		if (!itemToDelete?.id) return;
+		try {
+			await JobRequestService.delete(itemToDelete.id);
+			toast({ description: 'Job request deleted successfully', variant: 'success' });
+			loadItems(meta.page, debouncedSearch);
+		} catch (error: any) {
+			toast({
+				title: 'Error',
+				description: error.message || 'Failed to delete job request.',
+				variant: 'danger',
+			});
+		} finally {
+			setItemToDelete(null);
+		}
 	};
 
 	const getActionItems = (request: JobRequest): ActionItem[] => {
@@ -94,7 +95,7 @@ export function JobRequestList() {
 			{
 				label: 'Edit',
 				icon: <Edit className='mr-2 h-4 w-4' />,
-				href: `/admin/job-management/request/${request.id}/edit`,
+				href: `/admin/job-management/request/edit/${request.id}`,
 			},
 		];
 
@@ -104,142 +105,97 @@ export function JobRequestList() {
 				{
 					label: 'Approve',
 					icon: <Check className='mr-2 h-4 w-4' />,
-					onClick: () => handleStatusChange(request.id, 'Approved'),
+					onClick: () => handleStatusChange(request.id!, 'Approved'),
 				},
 				{
 					label: 'Reject',
 					icon: <X className='mr-2 h-4 w-4' />,
-					onClick: () => handleStatusChange(request.id, 'Rejected'),
+					onClick: () => handleStatusChange(request.id!, 'Rejected'),
 					variant: 'danger',
 				}
 			);
 		} else {
-			items.push({ isSeparator: true }, {
-				label: 'Set to Pending',
-				icon: <Clock className='mr-2 h-4 w-4' />,
-				onClick: () => handleStatusChange(request.id, 'Pending'),
-			});
+			items.push(
+				{ isSeparator: true },
+				{
+					label: 'Set to Pending',
+					icon: <Clock className='mr-2 h-4 w-4' />,
+					onClick: () => handleStatusChange(request.id!, 'Pending'),
+				}
+			);
 		}
 		return items;
 	};
 
-	const columns: ColumnDef<JobRequest>[] = [
-		{
-			accessorKey: 'subject',
-			header: 'Subject',
-			cell: ({ row }) => {
-				const request = row.original;
-				return (
-					<div>
-						<div className='font-medium'>{request.subject}</div>
-						<div className='text-sm text-muted-foreground'>
-							{request.clientOrganization} ({request.memoNo})
-						</div>
-					</div>
-				);
-			},
-		},
-		{
-			accessorKey: 'requestType',
-			header: 'Request Type',
-		},
-		{
-			accessorKey: 'requestDate',
-			header: 'Date Requested',
-		},
-		{
-			accessorKey: 'status',
-			header: 'Status',
-			cell: ({ row }) => {
-				const status = row.getValue('status') as string;
-				const variant =
-					status === 'Approved'
-						? 'success'
-						: status === 'Rejected'
-						? 'danger'
-						: status === 'Pending'
-						? 'warning'
-						: 'secondary';
-				return <Badge variant={variant as any}>{status}</Badge>;
-			},
-		},
-		{
-			id: 'actions',
-			cell: ({ row }) => {
-				const request = row.original;
-				return <ActionMenu label='Actions' items={getActionItems(request)} />;
-			},
-		},
-	];
+	const renderItem = (item: JobRequest) => {
+		const status = item.status;
+		const variant =
+			status === 'Approved'
+				? 'success'
+				: status === 'Rejected'
+				? 'danger'
+				: status === 'Pending'
+				? 'warning'
+				: 'secondary';
 
-	const table = useReactTable({
-		data,
-		columns,
-		getCoreRowModel: getCoreRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		onSortingChange: setSorting,
-		getSortedRowModel: getSortedRowModel(),
-		onColumnFiltersChange: setColumnFilters,
-		getFilteredRowModel: getFilteredRowModel(),
-		state: {
-			sorting,
-			columnFilters,
-		},
-	});
+		return (
+			<Card key={item.id} className='p-4 flex flex-col sm:flex-row justify-between items-start'>
+				<div className='flex-1 mb-4 sm:mb-0'>
+					<p className='font-semibold'>{item.subject}</p>
+					<div className='text-sm text-muted-foreground'>
+						{item.clientOrganization?.nameEn || 'N/A'} ({item.memoNo})
+					</div>
+					<div className='text-xs text-muted-foreground mt-1'>
+						Requested on {format(new Date(item.requestDate), 'PPP')} | Deadline:{' '}
+						{format(new Date(item.deadline), 'PPP')}
+					</div>
+				</div>
+				<div className='flex items-center gap-4 w-full sm:w-auto justify-between'>
+					<div className='flex items-center gap-2'>
+						<Badge variant={variant as any}>{status}</Badge>
+						<Badge variant='outline'>{item.requestType}</Badge>
+					</div>
+					<ActionMenu items={getActionItems(item)} />
+				</div>
+			</Card>
+		);
+	};
 
 	return (
-		<div className='space-y-4'>
-			<Input
-				placeholder='Filter by subject or organization...'
-				value={(table.getColumn('subject')?.getFilterValue() as string) ?? ''}
-				onChange={(event) => table.getColumn('subject')?.setFilterValue(event.target.value)}
-				className='max-w-sm'
+		<Card className='glassmorphism'>
+			<CardHeader>
+				<CardTitle>All Job Requests</CardTitle>
+				<div className='relative w-full max-w-sm mt-2'>
+					<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+					<Input
+						placeholder='Filter by subject or memo no...'
+						value={searchQuery}
+						onChange={(e) => setSearchQuery(e.target.value)}
+						className='pl-10'
+					/>
+				</div>
+			</CardHeader>
+			<CardContent className='space-y-4'>
+				{isLoading ? (
+					[...Array(5)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
+				) : data.length > 0 ? (
+					data.map(renderItem)
+				) : (
+					<div className='text-center py-16 text-muted-foreground'>No job requests found.</div>
+				)}
+			</CardContent>
+			{meta && meta.totalRecords! > 0 && (
+				<CardFooter>
+					<Pagination meta={meta} isLoading={isLoading} onPageChange={handlePageChange} noun='request' />
+				</CardFooter>
+			)}
+			<ConfirmationDialog
+				open={!!itemToDelete}
+				onOpenChange={(open) => !open && setItemToDelete(null)}
+				title='Are you sure?'
+				description='This will permanently delete the job request. This action cannot be undone.'
+				onConfirm={handleDelete}
 			/>
-			<div className='rounded-md border glassmorphism'>
-				<Table>
-					<TableHeader>
-						{table.getHeaderGroups().map((headerGroup) => (
-							<TableRow key={headerGroup.id}>
-								{headerGroup.headers.map((header) => (
-									<TableHead key={header.id}>
-										{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-									</TableHead>
-								))}
-							</TableRow>
-						))}
-					</TableHeader>
-					<TableBody>
-						{table.getRowModel().rows?.length ? (
-							table.getRowModel().rows.map((row) => (
-								<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-									{row.getVisibleCells().map((cell) => (
-										<TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-									))}
-								</TableRow>
-							))
-						) : (
-							<TableRow>
-								<TableCell colSpan={columns.length} className='h-24 text-center'>
-									No job requests found.
-								</TableCell>
-							</TableRow>
-						)}
-					</TableBody>
-				</Table>
-			</div>
-			<div className='flex items-center justify-end space-x-2 py-4'>
-				<Button
-					variant='outline'
-					size='sm'
-					onClick={() => table.previousPage()}
-					disabled={!table.getCanPreviousPage()}
-				>
-					Previous
-				</Button>
-				<Button variant='outline' size='sm' onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-					Next
-				</Button>
-			</div>
-		</div>
+		</Card>
 	);
 }

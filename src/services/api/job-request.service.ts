@@ -1,7 +1,6 @@
-
 import { axiosIns } from '@/config/api.config';
-import { IApiResponse } from '@/interfaces/common.interface';
-import { JobRequest } from '@/lib/types';
+import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
+import { JobRequest } from '@/interfaces/job.interface';
 
 export const JobRequestService = {
 	create: async (payload: Omit<JobRequest, 'id'>): Promise<IApiResponse<JobRequest>> =>
@@ -9,4 +8,9 @@ export const JobRequestService = {
 
 	update: async (payload: JobRequest): Promise<IApiResponse<JobRequest>> =>
 		await axiosIns.put('/job-request/update', payload),
+
+	getList: async (payload: IApiRequest): Promise<IApiResponse<JobRequest[]>> =>
+		await axiosIns.post('/job-request/get-list', payload),
+
+	delete: async (id: string): Promise<void> => await axiosIns.delete(`/job-request/delete/${id}`),
 };
