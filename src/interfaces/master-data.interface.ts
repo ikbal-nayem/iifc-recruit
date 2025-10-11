@@ -23,8 +23,8 @@ export interface IOutsourcingZone extends ICommonMasterData {}
 
 export interface IPost extends ICommonMasterData {
 	outsourcing?: boolean;
-	categoryId?: number;
-	category?: IOutsourcingCategory;
+	outsourcingCategoryId?: number;
+	outsourcingCategory?: IOutsourcingCategory;
 }
 
 export interface IOutsourcingCharge {

@@ -1,9 +1,15 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormInput } from '@/components/ui/form-input';
@@ -24,15 +30,23 @@ import { z } from 'zod';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { FormCheckbox } from '@/components/ui/form-checkbox';
 
-const formSchema = z.object({
-	nameEn: z.string().min(1, 'English name is required.').refine(isEnglish, 'Only English characters are allowed.'),
-	nameBn: z.string().min(1, 'Bengali name is required.').refine(isBangla, 'Only Bengali characters are allowed.'),
-	outsourcing: z.boolean().default(false),
-	categoryId: z.coerce.number().optional(),
-}).refine(data => !data.outsourcing || (data.outsourcing && data.categoryId), {
-    message: 'Category is required for outsourcing posts.',
-    path: ['categoryId'],
-});
+const formSchema = z
+	.object({
+		nameEn: z
+			.string()
+			.min(1, 'English name is required.')
+			.refine(isEnglish, 'Only English characters are allowed.'),
+		nameBn: z
+			.string()
+			.min(1, 'Bengali name is required.')
+			.refine(isBangla, 'Only Bengali characters are allowed.'),
+		outsourcing: z.boolean().default(false),
+		outsourcingCategoryId: z.coerce.number().optional(),
+	})
+	.refine((data) => !data.outsourcing || (data.outsourcing && data.outsourcingCategoryId), {
+		message: 'Category is required for outsourcing posts.',
+		path: ['outsourcingCategoryId'],
+	});
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -50,7 +64,7 @@ function PostForm({ isOpen, onClose, onSubmit, initialData, categories, noun }: 
 		nameEn: initialData?.nameEn || '',
 		nameBn: initialData?.nameBn || '',
 		outsourcing: initialData?.outsourcing || false,
-		categoryId: initialData?.categoryId,
+		outsourcingCategoryId: initialData?.outsourcingCategoryId,
 	};
 
 	const form = useForm<FormValues>({
@@ -59,7 +73,7 @@ function PostForm({ isOpen, onClose, onSubmit, initialData, categories, noun }: 
 	});
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
-    const watchOutsourcing = form.watch('outsourcing');
+	const watchOutsourcing = form.watch('outsourcing');
 
 	const handleSubmit = async (data: FormValues) => {
 		setIsSubmitting(true);
@@ -108,24 +122,20 @@ function PostForm({ isOpen, onClose, onSubmit, initialData, categories, noun }: 
 							required
 							disabled={isSubmitting}
 						/>
-                        <FormCheckbox
-                            control={form.control}
-                            name='outsourcing'
-                            label='This is an outsourcing post'
-                        />
+						<FormCheckbox control={form.control} name='outsourcing' label='This is an outsourcing post' />
 						{watchOutsourcing && (
-                            <FormAutocomplete
-                                control={form.control}
-                                name='categoryId'
-                                label='Outsourcing Category'
-                                placeholder='Select Category'
-                                required
-                                options={categories}
-                                getOptionValue={(option) => option.id!.toString()}
-                                getOptionLabel={(option) => option.nameEn}
-                                disabled={isSubmitting}
-                            />
-                        )}
+							<FormAutocomplete
+								control={form.control}
+								name='outsourcingCategoryId'
+								label='Outsourcing Category'
+								placeholder='Select Category'
+								required
+								options={categories}
+								getOptionValue={(option) => option.id!.toString()}
+								getOptionLabel={(option) => option?.nameEn}
+								disabled={isSubmitting}
+							/>
+						)}
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
 								Cancel
@@ -156,7 +166,7 @@ interface PostCrudProps {
 	onPageChange: (page: number) => void;
 	onSearch: (query: string) => void;
 	categoryFilter: string;
-	onCategoryChange: (categoryId: string) => void;
+	onCategoryChange: (outsourcingCategoryId: string) => void;
 }
 
 export function PostCrud({
@@ -265,14 +275,13 @@ export function PostCrud({
 										className='p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-background/50'
 									>
 										<div className='flex-1 mb-4 sm:mb-0'>
-											<p
-												className={`font-semibold ${!item.active && 'text-muted-foreground line-through'}`}
-											>
+											<p className={`font-semibold ${!item.active && 'text-muted-foreground line-through'}`}>
 												{item.nameEn}
 											</p>
 											<p className='text-sm text-muted-foreground'>{item.nameBn}</p>
 											<p className='text-xs text-muted-foreground'>
-												Category: {categories.find((c) => c.id === item.categoryId)?.nameEn || 'N/A'}
+												Category:{' '}
+												{categories.find((c) => c.id === item.outsourcingCategoryId)?.nameEn || 'N/A'}
 											</p>
 										</div>
 										<div className='flex items-center gap-2 w-full sm:w-auto justify-between'>
