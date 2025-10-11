@@ -32,7 +32,7 @@ import {
 } from '@tanstack/react-table';
 import { Edit, Eye, Globe, Loader2, Mail, Phone, PlusCircle, Search, Trash, UserPlus } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { z } from 'zod';
 
 const formSchema = z
@@ -62,7 +62,7 @@ type FormValues = z.infer<typeof formSchema>;
 interface ClientOrganizationFormProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onSubmit: (data: FormValues) => Promise<boolean>;
+	onSubmit: SubmitHandler<FormValues>;
 	initialData?: IClientOrganization;
 	noun: string;
 	masterData: FormMasterData;
@@ -78,17 +78,17 @@ function ClientOrganizationForm({
 }: ClientOrganizationFormProps) {
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
-		values: initialData || {
-			nameEn: '',
-			nameBn: '',
-			organizationTypeId: undefined,
-			address: '',
-			contactPersonName: '',
-			contactNumber: '',
-			email: '',
-			website: '',
-			isClient: false,
-			isExaminer: false,
+		values: {
+			nameEn: initialData?.nameEn || '',
+			nameBn: initialData?.nameBn || '',
+			organizationTypeId: initialData?.organizationTypeId,
+			address: initialData?.address || '',
+			contactPersonName: initialData?.contactPersonName || '',
+			contactNumber: initialData?.contactNumber || '',
+			email: initialData?.email || '',
+			website: initialData?.website || '',
+			isClient: !!initialData?.isClient,
+			isExaminer: !!initialData?.isExaminer,
 		},
 	});
 
@@ -96,11 +96,12 @@ function ClientOrganizationForm({
 
 	const handleFormSubmit = async (data: FormValues) => {
 		setIsSubmitting(true);
-		const success = await onSubmit(data);
-		if (success) {
-			onClose();
-		}
+		await onSubmit(data);
+		// Assuming onSubmit will handle success and error, we might not need to check for success here to close.
+		// If onSubmit returns a promise that resolves on success, you can await it.
+		// For now, we assume the parent handles closing on success.
 		setIsSubmitting(false);
+		onClose();
 	};
 
 	return (
@@ -273,7 +274,7 @@ export function ClientOrganizationCrud({
 		setEditingItem(undefined);
 	};
 
-	const handleFormSubmit = async (data: FormValues): Promise<boolean> => {
+	const handleFormSubmit = async (data: FormValues) => {
 		const isUpdate = !!editingItem?.id;
 		const payload = {
 			...data,
@@ -287,11 +288,9 @@ export function ClientOrganizationCrud({
 
 			toast({ description: response.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch);
-			return true;
 		} catch (error: any) {
 			console.error('Failed to save item', error);
 			toast({ title: 'Error', description: error.message || `Failed to save ${noun}.`, variant: 'danger' });
-			return false;
 		}
 	};
 

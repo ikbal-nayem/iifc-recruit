@@ -9,7 +9,7 @@ import { Control, FieldPath, FieldValues } from 'react-hook-form';
 import { Button } from './button';
 
 interface FormInputProps<TFieldValues extends FieldValues> extends React.ComponentProps<'input'> {
-	control: Control<TFieldValues | any>;
+	control: Control<TFieldValues>;
 	name: FieldPath<TFieldValues>;
 	label: string;
 	required?: boolean;
