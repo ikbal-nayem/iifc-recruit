@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -24,7 +25,7 @@ import { IOutsourcingCategory, IPost } from '@/interfaces/master-data.interface'
 import { isBangla, isEnglish } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
@@ -60,19 +61,18 @@ interface PostFormProps {
 }
 
 function PostForm({ isOpen, onClose, onSubmit, initialData, categories, noun }: PostFormProps) {
-	const defaultValues = {
-		nameEn: initialData?.nameEn || '',
-		nameBn: initialData?.nameBn || '',
-		outsourcing: initialData?.outsourcing || false,
-		outsourcingCategoryId: initialData?.outsourcingCategoryId,
-	};
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
-		defaultValues,
+		values: {
+			nameEn: initialData?.nameEn || '',
+			nameBn: initialData?.nameBn || '',
+			outsourcing: initialData?.outsourcing || false,
+			outsourcingCategoryId: initialData?.outsourcingCategoryId,
+		},
 	});
 
-	const [isSubmitting, setIsSubmitting] = useState(false);
 	const watchOutsourcing = form.watch('outsourcing');
 
 	const handleSubmit = async (data: FormValues) => {
@@ -88,10 +88,6 @@ function PostForm({ isOpen, onClose, onSubmit, initialData, categories, noun }: 
 		}
 		setIsSubmitting(false);
 	};
-
-	useState(() => {
-		form.reset(defaultValues);
-	});
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
@@ -131,7 +127,7 @@ function PostForm({ isOpen, onClose, onSubmit, initialData, categories, noun }: 
 								placeholder='Select Category'
 								required
 								options={categories}
-								getOptionValue={(option) => option.id!.toString()}
+								getOptionValue={(option) => option.id!}
 								getOptionLabel={(option) => option?.nameEn}
 								disabled={isSubmitting}
 							/>
@@ -259,7 +255,7 @@ export function PostCrud({
 								label=''
 								placeholder='Filter by Category...'
 								options={[{ id: 'all', nameEn: 'All Categories' }, ...categories]}
-								getOptionValue={(option) => option.id!.toString()}
+								getOptionValue={(option) => option.id!}
 								getOptionLabel={(option) => option.nameEn}
 								onValueChange={(val) => onCategoryChange(val.toString())}
 								value={categoryFilter}
