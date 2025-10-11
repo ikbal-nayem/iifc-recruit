@@ -152,8 +152,8 @@ export function JobRequestList() {
 				</div>
 				<div className='flex items-center gap-4 w-full sm:w-auto justify-between'>
 					<div className='flex items-center gap-2'>
-						<Badge variant={variant as any}>{item.statusDTO?.nameEn || item.status}</Badge>
-						<Badge variant='outline'>{item.requestTypeDTO?.nameEn || item.requestType}</Badge>
+						<Badge variant={variant as any}>{item.statusDTO?.nameEn}</Badge>
+						<Badge variant='outline'>{item.requestTypeDTO?.nameEn}</Badge>
 					</div>
 					<ActionMenu items={getActionItems(item)} />
 				</div>
