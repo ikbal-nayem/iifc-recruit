@@ -1,28 +1,22 @@
-
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, useFieldArray } from 'react-hook-form';
-import * as z from 'zod';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
-import { Send, PlusCircle, Trash, Save } from 'lucide-react';
-import { FormInput } from '@/components/ui/form-input';
-import { FormDatePicker } from '@/components/ui/form-datepicker';
-import {
-	IClientOrganization,
-	IOutsourcingZone,
-	IPost,
-	EnumDTO,
-} from '@/interfaces/master-data.interface';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
+import { FormDatePicker } from '@/components/ui/form-datepicker';
+import { FormInput } from '@/components/ui/form-input';
 import { FormRadioGroup } from '@/components/ui/form-radio-group';
+import { useToast } from '@/hooks/use-toast';
+import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from '@/interfaces/master-data.interface';
 import { JobRequest } from '@/lib/types';
+import { MasterDataService } from '@/services/api/master-data.service';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { PlusCircle, Save, Send, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { MasterDataService } from '@/services/api/master-data.service';
+import { useFieldArray, useForm } from 'react-hook-form';
+import * as z from 'zod';
 
 const requestedPostSchema = z.object({
 	id: z.number().optional(),
@@ -94,7 +88,6 @@ export function JobRequestForm({
 				setFilteredPosts(response.body);
 			} catch (error) {
 				toast({
-					title: 'Error',
 					description: 'Could not load posts for the selected request type.',
 					variant: 'danger',
 				});
@@ -174,7 +167,7 @@ export function JobRequestForm({
 
 				<Card className='glassmorphism'>
 					<CardHeader>
-						<CardTitle>Requested Posts</CardTitle>
+						<CardTitle>Request Posts</CardTitle>
 						<CardDescription>Add the details for each requested post.</CardDescription>
 					</CardHeader>
 					<CardContent className='space-y-4'>
@@ -214,32 +207,36 @@ export function JobRequestForm({
 											/>
 										)}
 									</div>
-									<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-										<FormDatePicker
-											control={form.control}
-											name={`requestedPosts.${index}.fromDate`}
-											label='From Date'
-										/>
-										<FormDatePicker
-											control={form.control}
-											name={`requestedPosts.${index}.toDate`}
-											label='To Date'
-										/>
-									</div>
-									<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-										<FormInput
-											control={form.control}
-											name={`requestedPosts.${index}.salaryFrom`}
-											label='Salary From'
-											type='number'
-										/>
-										<FormInput
-											control={form.control}
-											name={`requestedPosts.${index}.salaryTo`}
-											label='Salary To'
-											type='number'
-										/>
-									</div>
+									{watchRequestType === 'OUTSOURCING' && (
+										<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+											<FormDatePicker
+												control={form.control}
+												name={`requestedPosts.${index}.fromDate`}
+												label='From Date'
+											/>
+											<FormDatePicker
+												control={form.control}
+												name={`requestedPosts.${index}.toDate`}
+												label='To Date'
+											/>
+										</div>
+									)}
+									{watchRequestType !== 'OUTSOURCING' && (
+										<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+											<FormInput
+												control={form.control}
+												name={`requestedPosts.${index}.salaryFrom`}
+												label='Salary From'
+												type='number'
+											/>
+											<FormInput
+												control={form.control}
+												name={`requestedPosts.${index}.salaryTo`}
+												label='Salary To'
+												type='number'
+											/>
+										</div>
+									)}
 								</CardContent>
 								{fields.length > 1 && (
 									<Button
@@ -259,7 +256,7 @@ export function JobRequestForm({
 							variant='outline'
 							onClick={() =>
 								append({
-									postId: undefined,
+									postId: -1,
 									vacancy: 1,
 								})
 							}

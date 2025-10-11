@@ -1,14 +1,13 @@
-
 import { JobRequestForm } from '@/components/app/admin/job-management/job-request-form';
-import { IClientOrganization, IPost, IOutsourcingZone, EnumDTO } from '@/interfaces/master-data.interface';
+import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 
 type MasterData = {
-    clientOrganizations: IClientOrganization[];
-    posts: IPost[];
-    outsourcingZones: IOutsourcingZone[];
-    requestTypes: EnumDTO[];
-}
+	clientOrganizations: IClientOrganization[];
+	posts: IPost[];
+	outsourcingZones: IOutsourcingZone[];
+	requestTypes: EnumDTO[];
+};
 
 async function getMasterData(): Promise<MasterData> {
 	try {
@@ -16,13 +15,14 @@ async function getMasterData(): Promise<MasterData> {
 			MasterDataService.clientOrganization.get(),
 			MasterDataService.post.get(),
 			MasterDataService.outsourcingZone.get(),
-            MasterDataService.getEnum('job-request-type')
+			MasterDataService.getEnum('job-request-type'),
 		]);
 
 		const clientOrganizations = clientOrgsRes.status === 'fulfilled' ? clientOrgsRes.value.body : [];
 		const posts = postsRes.status === 'fulfilled' ? postsRes.value.body : [];
 		const outsourcingZones = zonesRes.status === 'fulfilled' ? zonesRes.value.body : [];
-        const requestTypes = requestTypesRes.status === 'fulfilled' ? requestTypesRes.value.body as EnumDTO[] : [];
+		const requestTypes =
+			requestTypesRes.status === 'fulfilled' ? (requestTypesRes.value.body as EnumDTO[]) : [];
 
 		return { clientOrganizations, posts, outsourcingZones, requestTypes };
 	} catch (error) {
@@ -45,7 +45,7 @@ export default async function CreateJobRequestPage() {
 				clientOrganizations={masterData.clientOrganizations}
 				posts={masterData.posts}
 				outsourcingZones={masterData.outsourcingZones}
-        requestTypes={masterData.requestTypes}
+				requestTypes={masterData.requestTypes}
 			/>
 		</div>
 	);
