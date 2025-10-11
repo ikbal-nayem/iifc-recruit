@@ -25,7 +25,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
-import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
 
 const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
@@ -227,13 +226,7 @@ export function JobRequestList() {
 	const renderItem = (item: JobRequest) => {
 		const status = item.status;
 		const variant =
-			status === 'Approved'
-				? 'success'
-				: status === 'Rejected'
-				? 'danger'
-				: status === 'Pending'
-				? 'warning'
-				: 'secondary';
+			status === 'Approved' ? 'success' : status === 'Rejected' ? 'danger' : 'warning';
 
 		return (
 			<Card key={item.id} className='p-4 flex flex-col sm:flex-row justify-between items-start'>
