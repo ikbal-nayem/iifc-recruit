@@ -29,7 +29,7 @@ const createMasterDataCrud = <T>(entity: string) => ({
 
 export const MasterDataService = {
 	getEnum: async (
-		enumType: 'gender' | 'marital-status' | 'religion' | 'proficiency-level' | 'spouse-status'
+		enumType: 'gender' | 'marital-status' | 'religion' | 'proficiency-level' | 'spouse-status' | 'job-request-type'
 	): Promise<IApiResponse<EnumDTO[]>> => await axiosIns.get(`/master-data/enum/${enumType}`),
 
 	skill: createMasterDataCrud<ICommonMasterData>('skill'),

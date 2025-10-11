@@ -17,11 +17,13 @@ import {
 	IClientOrganization,
 	IOutsourcingZone,
     IPost,
+    EnumDTO,
 } from '@/interfaces/master-data.interface';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormRadioGroup } from '@/components/ui/form-radio-group';
 import { JobRequest } from '@/lib/types';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 const requestedPostSchema = z.object({
 	id: z.number().optional(),
@@ -41,7 +43,7 @@ const jobRequestSchema = z.object({
 	description: z.string().optional(),
 	requestDate: z.string().min(1, 'Request date is required.'),
 	deadline: z.string().min(1, 'Deadline is required.'),
-	type: z.enum(['Permanent', 'Outsourcing']),
+	type: z.string().min(1, 'Request type is required.'),
 	requestedPosts: z.array(requestedPostSchema).min(1, 'At least one post is required.'),
 });
 
@@ -52,6 +54,7 @@ interface JobRequestFormProps {
 	clientOrganizations: IClientOrganization[];
 	posts: IPost[];
 	outsourcingZones: IOutsourcingZone[];
+  requestTypes: EnumDTO[];
   initialData?: JobRequest;
 }
 
@@ -59,6 +62,7 @@ export function JobRequestForm({
 	clientOrganizations,
 	posts,
 	outsourcingZones,
+  requestTypes,
   initialData,
 }: JobRequestFormProps) {
 	const { toast } = useToast();
@@ -66,8 +70,8 @@ export function JobRequestForm({
 
 	const form = useForm<JobRequestFormValues>({
 		resolver: zodResolver(jobRequestSchema),
-		defaultValues: initialData || {
-			type: 'Permanent',
+		values: initialData || {
+			type: 'PERMANENT',
             requestedPosts: [{ postId: undefined, vacancy: 1 }]
 		},
 	});
@@ -76,6 +80,12 @@ export function JobRequestForm({
 		control: form.control,
 		name: 'requestedPosts',
 	});
+
+	useEffect(() => {
+		if (initialData) {
+			form.reset(initialData);
+		}
+	}, [initialData, form]);
 
 	const watchPositionType = form.watch('type');
 
@@ -86,7 +96,7 @@ export function JobRequestForm({
 			description: `The request has been successfully ${initialData ? 'updated' : 'submitted'}.`,
 			variant: 'success',
 		});
-		router.push('/admin/job-management/requests');
+		router.push('/admin/job-management/request');
 	}
 
 	return (
@@ -133,10 +143,7 @@ export function JobRequestForm({
                                 name='type'
                                 label='Position Type'
                                 required
-                                options={[
-                                    { label: 'Permanent', value: 'Permanent' },
-                                    { label: 'Outsourcing', value: 'Outsourcing' },
-                                ]}
+                                options={requestTypes.map(rt => ({label: rt.nameEn, value: rt.value}))}
                             />
                         </div>
                          <FormInput
@@ -178,7 +185,7 @@ export function JobRequestForm({
 												type='number'
 												placeholder='e.g., 10'
 											/>
-                                            { watchPositionType === 'Outsourcing' && (
+                                            { watchPositionType === 'OUTSOURCING' && (
                                                 <FormAutocomplete
                                                     control={form.control}
                                                     name={`requestedPosts.${index}.outsourcingZoneId`}

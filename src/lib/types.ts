@@ -65,7 +65,7 @@ export type JobRequest = {
 	description: string;
 	requestDate: string;
 	deadline: string;
-	type: 'Permanent' | 'Outsourcing';
+	type: 'PERMANENT' | 'OUTSOURCING' | string;
 	status: 'Pending' | 'Approved' | 'Rejected';
 	requestedPosts: RequestedPost[];
 };

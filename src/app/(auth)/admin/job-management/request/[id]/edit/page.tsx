@@ -4,6 +4,7 @@ import { JobRequestForm } from '@/components/app/admin/job-management/job-reques
 import { MasterDataService } from '@/services/api/master-data.service';
 import { JobRequest } from '@/lib/types';
 import { notFound } from 'next/navigation';
+import { EnumDTO } from '@/interfaces/master-data.interface';
 
 const mockRequests: JobRequest[] = [
 	{
@@ -11,7 +12,7 @@ const mockRequests: JobRequest[] = [
 		clientOrganization: 'Apex Solutions',
     clientOrganizationId: 1,
 		subject: 'Senior Backend Engineer post',
-		type: 'Permanent',
+		type: 'PERMANENT',
 		requestDate: '2024-07-28',
 		status: 'Pending',
     memoNo: 'MEMO-001',
@@ -29,7 +30,7 @@ const mockRequests: JobRequest[] = [
 		clientOrganization: 'Innovatech Ltd.',
     clientOrganizationId: 2,
 		subject: 'Urgent need for Data Entry',
-		type: 'Outsourcing',
+		type: 'OUTSOURCING',
 		requestDate: '2024-07-27',
 		status: 'Approved',
     memoNo: 'MEMO-002',
@@ -52,25 +53,27 @@ async function getJobRequest(id: string) {
 
 async function getMasterData() {
 	try {
-		const [clientOrgsRes, postsRes, zonesRes] = await Promise.allSettled([
+		const [clientOrgsRes, postsRes, zonesRes, requestTypesRes] = await Promise.allSettled([
 			MasterDataService.clientOrganization.get(),
 			MasterDataService.post.get(),
 			MasterDataService.outsourcingZone.get(),
+			MasterDataService.getEnum('job-request-type'),
 		]);
 
 		const clientOrganizations = clientOrgsRes.status === 'fulfilled' ? clientOrgsRes.value.body : [];
 		const posts = postsRes.status === 'fulfilled' ? postsRes.value.body : [];
 		const outsourcingZones = zonesRes.status === 'fulfilled' ? zonesRes.value.body : [];
+    const requestTypes = requestTypesRes.status === 'fulfilled' ? requestTypesRes.value.body as EnumDTO[] : [];
 
-		return { clientOrganizations, posts, outsourcingZones };
+		return { clientOrganizations, posts, outsourcingZones, requestTypes };
 	} catch (error) {
 		console.error('Failed to load master data for job request form', error);
-		return { clientOrganizations: [], posts: [], outsourcingZones: [] };
+		return { clientOrganizations: [], posts: [], outsourcingZones: [], requestTypes: [] };
 	}
 }
 
 export default async function EditJobRequestPage({ params }: { params: { id: string } }) {
-	const { clientOrganizations, posts, outsourcingZones } = await getMasterData();
+	const { clientOrganizations, posts, outsourcingZones, requestTypes } = await getMasterData();
   const jobRequest = await getJobRequest(params.id);
 
   if (!jobRequest) {
@@ -90,6 +93,7 @@ export default async function EditJobRequestPage({ params }: { params: { id: str
 				clientOrganizations={clientOrganizations}
 				posts={posts}
 				outsourcingZones={outsourcingZones}
+        requestTypes={requestTypes}
 			/>
 		</div>
 	);
