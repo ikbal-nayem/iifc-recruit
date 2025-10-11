@@ -7,7 +7,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormDescription } from '@/
 import { Checkbox } from '@/components/ui/checkbox';
 
 interface FormCheckboxProps<TFieldValues extends FieldValues> {
-	control: Control<TFieldValues>;
+	control: Control<TFieldValues | any>;
 	name: FieldPath<TFieldValues>;
 	label: string;
     description?: string;
