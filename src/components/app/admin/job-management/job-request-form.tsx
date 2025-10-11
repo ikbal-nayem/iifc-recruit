@@ -66,12 +66,17 @@ export function JobRequestForm({
 
 	const form = useForm<JobRequestFormValues>({
 		resolver: zodResolver(jobRequestSchema),
-		defaultValues: {
+		defaultValues: initialData || {
 			requestType: 'OUTSOURCING',
 			requestedPosts: [{ postId: undefined, vacancy: 1 }],
 		},
-		values: initialData,
 	});
+
+	useEffect(() => {
+		if (initialData) {
+			form.reset(initialData);
+		}
+	}, [initialData, form]);
 
 	const { fields, append, remove } = useFieldArray({
 		control: form.control,
