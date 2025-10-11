@@ -48,26 +48,18 @@ function OutsourcingChargeForm({
 	zones,
 	noun,
 }: OutsourcingChargeFormProps) {
+	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	const defaultValues = {
+		categoryId: initialData?.categoryId,
+		zoneId: initialData?.zoneId,
+		monthlyServiceCharge: initialData?.monthlyServiceCharge || undefined,
+	};
+	
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
-		values: {
-			categoryId: initialData?.categoryId,
-			zoneId: initialData?.zoneId,
-			monthlyServiceCharge: initialData?.monthlyServiceCharge || undefined,
-		},
+		values: defaultValues,
 	});
-
-	const [isSubmitting, setIsSubmitting] = useState(false);
-	
-	useEffect(() => {
-		if (initialData) {
-			form.reset({
-				categoryId: initialData.categoryId,
-				zoneId: initialData.zoneId,
-				monthlyServiceCharge: initialData.monthlyServiceCharge || undefined,
-			});
-		}
-	}, [initialData, form]);
 
 
 	const handleSubmit = async (data: FormValues) => {
@@ -102,7 +94,7 @@ function OutsourcingChargeForm({
 							placeholder='Select Category'
 							required
 							options={categories}
-							getOptionValue={(option) => option.id!.toString()}
+							getOptionValue={(option) => option.id!}
 							getOptionLabel={(option) => option.nameEn}
 							disabled={isSubmitting}
 						/>
@@ -113,7 +105,7 @@ function OutsourcingChargeForm({
 							placeholder='Select Zone'
 							required
 							options={zones}
-							getOptionValue={(option) => option.id!.toString()}
+							getOptionValue={(option) => option.id!}
 							getOptionLabel={(option) => option.nameEn}
 							disabled={isSubmitting}
 						/>
@@ -256,7 +248,7 @@ export function OutsourcingChargeCrud({
 							label=''
 							placeholder='Filter by Category...'
 							options={[{ id: 'all', nameEn: 'All Categories' }, ...categories]}
-							getOptionValue={(option) => option.id!.toString()}
+							getOptionValue={(option) => option.id!}
 							getOptionLabel={(option) => option.nameEn}
 							onValueChange={(val) => onCategoryChange(val.toString())}
 							value={categoryFilter}
@@ -267,7 +259,7 @@ export function OutsourcingChargeCrud({
 							label=''
 							placeholder='Filter by Zone...'
 							options={[{ id: 'all', nameEn: 'All Zones' }, ...zones]}
-							getOptionValue={(option) => option.id!.toString()}
+							getOptionValue={(option) => option.id!}
 							getOptionLabel={(option) => option.nameEn}
 							onValueChange={(val) => onZoneChange(val.toString())}
 							value={zoneFilter}
@@ -335,6 +327,7 @@ export function OutsourcingChargeCrud({
 
 			{isFormOpen && (
 				<OutsourcingChargeForm
+					key={editingItem?.id || 'new'}
 					isOpen={isFormOpen}
 					onClose={handleCloseForm}
 					onSubmit={handleFormSubmit}
