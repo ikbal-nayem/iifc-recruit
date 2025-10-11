@@ -1,5 +1,3 @@
-'use client';
-
 import { JobManagement } from '@/components/app/admin/job-management';
 
 export default function AdminJobsPage() {
