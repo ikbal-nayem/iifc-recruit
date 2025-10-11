@@ -66,8 +66,8 @@ export function JobRequestForm({
 
 	const form = useForm<JobRequestFormValues>({
 		resolver: zodResolver(jobRequestSchema),
-		values: initialData, // Use values for editing to handle async data
-		defaultValues: initialData // Fallback for initial state and create mode
+		values: initialData,
+		defaultValues: initialData
 			? undefined
 			: {
 					requestType: 'OUTSOURCING',
@@ -135,6 +135,14 @@ export function JobRequestForm({
 						<CardTitle>Request Details</CardTitle>
 					</CardHeader>
 					<CardContent className='space-y-6'>
+						<FormRadioGroup
+							control={form.control}
+							name='requestType'
+							label='Request Type'
+							required
+							options={requestTypes.map((rt) => ({ label: rt.nameEn, value: rt.value }))}
+						/>
+
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-6 items-start'>
 							<FormAutocomplete
 								control={form.control}
@@ -163,23 +171,17 @@ export function JobRequestForm({
 							required
 						/>
 
-						<div className='grid grid-cols-1 md:grid-cols-3 gap-6 items-start'>
-							<FormDatePicker control={form.control} name='requestDate' label='Request Date' required />
-							<FormDatePicker control={form.control} name='deadline' label='Application Deadline' required />
-							<FormRadioGroup
-								control={form.control}
-								name='requestType'
-								label='Request Type'
-								required
-								options={requestTypes.map((rt) => ({ label: rt.nameEn, value: rt.value }))}
-							/>
-						</div>
 						<FormInput
 							control={form.control}
 							name='description'
 							label='Description'
 							placeholder='Enter a brief description for the request'
 						/>
+
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-6 items-start'>
+							<FormDatePicker control={form.control} name='requestDate' label='Request Date' required />
+							<FormDatePicker control={form.control} name='deadline' label='Application Deadline' required />
+						</div>
 					</CardContent>
 				</Card>
 
