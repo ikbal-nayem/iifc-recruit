@@ -2,16 +2,15 @@
 'use client';
 import { JobRequestForm } from '@/components/app/admin/job-management/job-request-form';
 import { MasterDataService } from '@/services/api/master-data.service';
-import { JobRequest } from '@/lib/types';
-import { notFound, useParams } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from '@/interfaces/master-data.interface';
 import { useEffect, useState } from 'react';
+import { JobRequest } from '@/interfaces/job.interface';
 
 const mockRequests: JobRequest[] = [
 	{
 		id: 'req1',
-		clientOrganization: 'Apex Solutions',
-    clientOrganizationId: 1,
+		clientOrganizationId: 1,
 		subject: 'Senior Backend Engineer post',
 		requestType: 'PERMANENT',
 		requestDate: '2024-07-28',
@@ -28,12 +27,11 @@ const mockRequests: JobRequest[] = [
 	},
 	{
 		id: 'req2',
-		clientOrganization: 'Innovatech Ltd.',
     clientOrganizationId: 2,
 		subject: 'Urgent need for Data Entry',
 		requestType: 'OUTSOURCING',
 		requestDate: '2024-07-27',
-		status: 'Approved',
+		status: 'IN_PROGRESS',
     memoNo: 'MEMO-002',
     deadline: '2024-08-15',
     description: 'Data entry operators needed.',

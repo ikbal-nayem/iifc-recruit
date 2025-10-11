@@ -1,3 +1,4 @@
+
 import { EnumDTO, IClientOrganization, IPost } from "./master-data.interface";
 
 export type RequestedPost = {
@@ -23,7 +24,7 @@ export type JobRequest = {
 	deadline: string;
 	requestType: 'OUTSOURCING' | string;
     requestTypeDTO?: EnumDTO;
-	status?: 'Pending' | 'Approved' | 'Rejected';
+	status?: 'Pending' | 'IN_PROGRESS' | 'Success';
     statusDTO?: EnumDTO;
 	requestedPosts: RequestedPost[];
 };

@@ -15,7 +15,7 @@ import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequest } from '@/interfaces/job.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { format } from 'date-fns';
-import { Check, Clock, Edit, Eye, Search, X } from 'lucide-react';
+import { Check, Clock, Edit, Eye, Search, X, Loader, Play } from 'lucide-react';
 import * as React from 'react';
 import {
 	Dialog,
@@ -29,6 +29,11 @@ import Link from 'next/link';
 
 const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 	if (!request) return null;
+
+	const status = request.status;
+	const variant =
+		status === 'Success' ? 'success' : status === 'IN_PROGRESS' ? 'warning' : 'warning';
+
 
 	return (
 		<div>
@@ -56,13 +61,7 @@ const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 					<div>
 						<p className='font-medium text-muted-foreground'>Status</p>
 						<Badge
-							variant={
-								request.status === 'Approved'
-									? 'success'
-									: request.status === 'Rejected'
-									? 'danger'
-									: 'warning'
-							}
+							variant={variant}
 						>
 							{request.statusDTO?.nameEn}
 						</Badge>
@@ -159,7 +158,7 @@ export function JobRequestList() {
 		);
 		toast({
 			title: 'Request Updated',
-			description: `The job request has been ${newStatus?.toLowerCase()}.`,
+			description: `The job request has been updated.`,
 			variant: 'success',
 		});
 	};
@@ -199,18 +198,25 @@ export function JobRequestList() {
 			items.push(
 				{ isSeparator: true },
 				{
-					label: 'Approve',
-					icon: <Check className='mr-2 h-4 w-4' />,
-					onClick: () => handleStatusChange(request.id!, 'Approved'),
+					label: 'Set to In Progress',
+					icon: <Play className='mr-2 h-4 w-4' />,
+					onClick: () => handleStatusChange(request.id!, 'IN_PROGRESS'),
 				},
-				{
-					label: 'Reject',
-					icon: <X className='mr-2 h-4 w-4' />,
-					onClick: () => handleStatusChange(request.id!, 'Rejected'),
-					variant: 'danger',
-				}
 			);
-		} else {
+		}
+		
+		if(request.status === 'IN_PROGRESS') {
+			items.push(
+				{ isSeparator: true },
+				{
+					label: 'Set to Success',
+					icon: <Check className='mr-2 h-4 w-4' />,
+					onClick: () => handleStatusChange(request.id!, 'Success'),
+				},
+			);
+		}
+
+		if (request.status !== 'Pending') {
 			items.push(
 				{ isSeparator: true },
 				{
@@ -226,7 +232,7 @@ export function JobRequestList() {
 	const renderItem = (item: JobRequest) => {
 		const status = item.status;
 		const variant =
-			status === 'Approved' ? 'success' : status === 'Rejected' ? 'danger' : 'warning';
+			status === 'Success' ? 'success' : status === 'IN_PROGRESS' ? 'warning' : 'warning';
 
 		return (
 			<Card key={item.id} className='p-4 flex flex-col sm:flex-row justify-between items-start'>
