@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { JobRequestService } from '@/services/api/job-request.service';
 
 const requestedPostSchema = z.object({
 	id: z.number().optional(),
@@ -64,7 +66,7 @@ export function JobRequestForm({
 
 	const form = useForm<JobRequestFormValues>({
 		resolver: zodResolver(jobRequestSchema),
-		defaultValues: initialData || {
+		defaultValues: {
 			requestType: 'OUTSOURCING',
 			requestedPosts: [{ postId: undefined, vacancy: 1 }],
 		},
@@ -96,17 +98,31 @@ export function JobRequestForm({
 				setIsLoadingPosts(false);
 			}
 		}
-		fetchPosts();
+		if (watchRequestType) {
+			fetchPosts();
+		}
 	}, [watchRequestType, toast]);
 
-	function onSubmit(data: JobRequestFormValues) {
-		console.log(data);
-		toast({
-			title: initialData ? 'Job Request Updated!' : 'Job Request Submitted!',
-			description: `The request has been successfully ${initialData ? 'updated' : 'submitted'}.`,
-			variant: 'success',
-		});
-		router.push('/admin/job-management/request');
+	async function onSubmit(data: JobRequestFormValues) {
+		try {
+			if (initialData) {
+				await JobRequestService.update({ ...data, id: initialData.id });
+			} else {
+				await JobRequestService.create(data);
+			}
+			toast({
+				title: initialData ? 'Job Request Updated!' : 'Job Request Submitted!',
+				description: `The request has been successfully ${initialData ? 'updated' : 'submitted'}.`,
+				variant: 'success',
+			});
+			router.push('/admin/job-management/request');
+		} catch (error: any) {
+			toast({
+				title: 'Submission Failed',
+				description: error.message || 'There was a problem with your request.',
+				variant: 'danger',
+			});
+		}
 	}
 
 	return (
