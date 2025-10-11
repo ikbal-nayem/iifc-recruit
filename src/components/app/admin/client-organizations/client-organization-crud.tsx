@@ -2,7 +2,7 @@
 'use client';
 
 import { FormMasterData } from '@/app/(auth)/admin/client-organizations/page';
-import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
+import { ActionMenu } from '@/components/ui/action-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,6 @@ import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
@@ -79,18 +78,24 @@ function ClientOrganizationForm({
 }: ClientOrganizationFormProps) {
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
-		values: initialData || {
-			nameEn: '',
-			nameBn: '',
-			organizationTypeId: undefined,
-			address: '',
-			contactPersonName: '',
-			contactNumber: '',
-			email: '',
-			website: '',
-			isClient: false,
-			isExaminer: false,
-		},
+		values: initialData
+			? {
+					...initialData,
+					isClient: !!initialData.isClient,
+					isExaminer: !!initialData.isExaminer,
+			  }
+			: {
+					nameEn: '',
+					nameBn: '',
+					organizationTypeId: undefined,
+					address: '',
+					contactPersonName: '',
+					contactNumber: '',
+					email: '',
+					website: '',
+					isClient: false,
+					isExaminer: false,
+			  },
 	});
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -508,5 +513,3 @@ export function ClientOrganizationCrud({
 		</div>
 	);
 }
-
-    
