@@ -85,27 +85,21 @@ function ProfessionalExperienceForm({
 }: ProfessionalExperienceFormProps) {
 	const form = useForm<ProfessionalFormValues>({
 		resolver: zodResolver(professionalInfoSchema),
-		defaultValues: initialData
-			? {
-					...initialData,
-					positionLevelId: initialData.positionLevel?.id,
-					organizationId: initialData.organization?.id,
-			  }
-			: defaultValues,
+		defaultValues: defaultValues,
 	});
 
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
 
 	React.useEffect(() => {
-		form.reset(
-			initialData
-				? {
-						...initialData,
-						positionLevelId: initialData.positionLevel?.id,
-						organizationId: initialData.organization?.id,
-				  }
-				: defaultValues
-		);
+		if (initialData) {
+			form.reset({
+				...initialData,
+				positionLevelId: initialData.positionLevel?.id,
+				organizationId: initialData.organization?.id,
+			});
+		} else {
+			form.reset(defaultValues);
+		}
 	}, [initialData, form]);
 
 	const handleSubmit = async (data: ProfessionalFormValues) => {

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -74,29 +75,22 @@ const defaultValues = {
 function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData }: AcademicFormProps) {
 	const form = useForm<AcademicFormValues>({
 		resolver: zodResolver(academicInfoSchema),
-		defaultValues: initialData
-			? {
-					...initialData,
-					degreeLevelId: initialData.degreeLevel?.id,
-					domainId: initialData.domain?.id,
-					institutionId: initialData.institution?.id,
-			  }
-			: defaultValues,
+		defaultValues: defaultValues,
 	});
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	useEffect(() => {
-		form.reset(
-			initialData
-				? {
-						...initialData,
-						degreeLevelId: initialData.degreeLevel?.id,
-						domainId: initialData.domain?.id,
-						institutionId: initialData.institution?.id,
-				  }
-				: defaultValues
-		);
+		if (initialData) {
+			form.reset({
+				...initialData,
+				degreeLevelId: initialData.degreeLevel?.id,
+				domainId: initialData.domain?.id,
+				institutionId: initialData.institution?.id,
+			});
+		} else {
+			form.reset(defaultValues);
+		}
 	}, [initialData, form]);
 
 	const handleSubmit = async (data: AcademicFormValues) => {

@@ -27,7 +27,7 @@ import * as z from 'zod';
 const certificationSchema = z
 	.object({
 		issuingAuthority: z.string().min(1, 'Issuing organization is required.'),
-		certificationId: z.string().optional(),
+		certificationId: z.coerce.number().optional(),
 		examDate: z.string().optional(),
 		issueDate: z.string().optional(),
 		expireDate: z.string().optional(),
@@ -64,7 +64,7 @@ type CertificationFormValues = z.infer<typeof certificationSchema>;
 
 const defaultData: CertificationFormValues = {
 	issuingAuthority: '',
-	certificationId: '',
+	certificationId: undefined,
 	examDate: '',
 	issueDate: '',
 	expireDate: '',
@@ -92,21 +92,19 @@ function CertificationForm({
 }: CertificationFormProps) {
 	const form = useForm<CertificationFormValues>({
 		resolver: zodResolver(certificationSchema),
-		defaultValues: initialData
-			? { ...initialData, certificationId: initialData.certificationId?.toString() }
-			: defaultData,
+		defaultValues: defaultData,
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	useEffect(() => {
-		form.reset(
-			initialData
-				? {
-						...initialData,
-						certificationId: initialData.certificationId?.toString(),
-				  }
-				: defaultData
-		);
+		if (initialData) {
+			form.reset({
+				...initialData,
+				certificationId: initialData.certificationId,
+			});
+		} else {
+			form.reset(defaultData);
+		}
 	}, [initialData, form]);
 
 	const handleSubmit = (data: CertificationFormValues) => {
@@ -114,7 +112,6 @@ function CertificationForm({
 		const payload: Certification = {
 			...data,
 			id: initialData?.id,
-			certificationId: data.certificationId ? parseInt(data.certificationId) : undefined,
 		};
 		onSubmit(payload)
 			.then(() => onClose())
