@@ -17,7 +17,7 @@ import { IMeta } from '@/interfaces/common.interface';
 import { IOutsourcingCategory, IOutsourcingCharge, IOutsourcingZone } from '@/interfaces/master-data.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
@@ -48,18 +48,27 @@ function OutsourcingChargeForm({
 	zones,
 	noun,
 }: OutsourcingChargeFormProps) {
-	const defaultValues = {
-		categoryId: initialData?.categoryId,
-		zoneId: initialData?.zoneId,
-		monthlyServiceCharge: initialData?.monthlyServiceCharge || undefined,
-	};
-
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
-		defaultValues,
+		values: {
+			categoryId: initialData?.categoryId,
+			zoneId: initialData?.zoneId,
+			monthlyServiceCharge: initialData?.monthlyServiceCharge || undefined,
+		},
 	});
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	
+	useEffect(() => {
+		if (initialData) {
+			form.reset({
+				categoryId: initialData.categoryId,
+				zoneId: initialData.zoneId,
+				monthlyServiceCharge: initialData.monthlyServiceCharge || undefined,
+			});
+		}
+	}, [initialData, form]);
+
 
 	const handleSubmit = async (data: FormValues) => {
 		setIsSubmitting(true);
@@ -74,10 +83,6 @@ function OutsourcingChargeForm({
 		}
 		setIsSubmitting(false);
 	};
-
-	useState(() => {
-		form.reset(defaultValues);
-	});
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
@@ -181,6 +186,8 @@ export function OutsourcingChargeCrud({
 
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [editingItem, setEditingItem] = useState<IOutsourcingCharge | undefined>(undefined);
+	const [itemToDelete, setItemToDelete] = useState<IOutsourcingCharge | null>(null);
+
 
 	const handleOpenForm = (item?: IOutsourcingCharge) => {
 		setEditingItem(item);
@@ -213,9 +220,10 @@ export function OutsourcingChargeCrud({
 		setIsSubmitting(null);
 	};
 
-	const handleRemove = async (id?: number) => {
-		if (!id) return;
-		await onDelete(id);
+	const handleRemove = async () => {
+		if (!itemToDelete) return;
+		await onDelete(itemToDelete.id!);
+		setItemToDelete(null);
 	};
 
 	return (
@@ -298,20 +306,15 @@ export function OutsourcingChargeCrud({
 												>
 													<Edit className='h-4 w-4' />
 												</Button>
-												<ConfirmationDialog
-													trigger={
-														<Button
-															variant='ghost'
-															size='icon'
-															className='h-8 w-8'
-															disabled={isSubmitting === item.id?.toString()}
-														>
-															<Trash className='h-4 w-4 text-danger' />
-														</Button>
-													}
-													description={`This will permanently delete the charge for ${item.category?.nameEn} in ${item.zone?.nameEn}.`}
-													onConfirm={() => handleRemove(item.id)}
-												/>
+												<Button
+													variant='ghost'
+													size='icon'
+													className='h-8 w-8'
+													onClick={() => setItemToDelete(item)}
+													disabled={isSubmitting === item.id?.toString()}
+												>
+													<Trash className='h-4 w-4 text-danger' />
+												</Button>
 											</div>
 										</div>
 									</Card>
@@ -341,6 +344,12 @@ export function OutsourcingChargeCrud({
 					noun={noun}
 				/>
 			)}
+			<ConfirmationDialog
+				open={!!itemToDelete}
+				onOpenChange={(open) => !open && setItemToDelete(null)}
+				description={`This will permanently delete the charge for ${itemToDelete?.category?.nameEn} in ${itemToDelete?.zone?.nameEn}.`}
+				onConfirm={handleRemove}
+			/>
 		</div>
 	);
 }
