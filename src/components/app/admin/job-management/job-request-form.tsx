@@ -10,7 +10,6 @@ import { FormInput } from '@/components/ui/form-input';
 import { FormRadioGroup } from '@/components/ui/form-radio-group';
 import { useToast } from '@/hooks/use-toast';
 import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from '@/interfaces/master-data.interface';
-import { JobRequest } from '@/lib/types';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,6 +19,7 @@ import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { format } from 'date-fns';
+import { JobRequest } from '@/interfaces/job.interface';
 
 const requestedPostSchema = z.object({
 	id: z.number().optional(),
@@ -39,7 +39,7 @@ const jobRequestSchema = z.object({
 	description: z.string().optional(),
 	requestDate: z.string().min(1, 'Request date is required.'),
 	deadline: z.string().min(1, 'Deadline is required.'),
-	requestType: z.string().min(1, 'Request type is required.'),
+	type: z.string().min(1, 'Request type is required.'),
 	requestedPosts: z.array(requestedPostSchema).min(1, 'At least one post is required.'),
 });
 
@@ -72,7 +72,7 @@ export function JobRequestForm({
 			? undefined
 			: {
 					requestDate: format(new Date(), 'yyyy-MM-dd'),
-					requestType: 'OUTSOURCING',
+					type: 'OUTSOURCING',
 					requestedPosts: [{ postId: undefined, vacancy: 1 }],
 			  },
 	});
@@ -82,14 +82,14 @@ export function JobRequestForm({
 		name: 'requestedPosts',
 	});
 
-	const watchRequestType = form.watch('requestType');
+	const type = form.watch('type');
 
 	useEffect(() => {
 		async function fetchPosts() {
 			setIsLoadingPosts(true);
 			try {
 				const response = await MasterDataService.post.getList({
-					body: { outsourcing: watchRequestType === 'OUTSOURCING' },
+					body: { outsourcing: type === 'OUTSOURCING' },
 				});
 				setFilteredPosts(response.body);
 			} catch (error) {
@@ -102,22 +102,22 @@ export function JobRequestForm({
 				setIsLoadingPosts(false);
 			}
 		}
-		if (watchRequestType) {
+		if (type) {
 			fetchPosts();
 		}
-	}, [watchRequestType, toast]);
+	}, [type, toast]);
 
 	async function onSubmit(data: JobRequestFormValues) {
 		const cleanedData = { ...data };
 
-		// Clean up requestedPosts based on requestType
+		// Clean up requestedPosts based on type
 		cleanedData.requestedPosts = cleanedData.requestedPosts.map((post) => {
 			const newPost = { ...post };
-			if (cleanedData.requestType === 'PERMANENT') {
-				delete newPost.outsourcingZoneId;
-			} else if (cleanedData.requestType === 'OUTSOURCING') {
+			if (cleanedData.type === 'OUTSOURCING') {
 				delete newPost.salaryFrom;
 				delete newPost.salaryTo;
+			} else {
+				delete newPost.outsourcingZoneId;
 			}
 			return newPost;
 		});
@@ -153,7 +153,7 @@ export function JobRequestForm({
 					<CardContent className='space-y-6'>
 						<FormRadioGroup
 							control={form.control}
-							name='requestType'
+							name='type'
 							label='Request Type'
 							required
 							options={requestTypes.map((rt) => ({ label: rt.nameEn, value: rt.value }))}
@@ -230,7 +230,7 @@ export function JobRequestForm({
 											type='number'
 											placeholder='e.g., 10'
 										/>
-										{watchRequestType === 'OUTSOURCING' && (
+										{type === 'OUTSOURCING' && (
 											<FormAutocomplete
 												control={form.control}
 												name={`requestedPosts.${index}.outsourcingZoneId`}
@@ -243,7 +243,7 @@ export function JobRequestForm({
 											/>
 										)}
 									</div>
-									{watchRequestType === 'OUTSOURCING' && (
+									{type === 'OUTSOURCING' && (
 										<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 											<FormDatePicker
 												control={form.control}
@@ -257,7 +257,7 @@ export function JobRequestForm({
 											/>
 										</div>
 									)}
-									{watchRequestType !== 'OUTSOURCING' && (
+									{type !== 'OUTSOURCING' && (
 										<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 											<FormInput
 												control={form.control}

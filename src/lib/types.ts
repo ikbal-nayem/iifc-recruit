@@ -11,8 +11,6 @@ import {
 	Training,
 } from '@/interfaces/jobseeker.interface';
 
-export type UserRole = 'jobseeker' | 'admin';
-
 export type Jobseeker = {
 	id: string;
 	personalInfo: PersonalInfo;
@@ -43,31 +41,6 @@ export type Job = {
 	status: 'Open' | 'Closed' | 'Archived';
 	postedDate: string;
 	applicationDeadline: string;
-};
-
-export type RequestedPost = {
-	id?: number;
-	postId: number;
-	vacancy: number;
-	outsourcingZoneId?: number;
-	fromDate?: string;
-	toDate?: string;
-	salaryFrom?: number;
-	salaryTo?: number;
-};
-
-export type JobRequest = {
-	id: string;
-	memoNo: string;
-	clientOrganizationId: number;
-	clientOrganization?: string;
-	subject: string;
-	description: string;
-	requestDate: string;
-	deadline: string;
-	requestType: 'PERMANENT' | 'OUTSOURCING' | string;
-	status: 'Pending' | 'Approved' | 'Rejected';
-	requestedPosts: RequestedPost[];
 };
 
 export type Application = {
