@@ -15,7 +15,7 @@ import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequest } from '@/interfaces/job.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { format } from 'date-fns';
-import { Check, Clock, Edit, Eye, Search, X, Loader, Play, Settings } from 'lucide-react';
+import { Building, Check, Clock, Edit, Eye, Search, X, Play, Settings, Calendar, FileText } from 'lucide-react';
 import * as React from 'react';
 import {
 	Dialog,
@@ -33,7 +33,7 @@ const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 	const requestStatus = request.status;
 	const requestStatusVariant =
 		requestStatus === 'Success' ? 'success' : requestStatus === 'IN_PROGRESS' ? 'warning' : 'warning';
-	
+
 	const getPostStatusVariant = (status?: string) => {
 		switch (status) {
 			case 'PENDING':
@@ -47,8 +47,7 @@ const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 			default:
 				return 'secondary';
 		}
-	}
-
+	};
 
 	return (
 		<div>
@@ -75,11 +74,7 @@ const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 					</div>
 					<div>
 						<p className='font-medium text-muted-foreground'>Status</p>
-						<Badge
-							variant={requestStatusVariant}
-						>
-							{request.statusDTO?.nameEn}
-						</Badge>
+						<Badge variant={requestStatusVariant}>{request.statusDTO?.nameEn}</Badge>
 					</div>
 				</div>
 
@@ -97,16 +92,16 @@ const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 							<div key={index} className='p-3 border rounded-md bg-muted/50'>
 								<div className='flex justify-between items-start'>
 									<p className='font-semibold'>{post.post?.nameEn}</p>
-									<Button asChild variant="outline" size="sm">
-										<Link href="/admin/job-management">
-											<Settings className="h-3 w-3 mr-2" /> Manage
+									<Button asChild variant='outline' size='sm'>
+										<Link href='/admin/job-management'>
+											<Settings className='h-3 w-3 mr-2' /> Manage
 										</Link>
 									</Button>
 								</div>
 								<div className='flex justify-between items-center text-muted-foreground mt-1'>
 									<span>Vacancy: {post.vacancy}</span>
 									{request.requestType === 'OUTSOURCING' ? (
-										<span>Zone: {post.outsourcingZoneId}</span>
+										<span>Zone: {post.outsourcingZone?.nameEn}</span>
 									) : (
 										<span>
 											Salary: {post.salaryFrom} - {post.salaryTo}
@@ -224,18 +219,18 @@ export function JobRequestList() {
 					label: 'Set to In Progress',
 					icon: <Play className='mr-2 h-4 w-4' />,
 					onClick: () => handleStatusChange(request.id!, 'IN_PROGRESS'),
-				},
+				}
 			);
 		}
-		
-		if(request.status === 'IN_PROGRESS') {
+
+		if (request.status === 'IN_PROGRESS') {
 			items.push(
 				{ isSeparator: true },
 				{
 					label: 'Set to Success',
 					icon: <Check className='mr-2 h-4 w-4' />,
 					onClick: () => handleStatusChange(request.id!, 'Success'),
-				},
+				}
 			);
 		}
 
@@ -259,14 +254,18 @@ export function JobRequestList() {
 
 		return (
 			<Card key={item.id} className='p-4 flex flex-col sm:flex-row justify-between items-start'>
-				<div className='flex-1 mb-4 sm:mb-0'>
+				<div className='flex-1 mb-4 sm:mb-0 space-y-2'>
 					<p className='font-semibold'>{item.subject}</p>
-					<div className='text-sm text-muted-foreground'>
-						{item.clientOrganization?.nameEn || 'N/A'} ({item.memoNo})
-					</div>
-					<div className='text-xs text-muted-foreground mt-1'>
-						Requested on {format(new Date(item.requestDate), 'PPP')} | Deadline:{' '}
-						{format(new Date(item.deadline), 'PPP')}
+					<div className='text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-1'>
+						<span className='flex items-center gap-1.5'>
+							<Building className='h-4 w-4' /> {item.clientOrganization?.nameEn || 'N/A'}
+						</span>
+						<span className='flex items-center gap-1.5'>
+							<FileText className='h-4 w-4' /> Memo: {item.memoNo}
+						</span>
+						<span className='flex items-center gap-1.5'>
+							<Calendar className='h-4 w-4' /> Deadline: {format(new Date(item.deadline), 'PPP')}
+						</span>
 					</div>
 				</div>
 				<div className='flex items-center gap-4 w-full sm:w-auto justify-between'>
@@ -296,7 +295,7 @@ export function JobRequestList() {
 			</CardHeader>
 			<CardContent className='space-y-4'>
 				{isLoading ? (
-					[...Array(5)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
+					[...Array(5)].map((_, i) => <Skeleton key={i} className='h-24 w-full' />)
 				) : data.length > 0 ? (
 					data.map(renderItem)
 				) : (
