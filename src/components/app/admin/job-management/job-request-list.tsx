@@ -108,12 +108,16 @@ const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 									<Badge variant={getPostStatusVariant(post.status)}>{post.statusDTO?.nameEn}</Badge>
 								</div>
 								<div className='grid grid-cols-2 gap-x-4 gap-y-1 text-muted-foreground mt-2 text-xs'>
-									{post.experienceRequired && <span>Experience: {post.experienceRequired} years</span>}
+									{post.experienceRequired && post.experienceRequired > 0 && (
+										<span>Experience: {post.experienceRequired} years</span>
+									)}
 
 									{request.type === 'OUTSOURCING' ? (
 										<>
 											{post.outsourcingZone?.nameEn && <span>Zone: {post.outsourcingZone?.nameEn}</span>}
-											{post.yearsOfContract && <span>Contract: {post.yearsOfContract} years</span>}
+											{post.yearsOfContract && post.yearsOfContract > 0 && (
+												<span>Contract: {post.yearsOfContract} years</span>
+											)}
 										</>
 									) : (
 										<>
