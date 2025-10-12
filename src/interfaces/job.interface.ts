@@ -16,7 +16,7 @@ export type RequestedPost = {
 	statusDTO?: EnumDTO;
 	experienceRequired?: number;
 	negotiable?: boolean;
-	yearsOfContract?: number;
+	yearsOfContract?: number | null;
 };
 
 export type JobRequest = {
