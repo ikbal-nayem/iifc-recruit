@@ -50,13 +50,6 @@ export default async function EditJobRequestPage({ params }: { params: { id: str
         getMasterData(),
     ]);
 
-    // Enrich the jobRequest with the full clientOrganization object
-    if (jobRequest && masterData.clientOrganizations.length > 0) {
-        jobRequest.clientOrganization = masterData.clientOrganizations.find(
-            (org) => org.id === jobRequest.clientOrganizationId
-        );
-    }
-    
 	return (
 		<div className='space-y-8'>
 			<div>
@@ -75,4 +68,3 @@ export default async function EditJobRequestPage({ params }: { params: { id: str
 		</div>
 	);
 }
-
