@@ -110,12 +110,12 @@ export function JobRequestList() {
 				{
 					label: 'Set to In Progress',
 					icon: <Play className='mr-2 h-4 w-4' />,
-					onClick: () => handleStatusChange(request.id!, JobRequestStatus.IN_PROGRESS),
+					onClick: () => handleStatusChange(request.id!, JobRequestStatus.PROCESSING),
 				}
 			);
 		}
 
-		if (request.status === JobRequestStatus.IN_PROGRESS) {
+		if (request.status === JobRequestStatus.PROCESSING) {
 			items.push(
 				{ isSeparator: true },
 				{
@@ -144,7 +144,7 @@ export function JobRequestList() {
 		const variant =
 			status === JobRequestStatus.SUCCESS
 				? 'success'
-				: status === JobRequestStatus.IN_PROGRESS
+				: status === JobRequestStatus.PROCESSING
 				? 'warning'
 				: status === JobRequestStatus.PENDING
 				? 'warning'
