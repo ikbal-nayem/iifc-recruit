@@ -32,7 +32,7 @@ const requestedPostSchema = z.object({
 	outsourcingZoneId: z.coerce.number().optional(),
 	salaryFrom: z.coerce.number().optional(),
 	salaryTo: z.coerce.number().optional(),
-	yearsOfContract: z.coerce.number().optional(),
+	yearsOfContract: z.coerce.number().optional().nullable(),
 });
 
 const jobRequestSchema = z.object({
@@ -94,7 +94,7 @@ export function JobRequestForm({
 							experienceRequired: '' as unknown as undefined,
 							salaryFrom: '' as unknown as undefined,
 							salaryTo: '' as unknown as undefined,
-							yearsOfContract: '' as unknown as undefined,
+							yearsOfContract: '',
 						},
 					],
 			  },
@@ -140,6 +140,15 @@ export function JobRequestForm({
 		// Clean up requestedPosts based on type
 		cleanedData.requestedPosts = cleanedData.requestedPosts.map((post) => {
 			const newPost: any = { ...post };
+			
+			// Convert empty strings for optional numbers to null before submitting
+			const numericFields: (keyof typeof post)[] = ['experienceRequired', 'salaryFrom', 'salaryTo', 'yearsOfContract'];
+			numericFields.forEach(field => {
+				if (newPost[field] === '') {
+					newPost[field] = null;
+				}
+			});
+
 			if (cleanedData.type === 'PERMANENT') {
 				delete newPost.outsourcingZoneId;
 				delete newPost.yearsOfContract;
@@ -337,7 +346,7 @@ export function JobRequestForm({
 									experienceRequired: '' as unknown as undefined,
 									salaryFrom: '' as unknown as undefined,
 									salaryTo: '' as unknown as undefined,
-									yearsOfContract: '' as unknown as undefined,
+									yearsOfContract: '',
 								})
 							}
 						>
