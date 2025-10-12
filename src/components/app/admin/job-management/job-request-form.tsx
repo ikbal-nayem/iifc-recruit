@@ -103,7 +103,7 @@ export function JobRequestForm({
 			try {
 				const response = await MasterDataService.post.getList({
 					body: {
-						nameEn: debouncedPostSearch,
+						searchKey: debouncedPostSearch,
 						outsourcing: type === 'OUTSOURCING',
 					},
 					meta: { page: 0, limit: 25 },
