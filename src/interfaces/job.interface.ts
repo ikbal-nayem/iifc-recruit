@@ -1,14 +1,12 @@
-
-
-import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from "./master-data.interface";
+import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from './master-data.interface';
 
 export type RequestedPost = {
 	id?: number;
 	postId: number;
-    post?: IPost;
+	post?: IPost;
 	vacancy: number;
 	outsourcingZoneId?: number;
-    outsourcingZone?: IOutsourcingZone;
+	outsourcingZone?: IOutsourcingZone;
 	fromDate?: string;
 	toDate?: string;
 	salaryFrom?: number;
@@ -26,10 +24,10 @@ export type JobRequest = {
 	description?: string;
 	requestDate: string;
 	deadline: string;
-	requestType: 'OUTSOURCING' | string;
-    requestTypeDTO?: EnumDTO;
+	type: 'OUTSOURCING' | string;
+	requestTypeDTO?: EnumDTO;
 	status?: 'Pending' | 'IN_PROGRESS' | 'Success';
-    statusDTO?: EnumDTO;
+	statusDTO?: EnumDTO;
 	requestedPosts: RequestedPost[];
+	active?: boolean;
 };
-

@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import * as React from 'react';
 
 interface FormRadioGroupProps<TFieldValues extends FieldValues> {
-	control: Control<TFieldValues>;
+	control: Control<TFieldValues | any>;
 	name: FieldPath<TFieldValues>;
 	label: string;
 	required?: boolean;

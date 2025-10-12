@@ -118,6 +118,8 @@ export function JobRequestForm({
 				delete newPost.salaryTo;
 			} else {
 				delete newPost.outsourcingZoneId;
+				delete newPost.fromDate;
+				delete newPost.toDate;
 			}
 			return newPost;
 		});
@@ -126,7 +128,7 @@ export function JobRequestForm({
 			if (initialData) {
 				await JobRequestService.update({ ...cleanedData, id: initialData.id });
 			} else {
-				await JobRequestService.create(cleanedData);
+				await JobRequestService.create({...cleanedData, active: true});
 			}
 			toast({
 				title: initialData ? 'Job Request Updated!' : 'Job Request Submitted!',
