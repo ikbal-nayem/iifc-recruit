@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
+import { FormCheckbox } from '@/components/ui/form-checkbox';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
 import { FormRadioGroup } from '@/components/ui/form-radio-group';
@@ -12,14 +13,13 @@ import { useToast } from '@/hooks/use-toast';
 import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from '@/interfaces/master-data.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { PlusCircle, Save } from 'lucide-react';
+import { PlusCircle, Save, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { format } from 'date-fns';
 import { JobRequest } from '@/interfaces/job.interface';
-import { Trash } from 'lucide-react';
 import { useDebounce } from '@/hooks/use-debounce';
 import { MasterDataService } from '@/services/api/master-data.service';
 
@@ -27,6 +27,8 @@ const requestedPostSchema = z.object({
 	id: z.number().optional(),
 	postId: z.coerce.number().min(1, 'Post is required.'),
 	vacancy: z.coerce.number().min(1, 'Vacancy must be at least 1.'),
+	experienceRequired: z.coerce.number().optional(),
+	negotiable: z.boolean().default(false),
 	outsourcingZoneId: z.coerce.number().optional(),
 	salaryFrom: z.coerce.number().optional(),
 	salaryTo: z.coerce.number().optional(),
@@ -70,16 +72,22 @@ export function JobRequestForm({
 
 	const form = useForm<JobRequestFormValues>({
 		resolver: zodResolver(jobRequestSchema),
-		defaultValues: initialData
+		values: initialData
 			? {
 					...initialData,
 					requestDate: format(new Date(initialData.requestDate), 'yyyy-MM-dd'),
 					deadline: format(new Date(initialData.deadline), 'yyyy-MM-dd'),
+					requestType: initialData.requestType || 'OUTSOURCING',
 			  }
 			: {
+					memoNo: '',
+					clientOrganizationId: undefined as any,
+					subject: '',
+					description: '',
 					requestDate: format(new Date(), 'yyyy-MM-dd'),
+					deadline: '',
 					requestType: 'OUTSOURCING',
-					requestedPosts: [{ postId: undefined, vacancy: 1 }],
+					requestedPosts: [{ postId: undefined as any, vacancy: 1 }],
 			  },
 	});
 
@@ -121,10 +129,11 @@ export function JobRequestForm({
 
 		// Clean up requestedPosts based on type
 		cleanedData.requestedPosts = cleanedData.requestedPosts.map((post) => {
-			const newPost = { ...post };
+			const newPost: any = { ...post };
 			if (cleanedData.requestType === 'OUTSOURCING') {
 				delete newPost.salaryFrom;
 				delete newPost.salaryTo;
+				delete newPost.negotiable;
 			} else {
 				delete newPost.outsourcingZoneId;
 			}
@@ -241,22 +250,28 @@ export function JobRequestForm({
 											type='number'
 											placeholder='e.g., 10'
 										/>
-										{type === 'OUTSOURCING' && (
-											<FormAutocomplete
-												control={form.control}
-												name={`requestedPosts.${index}.outsourcingZoneId`}
-												label='Zone'
-												required
-												placeholder='Select Zone'
-												options={outsourcingZones}
-												getOptionValue={(opt) => opt.id!.toString()}
-												getOptionLabel={(opt) => opt.nameEn}
-											/>
-										)}
+										<FormInput
+											control={form.control}
+											name={`requestedPosts.${index}.experienceRequired`}
+											label='Experience Required (Yrs)'
+											type='number'
+											placeholder='e.g., 5'
+										/>
 									</div>
 
-									{type !== 'OUTSOURCING' && (
-										<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+									{type === 'OUTSOURCING' ? (
+										<FormAutocomplete
+											control={form.control}
+											name={`requestedPosts.${index}.outsourcingZoneId`}
+											label='Zone'
+											required
+											placeholder='Select Zone'
+											options={outsourcingZones}
+											getOptionValue={(opt) => opt.id!.toString()}
+											getOptionLabel={(opt) => opt.nameEn}
+										/>
+									) : (
+										<div className='grid grid-cols-1 md:grid-cols-3 gap-4 items-center'>
 											<FormInput
 												control={form.control}
 												name={`requestedPosts.${index}.salaryFrom`}
@@ -269,6 +284,13 @@ export function JobRequestForm({
 												label='Salary To'
 												type='number'
 											/>
+											<div className='pt-8'>
+												<FormCheckbox
+													control={form.control}
+													name={`requestedPosts.${index}.negotiable`}
+													label='Negotiable'
+												/>
+											</div>
 										</div>
 									)}
 								</CardContent>
@@ -290,7 +312,7 @@ export function JobRequestForm({
 							variant='outline'
 							onClick={() =>
 								append({
-									postId: -1,
+									postId: undefined as any,
 									vacancy: 1,
 								})
 							}
