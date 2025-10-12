@@ -1,14 +1,10 @@
 
-'use client';
 import { JobRequestForm } from '@/components/app/admin/job-management/job-request-form';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { notFound } from 'next/navigation';
 import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from '@/interfaces/master-data.interface';
-import { useEffect, useState } from 'react';
 import { JobRequest } from '@/interfaces/job.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { PageLoader } from '@/components/ui/page-loader';
-
 
 type MasterData = {
     clientOrganizations: IClientOrganization[];
@@ -17,51 +13,40 @@ type MasterData = {
     requestTypes: EnumDTO[];
 }
 
+async function getJobRequest(id: string) {
+    try {
+       const response = await JobRequestService.getById(id);
+       return response.body;
+   } catch (error) {
+       console.error('Failed to load job request:', error);
+       notFound();
+   }
+}
 
-export default function EditJobRequestPage({ params }: { params: { id: string } }) {
-    const [jobRequest, setJobRequest] = useState<JobRequest | null>(null);
-    const [masterData, setMasterData] = useState<MasterData | null>(null);
+async function getMasterData(): Promise<MasterData> {
+    try {
+        const [clientOrgsRes, postsRes, zonesRes, requestTypesRes] = await Promise.allSettled([
+            MasterDataService.clientOrganization.get(),
+            MasterDataService.post.get(),
+            MasterDataService.outsourcingZone.get(),
+            MasterDataService.getEnum('job-request-type'),
+        ]);
 
-    useEffect(() => {
-        async function getJobRequest(id: string) {
-             try {
-                const response = await JobRequestService.getById(id);
-                setJobRequest(response.body);
-            } catch (error) {
-                console.error('Failed to load job request:', error);
-                notFound();
-            }
-        }
-
-        async function getMasterData() {
-            try {
-                const [clientOrgsRes, postsRes, zonesRes, requestTypesRes] = await Promise.allSettled([
-                    MasterDataService.clientOrganization.get(),
-                    MasterDataService.post.get(),
-                    MasterDataService.outsourcingZone.get(),
-                    MasterDataService.getEnum('job-request-type'),
-                ]);
-
-                const clientOrganizations = clientOrgsRes.status === 'fulfilled' ? clientOrgsRes.value.body : [];
-                const posts = postsRes.status === 'fulfilled' ? postsRes.value.body : [];
-                const outsourcingZones = zonesRes.status === 'fulfilled' ? zonesRes.value.body : [];
-                const requestTypes = requestTypesRes.status === 'fulfilled' ? requestTypesRes.value.body as EnumDTO[] : [];
-                
-                setMasterData({ clientOrganizations, posts, outsourcingZones, requestTypes });
-            } catch (error) {
-                console.error('Failed to load master data for job request form', error);
-                setMasterData({ clientOrganizations: [], posts: [], outsourcingZones: [], requestTypes: [] });
-            }
-        }
-
-        getJobRequest(params.id);
-        getMasterData();
-    }, [params.id]);
-
-    if (!jobRequest || !masterData) {
-        return <PageLoader />;
+        const clientOrganizations = clientOrgsRes.status === 'fulfilled' ? clientOrgsRes.value.body : [];
+        const posts = postsRes.status === 'fulfilled' ? postsRes.value.body : [];
+        const outsourcingZones = zonesRes.status === 'fulfilled' ? zonesRes.value.body : [];
+        const requestTypes = requestTypesRes.status === 'fulfilled' ? requestTypesRes.value.body as EnumDTO[] : [];
+        
+        return { clientOrganizations, posts, outsourcingZones, requestTypes };
+    } catch (error) {
+        console.error('Failed to load master data for job request form', error);
+        return { clientOrganizations: [], posts: [], outsourcingZones: [], requestTypes: [] };
     }
+}
 
+export default async function EditJobRequestPage({ params }: { params: { id: string } }) {
+    const jobRequest = await getJobRequest(params.id);
+    const masterData = await getMasterData();
 
 	return (
 		<div className='space-y-8'>
