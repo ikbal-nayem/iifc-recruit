@@ -34,7 +34,7 @@ const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 	const requestStatusVariant =
 		requestStatus === JobRequestStatus.SUCCESS
 			? 'success'
-			: requestStatus === 'IN_PROGRESS'
+			: requestStatus === JobRequestStatus.IN_PROGRESS
 			? 'warning'
 			: requestStatus === JobRequestStatus.PENDING
 			? 'warning'
