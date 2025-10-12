@@ -53,7 +53,7 @@ import { jobs as initialJobs } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
-import { ActionItem, ActionMenu } from '../ui/action-menu';
+import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 
 export function JobManagement() {
   const [data, setData] = React.useState<Job[]>(initialJobs);

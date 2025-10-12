@@ -1,22 +1,10 @@
-
 'use client';
 
+import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
-import { Input } from '@/components/ui/input';
-import { Pagination } from '@/components/ui/pagination';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
-import { useDebounce } from '@/hooks/use-debounce';
-import { useToast } from '@/hooks/use-toast';
-import { IApiRequest, IMeta } from '@/interfaces/common.interface';
-import { JobRequest } from '@/interfaces/job.interface';
-import { JobRequestService } from '@/services/api/job-request.service';
-import { format } from 'date-fns';
-import { Building, Check, Clock, Edit, Eye, Search, X, Play, Settings, Calendar, FileText } from 'lucide-react';
-import * as React from 'react';
 import {
 	Dialog,
 	DialogContent,
@@ -25,7 +13,18 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Pagination } from '@/components/ui/pagination';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useDebounce } from '@/hooks/use-debounce';
+import { useToast } from '@/hooks/use-toast';
+import { IApiRequest, IMeta } from '@/interfaces/common.interface';
+import { JobRequest } from '@/interfaces/job.interface';
+import { JobRequestService } from '@/services/api/job-request.service';
+import { format } from 'date-fns';
+import { Building, Calendar, Check, Clock, Edit, Eye, FileText, Play, Search, Settings } from 'lucide-react';
 import Link from 'next/link';
+import * as React from 'react';
 
 const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 	if (!request) return null;
@@ -70,7 +69,7 @@ const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 					</div>
 					<div>
 						<p className='font-medium text-muted-foreground'>Request Type</p>
-						<p>{request.requestTypeDTO?.nameEn}</p>
+						<p>{request.typeDTO?.nameEn}</p>
 					</div>
 					<div>
 						<p className='font-medium text-muted-foreground'>Status</p>
@@ -92,15 +91,10 @@ const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 							<div key={index} className='p-3 border rounded-md bg-muted/50'>
 								<div className='flex justify-between items-start'>
 									<p className='font-semibold'>{post.post?.nameEn}</p>
-									<Button asChild variant='outline' size='sm'>
-										<Link href='/admin/job-management'>
-											<Settings className='h-3 w-3 mr-2' /> Manage
-										</Link>
-									</Button>
 								</div>
 								<div className='flex justify-between items-center text-muted-foreground mt-1'>
 									<span>Vacancy: {post.vacancy}</span>
-									{request.requestType === 'OUTSOURCING' ? (
+									{request.type === 'OUTSOURCING' ? (
 										<span>Zone: {post.outsourcingZone?.nameEn}</span>
 									) : (
 										<span>
@@ -249,8 +243,7 @@ export function JobRequestList() {
 
 	const renderItem = (item: JobRequest) => {
 		const status = item.status;
-		const variant =
-			status === 'Success' ? 'success' : status === 'IN_PROGRESS' ? 'warning' : 'warning';
+		const variant = status === 'Success' ? 'success' : status === 'IN_PROGRESS' ? 'warning' : 'warning';
 
 		return (
 			<Card key={item.id} className='p-4 flex flex-col sm:flex-row justify-between items-start'>
@@ -270,8 +263,10 @@ export function JobRequestList() {
 				</div>
 				<div className='flex items-center gap-4 w-full sm:w-auto justify-between'>
 					<div className='flex items-center gap-2'>
+						<Badge variant={item.type === 'OUTSOURCING' ? 'secondary' : 'outline'}>
+							{item.typeDTO?.nameEn}
+						</Badge>
 						<Badge variant={variant}>{item.statusDTO?.nameEn}</Badge>
-						<Badge variant='outline'>{item.requestTypeDTO?.nameEn}</Badge>
 					</div>
 					<ActionMenu items={getActionItems(item)} />
 				</div>
