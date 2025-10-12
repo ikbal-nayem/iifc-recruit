@@ -58,16 +58,8 @@ export const adminNavLinks: NavLink[] = [
 				icon: ListChecks,
 			},
 			{
-				href: '/admin/job-management',
-				label: 'All Jobs',
-				icon: Briefcase,
-				isActive: (pathname) =>
-					/^\/admin\/job-management(\/j\d+(\/applicants|\/edit)?)?$/.test(pathname) &&
-					!pathname.includes('/request'),
-			},
-			{
-				href: '/admin/job-management/create',
-				label: 'Create New Job',
+				href: '/admin/job-management/request/create',
+				label: 'New Request',
 				icon: PlusCircle,
 			},
 		],
