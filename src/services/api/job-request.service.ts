@@ -12,5 +12,8 @@ export const JobRequestService = {
 	getList: async (payload: IApiRequest): Promise<IApiResponse<JobRequest[]>> =>
 		await axiosIns.post('/job-request/get-list', payload),
 
+	getById: async (id: string): Promise<IApiResponse<JobRequest>> =>
+		await axiosIns.get(`/job-request/get-by-id/${id}`),
+
 	delete: async (id: string): Promise<void> => await axiosIns.delete(`/job-request/delete/${id}`),
 };

@@ -6,42 +6,8 @@ import { notFound } from 'next/navigation';
 import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from '@/interfaces/master-data.interface';
 import { useEffect, useState } from 'react';
 import { JobRequest } from '@/interfaces/job.interface';
-
-const mockRequests: JobRequest[] = [
-	{
-		id: 'req1',
-		clientOrganizationId: 1,
-		subject: 'Senior Backend Engineer post',
-		type: 'PERMANENT',
-		requestDate: '2024-07-28',
-		status: 'Pending',
-    memoNo: 'MEMO-001',
-    deadline: '2024-08-20',
-    description: 'Looking for a skilled backend engineer.',
-		requestedPosts: [{
-			postId: 1,
-			vacancy: 2,
-			salaryFrom: 80000,
-			salaryTo: 120000,
-			status: 'PENDING',
-		}]
-	},
-	{
-		id: 'req2',
-    clientOrganizationId: 2,
-		subject: 'Urgent need for Data Entry',
-		type: 'OUTSOURCING',
-		requestDate: '2024-07-27',
-		status: 'IN_PROGRESS',
-    memoNo: 'MEMO-002',
-    deadline: '2024-08-15',
-    description: 'Data entry operators needed.',
-    requestedPosts: [
-      { postId: 2, outsourcingZoneId: 1, vacancy: 10, status: 'EXAM' },
-      { postId: 2, outsourcingZoneId: 2, vacancy: 5, status: 'PENDING' },
-    ]
-	},
-];
+import { JobRequestService } from '@/services/api/job-request.service';
+import { PageLoader } from '@/components/ui/page-loader';
 
 
 type MasterData = {
@@ -58,10 +24,11 @@ export default function EditJobRequestPage({ params }: { params: { id: string } 
 
     useEffect(() => {
         async function getJobRequest(id: string) {
-            // In a real app, this would fetch from an API
-            const request = mockRequests.find(req => req.id === id) || null;
-            setJobRequest(request);
-            if (!request) {
+             try {
+                const response = await JobRequestService.getById(id);
+                setJobRequest(response.body);
+            } catch (error) {
+                console.error('Failed to load job request:', error);
                 notFound();
             }
         }
@@ -92,7 +59,7 @@ export default function EditJobRequestPage({ params }: { params: { id: string } 
     }, [params.id]);
 
     if (!jobRequest || !masterData) {
-        return <div>Loading...</div>; // Or a proper skeleton loader
+        return <PageLoader />;
     }
 
 
