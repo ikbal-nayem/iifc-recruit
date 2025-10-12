@@ -32,7 +32,7 @@ const requestedPostSchema = z.object({
 	outsourcingZoneId: z.coerce.number().optional(),
 	salaryFrom: z.coerce.number().optional(),
 	salaryTo: z.coerce.number().optional(),
-	yearsOfContract: z.coerce.number().nullable().optional(),
+	yearsOfContract: z.coerce.number().optional(),
 });
 
 const jobRequestSchema = z.object({
@@ -94,7 +94,7 @@ export function JobRequestForm({
 							experienceRequired: '' as unknown as undefined,
 							salaryFrom: '' as unknown as undefined,
 							salaryTo: '' as unknown as undefined,
-							yearsOfContract: null,
+							yearsOfContract: '' as unknown as undefined,
 						},
 					],
 			  },
@@ -337,7 +337,7 @@ export function JobRequestForm({
 									experienceRequired: '' as unknown as undefined,
 									salaryFrom: '' as unknown as undefined,
 									salaryTo: '' as unknown as undefined,
-									yearsOfContract: null,
+									yearsOfContract: '' as unknown as undefined,
 								})
 							}
 						>
