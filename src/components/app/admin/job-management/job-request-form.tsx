@@ -290,7 +290,7 @@ export function JobRequestForm({
 							variant='outline'
 							onClick={() =>
 								append({
-									postId: undefined,
+									postId: -1,
 									vacancy: 1,
 								})
 							}
