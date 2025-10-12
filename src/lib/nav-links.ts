@@ -58,8 +58,8 @@ export const adminNavLinks: NavLink[] = [
 				icon: ListChecks,
 			},
 			{
-				href: '/admin/job-management/request/in-progress',
-				label: 'In Progress Requests',
+				href: '/admin/job-management/request/procissing',
+				label: 'Progressing Requests',
 				icon: ListChecks,
 			},
 			{
