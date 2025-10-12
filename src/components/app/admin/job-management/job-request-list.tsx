@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
@@ -20,11 +19,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
-import { JobRequest } from '@/interfaces/job.interface';
-import { JobRequestService } from '@/services/api/job-request.service';
+import { JobRequest, JobRequestStatus, JobRequestType } from '@/interfaces/job.interface';
 import { cn } from '@/lib/utils';
+import { JobRequestService } from '@/services/api/job-request.service';
 import { differenceInDays, format, parseISO } from 'date-fns';
-import { Building, Calendar, Check, Clock, Edit, Eye, FileText, Play, Search, Settings } from 'lucide-react';
+import { Building, Calendar, Check, Clock, Edit, Eye, FileText, Play, Search } from 'lucide-react';
 import Link from 'next/link';
 import * as React from 'react';
 
@@ -33,17 +32,17 @@ const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 
 	const requestStatus = request.status;
 	const requestStatusVariant =
-		requestStatus === 'Success'
+		requestStatus === JobRequestStatus.SUCCESS
 			? 'success'
 			: requestStatus === 'IN_PROGRESS'
 			? 'warning'
-			: requestStatus === 'Pending'
+			: requestStatus === JobRequestStatus.PENDING
 			? 'warning'
 			: 'secondary';
 
 	const getPostStatusVariant = (status?: string) => {
 		switch (status) {
-			case 'PENDING':
+			case JobRequestStatus.PENDING:
 				return 'warning';
 			case 'IN_PROGRESS':
 				return 'info';
@@ -75,11 +74,13 @@ const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 					</div>
 					<div>
 						<p className='font-medium text-muted-foreground'>Deadline</p>
-						<p className={cn(isDeadlineSoon && 'font-bold text-danger')}>{format(new Date(request.deadline), 'PPP')}</p>
+						<p className={cn(isDeadlineSoon && 'font-bold text-danger')}>
+							{format(new Date(request.deadline), 'PPP')}
+						</p>
 					</div>
 					<div>
 						<p className='font-medium text-muted-foreground'>Request Type</p>
-						<Badge variant={request.type === 'OUTSOURCING' ? 'secondary' : 'outline'}>
+						<Badge variant={request.type === JobRequestType.OUTSOURCING ? 'secondary' : 'outline'}>
 							{request.typeDTO?.nameEn}
 						</Badge>
 					</div>
@@ -111,7 +112,7 @@ const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 									{post.experienceRequired && post.experienceRequired > 0 && (
 										<span>Experience: {post.experienceRequired} years</span>
 									)}
-									{request.type === 'OUTSOURCING' ? (
+									{request.type === JobRequestType.OUTSOURCING ? (
 										<>
 											{post.outsourcingZone?.nameEn && <span>Zone: {post.outsourcingZone?.nameEn}</span>}
 											{post.yearsOfContract && post.yearsOfContract > 0 && (
@@ -232,35 +233,35 @@ export function JobRequestList() {
 			},
 		];
 
-		if (request.status === 'Pending') {
+		if (request.status === JobRequestStatus.PENDING) {
 			items.push(
 				{ isSeparator: true },
 				{
 					label: 'Set to In Progress',
 					icon: <Play className='mr-2 h-4 w-4' />,
-					onClick: () => handleStatusChange(request.id!, 'IN_PROGRESS'),
+					onClick: () => handleStatusChange(request.id!, JobRequestStatus.IN_PROGRESS),
 				}
 			);
 		}
 
-		if (request.status === 'IN_PROGRESS') {
+		if (request.status === JobRequestStatus.IN_PROGRESS) {
 			items.push(
 				{ isSeparator: true },
 				{
 					label: 'Set to Success',
 					icon: <Check className='mr-2 h-4 w-4' />,
-					onClick: () => handleStatusChange(request.id!, 'Success'),
+					onClick: () => handleStatusChange(request.id!, JobRequestStatus.SUCCESS),
 				}
 			);
 		}
 
-		if (request.status !== 'Pending') {
+		if (request.status !== JobRequestStatus.PENDING) {
 			items.push(
 				{ isSeparator: true },
 				{
 					label: 'Set to Pending',
 					icon: <Clock className='mr-2 h-4 w-4' />,
-					onClick: () => handleStatusChange(request.id!, 'Pending'),
+					onClick: () => handleStatusChange(request.id!, JobRequestStatus.PENDING),
 				}
 			);
 		}
@@ -270,11 +271,11 @@ export function JobRequestList() {
 	const renderItem = (item: JobRequest) => {
 		const status = item.status;
 		const variant =
-			status === 'Success'
+			status === JobRequestStatus.SUCCESS
 				? 'success'
-				: status === 'IN_PROGRESS'
+				: status === JobRequestStatus.IN_PROGRESS
 				? 'warning'
-				: status === 'Pending'
+				: status === JobRequestStatus.PENDING
 				? 'warning'
 				: 'secondary';
 
@@ -296,7 +297,7 @@ export function JobRequestList() {
 				</div>
 				<div className='flex items-center gap-4 w-full sm:w-auto justify-between'>
 					<div className='flex items-center gap-2'>
-						<Badge variant={item.type === 'OUTSOURCING' ? 'secondary' : 'outline'}>
+						<Badge variant={item.type === JobRequestType.OUTSOURCING ? 'secondary' : 'outline'}>
 							{item.typeDTO?.nameEn}
 						</Badge>
 						<Badge variant={variant}>{item.statusDTO?.nameEn}</Badge>
