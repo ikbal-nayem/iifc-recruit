@@ -16,7 +16,7 @@ import { JobRequest, JobRequestStatus, JobRequestType } from '@/interfaces/job.i
 import { JobRequestService } from '@/services/api/job-request.service';
 import { cn } from '@/lib/utils';
 import { differenceInDays, format, parseISO } from 'date-fns';
-import { Building, Calendar, Check, Clock, Edit, Eye, FileText, Play, Search } from 'lucide-react';
+import { Building, Calendar, Check, CheckCircle, Clock, Edit, Eye, FileText, Play, Search, Trash } from 'lucide-react';
 import * as React from 'react';
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
@@ -66,13 +66,22 @@ export function JobRequestList({ status }: JobRequestListProps) {
 		loadItems(newPage, debouncedSearch);
 	};
 
-	const handleStatusChange = (requestId: string, newStatus: JobRequest['status']) => {
-		setData((prevData) => prevData.filter((req) => req.id !== requestId));
-		toast({
-			title: 'Request Updated',
-			description: `The job request has been updated.`,
-			variant: 'success',
-		});
+	const handleStatusChange = async (requestId: string, newStatus: JobRequest['status']) => {
+		try {
+			await JobRequestService.updateStatus(requestId, newStatus!);
+			toast({
+				title: 'Request Updated',
+				description: `The job request has been updated to ${newStatus}.`,
+				variant: 'success',
+			});
+			loadItems(meta.page, debouncedSearch);
+		} catch (error: any) {
+			toast({
+				title: 'Error',
+				description: error.message || 'Failed to update job request status.',
+				variant: 'danger',
+			});
+		}
 	};
 
 	const handleDelete = async () => {
@@ -110,8 +119,8 @@ export function JobRequestList({ status }: JobRequestListProps) {
 			items.push(
 				{ isSeparator: true },
 				{
-					label: 'Set to Processing',
-					icon: <Play className='mr-2 h-4 w-4' />,
+					label: 'Accept Request',
+					icon: <Check className='mr-2 h-4 w-4' />,
 					onClick: () => handleStatusChange(request.id!, JobRequestStatus.PROCESSING),
 				}
 			);
@@ -121,8 +130,8 @@ export function JobRequestList({ status }: JobRequestListProps) {
 			items.push(
 				{ isSeparator: true },
 				{
-					label: 'Set to Completed',
-					icon: <Check className='mr-2 h-4 w-4' />,
+					label: 'Mark as Completed',
+					icon: <CheckCircle className='mr-2 h-4 w-4' />,
 					onClick: () => handleStatusChange(request.id!, JobRequestStatus.COMPLETED),
 				}
 			);
@@ -132,12 +141,21 @@ export function JobRequestList({ status }: JobRequestListProps) {
 			items.push(
 				{ isSeparator: true },
 				{
-					label: 'Set to Pending',
+					label: 'Move to Pending',
 					icon: <Clock className='mr-2 h-4 w-4' />,
 					onClick: () => handleStatusChange(request.id!, JobRequestStatus.PENDING),
 				}
 			);
 		}
+		items.push(
+			{ isSeparator: true },
+			{
+				label: 'Delete',
+				icon: <Trash className='mr-2 h-4 w-4' />,
+				onClick: () => setItemToDelete(request),
+				variant: 'danger',
+			}
+		);
 		return items;
 	};
 
@@ -146,8 +164,8 @@ export function JobRequestList({ status }: JobRequestListProps) {
 		const variant =
 			requestStatus === JobRequestStatus.COMPLETED
 				? 'success'
-				: status === JobRequestStatus.PROCESSING
-				? 'warning'
+				: requestStatus === JobRequestStatus.PROCESSING
+				? 'info'
 				: requestStatus === JobRequestStatus.PENDING
 				? 'warning'
 				: 'secondary';
@@ -177,7 +195,14 @@ export function JobRequestList({ status }: JobRequestListProps) {
 						</Badge>
 						<Badge variant={variant}>{item.statusDTO?.nameEn}</Badge>
 					</div>
-					<ActionMenu items={getActionItems(item)} />
+					<div className='flex items-center gap-2'>
+						{item.status === JobRequestStatus.PENDING && (
+							<Button size='sm' onClick={() => handleStatusChange(item.id!, JobRequestStatus.PROCESSING)}>
+								<Check className='mr-2 h-4 w-4' /> Accept
+							</Button>
+						)}
+						<ActionMenu items={getActionItems(item)} />
+					</div>
 				</div>
 			</Card>
 		);
@@ -219,6 +244,6 @@ export function JobRequestList({ status }: JobRequestListProps) {
 				description='This will permanently delete the job request. This action cannot be undone.'
 				onConfirm={handleDelete}
 			/>
-		</Card>
+		</div>
 	);
 }
