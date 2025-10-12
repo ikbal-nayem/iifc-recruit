@@ -111,7 +111,6 @@ const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 									{post.experienceRequired && post.experienceRequired > 0 && (
 										<span>Experience: {post.experienceRequired} years</span>
 									)}
-
 									{request.type === 'OUTSOURCING' ? (
 										<>
 											{post.outsourcingZone?.nameEn && <span>Zone: {post.outsourcingZone?.nameEn}</span>}
