@@ -72,12 +72,11 @@ export function JobRequestForm({
 
 	const form = useForm<JobRequestFormValues>({
 		resolver: zodResolver(jobRequestSchema),
-		values: initialData
+		defaultValues: initialData
 			? {
 					...initialData,
 					requestDate: format(new Date(initialData.requestDate), 'yyyy-MM-dd'),
 					deadline: format(new Date(initialData.deadline), 'yyyy-MM-dd'),
-					requestType: initialData.requestType || 'OUTSOURCING',
 			  }
 			: {
 					memoNo: '',
@@ -107,6 +106,7 @@ export function JobRequestForm({
 						nameEn: debouncedPostSearch,
 						outsourcing: type === 'OUTSOURCING',
 					},
+					meta: { page: 0, limit: 25 },
 				});
 				setFilteredPosts(response.body);
 			} catch (error) {
@@ -130,12 +130,12 @@ export function JobRequestForm({
 		// Clean up requestedPosts based on type
 		cleanedData.requestedPosts = cleanedData.requestedPosts.map((post) => {
 			const newPost: any = { ...post };
-			if (cleanedData.requestType === 'OUTSOURCING') {
+			if (cleanedData.requestType === 'PERMANENT') {
+				delete newPost.outsourcingZoneId;
+			} else {
 				delete newPost.salaryFrom;
 				delete newPost.salaryTo;
 				delete newPost.negotiable;
-			} else {
-				delete newPost.outsourcingZoneId;
 			}
 			return newPost;
 		});
