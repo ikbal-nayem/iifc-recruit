@@ -42,7 +42,7 @@ const jobRequestSchema = z.object({
 	description: z.string().optional(),
 	requestDate: z.string().min(1, 'Request date is required.'),
 	deadline: z.string().min(1, 'Deadline is required.'),
-	requestType: z.string().min(1, 'Request type is required.'),
+	type: z.string().min(1, 'Request type is required.'),
 	requestedPosts: z.array(requestedPostSchema).min(1, 'At least one post is required.'),
 });
 
@@ -86,15 +86,17 @@ export function JobRequestForm({
 					description: '',
 					requestDate: format(new Date(), 'yyyy-MM-dd'),
 					deadline: '',
-					requestType: 'OUTSOURCING',
-					requestedPosts: [{ 
-						postId: undefined as any, 
-						vacancy: 1,
-						experienceRequired: '' as unknown as undefined,
-						salaryFrom: '' as unknown as undefined,
-						salaryTo: '' as unknown as undefined,
-						yearsOfContract: '' as unknown as undefined,
-					}],
+					type: 'OUTSOURCING',
+					requestedPosts: [
+						{
+							postId: undefined as any,
+							vacancy: 1,
+							experienceRequired: '' as unknown as undefined,
+							salaryFrom: '' as unknown as undefined,
+							salaryTo: '' as unknown as undefined,
+							yearsOfContract: '' as unknown as undefined,
+						},
+					],
 			  },
 	});
 
@@ -103,7 +105,7 @@ export function JobRequestForm({
 		name: 'requestedPosts',
 	});
 
-	const type = form.watch('requestType');
+	const type = form.watch('type');
 
 	useEffect(() => {
 		async function fetchPosts() {
@@ -138,7 +140,7 @@ export function JobRequestForm({
 		// Clean up requestedPosts based on type
 		cleanedData.requestedPosts = cleanedData.requestedPosts.map((post) => {
 			const newPost: any = { ...post };
-			if (cleanedData.requestType === 'PERMANENT') {
+			if (cleanedData.type === 'PERMANENT') {
 				delete newPost.outsourcingZoneId;
 				delete newPost.yearsOfContract;
 			} else {
@@ -181,7 +183,7 @@ export function JobRequestForm({
 					<CardContent className='space-y-6'>
 						<FormRadioGroup
 							control={form.control}
-							name='requestType'
+							name='type'
 							label='Request Type'
 							required
 							options={requestTypes.map((rt) => ({ label: rt.nameEn, value: rt.value }))}

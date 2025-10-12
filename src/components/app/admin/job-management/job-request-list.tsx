@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
@@ -31,7 +32,13 @@ const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 
 	const requestStatus = request.status;
 	const requestStatusVariant =
-		requestStatus === 'Success' ? 'success' : requestStatus === 'IN_PROGRESS' ? 'warning' : 'warning';
+		requestStatus === 'Success'
+			? 'success'
+			: requestStatus === 'IN_PROGRESS'
+			? 'warning'
+			: requestStatus === 'Pending'
+			? 'warning'
+			: 'secondary';
 
 	const getPostStatusVariant = (status?: string) => {
 		switch (status) {
@@ -243,7 +250,14 @@ export function JobRequestList() {
 
 	const renderItem = (item: JobRequest) => {
 		const status = item.status;
-		const variant = status === 'Success' ? 'success' : status === 'IN_PROGRESS' ? 'warning' : 'warning';
+		const variant =
+			status === 'Success'
+				? 'success'
+				: status === 'IN_PROGRESS'
+				? 'warning'
+				: status === 'Pending'
+				? 'warning'
+				: 'secondary';
 
 		return (
 			<Card key={item.id} className='p-4 flex flex-col sm:flex-row justify-between items-start'>
