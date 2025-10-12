@@ -14,14 +14,18 @@ import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequest, JobRequestStatus, JobRequestType } from '@/interfaces/job.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { differenceInDays, format, parseISO } from 'date-fns';
 import { Building, Calendar, Check, Clock, Edit, Eye, FileText, Play, Search } from 'lucide-react';
-import Link from 'next/link';
 import * as React from 'react';
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
 
-export function JobRequestList() {
+interface JobRequestListProps {
+	status?: JobRequestStatus;
+}
+
+export function JobRequestList({ status }: JobRequestListProps) {
 	const [data, setData] = React.useState<JobRequest[]>([]);
 	const [meta, setMeta] = React.useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = React.useState(true);
@@ -35,7 +39,7 @@ export function JobRequestList() {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { subject: search },
+					body: { subject: search, ...(status && { status }) },
 					meta: { page, limit: meta.limit },
 				};
 				const response = await JobRequestService.getList(payload);
@@ -51,7 +55,7 @@ export function JobRequestList() {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit, toast]
+		[meta.limit, toast, status]
 	);
 
 	React.useEffect(() => {
@@ -63,9 +67,7 @@ export function JobRequestList() {
 	};
 
 	const handleStatusChange = (requestId: string, newStatus: JobRequest['status']) => {
-		setData((prevData) =>
-			prevData.map((req) => (req.id === requestId ? { ...req, status: newStatus } : req))
-		);
+		setData((prevData) => prevData.filter((req) => req.id !== requestId));
 		toast({
 			title: 'Request Updated',
 			description: `The job request has been updated.`,
@@ -140,15 +142,17 @@ export function JobRequestList() {
 	};
 
 	const renderItem = (item: JobRequest) => {
-		const status = item.status;
+		const requestStatus = item.status;
 		const variant =
-			status === JobRequestStatus.SUCCESS
+			requestStatus === JobRequestStatus.SUCCESS
 				? 'success'
-				: status === JobRequestStatus.IN_PROGRESS
+				: requestStatus === JobRequestStatus.IN_PROGRESS
 				? 'warning'
-				: status === JobRequestStatus.PENDING
+				: requestStatus === JobRequestStatus.PENDING
 				? 'warning'
 				: 'secondary';
+
+		const isDeadlineSoon = differenceInDays(parseISO(item.deadline), new Date()) <= 7;
 
 		return (
 			<Card key={item.id} className='p-4 flex flex-col sm:flex-row justify-between items-start'>
@@ -161,7 +165,7 @@ export function JobRequestList() {
 						<span className='flex items-center gap-1.5'>
 							<FileText className='h-4 w-4' /> Memo: {item.memoNo}
 						</span>
-						<span className='flex items-center gap-1.5'>
+						<span className={cn('flex items-center gap-1.5', isDeadlineSoon && 'text-danger font-medium')}>
 							<Calendar className='h-4 w-4' /> Deadline: {format(new Date(item.deadline), 'PPP')}
 						</span>
 					</div>
@@ -183,15 +187,17 @@ export function JobRequestList() {
 		<Card className='glassmorphism'>
 			<CardHeader>
 				<CardTitle>All Job Requests</CardTitle>
-				<div className='relative w-full max-w-sm mt-2'>
-					<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-					<Input
-						placeholder='Filter by subject or memo no...'
-						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
-						className='pl-10'
-					/>
-				</div>
+				{!status && (
+					<div className='relative w-full max-w-sm mt-2'>
+						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+						<Input
+							placeholder='Filter by subject or memo no...'
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+							className='pl-10'
+						/>
+					</div>
+				)}
 			</CardHeader>
 			<CardContent className='space-y-4'>
 				{isLoading ? (
