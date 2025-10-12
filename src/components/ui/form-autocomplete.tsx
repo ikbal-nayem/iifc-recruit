@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,7 @@ interface FormAutocompleteProps<
 	disabled?: boolean;
 	onValueChange?: (value: string | number) => void;
 	value?: string;
+	onInputChange?: (value: string) => void;
 }
 
 export function FormAutocomplete<
@@ -50,6 +52,7 @@ export function FormAutocomplete<
 	disabled = false,
 	onValueChange,
 	value,
+	onInputChange,
 }: FormAutocompleteProps<TFieldValues, TOption>) {
 	const [open, setOpen] = React.useState(false);
 
@@ -73,7 +76,10 @@ export function FormAutocomplete<
 						</PopoverTrigger>
 						<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
 							<Command>
-								<CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
+								<CommandInput
+									placeholder={`Search ${label.toLowerCase()}...`}
+									onValueChange={onInputChange}
+								/>
 								<CommandList>
 									<CommandEmpty>No options found.</CommandEmpty>
 									<CommandGroup>
@@ -130,8 +136,11 @@ export function FormAutocomplete<
 								</FormControl>
 							</PopoverTrigger>
 							<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
-								<Command>
-									<CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
+								<Command shouldFilter={!onInputChange}>
+									<CommandInput
+										placeholder={`Search ${label.toLowerCase()}...`}
+										onValueChange={onInputChange}
+									/>
 									<CommandList>
 										<CommandEmpty>No options found.</CommandEmpty>
 										<CommandGroup>
@@ -141,6 +150,7 @@ export function FormAutocomplete<
 													value={getOptionLabel(option)}
 													onSelect={() => {
 														field.onChange(getOptionValue(option));
+														if (onInputChange) onInputChange('');
 														setOpen(false);
 													}}
 												>

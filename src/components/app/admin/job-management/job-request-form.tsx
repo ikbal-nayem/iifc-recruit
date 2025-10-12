@@ -11,23 +11,23 @@ import { FormRadioGroup } from '@/components/ui/form-radio-group';
 import { useToast } from '@/hooks/use-toast';
 import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from '@/interfaces/master-data.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { PlusCircle, Save, Send, Trash } from 'lucide-react';
+import { PlusCircle, Save } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { format } from 'date-fns';
 import { JobRequest } from '@/interfaces/job.interface';
+import { Trash } from 'lucide-react';
+import { useDebounce } from '@/hooks/use-debounce';
+import { MasterDataService } from '@/services/api/master-data.service';
 
 const requestedPostSchema = z.object({
 	id: z.number().optional(),
 	postId: z.coerce.number().min(1, 'Post is required.'),
 	vacancy: z.coerce.number().min(1, 'Vacancy must be at least 1.'),
 	outsourcingZoneId: z.coerce.number().optional(),
-	fromDate: z.string().optional(),
-	toDate: z.string().optional(),
 	salaryFrom: z.coerce.number().optional(),
 	salaryTo: z.coerce.number().optional(),
 });
@@ -39,7 +39,7 @@ const jobRequestSchema = z.object({
 	description: z.string().optional(),
 	requestDate: z.string().min(1, 'Request date is required.'),
 	deadline: z.string().min(1, 'Deadline is required.'),
-	type: z.string().min(1, 'Request type is required.'),
+	requestType: z.string().min(1, 'Request type is required.'),
 	requestedPosts: z.array(requestedPostSchema).min(1, 'At least one post is required.'),
 });
 
@@ -62,17 +62,23 @@ export function JobRequestForm({
 }: JobRequestFormProps) {
 	const { toast } = useToast();
 	const router = useRouter();
+
 	const [filteredPosts, setFilteredPosts] = useState<IPost[]>(initialPosts);
 	const [isLoadingPosts, setIsLoadingPosts] = useState(false);
+	const [postSearchQuery, setPostSearchQuery] = useState('');
+	const debouncedPostSearch = useDebounce(postSearchQuery, 500);
 
 	const form = useForm<JobRequestFormValues>({
 		resolver: zodResolver(jobRequestSchema),
-		values: initialData,
 		defaultValues: initialData
-			? undefined
+			? {
+					...initialData,
+					requestDate: format(new Date(initialData.requestDate), 'yyyy-MM-dd'),
+					deadline: format(new Date(initialData.deadline), 'yyyy-MM-dd'),
+			  }
 			: {
 					requestDate: format(new Date(), 'yyyy-MM-dd'),
-					type: 'OUTSOURCING',
+					requestType: 'OUTSOURCING',
 					requestedPosts: [{ postId: undefined, vacancy: 1 }],
 			  },
 	});
@@ -82,14 +88,17 @@ export function JobRequestForm({
 		name: 'requestedPosts',
 	});
 
-	const type = form.watch('type');
+	const type = form.watch('requestType');
 
 	useEffect(() => {
 		async function fetchPosts() {
 			setIsLoadingPosts(true);
 			try {
 				const response = await MasterDataService.post.getList({
-					body: { outsourcing: type === 'OUTSOURCING' },
+					body: {
+						nameEn: debouncedPostSearch,
+						outsourcing: type === 'OUTSOURCING',
+					},
 				});
 				setFilteredPosts(response.body);
 			} catch (error) {
@@ -105,7 +114,7 @@ export function JobRequestForm({
 		if (type) {
 			fetchPosts();
 		}
-	}, [type, toast]);
+	}, [type, debouncedPostSearch, toast]);
 
 	async function onSubmit(data: JobRequestFormValues) {
 		const cleanedData = { ...data };
@@ -113,13 +122,11 @@ export function JobRequestForm({
 		// Clean up requestedPosts based on type
 		cleanedData.requestedPosts = cleanedData.requestedPosts.map((post) => {
 			const newPost = { ...post };
-			if (cleanedData.type === 'OUTSOURCING') {
+			if (cleanedData.requestType === 'OUTSOURCING') {
 				delete newPost.salaryFrom;
 				delete newPost.salaryTo;
 			} else {
 				delete newPost.outsourcingZoneId;
-				delete newPost.fromDate;
-				delete newPost.toDate;
 			}
 			return newPost;
 		});
@@ -128,7 +135,7 @@ export function JobRequestForm({
 			if (initialData) {
 				await JobRequestService.update({ ...cleanedData, id: initialData.id });
 			} else {
-				await JobRequestService.create({...cleanedData, active: true});
+				await JobRequestService.create({ ...cleanedData, active: true });
 			}
 			toast({
 				title: initialData ? 'Job Request Updated!' : 'Job Request Submitted!',
@@ -151,11 +158,12 @@ export function JobRequestForm({
 				<Card className='glassmorphism'>
 					<CardHeader>
 						<CardTitle>Request Details</CardTitle>
+						<CardDescription>Fill in the main details for the job request.</CardDescription>
 					</CardHeader>
 					<CardContent className='space-y-6'>
 						<FormRadioGroup
 							control={form.control}
-							name='type'
+							name='requestType'
 							label='Request Type'
 							required
 							options={requestTypes.map((rt) => ({ label: rt.nameEn, value: rt.value }))}
@@ -223,6 +231,7 @@ export function JobRequestForm({
 											getOptionValue={(opt) => opt.id!.toString()}
 											getOptionLabel={(opt) => opt.nameEn}
 											disabled={isLoadingPosts}
+											onInputChange={setPostSearchQuery}
 										/>
 										<FormInput
 											control={form.control}
@@ -245,20 +254,7 @@ export function JobRequestForm({
 											/>
 										)}
 									</div>
-									{type === 'OUTSOURCING' && (
-										<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-											<FormDatePicker
-												control={form.control}
-												name={`requestedPosts.${index}.fromDate`}
-												label='From Date'
-											/>
-											<FormDatePicker
-												control={form.control}
-												name={`requestedPosts.${index}.toDate`}
-												label='To Date'
-											/>
-										</div>
-									)}
+
 									{type !== 'OUTSOURCING' && (
 										<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 											<FormInput
@@ -294,7 +290,7 @@ export function JobRequestForm({
 							variant='outline'
 							onClick={() =>
 								append({
-									postId: -1,
+									postId: undefined,
 									vacancy: 1,
 								})
 							}
@@ -302,13 +298,13 @@ export function JobRequestForm({
 							<PlusCircle className='mr-2 h-4 w-4' /> Add Another Post
 						</Button>
 					</CardContent>
-					<CardFooter>
-						<Button type='submit'>
-							{initialData ? <Save className='mr-2 h-4 w-4' /> : <Send className='mr-2 h-4 w-4' />}
-							{initialData ? 'Save Changes' : 'Submit Request'}
-						</Button>
-					</CardFooter>
 				</Card>
+				<div className='flex justify-center'>
+					<Button type='submit'>
+						<Save className='mr-2 h-4 w-4' />
+						{initialData ? 'Save Changes' : 'Submit Request'}
+					</Button>
+				</div>
 			</form>
 		</Form>
 	);
