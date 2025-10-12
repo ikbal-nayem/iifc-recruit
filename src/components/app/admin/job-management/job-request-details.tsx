@@ -3,7 +3,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { JobRequest, JobRequestStatus, JobRequestType, RequestedPost } from '@/interfaces/job.interface';
+import { JobRequest, JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
 import { cn } from '@/lib/utils';
 import { differenceInDays, format, parseISO } from 'date-fns';
 import { ArrowLeft, Building, Calendar, Edit, FileText } from 'lucide-react';
@@ -16,6 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Check, ChevronsUpDown, UserPlus, X } from 'lucide-react';
 import { Jobseeker } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { JobRequestType } from '@/interfaces/job.interface';
 
 const getPostStatusVariant = (status?: string) => {
 	switch (status) {
@@ -51,6 +52,8 @@ function PrimaryListManager({ post }: { post: RequestedPost }) {
 		setPrimaryList((prev) => prev.filter((js) => js.id !== jobseekerId));
 	};
 
+	const getFullName = (personalInfo: any) => [personalInfo.firstName, personalInfo.lastName].filter(Boolean).join(' ');
+
 	return (
 		<div className='mt-4 rounded-lg border p-4'>
 			<div className='flex justify-between items-center mb-3'>
@@ -74,11 +77,11 @@ function PrimaryListManager({ post }: { post: RequestedPost }) {
 								<CommandGroup>
 									{availableJobseekers
 										.filter((js) =>
-											js.personalInfo.name.toLowerCase().includes(searchQuery.toLowerCase())
+											getFullName(js.personalInfo).toLowerCase().includes(searchQuery.toLowerCase())
 										)
 										.map((js) => (
 											<CommandItem key={js.id} onSelect={() => handleSelect(js)}>
-												{js.personalInfo.name}
+												{getFullName(js.personalInfo)}
 											</CommandItem>
 										))}
 								</CommandGroup>
@@ -96,10 +99,10 @@ function PrimaryListManager({ post }: { post: RequestedPost }) {
 						>
 							<div className='flex items-center gap-3'>
 								<Avatar className='h-8 w-8'>
-									<AvatarImage src={jobseeker.personalInfo.avatar} />
-									<AvatarFallback>{jobseeker.personalInfo.name[0]}</AvatarFallback>
+									<AvatarImage src={jobseeker.personalInfo.profileImage?.filePath} />
+									<AvatarFallback>{getFullName(jobseeker.personalInfo)[0]}</AvatarFallback>
 								</Avatar>
-								<span className='text-sm font-medium'>{jobseeker.personalInfo.name}</span>
+								<span className='text-sm font-medium'>{getFullName(jobseeker.personalInfo)}</span>
 							</div>
 							<Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => handleRemove(jobseeker.id)}>
 								<X className='h-4 w-4' />
