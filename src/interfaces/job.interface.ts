@@ -23,7 +23,7 @@ export type RequestedPost = {
 	toDate?: string;
 	salaryFrom?: number;
 	salaryTo?: number;
-	status?: 'PENDING' | 'IN_PROGRESS' | 'EXAM' | 'INTERVIEW';
+	status?: 'PENDING' | 'PROCESSING' | 'EXAM' | 'INTERVIEW';
 	statusDTO?: EnumDTO;
 	experienceRequired?: number;
 	negotiable?: boolean;

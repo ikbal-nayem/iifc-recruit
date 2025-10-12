@@ -110,7 +110,7 @@ export function JobRequestList({ status }: JobRequestListProps) {
 			items.push(
 				{ isSeparator: true },
 				{
-					label: 'Set to In Progress',
+					label: 'Set to Processing',
 					icon: <Play className='mr-2 h-4 w-4' />,
 					onClick: () => handleStatusChange(request.id!, JobRequestStatus.PROCESSING),
 				}
@@ -121,7 +121,7 @@ export function JobRequestList({ status }: JobRequestListProps) {
 			items.push(
 				{ isSeparator: true },
 				{
-					label: 'Set to Success',
+					label: 'Set to Completed',
 					icon: <Check className='mr-2 h-4 w-4' />,
 					onClick: () => handleStatusChange(request.id!, JobRequestStatus.COMPLETED),
 				}

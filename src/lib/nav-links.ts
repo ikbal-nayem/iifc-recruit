@@ -46,30 +46,30 @@ export const adminNavLinks: NavLink[] = [
 		isActive: (pathname) => pathname === '/admin',
 	},
 	{
-		href: '/admin/job-management',
-		label: 'Job Management',
+		href: '/admin/job-management/request',
+		label: 'Recruitment',
 		icon: FolderKanban,
 		isActive: (pathname) => pathname.startsWith('/admin/job-management'),
 		submenu: [
+			{
+				href: '/admin/job-management/request/create',
+				label: 'New Request',
+				icon: PlusCircle,
+			},
 			{
 				href: '/admin/job-management/request/pending',
 				label: 'Pending Requests',
 				icon: Clock,
 			},
 			{
-				href: '/admin/job-management/request/in-progress',
-				label: 'In Progress Requests',
+				href: '/admin/job-management/request/processing',
+				label: 'Processing Requests',
 				icon: Play,
 			},
 			{
 				href: '/admin/job-management/request/completed',
 				label: 'Completed Requests',
 				icon: CheckCircle,
-			},
-			{
-				href: '/admin/job-management/request/create',
-				label: 'New Request',
-				icon: PlusCircle,
 			},
 		],
 	},

@@ -1,15 +1,7 @@
-import { JobManagement } from '@/components/app/admin/job-management';
+import { redirect } from "next/navigation";
 
 export default function AdminJobsPage() {
-  return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-headline font-bold">Job Management</h1>
-        <p className="text-muted-foreground">
-          Create, edit, and manage all job postings for your organization.
-        </p>
-      </div>
-      <JobManagement />
-    </div>
-  );
+    // This page is a placeholder. The main functionality is under the /request route.
+    // Redirect to the main job request page.
+    redirect('/admin/job-management/request');
 }
