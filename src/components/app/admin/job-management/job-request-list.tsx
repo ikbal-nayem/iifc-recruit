@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
@@ -5,14 +6,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -20,132 +13,11 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequest, JobRequestStatus, JobRequestType } from '@/interfaces/job.interface';
-import { cn } from '@/lib/utils';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { differenceInDays, format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import { Building, Calendar, Check, Clock, Edit, Eye, FileText, Play, Search } from 'lucide-react';
 import Link from 'next/link';
 import * as React from 'react';
-
-const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
-	if (!request) return null;
-
-	const requestStatus = request.status;
-	const requestStatusVariant =
-		requestStatus === JobRequestStatus.SUCCESS
-			? 'success'
-			: requestStatus === JobRequestStatus.IN_PROGRESS
-			? 'warning'
-			: requestStatus === JobRequestStatus.PENDING
-			? 'warning'
-			: 'secondary';
-
-	const getPostStatusVariant = (status?: string) => {
-		switch (status) {
-			case JobRequestStatus.PENDING:
-				return 'warning';
-			case 'IN_PROGRESS':
-				return 'info';
-			case 'EXAM':
-				return 'default';
-			case 'INTERVIEW':
-				return 'success';
-			default:
-				return 'secondary';
-		}
-	};
-
-	const isDeadlineSoon = differenceInDays(parseISO(request.deadline), new Date()) <= 7;
-
-	return (
-		<div>
-			<DialogHeader className='mb-4'>
-				<DialogTitle className='text-2xl'>{request.subject}</DialogTitle>
-				<DialogDescription>
-					From: {request.clientOrganization?.nameEn} | Memo: {request.memoNo}
-				</DialogDescription>
-			</DialogHeader>
-
-			<div className='space-y-6 text-sm'>
-				<div className='grid grid-cols-2 gap-4 rounded-md border p-4'>
-					<div>
-						<p className='font-medium text-muted-foreground'>Request Date</p>
-						<p>{format(new Date(request.requestDate), 'PPP')}</p>
-					</div>
-					<div>
-						<p className='font-medium text-muted-foreground'>Deadline</p>
-						<p className={cn(isDeadlineSoon && 'font-bold text-danger')}>
-							{format(new Date(request.deadline), 'PPP')}
-						</p>
-					</div>
-					<div>
-						<p className='font-medium text-muted-foreground'>Request Type</p>
-						<Badge variant={request.type === JobRequestType.OUTSOURCING ? 'secondary' : 'outline'}>
-							{request.typeDTO?.nameEn}
-						</Badge>
-					</div>
-					<div>
-						<p className='font-medium text-muted-foreground'>Status</p>
-						<Badge variant={requestStatusVariant}>{request.statusDTO?.nameEn}</Badge>
-					</div>
-				</div>
-
-				{request.description && (
-					<div>
-						<h4 className='font-semibold mb-1'>Description</h4>
-						<p className='text-muted-foreground'>{request.description}</p>
-					</div>
-				)}
-
-				<div>
-					<h4 className='font-semibold mb-2'>Requested Posts</h4>
-					<div className='space-y-3'>
-						{request.requestedPosts.map((post, index) => (
-							<div key={index} className='p-3 border rounded-md bg-muted/50'>
-								<div className='flex justify-between items-start'>
-									<p className='font-semibold'>
-										{post.post?.nameEn} ({post.vacancy} Vacancies)
-									</p>
-									<Badge variant={getPostStatusVariant(post.status)}>{post.statusDTO?.nameEn}</Badge>
-								</div>
-								<div className='grid grid-cols-2 gap-x-4 gap-y-1 text-muted-foreground mt-2 text-xs'>
-									{post.experienceRequired && post.experienceRequired > 0 && (
-										<span>Experience: {post.experienceRequired} years</span>
-									)}
-									{request.type === JobRequestType.OUTSOURCING ? (
-										<>
-											{post.outsourcingZone?.nameEn && <span>Zone: {post.outsourcingZone?.nameEn}</span>}
-											{post.yearsOfContract && post.yearsOfContract > 0 && (
-												<span>Contract: {post.yearsOfContract} years</span>
-											)}
-										</>
-									) : (
-										<>
-											{post.salaryFrom && post.salaryTo && (
-												<span>
-													Salary: {post.salaryFrom} - {post.salaryTo}
-												</span>
-											)}
-											{post.negotiable && <span>(Negotiable)</span>}
-										</>
-									)}
-								</div>
-							</div>
-						))}
-					</div>
-				</div>
-			</div>
-
-			<DialogFooter className='mt-6'>
-				<Button asChild>
-					<Link href={`/admin/job-management/request/edit/${request.id}`}>
-						<Edit className='mr-2 h-4 w-4' /> Edit Request
-					</Link>
-				</Button>
-			</DialogFooter>
-		</div>
-	);
-};
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
 
@@ -157,7 +29,6 @@ export function JobRequestList() {
 	const debouncedSearch = useDebounce(searchQuery, 500);
 	const { toast } = useToast();
 	const [itemToDelete, setItemToDelete] = React.useState<JobRequest | null>(null);
-	const [itemToView, setItemToView] = React.useState<JobRequest | null>(null);
 
 	const loadItems = React.useCallback(
 		async (page: number, search: string) => {
@@ -224,7 +95,7 @@ export function JobRequestList() {
 			{
 				label: 'View Details',
 				icon: <Eye className='mr-2 h-4 w-4' />,
-				onClick: () => setItemToView(request),
+				href: `/admin/job-management/request/${request.id}`,
 			},
 			{
 				label: 'Edit',
@@ -343,12 +214,6 @@ export function JobRequestList() {
 				description='This will permanently delete the job request. This action cannot be undone.'
 				onConfirm={handleDelete}
 			/>
-
-			<Dialog open={!!itemToView} onOpenChange={(open) => !open && setItemToView(null)}>
-				<DialogContent className='max-w-3xl max-h-[90vh] overflow-y-auto'>
-					{itemToView && <JobRequestDetailView request={itemToView} />}
-				</DialogContent>
-			</Dialog>
 		</Card>
 	);
 }
