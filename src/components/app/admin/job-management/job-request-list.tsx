@@ -244,6 +244,6 @@ export function JobRequestList({ status }: JobRequestListProps) {
 				description='This will permanently delete the job request. This action cannot be undone.'
 				onConfirm={handleDelete}
 			/>
-		</div>
+		</Card>
 	);
 }
