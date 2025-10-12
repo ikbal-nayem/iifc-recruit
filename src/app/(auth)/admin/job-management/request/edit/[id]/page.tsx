@@ -13,7 +13,7 @@ type MasterData = {
     requestTypes: EnumDTO[];
 }
 
-async function getJobRequest(id: string) {
+async function getJobRequest(id: string): Promise<JobRequest> {
     try {
        const response = await JobRequestService.getById(id);
        return response.body;
@@ -45,9 +45,18 @@ async function getMasterData(): Promise<MasterData> {
 }
 
 export default async function EditJobRequestPage({ params }: { params: { id: string } }) {
-    const jobRequest = await getJobRequest(params.id);
-    const masterData = await getMasterData();
+    const [jobRequest, masterData] = await Promise.all([
+        getJobRequest(params.id),
+        getMasterData(),
+    ]);
 
+    // Enrich the jobRequest with the full clientOrganization object
+    if (jobRequest && masterData.clientOrganizations.length > 0) {
+        jobRequest.clientOrganization = masterData.clientOrganizations.find(
+            (org) => org.id === jobRequest.clientOrganizationId
+        );
+    }
+    
 	return (
 		<div className='space-y-8'>
 			<div>
@@ -66,3 +75,4 @@ export default async function EditJobRequestPage({ params }: { params: { id: str
 		</div>
 	);
 }
+
