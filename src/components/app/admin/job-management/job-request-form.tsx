@@ -32,6 +32,7 @@ const requestedPostSchema = z.object({
 	outsourcingZoneId: z.coerce.number().optional(),
 	salaryFrom: z.coerce.number().optional(),
 	salaryTo: z.coerce.number().optional(),
+	yearsOfContract: z.coerce.number().optional(),
 });
 
 const jobRequestSchema = z.object({
@@ -132,6 +133,7 @@ export function JobRequestForm({
 			const newPost: any = { ...post };
 			if (cleanedData.requestType === 'PERMANENT') {
 				delete newPost.outsourcingZoneId;
+				delete newPost.yearsOfContract;
 			} else {
 				delete newPost.salaryFrom;
 				delete newPost.salaryTo;
@@ -260,16 +262,25 @@ export function JobRequestForm({
 									</div>
 
 									{type === 'OUTSOURCING' ? (
-										<FormAutocomplete
-											control={form.control}
-											name={`requestedPosts.${index}.outsourcingZoneId`}
-											label='Zone'
-											required
-											placeholder='Select Zone'
-											options={outsourcingZones}
-											getOptionValue={(opt) => opt.id!.toString()}
-											getOptionLabel={(opt) => opt.nameEn}
-										/>
+										<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+											<FormAutocomplete
+												control={form.control}
+												name={`requestedPosts.${index}.outsourcingZoneId`}
+												label='Zone'
+												required
+												placeholder='Select Zone'
+												options={outsourcingZones}
+												getOptionValue={(opt) => opt.id!.toString()}
+												getOptionLabel={(opt) => opt.nameEn}
+											/>
+											<FormInput
+												control={form.control}
+												name={`requestedPosts.${index}.yearsOfContract`}
+												label='Years of Contract'
+												type='number'
+												placeholder='e.g., 3'
+											/>
+										</div>
 									) : (
 										<div className='grid grid-cols-1 md:grid-cols-3 gap-4 items-center'>
 											<FormInput

@@ -16,6 +16,7 @@ export type RequestedPost = {
 	statusDTO?: EnumDTO;
 	experienceRequired?: number;
 	negotiable?: boolean;
+	yearsOfContract?: number;
 };
 
 export type JobRequest = {
@@ -27,7 +28,7 @@ export type JobRequest = {
 	description?: string;
 	requestDate: string;
 	deadline: string;
-	requestType?: 'OUTSOURCING' | string;
+	requestType?: 'OUTSOURCING' | 'PERMANENT';
 	requestTypeDTO?: EnumDTO;
 	status?: 'Pending' | 'IN_PROGRESS' | 'Success';
 	statusDTO?: EnumDTO;
