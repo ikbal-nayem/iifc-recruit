@@ -87,7 +87,14 @@ export function JobRequestForm({
 					requestDate: format(new Date(), 'yyyy-MM-dd'),
 					deadline: '',
 					requestType: 'OUTSOURCING',
-					requestedPosts: [{ postId: undefined as any, vacancy: 1 }],
+					requestedPosts: [{ 
+						postId: undefined as any, 
+						vacancy: 1,
+						experienceRequired: '' as unknown as undefined,
+						salaryFrom: '' as unknown as undefined,
+						salaryTo: '' as unknown as undefined,
+						yearsOfContract: '' as unknown as undefined,
+					}],
 			  },
 	});
 
@@ -325,6 +332,10 @@ export function JobRequestForm({
 								append({
 									postId: undefined as any,
 									vacancy: 1,
+									experienceRequired: '' as unknown as undefined,
+									salaryFrom: '' as unknown as undefined,
+									salaryTo: '' as unknown as undefined,
+									yearsOfContract: '' as unknown as undefined,
 								})
 							}
 						>
