@@ -4,7 +4,7 @@ import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from './master-
 export enum JobRequestStatus {
 	PENDING = 'PENDING',
 	PROCESSING = 'PROCESSING',
-	SUCCESS = 'SUCCESS',
+	COMPLETED = 'COMPLETED',
 }
 
 export enum JobRequestType {

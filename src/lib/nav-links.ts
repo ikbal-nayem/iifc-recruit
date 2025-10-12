@@ -53,8 +53,13 @@ export const adminNavLinks: NavLink[] = [
 		isActive: (pathname) => pathname.startsWith('/admin/job-management'),
 		submenu: [
 			{
-				href: '/admin/job-management/request',
-				label: 'Job Requests',
+				href: '/admin/job-management/request/pending',
+				label: 'Pending Requests',
+				icon: ListChecks,
+			},
+			{
+				href: '/admin/job-management/request/in-progress',
+				label: 'In Progress Requests',
 				icon: ListChecks,
 			},
 			{
