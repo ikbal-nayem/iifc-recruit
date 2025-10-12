@@ -1,27 +1,26 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormCheckbox } from '@/components/ui/form-checkbox';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
 import { FormRadioGroup } from '@/components/ui/form-radio-group';
+import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
+import { JobRequest } from '@/interfaces/job.interface';
 import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from '@/interfaces/master-data.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
+import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { format } from 'date-fns';
 import { PlusCircle, Save, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { format } from 'date-fns';
-import { JobRequest } from '@/interfaces/job.interface';
-import { useDebounce } from '@/hooks/use-debounce';
-import { MasterDataService } from '@/services/api/master-data.service';
 
 const requestedPostSchema = z.object({
 	id: z.number().optional(),
@@ -45,6 +44,16 @@ const jobRequestSchema = z.object({
 	type: z.string().min(1, 'Request type is required.'),
 	requestedPosts: z.array(requestedPostSchema).min(1, 'At least one post is required.'),
 });
+
+const defaultRequestedPost = {
+	postId: undefined as any,
+	vacancy: 1,
+	experienceRequired: undefined,
+	salaryFrom: undefined,
+	salaryTo: undefined,
+	yearsOfContract: undefined,
+	negotiable: false,
+};
 
 type JobRequestFormValues = z.infer<typeof jobRequestSchema>;
 
@@ -87,16 +96,7 @@ export function JobRequestForm({
 					requestDate: format(new Date(), 'yyyy-MM-dd'),
 					deadline: '',
 					type: 'OUTSOURCING',
-					requestedPosts: [
-						{
-							postId: undefined as any,
-							vacancy: 1,
-							experienceRequired: '' as unknown as undefined,
-							salaryFrom: '' as unknown as undefined,
-							salaryTo: '' as unknown as undefined,
-							yearsOfContract: '',
-						},
-					],
+					requestedPosts: [defaultRequestedPost],
 			  },
 	});
 
@@ -140,10 +140,15 @@ export function JobRequestForm({
 		// Clean up requestedPosts based on type
 		cleanedData.requestedPosts = cleanedData.requestedPosts.map((post) => {
 			const newPost: any = { ...post };
-			
+
 			// Convert empty strings for optional numbers to null before submitting
-			const numericFields: (keyof typeof post)[] = ['experienceRequired', 'salaryFrom', 'salaryTo', 'yearsOfContract'];
-			numericFields.forEach(field => {
+			const numericFields: (keyof typeof post)[] = [
+				'experienceRequired',
+				'salaryFrom',
+				'salaryTo',
+				'yearsOfContract',
+			];
+			numericFields.forEach((field) => {
 				if (newPost[field] === '') {
 					newPost[field] = null;
 				}
@@ -235,7 +240,7 @@ export function JobRequestForm({
 
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-6 items-start'>
 							<FormDatePicker control={form.control} name='requestDate' label='Request Date' required />
-							<FormDatePicker control={form.control} name='deadline' label='Application Deadline' required />
+							<FormDatePicker control={form.control} name='deadline' label='Deadline' required />
 						</div>
 					</CardContent>
 				</Card>
@@ -336,20 +341,7 @@ export function JobRequestForm({
 								)}
 							</Card>
 						))}
-						<Button
-							type='button'
-							variant='outline'
-							onClick={() =>
-								append({
-									postId: undefined as any,
-									vacancy: 1,
-									experienceRequired: '' as unknown as undefined,
-									salaryFrom: '' as unknown as undefined,
-									salaryTo: '' as unknown as undefined,
-									yearsOfContract: '',
-								})
-							}
-						>
+						<Button type='button' variant='outline' onClick={() => append(defaultRequestedPost)}>
 							<PlusCircle className='mr-2 h-4 w-4' /> Add Another Post
 						</Button>
 					</CardContent>

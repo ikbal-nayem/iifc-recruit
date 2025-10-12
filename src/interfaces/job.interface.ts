@@ -28,9 +28,9 @@ export type JobRequest = {
 	description?: string;
 	requestDate: string;
 	deadline: string;
-	type?: 'OUTSOURCING' | 'PERMANENT';
+	type?: 'OUTSOURCING' | 'PERMANENT' | string;
 	typeDTO?: EnumDTO;
-	status?: 'Pending' | 'IN_PROGRESS' | 'Success';
+	status?: 'PENDING' | 'IN_PROGRESS' | 'Success';
 	statusDTO?: EnumDTO;
 	requestedPosts: RequestedPost[];
 	active?: boolean;
