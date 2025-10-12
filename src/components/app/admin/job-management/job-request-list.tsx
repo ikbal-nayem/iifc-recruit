@@ -4,7 +4,7 @@
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
@@ -186,9 +186,8 @@ export function JobRequestList({ status }: JobRequestListProps) {
 	return (
 		<Card className='glassmorphism'>
 			<CardHeader>
-				<CardTitle>All Job Requests</CardTitle>
 				{!status && (
-					<div className='relative w-full max-w-sm mt-2'>
+					<div className='relative w-full max-w-sm'>
 						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 						<Input
 							placeholder='Filter by subject or memo no...'
