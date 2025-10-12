@@ -22,7 +22,8 @@ import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequest } from '@/interfaces/job.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { differenceInDays, format, parseISO } from 'date-fns';
 import { Building, Calendar, Check, Clock, Edit, Eye, FileText, Play, Search, Settings } from 'lucide-react';
 import Link from 'next/link';
 import * as React from 'react';
@@ -55,6 +56,8 @@ const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 		}
 	};
 
+	const isDeadlineSoon = differenceInDays(parseISO(request.deadline), new Date()) <= 7;
+
 	return (
 		<div>
 			<DialogHeader className='mb-4'>
@@ -72,11 +75,13 @@ const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 					</div>
 					<div>
 						<p className='font-medium text-muted-foreground'>Deadline</p>
-						<p>{format(new Date(request.deadline), 'PPP')}</p>
+						<p className={cn(isDeadlineSoon && 'font-bold text-danger')}>{format(new Date(request.deadline), 'PPP')}</p>
 					</div>
 					<div>
 						<p className='font-medium text-muted-foreground'>Request Type</p>
-						<p>{request.typeDTO?.nameEn}</p>
+						<Badge variant={request.type === 'OUTSOURCING' ? 'secondary' : 'outline'}>
+							{request.typeDTO?.nameEn}
+						</Badge>
 					</div>
 					<div>
 						<p className='font-medium text-muted-foreground'>Status</p>
@@ -97,18 +102,29 @@ const JobRequestDetailView = ({ request }: { request: JobRequest }) => {
 						{request.requestedPosts.map((post, index) => (
 							<div key={index} className='p-3 border rounded-md bg-muted/50'>
 								<div className='flex justify-between items-start'>
-									<p className='font-semibold'>{post.post?.nameEn}</p>
-								</div>
-								<div className='flex justify-between items-center text-muted-foreground mt-1'>
-									<span>Vacancy: {post.vacancy}</span>
-									{request.type === 'OUTSOURCING' ? (
-										<span>Zone: {post.outsourcingZone?.nameEn}</span>
-									) : (
-										<span>
-											Salary: {post.salaryFrom} - {post.salaryTo}
-										</span>
-									)}
+									<p className='font-semibold'>
+										{post.post?.nameEn} ({post.vacancy} Vacancies)
+									</p>
 									<Badge variant={getPostStatusVariant(post.status)}>{post.statusDTO?.nameEn}</Badge>
+								</div>
+								<div className='grid grid-cols-2 gap-x-4 gap-y-1 text-muted-foreground mt-2 text-xs'>
+									{post.experienceRequired && <span>Experience: {post.experienceRequired} years</span>}
+
+									{request.type === 'OUTSOURCING' ? (
+										<>
+											{post.outsourcingZone?.nameEn && <span>Zone: {post.outsourcingZone?.nameEn}</span>}
+											{post.yearsOfContract && <span>Contract: {post.yearsOfContract} years</span>}
+										</>
+									) : (
+										<>
+											{post.salaryFrom && post.salaryTo && (
+												<span>
+													Salary: {post.salaryFrom} - {post.salaryTo}
+												</span>
+											)}
+											{post.negotiable && <span>(Negotiable)</span>}
+										</>
+									)}
 								</div>
 							</div>
 						))}
