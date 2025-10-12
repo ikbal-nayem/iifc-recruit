@@ -7,14 +7,18 @@ import {
 	BookOpen,
 	Briefcase,
 	Building2,
+	CheckCircle,
+	Clock,
 	FileText,
+	FolderKanban,
 	Globe,
 	GraduationCap,
 	Handshake,
 	Heart,
 	Languages,
 	LayoutDashboard,
-	ListChecks,
+	Network,
+	Play,
 	PlusCircle,
 	Search,
 	Settings,
@@ -23,11 +27,6 @@ import {
 	UserCircle,
 	UserCog,
 	Users,
-	FolderKanban,
-	DollarSign,
-	Map,
-	Type,
-	Network,
 } from 'lucide-react';
 
 export interface NavLink {
@@ -55,12 +54,17 @@ export const adminNavLinks: NavLink[] = [
 			{
 				href: '/admin/job-management/request/pending',
 				label: 'Pending Requests',
-				icon: ListChecks,
+				icon: Clock,
 			},
 			{
-				href: '/admin/job-management/request/procissing',
-				label: 'Progressing Requests',
-				icon: ListChecks,
+				href: '/admin/job-management/request/in-progress',
+				label: 'In Progress Requests',
+				icon: Play,
+			},
+			{
+				href: '/admin/job-management/request/completed',
+				label: 'Completed Requests',
+				icon: CheckCircle,
 			},
 			{
 				href: '/admin/job-management/request/create',
