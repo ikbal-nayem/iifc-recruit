@@ -1,5 +1,4 @@
-
-import { JobRequestList } from '@/components/app/admin/job-management/job-request-list';
+import { JobRequestList } from '@/components/app/admin/recruitment/job-request-list';
 import { JobRequestStatus } from '@/interfaces/job.interface';
 
 export default function ProcessingJobRequestsPage() {
@@ -15,4 +14,3 @@ export default function ProcessingJobRequestsPage() {
 		</div>
 	);
 }
-

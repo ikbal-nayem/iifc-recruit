@@ -68,7 +68,7 @@ export function EditJobForm({ job }: EditJobFormProps) {
       description: `The job "${data.title}" has been updated.`,
       variant: 'success',
     });
-    router.push('/admin/job-management');
+    router.push('/admin/recruitment');
   }
 
   return (
@@ -87,7 +87,7 @@ export function EditJobForm({ job }: EditJobFormProps) {
                     placeholder="e.g. Senior Frontend Developer"
                     required
                 />
-                <FormInput
+                 <FormInput
                     control={form.control}
                     name="department"
                     label="Department"

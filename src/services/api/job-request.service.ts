@@ -1,6 +1,6 @@
 import { axiosIns } from '@/config/api.config';
 import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
-import { JobRequest, JobRequestStatus } from '@/interfaces/job.interface';
+import { JobRequest, JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
 
 export const JobRequestService = {
 	create: async (payload: Omit<JobRequest, 'id'>): Promise<IApiResponse<JobRequest>> =>
@@ -11,6 +11,9 @@ export const JobRequestService = {
 
 	getList: async (payload: IApiRequest): Promise<IApiResponse<JobRequest[]>> =>
 		await axiosIns.post('/job-request/get-list', payload),
+	
+	getRequestedPosts: async (payload: IApiRequest): Promise<IApiResponse<RequestedPost[]>> =>
+		await axiosIns.post('/job-request/get-requested-posts', payload),
 
 	getById: async (id: string): Promise<IApiResponse<JobRequest>> =>
 		await axiosIns.get(`/job-request/get-by-id/${id}`),

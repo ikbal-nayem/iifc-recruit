@@ -1,4 +1,3 @@
-
 import type { LucideIcon } from 'lucide-react';
 import {
 	Award,
@@ -27,6 +26,7 @@ import {
 	UserCircle,
 	UserCog,
 	Users,
+	Users2,
 } from 'lucide-react';
 
 export interface NavLink {
@@ -46,28 +46,33 @@ export const adminNavLinks: NavLink[] = [
 		isActive: (pathname) => pathname === '/admin',
 	},
 	{
-		href: '/admin/job-management/request',
-		label: 'Job Management',
+		href: '/admin/recruitment/request',
+		label: 'Recruitment',
 		icon: FolderKanban,
-		isActive: (pathname) => pathname.startsWith('/admin/job-management'),
+		isActive: (pathname) => pathname.startsWith('/admin/recruitment'),
 		submenu: [
 			{
-				href: '/admin/job-management/request/create',
+				href: '/admin/recruitment/request/create',
 				label: 'New Request',
 				icon: PlusCircle,
 			},
 			{
-				href: '/admin/job-management/request/pending',
+				href: '/admin/recruitment/requested-posts',
+				label: 'Requested Posts',
+				icon: Users2,
+			},
+			{
+				href: '/admin/recruitment/request/pending',
 				label: 'Pending Requests',
 				icon: Clock,
 			},
 			{
-				href: '/admin/job-management/request/processing',
+				href: '/admin/recruitment/request/processing',
 				label: 'Processing Requests',
 				icon: Play,
 			},
 			{
-				href: '/admin/job-management/request/completed',
+				href: '/admin/recruitment/request/completed',
 				label: 'Completed Requests',
 				icon: CheckCircle,
 			},
