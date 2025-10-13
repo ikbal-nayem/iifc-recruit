@@ -29,7 +29,7 @@ const getPostStatusVariant = (status?: string) => {
 
 export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: JobRequest }) {
 	const router = useRouter();
-	const [request, setRequest] = React.useState<JobRequest>(initialJobRequest);
+	const [request] = React.useState<JobRequest>(initialJobRequest);
 
 	const requestStatus = request.status;
 	const requestStatusVariant =
