@@ -11,9 +11,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { jobseekers } from '@/lib/data';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Check, ChevronsUpDown, UserPlus, X } from 'lucide-react';
 import { Jobseeker } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { JobRequestType } from '@/interfaces/job.interface';
@@ -34,23 +31,7 @@ const getPostStatusVariant = (status?: string) => {
 };
 
 function PrimaryListManager({ post }: { post: RequestedPost }) {
-	const [open, setOpen] = React.useState(false);
-	const [primaryList, setPrimaryList] = React.useState<Jobseeker[]>([]);
-	const [searchQuery, setSearchQuery] = React.useState('');
-
-	const availableJobseekers = jobseekers.filter(
-		(jobseeker) => !primaryList.some((pl) => pl.id === jobseeker.id)
-	);
-
-	const handleSelect = (jobseeker: Jobseeker) => {
-		setPrimaryList((prev) => [...prev, jobseeker]);
-		setOpen(false);
-		setSearchQuery('');
-	};
-
-	const handleRemove = (jobseekerId: string) => {
-		setPrimaryList((prev) => prev.filter((js) => js.id !== jobseekerId));
-	};
+	const [primaryList, setPrimaryList] = React.useState<Jobseeker[]>(jobseekers.slice(0, 3)); // Mock data
 
 	const getFullName = (personalInfo: any) => [personalInfo.firstName, personalInfo.lastName].filter(Boolean).join(' ');
 
@@ -58,37 +39,6 @@ function PrimaryListManager({ post }: { post: RequestedPost }) {
 		<div className='mt-4 rounded-lg border p-4'>
 			<div className='flex justify-between items-center mb-3'>
 				<h4 className='font-semibold'>Primary List</h4>
-				<Popover open={open} onOpenChange={setOpen}>
-					<PopoverTrigger asChild>
-						<Button variant='outline'>
-							<UserPlus className='mr-2 h-4 w-4' />
-							Add Candidate
-						</Button>
-					</PopoverTrigger>
-					<PopoverContent className='w-[300px] p-0'>
-						<Command>
-							<CommandInput
-								placeholder='Search jobseeker...'
-								value={searchQuery}
-								onValueChange={setSearchQuery}
-							/>
-							<CommandList>
-								<CommandEmpty>No jobseeker found.</CommandEmpty>
-								<CommandGroup>
-									{availableJobseekers
-										.filter((js) =>
-											getFullName(js.personalInfo).toLowerCase().includes(searchQuery.toLowerCase())
-										)
-										.map((js) => (
-											<CommandItem key={js.id} onSelect={() => handleSelect(js)}>
-												{getFullName(js.personalInfo)}
-											</CommandItem>
-										))}
-								</CommandGroup>
-							</CommandList>
-						</Command>
-					</PopoverContent>
-				</Popover>
 			</div>
 			{primaryList.length > 0 ? (
 				<div className='space-y-2'>
@@ -104,9 +54,6 @@ function PrimaryListManager({ post }: { post: RequestedPost }) {
 								</Avatar>
 								<span className='text-sm font-medium'>{getFullName(jobseeker.personalInfo)}</span>
 							</div>
-							<Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => handleRemove(jobseeker.id)}>
-								<X className='h-4 w-4' />
-							</Button>
 						</div>
 					))}
 				</div>

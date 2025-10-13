@@ -211,17 +211,15 @@ export function JobRequestList({ status }: JobRequestListProps) {
 	return (
 		<Card className='glassmorphism'>
 			<CardHeader>
-				{!status && (
-					<div className='relative w-full max-w-sm'>
-						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-						<Input
-							placeholder='Filter by subject or memo no...'
-							value={searchQuery}
-							onChange={(e) => setSearchQuery(e.target.value)}
-							className='pl-10'
-						/>
-					</div>
-				)}
+				<div className='relative w-full max-w-sm'>
+					<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+					<Input
+						placeholder='Filter by subject or memo no...'
+						value={searchQuery}
+						onChange={(e) => setSearchQuery(e.target.value)}
+						className='pl-10'
+					/>
+				</div>
 			</CardHeader>
 			<CardContent className='space-y-4'>
 				{isLoading ? (
