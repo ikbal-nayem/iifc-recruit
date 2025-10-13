@@ -6,11 +6,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { JobRequest, JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
 import { cn } from '@/lib/utils';
 import { differenceInDays, format, parseISO } from 'date-fns';
-import { ArrowLeft, Building, Calendar, Edit, FileText } from 'lucide-react';
+import { ArrowLeft, Building, Calendar, Edit, FileText, User } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { JobRequestType } from '@/interfaces/job.interface';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { jobseekers } from '@/lib/data';
+import { Jobseeker } from '@/lib/types';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Check } from 'lucide-react';
 
 const getPostStatusVariant = (status?: string) => {
 	switch (status) {
@@ -26,6 +32,10 @@ const getPostStatusVariant = (status?: string) => {
 			return 'secondary';
 	}
 };
+
+function PrimaryListManager({ post }: { post: RequestedPost }) {
+	return null;
+}
 
 export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: JobRequest }) {
 	const router = useRouter();
@@ -94,60 +104,63 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					</div>
 
 					{request.description && (
-						<div className='mb-6'>
+						<div>
 							<h4 className='font-semibold mb-1'>Description</h4>
 							<p className='text-sm text-muted-foreground'>{request.description}</p>
 						</div>
 					)}
+				</CardContent>
+			</Card>
 
-					<div>
-						<h3 className='text-lg font-bold mb-4'>Requested Posts</h3>
-						<div className='space-y-4'>
-							{request.requestedPosts.map((post, index) => (
-								<div key={index} className='p-4 border rounded-lg bg-muted/30'>
-									<div className='flex justify-between items-start'>
-										<p className='font-bold text-lg'>
-											{post.post?.nameEn} ({post.vacancy} Vacancies)
-										</p>
-										<Badge variant={getPostStatusVariant(post.status)}>{post.statusDTO?.nameEn}</Badge>
-									</div>
-									<div className='grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2 text-muted-foreground mt-2 text-sm'>
-										{post.experienceRequired && post.experienceRequired > 0 && (
+			<Card className='glassmorphism'>
+				<CardHeader>
+					<CardTitle>Requested Posts</CardTitle>
+				</CardHeader>
+				<CardContent className='space-y-4'>
+					{request.requestedPosts.map((post, index) => (
+						<div key={index} className='p-4 border rounded-lg bg-muted/30 space-y-4'>
+							<div className='flex justify-between items-start'>
+								<p className='font-bold text-lg'>
+									{post.post?.nameEn} ({post.vacancy} Vacancies)
+								</p>
+								<Badge variant={getPostStatusVariant(post.status)}>{post.statusDTO?.nameEn}</Badge>
+							</div>
+							<div className='grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2 text-muted-foreground mt-2 text-sm'>
+								{post.experienceRequired && post.experienceRequired > 0 && (
+									<span>
+										Experience: <span className='font-medium text-foreground'>{post.experienceRequired} years</span>
+									</span>
+								)}
+								{request.type === JobRequestType.OUTSOURCING ? (
+									<>
+										{post.outsourcingZone?.nameEn && (
 											<span>
-												Experience: <span className='font-medium text-foreground'>{post.experienceRequired} years</span>
+												Zone: <span className='font-medium text-foreground'>{post.outsourcingZone?.nameEn}</span>
 											</span>
 										)}
-										{request.type === JobRequestType.OUTSOURCING ? (
-											<>
-												{post.outsourcingZone?.nameEn && (
-													<span>
-														Zone: <span className='font-medium text-foreground'>{post.outsourcingZone?.nameEn}</span>
-													</span>
-												)}
-												{!!post.yearsOfContract && post.yearsOfContract > 0 && (
-													<span>
-														Contract: <span className='font-medium text-foreground'>{post.yearsOfContract} years</span>
-													</span>
-												)}
-											</>
-										) : (
-											<>
-												{(post.salaryFrom && post.salaryTo) && (
-													<span>
-														Salary:{' '}
-														<span className='font-medium text-foreground'>
-															{post.salaryFrom} - {post.salaryTo}
-														</span>
-													</span>
-												)}
-												{post.negotiable && <span>(Negotiable)</span>}
-											</>
+										{!!post.yearsOfContract && post.yearsOfContract > 0 && (
+											<span>
+												Contract: <span className='font-medium text-foreground'>{post.yearsOfContract} years</span>
+											</span>
 										)}
-									</div>
-								</div>
-							))}
+									</>
+								) : (
+									<>
+										{(post.salaryFrom && post.salaryTo) && (
+											<span>
+												Salary:{' '}
+												<span className='font-medium text-foreground'>
+													{post.salaryFrom} - {post.salaryTo}
+												</span>
+											</span>
+										)}
+										{post.negotiable && <span>(Negotiable)</span>}
+									</>
+								)}
+							</div>
+							<PrimaryListManager post={post} />
 						</div>
-					</div>
+					))}
 				</CardContent>
 			</Card>
 		</div>
