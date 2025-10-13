@@ -27,10 +27,6 @@ const getPostStatusVariant = (status?: string) => {
 	}
 };
 
-function PrimaryListManager({ post }: { post: RequestedPost }) {
-	return null;
-}
-
 export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: JobRequest }) {
 	const router = useRouter();
 	const [request, setRequest] = React.useState<JobRequest>(initialJobRequest);
@@ -128,7 +124,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 														Zone: <span className='font-medium text-foreground'>{post.outsourcingZone?.nameEn}</span>
 													</span>
 												)}
-												{post.yearsOfContract && post.yearsOfContract > 0 && (
+												{!!post.yearsOfContract && post.yearsOfContract > 0 && (
 													<span>
 														Contract: <span className='font-medium text-foreground'>{post.yearsOfContract} years</span>
 													</span>
@@ -148,7 +144,6 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 											</>
 										)}
 									</div>
-									<PrimaryListManager post={post} />
 								</div>
 							))}
 						</div>

@@ -132,7 +132,7 @@ export function JobRequestForm({
 		if (type) {
 			fetchPosts();
 		}
-	}, [type, debouncedPostSearch, toast]);
+	}, [type, debouncedPostSearch]);
 
 	async function onSubmit(data: JobRequestFormValues) {
 		const cleanedData = { ...data };
@@ -141,20 +141,7 @@ export function JobRequestForm({
 		cleanedData.requestedPosts = cleanedData.requestedPosts.map((post) => {
 			const newPost: any = { ...post };
 
-			// Convert empty strings for optional numbers to null before submitting
-			const numericFields: (keyof typeof post)[] = [
-				'experienceRequired',
-				'salaryFrom',
-				'salaryTo',
-				'yearsOfContract',
-			];
-			numericFields.forEach((field) => {
-				if (newPost[field] === '') {
-					newPost[field] = null;
-				}
-			});
-
-			if (cleanedData.type === 'PERMANENT') {
+			if (cleanedData.type !== JobRequestType.OUTSOURCING) {
 				delete newPost.outsourcingZoneId;
 				delete newPost.yearsOfContract;
 			} else {
@@ -186,6 +173,8 @@ export function JobRequestForm({
 		}
 	}
 
+	console.log(fields)
+
 	return (
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
@@ -211,8 +200,8 @@ export function JobRequestForm({
 								placeholder='Select a client'
 								required
 								options={clientOrganizations}
-								getOptionValue={(option) => option.id!.toString()}
-								getOptionLabel={(option) => option.nameEn}
+								getOptionValue={(option) => option.id as number}
+								getOptionLabel={(option) => option?.nameEn}
 							/>
 							<FormInput
 								control={form.control}
@@ -262,8 +251,8 @@ export function JobRequestForm({
 											required
 											placeholder={isLoadingPosts ? 'Loading posts...' : 'Select Post'}
 											options={filteredPosts}
-											getOptionValue={(opt) => opt.id!.toString()}
-											getOptionLabel={(opt) => opt.nameEn}
+											getOptionValue={(opt) => opt.id as number}
+											getOptionLabel={(opt) => opt?.nameEn}
 											disabled={isLoadingPosts}
 											onInputChange={setPostSearchQuery}
 										/>
@@ -293,8 +282,8 @@ export function JobRequestForm({
 												required
 												placeholder='Select Zone'
 												options={outsourcingZones}
-												getOptionValue={(opt) => opt.id!.toString()}
-												getOptionLabel={(opt) => opt.nameEn}
+												getOptionValue={(opt) => opt.id as number}
+												getOptionLabel={(opt) => opt?.nameEn}
 											/>
 											<FormInput
 												control={form.control}

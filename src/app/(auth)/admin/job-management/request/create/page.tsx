@@ -13,7 +13,7 @@ async function getMasterData(): Promise<MasterData> {
 	try {
 		const [clientOrgsRes, postsRes, zonesRes, requestTypesRes] = await Promise.allSettled([
 			MasterDataService.clientOrganization.get(),
-			MasterDataService.post.get(),
+			MasterDataService.post.getList({}),
 			MasterDataService.outsourcingZone.get(),
 			MasterDataService.getEnum('job-request-type'),
 		]);
