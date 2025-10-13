@@ -10,9 +10,6 @@ import { ArrowLeft, Building, Calendar, Edit, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
-import { jobseekers } from '@/lib/data';
-import { Jobseeker } from '@/lib/types';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { JobRequestType } from '@/interfaces/job.interface';
 
 const getPostStatusVariant = (status?: string) => {
@@ -31,37 +28,7 @@ const getPostStatusVariant = (status?: string) => {
 };
 
 function PrimaryListManager({ post }: { post: RequestedPost }) {
-	const [primaryList, setPrimaryList] = React.useState<Jobseeker[]>(jobseekers.slice(0, 3)); // Mock data
-
-	const getFullName = (personalInfo: any) => [personalInfo.firstName, personalInfo.lastName].filter(Boolean).join(' ');
-
-	return (
-		<div className='mt-4 rounded-lg border p-4'>
-			<div className='flex justify-between items-center mb-3'>
-				<h4 className='font-semibold'>Primary List</h4>
-			</div>
-			{primaryList.length > 0 ? (
-				<div className='space-y-2'>
-					{primaryList.map((jobseeker) => (
-						<div
-							key={jobseeker.id}
-							className='flex items-center justify-between p-2 rounded-md bg-muted/50'
-						>
-							<div className='flex items-center gap-3'>
-								<Avatar className='h-8 w-8'>
-									<AvatarImage src={jobseeker.personalInfo.profileImage?.filePath} />
-									<AvatarFallback>{getFullName(jobseeker.personalInfo)[0]}</AvatarFallback>
-								</Avatar>
-								<span className='text-sm font-medium'>{getFullName(jobseeker.personalInfo)}</span>
-							</div>
-						</div>
-					))}
-				</div>
-			) : (
-				<p className='text-sm text-center text-muted-foreground py-4'>No candidates added to the primary list.</p>
-			)}
-		</div>
-	);
+	return null;
 }
 
 export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: JobRequest }) {
@@ -70,10 +37,10 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 
 	const requestStatus = request.status;
 	const requestStatusVariant =
-		requestStatus === JobRequestStatus.SUCCESS
+		requestStatus === JobRequestStatus.COMPLETED
 			? 'success'
-			: requestStatus === JobRequestStatus.IN_PROGRESS
-			? 'warning'
+			: requestStatus === JobRequestStatus.PROCESSING
+			? 'info'
 			: requestStatus === JobRequestStatus.PENDING
 			? 'warning'
 			: 'secondary';
