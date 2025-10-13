@@ -1,4 +1,4 @@
-import { JobRequestList } from '@/components/app/admin/recruitment/job-request-list';
+import { JobRequestList } from '@/components/app/admin/job-management/job-request-list';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import Link from 'next/link';

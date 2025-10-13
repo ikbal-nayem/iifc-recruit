@@ -1,5 +1,4 @@
-
-import { JobRequestDetails } from '@/components/app/admin/recruitment/job-request-details';
+import { JobRequestDetails } from '@/components/app/admin/job-management/job-request-details';
 import { JobRequest } from '@/interfaces/job.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { notFound } from 'next/navigation';

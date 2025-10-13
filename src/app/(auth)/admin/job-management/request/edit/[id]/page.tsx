@@ -1,4 +1,4 @@
-import { JobRequestForm } from '@/components/app/admin/recruitment/job-request-form';
+import { JobRequestForm } from '@/components/app/admin/job-management/job-request-form';
 import { JobRequest } from '@/interfaces/job.interface';
 import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from '@/interfaces/master-data.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
