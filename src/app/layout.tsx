@@ -1,17 +1,12 @@
 import { MainLayout } from '@/components/main-layout';
-import { Outfit, Poppins, Source_Code_Pro } from 'next/font/google';
+import { Lato, Source_Code_Pro } from 'next/font/google';
 import { Suspense } from 'react';
 import './globals.css';
 
-const poppins = Poppins({
+const lato = Lato({
 	subsets: ['latin'],
-	variable: '--font-poppins',
-	weight: ['300', '400', '500', '600', '700'],
-});
-
-const outfit = Outfit({
-	subsets: ['latin'],
-	variable: '--font-outfit',
+	variable: '--font-lato',
+	weight: ['300', '400', '700', '900'],
 });
 
 const sourceCodePro = Source_Code_Pro({
@@ -29,7 +24,7 @@ export default function RootLayout({
 	return (
 		<html
 			lang={locale}
-			className={`h-full ${poppins.variable} ${outfit.variable} ${sourceCodePro.variable}`}
+			className={`h-full ${lato.variable} ${sourceCodePro.variable}`}
 		>
 			<head>
 				<title>IIFC Jobs</title>
