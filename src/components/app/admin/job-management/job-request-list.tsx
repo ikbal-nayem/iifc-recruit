@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
@@ -16,7 +15,19 @@ import { JobRequest, JobRequestStatus, JobRequestType } from '@/interfaces/job.i
 import { JobRequestService } from '@/services/api/job-request.service';
 import { cn } from '@/lib/utils';
 import { differenceInDays, format, parseISO } from 'date-fns';
-import { Building, Calendar, Check, CheckCircle, Clock, Edit, Eye, FileText, Play, Search, Trash } from 'lucide-react';
+import {
+	Building,
+	Calendar,
+	Check,
+	CheckCircle,
+	Clock,
+	Edit,
+	Eye,
+	FileText,
+	Play,
+	Search,
+	Trash,
+} from 'lucide-react';
 import * as React from 'react';
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
@@ -71,13 +82,12 @@ export function JobRequestList({ status }: JobRequestListProps) {
 			await JobRequestService.updateStatus(requestId, newStatus!);
 			toast({
 				title: 'Request Updated',
-				description: `The job request has been updated to ${newStatus}.`,
+				description: `The job request has been accepted.`,
 				variant: 'success',
 			});
 			loadItems(meta.page, debouncedSearch);
 		} catch (error: any) {
 			toast({
-				title: 'Error',
 				description: error.message || 'Failed to update job request status.',
 				variant: 'danger',
 			});
@@ -137,16 +147,6 @@ export function JobRequestList({ status }: JobRequestListProps) {
 			);
 		}
 
-		if (request.status !== JobRequestStatus.PENDING) {
-			items.push(
-				{ isSeparator: true },
-				{
-					label: 'Move to Pending',
-					icon: <Clock className='mr-2 h-4 w-4' />,
-					onClick: () => handleStatusChange(request.id!, JobRequestStatus.PENDING),
-				}
-			);
-		}
 		items.push(
 			{ isSeparator: true },
 			{
@@ -175,7 +175,12 @@ export function JobRequestList({ status }: JobRequestListProps) {
 		return (
 			<Card key={item.id} className='p-4 flex flex-col sm:flex-row justify-between items-start'>
 				<div className='flex-1 mb-4 sm:mb-0 space-y-2'>
-					<p className='font-semibold'>{item.subject}</p>
+					<div className='flex gap-1'>
+						<p className='font-semibold'>{item.subject}</p>
+						<Badge variant={item.type === JobRequestType.OUTSOURCING ? 'secondary' : 'outline'}>
+							{item.typeDTO?.nameEn}
+						</Badge>
+					</div>
 					<div className='text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-1'>
 						<span className='flex items-center gap-1.5'>
 							<Building className='h-4 w-4' /> {item.clientOrganization?.nameEn || 'N/A'}
@@ -190,9 +195,6 @@ export function JobRequestList({ status }: JobRequestListProps) {
 				</div>
 				<div className='flex items-center gap-4 w-full sm:w-auto justify-between'>
 					<div className='flex items-center gap-2'>
-						<Badge variant={item.type === JobRequestType.OUTSOURCING ? 'secondary' : 'outline'}>
-							{item.typeDTO?.nameEn}
-						</Badge>
 						<Badge variant={variant}>{item.statusDTO?.nameEn}</Badge>
 					</div>
 					<div className='flex items-center gap-2'>

@@ -47,7 +47,7 @@ export const adminNavLinks: NavLink[] = [
 	},
 	{
 		href: '/admin/job-management/request',
-		label: 'Recruitment',
+		label: 'Job Management',
 		icon: FolderKanban,
 		isActive: (pathname) => pathname.startsWith('/admin/job-management'),
 		submenu: [

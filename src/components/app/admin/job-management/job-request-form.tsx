@@ -173,8 +173,6 @@ export function JobRequestForm({
 		}
 	}
 
-	console.log(fields)
-
 	return (
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
