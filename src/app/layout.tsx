@@ -1,16 +1,17 @@
 import { MainLayout } from '@/components/main-layout';
-import { Inter, Source_Code_Pro, Space_Grotesk } from 'next/font/google';
+import { Outfit, Poppins, Source_Code_Pro } from 'next/font/google';
 import { Suspense } from 'react';
 import './globals.css';
 
-const inter = Inter({
+const poppins = Poppins({
 	subsets: ['latin'],
-	variable: '--font-inter',
+	variable: '--font-poppins',
+	weight: ['300', '400', '500', '600', '700'],
 });
 
-const spaceGrotesk = Space_Grotesk({
+const outfit = Outfit({
 	subsets: ['latin'],
-	variable: '--font-space-grotesk',
+	variable: '--font-outfit',
 });
 
 const sourceCodePro = Source_Code_Pro({
@@ -28,7 +29,7 @@ export default function RootLayout({
 	return (
 		<html
 			lang={locale}
-			className={`h-full ${inter.variable} ${spaceGrotesk.variable} ${sourceCodePro.variable}`}
+			className={`h-full ${poppins.variable} ${outfit.variable} ${sourceCodePro.variable}`}
 		>
 			<head>
 				<title>IIFC Jobs</title>
