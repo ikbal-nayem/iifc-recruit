@@ -8,7 +8,7 @@ import { JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
 import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { MasterDataService } from '@/services/api/master-data.service';
-import { ArrowLeft, Building, Loader2, Save, Users } from 'lucide-react';
+import { ArrowLeft, Building, Loader2, Save, Users, UserPlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { ApplicantListManager } from './applicant-list-manager';
@@ -16,9 +16,9 @@ import { ExaminerSetup } from './examiner-setup';
 import { ApplicantsTable } from './applicants-table';
 import { applications, jobseekers } from '@/lib/data';
 import { Jobseeker, Application } from '@/lib/types';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 type Applicant = Jobseeker & { application: Application };
-
 
 export function ApplicationManagementPage({ requestedPostId }: { requestedPostId: string }) {
 	const { toast } = useToast();
@@ -42,15 +42,13 @@ export function ApplicationManagementPage({ requestedPostId }: { requestedPostId
 
 			// Mock loading applicants for this post
 			const postApplications = applications
-				.filter(app => app.jobId === `j${postRes.body.postId}`) // Assuming job id matches post id format
-				.map(app => {
-					const jobseeker = jobseekers.find(js => js.id === app.jobseekerId);
+				.filter((app) => app.jobId === `j${postRes.body.postId}`) // Assuming job id matches post id format
+				.map((app) => {
+					const jobseeker = jobseekers.find((js) => js.id === app.jobseekerId);
 					return jobseeker ? { ...jobseeker, application: app } : null;
 				})
 				.filter((a): a is Applicant => a !== null);
 			setApplicants(postApplications);
-
-
 		} catch (error: any) {
 			toast({
 				title: 'Error loading data',
@@ -138,11 +136,27 @@ export function ApplicationManagementPage({ requestedPostId }: { requestedPostId
 			</Card>
 
 			<Card>
-				<CardHeader>
-					<CardTitle>Applied Candidates</CardTitle>
-					<CardDescription>
-						These candidates have applied for the circular post.
-					</CardDescription>
+				<CardHeader className='flex-row items-center justify-between'>
+					<div>
+						<CardTitle>Applied Candidates</CardTitle>
+						<CardDescription>These candidates have applied for the circular post.</CardDescription>
+					</div>
+					<Dialog>
+						<DialogTrigger asChild>
+							<Button variant='outline'>
+								<UserPlus className='mr-2 h-4 w-4' />
+								Add Candidate
+							</Button>
+						</DialogTrigger>
+						<DialogContent className='max-w-3xl'>
+							<DialogHeader>
+								<DialogTitle>Add Applicants to Primary List</DialogTitle>
+							</DialogHeader>
+							<div className='max-h-[70vh] overflow-y-auto p-1'>
+								<ApplicantListManager />
+							</div>
+						</DialogContent>
+					</Dialog>
 				</CardHeader>
 				<CardContent>
 					<ApplicantsTable applicants={applicants} />
@@ -154,8 +168,6 @@ export function ApplicationManagementPage({ requestedPostId }: { requestedPostId
 				selectedExaminer={selectedExaminer}
 				onExaminerChange={setSelectedExaminer}
 			/>
-
-			<ApplicantListManager />
 		</div>
 	);
 }

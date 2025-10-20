@@ -20,7 +20,7 @@ const DialogContent = React.forwardRef<
 		hideClose?: boolean;
 		closeOnOutsideClick?: boolean;
 	}
->(({ className, children, hideClose, closeOnOutsideClick = false, ...props }, ref) => (
+>(({ className, children, hideClose, closeOnOutsideClick = true, ...props }, ref) => (
 	<DialogPortal>
 		<DialogPrimitive.Overlay
 			className={cn(
