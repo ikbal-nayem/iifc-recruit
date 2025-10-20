@@ -7,7 +7,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from '@/hooks/use-toast';
 import { RequestedPost } from '@/interfaces/job.interface';
 import { IClientOrganization } from '@/interfaces/master-data.interface';
-import { Application } from '@/lib/types';
 import { getStatusVariant } from '@/lib/utils';
 import { ArrowLeft, Building, ChevronsRight, Loader2, Save, UserPlus, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -16,6 +15,7 @@ import { ApplicantListManager } from './applicant-list-manager';
 import { ApplicantsTable } from './applicants-table';
 import { ExaminerSetup } from './examiner-setup';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
+import { Application } from '@/interfaces/application.interface';
 
 type Applicant = Jobseeker & { application: Application };
 
@@ -89,7 +89,7 @@ export function ApplicationManagementPage({
 					Back to Pending List
 				</Button>
 				<div>
-					<Button onClick={handleProceed} disabled={isSaving} variant='warning' className='me-2'>
+					<Button onClick={handleProceed} disabled={isSaving} variant='lite-success' className='me-2'>
 						{isSaving ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Save className='mr-2 h-4 w-4' />}
 						Save
 					</Button>
@@ -191,7 +191,7 @@ export function ApplicationManagementPage({
 			/>
 
 			<div className='flex justify-center mt-6'>
-				<Button onClick={handleProceed} disabled={isSaving} variant='warning' className='me-2' size='lg'>
+				<Button onClick={handleProceed} disabled={isSaving} variant='lite-success' className='me-2' size='lg'>
 					{isSaving ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Save className='mr-2 h-4 w-4' />}
 					Save
 				</Button>

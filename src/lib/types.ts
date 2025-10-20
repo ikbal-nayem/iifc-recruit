@@ -43,14 +43,6 @@ export type Job = {
 	applicationDeadline: string;
 };
 
-export type Application = {
-	id: string;
-	jobId: string;
-	jobseekerId: string;
-	status: 'Applied' | 'Screening' | 'Interview' | 'Offered' | 'Rejected' | 'Hired' | 'Shortlisted';
-	applicationDate: string;
-};
-
 export type Activity = {
 	id: string;
 	user: {

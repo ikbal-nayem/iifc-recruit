@@ -1,5 +1,9 @@
-
 import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from './master-data.interface';
+
+export enum JobRequestType {
+	OUTSOURCING = 'OUTSOURCING',
+	PERMANENT = 'PERMANENT',
+}
 
 export enum JobRequestStatus {
 	PENDING = 'PENDING',
@@ -7,9 +11,10 @@ export enum JobRequestStatus {
 	COMPLETED = 'COMPLETED',
 }
 
-export enum JobRequestType {
-	OUTSOURCING = 'OUTSOURCING',
-	PERMANENT = 'PERMANENT',
+export enum JobRequestedPostStatus {
+	PENDING = 'PENDING',
+	PROCESSING = 'PROCESSING',
+	COMPLETED = 'COMPLETED',
 }
 
 export type RequestedPost = {
@@ -25,7 +30,7 @@ export type RequestedPost = {
 	toDate?: string;
 	salaryFrom?: number;
 	salaryTo?: number;
-	status?: 'PENDING' | 'PROCESSING' | 'EXAM' | 'INTERVIEW' | 'COMPLETED';
+	status?: JobRequestedPostStatus;
 	statusDTO?: EnumDTO;
 	experienceRequired?: number;
 	negotiable?: boolean;
@@ -42,7 +47,7 @@ export type JobRequest = {
 	description?: string;
 	requestDate: string;
 	deadline: string;
-	type?: 'OUTSOURCING' | 'PERMANENT' | string;
+	type?: JobRequestType;
 	typeDTO?: EnumDTO;
 	status?: JobRequestStatus;
 	statusDTO?: EnumDTO;

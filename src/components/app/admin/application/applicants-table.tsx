@@ -27,10 +27,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
-import type { Application } from '@/lib/types';
 import { getStatusVariant } from '@/lib/utils';
 import { FileText, UserCheck, UserPlus } from 'lucide-react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
+import { Application } from '@/interfaces/application.interface';
 
 type Applicant = Jobseeker & { application: Application };
 
