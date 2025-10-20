@@ -1,3 +1,4 @@
+
 import { RequestedPostsList } from '@/components/app/admin/recruitment/requested-posts-list';
 
 export default function RequestedPostsPage() {

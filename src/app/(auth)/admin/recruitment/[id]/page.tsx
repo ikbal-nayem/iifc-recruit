@@ -1,3 +1,4 @@
+
 import { ApplicantManagement } from '@/components/app/admin/recruitment/applicant-management';
 import { RequestedPost } from '@/interfaces/job.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
