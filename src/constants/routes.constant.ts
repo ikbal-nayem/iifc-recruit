@@ -1,5 +1,16 @@
 export const ROUTES = {
 	HOME: '/',
-	APPLICATION: '/admin/recruitment',
-	APPLICATION_DETAILS: (id?: number) => `/admin/recruitment/${id}`,
+	JOB_REQUESTS: '/admin/job-management/request',
+	JOB_REQUEST_CREATE: '/admin/job-management/request/create',
+	JOB_REQUEST_DETAILS: (id?: string) => `/admin/job-management/request/${id}`,
+	JOB_REQUEST_EDIT: (id?: string) => `/admin/job-management/request/edit/${id}`,
+	JOB_REQUEST_PENDING: '/admin/job-management/request/pending',
+	JOB_REQUEST_PROCESSING: '/admin/job-management/request/processing',
+	JOB_REQUEST_COMPLETED: '/admin/job-management/request/completed',
+
+	APPLICATIONS: '/admin/recruitment',
+	REQUESTED_POSTS: '/admin/recruitment/requested-posts',
+	REQUESTED_POST_DETAILS: (id?: number) => `/admin/recruitment/requested-posts/${id}`,
+	CLIENT_ORGANIZATIONS: '/admin/client-organizations',
+	CLIENT_ORGANIZATION_DETAILS: (id?: number) => `/admin/client-organizations/${id}`,
 };

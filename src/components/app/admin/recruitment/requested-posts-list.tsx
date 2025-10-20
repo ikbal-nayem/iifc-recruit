@@ -75,7 +75,7 @@ export function RequestedPostsList() {
 							{
 								label: 'Manage Applicants',
 								icon: <Users2 className='mr-2 h-4 w-4' />,
-								href: ROUTES.APPLICATION_DETAILS(item.id),
+								href: ROUTES.REQUESTED_POST_DETAILS(item.id),
 							},
 						]}
 					/>

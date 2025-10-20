@@ -6,12 +6,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { JobRequest, JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
 import { cn, getStatusVariant } from '@/lib/utils';
 import { differenceInDays, format, parseISO } from 'date-fns';
-import { ArrowLeft, Building, Calendar, Edit, FileText } from 'lucide-react';
+import { ArrowLeft, Building, Calendar, Edit, FileText, Send } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { JobRequestType } from '@/interfaces/job.interface';
 import { Separator } from '@/components/ui/separator';
+import { ROUTES } from '@/constants/routes.constant';
 
 function PrimaryListManager({ post }: { post: RequestedPost }) {
 	return null;
@@ -30,11 +31,18 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					<ArrowLeft className='mr-2 h-4 w-4' />
 					Back to Requests
 				</Button>
-				<Button asChild>
-					<Link href={`/admin/recruitment/request/edit/${request.id}`}>
-						<Edit className='mr-2 h-4 w-4' /> Edit Request
-					</Link>
-				</Button>
+				<div className='flex gap-2'>
+					{request.status === JobRequestStatus.PROCESSING && (
+						<Button>
+							<Send className='mr-2 h-4 w-4' /> Publish as Circular
+						</Button>
+					)}
+					<Button asChild>
+						<Link href={ROUTES.JOB_REQUEST_EDIT(request.id)}>
+							<Edit className='mr-2 h-4 w-4' /> Edit Request
+						</Link>
+					</Button>
+				</div>
 			</div>
 
 			<Card className='glassmorphism'>

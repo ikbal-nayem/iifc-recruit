@@ -47,40 +47,48 @@ export const adminNavLinks: NavLink[] = [
 		isActive: (pathname) => pathname === '/admin',
 	},
 	{
-		href: '/admin/job-management/request',
+		href: ROUTES.JOB_REQUESTS,
 		label: 'Requests',
 		icon: FolderKanban,
 		isActive: (pathname) => pathname.startsWith('/admin/job-management'),
 		submenu: [
 			{
-				href: '/admin/job-management/request/create',
+				href: ROUTES.JOB_REQUEST_CREATE,
 				label: 'New Request',
 				icon: PlusCircle,
 			},
 			{
-				href: '/admin/job-management/request/pending',
+				href: ROUTES.JOB_REQUEST_PENDING,
 				label: 'Pending',
 				icon: Clock,
 			},
 			{
-				href: '/admin/job-management/request/processing',
+				href: ROUTES.JOB_REQUEST_PROCESSING,
 				label: 'Processing',
 				icon: Play,
 			},
 			{
-				href: '/admin/job-management/request/completed',
+				href: ROUTES.JOB_REQUEST_COMPLETED,
 				label: 'Completed',
 				icon: CheckCircle,
 			},
 		],
 	},
 	{
-		href: ROUTES.APPLICATION,
+		href: ROUTES.APPLICATIONS,
 		label: 'Applications',
 		icon: Users2,
+		isActive: (pathname) => pathname.startsWith(ROUTES.APPLICATIONS),
+		submenu: [
+			{
+				href: ROUTES.REQUESTED_POSTS,
+				label: 'Requested Posts',
+				icon: Briefcase,
+			},
+		],
 	},
 	{ href: '/admin/jobseekers', label: 'Jobseekers', icon: Users },
-	{ href: '/admin/client-organizations', label: 'Client Organizations', icon: Handshake },
+	{ href: ROUTES.CLIENT_ORGANIZATIONS, label: 'Client Organizations', icon: Handshake },
 	{
 		href: '#',
 		label: 'Separator',

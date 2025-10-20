@@ -1,5 +1,6 @@
 import { JobRequestList } from '@/components/app/admin/job-management/job-request-list';
 import { Button } from '@/components/ui/button';
+import { ROUTES } from '@/constants/routes.constant';
 import { PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 
@@ -12,7 +13,7 @@ export default function ManageJobRequestsPage() {
 					<p className='text-muted-foreground'>Review, approve, and manage all incoming job requests.</p>
 				</div>
 				<Button asChild>
-					<Link href='/admin/job-management/request/create'>
+					<Link href={ROUTES.JOB_REQUEST_CREATE}>
 						<PlusCircle className='mr-2 h-4 w-4' />
 						Create New Request
 					</Link>

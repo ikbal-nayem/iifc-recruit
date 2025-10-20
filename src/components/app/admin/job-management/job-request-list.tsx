@@ -9,6 +9,7 @@ import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ROUTES } from '@/constants/routes.constant';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
@@ -115,12 +116,12 @@ export function JobRequestList({ status }: JobRequestListProps) {
 			{
 				label: 'View Details',
 				icon: <Eye className='mr-2 h-4 w-4' />,
-				href: `/admin/recruitment/request/${request.id}`,
+				href: ROUTES.JOB_REQUEST_DETAILS(request.id),
 			},
 			{
 				label: 'Edit',
 				icon: <Edit className='mr-2 h-4 w-4' />,
-				href: `/admin/recruitment/request/edit/${request.id}`,
+				href: ROUTES.JOB_REQUEST_EDIT(request.id),
 			},
 		];
 
