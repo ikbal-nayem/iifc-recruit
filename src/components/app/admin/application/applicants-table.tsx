@@ -124,14 +124,6 @@ export function ApplicantsTable({ applicants }: ApplicantsTableProps) {
        header: 'Date Applied'
     },
     {
-      accessorKey: 'application.status',
-      header: 'Status',
-      cell: ({ row }) => {
-        const status = row.original.application.status;
-        return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
-      },
-    },
-    {
       id: 'actions',
       cell: ({ row }) => {
         const applicant = row.original;
@@ -168,7 +160,6 @@ export function ApplicantsTable({ applicants }: ApplicantsTableProps) {
           <div>
             <p className="font-semibold">{applicant.personalInfo.name}</p>
             <p className="text-sm text-muted-foreground">Applied: {applicant.application.applicationDate}</p>
-            <Badge variant={getStatusVariant(applicant.application.status)} className="mt-2">{applicant.application.status}</Badge>
           </div>
         </div>
         <ActionMenu items={getActionItems(applicant)} />
@@ -187,26 +178,6 @@ export function ApplicantsTable({ applicants }: ApplicantsTableProps) {
           }
           className="max-w-sm w-full"
         />
-        <Select
-          value={(table.getColumn('application_status')?.getFilterValue() as string) ?? 'all'}
-          onValueChange={(value) =>
-            table.getColumn('application_status')?.setFilterValue(value === 'all' ? null : value)
-          }
-        >
-          <SelectTrigger className="w-full sm:w-[180px]">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="Applied">Applied</SelectItem>
-            <SelectItem value="Screening">Screening</SelectItem>
-            <SelectItem value="Shortlisted">Shortlisted</SelectItem>
-            <SelectItem value="Interview">Interview</SelectItem>
-            <SelectItem value="Offered">Offered</SelectItem>
-            <SelectItem value="Hired">Hired</SelectItem>
-            <SelectItem value="Rejected">Rejected</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
       
        {/* Mobile View */}
