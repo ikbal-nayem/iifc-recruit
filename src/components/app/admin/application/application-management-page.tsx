@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,12 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { ApplicantListManager } from './applicant-list-manager';
 import { ExaminerSetup } from './examiner-setup';
+import { ApplicantsTable } from './applicants-table';
+import { applications, jobseekers } from '@/lib/data';
+import { Jobseeker, Application } from '@/lib/types';
+
+type Applicant = Jobseeker & { application: Application };
+
 
 export function ApplicationManagementPage({ requestedPostId }: { requestedPostId: string }) {
 	const { toast } = useToast();
@@ -21,6 +28,7 @@ export function ApplicationManagementPage({ requestedPostId }: { requestedPostId
 	const [selectedExaminer, setSelectedExaminer] = useState<string | undefined>(undefined);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSaving, setIsSaving] = useState(false);
+	const [applicants, setApplicants] = useState<Applicant[]>([]);
 
 	const loadData = useCallback(async () => {
 		setIsLoading(true);
@@ -31,6 +39,18 @@ export function ApplicationManagementPage({ requestedPostId }: { requestedPostId
 			]);
 			setPost(postRes.body);
 			setExaminers(examinerRes.body);
+
+			// Mock loading applicants for this post
+			const postApplications = applications
+				.filter(app => app.jobId === `j${postRes.body.postId}`) // Assuming job id matches post id format
+				.map(app => {
+					const jobseeker = jobseekers.find(js => js.id === app.jobseekerId);
+					return jobseeker ? { ...jobseeker, application: app } : null;
+				})
+				.filter((a): a is Applicant => a !== null);
+			setApplicants(postApplications);
+
+
 		} catch (error: any) {
 			toast({
 				title: 'Error loading data',
@@ -105,9 +125,21 @@ export function ApplicationManagementPage({ requestedPostId }: { requestedPostId
 				<CardHeader>
 					<CardTitle>Manage Application: {post.post?.nameEn}</CardTitle>
 					<CardDescription>
-						Add applicants to the primary list and assign an examiner to proceed to the next stage.
+						Review applicants, add more candidates, and assign an examiner to proceed.
 					</CardDescription>
 				</CardHeader>
+			</Card>
+
+			<Card>
+				<CardHeader>
+					<CardTitle>Applied Candidates</CardTitle>
+					<CardDescription>
+						These candidates have applied for the circular post.
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<ApplicantsTable applicants={applicants} />
+				</CardContent>
 			</Card>
 
 			<ExaminerSetup
