@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
@@ -13,7 +14,7 @@ import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { getStatusVariant } from '@/lib/utils';
-import { Building, Search, UserCog } from 'lucide-react';
+import { Building, Search, UserCog, Users } from 'lucide-react';
 import React from 'react';
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
@@ -85,11 +86,17 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 		return (
 			<Card key={item.id} className='p-4 flex flex-col sm:flex-row justify-between items-start'>
 				<div className='flex-1 mb-4 sm:mb-0 space-y-2'>
-					<p className='font-semibold'>
-						{item.post?.nameEn} <span className='text-muted-foreground'>({item.vacancy} vacancies)</span>
-					</p>
-					<div className='text-sm text-muted-foreground flex items-center gap-2'>
-						<Building className='h-4 w-4' /> {item.jobRequest?.clientOrganization?.nameEn || 'N/A'}
+					<p className='font-semibold'>{item.post?.nameEn}</p>
+					<div className='text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-1'>
+						<span className='flex items-center gap-1.5'>
+							<Building className='h-4 w-4' /> {item.jobRequest?.clientOrganization?.nameEn || 'N/A'}
+						</span>
+						<span className='flex items-center gap-1.5'>
+							<Users className='h-4 w-4' /> {item.vacancy} vacancies
+						</span>
+						<span className='flex items-center gap-1.5 font-medium'>
+							<UserCog className='h-4 w-4' /> {item.totalApplied || 0} applicants
+						</span>
 					</div>
 				</div>
 				<div className='flex items-center gap-4 w-full sm:w-auto justify-between'>

@@ -4,12 +4,11 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
+import { RequestedPost } from '@/interfaces/job.interface';
 import { IClientOrganization } from '@/interfaces/master-data.interface';
-import { JobRequestService } from '@/services/api/job-request.service';
 import { ArrowLeft, Building, Loader2, Save, UserPlus, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ApplicantListManager } from './applicant-list-manager';
 import { ExaminerSetup } from './examiner-setup';
 import { ApplicantsTable } from './applicants-table';
@@ -17,6 +16,7 @@ import { Jobseeker, Application } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { getStatusVariant } from '@/lib/utils';
+import { JobRequestService } from '@/services/api/job-request.service';
 
 type Applicant = Jobseeker & { application: Application };
 
@@ -137,6 +137,13 @@ export function ApplicationManagementPage({
 				selectedExaminer={selectedExaminer}
 				onExaminerChange={setSelectedExaminer}
 			/>
+
+			<div className='flex justify-center mt-6'>
+				<Button onClick={handleProceed} disabled={isSaving} size='lg'>
+					{isSaving ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Save className='mr-2 h-4 w-4' />}
+					Save & Proceed
+				</Button>
+			</div>
 		</div>
 	);
 }
