@@ -1,0 +1,122 @@
+'use client';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
+import { JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
+import { IClientOrganization } from '@/interfaces/master-data.interface';
+import { JobRequestService } from '@/services/api/job-request.service';
+import { MasterDataService } from '@/services/api/master-data.service';
+import { ArrowLeft, Loader2, Save } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
+import { ApplicantListManager } from './applicant-list-manager';
+import { ExaminerSetup } from './examiner-setup';
+
+export function ApplicationManagementPage({ requestedPostId }: { requestedPostId: string }) {
+	const { toast } = useToast();
+	const router = useRouter();
+	const [post, setPost] = useState<RequestedPost | null>(null);
+	const [examiners, setExaminers] = useState<IClientOrganization[]>([]);
+	const [selectedExaminer, setSelectedExaminer] = useState<string | undefined>(undefined);
+	const [isLoading, setIsLoading] = useState(true);
+	const [isSaving, setIsSaving] = useState(false);
+
+	const loadData = useCallback(async () => {
+		setIsLoading(true);
+		try {
+			const [postRes, examinerRes] = await Promise.all([
+				JobRequestService.getRequestedPostById(requestedPostId),
+				MasterDataService.clientOrganization.getList({ body: { isExaminer: true } }),
+			]);
+			setPost(postRes.body);
+			setExaminers(examinerRes.body);
+		} catch (error: any) {
+			toast({
+				title: 'Error loading data',
+				description: error.message || 'Could not load post details and examiners.',
+				variant: 'danger',
+			});
+			router.back();
+		} finally {
+			setIsLoading(false);
+		}
+	}, [requestedPostId, toast, router]);
+
+	useEffect(() => {
+		loadData();
+	}, [loadData]);
+
+	const handleProceed = async () => {
+		if (!selectedExaminer) {
+			toast({ title: 'Examiner Required', description: 'Please select an examiner to proceed.' });
+			return;
+		}
+
+		setIsSaving(true);
+		try {
+			// Here you would typically save the examiner and applicant list to the backend
+			console.log('Selected Examiner:', selectedExaminer);
+			console.log('Post to be updated', post);
+
+			// Then update the status
+			// This needs a dedicated service method
+			// await JobRequestService.updateRequestedPostStatus(requestedPostId, JobRequestStatus.PROCESSING);
+
+			toast({
+				title: 'Request Processing',
+				description: 'The request has been moved to the processing stage.',
+				variant: 'success',
+			});
+			router.push('/admin/application/processing');
+		} catch (error: any) {
+			toast({
+				title: 'Error',
+				description: error.message || 'Failed to update request status.',
+				variant: 'danger',
+			});
+		} finally {
+			setIsSaving(false);
+		}
+	};
+
+	if (isLoading) {
+		return <Loader2 className='mx-auto h-10 w-10 animate-spin' />;
+	}
+
+	if (!post) {
+		return <p>Job request not found.</p>;
+	}
+
+	return (
+		<div className='space-y-6'>
+			<div className='flex items-center justify-between'>
+				<Button variant='outline' onClick={() => router.back()}>
+					<ArrowLeft className='mr-2 h-4 w-4' />
+					Back to Pending List
+				</Button>
+				<Button onClick={handleProceed} disabled={isSaving}>
+					{isSaving ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Save className='mr-2 h-4 w-4' />}
+					Save & Proceed
+				</Button>
+			</div>
+
+			<Card className='glassmorphism'>
+				<CardHeader>
+					<CardTitle>Manage Application: {post.post?.nameEn}</CardTitle>
+					<CardDescription>
+						Add applicants to the primary list and assign an examiner to proceed to the next stage.
+					</CardDescription>
+				</CardHeader>
+			</Card>
+
+			<ExaminerSetup
+				examiners={examiners}
+				selectedExaminer={selectedExaminer}
+				onExaminerChange={setSelectedExaminer}
+			/>
+
+			<ApplicantListManager />
+		</div>
+	);
+}

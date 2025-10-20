@@ -1,7 +1,6 @@
-
 'use client';
 
-import { ActionMenu } from '@/components/ui/action-menu';
+import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -11,14 +10,19 @@ import { ROUTES } from '@/constants/routes.constant';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
-import { RequestedPost } from '@/interfaces/job.interface';
+import { JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { Building, Search, Users2 } from 'lucide-react';
+import { getStatusVariant } from '@/lib/utils';
+import { Building, Search, UserCog } from 'lucide-react';
 import React from 'react';
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
 
-export function RequestedPostsList() {
+interface RequestedPostsListProps {
+	status: JobRequestStatus;
+}
+
+export function RequestedPostsList({ status }: RequestedPostsListProps) {
 	const [data, setData] = React.useState<RequestedPost[]>([]);
 	const [meta, setMeta] = React.useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = React.useState(true);
@@ -31,7 +35,7 @@ export function RequestedPostsList() {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { 'post.nameEn': search, status_not: 'COMPLETED' },
+					body: { 'post.nameEn': search, status: status },
 					meta: { page, limit: meta.limit },
 				};
 				const response = await JobRequestService.getRequestedPosts(payload);
@@ -47,7 +51,7 @@ export function RequestedPostsList() {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit, toast]
+		[meta.limit, toast, status]
 	);
 
 	React.useEffect(() => {
@@ -56,6 +60,25 @@ export function RequestedPostsList() {
 
 	const handlePageChange = (newPage: number) => {
 		loadItems(newPage, debouncedSearch);
+	};
+
+	const getActionItems = (item: RequestedPost): ActionItem[] => {
+		const items: ActionItem[] = [];
+
+		if (item.status === 'PENDING') {
+			items.push({
+				label: 'Manage Applicants',
+				icon: <UserCog className='mr-2 h-4 w-4' />,
+				href: ROUTES.APPLICATION_MANAGE(item.id),
+			});
+		} else {
+			items.push({
+				label: 'View Applicants',
+				icon: <UserCog className='mr-2 h-4 w-4' />,
+				href: ROUTES.APPLICATION_MANAGE(item.id), // Placeholder for now
+			});
+		}
+		return items;
 	};
 
 	const renderItem = (item: RequestedPost) => {
@@ -70,16 +93,8 @@ export function RequestedPostsList() {
 					</div>
 				</div>
 				<div className='flex items-center gap-4 w-full sm:w-auto justify-between'>
-					<Badge>{item.statusDTO?.nameEn}</Badge>
-					<ActionMenu
-						items={[
-							{
-								label: 'Manage Applicants',
-								icon: <Users2 className='mr-2 h-4 w-4' />,
-								href: ROUTES.REQUESTED_POST_DETAILS(item.id),
-							},
-						]}
-					/>
+					<Badge variant={getStatusVariant(item.status)}>{item.statusDTO?.nameEn}</Badge>
+					<ActionMenu items={getActionItems(item)} />
 				</div>
 			</Card>
 		);
@@ -103,7 +118,7 @@ export function RequestedPostsList() {
 					) : data.length > 0 ? (
 						data.map(renderItem)
 					) : (
-						<div className='text-center py-16 text-muted-foreground'>No active posts found.</div>
+						<div className='text-center py-16 text-muted-foreground'>No posts found for this status.</div>
 					)}
 				</div>
 			</CardContent>

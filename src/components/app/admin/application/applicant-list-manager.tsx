@@ -1,10 +1,8 @@
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
 	Command,
 	CommandEmpty,
@@ -14,15 +12,11 @@ import {
 	CommandList,
 } from '@/components/ui/command';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
-import { RequestedPost } from '@/interfaces/job.interface';
 import { Jobseeker } from '@/lib/types';
-import { cn } from '@/lib/utils';
-import { Check, ChevronsUpDown, FileText, Loader2, Search, UserPlus } from 'lucide-react';
-import Link from 'next/link';
+import { FileText, Loader2, UserPlus } from 'lucide-react';
 import React, { useState } from 'react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 
@@ -34,11 +28,7 @@ const allJobseekers: Jobseeker[] = [
 	{ id: '4', personalInfo: { name: 'Diana Prince', email: 'diana@example.com' } },
 ] as Jobseeker[];
 
-interface ApplicantManagementProps {
-	post: RequestedPost;
-}
-
-export function ApplicantManagement({ post }: ApplicantManagementProps) {
+export function ApplicantListManager() {
 	const { toast } = useToast();
 	const [primaryList, setPrimaryList] = useState<Jobseeker[]>([]);
 	const [searchQuery, setSearchQuery] = useState('');
@@ -84,25 +74,16 @@ export function ApplicantManagement({ post }: ApplicantManagementProps) {
 	};
 
 	return (
-		<div className='space-y-6'>
+		<>
 			<Card>
 				<CardHeader>
-					<CardTitle>Manage Applicants for: {post.post?.nameEn}</CardTitle>
-					<CardDescription>
-						{post.jobRequest?.clientOrganization?.nameEn} | Vacancies: {post.vacancy}
-					</CardDescription>
-				</CardHeader>
-			</Card>
-
-			<Card>
-				<CardHeader>
-					<CardTitle>Add to Primary List</CardTitle>
-					<CardDescription>Search for and add jobseekers to the primary list for this post.</CardDescription>
+					<CardTitle>Add Applicants to Primary List</CardTitle>
+					<CardDescription>Search for and add jobseekers to the primary list for this request.</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
 						<PopoverTrigger asChild>
-							<Button variant='outline' className='w-full justify-start'>
+							<Button variant='outline' className='w-full justify-start md:w-1/2'>
 								<UserPlus className='mr-2 h-4 w-4' />
 								Search Jobseekers...
 							</Button>
@@ -188,6 +169,6 @@ export function ApplicantManagement({ post }: ApplicantManagementProps) {
 					{selectedJobseeker && <JobseekerProfileView jobseeker={selectedJobseeker} />}
 				</DialogContent>
 			</Dialog>
-		</div>
+		</>
 	);
 }

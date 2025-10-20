@@ -1,16 +1,8 @@
+import { redirect } from 'next/navigation';
+import { ROUTES } from '@/constants/routes.constant';
 
-import { RequestedPostsList } from '@/components/app/admin/application/requested-posts-list';
-
-export default function RequestedPostsPage() {
-	return (
-		<div className='space-y-8'>
-			<div>
-				<h1 className='text-3xl font-headline font-bold'>Manage Applications</h1>
-				<p className='text-muted-foreground'>
-					Select a post to view and manage its applicants.
-				</p>
-			</div>
-			<RequestedPostsList />
-		</div>
-	);
+export default function ApplicationsPage() {
+	// This page is a placeholder. The main functionality is under the status routes.
+	// Redirect to the main pending posts page.
+	redirect(ROUTES.APPLICATION_PENDING);
 }

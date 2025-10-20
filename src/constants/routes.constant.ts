@@ -1,4 +1,3 @@
-
 export const ROUTES = {
 	HOME: '/',
 	JOB_REQUESTS: '/admin/job-management/request',
@@ -11,7 +10,11 @@ export const ROUTES = {
 	JOB_REQUEST_COMPLETED: '/admin/job-management/request/completed',
 
 	APPLICATIONS: '/admin/application',
-	REQUESTED_POST_DETAILS: (id?: number) => `/admin/application/${id}`,
+	APPLICATION_PENDING: '/admin/application/pending',
+	APPLICATION_PROCESSING: '/admin/application/processing',
+	APPLICATION_COMPLETED: '/admin/application/completed',
+	APPLICATION_MANAGE: (id?: number) => `/admin/application/${id}/manage`,
+
 	CLIENT_ORGANIZATIONS: '/admin/client-organizations',
 	CLIENT_ORGANIZATION_DETAILS: (id?: number | string) => `/admin/client-organizations/${id}`,
 };

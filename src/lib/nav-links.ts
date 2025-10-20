@@ -1,4 +1,3 @@
-
 import { ROUTES } from '@/constants/routes.constant';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -79,6 +78,24 @@ export const adminNavLinks: NavLink[] = [
 		href: ROUTES.APPLICATIONS,
 		label: 'Applications',
 		icon: Users2,
+		isActive: (pathname) => pathname.startsWith('/admin/application'),
+		submenu: [
+			{
+				href: ROUTES.APPLICATION_PENDING,
+				label: 'Pending',
+				icon: Clock,
+			},
+			{
+				href: ROUTES.APPLICATION_PROCESSING,
+				label: 'Processing',
+				icon: Play,
+			},
+			{
+				href: ROUTES.APPLICATION_COMPLETED,
+				label: 'Completed',
+				icon: CheckCircle,
+			},
+		],
 	},
 	{ href: '/admin/jobseekers', label: 'Jobseekers', icon: Users },
 	{ href: ROUTES.CLIENT_ORGANIZATIONS, label: 'Client Organizations', icon: Handshake },
