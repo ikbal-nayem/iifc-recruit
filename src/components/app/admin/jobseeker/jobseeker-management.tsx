@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -36,6 +37,7 @@ import { jobseekers as initialJobseekers } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
 import { ActionItem, ActionMenu } from '../../ui/action-menu';
+import { getStatusVariant } from '@/lib/utils';
 
 export function JobseekerManagement() {
   const [data, setData] = React.useState<Jobseeker[]>(initialJobseekers);
@@ -113,8 +115,7 @@ export function JobseekerManagement() {
       header: 'Status',
        cell: ({ row }) => {
         const status = row.getValue('status') as string;
-        const variant = status === 'Active' ? 'default' : status === 'Passive' ? 'secondary' : 'outline';
-        return <Badge variant={variant as any}>{status}</Badge>;
+        return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
       },
     },
     {

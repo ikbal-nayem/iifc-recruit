@@ -1,9 +1,10 @@
+
 'use client';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
@@ -13,18 +14,16 @@ import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequest, JobRequestStatus, JobRequestType } from '@/interfaces/job.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { cn } from '@/lib/utils';
+import { cn, getStatusVariant } from '@/lib/utils';
 import { differenceInDays, format, parseISO } from 'date-fns';
 import {
 	Building,
 	Calendar,
 	Check,
 	CheckCircle,
-	Clock,
 	Edit,
 	Eye,
 	FileText,
-	Play,
 	Search,
 	Trash,
 } from 'lucide-react';
@@ -116,12 +115,12 @@ export function JobRequestList({ status }: JobRequestListProps) {
 			{
 				label: 'View Details',
 				icon: <Eye className='mr-2 h-4 w-4' />,
-				href: `/admin/job-management/request/${request.id}`,
+				href: `/admin/recruitment/request/${request.id}`,
 			},
 			{
 				label: 'Edit',
 				icon: <Edit className='mr-2 h-4 w-4' />,
-				href: `/admin/job-management/request/edit/${request.id}`,
+				href: `/admin/recruitment/request/edit/${request.id}`,
 			},
 		];
 
@@ -160,22 +159,12 @@ export function JobRequestList({ status }: JobRequestListProps) {
 	};
 
 	const renderItem = (item: JobRequest) => {
-		const requestStatus = item.status;
-		const variant =
-			requestStatus === JobRequestStatus.COMPLETED
-				? 'success'
-				: requestStatus === JobRequestStatus.PROCESSING
-				? 'info'
-				: requestStatus === JobRequestStatus.PENDING
-				? 'warning'
-				: 'secondary';
-
 		const isDeadlineSoon = differenceInDays(parseISO(item.deadline), new Date()) <= 7;
 
 		return (
 			<Card key={item.id} className='p-4 flex flex-col sm:flex-row justify-between items-start'>
 				<div className='flex-1 mb-4 sm:mb-0 space-y-2'>
-					<div className='flex gap-1'>
+					<div className='flex gap-2 items-center'>
 						<p className='font-semibold'>{item.subject}</p>
 						<Badge variant={item.type === JobRequestType.OUTSOURCING ? 'secondary' : 'outline'}>
 							{item.typeDTO?.nameEn}
@@ -195,7 +184,7 @@ export function JobRequestList({ status }: JobRequestListProps) {
 				</div>
 				<div className='flex items-center gap-4 w-full sm:w-auto justify-between'>
 					<div className='flex items-center gap-2'>
-						<Badge variant={variant}>{item.statusDTO?.nameEn}</Badge>
+						<Badge variant={getStatusVariant(item.status)}>{item.statusDTO?.nameEn}</Badge>
 					</div>
 					<div className='flex items-center gap-2'>
 						{item.status === JobRequestStatus.PENDING && (
@@ -212,7 +201,7 @@ export function JobRequestList({ status }: JobRequestListProps) {
 
 	return (
 		<Card className='glassmorphism'>
-			<CardHeader>
+			<CardContent className='pt-6'>
 				<div className='relative w-full max-w-sm'>
 					<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 					<Input
@@ -222,15 +211,15 @@ export function JobRequestList({ status }: JobRequestListProps) {
 						className='pl-10'
 					/>
 				</div>
-			</CardHeader>
-			<CardContent className='space-y-4'>
-				{isLoading ? (
-					[...Array(5)].map((_, i) => <Skeleton key={i} className='h-24 w-full' />)
-				) : data.length > 0 ? (
-					data.map(renderItem)
-				) : (
-					<div className='text-center py-16 text-muted-foreground'>No job requests found.</div>
-				)}
+				<div className='mt-4 space-y-4'>
+					{isLoading ? (
+						[...Array(5)].map((_, i) => <Skeleton key={i} className='h-24 w-full' />)
+					) : data.length > 0 ? (
+						data.map(renderItem)
+					) : (
+						<div className='text-center py-16 text-muted-foreground'>No job requests found.</div>
+					)}
+				</div>
 			</CardContent>
 			{meta && meta.totalRecords! > 0 && (
 				<CardFooter>

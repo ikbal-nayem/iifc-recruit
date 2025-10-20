@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -12,6 +13,7 @@ import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
 import { useToast } from '@/hooks/use-toast';
 import { IOrganizationUser } from '@/interfaces/master-data.interface';
+import { getStatusVariant } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
 import React, { useState } from 'react';
@@ -170,7 +172,7 @@ export function OrganizationUserManagement({ organizationId }: { organizationId:
 								</div>
 								<div className='flex items-center gap-4'>
 									<Badge variant={user.role === 'Admin' ? 'default' : 'secondary'}>{user.role}</Badge>
-									<Badge variant={user.status === 'Active' ? 'success' : 'danger'}>{user.status}</Badge>
+									<Badge variant={getStatusVariant(user.status)}>{user.status}</Badge>
 									<div className='flex gap-1'>
 										<Button variant='ghost' size='icon'>
 											<Edit className='h-4 w-4' />

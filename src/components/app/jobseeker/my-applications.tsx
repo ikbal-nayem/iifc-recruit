@@ -26,6 +26,7 @@ import Link from 'next/link';
 import type { Application, Job } from '@/lib/types';
 import { applications as initialApplications, jobs } from '@/lib/data';
 import { Card } from '@/components/ui/card';
+import { getStatusVariant } from '@/lib/utils';
 
 type ApplicationWithJob = Application & { job: Job | undefined };
 
@@ -63,13 +64,7 @@ export function MyApplications() {
       header: 'Status',
       cell: ({ row }) => {
         const status = row.getValue('status') as string;
-        const variant = 
-            status === 'Hired' ? 'default' : 
-            status === 'Interview' ? 'default' : 
-            status === 'Offered' ? 'default' :
-            status === 'Rejected' ? 'danger' :
-            'secondary';
-        return <Badge variant={variant as any}>{status}</Badge>;
+        return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
       },
     },
   ];
@@ -93,12 +88,7 @@ export function MyApplications() {
              <p className="text-xs text-muted-foreground">Applied on</p>
              <p className="text-sm font-medium">{application.applicationDate}</p>
            </div>
-            <Badge variant={
-                application.status === 'Hired' ? 'default' : 
-                application.status === 'Interview' ? 'default' : 
-                application.status === 'Offered' ? 'default' :
-                application.status === 'Rejected' ? 'danger' :
-                'secondary'}>{application.status}</Badge>
+            <Badge variant={getStatusVariant(application.status)}>{application.status}</Badge>
         </div>
       </div>
     </Card>

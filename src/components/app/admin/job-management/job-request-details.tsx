@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { JobRequest, JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
-import { cn } from '@/lib/utils';
+import { cn, getStatusVariant } from '@/lib/utils';
 import { differenceInDays, format, parseISO } from 'date-fns';
 import { ArrowLeft, Building, Calendar, Edit, FileText } from 'lucide-react';
 import Link from 'next/link';
@@ -13,21 +13,6 @@ import * as React from 'react';
 import { JobRequestType } from '@/interfaces/job.interface';
 import { Separator } from '@/components/ui/separator';
 
-const getPostStatusVariant = (status?: string) => {
-	switch (status) {
-		case JobRequestStatus.PENDING:
-			return 'warning';
-		case 'PROCESSING':
-			return 'info';
-		case 'EXAM':
-			return 'default';
-		case 'INTERVIEW':
-			return 'success';
-		default:
-			return 'secondary';
-	}
-};
-
 function PrimaryListManager({ post }: { post: RequestedPost }) {
 	return null;
 }
@@ -35,16 +20,6 @@ function PrimaryListManager({ post }: { post: RequestedPost }) {
 export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: JobRequest }) {
 	const router = useRouter();
 	const [request] = React.useState<JobRequest>(initialJobRequest);
-
-	const requestStatus = request.status;
-	const requestStatusVariant =
-		requestStatus === JobRequestStatus.COMPLETED
-			? 'success'
-			: requestStatus === JobRequestStatus.PROCESSING
-			? 'info'
-			: requestStatus === JobRequestStatus.PENDING
-			? 'warning'
-			: 'secondary';
 
 	const isDeadlineSoon = differenceInDays(parseISO(request.deadline), new Date()) <= 7;
 
@@ -56,7 +31,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					Back to Requests
 				</Button>
 				<Button asChild>
-					<Link href={`/admin/job-management/request/edit/${request.id}`}>
+					<Link href={`/admin/recruitment/request/edit/${request.id}`}>
 						<Edit className='mr-2 h-4 w-4' /> Edit Request
 					</Link>
 				</Button>
@@ -94,7 +69,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 						</div>
 						<div>
 							<p className='font-medium text-muted-foreground text-sm'>Status</p>
-							<Badge variant={requestStatusVariant}>{request.statusDTO?.nameEn}</Badge>
+							<Badge variant={getStatusVariant(request.status)}>{request.statusDTO?.nameEn}</Badge>
 						</div>
 					</div>
 
@@ -120,7 +95,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 									<CardTitle className='text-xl font-semibold'>
 										{post.post?.nameEn} ({post.vacancy} Vacancies)
 									</CardTitle>
-									<Badge variant={getPostStatusVariant(post.status)}>{post.statusDTO?.nameEn}</Badge>
+									<Badge variant={getStatusVariant(post.status)}>{post.statusDTO?.nameEn}</Badge>
 								</div>
 							</CardHeader>
 							<CardContent>
