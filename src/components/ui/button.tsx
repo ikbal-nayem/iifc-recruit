@@ -13,7 +13,7 @@ const buttonVariants = cva(
         danger:
           "bg-danger text-danger-foreground hover:bg-danger/90",
         warning:
-          "bg-warning text-warning-foreground hover:bg-warning/90",
+          "bg-yellow-600 text-white hover:bg-yellow-600/90",
         outline:
           "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary:

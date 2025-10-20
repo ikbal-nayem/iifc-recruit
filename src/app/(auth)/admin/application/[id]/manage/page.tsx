@@ -1,8 +1,7 @@
 import { ApplicationManagementPage } from '@/components/app/admin/application/application-management-page';
-import { RequestedPost } from '@/interfaces/job.interface';
-import { IClientOrganization } from '@/interfaces/master-data.interface';
-import { Jobseeker, Application } from '@/lib/types';
+import { Jobseeker } from '@/interfaces/jobseeker.interface';
 import { applications, jobseekers } from '@/lib/data';
+import { Application } from '@/lib/types';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { notFound } from 'next/navigation';
@@ -19,9 +18,8 @@ async function getData(requestedPostId: string) {
 		const post = postRes.body;
 		const examiners = examinerRes.body;
 
-		// Mock loading applicants for this post
 		const postApplications = applications
-			.filter((app) => app.jobId === `j${postRes.body.postId}`) // Assuming job id matches post id format
+			.filter((app) => app.jobId === `j${postRes.body.postId}`)
 			.map((app) => {
 				const jobseeker = jobseekers.find((js) => js.id === app.jobseekerId);
 				return jobseeker ? { ...jobseeker, application: app } : null;
@@ -40,7 +38,15 @@ async function getData(requestedPostId: string) {
 }
 
 export default async function ManageApplicationPage({ params }: { params: { id: string } }) {
-	const { post, examiners, applicants } = await getData(params.id);
+	const requestedParams = await params;
 
-	return <ApplicationManagementPage initialPost={post} initialExaminers={examiners} initialApplicants={applicants} />;
+	const { post, examiners, applicants } = await getData(requestedParams.id);
+
+	return (
+		<ApplicationManagementPage
+			requestedPost={post}
+			initialExaminers={examiners}
+			initialApplicants={applicants}
+		/>
+	);
 }

@@ -15,10 +15,10 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
-import { Jobseeker } from '@/lib/types';
 import { FileText, Loader2, UserPlus } from 'lucide-react';
 import React, { useState } from 'react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
+import { Jobseeker } from '@/interfaces/jobseeker.interface';
 
 // Mock data - replace with API calls
 const allJobseekers: Jobseeker[] = [
