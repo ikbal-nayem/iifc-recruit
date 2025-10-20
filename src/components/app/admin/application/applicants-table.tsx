@@ -38,7 +38,7 @@ import type { Jobseeker, Application } from '@/lib/types';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
-import { ActionItem, ActionMenu } from '../../ui/action-menu';
+import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { getStatusVariant } from '@/lib/utils';
 
 type Applicant = Jobseeker & { application: Application };
