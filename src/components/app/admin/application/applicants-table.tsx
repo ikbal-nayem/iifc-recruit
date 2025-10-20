@@ -31,7 +31,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { FileText, UserCheck, UserX } from 'lucide-react';
+import { FileText, UserCheck } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Jobseeker, Application } from '@/lib/types';
@@ -55,7 +55,7 @@ export function ApplicantsTable({ applicants, setApplicants }: ApplicantsTablePr
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [selectedApplicant, setSelectedApplicant] = React.useState<Jobseeker | null>(null);
-  const [bulkAction, setBulkAction] = React.useState<{type: 'hired' | 'accepted' | 'rejected', count: number} | null>(null);
+  const [bulkAction, setBulkAction] = React.useState<{type: 'hired' | 'accepted' , count: number} | null>(null);
 
   const handleStatusChange = (applicationIds: string[], newStatus: Application['status']) => {
     setApplicants(prevData => prevData.map(applicant => 
@@ -79,8 +79,6 @@ export function ApplicantsTable({ applicants, setApplicants }: ApplicantsTablePr
         handleStatusChange(selectedIds, 'Hired');
     } else if (bulkAction.type === 'accepted') {
         handleStatusChange(selectedIds, 'Shortlisted');
-    } else if (bulkAction.type === 'rejected') {
-        handleStatusChange(selectedIds, 'Rejected');
     }
     setBulkAction(null);
   }
@@ -139,6 +137,14 @@ export function ApplicantsTable({ applicants, setApplicants }: ApplicantsTablePr
      {
        accessorKey: 'application.applicationDate',
        header: 'Date Applied'
+    },
+    {
+      accessorKey: 'application.status',
+      header: 'Status',
+      cell: ({ row }) => {
+        const status = row.original.application.status;
+        return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
+      },
     },
     {
       id: 'actions',
@@ -220,6 +226,9 @@ export function ApplicantsTable({ applicants, setApplicants }: ApplicantsTablePr
         </Select>
         {selectedRowCount > 0 && (
            <div className="flex items-center gap-2">
+               <Button size="sm" variant="outline" onClick={() => setBulkAction({type: 'accepted', count: selectedRowCount })}>
+                Accept ({selectedRowCount})
+              </Button>
               <Button size="sm" variant="success" onClick={() => setBulkAction({type: 'hired', count: selectedRowCount })}>
                 <UserCheck className='mr-2 h-4 w-4' /> Hire ({selectedRowCount})
               </Button>
@@ -320,7 +329,7 @@ export function ApplicantsTable({ applicants, setApplicants }: ApplicantsTablePr
         title={`Confirm Bulk Action: ${bulkAction?.type.charAt(0).toUpperCase() + bulkAction?.type.slice(1)}`}
         description={`Are you sure you want to mark ${bulkAction?.count} applicant(s) as ${bulkAction?.type === 'accepted' ? 'Shortlisted' : bulkAction?.type}?`}
         onConfirm={handleBulkActionConfirm}
-        variant={bulkAction?.type === 'rejected' ? 'danger' : 'default'}
+        variant={bulkAction?.type === 'hired' ? 'success' : 'default'}
       />
     </>
   );

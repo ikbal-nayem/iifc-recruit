@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { RequestedPost } from '@/interfaces/job.interface';
 import { IClientOrganization } from '@/interfaces/master-data.interface';
-import { ArrowLeft, Building, Check, ChevronsRight, Loader2, Save, UserCheck, UserPlus, Users, UserX } from 'lucide-react';
+import { ArrowLeft, Building, Check, ChevronsRight, Loader2, Save, UserPlus, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { ApplicantListManager } from './applicant-list-manager';
@@ -16,7 +16,6 @@ import { Jobseeker, Application } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { getStatusVariant } from '@/lib/utils';
-import { JobRequestService } from '@/services/api/job-request.service';
 
 type Applicant = Jobseeker & { application: Application };
 
@@ -125,7 +124,7 @@ export function ApplicationManagementPage({
 				</CardHeader>
 			</Card>
 
-			<div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4'>
+			<div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4'>
 				<Card className='col-span-full sm:col-span-1 lg:col-span-1'>
 					<CardHeader>
 						<CardTitle className='text-sm text-muted-foreground'>Total Applicants</CardTitle>
@@ -144,26 +143,10 @@ export function ApplicationManagementPage({
 				</Card>
 				<Card className='col-span-1'>
 					<CardHeader>
-						<CardTitle className='text-sm text-muted-foreground'>Shortlisted</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<p className='text-3xl font-bold'>{applicantStats.Shortlisted}</p>
-					</CardContent>
-				</Card>
-				<Card className='col-span-1'>
-					<CardHeader>
 						<CardTitle className='text-sm text-muted-foreground'>Hired</CardTitle>
 					</CardHeader>
 					<CardContent>
 						<p className='text-3xl font-bold'>{applicantStats.Hired}</p>
-					</CardContent>
-				</Card>
-				<Card className='col-span-1'>
-					<CardHeader>
-						<CardTitle className='text-sm text-muted-foreground'>Rejected</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<p className='text-3xl font-bold'>{applicantStats.Rejected}</p>
 					</CardContent>
 				</Card>
 			</div>
