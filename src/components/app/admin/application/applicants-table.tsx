@@ -137,14 +137,6 @@ export function ApplicantsTable({ applicants, setApplicants }: ApplicantsTablePr
       },
     },
      {
-      accessorKey: 'application.status',
-      header: 'Status',
-      cell: ({ row }) => {
-        const status = row.original.application.status;
-        return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
-      },
-    },
-    {
        accessorKey: 'application.applicationDate',
        header: 'Date Applied'
     },
@@ -228,14 +220,8 @@ export function ApplicantsTable({ applicants, setApplicants }: ApplicantsTablePr
         </Select>
         {selectedRowCount > 0 && (
            <div className="flex items-center gap-2">
-              <Button size="sm" onClick={() => setBulkAction({type: 'accepted', count: selectedRowCount })}>
-                <UserCheck className='mr-2 h-4 w-4' /> Accept ({selectedRowCount})
-              </Button>
-               <Button size="sm" variant="success" onClick={() => setBulkAction({type: 'hired', count: selectedRowCount })}>
+              <Button size="sm" variant="success" onClick={() => setBulkAction({type: 'hired', count: selectedRowCount })}>
                 <UserCheck className='mr-2 h-4 w-4' /> Hire ({selectedRowCount})
-              </Button>
-              <Button size="sm" variant="danger" onClick={() => setBulkAction({type: 'rejected', count: selectedRowCount })}>
-                <UserX className='mr-2 h-4 w-4' /> Reject ({selectedRowCount})
               </Button>
            </div>
         )}
