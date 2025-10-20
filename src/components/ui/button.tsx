@@ -10,15 +10,26 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        danger:
-          "bg-danger text-danger-foreground hover:bg-danger/90",
-        warning:
-          "bg-yellow-600 text-white hover:bg-yellow-600/90",
-        outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+        danger: "bg-danger text-danger-foreground hover:bg-danger/90",
+        warning: "bg-warning text-warning-foreground hover:bg-warning/90",
+        success: "bg-success text-success-foreground hover:bg-success/90",
+        info: "bg-info text-info-foreground hover:bg-info/90",
+
+        outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+        "outline-danger": "border border-danger text-danger bg-transparent hover:bg-danger/10",
+        "outline-warning": "border border-warning text-warning bg-transparent hover:bg-warning/10",
+        "outline-success": "border border-success text-success bg-transparent hover:bg-success/10",
+        "outline-info": "border border-info text-info bg-transparent hover:bg-info/10",
+        
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          
         ghost: "hover:bg-accent hover:text-accent-foreground",
+        "lite-danger": "bg-danger/10 text-danger hover:bg-danger/20",
+        "lite-warning": "bg-warning/10 text-warning hover:bg-warning/20",
+        "lite-success": "bg-success/10 text-success hover:bg-success/20",
+        "lite-info": "bg-info/10 text-info hover:bg-info/20",
+
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

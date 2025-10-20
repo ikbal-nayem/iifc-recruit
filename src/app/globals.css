@@ -35,6 +35,12 @@ body {
 		--warning: 38 92% 50%;
 		--warning-foreground: 38 92% 95%;
 
+    --success: 142 76% 36%;
+    --success-foreground: 142 76% 96%;
+
+    --info: 204 90% 50%;
+    --info-foreground: 204 90% 95%;
+
 		--border: 240 5.9% 90%;
 		--input: 240 5.9% 90%;
 		--ring: 120 40% 33%;
