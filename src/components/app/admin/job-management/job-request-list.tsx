@@ -26,6 +26,7 @@ import {
 	Eye,
 	FileText,
 	Search,
+	Send,
 	Trash,
 } from 'lucide-react';
 import * as React from 'react';
@@ -139,6 +140,11 @@ export function JobRequestList({ status }: JobRequestListProps) {
 		if (request.status === JobRequestStatus.PROCESSING) {
 			items.push(
 				{ isSeparator: true },
+				{
+					label: 'Publish as Circular',
+					icon: <Send className='mr-2 h-4 w-4' />,
+					onClick: () => alert('Publishing...'), // Placeholder
+				},
 				{
 					label: 'Mark as Completed',
 					icon: <CheckCircle className='mr-2 h-4 w-4' />,
