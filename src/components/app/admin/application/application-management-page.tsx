@@ -17,6 +17,8 @@ import { ApplicantsTable } from './applicants-table';
 import { applications, jobseekers } from '@/lib/data';
 import { Jobseeker, Application } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { getStatusVariant } from '@/lib/utils';
 
 type Applicant = Jobseeker & { application: Application };
 
@@ -121,7 +123,10 @@ export function ApplicationManagementPage({ requestedPostId }: { requestedPostId
 
 			<Card className='glassmorphism'>
 				<CardHeader>
-					<CardTitle>Manage Application: {post.post?.nameEn}</CardTitle>
+					<div className='flex items-center gap-4'>
+						<CardTitle>Manage Application: {post.post?.nameEn}</CardTitle>
+						{post.statusDTO?.nameEn && <Badge variant={getStatusVariant(post.status)}>{post.statusDTO.nameEn}</Badge>}
+					</div>
 					<CardDescription className='flex flex-wrap items-center gap-x-4 gap-y-1'>
 						<span className='flex items-center gap-1.5'>
 							<Building className='h-4 w-4' />
