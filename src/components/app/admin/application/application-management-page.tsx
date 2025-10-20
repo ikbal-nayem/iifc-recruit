@@ -8,7 +8,7 @@ import { JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
 import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { MasterDataService } from '@/services/api/master-data.service';
-import { ArrowLeft, Loader2, Save } from 'lucide-react';
+import { ArrowLeft, Building, Loader2, Save, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { ApplicantListManager } from './applicant-list-manager';
@@ -124,8 +124,15 @@ export function ApplicationManagementPage({ requestedPostId }: { requestedPostId
 			<Card className='glassmorphism'>
 				<CardHeader>
 					<CardTitle>Manage Application: {post.post?.nameEn}</CardTitle>
-					<CardDescription>
-						Review applicants, add more candidates, and assign an examiner to proceed.
+					<CardDescription className='flex flex-wrap items-center gap-x-4 gap-y-1'>
+						<span className='flex items-center gap-1.5'>
+							<Building className='h-4 w-4' />
+							{post.jobRequest?.clientOrganization?.nameEn}
+						</span>
+						<span className='flex items-center gap-1.5'>
+							<Users className='h-4 w-4' />
+							{post.vacancy} Vacancies
+						</span>
 					</CardDescription>
 				</CardHeader>
 			</Card>
