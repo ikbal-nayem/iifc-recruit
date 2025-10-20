@@ -31,7 +31,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { FileText, UserCheck } from 'lucide-react';
+import { FileText, UserCheck, UserPlus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Jobseeker, Application } from '@/lib/types';
@@ -89,6 +89,17 @@ export function ApplicantsTable({ applicants, setApplicants }: ApplicantsTablePr
         icon: <FileText className="mr-2 h-4 w-4" />,
         onClick: () => setSelectedApplicant(applicant)
     },
+    { isSeparator: true },
+    {
+        label: 'Mark as Accepted',
+        icon: <UserCheck className="mr-2 h-4 w-4" />,
+        onClick: () => handleStatusChange([applicant.application.id], 'Shortlisted')
+    },
+    {
+        label: 'Mark as Hired',
+        icon: <UserPlus className="mr-2 h-4 w-4" />,
+        onClick: () => handleStatusChange([applicant.application.id], 'Hired')
+    }
   ]
 
 
