@@ -124,7 +124,7 @@ export function ApplicationManagementPage({ requestedPostId }: { requestedPostId
 			<Card className='glassmorphism'>
 				<CardHeader>
 					<div className='flex items-center gap-4'>
-						<CardTitle>Manage Application: {post.post?.nameEn}</CardTitle>
+						<CardTitle>{post.post?.nameEn}</CardTitle>
 						{post.statusDTO?.nameEn && <Badge variant={getStatusVariant(post.status)}>{post.statusDTO.nameEn}</Badge>}
 					</div>
 					<CardDescription className='flex flex-wrap items-center gap-x-4 gap-y-1'>
