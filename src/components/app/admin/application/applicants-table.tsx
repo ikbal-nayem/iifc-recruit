@@ -31,7 +31,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { FileText } from 'lucide-react';
+import { FileText, UserCheck, UserX } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Jobseeker, Application } from '@/lib/types';
@@ -40,32 +40,49 @@ import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { getStatusVariant } from '@/lib/utils';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 type Applicant = Jobseeker & { application: Application };
 
 interface ApplicantsTableProps {
     applicants: Applicant[];
+    setApplicants: React.Dispatch<React.SetStateAction<Applicant[]>>;
 }
 
-export function ApplicantsTable({ applicants }: ApplicantsTableProps) {
+export function ApplicantsTable({ applicants, setApplicants }: ApplicantsTableProps) {
   const { toast } = useToast();
-  const [data, setData] = React.useState<Applicant[]>(applicants);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [selectedApplicant, setSelectedApplicant] = React.useState<Jobseeker | null>(null);
+  const [bulkAction, setBulkAction] = React.useState<{type: 'hired' | 'accepted' | 'rejected', count: number} | null>(null);
 
-  const handleStatusChange = (applicationId: string, applicantName: string, newStatus: Application['status']) => {
-    setData(prevData => prevData.map(applicant => 
-        applicant.application.id === applicationId 
+  const handleStatusChange = (applicationIds: string[], newStatus: Application['status']) => {
+    setApplicants(prevData => prevData.map(applicant => 
+        applicationIds.includes(applicant.application.id) 
         ? { ...applicant, application: { ...applicant.application, status: newStatus } }
         : applicant
     ));
+
     toast({
         title: 'Status Updated',
-        description: `${applicantName}'s status has been updated to ${newStatus}.`,
+        description: `${applicationIds.length} applicant(s) have been updated to ${newStatus}.`,
         variant: 'success'
     })
+    table.resetRowSelection();
+  }
+
+  const handleBulkActionConfirm = () => {
+    if(!bulkAction) return;
+    const selectedIds = table.getSelectedRowModel().rows.map(row => row.original.application.id);
+    if(bulkAction.type === 'hired') {
+        handleStatusChange(selectedIds, 'Hired');
+    } else if (bulkAction.type === 'accepted') {
+        handleStatusChange(selectedIds, 'Shortlisted');
+    } else if (bulkAction.type === 'rejected') {
+        handleStatusChange(selectedIds, 'Rejected');
+    }
+    setBulkAction(null);
   }
 
   const getActionItems = (applicant: Applicant): ActionItem[] => [
@@ -119,6 +136,14 @@ export function ApplicantsTable({ applicants }: ApplicantsTableProps) {
         );
       },
     },
+     {
+      accessorKey: 'application.status',
+      header: 'Status',
+      cell: ({ row }) => {
+        const status = row.original.application.status;
+        return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
+      },
+    },
     {
        accessorKey: 'application.applicationDate',
        header: 'Date Applied'
@@ -133,7 +158,7 @@ export function ApplicantsTable({ applicants }: ApplicantsTableProps) {
   ];
 
   const table = useReactTable({
-    data,
+    data: applicants,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -148,6 +173,8 @@ export function ApplicantsTable({ applicants }: ApplicantsTableProps) {
       rowSelection,
     },
   });
+
+  const selectedRowCount = Object.keys(rowSelection).length;
   
   const renderMobileCard = (applicant: Applicant) => (
     <Card key={applicant.id} className="mb-4 glassmorphism">
@@ -160,6 +187,7 @@ export function ApplicantsTable({ applicants }: ApplicantsTableProps) {
           <div>
             <p className="font-semibold">{applicant.personalInfo.name}</p>
             <p className="text-sm text-muted-foreground">Applied: {applicant.application.applicationDate}</p>
+             <Badge variant={getStatusVariant(applicant.application.status)} className="mt-2">{applicant.application.status}</Badge>
           </div>
         </div>
         <ActionMenu items={getActionItems(applicant)} />
@@ -178,12 +206,45 @@ export function ApplicantsTable({ applicants }: ApplicantsTableProps) {
           }
           className="max-w-sm w-full"
         />
+         <Select
+          value={(table.getColumn('application_status')?.getFilterValue() as string) ?? 'all'}
+          onValueChange={(value) =>
+            table.getColumn('application_status')?.setFilterValue(value === 'all' ? null : value)
+          }
+        >
+          <SelectTrigger className="w-full sm:w-[180px]">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Statuses</SelectItem>
+            <SelectItem value="Applied">Applied</SelectItem>
+            <SelectItem value="Screening">Screening</SelectItem>
+            <SelectItem value="Shortlisted">Shortlisted</SelectItem>
+            <SelectItem value="Interview">Interview</SelectItem>
+            <SelectItem value="Offered">Offered</SelectItem>
+            <SelectItem value="Hired">Hired</SelectItem>
+            <SelectItem value="Rejected">Rejected</SelectItem>
+          </SelectContent>
+        </Select>
+        {selectedRowCount > 0 && (
+           <div className="flex items-center gap-2">
+              <Button size="sm" onClick={() => setBulkAction({type: 'accepted', count: selectedRowCount })}>
+                <UserCheck className='mr-2 h-4 w-4' /> Accept ({selectedRowCount})
+              </Button>
+               <Button size="sm" variant="success" onClick={() => setBulkAction({type: 'hired', count: selectedRowCount })}>
+                <UserCheck className='mr-2 h-4 w-4' /> Hire ({selectedRowCount})
+              </Button>
+              <Button size="sm" variant="danger" onClick={() => setBulkAction({type: 'rejected', count: selectedRowCount })}>
+                <UserX className='mr-2 h-4 w-4' /> Reject ({selectedRowCount})
+              </Button>
+           </div>
+        )}
       </div>
       
        {/* Mobile View */}
       <div className="md:hidden mt-4">
-        {data.length > 0 ? (
-           data.map(renderMobileCard)
+        {applicants.length > 0 ? (
+           applicants.map(renderMobileCard)
         ) : (
             <div className="text-center py-16">
                 <p className="text-muted-foreground">No applicants found for this post.</p>
@@ -266,6 +327,15 @@ export function ApplicantsTable({ applicants }: ApplicantsTableProps) {
           )}
         </DialogContent>
       </Dialog>
+
+       <ConfirmationDialog
+        open={!!bulkAction}
+        onOpenChange={(isOpen) => !isOpen && setBulkAction(null)}
+        title={`Confirm Bulk Action: ${bulkAction?.type.charAt(0).toUpperCase() + bulkAction?.type.slice(1)}`}
+        description={`Are you sure you want to mark ${bulkAction?.count} applicant(s) as ${bulkAction?.type === 'accepted' ? 'Shortlisted' : bulkAction?.type}?`}
+        onConfirm={handleBulkActionConfirm}
+        variant={bulkAction?.type === 'rejected' ? 'danger' : 'default'}
+      />
     </>
   );
 }
