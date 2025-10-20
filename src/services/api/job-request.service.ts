@@ -13,7 +13,7 @@ export const JobRequestService = {
 		await axiosIns.post('/job-request/get-list', payload),
 	
 	getRequestedPosts: async (payload: IApiRequest): Promise<IApiResponse<RequestedPost[]>> =>
-		await axiosIns.post('/job-request/get-requested-posts', payload),
+		await axiosIns.post('/job-request/requested-post/get-list', payload),
 
 	getById: async (id: string): Promise<IApiResponse<JobRequest>> =>
 		await axiosIns.get(`/job-request/get-by-id/${id}`),

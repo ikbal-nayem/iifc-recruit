@@ -1,3 +1,4 @@
+import { ROUTES } from '@/constants/routes.constant';
 import type { LucideIcon } from 'lucide-react';
 import {
 	Award,
@@ -58,23 +59,23 @@ export const adminNavLinks: NavLink[] = [
 			},
 			{
 				href: '/admin/job-management/request/pending',
-				label: 'Pending Requests',
+				label: 'Pending',
 				icon: Clock,
 			},
 			{
 				href: '/admin/job-management/request/processing',
-				label: 'Processing Requests',
+				label: 'Processing',
 				icon: Play,
 			},
 			{
 				href: '/admin/job-management/request/completed',
-				label: 'Completed Requests',
+				label: 'Completed',
 				icon: CheckCircle,
 			},
 		],
 	},
 	{
-		href: '/admin/recruitment/requested-posts',
+		href: ROUTES.APPLICATION,
 		label: 'Applications',
 		icon: Users2,
 	},

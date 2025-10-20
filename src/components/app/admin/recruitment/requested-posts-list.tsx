@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ROUTES } from '@/constants/routes.constant';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
@@ -74,7 +75,7 @@ export function RequestedPostsList() {
 							{
 								label: 'Manage Applicants',
 								icon: <Users2 className='mr-2 h-4 w-4' />,
-								href: `/admin/recruitment/requested-posts/${item.id}`,
+								href: ROUTES.APPLICATION_DETAILS(item.id),
 							},
 						]}
 					/>
