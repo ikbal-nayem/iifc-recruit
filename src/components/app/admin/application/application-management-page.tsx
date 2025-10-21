@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Badge } from '@/components/ui/badge';
@@ -6,16 +7,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { RequestedPost } from '@/interfaces/job.interface';
-import { IClientOrganization } from '@/interfaces/master-data.interface';
+import { IClientOrganization, EnumDTO } from '@/interfaces/master-data.interface';
 import { getStatusVariant } from '@/lib/utils';
 import { ArrowLeft, Building, ChevronsRight, Loader2, Save, UserPlus, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { ApplicantListManager } from './applicant-list-manager';
-import { ApplicantsTable } from './applicants-table';
 import { ExaminerSetup } from './examiner-setup';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
+import { ApplicantsTable } from './applicants-table';
 
 type Applicant = Jobseeker & { application: Application };
 
@@ -23,12 +24,14 @@ interface ApplicationManagementPageProps {
 	requestedPost: RequestedPost;
 	initialExaminers: IClientOrganization[];
 	initialApplicants: Applicant[];
+	statuses: EnumDTO[];
 }
 
 export function ApplicationManagementPage({
 	requestedPost,
 	initialExaminers,
 	initialApplicants,
+	statuses,
 }: ApplicationManagementPageProps) {
 	const { toast } = useToast();
 	const router = useRouter();
@@ -36,6 +39,7 @@ export function ApplicationManagementPage({
 	const [selectedExaminer, setSelectedExaminer] = useState<string | undefined>(undefined);
 	const [isSaving, setIsSaving] = useState(false);
 	const [applicants, setApplicants] = useState<Applicant[]>(initialApplicants);
+	const [isAddCandidateOpen, setIsAddCandidateOpen] = useState(false);
 
 	const applicantStats = useMemo(() => {
 		return applicants.reduce(
@@ -49,6 +53,7 @@ export function ApplicationManagementPage({
 				total: 0,
 				[APPLICATION_STATUS.APPLIED]: 0,
 				[APPLICATION_STATUS.HIRED]: 0,
+				[APPLICATION_STATUS.ACCEPTED]: 0,
 			} as Record<Application['status'] | 'total', number>
 		);
 	}, [applicants]);
@@ -79,6 +84,27 @@ export function ApplicationManagementPage({
 		} finally {
 			setIsSaving(false);
 		}
+	};
+
+	const handleApplyApplicants = (newApplicants: Jobseeker[]) => {
+		const applicantsToAdd: Applicant[] = newApplicants.map((js) => ({
+			...js,
+			application: {
+				id: `temp-${js.id}`, // temp id
+				jobId: requestedPost.id!.toString(),
+				jobseekerId: js.id!,
+				status: APPLICATION_STATUS.APPLIED,
+				applicationDate: new Date().toISOString().split('T')[0],
+			},
+		}));
+
+		setApplicants((prev) => [...prev, ...applicantsToAdd]);
+		toast({
+			title: 'Candidates Applied',
+			description: `${newApplicants.length} candidate(s) have been added to the application list.`,
+			variant: 'success',
+		});
+		setIsAddCandidateOpen(false);
 	};
 
 	return (
@@ -162,25 +188,28 @@ export function ApplicationManagementPage({
 						<CardTitle>Applied Candidates</CardTitle>
 						<CardDescription>These candidates have applied for the circular post.</CardDescription>
 					</div>
-					<Dialog>
+					<Dialog open={isAddCandidateOpen} onOpenChange={setIsAddCandidateOpen}>
 						<DialogTrigger asChild>
 							<Button variant='outline'>
 								<UserPlus className='mr-2 h-4 w-4' />
 								Add Candidate
 							</Button>
 						</DialogTrigger>
-						<DialogContent className='max-w-3xl'>
-							<DialogHeader>
+						<DialogContent className='max-w-3xl h-[90vh] flex flex-col p-0'>
+							<DialogHeader className='p-6 pb-0'>
 								<DialogTitle>Add Applicants to Primary List</DialogTitle>
 							</DialogHeader>
-							<div className='max-h-[70vh] overflow-y-auto p-1'>
-								<ApplicantListManager />
+							<div className='flex-1 overflow-y-auto px-6'>
+								<ApplicantListManager
+									onApply={handleApplyApplicants}
+									existingApplicantIds={applicants.map((a) => a.id)}
+								/>
 							</div>
 						</DialogContent>
 					</Dialog>
 				</CardHeader>
 				<CardContent>
-					<ApplicantsTable applicants={applicants} setApplicants={setApplicants} />
+					<ApplicantsTable applicants={applicants} setApplicants={setApplicants} statuses={statuses} />
 				</CardContent>
 			</Card>
 
