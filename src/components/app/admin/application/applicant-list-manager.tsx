@@ -3,7 +3,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import {
 	Command,
 	CommandEmpty,
@@ -15,7 +15,6 @@ import {
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
-import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -47,6 +46,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 import { Checkbox } from '@/components/ui/checkbox';
+import * as z from 'zod';
 
 const filterSchema = z.object({
 	skillIds: z.array(z.number()).optional(),
@@ -87,7 +87,6 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 		resolver: zodResolver(filterSchema),
 		defaultValues: {
 			skillIds: [],
-			searchKey: '',
 		},
 	});
 
