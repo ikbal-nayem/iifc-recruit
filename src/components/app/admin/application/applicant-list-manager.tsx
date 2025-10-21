@@ -29,6 +29,7 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Label } from '@/components/ui/label';
 
 const allJobseekers: Jobseeker[] = [
 	{ id: '1', personalInfo: { name: 'Alice Johnson', email: 'alice@example.com' } },
@@ -40,7 +41,7 @@ const allJobseekers: Jobseeker[] = [
 const searchSchema = z.object({
 	search: z.string(),
 	skillIds: z.array(z.number()),
-	experience: z.number().nullable(),
+	experience: z.coerce.number().nullable(),
 });
 
 export function ApplicantListManager() {
@@ -57,7 +58,7 @@ export function ApplicantListManager() {
 	const [selectedSkills, setSelectedSkills] = useState<ICommonMasterData[]>([]);
 	const [skillPopoverOpen, setSkillPopoverOpen] = useState(false);
 
-	const form = useForm({
+	const form = useForm<z.infer<typeof searchSchema>>({
 		resolver: zodResolver(searchSchema),
 		defaultValues: {
 			search: '',
@@ -117,7 +118,7 @@ export function ApplicantListManager() {
 		);
 	};
 
-	const onSearchSubmit = (values: any) => {
+	const onSearchSubmit = (values: z.infer<typeof searchSchema>) => {
 		setIsLoading(true);
 		console.log('Searching with filters:', values);
 		// Simulate API call with filters
@@ -140,7 +141,7 @@ export function ApplicantListManager() {
 
 	React.useEffect(() => {
 		// This handles the simple name search for now
-		onSearchSubmit({ search: debouncedSearch });
+		onSearchSubmit({ ...form.getValues(), search: debouncedSearch });
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [debouncedSearch]);
 
@@ -164,9 +165,9 @@ export function ApplicantListManager() {
 			<div className='space-y-4'>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSearchSubmit)} className='space-y-4'>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
 							<div>
-								<label className='block text-sm font-medium mb-2'>Skills</label>
+								<Label className='block text-sm font-medium mb-2'>Skills</Label>
 								<Popover open={skillPopoverOpen} onOpenChange={setSkillPopoverOpen}>
 									<PopoverTrigger asChild>
 										<div
@@ -245,7 +246,11 @@ export function ApplicantListManager() {
 				</Form>
 
 				<Command>
-					<CommandInput placeholder='Filter by name, email, or phone...' />
+					<CommandInput
+						placeholder='Filter results by name, email, or phone...'
+						value={form.watch('search')}
+						onValueChange={(value) => form.setValue('search', value)}
+					/>
 					<CommandList className='max-h-64'>
 						{isLoading ? (
 							<div className='p-2 flex justify-center'>
@@ -253,8 +258,8 @@ export function ApplicantListManager() {
 							</div>
 						) : (
 							<>
-								{suggestedJobseekers.length === 0 && search && (
-									<CommandEmpty>No jobseekers found.</CommandEmpty>
+								{suggestedJobseekers.length === 0 && (
+									<CommandEmpty>No jobseekers found for the selected criteria.</CommandEmpty>
 								)}
 								<CommandGroup>
 									{suggestedJobseekers.map((js) => (
