@@ -15,7 +15,7 @@ import {
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
-import { FileText, Loader2, Search } from 'lucide-react';
+import { Check, FileText, Loader2, Search, X } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
@@ -24,7 +24,9 @@ import { useForm } from 'react-hook-form';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { MasterDataService } from '@/services/api/master-data.service';
-import { FormAutocomplete } from '@/components/ui/form-autocomplete';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 const allJobseekers: Jobseeker[] = [
 	{ id: '1', personalInfo: { name: 'Alice Johnson', email: 'alice@example.com' } },
@@ -35,18 +37,23 @@ const allJobseekers: Jobseeker[] = [
 
 const searchSchema = {
 	search: '',
-	skillId: null,
+	skillIds: [] as number[],
 	experience: null,
 };
 
 export function ApplicantListManager() {
 	const { toast } = useToast();
 	const [primaryList, setPrimaryList] = useState<Jobseeker[]>([]);
-	const [skills, setSkills] = useState<ICommonMasterData[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [suggestedJobseekers, setSuggestedJobseekers] = useState<Jobseeker[]>([]);
 	const [selectedJobseeker, setSelectedJobseeker] = React.useState<Jobseeker | null>(null);
+
 	const [isSkillLoading, setIsSkillLoading] = useState(false);
+	const [skillSearchQuery, setSkillSearchQuery] = useState('');
+	const debouncedSkillSearch = useDebounce(skillSearchQuery, 300);
+	const [availableSkills, setAvailableSkills] = useState<ICommonMasterData[]>([]);
+	const [selectedSkills, setSelectedSkills] = useState<ICommonMasterData[]>([]);
+	const [skillPopoverOpen, setSkillPopoverOpen] = useState(false);
 
 	const form = useForm({
 		defaultValues: searchSchema,
@@ -58,8 +65,11 @@ export function ApplicantListManager() {
 	const fetchSkills = useCallback(async (searchQuery: string) => {
 		setIsSkillLoading(true);
 		try {
-			const response = await MasterDataService.skill.getList({ body: { name: searchQuery } });
-			setSkills(response.body);
+			const response = await MasterDataService.skill.getList({
+				body: { name: searchQuery },
+				meta: { page: 0, limit: 20 },
+			});
+			setAvailableSkills(response.body);
 		} catch (error) {
 			toast({
 				title: 'Error',
@@ -71,6 +81,31 @@ export function ApplicantListManager() {
 		}
 	}, [toast]);
 
+	useEffect(() => {
+		fetchSkills(debouncedSkillSearch);
+	}, [debouncedSkillSearch, fetchSkills]);
+
+	const handleSkillSelect = (skill: ICommonMasterData) => {
+		if (!selectedSkills.some((s) => s.id === skill.id)) {
+			const newSelectedSkills = [...selectedSkills, skill];
+			setSelectedSkills(newSelectedSkills);
+			form.setValue(
+				'skillIds',
+				newSelectedSkills.map((s) => s.id!)
+			);
+		}
+		setSkillSearchQuery('');
+		setSkillPopoverOpen(false);
+	};
+
+	const handleSkillRemove = (skillToRemove: ICommonMasterData) => {
+		const newSelectedSkills = selectedSkills.filter((s) => s.id !== skillToRemove.id);
+		setSelectedSkills(newSelectedSkills);
+		form.setValue(
+			'skillIds',
+			newSelectedSkills.map((s) => s.id!)
+		);
+	};
 
 	const onSearchSubmit = (values: any) => {
 		setIsLoading(true);
@@ -82,7 +117,8 @@ export function ApplicantListManager() {
 			if (values.search) {
 				filtered = filtered.filter(
 					(js) =>
-						js.personalInfo.name.toLowerCase().includes(values.search.toLowerCase()) &&
+						(js.personalInfo.name.toLowerCase().includes(values.search.toLowerCase()) ||
+							js.personalInfo.email?.toLowerCase().includes(values.search.toLowerCase())) &&
 						!primaryList.some((p) => p.id === js.id)
 				);
 			}
@@ -118,16 +154,71 @@ export function ApplicantListManager() {
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSearchSubmit)} className='space-y-4'>
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-end'>
-							<FormAutocomplete
-								control={form.control}
-								name='skillId'
-								label='Skill'
-								placeholder='Filter by skill...'
-								options={skills}
-								getOptionValue={(opt) => opt.id as number}
-								getOptionLabel={(opt) => opt.nameEn}
-								onInputChange={fetchSkills}
-							/>
+							<div>
+								<label className='text-sm font-medium'>Skills</label>
+								<Popover open={skillPopoverOpen} onOpenChange={setSkillPopoverOpen}>
+									<PopoverTrigger asChild>
+										<div
+											className={cn(
+												'flex flex-wrap gap-2 p-2 mt-2 border rounded-lg min-h-[44px] items-center cursor-text w-full justify-start font-normal h-auto'
+											)}
+										>
+											{selectedSkills.length === 0 && (
+												<span className='text-muted-foreground px-1'>Filter by skills...</span>
+											)}
+											{selectedSkills.map((skill) => (
+												<Badge key={skill.id} variant='secondary' className='text-sm py-1 px-2'>
+													{skill.nameEn}
+													<button
+														className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+														onClick={(e) => {
+															e.preventDefault();
+															e.stopPropagation();
+															handleSkillRemove(skill);
+														}}
+													>
+														<X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
+													</button>
+												</Badge>
+											))}
+										</div>
+									</PopoverTrigger>
+									<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
+										<Command>
+											<CommandInput
+												placeholder='Search skill...'
+												value={skillSearchQuery}
+												onValueChange={setSkillSearchQuery}
+											/>
+											<CommandList>
+												{isSkillLoading && <CommandEmpty>Loading...</CommandEmpty>}
+												{!isSkillLoading && availableSkills.length === 0 && (
+													<CommandEmpty>No skills found.</CommandEmpty>
+												)}
+												<CommandGroup>
+													{availableSkills.map((skill) => (
+														<CommandItem
+															key={skill.id}
+															value={skill.nameEn}
+															onSelect={() => handleSkillSelect(skill)}
+														>
+															<Check
+																className={cn(
+																	'mr-2 h-4 w-4',
+																	selectedSkills.some((s) => s.id === skill.id)
+																		? 'opacity-100'
+																		: 'opacity-0'
+																)}
+															/>
+															{skill.nameEn}
+														</CommandItem>
+													))}
+												</CommandGroup>
+											</CommandList>
+										</Command>
+									</PopoverContent>
+								</Popover>
+							</div>
 							<FormInput
 								control={form.control}
 								name='experience'
