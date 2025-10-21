@@ -19,29 +19,28 @@ import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormInput } from '@/components/ui/form-input';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
-import { Application } from '@/interfaces/application.interface';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, FileText, Loader2, Search, X } from 'lucide-react';
+import { FileText, Loader2, Search, X } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 
-type Applicant = Jobseeker & { application: Application };
-
+// Mock data - replace with API calls
 const allJobseekers: Jobseeker[] = [
 	{ id: '1', personalInfo: { name: 'Alice Johnson', email: 'alice@example.com' } },
 	{ id: '2', personalInfo: { name: 'Bob Smith', email: 'bob@example.com' } },
 	{ id: '3', personalInfo: { name: 'Charlie Brown', email: 'charlie@example.com' } },
 	{ id: '4', personalInfo: { name: 'Diana Prince', email: 'diana@example.com' } },
-] as Applicant[];
+] as Jobseeker[];
 
 const searchSchema = z.object({
 	search: z.string(),
 	experience: z.coerce.number().optional(),
+	skillId: z.coerce.number().optional(),
 });
 
 export function ApplicantListManager() {
@@ -61,6 +60,7 @@ export function ApplicantListManager() {
 		resolver: zodResolver(searchSchema),
 		defaultValues: {
 			search: '',
+			skillId: undefined,
 			experience: undefined,
 		},
 	});
@@ -73,7 +73,7 @@ export function ApplicantListManager() {
 			setIsSkillLoading(true);
 			try {
 				const response = await MasterDataService.skill.getList({
-					body: { name: searchQuery },
+					body: { searchKey: searchQuery },
 					meta: { page: 0, limit: 20 },
 				});
 				setAvailableSkills(response.body);
@@ -155,18 +155,20 @@ export function ApplicantListManager() {
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSearchSubmit)} className='space-y-4'>
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-end'>
-							<FormAutocomplete
-								control={undefined as any}
-								name='skillId'
-								label='Skills'
-								placeholder='Filter by skills...'
-								options={availableSkills}
-								getOptionLabel={(option) => option.nameEn}
-								getOptionValue={(option) => option.id!.toString()}
-								onValueChange={handleSkillSelect}
-								onInputChange={setSkillSearchQuery}
-								value={''} // Keep it empty to allow adding more
-							/>
+							<div>
+								<FormAutocomplete
+									control={undefined as any}
+									name='skillId'
+									label='Skills'
+									placeholder='Filter by skills...'
+									options={availableSkills}
+									getOptionLabel={(option) => option.nameEn}
+									getOptionValue={(option) => option.id!.toString()}
+									onValueChange={handleSkillSelect}
+									onInputChange={setSkillSearchQuery}
+									value={''} // Keep it empty to allow adding more
+								/>
+							</div>
 							<FormInput
 								control={form.control}
 								name='experience'
@@ -175,6 +177,7 @@ export function ApplicantListManager() {
 								placeholder='e.g., 5'
 							/>
 						</div>
+
 						{selectedSkills.length > 0 && (
 							<div className='flex flex-wrap gap-2 p-2 border rounded-lg bg-muted/50'>
 								{selectedSkills.map((skill) => (
