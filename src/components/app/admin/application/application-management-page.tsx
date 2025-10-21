@@ -195,11 +195,11 @@ export function ApplicationManagementPage({
 								Add Candidate
 							</Button>
 						</DialogTrigger>
-						<DialogContent className='max-w-3xl'>
-							<DialogHeader>
+						<DialogContent className='max-w-3xl max-h-[70vh] flex flex-col p-0'>
+							<DialogHeader className='p-6 pb-0'>
 								<DialogTitle>Add Applicants to Primary List</DialogTitle>
 							</DialogHeader>
-							<div className='max-h-[70vh] overflow-y-auto p-1'>
+							<div className='flex-1 overflow-y-auto px-6'>
 								<ApplicantListManager
 									onApply={handleApplyApplicants}
 									existingApplicantIds={applicants.map((a) => a.id)}

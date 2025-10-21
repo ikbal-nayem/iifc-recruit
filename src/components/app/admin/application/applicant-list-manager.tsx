@@ -15,7 +15,6 @@ import {
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Form, FormProvider } from 'react-hook-form';
 import { FormInput } from '@/components/ui/form-input';
-import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
@@ -31,9 +30,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
+import { Input } from '@/components/ui/input';
 
 const filterSchema = z.object({
-	experience: z.coerce.number().optional(),
 	skillIds: z.array(z.number()).optional(),
 });
 
@@ -50,7 +49,6 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 	const [isLoading, setIsLoading] = useState(false);
 	const [suggestedJobseekers, setSuggestedJobseekers] = useState<Jobseeker[]>([]);
 	const [selectedJobseeker, setSelectedJobseeker] = React.useState<Jobseeker | null>(null);
-
 	const [textSearch, setTextSearch] = useState('');
 	const debouncedTextSearch = useDebounce(textSearch, 500);
 
@@ -65,12 +63,11 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 		resolver: zodResolver(filterSchema),
 		defaultValues: {
 			skillIds: [],
-			experience: undefined,
 		},
 	});
 
 	const searchApplicants = useCallback(
-		async (searchCriteria: { searchKey?: string; experience?: number; skillIds?: number[] }) => {
+		async (searchCriteria: { searchKey?: string; skillIds?: number[] }) => {
 			setIsLoading(true);
 			try {
 				const response = await JobseekerProfileService.search({ body: searchCriteria });
@@ -169,79 +166,70 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 			<FormProvider {...filterForm}>
 				<form onSubmit={filterForm.handleSubmit(onFilterSubmit)} className='space-y-4'>
 					<div className='p-4 border rounded-lg bg-muted/50 space-y-4'>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
-							<div>
-								<label className='text-sm font-medium'>Skills</label>
-								<Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-									<PopoverTrigger asChild>
-										<div
-											className={cn(
-												'flex flex-wrap gap-1 p-2 mt-2 border rounded-lg min-h-[44px] items-center cursor-text w-full justify-start font-normal h-auto bg-background'
-											)}
-										>
-											{selectedSkills.length > 0 ? (
-												selectedSkills.map((skill) => (
-													<Badge key={skill.id} variant='secondary' className='text-sm py-1 px-2'>
+						<div>
+							<label className='text-sm font-medium'>Skills</label>
+							<Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+								<PopoverTrigger asChild>
+									<div
+										className={cn(
+											'flex flex-wrap gap-1 p-2 mt-2 border rounded-lg min-h-[44px] items-center cursor-text w-full justify-start font-normal h-auto bg-background'
+										)}
+									>
+										{selectedSkills.length > 0 ? (
+											selectedSkills.map((skill) => (
+												<Badge key={skill.id} variant='secondary' className='text-sm py-1 px-2'>
+													{skill.nameEn}
+													<button
+														type='button'
+														className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+														onClick={(e) => {
+															e.preventDefault();
+															e.stopPropagation();
+															handleSkillRemove(skill);
+														}}
+													>
+														<X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
+													</button>
+												</Badge>
+											))
+										) : (
+											<span className='text-sm text-muted-foreground px-1'>Filter by skills...</span>
+										)}
+									</div>
+								</PopoverTrigger>
+								<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
+									<Command>
+										<CommandInput
+											placeholder='Search skill...'
+											value={skillSearchQuery}
+											onValueChange={setSkillSearchQuery}
+										/>
+										<CommandList>
+											{isSkillLoading && <CommandEmpty>Loading...</CommandEmpty>}
+											{!isSkillLoading && <CommandEmpty>No skill found.</CommandEmpty>}
+											<CommandGroup>
+												{availableSkills.map((skill) => (
+													<CommandItem
+														key={skill.id}
+														value={skill.nameEn}
+														onSelect={() => handleSkillSelect(skill)}
+													>
+														<Check
+															className={cn(
+																'mr-2 h-4 w-4',
+																selectedSkills.some((s) => s.id === skill.id)
+																	? 'opacity-100'
+																	: 'opacity-0'
+															)}
+														/>
 														{skill.nameEn}
-														<button
-															type='button'
-															className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
-															onClick={(e) => {
-																e.preventDefault();
-																e.stopPropagation();
-																handleSkillRemove(skill);
-															}}
-														>
-															<X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
-														</button>
-													</Badge>
-												))
-											) : (
-												<span className='text-sm text-muted-foreground px-1'>Filter by skills...</span>
-											)}
-										</div>
-									</PopoverTrigger>
-									<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
-										<Command>
-											<CommandInput
-												placeholder='Search skill...'
-												value={skillSearchQuery}
-												onValueChange={setSkillSearchQuery}
-											/>
-											<CommandList>
-												{isSkillLoading && <CommandEmpty>Loading...</CommandEmpty>}
-												{!isSkillLoading && <CommandEmpty>No skill found.</CommandEmpty>}
-												<CommandGroup>
-													{availableSkills.map((skill) => (
-														<CommandItem
-															key={skill.id}
-															value={skill.nameEn}
-															onSelect={() => handleSkillSelect(skill)}
-														>
-															<Check
-																className={cn(
-																	'mr-2 h-4 w-4',
-																	selectedSkills.some((s) => s.id === skill.id)
-																		? 'opacity-100'
-																		: 'opacity-0'
-																)}
-															/>
-															{skill.nameEn}
-														</CommandItem>
-													))}
-												</CommandGroup>
-											</CommandList>
-										</Command>
-									</PopoverContent>
-								</Popover>
-							</div>
-							<FormInput
-								control={filterForm.control}
-								name='experience'
-								label='Min. Experience (Yrs)'
-								type='number'
-								placeholder='e.g., 5'
-							/>
+													</CommandItem>
+												))}
+											</CommandGroup>
+										</CommandList>
+									</Command>
+								</PopoverContent>
+							</Popover>
 						</div>
 						<Button type='submit'>
 							<Filter className='mr-2 h-4 w-4' /> Filter
