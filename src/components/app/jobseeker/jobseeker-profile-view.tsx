@@ -19,6 +19,7 @@ import {
 	Heart,
 	Languages,
 	Linkedin,
+	Loader2,
 	Mail,
 	MapPin,
 	Phone,
@@ -29,9 +30,13 @@ import {
 import Link from 'next/link';
 import { Button } from '../../ui/button';
 import { Separator } from '../../ui/separator';
+import { useEffect, useState } from 'react';
+import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
+import { useToast } from '@/hooks/use-toast';
 
 interface JobseekerProfileViewProps {
-	jobseeker: Jobseeker;
+	jobseeker?: Jobseeker;
+	jobseekerId?: string;
 }
 
 const formatDateRange = (fromDate: string, toDate?: string, isPresent?: boolean) => {
@@ -40,7 +45,42 @@ const formatDateRange = (fromDate: string, toDate?: string, isPresent?: boolean)
 	return `${start} - ${end}`;
 };
 
-export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
+export function JobseekerProfileView({ jobseeker: initialJobseeker, jobseekerId }: JobseekerProfileViewProps) {
+	const { toast } = useToast();
+	const [jobseeker, setJobseeker] = useState<Jobseeker | null | undefined>(initialJobseeker);
+	const [isLoading, setIsLoading] = useState(false);
+
+	useEffect(() => {
+		if (!initialJobseeker && jobseekerId) {
+			setIsLoading(true);
+			JobseekerProfileService.getProfileById(jobseekerId)
+				.then((res) => setJobseeker(res.body))
+				.catch((err) => {
+					toast({
+						title: 'Error loading profile',
+						description: err.message || 'Could not fetch jobseeker details.',
+						variant: 'danger',
+					});
+					setJobseeker(null);
+				})
+				.finally(() => setIsLoading(false));
+		} else {
+			setJobseeker(initialJobseeker);
+		}
+	}, [initialJobseeker, jobseekerId, toast]);
+
+	if (isLoading) {
+		return (
+			<div className='flex h-96 items-center justify-center'>
+				<Loader2 className='h-8 w-8 animate-spin text-primary' />
+			</div>
+		);
+	}
+
+	if (!jobseeker) {
+		return <div className='text-center p-8'>Could not load jobseeker profile.</div>;
+	}
+
 	const {
 		personalInfo,
 		spouse,

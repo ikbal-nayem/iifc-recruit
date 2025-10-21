@@ -1,8 +1,10 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
 	Command,
 	CommandEmpty,
@@ -12,11 +14,13 @@ import {
 	CommandList,
 } from '@/components/ui/command';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Form } from '@/components/ui/form';
+import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
-import { Jobseeker, JobseekerBasicSearch } from '@/interfaces/jobseeker.interface';
+import { JobseekerBasicSearch } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { cn } from '@/lib/utils';
@@ -24,14 +28,14 @@ import { JobseekerProfileService } from '@/services/api/jobseeker-profile.servic
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, FileText, Filter, Loader2, Search, UserPlus, X } from 'lucide-react';
-import React, { useCallback, useEffect, useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import React, { FormProvider, useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
-import { Badge } from '@/components/ui/badge';
 
 const filterSchema = z.object({
 	skillIds: z.array(z.number()).optional(),
+	searchKey: z.string().optional(),
 });
 
 type FilterFormValues = z.infer<typeof filterSchema>;
@@ -61,6 +65,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 		resolver: zodResolver(filterSchema),
 		defaultValues: {
 			skillIds: [],
+			searchKey: '',
 		},
 	});
 
@@ -115,7 +120,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 		} finally {
 			setIsSkillLoading(false);
 		}
-	}, []);
+	}, [toast]);
 
 	useEffect(() => {
 		fetchSkills(debouncedSkillSearch);
@@ -234,6 +239,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 			<Card className='my-2'>
 				<CardHeader className='py-4'>
 					<CardTitle>Search Results</CardTitle>
+					<CardDescription>Select jobseekers to add them to the primary list below.</CardDescription>
 				</CardHeader>
 				<CardContent className='pt-1overflow-y-auto space-y-2'>
 					<div className='relative w-full mb-4'>
@@ -350,7 +356,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 			</Card>
 			<Dialog open={!!selectedJobseeker} onOpenChange={(isOpen) => !isOpen && setSelectedJobseeker(null)}>
 				<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
-					{selectedJobseeker && <JobseekerProfileView jobseeker={selectedJobseeker} />}
+					{selectedJobseeker && <JobseekerProfileView jobseekerId={selectedJobseeker.userId} />}
 				</DialogContent>
 			</Dialog>
 		</>
