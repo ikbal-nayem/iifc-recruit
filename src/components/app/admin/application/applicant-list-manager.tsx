@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
-import { JobseekerBasicSearch } from '@/interfaces/jobseeker.interface';
+import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { cn } from '@/lib/utils';
@@ -38,16 +38,16 @@ const filterSchema = z.object({
 type FilterFormValues = z.infer<typeof filterSchema>;
 
 interface ApplicantListManagerProps {
-	onApply: (applicants: JobseekerBasicSearch[]) => void;
+	onApply: (applicants: JobseekerSearch[]) => void;
 	existingApplicantIds: (string | undefined)[];
 }
 
 export function ApplicantListManager({ onApply, existingApplicantIds }: ApplicantListManagerProps) {
 	const { toast } = useToast();
-	const [primaryList, setPrimaryList] = useState<JobseekerBasicSearch[]>([]);
+	const [primaryList, setPrimaryList] = useState<JobseekerSearch[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const [suggestedJobseekers, setSuggestedJobseekers] = useState<JobseekerBasicSearch[]>([]);
-	const [selectedJobseeker, setSelectedJobseeker] = React.useState<JobseekerBasicSearch | null>(null);
+	const [suggestedJobseekers, setSuggestedJobseekers] = useState<JobseekerSearch[]>([]);
+	const [selectedJobseeker, setSelectedJobseeker] = React.useState<JobseekerSearch | null>(null);
 	const [textSearch, setTextSearch] = useState('');
 	const debouncedTextSearch = useDebounce(textSearch, 500);
 
@@ -149,7 +149,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 		);
 	};
 
-	const handleAddApplicant = (jobseeker: JobseekerBasicSearch) => {
+	const handleAddApplicant = (jobseeker: JobseekerSearch) => {
 		setPrimaryList((prev) => [...prev, jobseeker]);
 		setSuggestedJobseekers((prev) => prev.filter((js) => js.userId !== jobseeker.userId));
 	};
@@ -240,7 +240,6 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 			<Card className='my-2'>
 				<CardHeader className='py-4'>
 					<CardTitle>Search Results</CardTitle>
-					<CardDescription>Select jobseekers to add them to the primary list below.</CardDescription>
 				</CardHeader>
 				<CardContent className='pt-1overflow-y-auto space-y-2'>
 					<div className='relative w-full mb-4'>

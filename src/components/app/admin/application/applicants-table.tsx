@@ -27,13 +27,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
-import { JobseekerBasicSearch } from '@/interfaces/jobseeker.interface';
+import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO } from '@/interfaces/master-data.interface';
 import { getStatusVariant } from '@/lib/utils';
 import { FileText, UserCheck, UserPlus } from 'lucide-react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 
-type Applicant = JobseekerBasicSearch & { application: Application };
+type Applicant = JobseekerSearch & { application: Application };
 
 interface ApplicantsTableProps {
 	applicants: Applicant[];
@@ -46,7 +46,7 @@ export function ApplicantsTable({ applicants, setApplicants, statuses }: Applica
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 	const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
-	const [selectedApplicant, setSelectedApplicant] = React.useState<JobseekerBasicSearch | null>(null);
+	const [selectedApplicant, setSelectedApplicant] = React.useState<JobseekerSearch | null>(null);
 	const [bulkAction, setBulkAction] = React.useState<{ type: 'hired' | 'accepted'; count: number } | null>(
 		null
 	);

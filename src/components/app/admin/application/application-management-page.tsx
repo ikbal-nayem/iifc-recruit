@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { RequestedPost } from '@/interfaces/job.interface';
-import { JobseekerBasicSearch } from '@/interfaces/jobseeker.interface';
+import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO, IClientOrganization } from '@/interfaces/master-data.interface';
 import { getStatusVariant } from '@/lib/utils';
 import { ArrowLeft, Building, ChevronsRight, Loader2, Save, UserPlus, Users } from 'lucide-react';
@@ -17,7 +17,7 @@ import { ApplicantListManager } from './applicant-list-manager';
 import { ApplicantsTable } from './applicants-table';
 import { ExaminerSetup } from './examiner-setup';
 
-type Applicant = JobseekerBasicSearch & { application: Application };
+type Applicant = JobseekerSearch & { application: Application };
 
 interface ApplicationManagementPageProps {
 	requestedPost: RequestedPost;
@@ -83,7 +83,7 @@ export function ApplicationManagementPage({
 		}
 	};
 
-	const handleApplyApplicants = (newApplicants: JobseekerBasicSearch[]) => {
+	const handleApplyApplicants = (newApplicants: JobseekerSearch[]) => {
 		const applicantsToAdd: Applicant[] = newApplicants.map((js) => ({
 			...js,
 			application: {
