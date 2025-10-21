@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -20,9 +21,9 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
-import { cn } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
+import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, FileText, Loader2, Search, X } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -61,8 +62,8 @@ export function ApplicantListManager() {
 		},
 	});
 
-	const formValues = form.watch();
-	const debouncedFormValues = useDebounce(formValues, 500);
+	const searchKey = form.watch('searchKey');
+	const debouncedSearchKey = useDebounce(searchKey, 500);
 
 	const onSearchSubmit = useCallback(
 		async (values: SearchFormValues) => {
@@ -86,15 +87,20 @@ export function ApplicantListManager() {
 	);
 
 	useEffect(() => {
-		onSearchSubmit(debouncedFormValues);
-	}, [debouncedFormValues, onSearchSubmit]);
+		// Auto-search only on debounced text input change
+		onSearchSubmit(form.getValues());
+	}, [debouncedSearchKey, onSearchSubmit, form]);
+
+	const handleFilterSubmit = () => {
+		onSearchSubmit(form.getValues());
+	};
 
 	const fetchSkills = useCallback(
-		async (searchQuery: string) => {
+		async (query: string) => {
 			setIsSkillLoading(true);
 			try {
 				const response = await MasterDataService.skill.getList({
-					body: { name: searchQuery },
+					body: { name: query },
 					meta: { page: 0, limit: 20 },
 				});
 				setAvailableSkills(response.body);
@@ -154,7 +160,13 @@ export function ApplicantListManager() {
 		<>
 			<div className='space-y-4'>
 				<FormProvider {...form}>
-					<form className='space-y-4'>
+					<form
+						onSubmit={(e) => {
+							e.preventDefault();
+							handleFilterSubmit();
+						}}
+						className='space-y-4'
+					>
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-end'>
 							<div>
 								<label className='text-sm font-medium'>Skills</label>
@@ -238,6 +250,10 @@ export function ApplicantListManager() {
 							placeholder='e.g. John Doe, john@example.com...'
 							startIcon={<Search className='h-4 w-4 text-muted-foreground' />}
 						/>
+						<Button type='submit' size='sm'>
+							<Search className='mr-2 h-4 w-4' />
+							Apply Filters
+						</Button>
 					</form>
 				</FormProvider>
 
