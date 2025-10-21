@@ -15,10 +15,16 @@ import {
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
-import { FileText, Loader2 } from 'lucide-react';
-import React, { useState } from 'react';
+import { FileText, Loader2, Search } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { useForm } from 'react-hook-form';
+import { Form } from '@/components/ui/form';
+import { FormInput } from '@/components/ui/form-input';
+import { MasterDataService } from '@/services/api/master-data.service';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 
 const allJobseekers: Jobseeker[] = [
 	{ id: '1', personalInfo: { name: 'Alice Johnson', email: 'alice@example.com' } },
@@ -27,38 +33,72 @@ const allJobseekers: Jobseeker[] = [
 	{ id: '4', personalInfo: { name: 'Diana Prince', email: 'diana@example.com' } },
 ] as Jobseeker[];
 
+const searchSchema = {
+	search: '',
+	skillId: null,
+	experience: null,
+};
+
 export function ApplicantListManager() {
 	const { toast } = useToast();
 	const [primaryList, setPrimaryList] = useState<Jobseeker[]>([]);
-	const [searchQuery, setSearchQuery] = useState('');
+	const [skills, setSkills] = useState<ICommonMasterData[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [suggestedJobseekers, setSuggestedJobseekers] = useState<Jobseeker[]>([]);
 	const [selectedJobseeker, setSelectedJobseeker] = React.useState<Jobseeker | null>(null);
 
-	const debouncedSearch = useDebounce(searchQuery, 300);
+	const form = useForm({
+		defaultValues: searchSchema,
+	});
+
+	const search = form.watch('search');
+	const debouncedSearch = useDebounce(search, 300);
+
+	useEffect(() => {
+		async function fetchSkills() {
+			try {
+				const response = await MasterDataService.skill.get();
+				setSkills(response.body);
+			} catch (error) {
+				toast({
+					title: 'Error',
+					description: 'Could not load skills for filtering.',
+					variant: 'danger',
+				});
+			}
+		}
+		fetchSkills();
+	}, [toast]);
+
+	const onSearchSubmit = (values: any) => {
+		setIsLoading(true);
+		console.log('Searching with filters:', values);
+		// Simulate API call with filters
+		setTimeout(() => {
+			let filtered = allJobseekers;
+
+			if (values.search) {
+				filtered = filtered.filter(
+					(js) =>
+						js.personalInfo.name.toLowerCase().includes(values.search.toLowerCase()) &&
+						!primaryList.some((p) => p.id === js.id)
+				);
+			}
+			// In a real scenario, you'd also filter by skill and experience on the backend
+			setSuggestedJobseekers(filtered);
+			setIsLoading(false);
+		}, 500);
+	};
 
 	React.useEffect(() => {
-		if (debouncedSearch) {
-			setIsLoading(true);
-			// Simulate API call
-			setTimeout(() => {
-				setSuggestedJobseekers(
-					allJobseekers.filter(
-						(js) =>
-							js.personalInfo.name.toLowerCase().includes(debouncedSearch.toLowerCase()) &&
-							!primaryList.some((p) => p.id === js.id)
-					)
-				);
-				setIsLoading(false);
-			}, 500);
-		} else {
-			setSuggestedJobseekers([]);
-		}
-	}, [debouncedSearch, primaryList]);
+		// This handles the simple name search for now
+		onSearchSubmit({ search: debouncedSearch });
+	}, [debouncedSearch]);
 
 	const handleAddApplicant = (jobseeker: Jobseeker) => {
 		setPrimaryList((prev) => [...prev, jobseeker]);
-		setSearchQuery('');
+		form.reset();
+		setSuggestedJobseekers([]);
 		toast({
 			title: 'Applicant Added',
 			description: `${jobseeker.personalInfo.name} has been added to the primary list.`,
@@ -73,20 +113,49 @@ export function ApplicantListManager() {
 	return (
 		<>
 			<div className='space-y-4'>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSearchSubmit)} className='space-y-4'>
+						<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-end'>
+							<FormInput
+								control={form.control}
+								name='search'
+								label='Search by Name'
+								placeholder='e.g., John Doe'
+							/>
+							<FormAutocomplete
+								control={form.control}
+								name='skillId'
+								label='Skill'
+								placeholder='Filter by skill...'
+								options={skills}
+								getOptionValue={(opt) => opt.id as number}
+								getOptionLabel={(opt) => opt.name}
+							/>
+							<FormInput
+								control={form.control}
+								name='experience'
+								label='Min. Experience (Yrs)'
+								type='number'
+								placeholder='e.g., 5'
+							/>
+						</div>
+						<Button type='submit' size='sm'>
+							<Search className='mr-2 h-4 w-4' /> Search
+						</Button>
+					</form>
+				</Form>
+
 				<Command>
-					<CommandInput
-						placeholder='Search by name, email, or skills...'
-						value={searchQuery}
-						onValueChange={setSearchQuery}
-					/>
-					<CommandList>
+					<CommandList className='max-h-64'>
 						{isLoading ? (
 							<div className='p-2 flex justify-center'>
 								<Loader2 className='h-6 w-6 animate-spin' />
 							</div>
 						) : (
 							<>
-								<CommandEmpty>No jobseekers found.</CommandEmpty>
+								{suggestedJobseekers.length === 0 && search && (
+									<CommandEmpty>No jobseekers found.</CommandEmpty>
+								)}
 								<CommandGroup>
 									{suggestedJobseekers.map((js) => (
 										<CommandItem
