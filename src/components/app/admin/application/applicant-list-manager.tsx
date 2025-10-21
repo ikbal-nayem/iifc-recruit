@@ -14,8 +14,7 @@ import {
 	CommandList,
 } from '@/components/ui/command';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
-import { FormInput } from '@/components/ui/form-input';
+import { Form, FormInput } from '@/components/ui/form';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
@@ -258,9 +257,9 @@ export function ApplicantListManager() {
 									No jobseekers found for the selected criteria.
 								</p>
 							) : (
-								suggestedJobseekers.map((js) => (
+								suggestedJobseekers.map((js, index) => (
 									<Card
-										key={js.id}
+										key={js.id || index}
 										className='p-3 flex items-center justify-between hover:bg-muted transition-colors'
 									>
 										<div className='flex items-center gap-3'>
