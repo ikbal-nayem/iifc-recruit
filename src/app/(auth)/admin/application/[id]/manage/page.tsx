@@ -1,5 +1,6 @@
 import { ApplicationManagementPage } from '@/components/app/admin/application/application-management-page';
-import { IClientOrganization, EnumDTO } from '@/interfaces/master-data.interface';
+import { APPLICATION_STATUS } from '@/interfaces/application.interface';
+import { EnumDTO } from '@/interfaces/master-data.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { notFound } from 'next/navigation';
@@ -16,18 +17,16 @@ async function getData(requestedPostId: string) {
 		const examiners = examinerRes.body;
 		const allStatuses = statusRes.body as EnumDTO[];
 
-		const desiredStatuses = ['APPLIED', 'HIRED', 'ACCEPTED'];
-		const filteredStatuses = allStatuses.filter((s) => desiredStatuses.includes(s.value));
-
-		// Mocked applicants as the service isn't available
-		const postApplicants = [
-			/* mock data */
+		const desiredStatuses = [
+			APPLICATION_STATUS.APPLIED.toString(),
+			APPLICATION_STATUS.HIRED.toString(),
+			APPLICATION_STATUS.ACCEPTED.toString(),
 		];
+		const filteredStatuses = allStatuses.filter((s) => desiredStatuses.includes(s.value));
 
 		return {
 			post,
 			examiners,
-			applicants: postApplicants,
 			statuses: filteredStatuses,
 		};
 	} catch (error) {
@@ -39,14 +38,7 @@ async function getData(requestedPostId: string) {
 export default async function ManageApplicationPage({ params }: { params: { id: string } }) {
 	const requestedParams = await params;
 
-	const { post, examiners, applicants, statuses } = await getData(requestedParams.id);
+	const { post, examiners, statuses } = await getData(requestedParams.id);
 
-	return (
-		<ApplicationManagementPage
-			requestedPost={post}
-			initialExaminers={examiners}
-			initialApplicants={applicants}
-			statuses={statuses}
-		/>
-	);
+	return <ApplicationManagementPage requestedPost={post} initialExaminers={examiners} statuses={statuses} />;
 }

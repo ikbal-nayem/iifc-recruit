@@ -23,14 +23,12 @@ type Applicant = Jobseeker & { application: Application };
 interface ApplicationManagementPageProps {
 	requestedPost: RequestedPost;
 	initialExaminers: IClientOrganization[];
-	initialApplicants: Applicant[];
 	statuses: EnumDTO[];
 }
 
 export function ApplicationManagementPage({
 	requestedPost,
 	initialExaminers,
-	initialApplicants,
 	statuses,
 }: ApplicationManagementPageProps) {
 	const { toast } = useToast();
@@ -38,7 +36,7 @@ export function ApplicationManagementPage({
 	const [examiners] = useState<IClientOrganization[]>(initialExaminers);
 	const [selectedExaminer, setSelectedExaminer] = useState<string | undefined>(undefined);
 	const [isSaving, setIsSaving] = useState(false);
-	const [applicants, setApplicants] = useState<Applicant[]>(initialApplicants);
+	const [applicants, setApplicants] = useState<Applicant[]>([]);
 	const [isAddCandidateOpen, setIsAddCandidateOpen] = useState(false);
 
 	const applicantStats = useMemo(() => {

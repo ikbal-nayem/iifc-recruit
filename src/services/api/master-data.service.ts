@@ -1,12 +1,11 @@
-
 import { axiosIns } from '@/config/api.config';
 import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
 import {
 	EnumDTO,
+	IClientOrganization,
 	ICommonMasterData,
 	IEducationInstitution,
 	IOrganization,
-	IClientOrganization,
 	IOutsourcingCategory,
 	IOutsourcingCharge,
 	IOutsourcingZone,
@@ -14,8 +13,7 @@ import {
 } from '@/interfaces/master-data.interface';
 
 const createMasterDataCrud = <T>(entity: string) => ({
-	get: async (): Promise<IApiResponse<T[]>> =>
-		await axiosIns.get(`/master-data/${entity}/get?deleted=false`),
+	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/master-data/${entity}/get?deleted=false`),
 	getList: async (payload: IApiRequest): Promise<IApiResponse<T[]>> =>
 		await axiosIns.post(`/master-data/${entity}/get-list`, payload),
 	getDetails: async (id: string): Promise<IApiResponse<T>> =>
@@ -29,7 +27,14 @@ const createMasterDataCrud = <T>(entity: string) => ({
 
 export const MasterDataService = {
 	getEnum: async (
-		enumType: 'gender' | 'marital-status' | 'religion' | 'proficiency-level' | 'spouse-status' | 'job-request-type'
+		enumType:
+			| 'gender'
+			| 'marital-status'
+			| 'religion'
+			| 'proficiency-level'
+			| 'spouse-status'
+			| 'job-request-type'
+			| 'application-status'
 	): Promise<IApiResponse<EnumDTO[]>> => await axiosIns.get(`/master-data/enum/${enumType}`),
 
 	skill: createMasterDataCrud<ICommonMasterData>('skill'),
