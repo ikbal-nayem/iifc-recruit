@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Badge } from '@/components/ui/badge';
@@ -6,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { RequestedPost } from '@/interfaces/job.interface';
-import { IClientOrganization } from '@/interfaces/master-data.interface';
+import { IClientOrganization, EnumDTO } from '@/interfaces/master-data.interface';
 import { getStatusVariant } from '@/lib/utils';
 import { ArrowLeft, Building, ChevronsRight, Loader2, Save, UserPlus, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -23,12 +24,14 @@ interface ApplicationManagementPageProps {
 	requestedPost: RequestedPost;
 	initialExaminers: IClientOrganization[];
 	initialApplicants: Applicant[];
+	statuses: EnumDTO[];
 }
 
 export function ApplicationManagementPage({
 	requestedPost,
 	initialExaminers,
 	initialApplicants,
+	statuses,
 }: ApplicationManagementPageProps) {
 	const { toast } = useToast();
 	const router = useRouter();
@@ -49,6 +52,7 @@ export function ApplicationManagementPage({
 				total: 0,
 				[APPLICATION_STATUS.APPLIED]: 0,
 				[APPLICATION_STATUS.HIRED]: 0,
+				[APPLICATION_STATUS.ACCEPTED]: 0,
 			} as Record<Application['status'] | 'total', number>
 		);
 	}, [applicants]);
@@ -180,7 +184,7 @@ export function ApplicationManagementPage({
 					</Dialog>
 				</CardHeader>
 				<CardContent>
-					<ApplicantsTable applicants={applicants} setApplicants={setApplicants} />
+					<ApplicantsTable applicants={applicants} setApplicants={setApplicants} statuses={statuses} />
 				</CardContent>
 			</Card>
 

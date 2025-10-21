@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -28,6 +29,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useToast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
+import { EnumDTO } from '@/interfaces/master-data.interface';
 import { getStatusVariant } from '@/lib/utils';
 import { FileText, UserCheck, UserPlus } from 'lucide-react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
@@ -37,9 +39,10 @@ type Applicant = Jobseeker & { application: Application };
 interface ApplicantsTableProps {
 	applicants: Applicant[];
 	setApplicants: React.Dispatch<React.SetStateAction<Applicant[]>>;
+	statuses: EnumDTO[];
 }
 
-export function ApplicantsTable({ applicants, setApplicants }: ApplicantsTableProps) {
+export function ApplicantsTable({ applicants, setApplicants, statuses }: ApplicantsTableProps) {
 	const { toast } = useToast();
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -219,13 +222,11 @@ export function ApplicantsTable({ applicants, setApplicants }: ApplicantsTablePr
 					</SelectTrigger>
 					<SelectContent>
 						<SelectItem value='all'>All Statuses</SelectItem>
-						<SelectItem value='Applied'>Applied</SelectItem>
-						<SelectItem value='Screening'>Screening</SelectItem>
-						<SelectItem value='Shortlisted'>Shortlisted</SelectItem>
-						<SelectItem value='Interview'>Interview</SelectItem>
-						<SelectItem value='Offered'>Offered</SelectItem>
-						<SelectItem value='Hired'>Hired</SelectItem>
-						<SelectItem value='Rejected'>Rejected</SelectItem>
+						{statuses.map((status) => (
+							<SelectItem key={status.value} value={status.value}>
+								{status.nameEn}
+							</SelectItem>
+						))}
 					</SelectContent>
 				</Select>
 				{selectedRowCount > 0 && (
@@ -322,7 +323,7 @@ export function ApplicantsTable({ applicants, setApplicants }: ApplicantsTablePr
 				onOpenChange={(isOpen) => !isOpen && setBulkAction(null)}
 				title={`Confirm Bulk Action: ${bulkAction?.type.charAt(0).toUpperCase() + bulkAction?.type.slice(1)}`}
 				description={`Are you sure you want to mark ${bulkAction?.count} applicant(s) as ${
-					bulkAction?.type === 'accepted' ? 'Shortlisted' : bulkAction?.type
+					bulkAction?.type === 'accepted' ? 'Accepted' : bulkAction?.type
 				}?`}
 				onConfirm={handleBulkActionConfirm}
 				variant={bulkAction?.type === 'hired' ? 'warning' : 'default'}
