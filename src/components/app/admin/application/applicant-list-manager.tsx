@@ -16,7 +16,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { FileText, Loader2, Search } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
@@ -46,6 +46,7 @@ export function ApplicantListManager() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [suggestedJobseekers, setSuggestedJobseekers] = useState<Jobseeker[]>([]);
 	const [selectedJobseeker, setSelectedJobseeker] = React.useState<Jobseeker | null>(null);
+	const [isSkillLoading, setIsSkillLoading] = useState(false);
 
 	const form = useForm({
 		defaultValues: searchSchema,
@@ -54,21 +55,22 @@ export function ApplicantListManager() {
 	const search = form.watch('search');
 	const debouncedSearch = useDebounce(search, 300);
 
-	useEffect(() => {
-		async function fetchSkills() {
-			try {
-				const response = await MasterDataService.skill.get();
-				setSkills(response.body);
-			} catch (error) {
-				toast({
-					title: 'Error',
-					description: 'Could not load skills for filtering.',
-					variant: 'danger',
-				});
-			}
+	const fetchSkills = useCallback(async (searchQuery: string) => {
+		setIsSkillLoading(true);
+		try {
+			const response = await MasterDataService.skill.getList({ body: { name: searchQuery } });
+			setSkills(response.body);
+		} catch (error) {
+			toast({
+				title: 'Error',
+				description: 'Could not load skills for filtering.',
+				variant: 'danger',
+			});
+		} finally {
+			setIsSkillLoading(false);
 		}
-		fetchSkills();
 	}, [toast]);
+
 
 	const onSearchSubmit = (values: any) => {
 		setIsLoading(true);
@@ -123,7 +125,8 @@ export function ApplicantListManager() {
 								placeholder='Filter by skill...'
 								options={skills}
 								getOptionValue={(opt) => opt.id as number}
-								getOptionLabel={(opt) => opt.name}
+								getOptionLabel={(opt) => opt.nameEn}
+								onInputChange={fetchSkills}
 							/>
 							<FormInput
 								control={form.control}
