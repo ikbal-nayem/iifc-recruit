@@ -4,7 +4,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { RequestedPost } from '@/interfaces/job.interface';
@@ -14,12 +14,10 @@ import { getStatusVariant } from '@/lib/utils';
 import { ApplicationService } from '@/services/api/application.service';
 import { ArrowLeft, Building, ChevronsRight, Loader2, Save, UserPlus, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ApplicantListManager } from './applicant-list-manager';
 import { ApplicantsTable } from './applicants-table';
 import { ExaminerSetup } from './examiner-setup';
-
-type Applicant = JobseekerSearch & { application: Application };
 
 interface ApplicationManagementPageProps {
 	requestedPost: RequestedPost;
@@ -37,13 +35,14 @@ export function ApplicationManagementPage({
 	const [examiners] = useState<IClientOrganization[]>(initialExaminers);
 	const [selectedExaminer, setSelectedExaminer] = useState<string | undefined>(undefined);
 	const [isSaving, setIsSaving] = useState(false);
-	const [applicants, setApplicants] = useState<Applicant[]>([]);
+	const [applicants, setApplicants] = useState<Application[]>([]);
+	const [isLoadingApplicants, setIsLoadingApplicants] = useState(true);
 	const [isAddCandidateOpen, setIsAddCandidateOpen] = useState(false);
 
 	const applicantStats = useMemo(() => {
 		return applicants.reduce(
 			(acc, applicant) => {
-				const status = applicant.application.status;
+				const status = applicant.status;
 				acc[status] = (acc[status] || 0) + 1;
 				acc.total++;
 				return acc;
@@ -56,6 +55,29 @@ export function ApplicationManagementPage({
 			} as Record<Application['status'] | 'total', number>
 		);
 	}, [applicants]);
+
+	const loadApplicants = useCallback(async () => {
+		setIsLoadingApplicants(true);
+		try {
+			const response = await ApplicationService.getList({
+				body: { requestedPostId: requestedPost.id },
+				meta: { limit: 1000 }, // Assuming we want all applicants for this view
+			});
+			setApplicants(response.body);
+		} catch (error: any) {
+			toast({
+				title: 'Error',
+				description: error.message || 'Failed to load applicants.',
+				variant: 'danger',
+			});
+		} finally {
+			setIsLoadingApplicants(false);
+		}
+	}, [requestedPost.id, toast]);
+
+	useEffect(() => {
+		loadApplicants();
+	}, [loadApplicants]);
 
 	const handleProceed = async () => {
 		if (!selectedExaminer) {
@@ -100,7 +122,7 @@ export function ApplicationManagementPage({
 					variant: 'success',
 				});
 				setIsAddCandidateOpen(false);
-				// TODO: refetch applicants list
+				loadApplicants();
 			})
 			.catch((err) => {
 				toast({
@@ -206,14 +228,19 @@ export function ApplicationManagementPage({
 							<div className='flex-1 overflow-y-auto px-6'>
 								<ApplicantListManager
 									onApply={handleApplyApplicants}
-									existingApplicantIds={applicants.map((a) => a.userId)}
+									existingApplicantIds={applicants.map((a) => a.applicantId)}
 								/>
 							</div>
 						</DialogContent>
 					</Dialog>
 				</CardHeader>
 				<CardContent>
-					<ApplicantsTable applicants={applicants} setApplicants={setApplicants} statuses={statuses} />
+					<ApplicantsTable
+						applicants={applicants}
+						setApplicants={setApplicants}
+						statuses={statuses}
+						isLoading={isLoadingApplicants}
+					/>
 				</CardContent>
 			</Card>
 

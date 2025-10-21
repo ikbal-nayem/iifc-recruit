@@ -31,18 +31,17 @@ import { Application, APPLICATION_STATUS } from '@/interfaces/application.interf
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO } from '@/interfaces/master-data.interface';
 import { getStatusVariant } from '@/lib/utils';
-import { FileText, UserCheck, UserPlus } from 'lucide-react';
+import { FileText, Loader2, UserCheck, UserPlus } from 'lucide-react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 
-type Applicant = JobseekerSearch & { application: Application };
-
 interface ApplicantsTableProps {
-	applicants: Applicant[];
-	setApplicants: React.Dispatch<React.SetStateAction<Applicant[]>>;
+	applicants: Application[];
+	setApplicants: React.Dispatch<React.SetStateAction<Application[]>>;
 	statuses: EnumDTO[];
+	isLoading: boolean;
 }
 
-export function ApplicantsTable({ applicants, setApplicants, statuses }: ApplicantsTableProps) {
+export function ApplicantsTable({ applicants, setApplicants, statuses, isLoading }: ApplicantsTableProps) {
 	const { toast } = useToast();
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -55,9 +54,7 @@ export function ApplicantsTable({ applicants, setApplicants, statuses }: Applica
 	const handleStatusChange = (applicationIds: string[], newStatus: APPLICATION_STATUS) => {
 		setApplicants((prevData) =>
 			prevData.map((applicant) =>
-				applicationIds.includes(applicant.application.id)
-					? { ...applicant, application: { ...applicant.application, status: newStatus } }
-					: applicant
+				applicationIds.includes(applicant.id) ? { ...applicant, status: newStatus } : applicant
 			)
 		);
 
@@ -70,7 +67,7 @@ export function ApplicantsTable({ applicants, setApplicants, statuses }: Applica
 
 	const handleBulkActionConfirm = () => {
 		if (!bulkAction) return;
-		const selectedIds = table.getSelectedRowModel().rows.map((row) => row.original.application.id);
+		const selectedIds = table.getSelectedRowModel().rows.map((row) => row.original.id);
 		if (bulkAction.type === 'hired') {
 			handleStatusChange(selectedIds, APPLICATION_STATUS.HIRED);
 		} else if (bulkAction.type === 'accepted') {
@@ -79,26 +76,26 @@ export function ApplicantsTable({ applicants, setApplicants, statuses }: Applica
 		setBulkAction(null);
 	};
 
-	const getActionItems = (applicant: Applicant): ActionItem[] => [
+	const getActionItems = (applicant: Application): ActionItem[] => [
 		{
 			label: 'View Profile',
 			icon: <FileText className='mr-2 h-4 w-4' />,
-			onClick: () => setSelectedApplicant(applicant),
+			onClick: () => setSelectedApplicant(applicant.applicant as JobseekerSearch),
 		},
 		{ isSeparator: true },
 		{
 			label: 'Mark as Accepted',
 			icon: <UserCheck className='mr-2 h-4 w-4' />,
-			onClick: () => handleStatusChange([applicant.application.id], APPLICATION_STATUS.ACCEPTED),
+			onClick: () => handleStatusChange([applicant.id], APPLICATION_STATUS.ACCEPTED),
 		},
 		{
 			label: 'Mark as Hired',
 			icon: <UserPlus className='mr-2 h-4 w-4' />,
-			onClick: () => handleStatusChange([applicant.application.id], APPLICATION_STATUS.HIRED),
+			onClick: () => handleStatusChange([applicant.id], APPLICATION_STATUS.HIRED),
 		},
 	];
 
-	const columns: ColumnDef<Applicant>[] = [
+	const columns: ColumnDef<Application>[] = [
 		{
 			id: 'select',
 			header: ({ table }) => (
@@ -119,33 +116,38 @@ export function ApplicantsTable({ applicants, setApplicants, statuses }: Applica
 			enableHiding: false,
 		},
 		{
-			accessorKey: 'personalInfo',
+			accessorKey: 'applicant',
 			header: 'Applicant',
 			cell: ({ row }) => {
-				const { name, email, avatar } = row.original.personalInfo;
+				const { fullName, email, profileImage, firstName, lastName, phone } = row.original
+					.applicant as JobseekerSearch;
 				return (
 					<div className='flex items-center gap-3'>
 						<Avatar>
-							<AvatarImage src={avatar} alt={name} data-ai-hint='avatar' />
-							<AvatarFallback>{name?.charAt(0)}</AvatarFallback>
+							<AvatarImage src={profileImage?.filePath} />
+							<AvatarFallback>
+								{firstName?.[0]}
+								{lastName?.[0]}
+							</AvatarFallback>
 						</Avatar>
 						<div>
-							<div className='font-medium'>{name}</div>
-							<div className='text-sm text-muted-foreground'>{email}</div>
+							<p className='font-semibold'>{fullName}</p>
+							<p className='text-xs text-muted-foreground'>{email}</p>
+							<p className='text-xs text-muted-foreground'>{phone}</p>
 						</div>
 					</div>
 				);
 			},
 		},
 		{
-			accessorKey: 'application.applicationDate',
+			accessorKey: 'applicationDate',
 			header: 'Date Applied',
 		},
 		{
-			accessorKey: 'application.status',
+			accessorKey: 'status',
 			header: 'Status',
 			cell: ({ row }) => {
-				const status = row.original.application.status;
+				const status = row.original.status;
 				return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
 			},
 		},
@@ -177,43 +179,43 @@ export function ApplicantsTable({ applicants, setApplicants, statuses }: Applica
 
 	const selectedRowCount = Object.keys(rowSelection).length;
 
-	const renderMobileCard = (applicant: Applicant) => (
-		<Card key={applicant.id} className='mb-2 p-3 flex justify-between items-start glassmorphism'>
-			<div className='flex items-center gap-3'>
-				<Avatar>
-					<AvatarImage
-						src={applicant.personalInfo.avatar}
-						alt={applicant.personalInfo.name}
-						data-ai-hint='avatar'
-					/>
-					<AvatarFallback>{applicant.personalInfo.fullName?.charAt(0)}</AvatarFallback>
-				</Avatar>
-				<div>
-					<p className='font-semibold text-sm'>{applicant.personalInfo.name}</p>
-					<p className='text-xs text-muted-foreground'>Applied: {applicant.application.applicationDate}</p>
-					<Badge variant={getStatusVariant(applicant.application.status)} className='mt-2 text-xs'>
-						{applicant.application.status}
-					</Badge>
+	const renderMobileCard = (applicant: Application) => {
+		const { fullName, profileImage, firstName, lastName } = applicant.applicant as JobseekerSearch;
+		return (
+			<Card key={applicant.id} className='mb-2 p-3 flex justify-between items-start glassmorphism'>
+				<div className='flex items-center gap-3'>
+					<Avatar>
+						<AvatarImage src={profileImage?.filePath} alt={fullName} data-ai-hint='avatar' />
+						<AvatarFallback>
+							{firstName?.[0]}
+							{lastName?.[0]}
+						</AvatarFallback>
+					</Avatar>
+					<div>
+						<p className='font-semibold text-sm'>{fullName}</p>
+						<p className='text-xs text-muted-foreground'>Applied: {applicant.applicationDate}</p>
+						<Badge variant={getStatusVariant(applicant.status)} className='mt-2 text-xs'>
+							{applicant.status}
+						</Badge>
+					</div>
 				</div>
-			</div>
-			<ActionMenu items={getActionItems(applicant)} />
-		</Card>
-	);
+				<ActionMenu items={getActionItems(applicant)} />
+			</Card>
+		);
+	};
 
 	return (
 		<>
 			<div className='flex flex-col sm:flex-row items-center gap-4'>
 				<Input
 					placeholder='Filter by applicant name...'
-					value={(table.getColumn('personalInfo')?.getFilterValue() as string) ?? ''}
-					onChange={(event) => table.getColumn('personalInfo')?.setFilterValue(event.target.value)}
+					value={(table.getColumn('applicant')?.getFilterValue() as string) ?? ''}
+					onChange={(event) => table.getColumn('applicant')?.setFilterValue(event.target.value)}
 					className='max-w-sm w-full'
 				/>
 				<Select
-					value={(table.getColumn('application_status')?.getFilterValue() as string) ?? 'all'}
-					onValueChange={(value) =>
-						table.getColumn('application_status')?.setFilterValue(value === 'all' ? null : value)
-					}
+					value={(table.getColumn('status')?.getFilterValue() as string) ?? 'all'}
+					onValueChange={(value) => table.getColumn('status')?.setFilterValue(value === 'all' ? null : value)}
 				>
 					<SelectTrigger className='w-full sm:w-[180px]'>
 						<SelectValue placeholder='Filter by status' />
@@ -245,7 +247,9 @@ export function ApplicantsTable({ applicants, setApplicants, statuses }: Applica
 
 			{/* Mobile View */}
 			<div className='md:hidden mt-4 space-y-2'>
-				{applicants.length > 0 ? (
+				{isLoading ? (
+					<Loader2 className='mx-auto h-6 w-6 animate-spin' />
+				) : applicants.length > 0 ? (
 					applicants.map(renderMobileCard)
 				) : (
 					<div className='text-center py-16'>
@@ -272,7 +276,13 @@ export function ApplicantsTable({ applicants, setApplicants, statuses }: Applica
 						))}
 					</TableHeader>
 					<TableBody>
-						{table.getRowModel().rows?.length ? (
+						{isLoading ? (
+							<TableRow>
+								<TableCell colSpan={columns.length} className='h-24 text-center'>
+									<Loader2 className='mx-auto h-6 w-6 animate-spin' />
+								</TableCell>
+							</TableRow>
+						) : table.getRowModel().rows?.length ? (
 							table.getRowModel().rows.map((row) => (
 								<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
 									{row.getVisibleCells().map((cell) => (

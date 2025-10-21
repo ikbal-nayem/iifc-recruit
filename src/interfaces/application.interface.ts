@@ -1,3 +1,6 @@
+
+import { JobseekerSearch } from "./jobseeker.interface";
+
 export enum APPLICATION_STATUS {
 	APPLIED = 'APPLIED',
 	ACCEPTED = 'ACCEPTED',
@@ -14,4 +17,6 @@ export type Application = {
 	jobseekerId: string;
 	status: APPLICATION_STATUS;
 	applicationDate: string;
+    applicantId: string;
+    applicant?: JobseekerSearch
 };
