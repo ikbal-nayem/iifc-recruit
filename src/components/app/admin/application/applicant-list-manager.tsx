@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -14,7 +13,8 @@ import {
 	CommandList,
 } from '@/components/ui/command';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Form, FormInput } from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
+import { FormInput } from '@/components/ui/form-input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
@@ -62,7 +62,7 @@ export function ApplicantListManager() {
 	});
 
 	const formValues = form.watch();
-	const debouncedSearchKey = useDebounce(formValues.searchKey, 500);
+	const debouncedFormValues = useDebounce(formValues, 500);
 
 	const onSearchSubmit = useCallback(
 		async (values: SearchFormValues) => {
@@ -86,19 +86,15 @@ export function ApplicantListManager() {
 	);
 
 	useEffect(() => {
-		onSearchSubmit({
-			searchKey: debouncedSearchKey,
-			skillIds: formValues.skillIds,
-			experience: formValues.experience,
-		});
-	}, [debouncedSearchKey, formValues.skillIds, formValues.experience, onSearchSubmit]);
+		onSearchSubmit(debouncedFormValues);
+	}, [debouncedFormValues, onSearchSubmit]);
 
 	const fetchSkills = useCallback(
 		async (searchQuery: string) => {
 			setIsSkillLoading(true);
 			try {
 				const response = await MasterDataService.skill.getList({
-					body: { searchKey: searchQuery },
+					body: { name: searchQuery },
 					meta: { page: 0, limit: 20 },
 				});
 				setAvailableSkills(response.body);
@@ -174,7 +170,7 @@ export function ApplicantListManager() {
 											)}
 											{selectedSkills.map((skill) => (
 												<Badge key={skill.id} variant='secondary' className='text-sm py-1 px-2'>
-													{skill.nameEn}
+													{skill.name}
 													<button
 														type='button'
 														className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
@@ -204,7 +200,7 @@ export function ApplicantListManager() {
 													{availableSkills.map((skill) => (
 														<CommandItem
 															key={skill.id}
-															value={skill.nameEn}
+															value={skill.name}
 															onSelect={() => {
 																handleSkillSelect(skill);
 																setPopoverOpen(false);
@@ -218,7 +214,7 @@ export function ApplicantListManager() {
 																		: 'opacity-0'
 																)}
 															/>
-															{skill.nameEn}
+															{skill.name}
 														</CommandItem>
 													))}
 												</CommandGroup>
