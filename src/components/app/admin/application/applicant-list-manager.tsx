@@ -14,8 +14,8 @@ import {
 	CommandList,
 } from '@/components/ui/command';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
-import { FormInput } from '@/components/ui/form-input';
+import { Form, FormInput } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
@@ -30,7 +30,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
-import { Input } from '@/components/ui/input';
 
 const filterSchema = z.object({
 	experience: z.coerce.number().optional(),
@@ -87,12 +86,8 @@ export function ApplicantListManager() {
 	);
 
 	useEffect(() => {
-		const currentFilters = filterForm.getValues();
-		searchApplicants({
-			searchKey: debouncedTextSearch,
-			...currentFilters,
-		});
-	}, [debouncedTextSearch, filterForm, searchApplicants]);
+		searchApplicants({ searchKey: debouncedTextSearch });
+	}, [debouncedTextSearch, searchApplicants]);
 
 	const onFilterSubmit = (values: FilterFormValues) => {
 		searchApplicants({
