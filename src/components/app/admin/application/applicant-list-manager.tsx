@@ -25,14 +25,14 @@ import { cn } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, FileText, Loader2, Search, UserPlus, X } from 'lucide-react';
+import { Check, FileText, Loader2, Search, X } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 
 const searchSchema = z.object({
-	search: z.string().optional(),
+	searchKey: z.string().optional(),
 	experience: z.coerce.number().optional(),
 	skillIds: z.array(z.number()).optional(),
 });
@@ -54,7 +54,7 @@ export function ApplicantListManager() {
 	const form = useForm<z.infer<typeof searchSchema>>({
 		resolver: zodResolver(searchSchema),
 		defaultValues: {
-			search: '',
+			searchKey: '',
 			skillIds: [],
 			experience: undefined,
 		},
@@ -127,9 +127,7 @@ export function ApplicantListManager() {
 
 	const handleAddApplicant = (jobseeker: Jobseeker) => {
 		setPrimaryList((prev) => [...prev, jobseeker]);
-		form.reset();
-		setSelectedSkills([]);
-		setSuggestedJobseekers([]);
+		setSuggestedJobseekers((prev) => prev.filter((js) => js.id !== jobseeker.id));
 		toast({
 			title: 'Applicant Added',
 			description: `${jobseeker.personalInfo?.fullName} has been added to the primary list.`,
@@ -146,7 +144,7 @@ export function ApplicantListManager() {
 			<div className='space-y-4'>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSearchSubmit)} className='space-y-4'>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-end'>
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
 							<div>
 								<label className='text-sm font-medium'>Skills</label>
 								<Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
@@ -222,45 +220,64 @@ export function ApplicantListManager() {
 								placeholder='e.g., 5'
 							/>
 						</div>
+						<FormInput
+							control={form.control}
+							name='searchKey'
+							label='Search by Name/Email/Phone'
+							placeholder='e.g. John Doe, john@example.com...'
+						/>
 						<Button type='submit' size='sm'>
 							<Search className='mr-2 h-4 w-4' /> Search
 						</Button>
 					</form>
 				</Form>
 
-				<Command>
-					<CommandInput
-						placeholder='Filter results by name, email, or phone...'
-						value={form.watch('search')}
-						onValueChange={(value) => form.setValue('search', value)}
-					/>
-					<CommandList className='max-h-64'>
-						{isLoading ? (
-							<div className='p-2 flex justify-center'>
-								<Loader2 className='h-6 w-6 animate-spin' />
-							</div>
-						) : (
-							<>
-								{suggestedJobseekers.length === 0 && (
-									<CommandEmpty>No jobseekers found for the selected criteria.</CommandEmpty>
-								)}
-								<CommandGroup>
-									{suggestedJobseekers.map((js) => (
-										<CommandItem
-											key={js.id}
-											value={`${js.personalInfo?.fullName} ${js.personalInfo?.email}`}
-											onSelect={() => handleAddApplicant(js)}
-											className='cursor-pointer'
-										>
-											{js.personalInfo?.fullName}
-											<span className='ml-2 text-xs text-muted-foreground'>({js.personalInfo?.email})</span>
-										</CommandItem>
-									))}
-								</CommandGroup>
-							</>
-						)}
-					</CommandList>
-				</Command>
+				<div className='max-h-64 overflow-y-auto space-y-2'>
+					{isLoading ? (
+						<div className='p-2 flex justify-center'>
+							<Loader2 className='h-6 w-6 animate-spin' />
+						</div>
+					) : (
+						<>
+							{suggestedJobseekers.length === 0 ? (
+								<p className='text-center text-sm text-muted-foreground py-4'>
+									No jobseekers found for the selected criteria.
+								</p>
+							) : (
+								suggestedJobseekers.map((js) => (
+									<Card
+										key={js.id}
+										className='p-3 flex items-center justify-between hover:bg-muted transition-colors'
+									>
+										<div className='flex items-center gap-3'>
+											<Avatar>
+												<AvatarImage src={js.personalInfo?.profileImage?.filePath} />
+												<AvatarFallback>{js.personalInfo?.fullName?.[0]}</AvatarFallback>
+											</Avatar>
+											<div>
+												<p className='font-semibold'>{js.personalInfo?.fullName}</p>
+												<p className='text-xs text-muted-foreground'>{js.personalInfo?.email}</p>
+											</div>
+										</div>
+										<div className='flex items-center gap-2'>
+											<Button
+												variant='ghost'
+												size='sm'
+												onClick={() => setSelectedJobseeker(js)}
+												className='h-8'
+											>
+												<FileText className='mr-2 h-4 w-4' /> View
+											</Button>
+											<Button size='sm' onClick={() => handleAddApplicant(js)} className='h-8'>
+												Add
+											</Button>
+										</div>
+									</Card>
+								))
+							)}
+						</>
+					)}
+				</div>
 
 				<Card>
 					<CardHeader>
