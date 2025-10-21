@@ -16,6 +16,7 @@ import { ApplicantListManager } from './applicant-list-manager';
 import { ExaminerSetup } from './examiner-setup';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
+import { ApplicantsTable } from './applicants-table';
 
 type Applicant = Jobseeker & { application: Application };
 
