@@ -14,8 +14,6 @@ import {
 	CommandList,
 } from '@/components/ui/command';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
-import { FormInput } from '@/components/ui/form-input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
@@ -27,15 +25,18 @@ import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, FileText, Loader2, Search, X } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, FormProvider } from 'react-hook-form';
 import { z } from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
+import { Form, FormInput } from '../../ui/form';
 
 const searchSchema = z.object({
 	searchKey: z.string().optional(),
 	experience: z.coerce.number().optional(),
 	skillIds: z.array(z.number()).optional(),
 });
+
+type SearchFormValues = z.infer<typeof searchSchema>;
 
 export function ApplicantListManager() {
 	const { toast } = useToast();
@@ -51,7 +52,7 @@ export function ApplicantListManager() {
 	const [selectedSkills, setSelectedSkills] = useState<ICommonMasterData[]>([]);
 	const [popoverOpen, setPopoverOpen] = useState(false);
 
-	const form = useForm<z.infer<typeof searchSchema>>({
+	const form = useForm<SearchFormValues>({
 		resolver: zodResolver(searchSchema),
 		defaultValues: {
 			searchKey: '',
@@ -59,6 +60,38 @@ export function ApplicantListManager() {
 			experience: undefined,
 		},
 	});
+
+	const formValues = form.watch();
+	const debouncedSearchKey = useDebounce(formValues.searchKey, 500);
+
+	const onSearchSubmit = useCallback(
+		async (values: SearchFormValues) => {
+			setIsLoading(true);
+			try {
+				const response = await JobseekerProfileService.search({ body: values });
+				const filteredResults =
+					response.body?.filter((js) => !primaryList.some((p) => p.id === js.id)) || [];
+				setSuggestedJobseekers(filteredResults);
+			} catch (error: any) {
+				toast({
+					title: 'Search Failed',
+					description: error.message || 'Could not fetch jobseekers.',
+					variant: 'danger',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[primaryList, toast]
+	);
+
+	useEffect(() => {
+		onSearchSubmit({
+			searchKey: debouncedSearchKey,
+			skillIds: formValues.skillIds,
+			experience: formValues.experience,
+		});
+	}, [debouncedSearchKey, formValues.skillIds, formValues.experience, onSearchSubmit]);
 
 	const fetchSkills = useCallback(
 		async (searchQuery: string) => {
@@ -107,24 +140,6 @@ export function ApplicantListManager() {
 		);
 	};
 
-	const onSearchSubmit = async (values: z.infer<typeof searchSchema>) => {
-		setIsLoading(true);
-		try {
-			const response = await JobseekerProfileService.search({ body: values });
-			const filteredResults =
-				response.body?.filter((js) => !primaryList.some((p) => p.id === js.id)) || [];
-			setSuggestedJobseekers(filteredResults);
-		} catch (error: any) {
-			toast({
-				title: 'Search Failed',
-				description: error.message || 'Could not fetch jobseekers.',
-				variant: 'danger',
-			});
-		} finally {
-			setIsLoading(false);
-		}
-	};
-
 	const handleAddApplicant = (jobseeker: Jobseeker) => {
 		setPrimaryList((prev) => [...prev, jobseeker]);
 		setSuggestedJobseekers((prev) => prev.filter((js) => js.id !== jobseeker.id));
@@ -142,9 +157,9 @@ export function ApplicantListManager() {
 	return (
 		<>
 			<div className='space-y-4'>
-				<Form {...form}>
-					<form onSubmit={form.handleSubmit(onSearchSubmit)} className='space-y-4'>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
+				<FormProvider {...form}>
+					<form className='space-y-4'>
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-end'>
 							<div>
 								<label className='text-sm font-medium'>Skills</label>
 								<Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
@@ -225,12 +240,10 @@ export function ApplicantListManager() {
 							name='searchKey'
 							label='Search by Name/Email/Phone'
 							placeholder='e.g. John Doe, john@example.com...'
+							startIcon={<Search className='h-4 w-4 text-muted-foreground' />}
 						/>
-						<Button type='submit' size='sm'>
-							<Search className='mr-2 h-4 w-4' /> Search
-						</Button>
 					</form>
-				</Form>
+				</FormProvider>
 
 				<div className='max-h-64 overflow-y-auto space-y-2'>
 					{isLoading ? (
