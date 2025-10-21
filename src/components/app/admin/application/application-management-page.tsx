@@ -39,6 +39,7 @@ export function ApplicationManagementPage({
 	const [selectedExaminer, setSelectedExaminer] = useState<string | undefined>(undefined);
 	const [isSaving, setIsSaving] = useState(false);
 	const [applicants, setApplicants] = useState<Applicant[]>(initialApplicants);
+	const [isAddCandidateOpen, setIsAddCandidateOpen] = useState(false);
 
 	const applicantStats = useMemo(() => {
 		return applicants.reduce(
@@ -83,6 +84,27 @@ export function ApplicationManagementPage({
 		} finally {
 			setIsSaving(false);
 		}
+	};
+
+	const handleApplyApplicants = (newApplicants: Jobseeker[]) => {
+		const applicantsToAdd: Applicant[] = newApplicants.map((js) => ({
+			...js,
+			application: {
+				id: `temp-${js.id}`, // temp id
+				jobId: requestedPost.id!.toString(),
+				jobseekerId: js.id!,
+				status: APPLICATION_STATUS.APPLIED,
+				applicationDate: new Date().toISOString().split('T')[0],
+			},
+		}));
+
+		setApplicants((prev) => [...prev, ...applicantsToAdd]);
+		toast({
+			title: 'Candidates Applied',
+			description: `${newApplicants.length} candidate(s) have been added to the application list.`,
+			variant: 'success',
+		});
+		setIsAddCandidateOpen(false);
 	};
 
 	return (
@@ -166,7 +188,7 @@ export function ApplicationManagementPage({
 						<CardTitle>Applied Candidates</CardTitle>
 						<CardDescription>These candidates have applied for the circular post.</CardDescription>
 					</div>
-					<Dialog>
+					<Dialog open={isAddCandidateOpen} onOpenChange={setIsAddCandidateOpen}>
 						<DialogTrigger asChild>
 							<Button variant='outline'>
 								<UserPlus className='mr-2 h-4 w-4' />
@@ -178,7 +200,10 @@ export function ApplicationManagementPage({
 								<DialogTitle>Add Applicants to Primary List</DialogTitle>
 							</DialogHeader>
 							<div className='max-h-[70vh] overflow-y-auto p-1'>
-								<ApplicantListManager />
+								<ApplicantListManager
+									onApply={handleApplyApplicants}
+									existingApplicantIds={applicants.map((a) => a.id)}
+								/>
 							</div>
 						</DialogContent>
 					</Dialog>

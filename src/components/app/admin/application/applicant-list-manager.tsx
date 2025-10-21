@@ -2,9 +2,8 @@
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import {
 	Command,
 	CommandEmpty,
@@ -14,7 +13,7 @@ import {
 	CommandList,
 } from '@/components/ui/command';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
+import { Form, FormProvider } from 'react-hook-form';
 import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -28,7 +27,7 @@ import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, FileText, Filter, Loader2, Search, UserPlus, X } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 
@@ -39,7 +38,12 @@ const filterSchema = z.object({
 
 type FilterFormValues = z.infer<typeof filterSchema>;
 
-export function ApplicantListManager() {
+interface ApplicantListManagerProps {
+	onApply: (applicants: Jobseeker[]) => void;
+	existingApplicantIds: (string | undefined)[];
+}
+
+export function ApplicantListManager({ onApply, existingApplicantIds }: ApplicantListManagerProps) {
 	const { toast } = useToast();
 	const [primaryList, setPrimaryList] = useState<Jobseeker[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
@@ -69,9 +73,10 @@ export function ApplicantListManager() {
 			setIsLoading(true);
 			try {
 				const response = await JobseekerProfileService.search({ body: searchCriteria });
-				const filteredResults =
-					response.body?.filter((js) => !primaryList.some((p) => p.id === js.id)) || [];
-				setSuggestedJobseekers(filteredResults);
+				const newSuggestions = response.body?.filter(
+					(js) => !primaryList.some((p) => p.id === js.id) && !existingApplicantIds.includes(js.id)
+				);
+				setSuggestedJobseekers(newSuggestions || []);
 			} catch (error: any) {
 				toast({
 					title: 'Search Failed',
@@ -83,7 +88,7 @@ export function ApplicantListManager() {
 				setIsLoading(false);
 			}
 		},
-		[primaryList, toast]
+		[primaryList, toast, existingApplicantIds]
 	);
 
 	useEffect(() => {
@@ -148,15 +153,15 @@ export function ApplicantListManager() {
 	const handleAddApplicant = (jobseeker: Jobseeker) => {
 		setPrimaryList((prev) => [...prev, jobseeker]);
 		setSuggestedJobseekers((prev) => prev.filter((js) => js.id !== jobseeker.id));
-		toast({
-			title: 'Applicant Added',
-			description: `${jobseeker.personalInfo?.fullName} has been added to the primary list.`,
-			variant: 'success',
-		});
 	};
 
+
 	const handleRemoveApplicant = (jobseekerId: string) => {
+		const removedApplicant = primaryList.find((js) => js.id === jobseekerId);
 		setPrimaryList((prev) => prev.filter((js) => js.id !== jobseekerId));
+		if (removedApplicant) {
+			setSuggestedJobseekers((prev) => [removedApplicant, ...prev]);
+		}
 	};
 
 	return (
@@ -254,47 +259,53 @@ export function ApplicantListManager() {
 				</form>
 			</FormProvider>
 
-			<div className='max-h-64 overflow-y-auto space-y-2'>
-				{isLoading ? (
-					<div className='p-2 flex justify-center'>
-						<Loader2 className='h-6 w-6 animate-spin' />
-					</div>
-				) : (
-					<>
-						{suggestedJobseekers.length === 0 ? (
-							<p className='text-center text-sm text-muted-foreground py-4'>
-								No jobseekers found for the selected criteria.
-							</p>
-						) : (
-							suggestedJobseekers.map((js, index) => (
-								<Card
-									key={js.id || index}
-									className='p-3 flex items-center justify-between hover:bg-muted transition-colors'
-								>
-									<div className='flex items-center gap-3'>
-										<Avatar>
-											<AvatarImage src={js.personalInfo?.profileImage?.filePath} />
-											<AvatarFallback>{js.personalInfo?.fullName?.[0]}</AvatarFallback>
-										</Avatar>
-										<div>
-											<p className='font-semibold'>{js.personalInfo?.fullName}</p>
-											<p className='text-xs text-muted-foreground'>{js.personalInfo?.email}</p>
+			<Card>
+				<CardHeader>
+					<CardTitle>Search Results</CardTitle>
+					<CardDescription>Select jobseekers to add them to the primary list below.</CardDescription>
+				</CardHeader>
+				<CardContent className='max-h-64 overflow-y-auto space-y-2'>
+					{isLoading ? (
+						<div className='p-2 flex justify-center'>
+							<Loader2 className='h-6 w-6 animate-spin' />
+						</div>
+					) : (
+						<>
+							{suggestedJobseekers.length === 0 ? (
+								<p className='text-center text-sm text-muted-foreground py-4'>
+									No jobseekers found for the selected criteria.
+								</p>
+							) : (
+								suggestedJobseekers.map((js, index) => (
+									<Card
+										key={js.id || index}
+										className='p-3 flex items-center justify-between hover:bg-muted transition-colors'
+									>
+										<div className='flex items-center gap-3'>
+											<Avatar>
+												<AvatarImage src={js.personalInfo?.profileImage?.filePath} />
+												<AvatarFallback>{js.personalInfo?.fullName?.[0]}</AvatarFallback>
+											</Avatar>
+											<div>
+												<p className='font-semibold'>{js.personalInfo?.fullName}</p>
+												<p className='text-xs text-muted-foreground'>{js.personalInfo?.email}</p>
+											</div>
 										</div>
-									</div>
-									<div className='flex items-center gap-2'>
-										<Button variant='ghost' size='sm' onClick={() => setSelectedJobseeker(js)} className='h-8'>
-											<FileText className='mr-2 h-4 w-4' /> View
-										</Button>
-										<Button size='sm' onClick={() => handleAddApplicant(js)} className='h-8'>
-											Add
-										</Button>
-									</div>
-								</Card>
-							))
-						)}
-					</>
-				)}
-			</div>
+										<div className='flex items-center gap-2'>
+											<Button variant='ghost' size='sm' onClick={() => setSelectedJobseeker(js)} className='h-8'>
+												<FileText className='mr-2 h-4 w-4' /> View
+											</Button>
+											<Button size='sm' onClick={() => handleAddApplicant(js)} className='h-8'>
+												Add
+											</Button>
+										</div>
+									</Card>
+								))
+							)}
+						</>
+					)}
+				</CardContent>
+			</Card>
 
 			<Card>
 				<CardHeader>
@@ -331,6 +342,14 @@ export function ApplicantListManager() {
 						</div>
 					)}
 				</CardContent>
+				{primaryList.length > 0 && (
+					<CardFooter>
+						<Button onClick={() => onApply(primaryList)}>
+							<UserPlus className='mr-2 h-4 w-4' />
+							Apply ({primaryList.length}) Candidates
+						</Button>
+					</CardFooter>
+				)}
 			</Card>
 			<Dialog open={!!selectedJobseeker} onOpenChange={(isOpen) => !isOpen && setSelectedJobseeker(null)}>
 				<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
