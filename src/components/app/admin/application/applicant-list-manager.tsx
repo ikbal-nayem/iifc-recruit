@@ -23,6 +23,7 @@ import { Jobseeker } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
+import { makePreviewURL } from '@/lib/file-oparations';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, FileText, Filter, Loader2, Search, UserPlus, X } from 'lucide-react';
@@ -30,7 +31,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
-import { makePreviewURL } from '@/lib/file-oparations';
 
 const filterSchema = z.object({
 	experience: z.coerce.number().optional(),
@@ -93,14 +93,8 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 	);
 
 	useEffect(() => {
-		const skillIds = filterForm.getValues('skillIds');
-		const experience = filterForm.getValues('experience');
-		searchApplicants({
-			searchKey: debouncedTextSearch,
-			skillIds: skillIds?.length ? skillIds : undefined,
-			experience: experience || undefined,
-		});
-	}, [debouncedTextSearch, filterForm, searchApplicants]);
+		searchApplicants({ searchKey: debouncedTextSearch });
+	}, [debouncedTextSearch, searchApplicants]);
 
 	const onFilterSubmit = (values: FilterFormValues) => {
 		searchApplicants({
@@ -289,17 +283,17 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 									>
 										<div className='flex items-center gap-3'>
 											<Avatar>
-												<AvatarImage src={makePreviewURL(js.personalInfo.profileImage)} />
+												<AvatarImage src={makePreviewURL(js.profileImage)} />
 												<AvatarFallback>
-													{js.personalInfo.firstName?.[0]}
-													{js.personalInfo.lastName?.[0]}
+													{js.firstName?.[0]}
+													{js.lastName?.[0]}
 												</AvatarFallback>
 											</Avatar>
 											<div>
-												<p className='font-semibold'>{js.personalInfo.fullName}</p>
+												<p className='font-semibold'>{js.fullName}</p>
 												<div className='text-xs text-muted-foreground'>
-													<p>{js.personalInfo.email}</p>
-													<p>{js.personalInfo.phone}</p>
+													<p>{js.email}</p>
+													<p>{js.phone}</p>
 												</div>
 											</div>
 										</div>
@@ -330,17 +324,17 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 							<Card key={js.id} className='p-4 flex items-center justify-between'>
 								<div className='flex items-center gap-4'>
 									<Avatar>
-										<AvatarImage src={makePreviewURL(js.personalInfo.profileImage)} />
+										<AvatarImage src={makePreviewURL(js.profileImage)} />
 										<AvatarFallback>
-											{js.personalInfo.firstName?.[0]}
-											{js.personalInfo.lastName?.[0]}
+											{js.firstName?.[0]}
+											{js.lastName?.[0]}
 										</AvatarFallback>
 									</Avatar>
 									<div>
-										<p className='font-semibold'>{js.personalInfo.fullName}</p>
+										<p className='font-semibold'>{js.fullName}</p>
 										<div className='text-sm text-muted-foreground'>
-											<p>{js.personalInfo.email}</p>
-											<p>{js.personalInfo.phone}</p>
+											<p>{js.email}</p>
+											<p>{js.phone}</p>
 										</div>
 									</div>
 								</div>
