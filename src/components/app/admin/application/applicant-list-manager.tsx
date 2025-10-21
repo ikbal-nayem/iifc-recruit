@@ -14,7 +14,7 @@ import {
 	CommandList,
 } from '@/components/ui/command';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Form, FormProvider } from 'react-hook-form';
+import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
@@ -27,9 +27,10 @@ import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, FileText, Filter, Loader2, Search, X } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
+import { Input } from '@/components/ui/input';
 
 const filterSchema = z.object({
 	experience: z.coerce.number().optional(),
@@ -45,11 +46,9 @@ export function ApplicantListManager() {
 	const [suggestedJobseekers, setSuggestedJobseekers] = useState<Jobseeker[]>([]);
 	const [selectedJobseeker, setSelectedJobseeker] = React.useState<Jobseeker | null>(null);
 
-	// State for text search
 	const [textSearch, setTextSearch] = useState('');
 	const debouncedTextSearch = useDebounce(textSearch, 500);
 
-	// State for skill filter
 	const [isSkillLoading, setIsSkillLoading] = useState(false);
 	const [skillSearchQuery, setSkillSearchQuery] = useState('');
 	const debouncedSkillSearch = useDebounce(skillSearchQuery, 300);
@@ -87,7 +86,6 @@ export function ApplicantListManager() {
 		[primaryList, toast]
 	);
 
-	// Effect for automatic text search
 	useEffect(() => {
 		const currentFilters = filterForm.getValues();
 		searchApplicants({
@@ -245,7 +243,7 @@ export function ApplicantListManager() {
 							/>
 						</div>
 						<Button type='submit'>
-							<Filter className='mr-2 h-4 w-4' /> Apply Filters
+							<Filter className='mr-2 h-4 w-4' /> Filter
 						</Button>
 					</div>
 					<div className='relative w-full'>
@@ -273,7 +271,10 @@ export function ApplicantListManager() {
 							</p>
 						) : (
 							suggestedJobseekers.map((js, index) => (
-								<Card key={js.id || index} className='p-3 flex items-center justify-between hover:bg-muted/30 transition-colors'>
+								<Card
+									key={js.id || index}
+									className='p-3 flex items-center justify-between hover:bg-muted transition-colors'
+								>
 									<div className='flex items-center gap-3'>
 										<Avatar>
 											<AvatarImage src={js.personalInfo?.profileImage?.filePath} />
