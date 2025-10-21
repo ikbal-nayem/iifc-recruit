@@ -27,6 +27,8 @@ import { MasterDataService } from '@/services/api/master-data.service';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const allJobseekers: Jobseeker[] = [
 	{ id: '1', personalInfo: { name: 'Alice Johnson', email: 'alice@example.com' } },
@@ -35,11 +37,11 @@ const allJobseekers: Jobseeker[] = [
 	{ id: '4', personalInfo: { name: 'Diana Prince', email: 'diana@example.com' } },
 ] as Jobseeker[];
 
-const searchSchema = {
-	search: '',
-	skillIds: [] as number[],
-	experience: null,
-};
+const searchSchema = z.object({
+	search: z.string(),
+	skillIds: z.array(z.number()),
+	experience: z.number().nullable(),
+});
 
 export function ApplicantListManager() {
 	const { toast } = useToast();
@@ -56,30 +58,38 @@ export function ApplicantListManager() {
 	const [skillPopoverOpen, setSkillPopoverOpen] = useState(false);
 
 	const form = useForm({
-		defaultValues: searchSchema,
+		resolver: zodResolver(searchSchema),
+		defaultValues: {
+			search: '',
+			skillIds: [],
+			experience: null,
+		},
 	});
 
 	const search = form.watch('search');
 	const debouncedSearch = useDebounce(search, 300);
 
-	const fetchSkills = useCallback(async (searchQuery: string) => {
-		setIsSkillLoading(true);
-		try {
-			const response = await MasterDataService.skill.getList({
-				body: { name: searchQuery },
-				meta: { page: 0, limit: 20 },
-			});
-			setAvailableSkills(response.body);
-		} catch (error) {
-			toast({
-				title: 'Error',
-				description: 'Could not load skills for filtering.',
-				variant: 'danger',
-			});
-		} finally {
-			setIsSkillLoading(false);
-		}
-	}, [toast]);
+	const fetchSkills = useCallback(
+		async (searchQuery: string) => {
+			setIsSkillLoading(true);
+			try {
+				const response = await MasterDataService.skill.getList({
+					body: { name: searchQuery },
+					meta: { page: 0, limit: 20 },
+				});
+				setAvailableSkills(response.body);
+			} catch (error) {
+				toast({
+					title: 'Error',
+					description: 'Could not load skills for filtering.',
+					variant: 'danger',
+				});
+			} finally {
+				setIsSkillLoading(false);
+			}
+		},
+		[toast]
+	);
 
 	useEffect(() => {
 		fetchSkills(debouncedSkillSearch);
@@ -131,6 +141,7 @@ export function ApplicantListManager() {
 	React.useEffect(() => {
 		// This handles the simple name search for now
 		onSearchSubmit({ search: debouncedSearch });
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [debouncedSearch]);
 
 	const handleAddApplicant = (jobseeker: Jobseeker) => {
@@ -153,14 +164,14 @@ export function ApplicantListManager() {
 			<div className='space-y-4'>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSearchSubmit)} className='space-y-4'>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-end'>
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 							<div>
-								<label className='text-sm font-medium'>Skills</label>
+								<label className='block text-sm font-medium mb-2'>Skills</label>
 								<Popover open={skillPopoverOpen} onOpenChange={setSkillPopoverOpen}>
 									<PopoverTrigger asChild>
 										<div
 											className={cn(
-												'flex flex-wrap gap-2 p-2 mt-2 border rounded-lg min-h-[44px] items-center cursor-text w-full justify-start font-normal h-auto'
+												'flex flex-wrap gap-2 p-2 border rounded-lg min-h-[44px] items-center cursor-text w-full justify-start font-normal h-auto'
 											)}
 										>
 											{selectedSkills.length === 0 && (
