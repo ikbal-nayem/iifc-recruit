@@ -14,7 +14,7 @@ import {
 	CommandList,
 } from '@/components/ui/command';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Form, FormProvider } from '@/components/ui/form';
+import { Form, FormProvider } from 'react-hook-form';
 import { FormInput } from '@/components/ui/form-input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
