@@ -13,7 +13,6 @@ import { ArrowLeft, Building, ChevronsRight, Loader2, Save, UserPlus, Users } fr
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { ApplicantListManager } from './applicant-list-manager';
-import { ApplicantsTable } from './applicants-table';
 import { ExaminerSetup } from './examiner-setup';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
@@ -195,7 +194,7 @@ export function ApplicationManagementPage({
 								Add Candidate
 							</Button>
 						</DialogTrigger>
-						<DialogContent className='max-w-3xl max-h-[70vh] flex flex-col p-0'>
+						<DialogContent className='max-w-3xl h-[90vh] flex flex-col p-0'>
 							<DialogHeader className='p-6 pb-0'>
 								<DialogTitle>Add Applicants to Primary List</DialogTitle>
 							</DialogHeader>

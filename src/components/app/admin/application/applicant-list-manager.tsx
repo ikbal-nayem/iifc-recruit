@@ -13,24 +13,22 @@ import {
 	CommandList,
 } from '@/components/ui/command';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Form, FormProvider } from 'react-hook-form';
-import { FormInput } from '@/components/ui/form-input';
+import { Form } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
-import { MasterDataService } from '@/services/api/master-data.service';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, FileText, Filter, Loader2, Search, UserPlus, X } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
-import { Input } from '@/components/ui/input';
 
 const filterSchema = z.object({
 	skillIds: z.array(z.number()).optional(),
@@ -90,8 +88,9 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 	);
 
 	useEffect(() => {
-		searchApplicants({ searchKey: debouncedTextSearch });
-	}, [debouncedTextSearch, searchApplicants]);
+		const skillIds = filterForm.getValues('skillIds');
+		searchApplicants({ searchKey: debouncedTextSearch, skillIds });
+	}, [debouncedTextSearch, searchApplicants, filterForm]);
 
 	const onFilterSubmit = (values: FilterFormValues) => {
 		searchApplicants({
@@ -178,7 +177,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 										{selectedSkills.length > 0 ? (
 											selectedSkills.map((skill) => (
 												<Badge key={skill.id} variant='secondary' className='text-sm py-1 px-2'>
-													{skill.nameEn}
+													{skill.name}
 													<button
 														type='button'
 														className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
@@ -211,7 +210,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 												{availableSkills.map((skill) => (
 													<CommandItem
 														key={skill.id}
-														value={skill.nameEn}
+														value={skill.name}
 														onSelect={() => handleSkillSelect(skill)}
 													>
 														<Check
@@ -222,7 +221,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 																	: 'opacity-0'
 															)}
 														/>
-														{skill.nameEn}
+														{skill.name}
 													</CommandItem>
 												))}
 											</CommandGroup>
@@ -235,15 +234,6 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 							<Filter className='mr-2 h-4 w-4' /> Filter
 						</Button>
 					</div>
-					<div className='relative w-full'>
-						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-						<Input
-							placeholder='Filter results by name, email, or phone...'
-							value={textSearch}
-							onChange={(e) => setTextSearch(e.target.value)}
-							className='pl-10 h-11'
-						/>
-					</div>
 				</form>
 			</FormProvider>
 
@@ -253,6 +243,15 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 					<CardDescription>Select jobseekers to add them to the primary list below.</CardDescription>
 				</CardHeader>
 				<CardContent className='max-h-64 overflow-y-auto space-y-2'>
+					<div className='relative w-full mb-4'>
+						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+						<Input
+							placeholder='Filter results by name, email, or phone...'
+							value={textSearch}
+							onChange={(e) => setTextSearch(e.target.value)}
+							className='pl-10 h-11'
+						/>
+					</div>
 					{isLoading ? (
 						<div className='p-2 flex justify-center'>
 							<Loader2 className='h-6 w-6 animate-spin' />
