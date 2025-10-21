@@ -14,8 +14,7 @@ import {
 	CommandList,
 } from '@/components/ui/command';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
-import { FormInput } from '@/components/ui/form-input';
+import { Form, FormInput } from '@/components/ui/form-input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
@@ -79,6 +78,7 @@ export function ApplicantListManager() {
 					description: error.message || 'Could not fetch jobseekers.',
 					variant: 'danger',
 				});
+				setSuggestedJobseekers([]);
 			} finally {
 				setIsLoading(false);
 			}
@@ -87,9 +87,8 @@ export function ApplicantListManager() {
 	);
 
 	useEffect(() => {
-		// Auto-search only on debounced text input change
-		onSearchSubmit(form.getValues());
-	}, [debouncedSearchKey, onSearchSubmit, form]);
+		onSearchSubmit({ searchKey: debouncedSearchKey });
+	}, [debouncedSearchKey, onSearchSubmit]);
 
 	const handleFilterSubmit = () => {
 		onSearchSubmit(form.getValues());
@@ -100,7 +99,7 @@ export function ApplicantListManager() {
 			setIsSkillLoading(true);
 			try {
 				const response = await MasterDataService.skill.getList({
-					body: { name: query },
+					body: { searchKey: query },
 					meta: { page: 0, limit: 20 },
 				});
 				setAvailableSkills(response.body);
@@ -252,7 +251,7 @@ export function ApplicantListManager() {
 						/>
 						<Button type='submit' size='sm'>
 							<Search className='mr-2 h-4 w-4' />
-							Apply Filters
+							Search
 						</Button>
 					</form>
 				</FormProvider>
