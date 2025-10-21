@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -16,7 +15,6 @@ import {
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
-import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -47,6 +45,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const filterSchema = z.object({
 	skillIds: z.array(z.number()).optional(),
@@ -356,7 +355,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 						) : null}
 					</div>
 				</CardHeader>
-				<CardContent className='pt-1 space-y-2'>
+				<CardContent className='pt-1overflow-y-auto space-y-2'>
 					<div className='relative w-full mb-4'>
 						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 						<Input
