@@ -1,10 +1,9 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import {
 	Command,
 	CommandEmpty,
@@ -14,8 +13,6 @@ import {
 	CommandList,
 } from '@/components/ui/command';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
-import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
@@ -28,8 +25,8 @@ import { JobseekerProfileService } from '@/services/api/jobseeker-profile.servic
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, FileText, Filter, Loader2, Search, UserPlus, X } from 'lucide-react';
-import React, { FormProvider, useCallback, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 
@@ -75,7 +72,8 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 			try {
 				const response = await JobseekerProfileService.search({ body: searchCriteria });
 				const newSuggestions = (response.body || []).filter(
-					(js) => !primaryList.some((p) => p.userId === js.userId) && !existingApplicantIds.includes(js.userId)
+					(js) =>
+						!primaryList.some((p) => p.userId === js.userId) && !existingApplicantIds.includes(js.userId)
 				);
 				setSuggestedJobseekers(newSuggestions);
 			} catch (error: any) {
@@ -104,23 +102,26 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 		});
 	};
 
-	const fetchSkills = useCallback(async (query: string) => {
-		setIsSkillLoading(true);
-		try {
-			const response = await MasterDataService.skill.getList({
-				body: { searchKey: query },
-				meta: { page: 0, limit: 20 },
-			});
-			setAvailableSkills(response.body);
-		} catch (error) {
-			toast({
-				description: 'Could not load skills for filtering.',
-				variant: 'danger',
-			});
-		} finally {
-			setIsSkillLoading(false);
-		}
-	}, [toast]);
+	const fetchSkills = useCallback(
+		async (query: string) => {
+			setIsSkillLoading(true);
+			try {
+				const response = await MasterDataService.skill.getList({
+					body: { searchKey: query },
+					meta: { page: 0, limit: 20 },
+				});
+				setAvailableSkills(response.body);
+			} catch (error) {
+				toast({
+					description: 'Could not load skills for filtering.',
+					variant: 'danger',
+				});
+			} finally {
+				setIsSkillLoading(false);
+			}
+		},
+		[toast]
+	);
 
 	useEffect(() => {
 		fetchSkills(debouncedSkillSearch);

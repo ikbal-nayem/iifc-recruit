@@ -1,12 +1,13 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makeDownloadURL, makePreviewURL } from '@/lib/file-oparations';
+import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { format, parseISO } from 'date-fns';
 import {
 	Award,
@@ -28,11 +29,9 @@ import {
 	Video,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { Button } from '../../ui/button';
 import { Separator } from '../../ui/separator';
-import { useEffect, useState } from 'react';
-import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
-import { useToast } from '@/hooks/use-toast';
 
 interface JobseekerProfileViewProps {
 	jobseeker?: Jobseeker;
@@ -45,7 +44,10 @@ const formatDateRange = (fromDate: string, toDate?: string, isPresent?: boolean)
 	return `${start} - ${end}`;
 };
 
-export function JobseekerProfileView({ jobseeker: initialJobseeker, jobseekerId }: JobseekerProfileViewProps) {
+export function JobseekerProfileView({
+	jobseeker: initialJobseeker,
+	jobseekerId,
+}: JobseekerProfileViewProps) {
 	const { toast } = useToast();
 	const [jobseeker, setJobseeker] = useState<Jobseeker | null | undefined>(initialJobseeker);
 	const [isLoading, setIsLoading] = useState(false);
@@ -53,11 +55,10 @@ export function JobseekerProfileView({ jobseeker: initialJobseeker, jobseekerId 
 	useEffect(() => {
 		if (!initialJobseeker && jobseekerId) {
 			setIsLoading(true);
-			JobseekerProfileService.getProfileById(jobseekerId)
+			JobseekerProfileService.getProfile(jobseekerId)
 				.then((res) => setJobseeker(res.body))
 				.catch((err) => {
 					toast({
-						title: 'Error loading profile',
 						description: err.message || 'Could not fetch jobseeker details.',
 						variant: 'danger',
 					});
@@ -103,7 +104,9 @@ export function JobseekerProfileView({ jobseeker: initialJobseeker, jobseekerId 
 		division?: ICommonMasterData,
 		postCode?: number
 	) => {
-		return [addressLine, upazila?.nameEn, district?.nameEn, division?.nameEn, postCode].filter(Boolean).join(', ');
+		return [addressLine, upazila?.nameEn, district?.nameEn, division?.nameEn, postCode]
+			.filter(Boolean)
+			.join(', ');
 	};
 
 	const skillColors = [
