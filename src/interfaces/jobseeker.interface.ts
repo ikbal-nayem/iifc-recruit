@@ -191,3 +191,16 @@ export interface IProfileCompletionStatus {
 		isComplete: boolean;
 	}[];
 }
+
+
+export type JobseekerBasicSearch = {
+	userId: string;
+  firstName: string;
+  lastName: string;
+  middleName: string;
+	fullName: string;
+  passportNo: string;
+  email: string;
+  phone: string;
+	profileImage?: IFile;
+}

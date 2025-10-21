@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -13,22 +12,23 @@ import {
 	CommandList,
 } from '@/components/ui/command';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
-import { Jobseeker } from '@/interfaces/jobseeker.interface';
+import { Jobseeker, JobseekerBasicSearch } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
-import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { cn } from '@/lib/utils';
+import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
+import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, FileText, Filter, Loader2, Search, UserPlus, X } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
+import { Badge } from '@/components/ui/badge';
 
 const filterSchema = z.object({
 	skillIds: z.array(z.number()).optional(),
@@ -37,16 +37,16 @@ const filterSchema = z.object({
 type FilterFormValues = z.infer<typeof filterSchema>;
 
 interface ApplicantListManagerProps {
-	onApply: (applicants: Jobseeker[]) => void;
+	onApply: (applicants: JobseekerBasicSearch[]) => void;
 	existingApplicantIds: (string | undefined)[];
 }
 
 export function ApplicantListManager({ onApply, existingApplicantIds }: ApplicantListManagerProps) {
 	const { toast } = useToast();
-	const [primaryList, setPrimaryList] = useState<Jobseeker[]>([]);
+	const [primaryList, setPrimaryList] = useState<JobseekerBasicSearch[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const [suggestedJobseekers, setSuggestedJobseekers] = useState<Jobseeker[]>([]);
-	const [selectedJobseeker, setSelectedJobseeker] = React.useState<Jobseeker | null>(null);
+	const [suggestedJobseekers, setSuggestedJobseekers] = useState<JobseekerBasicSearch[]>([]);
+	const [selectedJobseeker, setSelectedJobseeker] = React.useState<JobseekerBasicSearch | null>(null);
 	const [textSearch, setTextSearch] = useState('');
 	const debouncedTextSearch = useDebounce(textSearch, 500);
 
@@ -70,7 +70,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 			try {
 				const response = await JobseekerProfileService.search({ body: searchCriteria });
 				const newSuggestions = (response.body || []).filter(
-					(js) => !primaryList.some((p) => p.id === js.id) && !existingApplicantIds.includes(js.id)
+					(js) => !primaryList.some((p) => p.userId === js.userId) && !existingApplicantIds.includes(js.userId)
 				);
 				setSuggestedJobseekers(newSuggestions);
 			} catch (error: any) {
@@ -99,27 +99,23 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 		});
 	};
 
-	const fetchSkills = useCallback(
-		async (query: string) => {
-			setIsSkillLoading(true);
-			try {
-				const response = await MasterDataService.skill.getList({
-					body: { searchKey: query },
-					meta: { page: 0, limit: 20 },
-				});
-				setAvailableSkills(response.body);
-			} catch (error) {
-				toast({
-					title: 'Error',
-					description: 'Could not load skills for filtering.',
-					variant: 'danger',
-				});
-			} finally {
-				setIsSkillLoading(false);
-			}
-		},
-		[toast]
-	);
+	const fetchSkills = useCallback(async (query: string) => {
+		setIsSkillLoading(true);
+		try {
+			const response = await MasterDataService.skill.getList({
+				body: { searchKey: query },
+				meta: { page: 0, limit: 20 },
+			});
+			setAvailableSkills(response.body);
+		} catch (error) {
+			toast({
+				description: 'Could not load skills for filtering.',
+				variant: 'danger',
+			});
+		} finally {
+			setIsSkillLoading(false);
+		}
+	}, []);
 
 	useEffect(() => {
 		fetchSkills(debouncedSkillSearch);
@@ -147,14 +143,14 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 		);
 	};
 
-	const handleAddApplicant = (jobseeker: Jobseeker) => {
+	const handleAddApplicant = (jobseeker: JobseekerBasicSearch) => {
 		setPrimaryList((prev) => [...prev, jobseeker]);
-		setSuggestedJobseekers((prev) => prev.filter((js) => js.id !== jobseeker.id));
+		setSuggestedJobseekers((prev) => prev.filter((js) => js.userId !== jobseeker.userId));
 	};
 
 	const handleRemoveApplicant = (jobseekerId: string) => {
-		const removedApplicant = primaryList.find((js) => js.id === jobseekerId);
-		setPrimaryList((prev) => prev.filter((js) => js.id !== jobseekerId));
+		const removedApplicant = primaryList.find((js) => js.userId === jobseekerId);
+		setPrimaryList((prev) => prev.filter((js) => js.userId !== jobseekerId));
 		if (removedApplicant) {
 			setSuggestedJobseekers((prev) => [removedApplicant, ...prev]);
 		}
@@ -164,7 +160,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 		<>
 			<FormProvider {...filterForm}>
 				<form onSubmit={filterForm.handleSubmit(onFilterSubmit)} className='space-y-4'>
-					<div className='p-4 border rounded-lg bg-muted/50 space-y-4'>
+					<Card className='p-4 border rounded-lg space-y-4'>
 						<div>
 							<label className='text-sm font-medium'>Skills</label>
 							<Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
@@ -176,8 +172,8 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 									>
 										{selectedSkills.length > 0 ? (
 											selectedSkills.map((skill) => (
-												<Badge key={skill.id} variant='secondary' className='text-sm py-1 px-2'>
-													{skill.name}
+												<Badge key={skill.id} variant='outline'>
+													{skill.nameEn}
 													<button
 														type='button'
 														className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
@@ -210,18 +206,16 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 												{availableSkills.map((skill) => (
 													<CommandItem
 														key={skill.id}
-														value={skill.name}
+														value={skill.nameEn}
 														onSelect={() => handleSkillSelect(skill)}
 													>
 														<Check
 															className={cn(
 																'mr-2 h-4 w-4',
-																selectedSkills.some((s) => s.id === skill.id)
-																	? 'opacity-100'
-																	: 'opacity-0'
+																selectedSkills.some((s) => s.id === skill.id) ? 'opacity-100' : 'opacity-0'
 															)}
 														/>
-														{skill.name}
+														{skill.nameEn}
 													</CommandItem>
 												))}
 											</CommandGroup>
@@ -233,16 +227,15 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 						<Button type='submit'>
 							<Filter className='mr-2 h-4 w-4' /> Filter
 						</Button>
-					</div>
+					</Card>
 				</form>
 			</FormProvider>
 
-			<Card>
-				<CardHeader>
+			<Card className='my-2'>
+				<CardHeader className='py-4'>
 					<CardTitle>Search Results</CardTitle>
-					<CardDescription>Select jobseekers to add them to the primary list below.</CardDescription>
 				</CardHeader>
-				<CardContent className='max-h-64 overflow-y-auto space-y-2'>
+				<CardContent className='pt-1overflow-y-auto space-y-2'>
 					<div className='relative w-full mb-4'>
 						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 						<Input
@@ -265,7 +258,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 							) : (
 								suggestedJobseekers.map((js, index) => (
 									<Card
-										key={js.id || index}
+										key={js.userId || index}
 										className='p-3 flex items-center justify-between hover:bg-muted transition-colors'
 									>
 										<div className='flex items-center gap-3'>
@@ -285,7 +278,12 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 											</div>
 										</div>
 										<div className='flex items-center gap-2'>
-											<Button variant='ghost' size='sm' onClick={() => setSelectedJobseeker(js)} className='h-8'>
+											<Button
+												variant='ghost'
+												size='sm'
+												onClick={() => setSelectedJobseeker(js)}
+												className='h-8'
+											>
 												<FileText className='mr-2 h-4 w-4' /> View
 											</Button>
 											<Button size='sm' onClick={() => handleAddApplicant(js)} className='h-8'>
@@ -308,7 +306,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 				<CardContent className='space-y-4'>
 					{primaryList.length > 0 ? (
 						primaryList.map((js) => (
-							<Card key={js.id} className='p-4 flex items-center justify-between'>
+							<Card key={js.userId} className='p-4 flex items-center justify-between'>
 								<div className='flex items-center gap-4'>
 									<Avatar>
 										<AvatarImage src={makePreviewURL(js.profileImage)} />
@@ -329,7 +327,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 									<Button variant='ghost' size='sm' onClick={() => setSelectedJobseeker(js)}>
 										<FileText className='mr-2 h-4 w-4' /> View
 									</Button>
-									<Button variant='destructive' size='sm' onClick={() => handleRemoveApplicant(js.id!)}>
+									<Button variant='lite-danger' size='sm' onClick={() => handleRemoveApplicant(js.userId!)}>
 										Remove
 									</Button>
 								</div>

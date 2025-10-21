@@ -9,6 +9,7 @@ import {
 	FamilyInfo,
 	IProfileCompletionStatus,
 	Jobseeker,
+	JobseekerBasicSearch,
 	Language,
 	PersonalInfo,
 	ProfessionalInfo,
@@ -48,7 +49,7 @@ export const JobseekerProfileService = {
 	getProfileCompletion: async (): Promise<IApiResponse<IProfileCompletionStatus>> =>
 		await axiosIns.get('/jobseeker/profile/get-profile-completion'),
 
-	search: async (payload: IApiRequest): Promise<IApiResponse<Jobseeker[]>> =>
+	search: async (payload: IApiRequest): Promise<IApiResponse<JobseekerBasicSearch[]>> =>
 		await axiosIns.post('/jobseeker/profile/search', payload),
 
 	personalInfo: {

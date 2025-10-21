@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Badge } from '@/components/ui/badge';
@@ -6,19 +5,19 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { RequestedPost } from '@/interfaces/job.interface';
-import { IClientOrganization, EnumDTO } from '@/interfaces/master-data.interface';
+import { JobseekerBasicSearch } from '@/interfaces/jobseeker.interface';
+import { EnumDTO, IClientOrganization } from '@/interfaces/master-data.interface';
 import { getStatusVariant } from '@/lib/utils';
 import { ArrowLeft, Building, ChevronsRight, Loader2, Save, UserPlus, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { ApplicantListManager } from './applicant-list-manager';
-import { ExaminerSetup } from './examiner-setup';
-import { Jobseeker } from '@/interfaces/jobseeker.interface';
-import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { ApplicantsTable } from './applicants-table';
+import { ExaminerSetup } from './examiner-setup';
 
-type Applicant = Jobseeker & { application: Application };
+type Applicant = JobseekerBasicSearch & { application: Application };
 
 interface ApplicationManagementPageProps {
 	requestedPost: RequestedPost;
@@ -84,13 +83,13 @@ export function ApplicationManagementPage({
 		}
 	};
 
-	const handleApplyApplicants = (newApplicants: Jobseeker[]) => {
+	const handleApplyApplicants = (newApplicants: JobseekerBasicSearch[]) => {
 		const applicantsToAdd: Applicant[] = newApplicants.map((js) => ({
 			...js,
 			application: {
-				id: `temp-${js.id}`, // temp id
+				id: `temp-${js.userId}`, // temp id
 				jobId: requestedPost.id!.toString(),
-				jobseekerId: js.id!,
+				jobseekerId: js.userId!,
 				status: APPLICATION_STATUS.APPLIED,
 				applicationDate: new Date().toISOString().split('T')[0],
 			},
@@ -200,7 +199,7 @@ export function ApplicationManagementPage({
 							<div className='flex-1 overflow-y-auto px-6'>
 								<ApplicantListManager
 									onApply={handleApplyApplicants}
-									existingApplicantIds={applicants.map((a) => a.id)}
+									existingApplicantIds={applicants.map((a) => a.userId)}
 								/>
 							</div>
 						</DialogContent>

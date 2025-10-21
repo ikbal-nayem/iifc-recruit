@@ -63,7 +63,7 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 		division?: ICommonMasterData,
 		postCode?: number
 	) => {
-		return [addressLine, upazila?.name, district?.name, division?.name, postCode].filter(Boolean).join(', ');
+		return [addressLine, upazila?.nameEn, district?.nameEn, division?.nameEn, postCode].filter(Boolean).join(', ');
 	};
 
 	const skillColors = [
@@ -230,7 +230,7 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 										<div key={index} className='relative pl-6 pb-6 last:pb-0'>
 											<div className='absolute -left-1.5 top-1 h-4 w-4 rounded-full bg-primary border-4 border-background'></div>
 											<h3 className='font-semibold'>{exp.positionTitle}</h3>
-											<p className='text-sm text-muted-foreground'>{exp.organization?.name}</p>
+											<p className='text-sm text-muted-foreground'>{exp.organization?.nameEn}</p>
 											<p className='text-xs text-muted-foreground'>
 												{formatDateRange(exp.joinDate, exp.resignDate, exp.isCurrent)}
 											</p>
@@ -260,7 +260,7 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 								{education.map((edu, index) => (
 									<div key={index}>
 										<h3 className='font-semibold'>{edu.degreeTitle}</h3>
-										<p className='text-sm text-muted-foreground'>{edu.institution.name}</p>
+										<p className='text-sm text-muted-foreground'>{edu.institution.nameEn}</p>
 										<p className='text-xs text-muted-foreground'>Graduated: {edu.passingYear}</p>
 									</div>
 								))}
@@ -329,7 +329,7 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 							<CardContent className='flex flex-wrap gap-2'>
 								{skills.map((skill: ICommonMasterData, index) => (
 									<Badge key={skill.id} className={skillColors[index % skillColors.length]}>
-										{skill.name}
+										{skill.nameEn}
 									</Badge>
 								))}
 							</CardContent>
@@ -368,7 +368,7 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 							<CardContent className='space-y-2'>
 								{languages.map((lang) => (
 									<div key={lang.id} className='flex justify-between text-sm'>
-										<span>{lang.language?.name}</span>
+										<span>{lang.language?.nameEn}</span>
 										<span className='text-muted-foreground'>{lang.proficiency}</span>
 									</div>
 								))}
@@ -388,7 +388,7 @@ export function JobseekerProfileView({ jobseeker }: JobseekerProfileViewProps) {
 							<CardContent className='space-y-3'>
 								{certifications.map((cert, index) => (
 									<div key={index}>
-										<p className='font-semibold text-sm'>{cert.certification?.name}</p>
+										<p className='font-semibold text-sm'>{cert.certification?.nameEn}</p>
 										<p className='text-xs text-muted-foreground'>
 											{cert.issuingAuthority} -{' '}
 											{cert.issueDate && format(parseISO(cert.issueDate), 'MMM yyyy')}
