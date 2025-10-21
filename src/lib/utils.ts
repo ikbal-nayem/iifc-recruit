@@ -1,4 +1,3 @@
-
 import { IObject } from '@/interfaces/common.interface';
 import { clsx, type ClassValue } from 'clsx';
 import { format } from 'date-fns';
@@ -71,15 +70,12 @@ export const getStatusVariant = (status?: string): BadgeVariant => {
 		// Job Application Statuses
 		case 'shortlisted':
 		case 'interview':
-		case 'offered':
 		case 'exam':
 			return 'default';
 		
 		// Jobseeker & other statuses
 		case 'applied':
-		case 'screening':
 		case 'inactive':
-		case 'passive':
 			return 'secondary';
 
 		default:

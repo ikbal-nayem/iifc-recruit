@@ -10,11 +10,11 @@ import { ROUTES } from '@/constants/routes.constant';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
-import { JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
+import { JobRequestedPostStatus, JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/utils';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { Building, Search, UserCog, Users } from 'lucide-react';
-import React from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
 
@@ -23,14 +23,14 @@ interface RequestedPostsListProps {
 }
 
 export function RequestedPostsList({ status }: RequestedPostsListProps) {
-	const [data, setData] = React.useState<RequestedPost[]>([]);
-	const [meta, setMeta] = React.useState<IMeta>(initMeta);
-	const [isLoading, setIsLoading] = React.useState(true);
-	const [searchQuery, setSearchQuery] = React.useState('');
+	const [data, setData] = useState<RequestedPost[]>([]);
+	const [meta, setMeta] = useState<IMeta>(initMeta);
+	const [isLoading, setIsLoading] = useState(true);
+	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
 	const { toast } = useToast();
 
-	const loadItems = React.useCallback(
+	const loadItems = useCallback(
 		async (page: number, search: string) => {
 			setIsLoading(true);
 			try {
@@ -43,7 +43,6 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 				setMeta(response.meta);
 			} catch (error: any) {
 				toast({
-					title: 'Error',
 					description: error.message || 'Failed to load requested posts.',
 					variant: 'danger',
 				});
@@ -54,7 +53,7 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 		[meta.limit, toast, status]
 	);
 
-	React.useEffect(() => {
+	useEffect(() => {
 		loadItems(0, debouncedSearch);
 	}, [debouncedSearch, loadItems]);
 
@@ -65,7 +64,7 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 	const getActionItems = (item: RequestedPost): ActionItem[] => {
 		const items: ActionItem[] = [];
 
-		if (item.status === 'PENDING') {
+		if (item.status === JobRequestedPostStatus.PENDING) {
 			items.push({
 				label: 'Manage Applicants',
 				icon: <UserCog className='mr-2 h-4 w-4' />,

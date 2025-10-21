@@ -1,12 +1,9 @@
 import { ApplicationManagementPage } from '@/components/app/admin/application/application-management-page';
-import { Jobseeker } from '@/interfaces/jobseeker.interface';
 import { applications, jobseekers } from '@/lib/data';
-import { Application } from '@/lib/types';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { notFound } from 'next/navigation';
 
-type Applicant = Jobseeker & { application: Application };
 
 async function getData(requestedPostId: string) {
 	try {
@@ -24,7 +21,7 @@ async function getData(requestedPostId: string) {
 				const jobseeker = jobseekers.find((js) => js.id === app.jobseekerId);
 				return jobseeker ? { ...jobseeker, application: app } : null;
 			})
-			.filter((a): a is Applicant => a !== null);
+			.filter((a) => a !== null);
 
 		return {
 			post,
