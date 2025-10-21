@@ -59,7 +59,7 @@ export function FormMultiSelect<TFieldValues extends FieldValues>({
 		if (debouncedSearch) {
 			setIsLoading(true);
 			MasterDataService.skill
-				.getList({ body: { nameEn: debouncedSearch }, meta: { page: 0, limit: 30 } })
+				.getList({ body: { name: debouncedSearch }, meta: { page: 0, limit: 30 } })
 				.then((res) => setSuggestions(res.body))
 				.finally(() => setIsLoading(false));
 		} else {
@@ -158,7 +158,9 @@ export function FormMultiSelect<TFieldValues extends FieldValues>({
 				render={() => (
 					<FormItem>
 						{label && <FormLabel required={required}>{label}</FormLabel>}
-						{component}
+						<div className='space-y-2'>
+              {component}
+            </div>
 						<FormMessage />
 					</FormItem>
 				)}
@@ -167,8 +169,13 @@ export function FormMultiSelect<TFieldValues extends FieldValues>({
 	}
 
 	return (
-		<div>
-			{label && <label className='text-sm font-medium'>{label}</label>}
+		<div className='space-y-2'>
+			{label && (
+				<label className='text-sm font-medium'>
+					{label}
+					{required && <span className='text-danger'> *</span>}
+				</label>
+			)}
 			{component}
 		</div>
 	);
