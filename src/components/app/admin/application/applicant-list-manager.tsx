@@ -30,6 +30,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 
+// Mock data - replace with API calls
 const allJobseekers: Jobseeker[] = [
 	{ id: '1', personalInfo: { name: 'Alice Johnson', email: 'alice@example.com' } },
 	{ id: '2', personalInfo: { name: 'Bob Smith', email: 'bob@example.com' } },
@@ -40,7 +41,7 @@ const allJobseekers: Jobseeker[] = [
 const searchSchema = z.object({
 	search: z.string(),
 	experience: z.coerce.number().optional(),
-	skillId: z.coerce.number().optional(),
+	skillIds: z.array(z.number()).optional(),
 });
 
 export function ApplicantListManager() {
@@ -61,7 +62,7 @@ export function ApplicantListManager() {
 		resolver: zodResolver(searchSchema),
 		defaultValues: {
 			search: '',
-			skillId: undefined,
+			skillIds: [],
 			experience: undefined,
 		},
 	});
@@ -99,6 +100,10 @@ export function ApplicantListManager() {
 		if (skill && !selectedSkills.some((s) => s.id === skill.id)) {
 			const newSelectedSkills = [...selectedSkills, skill];
 			setSelectedSkills(newSelectedSkills);
+			form.setValue(
+				'skillIds',
+				newSelectedSkills.map((s) => s.id!)
+			);
 		}
 		setSkillSearchQuery('');
 	};
@@ -106,12 +111,15 @@ export function ApplicantListManager() {
 	const handleSkillRemove = (skillToRemove: ICommonMasterData) => {
 		const newSelectedSkills = selectedSkills.filter((s) => s.id !== skillToRemove.id);
 		setSelectedSkills(newSelectedSkills);
+		form.setValue(
+			'skillIds',
+			newSelectedSkills.map((s) => s.id!)
+		);
 	};
 
 	const onSearchSubmit = (values: z.infer<typeof searchSchema>) => {
 		setIsLoading(true);
-		const skillIds = selectedSkills.map((s) => s.id);
-		console.log('Searching with filters:', { ...values, skillIds });
+		console.log('Searching with filters:', values);
 		// Simulate API call with filters
 		setTimeout(() => {
 			let filtered = allJobseekers;
@@ -161,10 +169,12 @@ export function ApplicantListManager() {
 									<PopoverTrigger asChild>
 										<div
 											className={cn(
-												'flex flex-wrap gap-1 p-2 border rounded-lg min-h-[44px] items-center cursor-text w-full justify-start font-normal h-auto mt-2 bg-background',
-												!selectedSkills.length && 'text-muted-foreground'
+												'flex flex-wrap gap-1 p-2 mt-2 border rounded-lg min-h-[44px] items-center cursor-text w-full justify-start font-normal h-auto bg-background'
 											)}
 										>
+											{selectedSkills.length === 0 && (
+												<span className='text-sm text-muted-foreground px-1'>Filter by skills...</span>
+											)}
 											{selectedSkills.map((skill) => (
 												<Badge key={skill.id} variant='secondary' className='text-sm py-1 px-2'>
 													{skill.nameEn}
@@ -181,9 +191,6 @@ export function ApplicantListManager() {
 													</button>
 												</Badge>
 											))}
-											{selectedSkills.length === 0 && (
-												<span className='text-sm text-muted-foreground px-1'>Filter by skills...</span>
-											)}
 										</div>
 									</PopoverTrigger>
 									<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
