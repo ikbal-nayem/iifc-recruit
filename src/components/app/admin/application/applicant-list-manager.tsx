@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -260,7 +261,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 						) : null}
 					</div>
 				</CardHeader>
-				<CardContent className='pt-1 overflow-y-auto space-y-2'>
+				<CardContent className='pt-1overflow-y-auto space-y-2'>
 					<div className='relative w-full mb-4'>
 						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 						<Input

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Badge, BadgeProps } from '@/components/ui/badge';
@@ -83,10 +84,14 @@ export function FormMultiSelect<TFieldValues extends FieldValues>({
 	};
 
 	const triggerContent = (
-		<div
+		<Button
+			type='button'
+			variant='outline'
 			className={cn(
-				'flex flex-wrap gap-1 p-2 mt-2 border rounded-lg min-h-[44px] items-center cursor-text w-full justify-start font-normal h-auto bg-background'
+				'flex flex-wrap gap-1 p-2 border rounded-lg min-h-[44px] items-center cursor-text w-full justify-start font-normal h-auto bg-background',
+				!selected.length && 'text-muted-foreground'
 			)}
+			onClick={() => setOpen(true)}
 		>
 			{selected.length > 0 ? (
 				selected.map((item) => (
@@ -106,9 +111,9 @@ export function FormMultiSelect<TFieldValues extends FieldValues>({
 					</Badge>
 				))
 			) : (
-				<span className='text-sm text-muted-foreground px-1'>{placeholder}</span>
+				<span className='px-1'>{placeholder}</span>
 			)}
-		</div>
+		</Button>
 	);
 
 	const popoverContent = (
