@@ -4,6 +4,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
 	Command,
 	CommandEmpty,
@@ -15,10 +16,10 @@ import {
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
+import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
@@ -44,9 +45,8 @@ import {
 import { Check, FileText, Filter, Loader2, Search, UserPlus, X } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { z } from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
-import { Checkbox } from '@/components/ui/checkbox';
-import * as z from 'zod';
 
 const filterSchema = z.object({
 	skillIds: z.array(z.number()).optional(),
@@ -134,7 +134,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 			setIsSkillLoading(true);
 			try {
 				const response = await MasterDataService.skill.getList({
-					body: { name: query },
+					body: { searchKey: query },
 					meta: { page: 0, limit: 20 },
 				});
 				setAvailableSkills(response.body);
@@ -200,7 +200,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 			accessorKey: 'fullName',
 			header: 'Applicant',
 			cell: ({ row }) => {
-				const { fullName, email, profileImage, firstName, lastName } = row.original;
+				const { fullName, email, profileImage, firstName, lastName, phone } = row.original;
 				return (
 					<div className='flex items-center gap-3'>
 						<Avatar>
@@ -213,14 +213,11 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 						<div>
 							<p className='font-semibold'>{fullName}</p>
 							<p className='text-xs text-muted-foreground'>{email}</p>
+							<p className='text-xs text-muted-foreground'>{phone}</p>
 						</div>
 					</div>
 				);
 			},
-		},
-		{
-			accessorKey: 'phone',
-			header: 'Phone',
 		},
 		{
 			id: 'actions',
@@ -346,10 +343,20 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 
 			<Card className='my-4'>
 				<CardHeader className='py-4'>
-					<CardTitle>Search Results</CardTitle>
-					<CardDescription>Select jobseekers to add them to the primary list below.</CardDescription>
+					<div className='flex justify-between items-center'>
+						<div>
+							<CardTitle>Search Results</CardTitle>
+							<CardDescription>Select jobseekers to add them to the primary list below.</CardDescription>
+						</div>
+						{table.getIsSomeRowsSelected() || table.getIsAllRowsSelected() ? (
+							<Button onClick={() => setShowConfirmation(true)}>
+								<UserPlus className='mr-2 h-4 w-4' />
+								Add {table.getSelectedRowModel().rows.length} Selected Candidates
+							</Button>
+						) : null}
+					</div>
 				</CardHeader>
-				<CardContent className='pt-1 overflow-y-auto space-y-2'>
+				<CardContent className='pt-1 space-y-2'>
 					<div className='relative w-full mb-4'>
 						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 						<Input
@@ -404,14 +411,8 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 						</Table>
 					</div>
 				</CardContent>
-				<CardFooter className='flex-col items-stretch gap-4'>
+				<CardFooter>
 					<Pagination meta={meta} onPageChange={handlePageChange} noun={'Jobseeker'} />
-					{table.getIsSomeRowsSelected() || table.getIsAllRowsSelected() ? (
-						<Button onClick={() => setShowConfirmation(true)}>
-							<UserPlus className='mr-2 h-4 w-4' />
-							Add {table.getSelectedRowModel().rows.length} Selected Candidates
-						</Button>
-					) : null}
 				</CardFooter>
 			</Card>
 
