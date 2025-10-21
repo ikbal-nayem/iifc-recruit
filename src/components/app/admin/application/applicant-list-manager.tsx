@@ -14,7 +14,8 @@ import {
 	CommandList,
 } from '@/components/ui/command';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Form, FormInput } from '@/components/ui/form-input';
+import { Form, FormProvider } from '@/components/ui/form';
+import { FormInput } from '@/components/ui/form-input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
@@ -26,7 +27,7 @@ import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, FileText, Loader2, Search, X } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 
@@ -61,8 +62,8 @@ export function ApplicantListManager() {
 		},
 	});
 
-	const searchKey = form.watch('searchKey');
-	const debouncedSearchKey = useDebounce(searchKey, 500);
+	const formValues = form.watch();
+	const debouncedFormValues = useDebounce(formValues, 500);
 
 	const onSearchSubmit = useCallback(
 		async (values: SearchFormValues) => {
@@ -87,12 +88,8 @@ export function ApplicantListManager() {
 	);
 
 	useEffect(() => {
-		onSearchSubmit({ searchKey: debouncedSearchKey });
-	}, [debouncedSearchKey, onSearchSubmit]);
-
-	const handleFilterSubmit = () => {
-		onSearchSubmit(form.getValues());
-	};
+		onSearchSubmit(debouncedFormValues);
+	}, [debouncedFormValues, onSearchSubmit]);
 
 	const fetchSkills = useCallback(
 		async (query: string) => {
@@ -130,6 +127,7 @@ export function ApplicantListManager() {
 			);
 		}
 		setSkillSearchQuery('');
+		setPopoverOpen(false);
 	};
 
 	const handleSkillRemove = (skillToRemove: ICommonMasterData) => {
@@ -162,11 +160,11 @@ export function ApplicantListManager() {
 					<form
 						onSubmit={(e) => {
 							e.preventDefault();
-							handleFilterSubmit();
+							onSearchSubmit(form.getValues());
 						}}
 						className='space-y-4'
 					>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-end'>
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
 							<div>
 								<label className='text-sm font-medium'>Skills</label>
 								<Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
@@ -176,25 +174,26 @@ export function ApplicantListManager() {
 												'flex flex-wrap gap-1 p-2 mt-2 border rounded-lg min-h-[44px] items-center cursor-text w-full justify-start font-normal h-auto bg-background'
 											)}
 										>
-											{selectedSkills.length === 0 && (
+											{selectedSkills.length > 0 ? (
+												selectedSkills.map((skill) => (
+													<Badge key={skill.id} variant='secondary' className='text-sm py-1 px-2'>
+														{skill.nameEn}
+														<button
+															type='button'
+															className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+															onClick={(e) => {
+																e.preventDefault();
+																e.stopPropagation();
+																handleSkillRemove(skill);
+															}}
+														>
+															<X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
+														</button>
+													</Badge>
+												))
+											) : (
 												<span className='text-sm text-muted-foreground px-1'>Filter by skills...</span>
 											)}
-											{selectedSkills.map((skill) => (
-												<Badge key={skill.id} variant='secondary' className='text-sm py-1 px-2'>
-													{skill.name}
-													<button
-														type='button'
-														className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
-														onClick={(e) => {
-															e.preventDefault();
-															e.stopPropagation();
-															handleSkillRemove(skill);
-														}}
-													>
-														<X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
-													</button>
-												</Badge>
-											))}
 										</div>
 									</PopoverTrigger>
 									<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
@@ -211,11 +210,8 @@ export function ApplicantListManager() {
 													{availableSkills.map((skill) => (
 														<CommandItem
 															key={skill.id}
-															value={skill.name}
-															onSelect={() => {
-																handleSkillSelect(skill);
-																setPopoverOpen(false);
-															}}
+															value={skill.nameEn}
+															onSelect={() => handleSkillSelect(skill)}
 														>
 															<Check
 																className={cn(
@@ -225,7 +221,7 @@ export function ApplicantListManager() {
 																		: 'opacity-0'
 																)}
 															/>
-															{skill.name}
+															{skill.nameEn}
 														</CommandItem>
 													))}
 												</CommandGroup>
@@ -249,10 +245,6 @@ export function ApplicantListManager() {
 							placeholder='e.g. John Doe, john@example.com...'
 							startIcon={<Search className='h-4 w-4 text-muted-foreground' />}
 						/>
-						<Button type='submit' size='sm'>
-							<Search className='mr-2 h-4 w-4' />
-							Search
-						</Button>
 					</form>
 				</FormProvider>
 
