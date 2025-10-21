@@ -30,6 +30,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
+import { makePreviewURL } from '@/lib/file-oparations';
 
 const filterSchema = z.object({
 	experience: z.coerce.number().optional(),
@@ -73,10 +74,10 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 			setIsLoading(true);
 			try {
 				const response = await JobseekerProfileService.search({ body: searchCriteria });
-				const newSuggestions = response.body?.filter(
+				const newSuggestions = (response.body || []).filter(
 					(js) => !primaryList.some((p) => p.id === js.id) && !existingApplicantIds.includes(js.id)
 				);
-				setSuggestedJobseekers(newSuggestions || []);
+				setSuggestedJobseekers(newSuggestions);
 			} catch (error: any) {
 				toast({
 					title: 'Search Failed',
@@ -92,8 +93,14 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 	);
 
 	useEffect(() => {
-		searchApplicants({ searchKey: debouncedTextSearch });
-	}, [debouncedTextSearch, searchApplicants]);
+		const skillIds = filterForm.getValues('skillIds');
+		const experience = filterForm.getValues('experience');
+		searchApplicants({
+			searchKey: debouncedTextSearch,
+			skillIds: skillIds?.length ? skillIds : undefined,
+			experience: experience || undefined,
+		});
+	}, [debouncedTextSearch, filterForm, searchApplicants]);
 
 	const onFilterSubmit = (values: FilterFormValues) => {
 		searchApplicants({
@@ -154,7 +161,6 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 		setPrimaryList((prev) => [...prev, jobseeker]);
 		setSuggestedJobseekers((prev) => prev.filter((js) => js.id !== jobseeker.id));
 	};
-
 
 	const handleRemoveApplicant = (jobseekerId: string) => {
 		const removedApplicant = primaryList.find((js) => js.id === jobseekerId);
@@ -283,12 +289,18 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 									>
 										<div className='flex items-center gap-3'>
 											<Avatar>
-												<AvatarImage src={js.personalInfo?.profileImage?.filePath} />
-												<AvatarFallback>{js.personalInfo?.fullName?.[0]}</AvatarFallback>
+												<AvatarImage src={makePreviewURL(js.personalInfo.profileImage)} />
+												<AvatarFallback>
+													{js.personalInfo.firstName?.[0]}
+													{js.personalInfo.lastName?.[0]}
+												</AvatarFallback>
 											</Avatar>
 											<div>
-												<p className='font-semibold'>{js.personalInfo?.fullName}</p>
-												<p className='text-xs text-muted-foreground'>{js.personalInfo?.email}</p>
+												<p className='font-semibold'>{js.personalInfo.fullName}</p>
+												<div className='text-xs text-muted-foreground'>
+													<p>{js.personalInfo.email}</p>
+													<p>{js.personalInfo.phone}</p>
+												</div>
 											</div>
 										</div>
 										<div className='flex items-center gap-2'>
@@ -318,12 +330,18 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 							<Card key={js.id} className='p-4 flex items-center justify-between'>
 								<div className='flex items-center gap-4'>
 									<Avatar>
-										<AvatarImage src={js.personalInfo?.profileImage?.filePath} />
-										<AvatarFallback>{js.personalInfo?.fullName?.[0]}</AvatarFallback>
+										<AvatarImage src={makePreviewURL(js.personalInfo.profileImage)} />
+										<AvatarFallback>
+											{js.personalInfo.firstName?.[0]}
+											{js.personalInfo.lastName?.[0]}
+										</AvatarFallback>
 									</Avatar>
 									<div>
-										<p className='font-semibold'>{js.personalInfo?.fullName}</p>
-										<p className='text-sm text-muted-foreground'>{js.personalInfo?.email}</p>
+										<p className='font-semibold'>{js.personalInfo.fullName}</p>
+										<div className='text-sm text-muted-foreground'>
+											<p>{js.personalInfo.email}</p>
+											<p>{js.personalInfo.phone}</p>
+										</div>
 									</div>
 								</div>
 								<div className='flex items-center gap-2'>
