@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -177,27 +178,25 @@ export function ApplicantsTable({ applicants, setApplicants, statuses }: Applica
 	const selectedRowCount = Object.keys(rowSelection).length;
 
 	const renderMobileCard = (applicant: Applicant) => (
-		<Card key={applicant.id} className='mb-4 glassmorphism'>
-			<div className='p-4 flex justify-between items-start'>
-				<div className='flex items-center gap-4'>
-					<Avatar>
-						<AvatarImage
-							src={applicant.personalInfo.avatar}
-							alt={applicant.personalInfo.name}
-							data-ai-hint='avatar'
-						/>
-						<AvatarFallback>{applicant.personalInfo.fullName?.charAt(0)}</AvatarFallback>
-					</Avatar>
-					<div>
-						<p className='font-semibold'>{applicant.personalInfo.name}</p>
-						<p className='text-sm text-muted-foreground'>Applied: {applicant.application.applicationDate}</p>
-						<Badge variant={getStatusVariant(applicant.application.status)} className='mt-2'>
-							{applicant.application.status}
-						</Badge>
-					</div>
+		<Card key={applicant.id} className='mb-2 p-3 flex justify-between items-start glassmorphism'>
+			<div className='flex items-center gap-3'>
+				<Avatar>
+					<AvatarImage
+						src={applicant.personalInfo.avatar}
+						alt={applicant.personalInfo.name}
+						data-ai-hint='avatar'
+					/>
+					<AvatarFallback>{applicant.personalInfo.fullName?.charAt(0)}</AvatarFallback>
+				</Avatar>
+				<div>
+					<p className='font-semibold text-sm'>{applicant.personalInfo.name}</p>
+					<p className='text-xs text-muted-foreground'>Applied: {applicant.application.applicationDate}</p>
+					<Badge variant={getStatusVariant(applicant.application.status)} className='mt-2 text-xs'>
+						{applicant.application.status}
+					</Badge>
 				</div>
-				<ActionMenu items={getActionItems(applicant)} />
 			</div>
+			<ActionMenu items={getActionItems(applicant)} />
 		</Card>
 	);
 
@@ -245,7 +244,7 @@ export function ApplicantsTable({ applicants, setApplicants, statuses }: Applica
 			</div>
 
 			{/* Mobile View */}
-			<div className='md:hidden mt-4'>
+			<div className='md:hidden mt-4 space-y-2'>
 				{applicants.length > 0 ? (
 					applicants.map(renderMobileCard)
 				) : (
@@ -262,7 +261,7 @@ export function ApplicantsTable({ applicants, setApplicants, statuses }: Applica
 							<TableRow key={headerGroup.id}>
 								{headerGroup.headers.map((header) => {
 									return (
-										<TableHead key={header.id}>
+										<TableHead key={header.id} className='py-2'>
 											{header.isPlaceholder
 												? null
 												: flexRender(header.column.columnDef.header, header.getContext())}
@@ -277,7 +276,7 @@ export function ApplicantsTable({ applicants, setApplicants, statuses }: Applica
 							table.getRowModel().rows.map((row) => (
 								<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
 									{row.getVisibleCells().map((cell) => (
-										<TableCell key={cell.id}>
+										<TableCell key={cell.id} className='py-2'>
 											{flexRender(cell.column.columnDef.cell, cell.getContext())}
 										</TableCell>
 									))}
@@ -313,7 +312,7 @@ export function ApplicantsTable({ applicants, setApplicants, statuses }: Applica
 			</div>
 			<Dialog open={!!selectedApplicant} onOpenChange={(isOpen) => !isOpen && setSelectedApplicant(null)}>
 				<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
-					{selectedApplicant && <JobseekerProfileView jobseeker={selectedApplicant} />}
+					{selectedApplicant && <JobseekerProfileView jobseekerId={selectedApplicant.userId} />}
 				</DialogContent>
 			</Dialog>
 

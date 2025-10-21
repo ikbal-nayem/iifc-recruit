@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +11,7 @@ import { RequestedPost } from '@/interfaces/job.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO, IClientOrganization } from '@/interfaces/master-data.interface';
 import { getStatusVariant } from '@/lib/utils';
+import { ApplicationService } from '@/services/api/application.service';
 import { ArrowLeft, Building, ChevronsRight, Loader2, Save, UserPlus, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
@@ -84,24 +86,29 @@ export function ApplicationManagementPage({
 	};
 
 	const handleApplyApplicants = (newApplicants: JobseekerSearch[]) => {
-		const applicantsToAdd: Applicant[] = newApplicants.map((js) => ({
-			...js,
-			application: {
-				id: `temp-${js.userId}`, // temp id
-				jobId: requestedPost.id!.toString(),
-				jobseekerId: js.userId!,
-				status: APPLICATION_STATUS.APPLIED,
-				applicationDate: new Date().toISOString().split('T')[0],
-			},
+		const payload = newApplicants.map((js) => ({
+			applicantId: js.userId,
+			requestedPostId: requestedPost.id!,
+			status: APPLICATION_STATUS.APPLIED,
 		}));
 
-		setApplicants((prev) => [...prev, ...applicantsToAdd]);
-		toast({
-			title: 'Candidates Applied',
-			description: `${newApplicants.length} candidate(s) have been added to the application list.`,
-			variant: 'success',
-		});
-		setIsAddCandidateOpen(false);
+		ApplicationService.createAll(payload)
+			.then((res) => {
+				toast({
+					title: 'Candidates Applied',
+					description: `${newApplicants.length} candidate(s) have been added to the application list.`,
+					variant: 'success',
+				});
+				setIsAddCandidateOpen(false);
+				// TODO: refetch applicants list
+			})
+			.catch((err) => {
+				toast({
+					title: 'Failed to Add Candidates',
+					description: err.message,
+					variant: 'danger',
+				});
+			});
 	};
 
 	return (
@@ -192,7 +199,7 @@ export function ApplicationManagementPage({
 								Add Candidate
 							</Button>
 						</DialogTrigger>
-						<DialogContent className='max-w-3xl h-[90vh] flex flex-col p-0'>
+						<DialogContent className='max-w-4xl h-[90vh] flex flex-col p-0'>
 							<DialogHeader className='p-6 pb-0'>
 								<DialogTitle>Add Applicants to Primary List</DialogTitle>
 							</DialogHeader>
