@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
+import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { RequestedPost } from '@/interfaces/job.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO, IClientOrganization } from '@/interfaces/master-data.interface';
@@ -25,6 +26,8 @@ interface ApplicationManagementPageProps {
 	statuses: EnumDTO[];
 }
 
+const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
+
 export function ApplicationManagementPage({
 	requestedPost,
 	initialExaminers,
@@ -36,6 +39,7 @@ export function ApplicationManagementPage({
 	const [selectedExaminer, setSelectedExaminer] = useState<string | undefined>(undefined);
 	const [isSaving, setIsSaving] = useState(false);
 	const [applicants, setApplicants] = useState<Application[]>([]);
+	const [applicantsMeta, setApplicantsMeta] = useState<IMeta>(initMeta);
 	const [isLoadingApplicants, setIsLoadingApplicants] = useState(true);
 	const [isAddCandidateOpen, setIsAddCandidateOpen] = useState(false);
 
@@ -56,28 +60,33 @@ export function ApplicationManagementPage({
 		);
 	}, [applicants]);
 
-	const loadApplicants = useCallback(async () => {
-		setIsLoadingApplicants(true);
-		try {
-			const response = await ApplicationService.getList({
-				body: { requestedPostId: requestedPost.id },
-				meta: { limit: 1000 }, // Assuming we want all applicants for this view
-			});
-			setApplicants(response.body);
-		} catch (error: any) {
-			toast({
-				title: 'Error',
-				description: error.message || 'Failed to load applicants.',
-				variant: 'danger',
-			});
-		} finally {
-			setIsLoadingApplicants(false);
-		}
-	}, [requestedPost.id, toast]);
+	const loadApplicants = useCallback(
+		async (page: number) => {
+			setIsLoadingApplicants(true);
+			try {
+				const payload: IApiRequest = {
+					body: { requestedPostId: requestedPost.id },
+					meta: { page, limit: applicantsMeta.limit },
+				};
+				const response = await ApplicationService.getList(payload);
+				setApplicants(response.body);
+				setApplicantsMeta(response.meta);
+			} catch (error: any) {
+				toast({
+					title: 'Error',
+					description: error.message || 'Failed to load applicants.',
+					variant: 'danger',
+				});
+			} finally {
+				setIsLoadingApplicants(false);
+			}
+		},
+		[requestedPost.id, toast, applicantsMeta.limit]
+	);
 
 	useEffect(() => {
-		loadApplicants();
-	}, [loadApplicants]);
+		loadApplicants(0);
+	}, []);
 
 	const handleProceed = async () => {
 		if (!selectedExaminer) {
@@ -122,7 +131,7 @@ export function ApplicationManagementPage({
 					variant: 'success',
 				});
 				setIsAddCandidateOpen(false);
-				loadApplicants();
+				loadApplicants(0);
 			})
 			.catch((err) => {
 				toast({
@@ -131,6 +140,10 @@ export function ApplicationManagementPage({
 					variant: 'danger',
 				});
 			});
+	};
+
+	const handlePageChange = (newPage: number) => {
+		loadApplicants(newPage);
 	};
 
 	return (
@@ -240,6 +253,8 @@ export function ApplicationManagementPage({
 						setApplicants={setApplicants}
 						statuses={statuses}
 						isLoading={isLoadingApplicants}
+						meta={applicantsMeta}
+						onPageChange={handlePageChange}
 					/>
 				</CardContent>
 			</Card>

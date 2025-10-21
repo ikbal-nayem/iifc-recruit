@@ -19,15 +19,17 @@ import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Pagination } from '@/components/ui/pagination';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
+import { IMeta } from '@/interfaces/common.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO } from '@/interfaces/master-data.interface';
 import { getStatusVariant } from '@/lib/utils';
@@ -39,9 +41,18 @@ interface ApplicantsTableProps {
 	setApplicants: React.Dispatch<React.SetStateAction<Application[]>>;
 	statuses: EnumDTO[];
 	isLoading: boolean;
+	meta: IMeta;
+	onPageChange: (page: number) => void;
 }
 
-export function ApplicantsTable({ applicants, setApplicants, statuses, isLoading }: ApplicantsTableProps) {
+export function ApplicantsTable({
+	applicants,
+	setApplicants,
+	statuses,
+	isLoading,
+	meta,
+	onPageChange,
+}: ApplicantsTableProps) {
 	const { toast } = useToast();
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -164,7 +175,6 @@ export function ApplicantsTable({ applicants, setApplicants, statuses, isLoading
 		data: applicants,
 		columns,
 		getCoreRowModel: getCoreRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
 		onSortingChange: setSorting,
 		getSortedRowModel: getSortedRowModel(),
 		onColumnFiltersChange: setColumnFilters,
@@ -302,24 +312,11 @@ export function ApplicantsTable({ applicants, setApplicants, statuses, isLoading
 					</TableBody>
 				</Table>
 			</div>
-			<div className='flex items-center justify-end space-x-2 py-4'>
-				<Button
-					variant='outline'
-					size='sm'
-					onClick={() => table.previousPage()}
-					disabled={!table.getCanPreviousPage()}
-				>
-					Previous
-				</Button>
-				<Button
-					variant='outline'
-					size='sm'
-					onClick={() => table.nextPage()}
-					disabled={!table.getCanNextPage()}
-				>
-					Next
-				</Button>
-			</div>
+			{meta.totalRecords && meta.totalRecords > 0 ? (
+				<CardFooter>
+					<Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} noun={'Applicant'} />
+				</CardFooter>
+			) : null}
 			<Dialog open={!!selectedApplicant} onOpenChange={(isOpen) => !isOpen && setSelectedApplicant(null)}>
 				<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
 					{selectedApplicant && <JobseekerProfileView jobseekerId={selectedApplicant.userId} />}
