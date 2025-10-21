@@ -1,5 +1,6 @@
+
 import { axiosIns } from '@/config/api.config';
-import { IApiResponse } from '@/interfaces/common.interface';
+import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
 import {
 	AcademicInfo,
 	Award,
@@ -43,9 +44,12 @@ const createProfileCrudWithFormData = <T extends { id?: number | string }>(entit
 export const JobseekerProfileService = {
 	getProfile: async (): Promise<IApiResponse<Jobseeker>> =>
 		await axiosIns.get('/jobseeker/profile/get-by-user'),
-	
+
 	getProfileCompletion: async (): Promise<IApiResponse<IProfileCompletionStatus>> =>
 		await axiosIns.get('/jobseeker/profile/get-profile-completion'),
+
+	search: async (payload: IApiRequest): Promise<IApiResponse<Jobseeker[]>> =>
+		await axiosIns.post('/jobseeker/profile/search', payload),
 
 	personalInfo: {
 		...createProfileCrudWithFormData<PersonalInfo>('personal-info'),

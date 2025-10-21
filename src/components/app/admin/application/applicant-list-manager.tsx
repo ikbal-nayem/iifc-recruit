@@ -22,24 +22,17 @@ import { useToast } from '@/hooks/use-toast';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { cn } from '@/lib/utils';
+import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, FileText, Loader2, Search, X } from 'lucide-react';
+import { Check, FileText, Loader2, Search, UserPlus, X } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 
-// Mock data - replace with API calls
-const allJobseekers: Jobseeker[] = [
-	{ id: '1', personalInfo: { name: 'Alice Johnson', email: 'alice@example.com' } },
-	{ id: '2', personalInfo: { name: 'Bob Smith', email: 'bob@example.com' } },
-	{ id: '3', personalInfo: { name: 'Charlie Brown', email: 'charlie@example.com' } },
-	{ id: '4', personalInfo: { name: 'Diana Prince', email: 'diana@example.com' } },
-] as Jobseeker[];
-
 const searchSchema = z.object({
-	search: z.string(),
+	search: z.string().optional(),
 	experience: z.coerce.number().optional(),
 	skillIds: z.array(z.number()).optional(),
 });
@@ -66,9 +59,6 @@ export function ApplicantListManager() {
 			experience: undefined,
 		},
 	});
-
-	const search = form.watch('search');
-	const debouncedSearch = useDebounce(search, 300);
 
 	const fetchSkills = useCallback(
 		async (searchQuery: string) => {
@@ -117,38 +107,32 @@ export function ApplicantListManager() {
 		);
 	};
 
-	const onSearchSubmit = (values: z.infer<typeof searchSchema>) => {
+	const onSearchSubmit = async (values: z.infer<typeof searchSchema>) => {
 		setIsLoading(true);
-		console.log('Searching with filters:', values);
-		// Simulate API call with filters
-		setTimeout(() => {
-			let filtered = allJobseekers;
-
-			if (values.search) {
-				filtered = filtered.filter(
-					(js) =>
-						(js.personalInfo.name.toLowerCase().includes(values.search.toLowerCase()) ||
-							js.personalInfo.email?.toLowerCase().includes(values.search.toLowerCase())) &&
-						!primaryList.some((p) => p.id === js.id)
-				);
-			}
-			setSuggestedJobseekers(filtered);
+		try {
+			const response = await JobseekerProfileService.search({ body: values });
+			const filteredResults =
+				response.body?.filter((js) => !primaryList.some((p) => p.id === js.id)) || [];
+			setSuggestedJobseekers(filteredResults);
+		} catch (error: any) {
+			toast({
+				title: 'Search Failed',
+				description: error.message || 'Could not fetch jobseekers.',
+				variant: 'danger',
+			});
+		} finally {
 			setIsLoading(false);
-		}, 500);
+		}
 	};
-
-	React.useEffect(() => {
-		onSearchSubmit({ ...form.getValues(), search: debouncedSearch });
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [debouncedSearch]);
 
 	const handleAddApplicant = (jobseeker: Jobseeker) => {
 		setPrimaryList((prev) => [...prev, jobseeker]);
 		form.reset();
+		setSelectedSkills([]);
 		setSuggestedJobseekers([]);
 		toast({
 			title: 'Applicant Added',
-			description: `${jobseeker.personalInfo.name} has been added to the primary list.`,
+			description: `${jobseeker.personalInfo?.fullName} has been added to the primary list.`,
 			variant: 'success',
 		});
 	};
@@ -264,12 +248,12 @@ export function ApplicantListManager() {
 									{suggestedJobseekers.map((js) => (
 										<CommandItem
 											key={js.id}
-											value={`${js.personalInfo.name} ${js.personalInfo.email}`}
+											value={`${js.personalInfo?.fullName} ${js.personalInfo?.email}`}
 											onSelect={() => handleAddApplicant(js)}
 											className='cursor-pointer'
 										>
-											{js.personalInfo.name}
-											<span className='ml-2 text-xs text-muted-foreground'>({js.personalInfo.email})</span>
+											{js.personalInfo?.fullName}
+											<span className='ml-2 text-xs text-muted-foreground'>({js.personalInfo?.email})</span>
 										</CommandItem>
 									))}
 								</CommandGroup>
@@ -291,12 +275,12 @@ export function ApplicantListManager() {
 								<Card key={js.id} className='p-4 flex items-center justify-between'>
 									<div className='flex items-center gap-4'>
 										<Avatar>
-											<AvatarImage src={js.personalInfo.profileImage?.filePath} />
-											<AvatarFallback>{js.personalInfo.name?.[0]}</AvatarFallback>
+											<AvatarImage src={js.personalInfo?.profileImage?.filePath} />
+											<AvatarFallback>{js.personalInfo?.fullName?.[0]}</AvatarFallback>
 										</Avatar>
 										<div>
-											<p className='font-semibold'>{js.personalInfo.name}</p>
-											<p className='text-sm text-muted-foreground'>{js.personalInfo.email}</p>
+											<p className='font-semibold'>{js.personalInfo?.fullName}</p>
+											<p className='text-sm text-muted-foreground'>{js.personalInfo?.email}</p>
 										</div>
 									</div>
 									<div className='flex items-center gap-2'>
