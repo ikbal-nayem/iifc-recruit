@@ -26,11 +26,11 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
+import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
 import { getStatusVariant } from '@/lib/utils';
 import { FileText, UserCheck, UserPlus } from 'lucide-react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
-import { Application } from '@/interfaces/application.interface';
 
 type Applicant = Jobseeker & { application: Application };
 
@@ -49,7 +49,7 @@ export function ApplicantsTable({ applicants, setApplicants }: ApplicantsTablePr
 		null
 	);
 
-	const handleStatusChange = (applicationIds: string[], newStatus: Application['status']) => {
+	const handleStatusChange = (applicationIds: string[], newStatus: APPLICATION_STATUS) => {
 		setApplicants((prevData) =>
 			prevData.map((applicant) =>
 				applicationIds.includes(applicant.application.id)
@@ -69,9 +69,9 @@ export function ApplicantsTable({ applicants, setApplicants }: ApplicantsTablePr
 		if (!bulkAction) return;
 		const selectedIds = table.getSelectedRowModel().rows.map((row) => row.original.application.id);
 		if (bulkAction.type === 'hired') {
-			handleStatusChange(selectedIds, 'Hired');
+			handleStatusChange(selectedIds, APPLICATION_STATUS.HIRED);
 		} else if (bulkAction.type === 'accepted') {
-			handleStatusChange(selectedIds, 'Shortlisted');
+			handleStatusChange(selectedIds, APPLICATION_STATUS.ACCEPTED);
 		}
 		setBulkAction(null);
 	};
@@ -86,12 +86,12 @@ export function ApplicantsTable({ applicants, setApplicants }: ApplicantsTablePr
 		{
 			label: 'Mark as Accepted',
 			icon: <UserCheck className='mr-2 h-4 w-4' />,
-			onClick: () => handleStatusChange([applicant.application.id], 'Shortlisted'),
+			onClick: () => handleStatusChange([applicant.application.id], APPLICATION_STATUS.ACCEPTED),
 		},
 		{
 			label: 'Mark as Hired',
 			icon: <UserPlus className='mr-2 h-4 w-4' />,
-			onClick: () => handleStatusChange([applicant.application.id], 'Hired'),
+			onClick: () => handleStatusChange([applicant.application.id], APPLICATION_STATUS.HIRED),
 		},
 	];
 
@@ -230,13 +230,14 @@ export function ApplicantsTable({ applicants, setApplicants }: ApplicantsTablePr
 				</Select>
 				{selectedRowCount > 0 && (
 					<div className='flex items-center gap-2'>
-						<Button
-							size='sm'
-							onClick={() => setBulkAction({ type: 'accepted', count: selectedRowCount })}
-						>
+						<Button size='sm' onClick={() => setBulkAction({ type: 'accepted', count: selectedRowCount })}>
 							Accept ({selectedRowCount})
 						</Button>
-						<Button size='sm' variant='secondary' onClick={() => setBulkAction({ type: 'hired', count: selectedRowCount })}>
+						<Button
+							size='sm'
+							variant='secondary'
+							onClick={() => setBulkAction({ type: 'hired', count: selectedRowCount })}
+						>
 							<UserCheck className='mr-2 h-4 w-4' /> Hire ({selectedRowCount})
 						</Button>
 					</div>
@@ -324,7 +325,7 @@ export function ApplicantsTable({ applicants, setApplicants }: ApplicantsTablePr
 					bulkAction?.type === 'accepted' ? 'Shortlisted' : bulkAction?.type
 				}?`}
 				onConfirm={handleBulkActionConfirm}
-				variant={bulkAction?.type === 'hired' ? 'success' : 'default'}
+				variant={bulkAction?.type === 'hired' ? 'warning' : 'default'}
 			/>
 		</>
 	);

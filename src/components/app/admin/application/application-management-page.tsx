@@ -15,7 +15,7 @@ import { ApplicantListManager } from './applicant-list-manager';
 import { ApplicantsTable } from './applicants-table';
 import { ExaminerSetup } from './examiner-setup';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
-import { Application } from '@/interfaces/application.interface';
+import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 
 type Applicant = Jobseeker & { application: Application };
 
@@ -47,8 +47,8 @@ export function ApplicationManagementPage({
 			},
 			{
 				total: 0,
-				Applied: 0,
-				Hired: 0,
+				[APPLICATION_STATUS.APPLIED]: 0,
+				[APPLICATION_STATUS.HIRED]: 0,
 			} as Record<Application['status'] | 'total', number>
 		);
 	}, [applicants]);
@@ -135,7 +135,7 @@ export function ApplicationManagementPage({
 						<CardTitle className='text-sm text-muted-foreground'>Applied</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<p className='text-3xl font-bold'>{applicantStats.Applied}</p>
+						<p className='text-3xl font-bold'>{applicantStats.APPLIED}</p>
 					</CardContent>
 				</Card>
 				<Card className='col-span-1'>
@@ -143,7 +143,7 @@ export function ApplicationManagementPage({
 						<CardTitle className='text-sm text-muted-foreground'>Accepted</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<p className='text-3xl font-bold'>{applicantStats.Shortlisted}</p>
+						<p className='text-3xl font-bold'>{applicantStats.ACCEPTED}</p>
 					</CardContent>
 				</Card>
 				<Card className='col-span-1'>
@@ -151,7 +151,7 @@ export function ApplicationManagementPage({
 						<CardTitle className='text-sm text-muted-foreground'>Hired</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<p className='text-3xl font-bold'>{applicantStats.Hired}</p>
+						<p className='text-3xl font-bold'>{applicantStats.HIRED}</p>
 					</CardContent>
 				</Card>
 			</div>

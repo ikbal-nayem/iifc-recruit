@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
@@ -12,8 +11,8 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
-import { JobRequestService } from '@/services/api/job-request.service';
 import { getStatusVariant } from '@/lib/utils';
+import { JobRequestService } from '@/services/api/job-request.service';
 import { Building, Search, UserCog, Users } from 'lucide-react';
 import React from 'react';
 
@@ -36,7 +35,7 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { 'post.nameEn': search, status: status },
+					body: { nameEn: search, status: status },
 					meta: { page, limit: meta.limit },
 				};
 				const response = await JobRequestService.getRequestedPosts(payload);
@@ -76,7 +75,7 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 			items.push({
 				label: 'View Applicants',
 				icon: <UserCog className='mr-2 h-4 w-4' />,
-				href: ROUTES.APPLICATION_MANAGE(item.id), // Placeholder for now
+				href: ROUTES.APPLICATION_MANAGE(item.id),
 			});
 		}
 		return items;

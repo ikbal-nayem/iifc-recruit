@@ -13,7 +13,6 @@ interface ExaminerSetupProps {
 }
 
 export function ExaminerSetup({ examiners, selectedExaminer, onExaminerChange }: ExaminerSetupProps) {
-	// Dummy form to provide context to FormAutocomplete
 	const form = useForm();
 
 	return (
