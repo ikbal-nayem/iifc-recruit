@@ -1,9 +1,9 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
 	Command,
 	CommandEmpty,
@@ -12,11 +12,17 @@ import {
 	CommandItem,
 	CommandList,
 } from '@/components/ui/command';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Form } from '@/components/ui/form';
+import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
+import { Pagination } from '@/components/ui/pagination';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
+import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
@@ -24,15 +30,26 @@ import { cn } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
+import {
+	ColumnDef,
+	ColumnFiltersState,
+	RowSelectionState,
+	SortingState,
+	flexRender,
+	getCoreRowModel,
+	getFilteredRowModel,
+	getPaginationRowModel,
+	getSortedRowModel,
+	useReactTable,
+} from '@tanstack/react-table';
 import { Check, FileText, Filter, Loader2, Search, UserPlus, X } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const filterSchema = z.object({
 	skillIds: z.array(z.number()).optional(),
-	searchKey: z.string().optional(),
 });
 
 type FilterFormValues = z.infer<typeof filterSchema>;
@@ -42,12 +59,15 @@ interface ApplicantListManagerProps {
 	existingApplicantIds: (string | undefined)[];
 }
 
+const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
+
 export function ApplicantListManager({ onApply, existingApplicantIds }: ApplicantListManagerProps) {
 	const { toast } = useToast();
-	const [primaryList, setPrimaryList] = useState<JobseekerSearch[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const [suggestedJobseekers, setSuggestedJobseekers] = useState<JobseekerSearch[]>([]);
+	const [jobseekers, setJobseekers] = useState<JobseekerSearch[]>([]);
+	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [selectedJobseeker, setSelectedJobseeker] = React.useState<JobseekerSearch | null>(null);
+
 	const [textSearch, setTextSearch] = useState('');
 	const debouncedTextSearch = useDebounce(textSearch, 500);
 
@@ -58,6 +78,11 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 	const [selectedSkills, setSelectedSkills] = useState<ICommonMasterData[]>([]);
 	const [popoverOpen, setPopoverOpen] = useState(false);
 
+	const [sorting, setSorting] = React.useState<SortingState>([]);
+	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+	const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
+	const [showConfirmation, setShowConfirmation] = useState(false);
+
 	const filterForm = useForm<FilterFormValues>({
 		resolver: zodResolver(filterSchema),
 		defaultValues: {
@@ -67,36 +92,39 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 	});
 
 	const searchApplicants = useCallback(
-		async (searchCriteria: { searchKey?: string; skillIds?: number[] }) => {
+		async (page: number, searchCriteria: { searchKey?: string; skillIds?: number[] }) => {
 			setIsLoading(true);
 			try {
-				const response = await JobseekerProfileService.search({ body: searchCriteria });
-				const newSuggestions = (response.body || []).filter(
-					(js) =>
-						!primaryList.some((p) => p.userId === js.userId) && !existingApplicantIds.includes(js.userId)
+				const response = await JobseekerProfileService.search({
+					body: searchCriteria,
+					meta: { page: page, limit: meta.limit },
+				});
+				const newJobseekers = (response.body || []).filter(
+					(js) => !existingApplicantIds.includes(js.userId)
 				);
-				setSuggestedJobseekers(newSuggestions);
+				setJobseekers(newJobseekers);
+				setMeta(response.meta);
 			} catch (error: any) {
 				toast({
 					title: 'Search Failed',
 					description: error.message || 'Could not fetch jobseekers.',
 					variant: 'danger',
 				});
-				setSuggestedJobseekers([]);
+				setJobseekers([]);
 			} finally {
 				setIsLoading(false);
 			}
 		},
-		[primaryList, toast, existingApplicantIds]
+		[existingApplicantIds, meta.limit, toast]
 	);
 
 	useEffect(() => {
 		const skillIds = filterForm.getValues('skillIds');
-		searchApplicants({ searchKey: debouncedTextSearch, skillIds });
+		searchApplicants(0, { searchKey: debouncedTextSearch, skillIds });
 	}, [debouncedTextSearch, searchApplicants, filterForm]);
 
 	const onFilterSubmit = (values: FilterFormValues) => {
-		searchApplicants({
+		searchApplicants(0, {
 			searchKey: textSearch,
 			...values,
 		});
@@ -107,7 +135,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 			setIsSkillLoading(true);
 			try {
 				const response = await MasterDataService.skill.getList({
-					body: { searchKey: query },
+					body: { name: query },
 					meta: { page: 0, limit: 20 },
 				});
 				setAvailableSkills(response.body);
@@ -149,86 +177,166 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 		);
 	};
 
-	const handleAddApplicant = (jobseeker: JobseekerSearch) => {
-		setPrimaryList((prev) => [...prev, jobseeker]);
-		setSuggestedJobseekers((prev) => prev.filter((js) => js.userId !== jobseeker.userId));
+	const columns: ColumnDef<JobseekerSearch>[] = [
+		{
+			id: 'select',
+			header: ({ table }) => (
+				<Checkbox
+					checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
+					onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+					aria-label='Select all'
+				/>
+			),
+			cell: ({ row }) => (
+				<Checkbox
+					checked={row.getIsSelected()}
+					onCheckedChange={(value) => row.toggleSelected(!!value)}
+					aria-label='Select row'
+				/>
+			),
+			enableSorting: false,
+			enableHiding: false,
+		},
+		{
+			accessorKey: 'fullName',
+			header: 'Applicant',
+			cell: ({ row }) => {
+				const { fullName, email, profileImage, firstName, lastName } = row.original;
+				return (
+					<div className='flex items-center gap-3'>
+						<Avatar>
+							<AvatarImage src={makePreviewURL(profileImage)} />
+							<AvatarFallback>
+								{firstName?.[0]}
+								{lastName?.[0]}
+							</AvatarFallback>
+						</Avatar>
+						<div>
+							<p className='font-semibold'>{fullName}</p>
+							<p className='text-xs text-muted-foreground'>{email}</p>
+						</div>
+					</div>
+				);
+			},
+		},
+		{
+			accessorKey: 'phone',
+			header: 'Phone',
+		},
+		{
+			id: 'actions',
+			cell: ({ row }) => (
+				<Button variant='ghost' size='sm' onClick={() => setSelectedJobseeker(row.original)} className='h-8'>
+					<FileText className='mr-2 h-4 w-4' /> View
+				</Button>
+			),
+		},
+	];
+
+	const table = useReactTable({
+		data: jobseekers,
+		columns,
+		getCoreRowModel: getCoreRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+		onSortingChange: setSorting,
+		getSortedRowModel: getSortedRowModel(),
+		onColumnFiltersChange: setColumnFilters,
+		getFilteredRowModel: getFilteredRowModel(),
+		onRowSelectionChange: setRowSelection,
+		state: {
+			sorting,
+			columnFilters,
+			rowSelection,
+		},
+		manualPagination: true,
+		pageCount: meta?.totalPageCount,
+	});
+
+	const handlePageChange = (newPage: number) => {
+		const skillIds = filterForm.getValues('skillIds');
+		searchApplicants(newPage, { searchKey: debouncedTextSearch, skillIds });
 	};
 
-	const handleRemoveApplicant = (jobseekerId: string) => {
-		const removedApplicant = primaryList.find((js) => js.userId === jobseekerId);
-		setPrimaryList((prev) => prev.filter((js) => js.userId !== jobseekerId));
-		if (removedApplicant) {
-			setSuggestedJobseekers((prev) => [removedApplicant, ...prev]);
+	const handleApply = () => {
+		const selectedRows = table.getSelectedRowModel().rows.map((row) => row.original);
+		if (selectedRows.length > 0) {
+			onApply(selectedRows);
+			table.resetRowSelection();
 		}
+		setShowConfirmation(false);
 	};
 
 	return (
 		<>
 			<FormProvider {...filterForm}>
 				<form onSubmit={filterForm.handleSubmit(onFilterSubmit)} className='space-y-4'>
-					<Card className='p-4 border rounded-lg space-y-4'>
-						<div>
-							<label className='text-sm font-medium'>Skills</label>
-							<Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-								<PopoverTrigger asChild>
-									<div
-										className={cn(
-											'flex flex-wrap gap-1 p-2 mt-2 border rounded-lg min-h-[44px] items-center cursor-text w-full justify-start font-normal h-auto bg-background'
-										)}
-									>
-										{selectedSkills.length > 0 ? (
-											selectedSkills.map((skill) => (
-												<Badge key={skill.id} variant='outline'>
-													{skill.nameEn}
-													<button
-														type='button'
-														className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
-														onClick={(e) => {
-															e.preventDefault();
-															e.stopPropagation();
-															handleSkillRemove(skill);
-														}}
-													>
-														<X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
-													</button>
-												</Badge>
-											))
-										) : (
-											<span className='text-sm text-muted-foreground px-1'>Filter by skills...</span>
-										)}
-									</div>
-								</PopoverTrigger>
-								<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
-									<Command>
-										<CommandInput
-											placeholder='Search skill...'
-											value={skillSearchQuery}
-											onValueChange={setSkillSearchQuery}
-										/>
-										<CommandList>
-											{isSkillLoading && <CommandEmpty>Loading...</CommandEmpty>}
-											{!isSkillLoading && <CommandEmpty>No skill found.</CommandEmpty>}
-											<CommandGroup>
-												{availableSkills.map((skill) => (
-													<CommandItem
-														key={skill.id}
-														value={skill.nameEn}
-														onSelect={() => handleSkillSelect(skill)}
-													>
-														<Check
-															className={cn(
-																'mr-2 h-4 w-4',
-																selectedSkills.some((s) => s.id === skill.id) ? 'opacity-100' : 'opacity-0'
-															)}
-														/>
+					<Card className='p-4 border rounded-lg space-y-4 bg-muted/50'>
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+							<div>
+								<label className='text-sm font-medium'>Skills</label>
+								<Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+									<PopoverTrigger asChild>
+										<div
+											className={cn(
+												'flex flex-wrap gap-1 p-2 mt-2 border rounded-lg min-h-[44px] items-center cursor-text w-full justify-start font-normal h-auto bg-background'
+											)}
+										>
+											{selectedSkills.length > 0 ? (
+												selectedSkills.map((skill) => (
+													<Badge key={skill.id} variant='outline'>
 														{skill.nameEn}
-													</CommandItem>
-												))}
-											</CommandGroup>
-										</CommandList>
-									</Command>
-								</PopoverContent>
-							</Popover>
+														<button
+															type='button'
+															className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+															onClick={(e) => {
+																e.preventDefault();
+																e.stopPropagation();
+																handleSkillRemove(skill);
+															}}
+														>
+															<X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
+														</button>
+													</Badge>
+												))
+											) : (
+												<span className='text-sm text-muted-foreground px-1'>Filter by skills...</span>
+											)}
+										</div>
+									</PopoverTrigger>
+									<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
+										<Command>
+											<CommandInput
+												placeholder='Search skill...'
+												value={skillSearchQuery}
+												onValueChange={setSkillSearchQuery}
+											/>
+											<CommandList>
+												{isSkillLoading && <CommandEmpty>Loading...</CommandEmpty>}
+												{!isSkillLoading && <CommandEmpty>No skill found.</CommandEmpty>}
+												<CommandGroup>
+													{availableSkills.map((skill) => (
+														<CommandItem
+															key={skill.id}
+															value={skill.nameEn}
+															onSelect={() => handleSkillSelect(skill)}
+														>
+															<Check
+																className={cn(
+																	'mr-2 h-4 w-4',
+																	selectedSkills.some((s) => s.id === skill.id)
+																		? 'opacity-100'
+																		: 'opacity-0'
+																)}
+															/>
+															{skill.nameEn}
+														</CommandItem>
+													))}
+												</CommandGroup>
+											</CommandList>
+										</Command>
+									</PopoverContent>
+								</Popover>
+							</div>
 						</div>
 						<Button type='submit'>
 							<Filter className='mr-2 h-4 w-4' /> Filter
@@ -237,11 +345,12 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 				</form>
 			</FormProvider>
 
-			<Card className='my-2'>
+			<Card className='my-4'>
 				<CardHeader className='py-4'>
 					<CardTitle>Search Results</CardTitle>
+					<CardDescription>Select jobseekers to add them to the primary list below.</CardDescription>
 				</CardHeader>
-				<CardContent className='pt-1overflow-y-auto space-y-2'>
+				<CardContent className='pt-1 overflow-y-auto space-y-2'>
 					<div className='relative w-full mb-4'>
 						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 						<Input
@@ -251,114 +360,77 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 							className='pl-10 h-11'
 						/>
 					</div>
-					{isLoading ? (
-						<div className='p-2 flex justify-center'>
-							<Loader2 className='h-6 w-6 animate-spin' />
-						</div>
-					) : (
-						<>
-							{suggestedJobseekers.length === 0 ? (
-								<p className='text-center text-sm text-muted-foreground py-4'>
-									No jobseekers found for the selected criteria.
-								</p>
-							) : (
-								suggestedJobseekers.map((js, index) => (
-									<Card
-										key={js.userId || index}
-										className='p-3 flex items-center justify-between hover:bg-muted transition-colors'
-									>
-										<div className='flex items-center gap-3'>
-											<Avatar>
-												<AvatarImage src={makePreviewURL(js.profileImage)} />
-												<AvatarFallback>
-													{js.firstName?.[0]}
-													{js.lastName?.[0]}
-												</AvatarFallback>
-											</Avatar>
-											<div>
-												<p className='font-semibold'>{js.fullName}</p>
-												<div className='text-xs text-muted-foreground'>
-													<p>{js.email}</p>
-													<p>{js.phone}</p>
-												</div>
-											</div>
-										</div>
-										<div className='flex items-center gap-2'>
-											<Button
-												variant='ghost'
-												size='sm'
-												onClick={() => setSelectedJobseeker(js)}
-												className='h-8'
-											>
-												<FileText className='mr-2 h-4 w-4' /> View
-											</Button>
-											<Button size='sm' onClick={() => handleAddApplicant(js)} className='h-8'>
-												Add
-											</Button>
-										</div>
-									</Card>
-								))
-							)}
-						</>
-					)}
+					<div className='rounded-md border'>
+						<Table>
+							<TableHeader>
+								{table.getHeaderGroups().map((headerGroup) => (
+									<TableRow key={headerGroup.id}>
+										{headerGroup.headers.map((header) => {
+											return (
+												<TableHead key={header.id}>
+													{header.isPlaceholder
+														? null
+														: flexRender(header.column.columnDef.header, header.getContext())}
+												</TableHead>
+											);
+										})}
+									</TableRow>
+								))}
+							</TableHeader>
+							<TableBody>
+								{isLoading ? (
+									<TableRow>
+										<TableCell colSpan={columns.length} className='h-24 text-center'>
+											<Loader2 className='mx-auto h-6 w-6 animate-spin' />
+										</TableCell>
+									</TableRow>
+								) : table.getRowModel().rows?.length ? (
+									table.getRowModel().rows.map((row) => (
+										<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+											{row.getVisibleCells().map((cell) => (
+												<TableCell key={cell.id}>
+													{flexRender(cell.column.columnDef.cell, cell.getContext())}
+												</TableCell>
+											))}
+										</TableRow>
+									))
+								) : (
+									<TableRow>
+										<TableCell colSpan={columns.length} className='h-24 text-center'>
+											No jobseekers found for the selected criteria.
+										</TableCell>
+									</TableRow>
+								)}
+							</TableBody>
+						</Table>
+					</div>
 				</CardContent>
+				<CardFooter className='flex-col items-stretch gap-4'>
+					<Pagination meta={meta} onPageChange={handlePageChange} noun={'Jobseeker'} />
+					{table.getIsSomeRowsSelected() || table.getIsAllRowsSelected() ? (
+						<Button onClick={() => setShowConfirmation(true)}>
+							<UserPlus className='mr-2 h-4 w-4' />
+							Add {table.getSelectedRowModel().rows.length} Selected Candidates
+						</Button>
+					) : null}
+				</CardFooter>
 			</Card>
 
-			<Card>
-				<CardHeader>
-					<CardTitle>Primary List ({primaryList.length})</CardTitle>
-					<CardDescription>These candidates will be considered for the next steps.</CardDescription>
-				</CardHeader>
-				<CardContent className='space-y-4'>
-					{primaryList.length > 0 ? (
-						primaryList.map((js) => (
-							<Card key={js.userId} className='p-4 flex items-center justify-between'>
-								<div className='flex items-center gap-4'>
-									<Avatar>
-										<AvatarImage src={makePreviewURL(js.profileImage)} />
-										<AvatarFallback>
-											{js.firstName?.[0]}
-											{js.lastName?.[0]}
-										</AvatarFallback>
-									</Avatar>
-									<div>
-										<p className='font-semibold'>{js.fullName}</p>
-										<div className='text-sm text-muted-foreground'>
-											<p>{js.email}</p>
-											<p>{js.phone}</p>
-										</div>
-									</div>
-								</div>
-								<div className='flex items-center gap-2'>
-									<Button variant='ghost' size='sm' onClick={() => setSelectedJobseeker(js)}>
-										<FileText className='mr-2 h-4 w-4' /> View
-									</Button>
-									<Button variant='lite-danger' size='sm' onClick={() => handleRemoveApplicant(js.userId!)}>
-										Remove
-									</Button>
-								</div>
-							</Card>
-						))
-					) : (
-						<div className='text-center py-10 text-muted-foreground'>
-							No applicants have been added to the primary list yet.
-						</div>
-					)}
-				</CardContent>
-				{primaryList.length > 0 && (
-					<CardFooter>
-						<Button onClick={() => onApply(primaryList)}>
-							<UserPlus className='mr-2 h-4 w-4' />
-							Apply ({primaryList.length}) Candidates
-						</Button>
-					</CardFooter>
-				)}
-			</Card>
 			<Dialog open={!!selectedJobseeker} onOpenChange={(isOpen) => !isOpen && setSelectedJobseeker(null)}>
 				<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
 					{selectedJobseeker && <JobseekerProfileView jobseekerId={selectedJobseeker.userId} />}
 				</DialogContent>
 			</Dialog>
+			<ConfirmationDialog
+				open={showConfirmation}
+				onOpenChange={setShowConfirmation}
+				title='Confirm Add Applicants'
+				description={`Are you sure you want to add ${
+					table.getSelectedRowModel().rows.length
+				} selected candidates to the applicant list?`}
+				onConfirm={handleApply}
+				confirmText='Yes, Add them'
+			/>
 		</>
 	);
 }
