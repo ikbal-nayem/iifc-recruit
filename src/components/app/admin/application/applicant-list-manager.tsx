@@ -14,7 +14,8 @@ import {
 	CommandList,
 } from '@/components/ui/command';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Form, FormInput } from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
+import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
@@ -25,7 +26,7 @@ import { JobseekerProfileService } from '@/services/api/jobseeker-profile.servic
 import { MasterDataService } from '@/services/api/master-data.service';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, FileText, Filter, Loader2, Search, X } from 'lucide-react';
+import { Check, FileText, Filter, Loader2, Search, UserPlus, X } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
