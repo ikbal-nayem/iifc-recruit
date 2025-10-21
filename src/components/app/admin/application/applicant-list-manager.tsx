@@ -3,7 +3,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
 	Command,
 	CommandEmpty,
@@ -115,13 +115,7 @@ export function ApplicantListManager() {
 			<div className='space-y-4'>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSearchSubmit)} className='space-y-4'>
-						<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-end'>
-							<FormInput
-								control={form.control}
-								name='search'
-								label='Search by Name'
-								placeholder='e.g., John Doe'
-							/>
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-end'>
 							<FormAutocomplete
 								control={form.control}
 								name='skillId'
@@ -146,6 +140,7 @@ export function ApplicantListManager() {
 				</Form>
 
 				<Command>
+					<CommandInput placeholder='Filter by name, email, or phone...' />
 					<CommandList className='max-h-64'>
 						{isLoading ? (
 							<div className='p-2 flex justify-center'>
@@ -160,7 +155,7 @@ export function ApplicantListManager() {
 									{suggestedJobseekers.map((js) => (
 										<CommandItem
 											key={js.id}
-											value={js.personalInfo.name}
+											value={`${js.personalInfo.name} ${js.personalInfo.email}`}
 											onSelect={() => handleAddApplicant(js)}
 											className='cursor-pointer'
 										>
