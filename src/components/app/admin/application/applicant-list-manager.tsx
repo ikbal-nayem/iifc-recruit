@@ -4,48 +4,39 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList,
-} from '@/components/ui/command';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
+import { FormMultiSelect } from '@/components/ui/form-multi-select';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
-import { cn } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
 	ColumnDef,
 	ColumnFiltersState,
-	RowSelectionState,
-	SortingState,
 	flexRender,
 	getCoreRowModel,
 	getFilteredRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
+	RowSelectionState,
+	SortingState,
 	useReactTable,
 } from '@tanstack/react-table';
-import { Check, FileText, Filter, Loader2, Search, UserPlus, X } from 'lucide-react';
+import { FileText, Filter, Loader2, Search, UserPlus } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const filterSchema = z.object({
 	skillIds: z.array(z.number()).optional(),
@@ -70,12 +61,8 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 	const [textSearch, setTextSearch] = useState('');
 	const debouncedTextSearch = useDebounce(textSearch, 500);
 
-	const [isSkillLoading, setIsSkillLoading] = useState(false);
-	const [skillSearchQuery, setSkillSearchQuery] = useState('');
-	const debouncedSkillSearch = useDebounce(skillSearchQuery, 300);
-	const [availableSkills, setAvailableSkills] = useState<ICommonMasterData[]>([]);
+	const [allSkills, setAllSkills] = useState<ICommonMasterData[]>([]);
 	const [selectedSkills, setSelectedSkills] = useState<ICommonMasterData[]>([]);
-	const [popoverOpen, setPopoverOpen] = useState(false);
 
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -88,6 +75,13 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 			skillIds: [],
 		},
 	});
+
+	useEffect(() => {
+		MasterDataService.skill
+			.getList({ meta: { limit: 1000 } })
+			.then((res) => setAllSkills(res.body))
+			.catch(() => toast({ description: 'Could not load skills.', variant: 'danger' }));
+	}, [toast]);
 
 	const searchApplicants = useCallback(
 		async (page: number, searchCriteria: { searchKey?: string; skillIds?: number[] }) => {
@@ -126,53 +120,6 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 			searchKey: textSearch,
 			...values,
 		});
-	};
-
-	const fetchSkills = useCallback(
-		async (query: string) => {
-			setIsSkillLoading(true);
-			try {
-				const response = await MasterDataService.skill.getList({
-					body: { searchKey: query },
-					meta: { page: 0, limit: 20 },
-				});
-				setAvailableSkills(response.body);
-			} catch (error) {
-				toast({
-					description: 'Could not load skills for filtering.',
-					variant: 'danger',
-				});
-			} finally {
-				setIsSkillLoading(false);
-			}
-		},
-		[toast]
-	);
-
-	useEffect(() => {
-		fetchSkills(debouncedSkillSearch);
-	}, [debouncedSkillSearch, fetchSkills]);
-
-	const handleSkillSelect = (skill: ICommonMasterData) => {
-		if (skill && !selectedSkills.some((s) => s.id === skill.id)) {
-			const newSelectedSkills = [...selectedSkills, skill];
-			setSelectedSkills(newSelectedSkills);
-			filterForm.setValue(
-				'skillIds',
-				newSelectedSkills.map((s) => s.id!)
-			);
-		}
-		setSkillSearchQuery('');
-		setPopoverOpen(false);
-	};
-
-	const handleSkillRemove = (skillToRemove: ICommonMasterData) => {
-		const newSelectedSkills = selectedSkills.filter((s) => s.id !== skillToRemove.id);
-		setSelectedSkills(newSelectedSkills);
-		filterForm.setValue(
-			'skillIds',
-			newSelectedSkills.map((s) => s.id!)
-		);
 	};
 
 	const columns: ColumnDef<JobseekerSearch>[] = [
@@ -267,71 +214,29 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 				<form onSubmit={filterForm.handleSubmit(onFilterSubmit)} className='space-y-4'>
 					<Card className='p-4 border rounded-lg space-y-4 bg-muted/50'>
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-							<div>
-								<label className='text-sm font-medium'>Skills</label>
-								<Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-									<PopoverTrigger asChild>
-										<div
-											className={cn(
-												'flex flex-wrap gap-1 p-2 mt-2 border rounded-lg min-h-[44px] items-center cursor-text w-full justify-start font-normal h-auto bg-background'
-											)}
-										>
-											{selectedSkills.length > 0 ? (
-												selectedSkills.map((skill) => (
-													<Badge key={skill.id} variant='outline'>
-														{skill.nameEn}
-														<button
-															type='button'
-															className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
-															onClick={(e) => {
-																e.preventDefault();
-																e.stopPropagation();
-																handleSkillRemove(skill);
-															}}
-														>
-															<X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
-														</button>
-													</Badge>
-												))
-											) : (
-												<span className='text-sm text-muted-foreground px-1'>Filter by skills...</span>
-											)}
-										</div>
-									</PopoverTrigger>
-									<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
-										<Command>
-											<CommandInput
-												placeholder='Search skill...'
-												value={skillSearchQuery}
-												onValueChange={setSkillSearchQuery}
-											/>
-											<CommandList>
-												{isSkillLoading && <CommandEmpty>Loading...</CommandEmpty>}
-												{!isSkillLoading && <CommandEmpty>No skill found.</CommandEmpty>}
-												<CommandGroup>
-													{availableSkills.map((skill) => (
-														<CommandItem
-															key={skill.id}
-															value={skill.nameEn}
-															onSelect={() => handleSkillSelect(skill)}
-														>
-															<Check
-																className={cn(
-																	'mr-2 h-4 w-4',
-																	selectedSkills.some((s) => s.id === skill.id)
-																		? 'opacity-100'
-																		: 'opacity-0'
-																)}
-															/>
-															{skill.nameEn}
-														</CommandItem>
-													))}
-												</CommandGroup>
-											</CommandList>
-										</Command>
-									</PopoverContent>
-								</Popover>
-							</div>
+							<FormMultiSelect
+								name='skillIds'
+								label='Skills'
+								placeholder='Filter by skills...'
+								options={allSkills}
+								selected={selectedSkills}
+								onAdd={(skill) => {
+									const newSkills = [...selectedSkills, skill];
+									setSelectedSkills(newSkills);
+									filterForm.setValue(
+										'skillIds',
+										newSkills.map((s) => s.id!)
+									);
+								}}
+								onRemove={(skill) => {
+									const newSkills = selectedSkills.filter((s) => s.id !== skill.id);
+									setSelectedSkills(newSkills);
+									filterForm.setValue(
+										'skillIds',
+										newSkills.map((s) => s.id!)
+									);
+								}}
+							/>
 						</div>
 						<Button type='submit'>
 							<Filter className='mr-2 h-4 w-4' /> Filter
@@ -355,7 +260,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 						) : null}
 					</div>
 				</CardHeader>
-				<CardContent className='pt-1overflow-y-auto space-y-2'>
+				<CardContent className='pt-1 overflow-y-auto space-y-2'>
 					<div className='relative w-full mb-4'>
 						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 						<Input
