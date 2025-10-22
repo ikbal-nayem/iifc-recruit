@@ -35,7 +35,7 @@ import { Separator } from '../../ui/separator';
 
 interface JobseekerProfileViewProps {
 	jobseeker?: Jobseeker;
-	jobseekerId?: string;
+	jobseekerId?: number;
 }
 
 const formatDateRange = (fromDate: string, toDate?: string, isPresent?: boolean) => {

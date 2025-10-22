@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -7,7 +6,6 @@ import {
 	flexRender,
 	getCoreRowModel,
 	getFilteredRowModel,
-	getPaginationRowModel,
 	getSortedRowModel,
 	RowSelectionState,
 	SortingState,
@@ -19,7 +17,7 @@ import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardFooter } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -58,9 +56,10 @@ export function ApplicantsTable({
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 	const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 	const [selectedApplicant, setSelectedApplicant] = React.useState<JobseekerSearch | null>(null);
-	const [bulkAction, setBulkAction] = React.useState<{ type: 'hired' | 'accepted'; count: number } | null>(
-		null
-	);
+	const [bulkAction, setBulkAction] = React.useState<{
+		type: APPLICATION_STATUS.HIRED | APPLICATION_STATUS.ACCEPTED;
+		count: number;
+	} | null>(null);
 
 	const handleStatusChange = (applicationIds: string[], newStatus: APPLICATION_STATUS) => {
 		setApplicants((prevData) =>
@@ -79,11 +78,7 @@ export function ApplicantsTable({
 	const handleBulkActionConfirm = () => {
 		if (!bulkAction) return;
 		const selectedIds = table.getSelectedRowModel().rows.map((row) => row.original.id);
-		if (bulkAction.type === 'hired') {
-			handleStatusChange(selectedIds, APPLICATION_STATUS.HIRED);
-		} else if (bulkAction.type === 'accepted') {
-			handleStatusChange(selectedIds, APPLICATION_STATUS.ACCEPTED);
-		}
+		handleStatusChange(selectedIds, bulkAction.type);
 		setBulkAction(null);
 	};
 
@@ -158,8 +153,8 @@ export function ApplicantsTable({
 			accessorKey: 'status',
 			header: 'Status',
 			cell: ({ row }) => {
-				const status = row.original.status;
-				return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
+				const { status, statusDTO } = row.original;
+				return <Badge variant={getStatusVariant(status)}>{statusDTO.nameEn}</Badge>;
 			},
 		},
 		{
@@ -241,13 +236,17 @@ export function ApplicantsTable({
 				</Select>
 				{selectedRowCount > 0 && (
 					<div className='flex items-center gap-2'>
-						<Button size='sm' onClick={() => setBulkAction({ type: 'accepted', count: selectedRowCount })}>
+						<Button
+							size='sm'
+							variant='lite-success'
+							onClick={() => setBulkAction({ type: APPLICATION_STATUS.ACCEPTED, count: selectedRowCount })}
+						>
 							Accept ({selectedRowCount})
 						</Button>
 						<Button
 							size='sm'
-							variant='secondary'
-							onClick={() => setBulkAction({ type: 'hired', count: selectedRowCount })}
+							variant='lite-warning'
+							onClick={() => setBulkAction({ type: APPLICATION_STATUS.HIRED, count: selectedRowCount })}
 						>
 							<UserCheck className='mr-2 h-4 w-4' /> Hire ({selectedRowCount})
 						</Button>
@@ -326,12 +325,12 @@ export function ApplicantsTable({
 			<ConfirmationDialog
 				open={!!bulkAction}
 				onOpenChange={(isOpen) => !isOpen && setBulkAction(null)}
-				title={`Confirm Bulk Action: ${bulkAction?.type.charAt(0).toUpperCase() + bulkAction?.type.slice(1)}`}
+				title={`Confirm Bulk Action: ${bulkAction?.type === APPLICATION_STATUS.ACCEPTED ? 'Accept' : 'Hire'}`}
 				description={`Are you sure you want to mark ${bulkAction?.count} applicant(s) as ${
-					bulkAction?.type === 'accepted' ? 'Accepted' : bulkAction?.type
+					bulkAction?.type === APPLICATION_STATUS.ACCEPTED ? 'Accepted' : 'Hired'
 				}?`}
 				onConfirm={handleBulkActionConfirm}
-				variant={bulkAction?.type === 'hired' ? 'warning' : 'default'}
+				variant={bulkAction?.type === APPLICATION_STATUS.HIRED ? 'warning' : 'default'}
 			/>
 		</>
 	);

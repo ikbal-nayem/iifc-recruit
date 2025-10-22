@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Badge } from '@/components/ui/badge';
@@ -73,7 +72,6 @@ export function ApplicationManagementPage({
 				setApplicantsMeta(response.meta);
 			} catch (error: any) {
 				toast({
-					title: 'Error',
 					description: error.message || 'Failed to load applicants.',
 					variant: 'danger',
 				});
@@ -116,11 +114,11 @@ export function ApplicationManagementPage({
 		}
 	};
 
-	const handleApplyApplicants = (newApplicants: JobseekerSearch[]) => {
+	const handleApplyApplicants = (newApplicants: JobseekerSearch[], onSuccess?: () => void) => {
 		const payload = newApplicants.map((js) => ({
 			applicantId: js.userId,
 			requestedPostId: requestedPost.id!,
-			status: APPLICATION_STATUS.APPLIED,
+			status: APPLICATION_STATUS.ACCEPTED,
 		}));
 
 		ApplicationService.createAll(payload)
@@ -130,7 +128,8 @@ export function ApplicationManagementPage({
 					description: `${newApplicants.length} candidate(s) have been added to the application list.`,
 					variant: 'success',
 				});
-				setIsAddCandidateOpen(false);
+				// setIsAddCandidateOpen(false);
+				onSuccess && onSuccess();
 				loadApplicants(0);
 			})
 			.catch((err) => {
@@ -151,16 +150,12 @@ export function ApplicationManagementPage({
 			<div className='flex items-center justify-between'>
 				<Button variant='outline' onClick={() => router.back()}>
 					<ArrowLeft className='mr-2 h-4 w-4' />
-					Back to Pending List
+					Back
 				</Button>
 				<div>
-					<Button onClick={handleProceed} disabled={isSaving} variant='lite-success' className='me-2'>
-						{isSaving ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Save className='mr-2 h-4 w-4' />}
-						Save
-					</Button>
 					<Button onClick={handleProceed} disabled={isSaving}>
 						{isSaving ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Save className='mr-2 h-4 w-4' />}
-						Save & Proceed
+						Proceed
 					</Button>
 				</div>
 			</div>
@@ -266,17 +261,13 @@ export function ApplicationManagementPage({
 			/>
 
 			<div className='flex justify-center mt-6'>
-				<Button onClick={handleProceed} disabled={isSaving} variant='lite-success' className='me-2' size='lg'>
-					{isSaving ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Save className='mr-2 h-4 w-4' />}
-					Save
-				</Button>
 				<Button onClick={handleProceed} disabled={isSaving} size='lg'>
 					{isSaving ? (
 						<Loader2 className='mr-2 h-4 w-4 animate-spin' />
 					) : (
 						<ChevronsRight className='mr-2 h-4 w-4' />
 					)}
-					Save & Proceed to Next Stage
+					Proceed to Next Stage
 				</Button>
 			</div>
 		</div>

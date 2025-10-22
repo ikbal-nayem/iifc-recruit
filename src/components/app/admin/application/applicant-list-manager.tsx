@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -7,14 +6,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
 import { FormMultiSelect } from '@/components/ui/form-multi-select';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
-import { IApiRequest, IMeta } from '@/interfaces/common.interface';
+import { IMeta } from '@/interfaces/common.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
@@ -46,8 +44,8 @@ const filterSchema = z.object({
 type FilterFormValues = z.infer<typeof filterSchema>;
 
 interface ApplicantListManagerProps {
-	onApply: (applicants: JobseekerSearch[]) => void;
-	existingApplicantIds: (string | undefined)[];
+	onApply: (applicants: JobseekerSearch[], onSuccess?: () => void) => void;
+	existingApplicantIds?: (number | undefined)[];
 }
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
@@ -93,13 +91,12 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 					meta: { page: page, limit: meta.limit },
 				});
 				const newJobseekers = (response.body || []).filter(
-					(js) => !existingApplicantIds.includes(js.userId)
+					(js) => !existingApplicantIds?.includes(js.userId)
 				);
 				setJobseekers(newJobseekers);
 				setMeta(response.meta);
 			} catch (error: any) {
 				toast({
-					title: 'Search Failed',
 					description: error.message || 'Could not fetch jobseekers.',
 					variant: 'danger',
 				});
@@ -203,8 +200,9 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 	const handleApply = () => {
 		const selectedRows = table.getSelectedRowModel().rows.map((row) => row.original);
 		if (selectedRows.length > 0) {
-			onApply(selectedRows);
-			table.resetRowSelection();
+			onApply(selectedRows, () => {
+				table.resetRowSelection();
+			});
 		}
 		setShowConfirmation(false);
 	};
@@ -335,6 +333,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 				} selected candidates to the applicant list?`}
 				onConfirm={handleApply}
 				confirmText='Yes, Add them'
+				variant='warning'
 			/>
 		</>
 	);

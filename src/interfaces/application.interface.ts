@@ -1,5 +1,6 @@
-
-import { JobseekerSearch } from "./jobseeker.interface";
+import { RequestedPost } from './job.interface';
+import { JobseekerSearch } from './jobseeker.interface';
+import { EnumDTO } from './master-data.interface';
 
 export enum APPLICATION_STATUS {
 	APPLIED = 'APPLIED',
@@ -13,10 +14,11 @@ export enum APPLICATION_STATUS {
 
 export type Application = {
 	id: string;
-	jobId: string;
-	jobseekerId: string;
 	status: APPLICATION_STATUS;
+	statusDTO: EnumDTO;
 	applicationDate: string;
-    applicantId: string;
-    applicant?: JobseekerSearch
+	applicantId: number;
+	applicant?: JobseekerSearch;
+	requestedPostId: number;
+	requestedPost?: RequestedPost;
 };
