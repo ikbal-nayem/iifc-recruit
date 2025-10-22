@@ -10,4 +10,7 @@ export const ApplicationService = {
 
 	createAll: async (payload: IObject[]): Promise<IApiResponse<Application[]>> =>
 		await axiosIns.post('/application/create-all', payload),
+
+	updateAll: async (payload: IObject[]): Promise<IApiResponse<Application[]>> =>
+		await axiosIns.put('/application/update-all', payload),
 };

@@ -1,15 +1,9 @@
-
 'use client';
 
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
 	Dialog,
 	DialogContent,
@@ -19,6 +13,8 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog';
+import { Form } from '@/components/ui/form';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { useToast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
@@ -28,13 +24,12 @@ import { EnumDTO, IClientOrganization } from '@/interfaces/master-data.interface
 import { cn, getStatusVariant } from '@/lib/utils';
 import { ApplicationService } from '@/services/api/application.service';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { ArrowLeft, Building, ChevronsRight, Loader2, UserPlus, Users } from 'lucide-react';
+import { ArrowLeft, Building, ChevronsRight, Edit, Loader2, UserPlus, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { ApplicantListManager } from './applicant-list-manager';
 import { ApplicantsTable } from './applicants-table';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 
 interface ApplicationManagementPageProps {
 	requestedPost: RequestedPost;
@@ -58,9 +53,13 @@ export function ApplicationManagementPage({
 	const [isAddCandidateOpen, setIsAddCandidateOpen] = useState(false);
 	const [statusFilter, setStatusFilter] = useState<string | null>(null);
 	const [isProceedConfirmationOpen, setIsProceedConfirmationOpen] = useState(false);
-	const [proceedExaminerId, setProceedExaminerId] = useState<number | undefined>(
-		requestedPost.examinerId
-	);
+	const [proceedExaminerId, setProceedExaminerId] = useState<number | undefined>(requestedPost.examinerId);
+
+	const [isSavingExaminer, setIsSavingExaminer] = useState<number | null>(null);
+	const [selectedPostForExaminer, setSelectedPostForExaminer] = useState<RequestedPost | null>(null);
+	const [selectedExaminerId, setSelectedExaminerId] = useState<string>();
+
+	const form = useForm();
 
 	const applicantStats = useMemo(() => {
 		return applicants.reduce(
@@ -73,7 +72,6 @@ export function ApplicationManagementPage({
 			{
 				total: 0,
 				[APPLICATION_STATUS.APPLIED]: 0,
-				[APPLICATION_STATUS.HIRED]: 0,
 				[APPLICATION_STATUS.ACCEPTED]: 0,
 			} as Record<Application['status'] | 'total', number>
 		);
@@ -161,26 +159,74 @@ export function ApplicationManagementPage({
 			})
 			.catch((err) => {
 				toast({
-					title: 'Failed to Add Candidates',
 					description: err.message,
 					variant: 'danger',
 				});
 			});
 	};
 
+	const handleUpdateApplication = async (updatedApplicants: Application[]) => {
+		try {
+			const resp = await ApplicationService.updateAll(updatedApplicants);
+			toast({
+				title: 'Application Updated',
+				description: resp?.message,
+				variant: 'success',
+			});
+			loadApplicants(applicantsMeta.page);
+			return resp;
+		} catch (error: any) {
+			toast({
+				description: error.message || 'Failed to update application.',
+				variant: 'danger',
+			});
+		}
+	};
+
 	const handlePageChange = (newPage: number) => {
 		loadApplicants(newPage, statusFilter);
 	};
 
-	const handleFilterChange = (newStatus: string | null) => {
-		setStatusFilter(newStatus);
+	const handleExaminerChange = async () => {
+		if (!selectedPostForExaminer || !selectedExaminerId) return;
+
+		const requestedPostId = selectedPostForExaminer.id!;
+		const examinerId = Number(selectedExaminerId);
+
+		setIsSavingExaminer(requestedPostId);
+		try {
+			await JobRequestService.setExaminer({ requestedPostId, examinerId });
+			setData((prev) =>
+				prev.map((post) =>
+					post.id === requestedPostId
+						? { ...post, examinerId: examinerId, examiner: examiners.find((e) => e.id === examinerId) }
+						: post
+				)
+			);
+			toast({
+				description: 'Examiner assigned successfully.',
+				variant: 'success',
+			});
+			setSelectedPostForExaminer(null);
+		} catch (error: any) {
+			toast({
+				description: error.message || 'Failed to assign examiner.',
+				variant: 'danger',
+			});
+		} finally {
+			setIsSavingExaminer(null);
+		}
+	};
+
+	const handleOpenExaminerDialog = (item: RequestedPost) => {
+		setSelectedPostForExaminer(item);
+		setSelectedExaminerId(item.examinerId?.toString());
 	};
 
 	const statItems = [
 		{ label: 'Total Applicants', value: applicantStats.total, status: null },
 		{ label: 'Applied', value: applicantStats.APPLIED, status: APPLICATION_STATUS.APPLIED },
 		{ label: 'Accepted', value: applicantStats.ACCEPTED, status: APPLICATION_STATUS.ACCEPTED },
-		{ label: 'Hired', value: applicantStats.HIRED, status: APPLICATION_STATUS.HIRED },
 	];
 
 	return (
@@ -189,6 +235,10 @@ export function ApplicationManagementPage({
 				<Button variant='outline' onClick={() => router.back()}>
 					<ArrowLeft className='mr-2 h-4 w-4' />
 					Back
+				</Button>
+				<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg'>
+					<ChevronsRight className='mr-2 h-4 w-4' />
+					Proceed to Next Stage
 				</Button>
 			</div>
 
@@ -200,15 +250,31 @@ export function ApplicationManagementPage({
 							<Badge variant={getStatusVariant(requestedPost.status)}>{requestedPost.statusDTO.nameEn}</Badge>
 						)}
 					</div>
-					<CardDescription className='flex flex-wrap items-center gap-x-4 gap-y-1'>
-						<span className='flex items-center gap-1.5'>
-							<Building className='h-4 w-4' />
-							{requestedPost.jobRequest?.clientOrganization?.nameEn}
-						</span>
-						<span className='flex items-center gap-1.5'>
-							<Users className='h-4 w-4' />
-							{requestedPost.vacancy} Vacancies
-						</span>
+					<CardDescription className='flex flex-wrap items-center justify-between'>
+						<div className='flex gap-4'>
+							<span className='flex items-center gap-1.5'>
+								<Building className='h-4 w-4' />
+								{requestedPost.jobRequest?.clientOrganization?.nameEn}
+							</span>
+							<span className='flex items-center gap-1.5'>
+								<Users className='h-4 w-4' />
+								{requestedPost.vacancy} Vacancies
+							</span>
+						</div>
+						{requestedPost.status === JobRequestedPostStatus.PENDING && (
+							<div className='flex items-center gap-2 text-sm'>
+								<span className='text-muted-foreground'>Examiner:</span>
+								<span className='font-semibold'>{requestedPost.examiner?.nameEn || 'Not Assigned'}</span>
+								<Button
+									variant='ghost'
+									size='icon'
+									className='h-7 w-7'
+									onClick={() => handleOpenExaminerDialog(requestedPost)}
+								>
+									<Edit className='h-4 w-4 text-primary' />
+								</Button>
+							</div>
+						)}
 					</CardDescription>
 				</CardHeader>
 			</Card>
@@ -220,7 +286,7 @@ export function ApplicationManagementPage({
 							requestedPost.status !== JobRequestedPostStatus.PENDING) && (
 							<Card
 								key={item.label}
-								onClick={() => handleFilterChange(item.status)}
+								onClick={() => setStatusFilter(item.status)}
 								className={cn(
 									'cursor-pointer transition-all hover:shadow-md hover:-translate-y-1',
 									statusFilter === item.status ? 'bg-primary/10 border-primary' : 'bg-card'
@@ -273,11 +339,10 @@ export function ApplicationManagementPage({
 				<CardContent>
 					<ApplicantsTable
 						applicants={applicants}
-						setApplicants={setApplicants}
-						statuses={statuses}
 						isLoading={isLoadingApplicants}
 						meta={applicantsMeta}
 						onPageChange={handlePageChange}
+						updateApplication={handleUpdateApplication}
 						requestedPostStatus={requestedPost.status}
 					/>
 				</CardContent>
@@ -289,6 +354,49 @@ export function ApplicationManagementPage({
 					Proceed to Next Stage
 				</Button>
 			</div>
+
+			<Dialog
+				open={!!selectedPostForExaminer}
+				onOpenChange={(open) => !open && setSelectedPostForExaminer(null)}
+			>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Assign Examiner</DialogTitle>
+						<DialogDescription>
+							Select an examiner for the post: &quot;{selectedPostForExaminer?.post?.nameEn}&quot;.
+						</DialogDescription>
+					</DialogHeader>
+					<Form {...form}>
+						<div className='py-4'>
+							<FormAutocomplete
+								name='examinerId'
+								label='Examiner'
+								placeholder='Select an Examiner'
+								options={examiners}
+								getOptionValue={(option) => option.id!.toString()}
+								getOptionLabel={(option) => option.nameEn}
+								value={selectedExaminerId}
+								onValueChange={setSelectedExaminerId}
+								required
+							/>
+						</div>
+					</Form>
+					<DialogFooter>
+						<Button variant='ghost' onClick={() => setSelectedPostForExaminer(null)}>
+							Cancel
+						</Button>
+						<Button
+							onClick={handleExaminerChange}
+							disabled={isSavingExaminer === selectedPostForExaminer?.id}
+						>
+							{isSavingExaminer === selectedPostForExaminer?.id && (
+								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+							)}
+							Save
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 
 			<Dialog open={isProceedConfirmationOpen} onOpenChange={setIsProceedConfirmationOpen}>
 				<DialogContent>

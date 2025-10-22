@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -24,22 +23,18 @@ import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useToast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { IMeta } from '@/interfaces/common.interface';
 import { JobRequestedPostStatus } from '@/interfaces/job.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
-import { EnumDTO } from '@/interfaces/master-data.interface';
 import { getStatusVariant } from '@/lib/utils';
 import { FileText, Loader2, RotateCcw, UserCheck, UserPlus } from 'lucide-react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 
 interface ApplicantsTableProps {
 	applicants: Application[];
-	setApplicants: React.Dispatch<React.SetStateAction<Application[]>>;
-	statuses: EnumDTO[];
+	updateApplication: (updatedApplicants: Application[]) => Promise<any>;
 	isLoading: boolean;
 	meta: IMeta;
 	onPageChange: (page: number) => void;
@@ -48,14 +43,12 @@ interface ApplicantsTableProps {
 
 export function ApplicantsTable({
 	applicants,
-	setApplicants,
-	statuses,
+	updateApplication,
 	isLoading,
 	meta,
 	onPageChange,
 	requestedPostStatus,
 }: ApplicantsTableProps) {
-	const { toast } = useToast();
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 	const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
@@ -65,48 +58,40 @@ export function ApplicantsTable({
 		count: number;
 	} | null>(null);
 
-	const handleStatusChange = (applicationIds: string[], newStatus: APPLICATION_STATUS) => {
-		setApplicants((prevData) =>
-			prevData.map((applicant) =>
-				applicationIds.includes(applicant.id) ? { ...applicant, status: newStatus } : applicant
-			)
-		);
-
-		toast({
-			description: `${applicationIds.length} applicant(s) have been updated to ${newStatus}.`,
-			variant: 'success',
-		});
-		table.resetRowSelection();
+	const handleStatusChange = async (applications: Application[], newStatus: APPLICATION_STATUS) => {
+		const updatedApplications = applications.map((application) => ({ ...application, status: newStatus }));
+		const resp = await updateApplication(updatedApplications);
+		resp && table.resetRowSelection();
 	};
 
 	const handleBulkActionConfirm = () => {
 		if (!bulkAction) return;
-		const selectedIds = table.getSelectedRowModel().rows.map((row) => row.original.id);
-		handleStatusChange(selectedIds, bulkAction.type);
+		const selected = table.getSelectedRowModel().rows.map((row) => row.original);
+		handleStatusChange(selected, bulkAction.type);
 		setBulkAction(null);
 	};
 
-	const getActionItems = (applicant: Application): ActionItem[] => {
+	const getActionItems = (application: Application): ActionItem[] => {
 		const items: ActionItem[] = [
 			{
 				label: 'View Profile',
 				icon: <FileText className='mr-2 h-4 w-4' />,
-				onClick: () => setSelectedApplicant(applicant.applicant as JobseekerSearch),
+				onClick: () => setSelectedApplicant(application.applicant as JobseekerSearch),
 			},
 			{ isSeparator: true },
 		];
 
-		if (applicant.status === APPLICATION_STATUS.ACCEPTED) {
+		if (application.status === APPLICATION_STATUS.ACCEPTED) {
 			items.push({
 				label: 'Revert to Applied',
 				icon: <RotateCcw className='mr-2 h-4 w-4' />,
-				onClick: () => handleStatusChange([applicant.id], APPLICATION_STATUS.APPLIED),
+				onClick: () => handleStatusChange([application], APPLICATION_STATUS.APPLIED),
 			});
 		} else {
 			items.push({
 				label: 'Mark as Accepted',
 				icon: <UserCheck className='mr-2 h-4 w-4' />,
-				onClick: () => handleStatusChange([applicant.id], APPLICATION_STATUS.ACCEPTED),
+				onClick: () => handleStatusChange([application], APPLICATION_STATUS.ACCEPTED),
 			});
 		}
 
@@ -114,7 +99,7 @@ export function ApplicantsTable({
 			items.push({
 				label: 'Mark as Hired',
 				icon: <UserPlus className='mr-2 h-4 w-4' />,
-				onClick: () => handleStatusChange([applicant.id], APPLICATION_STATUS.HIRED),
+				onClick: () => handleStatusChange([application], APPLICATION_STATUS.HIRED),
 			});
 		}
 		return items;
@@ -237,22 +222,6 @@ export function ApplicantsTable({
 					onChange={(event) => table.getColumn('applicant')?.setFilterValue(event.target.value)}
 					className='max-w-sm w-full'
 				/>
-				<Select
-					value={(table.getColumn('status')?.getFilterValue() as string) ?? 'all'}
-					onValueChange={(value) => table.getColumn('status')?.setFilterValue(value === 'all' ? null : value)}
-				>
-					<SelectTrigger className='w-full sm:w-[180px]'>
-						<SelectValue placeholder='Filter by status' />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value='all'>All Statuses</SelectItem>
-						{statuses.map((status) => (
-							<SelectItem key={status.value} value={status.value}>
-								{status.nameEn}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
 				{selectedRowCount > 0 && (
 					<div className='flex items-center gap-2'>
 						<Button
@@ -306,13 +275,7 @@ export function ApplicantsTable({
 						))}
 					</TableHeader>
 					<TableBody>
-						{isLoading ? (
-							<TableRow>
-								<TableCell colSpan={columns.length} className='h-24 text-center'>
-									<Loader2 className='mx-auto h-6 w-6 animate-spin' />
-								</TableCell>
-							</TableRow>
-						) : table.getRowModel().rows?.length ? (
+						{table.getRowModel().rows?.length ? (
 							table.getRowModel().rows.map((row) => (
 								<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
 									{row.getVisibleCells().map((cell) => (
