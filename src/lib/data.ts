@@ -1,5 +1,6 @@
 import { addDays, format, subDays, subMonths, subYears } from 'date-fns';
-import type { Activity, Application, Job, Jobseeker } from './types';
+import type { Activity, Job, Jobseeker } from './types';
+import { Application } from '@/interfaces/application.interface';
 
 export const jobseekers: Jobseeker[] = [
 	{
