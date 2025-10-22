@@ -33,12 +33,20 @@ export function ExaminerSetup({ examiners, selectedExaminer, onSave, isSaving }:
 		},
 	});
 
+	const {
+		formState: { isDirty },
+	} = form;
+
 	useEffect(() => {
 		form.reset({ examinerId: selectedExaminer });
 	}, [selectedExaminer, form]);
 
 	const handleFormSubmit = (data: ExaminerFormValues) => {
-		onSave(data.examinerId);
+		onSave(data.examinerId).then((success) => {
+			if (success) {
+				form.reset({ examinerId: data.examinerId });
+			}
+		});
 	};
 
 	return (
@@ -61,16 +69,18 @@ export function ExaminerSetup({ examiners, selectedExaminer, onSave, isSaving }:
 							getOptionLabel={(option) => option.nameEn}
 						/>
 					</CardContent>
-					<CardFooter>
-						<Button type='submit' disabled={isSaving}>
-							{isSaving ? (
-								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-							) : (
-								<Save className='mr-2 h-4 w-4' />
-							)}
-							Save Examiner
-						</Button>
-					</CardFooter>
+					{isDirty && (
+						<CardFooter>
+							<Button type='submit' disabled={isSaving}>
+								{isSaving ? (
+									<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+								) : (
+									<Save className='mr-2 h-4 w-4' />
+								)}
+								Save Examiner
+							</Button>
+						</CardFooter>
+					)}
 				</form>
 			</Form>
 		</Card>
