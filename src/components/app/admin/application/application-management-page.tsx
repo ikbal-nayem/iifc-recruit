@@ -3,12 +3,27 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
-import { RequestedPost } from '@/interfaces/job.interface';
+import { JobRequestedPostStatus, RequestedPost } from '@/interfaces/job.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO, IClientOrganization } from '@/interfaces/master-data.interface';
 import { cn, getStatusVariant } from '@/lib/utils';
@@ -20,6 +35,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ApplicantListManager } from './applicant-list-manager';
 import { ApplicantsTable } from './applicants-table';
 import { ExaminerSetup } from './examiner-setup';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Warning } from 'postcss';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 
 interface ApplicationManagementPageProps {
 	requestedPost: RequestedPost;
@@ -45,6 +63,10 @@ export function ApplicationManagementPage({
 	const [isLoadingApplicants, setIsLoadingApplicants] = useState(true);
 	const [isAddCandidateOpen, setIsAddCandidateOpen] = useState(false);
 	const [statusFilter, setStatusFilter] = useState<string | null>(null);
+	const [isProceedConfirmationOpen, setIsProceedConfirmationOpen] = useState(false);
+	const [proceedExaminerId, setProceedExaminerId] = useState<number | undefined>(
+		requestedPost.examinerId
+	);
 
 	const applicantStats = useMemo(() => {
 		return applicants.reduce(
@@ -91,14 +113,23 @@ export function ApplicationManagementPage({
 	}, [statusFilter, loadApplicants]);
 
 	const handleProceed = async () => {
-		if (!selectedExaminer) {
-			toast({ title: 'Examiner Required', description: 'Please select and save an examiner to proceed.' });
-			return;
-		}
-
 		setIsProceeding(true);
 		try {
-			console.log('Proceeding with examiner:', selectedExaminer);
+			// Step 1: Save examiner if one is selected in the dialog
+			if (proceedExaminerId) {
+				await JobRequestService.setExaminer({
+					requestedPostId: requestedPost.id!,
+					examinerId: proceedExaminerId,
+				});
+				toast({
+					title: 'Examiner Assigned',
+					description: 'The examining organization has been assigned to this post.',
+					variant: 'success',
+				});
+			}
+
+			// Step 2: Proceed with the logic to move to the next stage
+			console.log('Proceeding with examiner:', proceedExaminerId);
 			toast({
 				title: 'Request Processing',
 				description: 'The request has been moved to the processing stage.',
@@ -108,11 +139,12 @@ export function ApplicationManagementPage({
 		} catch (error: any) {
 			toast({
 				title: 'Error',
-				description: error.message || 'Failed to update request status.',
+				description: error.message || 'Failed to proceed to the next stage.',
 				variant: 'danger',
 			});
 		} finally {
 			setIsProceeding(false);
+			setIsProceedConfirmationOpen(false);
 		}
 	};
 
@@ -214,30 +246,34 @@ export function ApplicationManagementPage({
 			</Card>
 
 			<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
-				{statItems.map((item) => (
-					<Card
-						key={item.label}
-						onClick={() => handleFilterChange(item.status)}
-						className={cn(
-							'cursor-pointer transition-all hover:shadow-md hover:-translate-y-1',
-							statusFilter === item.status ? 'bg-primary/10 border-primary' : 'bg-card'
-						)}
-					>
-						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-							<CardTitle className='text-sm font-medium'>{item.label}</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div
+				{statItems.map(
+					(item) =>
+						(item.status !== APPLICATION_STATUS.HIRED ||
+							requestedPost.status !== JobRequestedPostStatus.PENDING) && (
+							<Card
+								key={item.label}
+								onClick={() => handleFilterChange(item.status)}
 								className={cn(
-									'text-3xl font-bold',
-									statusFilter === item.status ? 'text-primary' : 'text-foreground'
+									'cursor-pointer transition-all hover:shadow-md hover:-translate-y-1',
+									statusFilter === item.status ? 'bg-primary/10 border-primary' : 'bg-card'
 								)}
 							>
-								{item.value}
-							</div>
-						</CardContent>
-					</Card>
-				))}
+								<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+									<CardTitle className='text-sm font-medium'>{item.label}</CardTitle>
+								</CardHeader>
+								<CardContent>
+									<div
+										className={cn(
+											'text-3xl font-bold',
+											statusFilter === item.status ? 'text-primary' : 'text-foreground'
+										)}
+									>
+										{item.value}
+									</div>
+								</CardContent>
+							</Card>
+						)
+				)}
 			</div>
 
 			<Card>
@@ -274,6 +310,7 @@ export function ApplicationManagementPage({
 						isLoading={isLoadingApplicants}
 						meta={applicantsMeta}
 						onPageChange={handlePageChange}
+						requestedPostStatus={requestedPost.status}
 					/>
 				</CardContent>
 			</Card>
@@ -286,15 +323,53 @@ export function ApplicationManagementPage({
 			/>
 
 			<div className='flex justify-center mt-6'>
-				<Button onClick={handleProceed} disabled={isProceeding || !selectedExaminer} size='lg'>
-					{isProceeding ? (
-						<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-					) : (
-						<ChevronsRight className='mr-2 h-4 w-4' />
-					)}
+				<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg'>
+					<ChevronsRight className='mr-2 h-4 w-4' />
 					Proceed to Next Stage
 				</Button>
 			</div>
+
+			<Dialog open={isProceedConfirmationOpen} onOpenChange={setIsProceedConfirmationOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Proceed to Next Stage?</DialogTitle>
+						<DialogDescription>
+							You are about to move the selected applicants to the next stage of the recruitment process.
+						</DialogDescription>
+					</DialogHeader>
+					<div className='space-y-4 py-4'>
+						<Alert variant='warning'>
+							<AlertTitle>Important</AlertTitle>
+							<AlertDescription>
+								Only applicants with the &quot;Accepted&quot; status will be moved to the next stage.
+							</AlertDescription>
+						</Alert>
+						<div className='space-y-2'>
+							<p className='font-medium'>Assign Examiner (Optional)</p>
+							<FormAutocomplete
+								control={null}
+								name='proceedExaminerId'
+								label=''
+								placeholder='Search for an examining organization...'
+								options={examiners}
+								getOptionValue={(option) => option.id!}
+								getOptionLabel={(option) => option.nameEn}
+								value={proceedExaminerId?.toString()}
+								onValueChange={(val) => setProceedExaminerId(Number(val))}
+							/>
+						</div>
+					</div>
+					<DialogFooter>
+						<Button variant='ghost' onClick={() => setIsProceedConfirmationOpen(false)}>
+							Cancel
+						</Button>
+						<Button onClick={handleProceed} disabled={isProceeding}>
+							{isProceeding ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : null}
+							Confirm & Proceed
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

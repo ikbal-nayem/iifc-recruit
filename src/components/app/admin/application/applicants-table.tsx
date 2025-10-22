@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -28,6 +29,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useToast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { IMeta } from '@/interfaces/common.interface';
+import { JobRequestedPostStatus } from '@/interfaces/job.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO } from '@/interfaces/master-data.interface';
 import { getStatusVariant } from '@/lib/utils';
@@ -41,6 +43,7 @@ interface ApplicantsTableProps {
 	isLoading: boolean;
 	meta: IMeta;
 	onPageChange: (page: number) => void;
+	requestedPostStatus?: JobRequestedPostStatus;
 }
 
 export function ApplicantsTable({
@@ -50,6 +53,7 @@ export function ApplicantsTable({
 	isLoading,
 	meta,
 	onPageChange,
+	requestedPostStatus,
 }: ApplicantsTableProps) {
 	const { toast } = useToast();
 	const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -82,24 +86,29 @@ export function ApplicantsTable({
 		setBulkAction(null);
 	};
 
-	const getActionItems = (applicant: Application): ActionItem[] => [
-		{
-			label: 'View Profile',
-			icon: <FileText className='mr-2 h-4 w-4' />,
-			onClick: () => setSelectedApplicant(applicant.applicant as JobseekerSearch),
-		},
-		{ isSeparator: true },
-		{
-			label: 'Mark as Accepted',
-			icon: <UserCheck className='mr-2 h-4 w-4' />,
-			onClick: () => handleStatusChange([applicant.id], APPLICATION_STATUS.ACCEPTED),
-		},
-		{
-			label: 'Mark as Hired',
-			icon: <UserPlus className='mr-2 h-4 w-4' />,
-			onClick: () => handleStatusChange([applicant.id], APPLICATION_STATUS.HIRED),
-		},
-	];
+	const getActionItems = (applicant: Application): ActionItem[] => {
+		const items: ActionItem[] = [
+			{
+				label: 'View Profile',
+				icon: <FileText className='mr-2 h-4 w-4' />,
+				onClick: () => setSelectedApplicant(applicant.applicant as JobseekerSearch),
+			},
+			{ isSeparator: true },
+			{
+				label: 'Mark as Accepted',
+				icon: <UserCheck className='mr-2 h-4 w-4' />,
+				onClick: () => handleStatusChange([applicant.id], APPLICATION_STATUS.ACCEPTED),
+			},
+		];
+		if (requestedPostStatus !== JobRequestedPostStatus.PENDING) {
+			items.push({
+				label: 'Mark as Hired',
+				icon: <UserPlus className='mr-2 h-4 w-4' />,
+				onClick: () => handleStatusChange([applicant.id], APPLICATION_STATUS.HIRED),
+			});
+		}
+		return items;
+	};
 
 	const columns: ColumnDef<Application>[] = [
 		{
@@ -243,13 +252,15 @@ export function ApplicantsTable({
 						>
 							Accept ({selectedRowCount})
 						</Button>
-						<Button
-							size='sm'
-							variant='lite-warning'
-							onClick={() => setBulkAction({ type: APPLICATION_STATUS.HIRED, count: selectedRowCount })}
-						>
-							<UserCheck className='mr-2 h-4 w-4' /> Hire ({selectedRowCount})
-						</Button>
+						{requestedPostStatus !== JobRequestedPostStatus.PENDING && (
+							<Button
+								size='sm'
+								variant='lite-warning'
+								onClick={() => setBulkAction({ type: APPLICATION_STATUS.HIRED, count: selectedRowCount })}
+							>
+								<UserCheck className='mr-2 h-4 w-4' /> Hire ({selectedRowCount})
+							</Button>
+						)}
 					</div>
 				)}
 			</div>
@@ -274,7 +285,7 @@ export function ApplicantsTable({
 							<TableRow key={headerGroup.id}>
 								{headerGroup.headers.map((header) => {
 									return (
-										<TableHead key={header.id} className='py-2'>
+										<TableHead key={header.id} className='py-2 font-bold'>
 											{header.isPlaceholder
 												? null
 												: flexRender(header.column.columnDef.header, header.getContext())}
