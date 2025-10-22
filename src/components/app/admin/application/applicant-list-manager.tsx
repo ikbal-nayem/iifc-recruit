@@ -211,7 +211,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 		<>
 			<FormProvider {...filterForm}>
 				<form onSubmit={filterForm.handleSubmit(onFilterSubmit)} className='space-y-4'>
-					<Card className='p-4 border rounded-lg space-y-4 bg-muted/50'>
+					<Card className='p-4 border rounded-lg space-y-4'>
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 							<FormMultiSelect
 								name='skillIds'

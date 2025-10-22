@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Badge, BadgeProps } from '@/components/ui/badge';
@@ -45,7 +44,7 @@ export function FormMultiSelect<TFieldValues extends FieldValues>({
 	selected,
 	onAdd,
 	onRemove,
-	badgeVariant = 'secondary',
+	badgeVariant = 'outline',
 	closeOnSelect = false,
 }: FormMultiSelectProps<TFieldValues>) {
 	const [open, setOpen] = React.useState(false);
@@ -59,7 +58,7 @@ export function FormMultiSelect<TFieldValues extends FieldValues>({
 		if (debouncedSearch) {
 			setIsLoading(true);
 			MasterDataService.skill
-				.getList({ body: { name: debouncedSearch }, meta: { page: 0, limit: 30 } })
+				.getList({ body: { searchKey: debouncedSearch }, meta: { page: 0, limit: 30 } })
 				.then((res) => setSuggestions(res.body))
 				.finally(() => setIsLoading(false));
 		} else {
@@ -88,7 +87,7 @@ export function FormMultiSelect<TFieldValues extends FieldValues>({
 			type='button'
 			variant='outline'
 			className={cn(
-				'flex flex-wrap gap-1 p-2 border rounded-lg min-h-[44px] items-center cursor-text w-full justify-start font-normal h-auto bg-background',
+				'flex flex-wrap gap-1 p-2 border rounded-lg min-h-[44px] items-center cursor-text w-full justify-start font-normal h-auto',
 				!selected.length && 'text-muted-foreground'
 			)}
 			onClick={() => setOpen(true)}
@@ -97,8 +96,8 @@ export function FormMultiSelect<TFieldValues extends FieldValues>({
 				selected.map((item) => (
 					<Badge key={item.id} variant={badgeVariant} className='text-sm py-1 px-2'>
 						{item.nameEn}
-						<button
-							type='button'
+						<div
+							role='button'
 							className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
 							onClick={(e) => {
 								e.preventDefault();
@@ -107,7 +106,7 @@ export function FormMultiSelect<TFieldValues extends FieldValues>({
 							}}
 						>
 							<X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
-						</button>
+						</div>
 					</Badge>
 				))
 			) : (
@@ -126,13 +125,18 @@ export function FormMultiSelect<TFieldValues extends FieldValues>({
 							<Loader2 className='h-6 w-6 animate-spin' />
 						</div>
 					)}
-					{!isLoading && debouncedSearch && suggestions.length === 0 && <CommandEmpty>No results found.</CommandEmpty>}
+					{!isLoading && debouncedSearch && suggestions.length === 0 && (
+						<CommandEmpty>No results found.</CommandEmpty>
+					)}
 					{!isLoading && !debouncedSearch && <CommandEmpty>Type to search.</CommandEmpty>}
 					<CommandGroup>
 						{suggestions.map((option) => (
 							<CommandItem key={option.id} value={option.nameEn} onSelect={() => handleSelect(option)}>
 								<Check
-									className={cn('mr-2 h-4 w-4', selected.some((s) => s.id === option.id) ? 'opacity-100' : 'opacity-0')}
+									className={cn(
+										'mr-2 h-4 w-4',
+										selected.some((s) => s.id === option.id) ? 'opacity-100' : 'opacity-0'
+									)}
 								/>
 								{option.nameEn}
 							</CommandItem>
@@ -158,9 +162,7 @@ export function FormMultiSelect<TFieldValues extends FieldValues>({
 				render={() => (
 					<FormItem>
 						{label && <FormLabel required={required}>{label}</FormLabel>}
-						<div className='space-y-2'>
-              {component}
-            </div>
+						<div className='space-y-2'>{component}</div>
 						<FormMessage />
 					</FormItem>
 				)}
@@ -170,12 +172,7 @@ export function FormMultiSelect<TFieldValues extends FieldValues>({
 
 	return (
 		<div className='space-y-2'>
-			{label && (
-				<label className='text-sm font-medium'>
-					{label}
-					{required && <span className='text-danger'> *</span>}
-				</label>
-			)}
+			<FormLabel required={required}>{label}</FormLabel>
 			{component}
 		</div>
 	);
