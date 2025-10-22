@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -231,7 +232,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 									setSelectedSkills(newSkills);
 									filterForm.setValue(
 										'skillIds',
-										newSkills.map((s) => s.id!)
+										newSkills.map((s) => s.id as number)
 									);
 								}}
 								onRemove={(skill) => {
@@ -239,7 +240,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 									setSelectedSkills(newSkills);
 									filterForm.setValue(
 										'skillIds',
-										newSkills.map((s) => s.id!)
+										newSkills.map((s) => s.id as number)
 									);
 								}}
 							/>

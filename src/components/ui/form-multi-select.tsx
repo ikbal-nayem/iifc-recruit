@@ -22,7 +22,7 @@ interface FormMultiSelectProps<
 	TFieldValues extends FieldValues,
 	TOption = { id: number | string; nameEn: string },
 > {
-	control?: Control<TFieldValues> | any;
+	control: Control<TFieldValues> | any;
 	name: FieldPath<TFieldValues>;
 	label?: string;
 	placeholder?: string;
