@@ -12,8 +12,9 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from '@/components/ui/dialog';
+import { Form } from '@/components/ui/form';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -26,9 +27,9 @@ import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { getStatusVariant } from '@/lib/utils';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { MasterDataService } from '@/services/api/master-data.service';
-import { Building, Edit, Edit2, Loader2, Search, UserCog, Users } from 'lucide-react';
+import { Building, Edit, Loader2, Search, UserCog, Users } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import { FormAutocomplete } from '@/components/ui/form-autocomplete';
+import { useForm } from 'react-hook-form';
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
 
@@ -48,6 +49,8 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 
 	const [selectedPostForExaminer, setSelectedPostForExaminer] = useState<RequestedPost | null>(null);
 	const [selectedExaminerId, setSelectedExaminerId] = useState<string | undefined>(undefined);
+
+	const form = useForm(); // Create a form instance
 
 	useEffect(() => {
 		MasterDataService.clientOrganization
@@ -219,19 +222,21 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 							Select an examiner for the post: &quot;{selectedPostForExaminer?.post?.nameEn}&quot;.
 						</DialogDescription>
 					</DialogHeader>
-					<div className='py-4'>
-						<FormAutocomplete
-							name='examinerId'
-							label='Examiner'
-							placeholder='Select an Examiner'
-							options={examiners}
-							getOptionValue={(option) => option.id!.toString()}
-							getOptionLabel={(option) => option.nameEn}
-							value={selectedExaminerId}
-							onValueChange={setSelectedExaminerId}
-							required
-						/>
-					</div>
+					<Form {...form}>
+						<div className='py-4'>
+							<FormAutocomplete
+								name='examinerId'
+								label='Examiner'
+								placeholder='Select an Examiner'
+								options={examiners}
+								getOptionValue={(option) => option.id!.toString()}
+								getOptionLabel={(option) => option.nameEn}
+								value={selectedExaminerId}
+								onValueChange={setSelectedExaminerId}
+								required
+							/>
+						</div>
+					</Form>
 					<DialogFooter>
 						<Button variant='ghost' onClick={() => setSelectedPostForExaminer(null)}>
 							Cancel
