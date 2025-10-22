@@ -20,13 +20,12 @@ import { useToast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequestedPostStatus, RequestedPost } from '@/interfaces/job.interface';
-import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO, IClientOrganization } from '@/interfaces/master-data.interface';
 import { cn, getStatusVariant } from '@/lib/utils';
 import { ApplicationService } from '@/services/api/application.service';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { getExaminerAsync } from '@/services/async-api';
-import { ArrowLeft, Building, ChevronsRight, Edit, Loader2, UserPlus, Users } from 'lucide-react';
+import { ArrowLeft, Building, ChevronsRight, Edit, Loader2, UserCog, UserPlus, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -41,11 +40,12 @@ interface ApplicationManagementPageProps {
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
 
 export function ApplicationManagementPage({
-	requestedPost,
+	requestedPost: initialPost,
 	statuses,
 }: ApplicationManagementPageProps) {
 	const { toast } = useToast();
 	const router = useRouter();
+	const [requestedPost, setRequestedPost] = useState<RequestedPost>(initialPost);
 	const [isProceeding, setIsProceeding] = useState(false);
 	const [applicants, setApplicants] = useState<Application[]>([]);
 	const [applicantsMeta, setApplicantsMeta] = useState<IMeta>(initMeta);
@@ -53,11 +53,12 @@ export function ApplicationManagementPage({
 	const [isAddCandidateOpen, setIsAddCandidateOpen] = useState(false);
 	const [statusFilter, setStatusFilter] = useState<string | null>(null);
 	const [isProceedConfirmationOpen, setIsProceedConfirmationOpen] = useState(false);
-	const [proceedExaminerId, setProceedExaminerId] = useState<number | undefined>(requestedPost.examinerId);
 
-	const [isSavingExaminer, setIsSavingExaminer] = useState<number | null>(null);
-	const [selectedPostForExaminer, setSelectedPostForExaminer] = useState<RequestedPost | null>(null);
-	const [selectedExaminerId, setSelectedExaminerId] = useState<string>();
+	const [isExaminerDialogOpen, setIsExaminerDialogOpen] = useState(false);
+	const [isSavingExaminer, setIsSavingExaminer] = useState(false);
+	const [selectedExaminerId, setSelectedExaminerId] = useState<string | undefined>(
+		initialPost.examinerId?.toString()
+	);
 
 	const form = useForm();
 
@@ -105,23 +106,21 @@ export function ApplicationManagementPage({
 	}, [statusFilter, loadApplicants]);
 
 	const handleProceed = async () => {
+		if (!selectedExaminerId) {
+			toast({
+				title: 'Examiner Required',
+				description: 'Please assign an examiner before proceeding.',
+				variant: 'warning',
+			});
+			setIsProceedConfirmationOpen(false);
+			setIsExaminerDialogOpen(true);
+			return;
+		}
+
 		setIsProceeding(true);
 		try {
-			// Step 1: Save examiner if one is selected in the dialog
-			if (proceedExaminerId) {
-				await JobRequestService.setExaminer({
-					requestedPostId: requestedPost.id!,
-					examinerId: proceedExaminerId,
-				});
-				toast({
-					title: 'Examiner Assigned',
-					description: 'The examining organization has been assigned to this post.',
-					variant: 'success',
-				});
-			}
-
-			// Step 2: Proceed with the logic to move to the next stage
-			console.log('Proceeding with examiner:', proceedExaminerId);
+			// Logic to move accepted applicants to the next stage
+			console.log('Proceeding with examiner:', selectedExaminerId);
 			toast({
 				title: 'Request Processing',
 				description: 'The request has been moved to the processing stage.',
@@ -187,9 +186,34 @@ export function ApplicationManagementPage({
 		loadApplicants(newPage, statusFilter);
 	};
 
-	const handleOpenExaminerDialog = (item: RequestedPost) => {
-		setSelectedPostForExaminer(item);
-		setSelectedExaminerId(item.examinerId?.toString());
+	const handleSaveExaminer = async () => {
+		if (!selectedExaminerId) {
+			toast({ title: 'Error', description: 'No examiner selected.', variant: 'danger' });
+			return;
+		}
+		setIsSavingExaminer(true);
+		try {
+			const response = await JobRequestService.setExaminer({
+				requestedPostId: requestedPost.id!,
+				examinerId: Number(selectedExaminerId),
+			});
+			const updatedPost = response.body;
+			setRequestedPost(updatedPost);
+			toast({
+				title: 'Examiner Assigned',
+				description: 'The examining organization has been assigned to this post.',
+				variant: 'success',
+			});
+			setIsExaminerDialogOpen(false);
+		} catch (error: any) {
+			toast({
+				title: 'Error',
+				description: error.message || 'Failed to assign examiner.',
+				variant: 'danger',
+			});
+		} finally {
+			setIsSavingExaminer(false);
+		}
 	};
 
 	const statItems = [
@@ -219,8 +243,8 @@ export function ApplicationManagementPage({
 							<Badge variant={getStatusVariant(requestedPost.status)}>{requestedPost.statusDTO.nameEn}</Badge>
 						)}
 					</div>
-					<CardDescription className='flex flex-wrap items-center justify-between'>
-						<div className='flex gap-4'>
+					<div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
+						<CardDescription className='flex flex-wrap items-center gap-x-4'>
 							<span className='flex items-center gap-1.5'>
 								<Building className='h-4 w-4' />
 								{requestedPost.jobRequest?.clientOrganization?.nameEn}
@@ -229,8 +253,15 @@ export function ApplicationManagementPage({
 								<Users className='h-4 w-4' />
 								{requestedPost.vacancy} Vacancies
 							</span>
+						</CardDescription>
+						<div className='flex items-center gap-2 text-sm'>
+							<span className='text-muted-foreground'>Examiner:</span>
+							<span className='font-semibold'>{requestedPost.examiner?.nameEn || 'Not Assigned'}</span>
+							<Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setIsExaminerDialogOpen(true)}>
+								<Edit className='h-4 w-4 text-primary' />
+							</Button>
 						</div>
-					</CardDescription>
+					</div>
 				</CardHeader>
 			</Card>
 
@@ -325,21 +356,6 @@ export function ApplicationManagementPage({
 								Only applicants with the &quot;Accepted&quot; status will be moved to the next stage.
 							</AlertDescription>
 						</Alert>
-						<div className='space-y-2'>
-							<Form {...form}>
-								<FormAutocomplete
-									control={form.control}
-									name='proceedExaminerId'
-									label='Assign Examiner (Optional)'
-									placeholder='Search for an examining organization...'
-									loadOptions={getExaminerAsync}
-									getOptionValue={(option) => option.id!}
-									getOptionLabel={(option) => option.nameEn}
-									value={proceedExaminerId?.toString()}
-									onValueChange={(val) => setProceedExaminerId(Number(val))}
-								/>
-							</Form>
-						</div>
 					</div>
 					<DialogFooter>
 						<Button variant='ghost' onClick={() => setIsProceedConfirmationOpen(false)}>
@@ -348,6 +364,38 @@ export function ApplicationManagementPage({
 						<Button onClick={handleProceed} disabled={isProceeding}>
 							{isProceeding ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : null}
 							Confirm & Proceed
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+			<Dialog open={isExaminerDialogOpen} onOpenChange={setIsExaminerDialogOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Assign Examiner</DialogTitle>
+						<DialogDescription>
+							Select an examiner for the post: &quot;{requestedPost.post?.nameEn}&quot;.
+						</DialogDescription>
+					</DialogHeader>
+					<div className='py-4'>
+						<FormAutocomplete
+							name='examinerId'
+							label='Examiner'
+							placeholder='Search for an examining organization...'
+							required
+							loadOptions={getExaminerAsync}
+							getOptionValue={(option) => option.id!.toString()}
+							getOptionLabel={(option) => option.nameEn}
+							value={selectedExaminerId}
+							onValueChange={setSelectedExaminerId}
+						/>
+					</div>
+					<DialogFooter>
+						<Button variant='ghost' onClick={() => setIsExaminerDialogOpen(false)}>
+							Cancel
+						</Button>
+						<Button onClick={handleSaveExaminer} disabled={isSavingExaminer}>
+							{isSavingExaminer && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+							Save
 						</Button>
 					</DialogFooter>
 				</DialogContent>
