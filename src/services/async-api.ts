@@ -1,3 +1,4 @@
+
 import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { MasterDataService } from './api/master-data.service';
 
