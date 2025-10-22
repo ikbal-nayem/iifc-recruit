@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/command';
 import { FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useDebounce } from '@/hooks/use-debounce';
 import { cn } from '@/lib/utils';
 import { Check, Loader2, X } from 'lucide-react';
 import * as React from 'react';
@@ -27,12 +28,11 @@ interface FormMultiSelectProps<
 	label?: string;
 	placeholder?: string;
 	required?: boolean;
-	options: TOption[];
-	isLoading?: boolean;
+	options?: TOption[];
+	loadOptions?: (searchKey: string, callback: (options: TOption[]) => void) => void;
 	selected: TOption[];
 	onAdd: (option: TOption) => void;
 	onRemove: (option: TOption) => void;
-	onInputChange?: (search: string) => void;
 	badgeVariant?: BadgeProps['variant'];
 	closeOnSelect?: boolean;
 }
@@ -46,24 +46,37 @@ export function FormMultiSelect<
 	label,
 	placeholder = 'Select...',
 	required = false,
-	options,
-	isLoading = false,
+	options: staticOptions,
+	loadOptions,
 	selected,
 	onAdd,
 	onRemove,
-	onInputChange,
 	badgeVariant = 'outline',
 	closeOnSelect = false,
 }: FormMultiSelectProps<TFieldValues, TOption>) {
 	const [open, setOpen] = React.useState(false);
 	const [searchQuery, setSearchQuery] = React.useState('');
+	const [asyncOptions, setAsyncOptions] = React.useState<TOption[]>([]);
+	const [isLoading, setIsLoading] = React.useState(false);
+
+	const debouncedSearchQuery = useDebounce(searchQuery, 300);
+	const options = staticOptions || asyncOptions;
+
+	React.useEffect(() => {
+		if (loadOptions && open) {
+			setIsLoading(true);
+			loadOptions(debouncedSearchQuery, (newOptions) => {
+				setAsyncOptions(newOptions);
+				setIsLoading(false);
+			});
+		}
+	}, [debouncedSearchQuery, loadOptions, open]);
 
 	const handleSelect = (option: TOption) => {
 		if (!selected.some((s) => s.id === option.id)) {
 			onAdd(option);
 		}
 		setSearchQuery('');
-		onInputChange?.('');
 		if (closeOnSelect) {
 			setOpen(false);
 		}
@@ -111,15 +124,8 @@ export function FormMultiSelect<
 
 	const popoverContent = (
 		<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
-			<Command shouldFilter={false} onKeyDown={handleKeyDown}>
-				<CommandInput
-					placeholder='Search...'
-					value={searchQuery}
-					onValueChange={(value) => {
-						setSearchQuery(value);
-						onInputChange?.(value);
-					}}
-				/>
+			<Command shouldFilter={!loadOptions} onKeyDown={handleKeyDown}>
+				<CommandInput placeholder='Search...' value={searchQuery} onValueChange={setSearchQuery} />
 				<CommandList>
 					{isLoading && (
 						<div className='p-2 flex justify-center'>
@@ -127,10 +133,15 @@ export function FormMultiSelect<
 						</div>
 					)}
 					{!isLoading && searchQuery && options.length === 0 && <CommandEmpty>No results found.</CommandEmpty>}
-					{!isLoading && !searchQuery && <CommandEmpty>Type to search.</CommandEmpty>}
+					{!isLoading && !searchQuery && !loadOptions && <CommandEmpty>No results found.</CommandEmpty>}
+					{!isLoading && !searchQuery && loadOptions && <CommandEmpty>Type to search.</CommandEmpty>}
 					<CommandGroup>
 						{options.map((option) => (
-							<CommandItem key={option.id} value={option.nameEn} onSelect={() => handleSelect(option)}>
+							<CommandItem
+								key={option.id}
+								value={option.nameEn}
+								onSelect={() => handleSelect(option)}
+							>
 								<Check
 									className={cn(
 										'mr-2 h-4 w-4',

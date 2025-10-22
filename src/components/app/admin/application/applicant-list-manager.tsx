@@ -18,7 +18,7 @@ import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
-import { MasterDataService } from '@/services/api/master-data.service';
+import { getSkillsAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
 	ColumnDef,
@@ -61,11 +61,6 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 	const [textSearch, setTextSearch] = useState('');
 	const debouncedTextSearch = useDebounce(textSearch, 500);
 
-	const [skillOptions, setSkillOptions] = useState<ICommonMasterData[]>([]);
-	const [isSkillsLoading, setIsSkillsLoading] = useState(false);
-	const [skillSearchQuery, setSkillSearchQuery] = useState('');
-	const debouncedSkillSearch = useDebounce(skillSearchQuery, 300);
-
 	const [selectedSkills, setSelectedSkills] = useState<ICommonMasterData[]>([]);
 
 	const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -79,14 +74,6 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 			skillIds: [],
 		},
 	});
-
-	useEffect(() => {
-		setIsSkillsLoading(true);
-		MasterDataService.skill
-			.getList({ body: { name: debouncedSkillSearch }, meta: { page: 0, limit: 30 } })
-			.then((res) => setSkillOptions(res.body))
-			.finally(() => setIsSkillsLoading(false));
-	}, [debouncedSkillSearch]);
 
 	const searchApplicants = useCallback(
 		async (page: number, searchCriteria: { searchKey?: string; skillIds?: number[] }) => {
@@ -223,10 +210,8 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 								name='skillIds'
 								label='Skills'
 								placeholder='Filter by skills...'
-								options={skillOptions}
-								isLoading={isSkillsLoading}
+								loadOptions={getSkillsAsync}
 								selected={selectedSkills}
-								onInputChange={setSkillSearchQuery}
 								onAdd={(skill) => {
 									const newSkills = [...selectedSkills, skill];
 									setSelectedSkills(newSkills);

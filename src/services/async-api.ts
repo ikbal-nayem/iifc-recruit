@@ -1,5 +1,5 @@
 
-import { IClientOrganization } from '@/interfaces/master-data.interface';
+import { IClientOrganization, ICommonMasterData } from '@/interfaces/master-data.interface';
 import { MasterDataService } from './api/master-data.service';
 
 const initPayload = {
@@ -13,3 +13,9 @@ export const getExaminerAsync = (searchKey: string, callback: (data: IClientOrga
 		.getList({ body: { searchKey, isExaminer: true } })
 		.then((resp) => callback(resp?.body || []));
 };
+
+export const getSkillsAsync = (searchKey: string, callback: (data: ICommonMasterData[]) => void) => {
+	MasterDataService.skill
+		.getList({ body: { name: searchKey }, meta: { page: 0, limit: 30 } })
+		.then((resp) => callback(resp?.body || []));
+}
