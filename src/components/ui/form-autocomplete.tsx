@@ -86,12 +86,12 @@ export function FormAutocomplete<
 			className={cn('w-full justify-between h-11', !currentValue && 'text-muted-foreground')}
 			disabled={disabled}
 		>
-			{currentValue ? currentLabel : placeholder || 'Select...'}
+			{currentValue && currentLabel ? currentLabel : placeholder || 'Select...'}
 			<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
 		</Button>
 	);
 
-	const renderPopoverContent = (onChange?: (...event: any[]) => void) => (
+	const popoverContent = (onChange?: (...event: any[]) => void) => (
 		<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
 			<Command shouldFilter={!loadOptions}>
 				<CommandInput
@@ -148,7 +148,9 @@ export function FormAutocomplete<
 				<div className='space-y-2'>
 					{label && <FormLabel required={required}>{label}</FormLabel>}
 					<Popover open={open} onOpenChange={setOpen}>
-						<PopoverTrigger asChild>{renderTrigger(value, getOptionLabel(selectedOption!))}</PopoverTrigger>
+						<PopoverTrigger asChild>
+							{renderTrigger(value, selectedOption ? getOptionLabel(selectedOption) : undefined)}
+						</PopoverTrigger>
 						{renderPopoverContent()}
 					</Popover>
 				</div>
@@ -170,7 +172,11 @@ export function FormAutocomplete<
 									{renderTrigger(
 										field.value,
 										field.value
-											? getOptionLabel(options.find((option) => getOptionValue(option) === field.value)!)
+											? options.find((option) => getOptionValue(option) === field.value)
+												? getOptionLabel(
+														options.find((option) => getOptionValue(option) === field.value)!
+												  )
+												: placeholder || 'Select...'
 											: undefined
 									)}
 								</FormControl>
