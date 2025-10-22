@@ -12,65 +12,57 @@ import {
 } from '@/components/ui/command';
 import { FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { useDebounce } from '@/hooks/use-debounce';
-import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { cn } from '@/lib/utils';
-import { MasterDataService } from '@/services/api/master-data.service';
 import { Check, Loader2, X } from 'lucide-react';
 import * as React from 'react';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
 
-interface FormMultiSelectProps<TFieldValues extends FieldValues> {
+interface FormMultiSelectProps<
+	TFieldValues extends FieldValues,
+	TOption = { id: number | string; nameEn: string },
+> {
 	control?: Control<TFieldValues> | any;
 	name: FieldPath<TFieldValues>;
 	label?: string;
 	placeholder?: string;
 	required?: boolean;
-	options: ICommonMasterData[];
-	selected: ICommonMasterData[];
-	onAdd: (option: ICommonMasterData) => void;
-	onRemove: (option: ICommonMasterData) => void;
+	options: TOption[];
+	isLoading?: boolean;
+	selected: TOption[];
+	onAdd: (option: TOption) => void;
+	onRemove: (option: TOption) => void;
+	onInputChange?: (search: string) => void;
 	badgeVariant?: BadgeProps['variant'];
 	closeOnSelect?: boolean;
 }
 
-export function FormMultiSelect<TFieldValues extends FieldValues>({
+export function FormMultiSelect<
+	TFieldValues extends FieldValues,
+	TOption extends { id: number | string; nameEn: string },
+>({
 	control,
 	name,
 	label,
 	placeholder = 'Select...',
 	required = false,
-	options: initialOptions,
+	options,
+	isLoading = false,
 	selected,
 	onAdd,
 	onRemove,
+	onInputChange,
 	badgeVariant = 'outline',
 	closeOnSelect = false,
-}: FormMultiSelectProps<TFieldValues>) {
+}: FormMultiSelectProps<TFieldValues, TOption>) {
 	const [open, setOpen] = React.useState(false);
 	const [searchQuery, setSearchQuery] = React.useState('');
-	const [suggestions, setSuggestions] = React.useState<ICommonMasterData[]>(initialOptions);
-	const [isLoading, setIsLoading] = React.useState(false);
 
-	const debouncedSearch = useDebounce(searchQuery, 300);
-
-	React.useEffect(() => {
-		if (debouncedSearch) {
-			setIsLoading(true);
-			MasterDataService.skill
-				.getList({ body: { searchKey: debouncedSearch }, meta: { page: 0, limit: 30 } })
-				.then((res) => setSuggestions(res.body))
-				.finally(() => setIsLoading(false));
-		} else {
-			setSuggestions(initialOptions);
-		}
-	}, [debouncedSearch, initialOptions]);
-
-	const handleSelect = (option: ICommonMasterData) => {
+	const handleSelect = (option: TOption) => {
 		if (!selected.some((s) => s.id === option.id)) {
 			onAdd(option);
 		}
 		setSearchQuery('');
+		onInputChange?.('');
 		if (closeOnSelect) {
 			setOpen(false);
 		}
@@ -112,25 +104,31 @@ export function FormMultiSelect<TFieldValues extends FieldValues>({
 			) : (
 				<span className='px-1'>{placeholder}</span>
 			)}
+			{selected.length > 0 && <span className='text-muted-foreground text-sm px-1'>Add more...</span>}
 		</Button>
 	);
 
 	const popoverContent = (
 		<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
 			<Command shouldFilter={false} onKeyDown={handleKeyDown}>
-				<CommandInput placeholder='Search...' value={searchQuery} onValueChange={setSearchQuery} />
+				<CommandInput
+					placeholder='Search...'
+					value={searchQuery}
+					onValueChange={(value) => {
+						setSearchQuery(value);
+						onInputChange?.(value);
+					}}
+				/>
 				<CommandList>
 					{isLoading && (
 						<div className='p-2 flex justify-center'>
 							<Loader2 className='h-6 w-6 animate-spin' />
 						</div>
 					)}
-					{!isLoading && debouncedSearch && suggestions.length === 0 && (
-						<CommandEmpty>No results found.</CommandEmpty>
-					)}
-					{!isLoading && !debouncedSearch && <CommandEmpty>Type to search.</CommandEmpty>}
+					{!isLoading && searchQuery && options.length === 0 && <CommandEmpty>No results found.</CommandEmpty>}
+					{!isLoading && !searchQuery && <CommandEmpty>Type to search.</CommandEmpty>}
 					<CommandGroup>
-						{suggestions.map((option) => (
+						{options.map((option) => (
 							<CommandItem key={option.id} value={option.nameEn} onSelect={() => handleSelect(option)}>
 								<Check
 									className={cn(
@@ -154,26 +152,17 @@ export function FormMultiSelect<TFieldValues extends FieldValues>({
 		</Popover>
 	);
 
-	if (control) {
-		return (
-			<FormField
-				control={control}
-				name={name}
-				render={() => (
-					<FormItem>
-						{label && <FormLabel required={required}>{label}</FormLabel>}
-						<div className='space-y-2'>{component}</div>
-						<FormMessage />
-					</FormItem>
-				)}
-			/>
-		);
-	}
-
 	return (
-		<div className='space-y-2'>
-			<FormLabel required={required}>{label}</FormLabel>
-			{component}
-		</div>
+		<FormField
+			control={control}
+			name={name}
+			render={() => (
+				<FormItem>
+					{label && <FormLabel required={required}>{label}</FormLabel>}
+					<div className='space-y-2'>{component}</div>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
 	);
 }
