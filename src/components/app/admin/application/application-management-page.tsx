@@ -326,18 +326,19 @@ export function ApplicationManagementPage({
 							</AlertDescription>
 						</Alert>
 						<div className='space-y-2'>
-							<p className='font-medium'>Assign Examiner (Optional)</p>
-							<FormAutocomplete
-								control={null}
-								name='proceedExaminerId'
-								label=''
-								placeholder='Search for an examining organization...'
-								loadOptions={getExaminerAsync}
-								getOptionValue={(option) => option.id!}
-								getOptionLabel={(option) => option.nameEn}
-								value={proceedExaminerId?.toString()}
-								onValueChange={(val) => setProceedExaminerId(Number(val))}
-							/>
+							<Form {...form}>
+								<FormAutocomplete
+									control={form.control}
+									name='proceedExaminerId'
+									label='Assign Examiner (Optional)'
+									placeholder='Search for an examining organization...'
+									loadOptions={getExaminerAsync}
+									getOptionValue={(option) => option.id!}
+									getOptionLabel={(option) => option.nameEn}
+									value={proceedExaminerId?.toString()}
+									onValueChange={(val) => setProceedExaminerId(Number(val))}
+								/>
+							</Form>
 						</div>
 					</div>
 					<DialogFooter>
