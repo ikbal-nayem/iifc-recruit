@@ -80,7 +80,7 @@ export function FormMultiSelect<
 			type='button'
 			variant='outline'
 			className={cn(
-				'flex flex-wrap gap-1 p-2 border rounded-lg min-h-[44px] items-center cursor-text w-full justify-start font-normal h-auto',
+				'flex flex-wrap gap-1 p-2 min-h-[44px] w-full justify-start font-normal h-auto',
 				!selected.length && 'text-muted-foreground'
 			)}
 			onClick={() => setOpen(true)}
