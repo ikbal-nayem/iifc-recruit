@@ -86,7 +86,7 @@ export function ApplicationManagementPage({
 
 	useEffect(() => {
 		loadApplicants(0, statusFilter);
-	}, [statusFilter]);
+	}, [statusFilter, loadApplicants]);
 
 	const handleProceed = async () => {
 		if (!selectedExaminer) {
@@ -193,34 +193,34 @@ export function ApplicationManagementPage({
 				</CardHeader>
 			</Card>
 
-			<Card>
-				<CardContent className='p-2'>
-					<div className='grid grid-cols-2 md:grid-cols-4'>
-						{statItems.map((item) => (
-							<button
-								key={item.label}
-								onClick={() => handleFilterChange(item.status)}
+			<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+				{statItems.map((item) => (
+					<Card
+						key={item.label}
+						onClick={() => handleFilterChange(item.status)}
+						className={cn(
+							'cursor-pointer transition-all hover:shadow-md hover:-translate-y-1',
+							statusFilter === item.status
+								? 'bg-primary/10 border-primary'
+								: 'bg-card'
+						)}
+					>
+						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+							<CardTitle className='text-sm font-medium'>{item.label}</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<div
 								className={cn(
-									'text-center p-4 rounded-md transition-colors',
-									statusFilter === item.status
-										? 'bg-primary/10'
-										: 'hover:bg-muted'
+									'text-3xl font-bold',
+									statusFilter === item.status ? 'text-primary' : 'text-foreground'
 								)}
 							>
-								<p
-									className={cn(
-										'text-3xl font-bold',
-										statusFilter === item.status ? 'text-primary' : 'text-foreground'
-									)}
-								>
-									{item.value}
-								</p>
-								<p className='text-sm text-muted-foreground'>{item.label}</p>
-							</button>
-						))}
-					</div>
-				</CardContent>
-			</Card>
+								{item.value}
+							</div>
+						</CardContent>
+					</Card>
+				))}
+			</div>
 
 			<Card>
 				<CardHeader className='flex-row items-center justify-between'>
