@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +11,7 @@ import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { RequestedPost } from '@/interfaces/job.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO, IClientOrganization } from '@/interfaces/master-data.interface';
-import { getStatusVariant } from '@/lib/utils';
+import { cn, getStatusVariant } from '@/lib/utils';
 import { ApplicationService } from '@/services/api/application.service';
 import { ArrowLeft, Building, ChevronsRight, Loader2, Save, UserPlus, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -41,6 +42,7 @@ export function ApplicationManagementPage({
 	const [applicantsMeta, setApplicantsMeta] = useState<IMeta>(initMeta);
 	const [isLoadingApplicants, setIsLoadingApplicants] = useState(true);
 	const [isAddCandidateOpen, setIsAddCandidateOpen] = useState(false);
+	const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
 	const applicantStats = useMemo(() => {
 		return applicants.reduce(
@@ -60,11 +62,11 @@ export function ApplicationManagementPage({
 	}, [applicants]);
 
 	const loadApplicants = useCallback(
-		async (page: number) => {
+		async (page: number, status?: string | null) => {
 			setIsLoadingApplicants(true);
 			try {
 				const payload: IApiRequest = {
-					body: { requestedPostId: requestedPost.id },
+					body: { requestedPostId: requestedPost.id, ...(status && { status: status }) },
 					meta: { page, limit: applicantsMeta.limit },
 				};
 				const response = await ApplicationService.getList(payload);
@@ -83,8 +85,8 @@ export function ApplicationManagementPage({
 	);
 
 	useEffect(() => {
-		loadApplicants(0);
-	}, []);
+		loadApplicants(0, statusFilter);
+	}, [statusFilter]);
 
 	const handleProceed = async () => {
 		if (!selectedExaminer) {
@@ -118,7 +120,7 @@ export function ApplicationManagementPage({
 		const payload = newApplicants.map((js) => ({
 			applicantId: js.userId,
 			requestedPostId: requestedPost.id!,
-			status: APPLICATION_STATUS.ACCEPTED,
+			status: APPLICATION_STATUS.APPLIED,
 		}));
 
 		ApplicationService.createAll(payload)
@@ -128,7 +130,6 @@ export function ApplicationManagementPage({
 					description: `${newApplicants.length} candidate(s) have been added to the application list.`,
 					variant: 'success',
 				});
-				// setIsAddCandidateOpen(false);
 				onSuccess && onSuccess();
 				loadApplicants(0);
 			})
@@ -142,8 +143,19 @@ export function ApplicationManagementPage({
 	};
 
 	const handlePageChange = (newPage: number) => {
-		loadApplicants(newPage);
+		loadApplicants(newPage, statusFilter);
 	};
+
+	const handleFilterChange = (newStatus: string | null) => {
+		setStatusFilter(newStatus);
+	};
+
+	const statItems = [
+		{ label: 'Total Applicants', value: applicantStats.total, status: null },
+		{ label: 'Applied', value: applicantStats.APPLIED, status: APPLICATION_STATUS.APPLIED },
+		{ label: 'Accepted', value: applicantStats.ACCEPTED, status: APPLICATION_STATUS.ACCEPTED },
+		{ label: 'Hired', value: applicantStats.HIRED, status: APPLICATION_STATUS.HIRED },
+	];
 
 	return (
 		<div className='space-y-6'>
@@ -181,40 +193,34 @@ export function ApplicationManagementPage({
 				</CardHeader>
 			</Card>
 
-			<div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4'>
-				<Card className='col-span-1'>
-					<CardHeader>
-						<CardTitle className='text-sm text-muted-foreground'>Total Applicants</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<p className='text-3xl font-bold'>{applicantStats.total}</p>
-					</CardContent>
-				</Card>
-				<Card className='col-span-1'>
-					<CardHeader>
-						<CardTitle className='text-sm text-muted-foreground'>Applied</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<p className='text-3xl font-bold'>{applicantStats.APPLIED}</p>
-					</CardContent>
-				</Card>
-				<Card className='col-span-1'>
-					<CardHeader>
-						<CardTitle className='text-sm text-muted-foreground'>Accepted</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<p className='text-3xl font-bold'>{applicantStats.ACCEPTED}</p>
-					</CardContent>
-				</Card>
-				<Card className='col-span-1'>
-					<CardHeader>
-						<CardTitle className='text-sm text-muted-foreground'>Hired</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<p className='text-3xl font-bold'>{applicantStats.HIRED}</p>
-					</CardContent>
-				</Card>
-			</div>
+			<Card>
+				<CardContent className='p-2'>
+					<div className='grid grid-cols-2 md:grid-cols-4'>
+						{statItems.map((item) => (
+							<button
+								key={item.label}
+								onClick={() => handleFilterChange(item.status)}
+								className={cn(
+									'text-center p-4 rounded-md transition-colors',
+									statusFilter === item.status
+										? 'bg-primary/10'
+										: 'hover:bg-muted'
+								)}
+							>
+								<p
+									className={cn(
+										'text-3xl font-bold',
+										statusFilter === item.status ? 'text-primary' : 'text-foreground'
+									)}
+								>
+									{item.value}
+								</p>
+								<p className='text-sm text-muted-foreground'>{item.label}</p>
+							</button>
+						))}
+					</div>
+				</CardContent>
+			</Card>
 
 			<Card>
 				<CardHeader className='flex-row items-center justify-between'>
