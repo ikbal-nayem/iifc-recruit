@@ -33,7 +33,7 @@ import { JobRequestedPostStatus } from '@/interfaces/job.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO } from '@/interfaces/master-data.interface';
 import { getStatusVariant } from '@/lib/utils';
-import { FileText, Loader2, UserCheck, UserPlus } from 'lucide-react';
+import { FileText, Loader2, RotateCcw, UserCheck, UserPlus } from 'lucide-react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 
 interface ApplicantsTableProps {
@@ -94,12 +94,22 @@ export function ApplicantsTable({
 				onClick: () => setSelectedApplicant(applicant.applicant as JobseekerSearch),
 			},
 			{ isSeparator: true },
-			{
+		];
+
+		if (applicant.status === APPLICATION_STATUS.ACCEPTED) {
+			items.push({
+				label: 'Revert to Applied',
+				icon: <RotateCcw className='mr-2 h-4 w-4' />,
+				onClick: () => handleStatusChange([applicant.id], APPLICATION_STATUS.APPLIED),
+			});
+		} else {
+			items.push({
 				label: 'Mark as Accepted',
 				icon: <UserCheck className='mr-2 h-4 w-4' />,
 				onClick: () => handleStatusChange([applicant.id], APPLICATION_STATUS.ACCEPTED),
-			},
-		];
+			});
+		}
+
 		if (requestedPostStatus !== JobRequestedPostStatus.PENDING) {
 			items.push({
 				label: 'Mark as Hired',
