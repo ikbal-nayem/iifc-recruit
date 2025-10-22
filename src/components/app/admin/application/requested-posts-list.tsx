@@ -26,7 +26,7 @@ import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { getStatusVariant } from '@/lib/utils';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { MasterDataService } from '@/services/api/master-data.service';
-import { Building, Edit2, Loader2, Search, UserCog, Users } from 'lucide-react';
+import { Building, Edit, Edit2, Loader2, Search, UserCog, Users } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 
@@ -171,7 +171,7 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 								className='h-7 w-7'
 								onClick={() => handleOpenExaminerDialog(item)}
 							>
-								<Edit2 className='h-4 w-4 text-primary' />
+								<Edit className='h-4 w-4 text-primary' />
 							</Button>
 						</div>
 					)}
