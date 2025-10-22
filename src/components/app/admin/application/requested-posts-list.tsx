@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
@@ -15,6 +16,9 @@ import { getStatusVariant } from '@/lib/utils';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { Building, Search, UserCog, Users } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
+import { MasterDataService } from '@/services/api/master-data.service';
+import { IClientOrganization } from '@/interfaces/master-data.interface';
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
 
@@ -29,6 +33,15 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
 	const { toast } = useToast();
+	const [examiners, setExaminers] = useState<IClientOrganization[]>([]);
+	const [isSavingExaminer, setIsSavingExaminer] = useState<number | null>(null);
+
+	useEffect(() => {
+		MasterDataService.clientOrganization
+			.getList({ body: { isExaminer: true } })
+			.then((res) => setExaminers(res.body))
+			.catch(() => toast({ description: 'Failed to load examiners.', variant: 'danger' }));
+	}, [toast]);
 
 	const loadItems = useCallback(
 		async (page: number, search: string) => {
@@ -61,6 +74,28 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 		loadItems(newPage, debouncedSearch);
 	};
 
+	const handleExaminerChange = async (requestedPostId: number, examinerId: number | undefined) => {
+		if (!examinerId) return;
+		setIsSavingExaminer(requestedPostId);
+		try {
+			await JobRequestService.setExaminer({ requestedPostId, examinerId });
+			setData((prev) =>
+				prev.map((post) => (post.id === requestedPostId ? { ...post, examinerId: examinerId } : post))
+			);
+			toast({
+				description: 'Examiner assigned successfully.',
+				variant: 'success',
+			});
+		} catch (error: any) {
+			toast({
+				description: error.message || 'Failed to assign examiner.',
+				variant: 'danger',
+			});
+		} finally {
+			setIsSavingExaminer(null);
+		}
+	};
+
 	const getActionItems = (item: RequestedPost): ActionItem[] => {
 		const items: ActionItem[] = [];
 
@@ -83,8 +118,11 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 	const renderItem = (item: RequestedPost) => {
 		return (
 			<Card key={item.id} className='p-4 flex flex-col sm:flex-row justify-between items-start'>
-				<div className='flex-1 mb-4 sm:mb-0 space-y-2'>
-					<p className='font-semibold'>{item.post?.nameEn}</p>
+				<div className='flex-1 mb-4 sm:mb-0 space-y-3'>
+					<div className='flex items-center gap-2'>
+						<p className='font-semibold'>{item.post?.nameEn}</p>
+						<Badge variant={getStatusVariant(item.status)}>{item.statusDTO?.nameEn}</Badge>
+					</div>
 					<div className='text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-1'>
 						<span className='flex items-center gap-1.5'>
 							<Building className='h-4 w-4' /> {item.jobRequest?.clientOrganization?.nameEn || 'N/A'}
@@ -96,9 +134,22 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 							<UserCog className='h-4 w-4' /> {item.totalApplied || 0} applicants
 						</span>
 					</div>
+					{status === JobRequestStatus.PENDING && (
+						<div className='max-w-xs'>
+							<FormAutocomplete
+								name='examinerId'
+								placeholder='Assign an Examiner'
+								options={examiners}
+								getOptionValue={(option) => option.id!.toString()}
+								getOptionLabel={(option) => option.nameEn}
+								value={item.examinerId?.toString()}
+								onValueChange={(examinerId) => handleExaminerChange(item.id!, Number(examinerId))}
+								disabled={isSavingExaminer === item.id}
+							/>
+						</div>
+					)}
 				</div>
-				<div className='flex items-center gap-4 w-full sm:w-auto justify-between'>
-					<Badge variant={getStatusVariant(item.status)}>{item.statusDTO?.nameEn}</Badge>
+				<div className='flex items-center gap-4 w-full sm:w-auto justify-end'>
 					<ActionMenu items={getActionItems(item)} />
 				</div>
 			</Card>
@@ -119,7 +170,7 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 				</div>
 				<div className='space-y-4'>
 					{isLoading ? (
-						[...Array(5)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
+						[...Array(5)].map((_, i) => <Skeleton key={i} className='h-32 sm:h-24 w-full' />)
 					) : data.length > 0 ? (
 						data.map(renderItem)
 					) : (
