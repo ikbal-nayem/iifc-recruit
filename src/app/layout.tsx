@@ -1,16 +1,12 @@
-import { ClientLayout } from '@/components/client-layout';
-import { Inter, Source_Code_Pro, Space_Grotesk } from 'next/font/google';
+import { MainLayout } from '@/components/main-layout';
+import { Lato, Source_Code_Pro } from 'next/font/google';
 import { Suspense } from 'react';
 import './globals.css';
 
-const inter = Inter({
+const lato = Lato({
 	subsets: ['latin'],
-	variable: '--font-inter',
-});
-
-const spaceGrotesk = Space_Grotesk({
-	subsets: ['latin'],
-	variable: '--font-space-grotesk',
+	variable: '--font-lato',
+	weight: ['300', '400', '700', '900'],
 });
 
 const sourceCodePro = Source_Code_Pro({
@@ -28,7 +24,7 @@ export default function RootLayout({
 	return (
 		<html
 			lang={locale}
-			className={`h-full ${inter.variable} ${spaceGrotesk.variable} ${sourceCodePro.variable}`}
+			className={`h-full ${lato.variable} ${sourceCodePro.variable}`}
 		>
 			<head>
 				<title>IIFC Jobs</title>
@@ -36,7 +32,7 @@ export default function RootLayout({
 			</head>
 			<body className='font-body antialiased flex flex-col min-h-screen'>
 				<Suspense>
-					<ClientLayout>{children}</ClientLayout>
+					<MainLayout>{children}</MainLayout>
 				</Suspense>
 			</body>
 		</html>

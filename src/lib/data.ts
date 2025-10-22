@@ -1,27 +1,12 @@
+import { addDays, format, subDays, subMonths, subYears } from 'date-fns';
+import type { Activity, Application, Job, Jobseeker } from './types';
 
-import { ProficiancyLevel } from '@/interfaces/common.interface';
-import { addDays, format, subDays, subMonths, subWeeks, subYears } from 'date-fns';
-import type { Activity, Application, Candidate, Job, Resume } from './types';
-
-export const proficiencyOptions = [
-	{ label: 'Beginner', value: ProficiancyLevel.BEGINNER },
-	{ label: 'Intermediate', value: ProficiancyLevel.INTERMEDIATE },
-	{ label: 'Advanced', value: ProficiancyLevel.ADVANCED },
-	{ label: 'Native', value: ProficiancyLevel.NATIVE },
-];
-
-export const resumes: Resume[] = [
-    // { id: 'res1', fileName: 'Alice_Johnson_Frontend_Resume_2024.pdf', url: '/resumes/alice_johnson_resume.pdf', isActive: true, createdAt: format(subDays(new Date(), 10), 'yyyy-MM-dd') },
-    // { id: 'res2', fileName: 'Alice_Johnson_FullStack_Resume_2023.pdf', url: '/resumes/alice_johnson_resume_old.pdf', isActive: false, createdAt: format(subMonths(new Date(), 6), 'yyyy-MM-dd') }
-]
-
-export const candidates: Candidate[] = [
+export const jobseekers: Jobseeker[] = [
 	{
 		id: 'c1',
 		personalInfo: {
 			firstName: 'Alice',
 			lastName: 'Johnson',
-			name: 'Alice Johnson',
 			fatherName: 'George Johnson',
 			motherName: 'Mary Johnson',
 			email: 'alice.j@example.com',
@@ -30,23 +15,13 @@ export const candidates: Candidate[] = [
 			gender: 'Female',
 			maritalStatus: 'Married',
 			nationality: 'Bangladeshi',
+			religion: 'Islam',
+			professionalStatus: 'Experienced',
 			nid: '1234567890123',
-			presentAddress: {
-				line1: '123 Tech Avenue',
-				upazila: 'Gulshan',
-				district: 'Dhaka',
-				division: 'Dhaka',
-				postCode: '1212',
-			},
-			permanentAddress: {
-				line1: '456 Home Street',
-				upazila: 'Savar',
-				district: 'Dhaka',
-				division: 'Dhaka',
-				postCode: '1340',
-			},
-			avatar: 'https://picsum.photos/seed/alice/100/100',
-			headline: 'Senior Frontend Developer with 8+ years of experience',
+			presentAddress: '123 Tech Avenue, Gulshan, Dhaka, 1212',
+			permanentAddress: '456 Home Street, Savar, Dhaka, 1340',
+			profileImage: { filePath: 'https://picsum.photos/seed/alice/100/100' } as any,
+			careerObjective: 'Senior Frontend Developer with 8+ years of experience',
 			linkedInProfile: 'https://linkedin.com/in/alicejohnson',
 		},
 		academicInfo: [
@@ -86,8 +61,8 @@ export const candidates: Candidate[] = [
 			},
 		],
 		languages: [
-			{ languageId: 1, proficiency: ProficiancyLevel.NATIVE },
-			{ languageId: 2, proficiency: ProficiancyLevel.ADVANCED },
+			{ languageId: 1, proficiency: 'NATIVE' },
+			{ languageId: 2, proficiency: 'ADVANCED' },
 		],
 		publications: [
 			{
@@ -100,7 +75,7 @@ export const candidates: Candidate[] = [
 		],
 		awards: [{ id: 1, name: 'Developer of the Year', description: 'TechCorp', date: '2021-12-20' }],
 		trainings: [],
-		resumes: resumes,
+		resumes: [],
 		status: 'Active',
 	},
 	{
@@ -108,7 +83,6 @@ export const candidates: Candidate[] = [
 		personalInfo: {
 			firstName: 'Bob',
 			lastName: 'Smith',
-			name: 'Bob Smith',
 			fatherName: 'Robert Smith',
 			motherName: 'Susan Smith',
 			email: 'bob.s@example.com',
@@ -117,22 +91,12 @@ export const candidates: Candidate[] = [
 			gender: 'Male',
 			maritalStatus: 'Single',
 			nationality: 'Bangladeshi',
-			presentAddress: {
-				line1: '456 Innovation Drive',
-				upazila: 'Panchlaish',
-				district: 'Chattogram',
-				division: 'Chattogram',
-				postCode: '4203',
-			},
-			permanentAddress: {
-				line1: '456 Innovation Drive',
-				upazila: 'Panchlaish',
-				district: 'Chattogram',
-				division: 'Chattogram',
-				postCode: '4203',
-			},
-			avatar: 'https://picsum.photos/seed/bob/100/100',
-			headline: 'Product Manager driving innovation and growth',
+			religion: 'Christianity',
+			professionalStatus: 'Mid-Level',
+			presentAddress: '456 Innovation Drive, Panchlaish, Chattogram, 4203',
+			permanentAddress: '456 Innovation Drive, Panchlaish, Chattogram, 4203',
+			profileImage: { filePath: 'https://picsum.photos/seed/bob/100/100' } as any,
+			careerObjective: 'Product Manager driving innovation and growth',
 		},
 		academicInfo: [
 			{
@@ -155,13 +119,13 @@ export const candidates: Candidate[] = [
 		],
 		skills: ['Product Management', 'Agile', 'JIRA', 'Market Research', 'Roadmap Planning'],
 		certifications: [],
-		languages: [{ languageId: 1, proficiency: ProficiancyLevel.NATIVE }],
+		languages: [{ languageId: 1, proficiency: 'NATIVE' }],
 		publications: [],
 		awards: [],
 		trainings: [],
 		resumes: [
-             // { id: 'res3', fileName: 'Bob_Smith_Product_Resume.pdf', url: '/resumes/bob_smith_resume.pdf', isActive: true, createdAt: format(subDays(new Date(), 30), 'yyyy-MM-dd') }
-        ],
+			// { id: 'res3', fileName: 'Bob_Smith_Product_Resume.pdf', url: '/resumes/bob_smith_resume.pdf', isActive: true, createdAt: format(subDays(new Date(), 30), 'yyyy-MM-dd') }
+		],
 		status: 'Passive',
 	},
 	{
@@ -169,7 +133,6 @@ export const candidates: Candidate[] = [
 		personalInfo: {
 			firstName: 'Charlie',
 			lastName: 'Brown',
-			name: 'Charlie Brown',
 			fatherName: 'Charles Brown Sr.',
 			motherName: 'Sally Brown',
 			email: 'charlie.b@example.com',
@@ -178,22 +141,12 @@ export const candidates: Candidate[] = [
 			gender: 'Male',
 			maritalStatus: 'Single',
 			nationality: 'Bangladeshi',
-			presentAddress: {
-				line1: '789 ML Lane',
-				upazila: 'Sylhet Sadar',
-				district: 'Sylhet',
-				division: 'Sylhet',
-				postCode: '3100',
-			},
-			permanentAddress: {
-				line1: '789 ML Lane',
-				upazila: 'Sylhet Sadar',
-				district: 'Sylhet',
-				division: 'Sylhet',
-				postCode: '3100',
-			},
-			avatar: 'https://picsum.photos/seed/charlie/100/100',
-			headline: 'Data Scientist passionate about machine learning',
+			religion: 'Hinduism',
+			professionalStatus: 'Entry-Level',
+			presentAddress: '789 ML Lane, Sylhet Sadar, Sylhet, 3100',
+			permanentAddress: '789 ML Lane, Sylhet Sadar, Sylhet, 3100',
+			profileImage: { filePath: 'https://picsum.photos/seed/charlie/100/100' } as any,
+			careerObjective: 'Data Scientist passionate about machine learning',
 		},
 		academicInfo: [
 			{
@@ -216,13 +169,13 @@ export const candidates: Candidate[] = [
 		],
 		skills: ['Python', 'TensorFlow', 'PyTorch', 'SQL', 'Tableau', 'Machine Learning'],
 		certifications: [],
-		languages: [{ languageId: 1, proficiency: ProficiancyLevel.NATIVE }],
+		languages: [{ languageId: 1, proficiency: 'NATIVE' }],
 		publications: [],
 		awards: [],
 		trainings: [],
 		resumes: [
-           // { id: 'res4', fileName: 'Charlie_Brown_Data_Science.pdf', url: '/resumes/charlie_brown_resume.pdf', isActive: true, createdAt: format(subDays(new Date(), 5), 'yyyy-MM-dd') }
-        ],
+			// { id: 'res4', fileName: 'Charlie_Brown_Data_Science.pdf', url: '/resumes/charlie_brown_resume.pdf', isActive: true, createdAt: format(subDays(new Date(), 5), 'yyyy-MM-dd') }
+		],
 		status: 'Active',
 	},
 	{
@@ -230,7 +183,6 @@ export const candidates: Candidate[] = [
 		personalInfo: {
 			firstName: 'Diana',
 			lastName: 'Prince',
-			name: 'Diana Prince',
 			fatherName: 'Zeus',
 			motherName: 'Hippolyta',
 			email: 'diana.p@example.com',
@@ -239,22 +191,12 @@ export const candidates: Candidate[] = [
 			gender: 'Female',
 			maritalStatus: 'Single',
 			nationality: 'Bangladeshi',
-			presentAddress: {
-				line1: '101 Design Street',
-				upazila: 'Boalia',
-				district: 'Rajshahi',
-				division: 'Rajshahi',
-				postCode: '6000',
-			},
-			permanentAddress: {
-				line1: '101 Design Street',
-				upazila: 'Boalia',
-				district: 'Rajshahi',
-				division: 'Rajshahi',
-				postCode: '6000',
-			},
-			avatar: 'https://picsum.photos/seed/diana/100/100',
-			headline: 'UX/UI Designer creating intuitive user experiences',
+			religion: 'Buddhism',
+			professionalStatus: 'Student',
+			presentAddress: '101 Design Street, Boalia, Rajshahi, 6000',
+			permanentAddress: '101 Design Street, Boalia, Rajshahi, 6000',
+			profileImage: { filePath: 'https://picsum.photos/seed/diana/100/100' } as any,
+			careerObjective: 'UX/UI Designer creating intuitive user experiences',
 		},
 		academicInfo: [
 			{
@@ -274,13 +216,13 @@ export const candidates: Candidate[] = [
 		],
 		skills: ['Figma', 'Sketch', 'Adobe XD', 'User Research', 'Prototyping'],
 		certifications: [],
-		languages: [{ languageId: 1, proficiency: ProficiancyLevel.NATIVE }],
+		languages: [{ languageId: 1, proficiency: 'NATIVE' }],
 		publications: [],
 		awards: [],
 		trainings: [],
 		resumes: [
-           // { id: 'res5', fileName: 'Diana_Prince_UX_Portfolio_Resume.pdf', url: '/resumes/diana_prince_resume.pdf', isActive: true, createdAt: format(subWeeks(new Date(), 2), 'yyyy-MM-dd') }
-        ],
+			// { id: 'res5', fileName: 'Diana_Prince_UX_Portfolio_Resume.pdf', url: '/resumes/diana_prince_resume.pdf', isActive: true, createdAt: format(subWeeks(new Date(), 2), 'yyyy-MM-dd') }
+		],
 		status: 'Hired',
 	},
 ];
@@ -798,56 +740,56 @@ export const applications: Application[] = [
 	{
 		id: 'app1',
 		jobId: 'j1',
-		candidateId: 'c1',
+		jobseekerId: 'c1',
 		status: 'Interview',
 		applicationDate: format(subDays(new Date(), 1), 'yyyy-MM-dd'),
 	},
 	{
 		id: 'app2',
 		jobId: 'j2',
-		candidateId: 'c2',
+		jobseekerId: 'c2',
 		status: 'Applied',
 		applicationDate: format(subDays(new Date(), 8), 'yyyy-MM-dd'),
 	},
 	{
 		id: 'app3',
 		jobId: 'j3',
-		candidateId: 'c3',
+		jobseekerId: 'c3',
 		status: 'Hired',
 		applicationDate: format(subDays(new Date(), 25), 'yyyy-MM-dd'),
 	},
 	{
 		id: 'app4',
 		jobId: 'j1',
-		candidateId: 'c3',
+		jobseekerId: 'c3',
 		status: 'Screening',
 		applicationDate: format(subDays(new Date(), 1), 'yyyy-MM-dd'),
 	},
 	{
 		id: 'app5',
 		jobId: 'j5',
-		candidateId: 'c1',
+		jobseekerId: 'c1',
 		status: 'Offered',
 		applicationDate: format(subDays(new Date(), 3), 'yyyy-MM-dd'),
 	},
 	{
 		id: 'app6',
 		jobId: 'j6',
-		candidateId: 'c2',
+		jobseekerId: 'c2',
 		status: 'Rejected',
 		applicationDate: format(subDays(new Date(), 14), 'yyyy-MM-dd'),
 	},
 	{
 		id: 'app7',
 		jobId: 'j1',
-		candidateId: 'c2',
+		jobseekerId: 'c2',
 		status: 'Shortlisted',
 		applicationDate: format(subDays(new Date(), 2), 'yyyy-MM-dd'),
 	},
 	{
 		id: 'app8',
 		jobId: 'j1',
-		candidateId: 'c4',
+		jobseekerId: 'c4',
 		status: 'Applied',
 		applicationDate: format(subDays(new Date(), 3), 'yyyy-MM-dd'),
 	},

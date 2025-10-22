@@ -1,15 +1,16 @@
+
 import { Suspense } from 'react';
-import { AdminDashboardCards, AdminDashboardCardsSkeleton } from '@/components/app/admin/dashboard-cards';
-import { AdminDashboardCharts, AdminDashboardChartsSkeleton } from '@/components/app/admin/dashboard-charts';
-import { AdminDashboardRecentActivity, AdminDashboardRecentActivitySkeleton } from '@/components/app/admin/dashboard-recent-activity';
-import { jobs, candidates, applications } from '@/lib/data';
+import { AdminDashboardCards, AdminDashboardCardsSkeleton } from '@/components/app/admin/dashboard/dashboard-cards';
+import { AdminDashboardCharts, AdminDashboardChartsSkeleton } from '@/components/app/admin/dashboard/dashboard-charts';
+import { AdminDashboardRecentActivity, AdminDashboardRecentActivitySkeleton } from '@/components/app/admin/dashboard/dashboard-recent-activity';
+import { jobs, jobseekers, applications } from '@/lib/data';
 
 async function getDashboardData() {
   const openJobs = jobs.filter(j => j.status === 'Open').length;
-  const totalCandidates = candidates.length;
+  const totalJobseekers = jobseekers.length;
   const newApplications = applications.filter(a => a.status === 'Applied' || a.status === 'Screening').length;
 
-  return { openJobs, totalCandidates, newApplications };
+  return { openJobs, totalJobseekers, newApplications };
 }
 
 

@@ -1,0 +1,346 @@
+
+'use client';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Form } from '@/components/ui/form';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
+import { FormInput } from '@/components/ui/form-input';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Pagination } from '@/components/ui/pagination';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
+import { useToast } from '@/hooks/use-toast';
+import { IMeta } from '@/interfaces/common.interface';
+import { IOutsourcingCategory, IOutsourcingCharge, IOutsourcingZone } from '@/interfaces/master-data.interface';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+
+const formSchema = z.object({
+	categoryId: z.coerce.number().min(1, 'Category is required.'),
+	zoneId: z.coerce.number().min(1, 'Zone is required.'),
+	monthlyServiceCharge: z.coerce.number().min(1, 'Monthly Service Charge is required.'),
+});
+type FormValues = z.infer<typeof formSchema>;
+
+interface OutsourcingChargeFormProps {
+	isOpen: boolean;
+	onClose: () => void;
+	onSubmit: (data: IOutsourcingCharge | Omit<IOutsourcingCharge, 'id'>) => Promise<boolean>;
+	initialData?: IOutsourcingCharge;
+	categories: IOutsourcingCategory[];
+	zones: IOutsourcingZone[];
+	noun: string;
+}
+
+function OutsourcingChargeForm({
+	isOpen,
+	onClose,
+	onSubmit,
+	initialData,
+	categories,
+	zones,
+	noun,
+}: OutsourcingChargeFormProps) {
+	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	const form = useForm<FormValues>({
+		resolver: zodResolver(formSchema),
+		values: {
+			categoryId: initialData?.categoryId,
+			zoneId: initialData?.zoneId,
+			monthlyServiceCharge: initialData?.monthlyServiceCharge,
+		},
+	});
+
+
+	const handleSubmit = async (data: FormValues) => {
+		setIsSubmitting(true);
+		const payload = {
+			...initialData,
+			...data,
+			active: initialData?.active ?? true,
+		};
+		const success = await onSubmit(payload);
+		if (success) {
+			onClose();
+		}
+		setIsSubmitting(false);
+	};
+
+	return (
+		<Dialog open={isOpen} onOpenChange={onClose}>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
+					<DialogDescription>
+						{initialData ? 'Update the details.' : `Enter the details for the new ${noun.toLowerCase()}.`}
+					</DialogDescription>
+				</DialogHeader>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4'>
+						<FormAutocomplete
+							control={form.control}
+							name='categoryId'
+							label='Category'
+							placeholder='Select Category'
+							required
+							options={categories}
+							getOptionValue={(option) => option.id!}
+							getOptionLabel={(option) => option.nameEn}
+							disabled={isSubmitting}
+						/>
+						<FormAutocomplete
+							control={form.control}
+							name='zoneId'
+							label='Zone'
+							placeholder='Select Zone'
+							required
+							options={zones}
+							getOptionValue={(option) => option.id!}
+							getOptionLabel={(option) => option.nameEn}
+							disabled={isSubmitting}
+						/>
+						<FormInput
+							control={form.control}
+							name='monthlyServiceCharge'
+							label='Monthly Service Charge'
+							type='number'
+							placeholder='e.g., 5000'
+							required
+							disabled={isSubmitting}
+						/>
+						<DialogFooter className='pt-4'>
+							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
+								Cancel
+							</Button>
+							<Button type='submit' disabled={isSubmitting}>
+								{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+								{initialData ? 'Save Changes' : 'Add'}
+							</Button>
+						</DialogFooter>
+					</form>
+				</Form>
+			</DialogContent>
+		</Dialog>
+	);
+}
+
+interface OutsourcingChargeCrudProps {
+	title: string;
+	description: string;
+	noun: string;
+	items: IOutsourcingCharge[];
+	meta: IMeta;
+	isLoading: boolean;
+	categories: IOutsourcingCategory[];
+	zones: IOutsourcingZone[];
+	onAdd: (item: Omit<IOutsourcingCharge, 'id'>) => Promise<boolean>;
+	onUpdate: (item: IOutsourcingCharge) => Promise<boolean>;
+	onDelete: (id: number) => Promise<boolean>;
+	onPageChange: (page: number) => void;
+	onSearch: (query: string) => void;
+	categoryFilter: string;
+	onCategoryChange: (categoryId: string) => void;
+	zoneFilter: string;
+	onZoneChange: (zoneId: string) => void;
+}
+
+export function OutsourcingChargeCrud({
+	title,
+	description,
+	noun,
+	items,
+	meta,
+	isLoading,
+	categories,
+	zones,
+	onAdd,
+	onUpdate,
+	onDelete,
+	onPageChange,
+	onSearch,
+	categoryFilter,
+	onCategoryChange,
+	zoneFilter,
+	onZoneChange,
+}: OutsourcingChargeCrudProps) {
+	const { toast } = useToast();
+	const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
+
+	const [isFormOpen, setIsFormOpen] = useState(false);
+	const [editingItem, setEditingItem] = useState<IOutsourcingCharge | undefined>(undefined);
+	const [itemToDelete, setItemToDelete] = useState<IOutsourcingCharge | null>(null);
+
+
+	const handleOpenForm = (item?: IOutsourcingCharge) => {
+		setEditingItem(item);
+		setIsFormOpen(true);
+	};
+
+	const handleCloseForm = () => {
+		setIsFormOpen(false);
+		setEditingItem(undefined);
+	};
+
+	const handleFormSubmit = async (data: IOutsourcingCharge | Omit<IOutsourcingCharge, 'id'>) => {
+		if ('id' in data) {
+			return onUpdate(data as IOutsourcingCharge);
+		}
+		return onAdd(data as Omit<IOutsourcingCharge, 'id'>);
+	};
+
+	const handleToggleActive = async (item: IOutsourcingCharge) => {
+		if (!item.id) return;
+		setIsSubmitting(item.id.toString());
+		const success = await onUpdate({ ...item, active: !item.active });
+		if (success) {
+			toast({
+				title: 'Success',
+				description: 'Status updated successfully.',
+				variant: 'success',
+			});
+		}
+		setIsSubmitting(null);
+	};
+
+	const handleRemove = async () => {
+		if (!itemToDelete) return;
+		await onDelete(itemToDelete.id!);
+		setItemToDelete(null);
+	};
+
+	return (
+		<div className='space-y-8'>
+			<div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
+				<div className='space-y-2'>
+					<h1 className='text-3xl font-headline font-bold'>{title}</h1>
+					<p className='text-muted-foreground'>{description}</p>
+				</div>
+				<Button className='w-full sm:w-auto' onClick={() => handleOpenForm()}>
+					<PlusCircle className='mr-2 h-4 w-4' />
+					Add New {noun}
+				</Button>
+			</div>
+			<Card className='glassmorphism'>
+				<CardContent className='space-y-4 pt-6'>
+					<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+						<div className='relative md:col-span-1'>
+							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+							<Input
+								placeholder='Search by charge amount...'
+								onChange={(e) => onSearch(e.target.value)}
+								className='pl-10'
+								type='number'
+							/>
+						</div>
+						<FormAutocomplete
+							control={undefined as any}
+							name='categoryFilter'
+							label=''
+							placeholder='Filter by Category...'
+							options={[{ id: 'all', nameEn: 'All Categories' }, ...categories]}
+							getOptionValue={(option) => option.id!}
+							getOptionLabel={(option) => option.nameEn}
+							onValueChange={(val) => onCategoryChange(val.toString())}
+							value={categoryFilter}
+						/>
+						<FormAutocomplete
+							control={undefined as any}
+							name='zoneFilter'
+							label=''
+							placeholder='Filter by Zone...'
+							options={[{ id: 'all', nameEn: 'All Zones' }, ...zones]}
+							getOptionValue={(option) => option.id!}
+							getOptionLabel={(option) => option.nameEn}
+							onValueChange={(val) => onZoneChange(val.toString())}
+							value={zoneFilter}
+						/>
+					</div>
+					<div className='space-y-2 pt-4'>
+						{isLoading
+							? [...Array(5)].map((_, i) => <Skeleton key={i} className='h-16 w-full' />)
+							: items.map((item) => (
+									<Card
+										key={item.id}
+										className='p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-background/50'
+									>
+										<div className='flex-1 mb-4 sm:mb-0'>
+											<p className='font-semibold'>{item.category?.nameEn}</p>
+											<p className='text-sm text-muted-foreground'>
+												Zone: {item.zone?.nameEn} | Charge: {item.monthlyServiceCharge}
+											</p>
+										</div>
+										<div className='flex items-center gap-2 w-full sm:w-auto justify-between'>
+											<div className='flex items-center gap-2'>
+												<Switch
+													checked={item.active}
+													onCheckedChange={() => handleToggleActive(item)}
+													disabled={isSubmitting === item.id?.toString()}
+												/>
+												<Label className='text-sm'>{item.active ? 'Active' : 'Inactive'}</Label>
+											</div>
+											<div className='flex'>
+												<Button
+													variant='ghost'
+													size='icon'
+													className='h-8 w-8'
+													onClick={() => handleOpenForm(item)}
+													disabled={isSubmitting === item.id?.toString()}
+												>
+													<Edit className='h-4 w-4' />
+												</Button>
+												<Button
+													variant='ghost'
+													size='icon'
+													className='h-8 w-8'
+													onClick={() => setItemToDelete(item)}
+													disabled={isSubmitting === item.id?.toString()}
+												>
+													<Trash className='h-4 w-4 text-danger' />
+												</Button>
+											</div>
+										</div>
+									</Card>
+							  ))}
+						{!isLoading && items.length === 0 && (
+							<p className='text-center text-sm text-muted-foreground py-4'>
+								No {noun.toLowerCase()}s found.
+							</p>
+						)}
+					</div>
+				</CardContent>
+				{meta && meta.totalRecords && meta.totalRecords > 0 ? (
+					<CardFooter>
+						<Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} noun={noun} />
+					</CardFooter>
+				) : null}
+			</Card>
+
+			{isFormOpen && (
+				<OutsourcingChargeForm
+					key={editingItem?.id || 'new'}
+					isOpen={isFormOpen}
+					onClose={handleCloseForm}
+					onSubmit={handleFormSubmit}
+					initialData={editingItem}
+					categories={categories}
+					zones={zones}
+					noun={noun}
+				/>
+			)}
+			<ConfirmationDialog
+				open={!!itemToDelete}
+				onOpenChange={(open) => !open && setItemToDelete(null)}
+				description={`This will permanently delete the charge for ${itemToDelete?.category?.nameEn} in ${itemToDelete?.zone?.nameEn}.`}
+				onConfirm={handleRemove}
+			/>
+		</div>
+	);
+}

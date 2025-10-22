@@ -1,8 +1,16 @@
-import { ProfileFormCertifications } from '@/components/app/jobseeker/profile-forms/certifications';
-import { candidates } from '@/lib/data';
+import ProfileFormCertifications from '@/components/app/jobseeker/profile-forms/certifications';
+import { MasterDataService } from '@/services/api/master-data.service';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
 
-export default function JobseekerProfileCertificationsPage() {
-  const candidate = candidates[0];
+export default async function JobseekerProfileCertificationsPage() {
+	let certifications: ICommonMasterData[] = [];
 
-  return <ProfileFormCertifications candidate={candidate} />;
+	try {
+		const res = await MasterDataService.certification.get();
+		certifications = res.body || [];
+	} catch (error) {
+		console.error('Failed to load certifications:', error);
+	}
+
+	return <ProfileFormCertifications certification={certifications} />;
 }

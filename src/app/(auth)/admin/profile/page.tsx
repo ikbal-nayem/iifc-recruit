@@ -1,5 +1,6 @@
+
 import { Suspense } from 'react';
-import { AdminProfileForm } from '@/components/app/admin/admin-profile-form';
+import { AdminProfileForm } from '@/components/app/admin/profile/admin-profile-form';
 import AdminProfileLoading from './loading';
 
 export default function AdminProfilePage() {

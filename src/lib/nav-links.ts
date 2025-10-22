@@ -1,4 +1,4 @@
-
+import { ROUTES } from '@/constants/routes.constant';
 import type { LucideIcon } from 'lucide-react';
 import {
 	Award,
@@ -7,14 +7,18 @@ import {
 	BookOpen,
 	Briefcase,
 	Building2,
+	CheckCircle,
+	Clock,
 	FileText,
+	FolderKanban,
 	Globe,
 	GraduationCap,
 	Handshake,
+	Heart,
 	Languages,
 	LayoutDashboard,
-	ListChecks,
 	Network,
+	Play,
 	PlusCircle,
 	Search,
 	Settings,
@@ -23,6 +27,7 @@ import {
 	UserCircle,
 	UserCog,
 	Users,
+	Users2,
 } from 'lucide-react';
 
 export interface NavLink {
@@ -42,28 +47,58 @@ export const adminNavLinks: NavLink[] = [
 		isActive: (pathname) => pathname === '/admin',
 	},
 	{
-		href: '/admin/job-management',
-		label: 'Job Management',
-		icon: Briefcase,
+		href: ROUTES.JOB_REQUESTS,
+		label: 'Requests',
+		icon: FolderKanban,
 		isActive: (pathname) => pathname.startsWith('/admin/job-management'),
 		submenu: [
 			{
-				href: '/admin/job-management',
-				label: 'All Jobs',
-				icon: Briefcase,
-				isActive: (pathname) =>
-					/^\/admin\/job-management(\/[^/]+\/(applicants|edit))?$/.test(pathname) ||
-					pathname === '/admin/job-management',
+				href: ROUTES.JOB_REQUEST_CREATE,
+				label: 'New Request',
+				icon: PlusCircle,
 			},
 			{
-				href: '/admin/job-management/create',
-				label: 'Create New',
-				icon: PlusCircle,
+				href: ROUTES.JOB_REQUEST_PENDING,
+				label: 'Pending',
+				icon: Clock,
+			},
+			{
+				href: ROUTES.JOB_REQUEST_PROCESSING,
+				label: 'Processing',
+				icon: Play,
+			},
+			{
+				href: ROUTES.JOB_REQUEST_COMPLETED,
+				label: 'Completed',
+				icon: CheckCircle,
+			},
+		],
+	},
+	{
+		href: ROUTES.APPLICATIONS,
+		label: 'Applications',
+		icon: Users2,
+		isActive: (pathname) => pathname.startsWith('/admin/application'),
+		submenu: [
+			{
+				href: ROUTES.APPLICATION_PENDING,
+				label: 'Pending',
+				icon: Clock,
+			},
+			{
+				href: ROUTES.APPLICATION_PROCESSING,
+				label: 'Processing',
+				icon: Play,
+			},
+			{
+				href: ROUTES.APPLICATION_COMPLETED,
+				label: 'Completed',
+				icon: CheckCircle,
 			},
 		],
 	},
 	{ href: '/admin/jobseekers', label: 'Jobseekers', icon: Users },
-	{ href: '/admin/our-clients', label: 'Our Clients', icon: Handshake },
+	{ href: ROUTES.CLIENT_ORGANIZATIONS, label: 'Client Organizations', icon: Handshake },
 	{
 		href: '#',
 		label: 'Separator',
@@ -76,22 +111,21 @@ export const adminNavLinks: NavLink[] = [
 		icon: Settings,
 		isActive: (pathname) => pathname.startsWith('/admin/master-data'),
 		submenu: [
-			{ href: '/admin/master-data/organizations', label: 'Organizations', icon: Building2 },
-			{ href: '/admin/master-data/skills', label: 'Skills', icon: Award },
-			{ href: '/admin/master-data/languages', label: 'Languages', icon: Globe },
 			{
-				href: '#',
-				label: 'Statuses',
-				icon: ListChecks,
-				isActive: (pathname) => pathname.startsWith('/admin/master-data/statuses'),
+				href: '/admin/master-data/company/organizations',
+				label: 'Company',
+				icon: Building2,
+				isActive: (pathname) => pathname.startsWith('/admin/master-data/company'),
 				submenu: [
-					{ href: '/admin/master-data/statuses/job-statuses', label: 'Job Statuses' },
-					{
-						href: '/admin/master-data/statuses/application-statuses',
-						label: 'Application Statuses',
-					},
+					{ href: '/admin/master-data/company/organizations', label: 'Organizations' },
+					{ href: '/admin/master-data/industry-types', label: 'Industry Types' },
+					{ href: '/admin/master-data/organization-types', label: 'Organization Types' },
+					{ href: '/admin/master-data/position-levels', label: 'Position Levels' },
 				],
 			},
+			{ href: '/admin/master-data/posts', label: 'Posts', icon: UserCog },
+			{ href: '/admin/master-data/skills', label: 'Skills', icon: Award },
+			{ href: '/admin/master-data/languages', label: 'Languages', icon: Globe },
 			{
 				href: '/admin/master-data/education/degree-levels',
 				label: 'Education',
@@ -104,20 +138,6 @@ export const adminNavLinks: NavLink[] = [
 				],
 			},
 			{
-				href: '#',
-				label: 'Company Data',
-				icon: Network,
-				isActive: (pathname) =>
-					pathname.startsWith('/admin/master-data/industry-types') ||
-					pathname.startsWith('/admin/master-data/organization-types') ||
-					pathname.startsWith('/admin/master-data/position-levels'),
-				submenu: [
-					{ href: '/admin/master-data/industry-types', label: 'Industry Types' },
-					{ href: '/admin/master-data/organization-types', label: 'Organization Types' },
-					{ href: '/admin/master-data/position-levels', label: 'Position Levels' },
-				],
-			},
-			{
 				href: '/admin/master-data/training/training-types',
 				label: 'Training',
 				icon: BookMarked,
@@ -125,6 +145,17 @@ export const adminNavLinks: NavLink[] = [
 				submenu: [
 					{ href: '/admin/master-data/training/training-types', label: 'Training Types' },
 					{ href: '/admin/master-data/training/certifications', label: 'Certifications' },
+				],
+			},
+			{
+				href: '/admin/master-data/outsourcing/outsourcing-category',
+				label: 'Outsourcing',
+				icon: Network,
+				isActive: (pathname) => pathname.startsWith('/admin/master-data/outsourcing'),
+				submenu: [
+					{ href: '/admin/master-data/outsourcing/outsourcing-category', label: 'Category' },
+					{ href: '/admin/master-data/outsourcing/outsourcing-zone', label: 'Zone' },
+					{ href: '/admin/master-data/outsourcing/outsourcing-charge', label: 'Charge' },
 				],
 			},
 		],
@@ -155,6 +186,7 @@ export const jobseekerNavLinks: NavLink[] = [
 				icon: User,
 				isActive: (pathname) => pathname === '/jobseeker/profile-edit',
 			},
+			{ href: '/jobseeker/profile-edit/family', label: 'Family', icon: Heart },
 			{ href: '/jobseeker/profile-edit/academic', label: 'Academic', icon: GraduationCap },
 			{ href: '/jobseeker/profile-edit/professional', label: 'Professional', icon: Briefcase },
 			{ href: '/jobseeker/profile-edit/skills', label: 'Skills', icon: Star },

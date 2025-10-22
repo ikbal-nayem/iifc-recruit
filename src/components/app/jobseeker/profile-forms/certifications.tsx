@@ -1,294 +1,343 @@
 
 'use client';
 
-import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import type { Candidate, Certification } from '@/lib/types';
-import { PlusCircle, Trash, Save, Edit, FileText, Upload, X, Link2 } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import Link from 'next/link';
-import { useToast } from '@/hooks/use-toast';
-import { FormInput } from '@/components/ui/form-input';
-import { FormDatePicker } from '@/components/ui/form-datepicker';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { FilePreviewer } from '@/components/ui/file-previewer';
+import { Form } from '@/components/ui/form';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
+import { FormDatePicker } from '@/components/ui/form-datepicker';
+import { FormFileUpload } from '@/components/ui/form-file-upload';
+import { FormInput } from '@/components/ui/form-input';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
+import { Certification } from '@/interfaces/jobseeker.interface';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { makeFormData } from '@/lib/utils';
+import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { format, parseISO } from 'date-fns';
+import { Edit, FileText, Loader2, PlusCircle, Trash } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 
-const certificationSchema = z.object({
-  name: z.string().min(1, 'Certificate name is required.'),
-  issuingOrganization: z.string().min(1, 'Issuing organization is required.'),
-  issueDate: z.string().min(1, 'Issue date is required.'),
-  proofFile: z.any().optional(),
-});
+const certificationSchema = z
+	.object({
+		issuingAuthority: z.string().min(1, 'Issuing organization is required.'),
+		certificationId: z.coerce.number().optional(),
+		examDate: z.string().optional(),
+		issueDate: z.string().optional(),
+		expireDate: z.string().optional(),
+		score: z.string().optional(),
+		outOf: z.string().optional(),
+		certificateFile: z.any().refine((file) => file, 'Certificate file is required.'),
+	})
+	.refine(
+		(data) => {
+			if (data.issueDate && data.expireDate) {
+				return new Date(data.issueDate) <= new Date(data.expireDate);
+			}
+			return true;
+		},
+		{
+			message: 'Expiry date cannot be before issue date.',
+			path: ['expireDate'],
+		}
+	)
+	.refine(
+		(data) => {
+			if (data.examDate && data.issueDate) {
+				return new Date(data.examDate) <= new Date(data.issueDate);
+			}
+			return true;
+		},
+		{
+			message: 'Issue date cannot be before exam date.',
+			path: ['issueDate'],
+		}
+	);
 
 type CertificationFormValues = z.infer<typeof certificationSchema>;
 
-interface ProfileFormProps {
-  candidate: Candidate;
-}
-
-const FilePreview = ({ file, onRemove }: { file: File | string; onRemove: () => void }) => {
-    const isFile = file instanceof File;
-    const name = isFile ? file.name : file;
-    const size = isFile ? `(${(file.size / 1024).toFixed(1)} KB)` : '';
-
-    return (
-        <div className="p-2 border rounded-lg flex items-center justify-between bg-muted/50">
-            <div className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" />
-                <div className="text-sm">
-                    <p className="font-medium truncate max-w-xs">{name}</p>
-                    {size && <p className="text-xs text-muted-foreground">{size}</p>}
-                </div>
-            </div>
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onRemove}>
-                <X className="h-4 w-4" />
-            </Button>
-        </div>
-    )
+const defaultData: CertificationFormValues = {
+	issuingAuthority: '',
+	certificationId: undefined,
+	examDate: '',
+	issueDate: '',
+	expireDate: '',
+	score: '',
+	outOf: '',
+	certificateFile: null,
 };
 
+interface CertificationFormProps {
+	isOpen: boolean;
+	onClose: () => void;
+	onSubmit: (data: Certification) => Promise<boolean>;
+	initialData?: Certification;
+	noun: string;
+	certificationTypes: ICommonMasterData[];
+}
 
-export function ProfileFormCertifications({ candidate }: ProfileFormProps) {
-  const { toast } = useToast();
-  const [history, setHistory] = React.useState(candidate.certifications);
-  const [editingId, setEditingId] = React.useState<number | null>(null);
+function CertificationForm({
+	isOpen,
+	onClose,
+	onSubmit,
+	initialData,
+	noun,
+	certificationTypes,
+}: CertificationFormProps) {
+	const form = useForm<CertificationFormValues>({
+		resolver: zodResolver(certificationSchema),
+		defaultValues: defaultData,
+	});
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<CertificationFormValues>({
-    resolver: zodResolver(certificationSchema),
-    defaultValues: { name: '', issuingOrganization: '', issueDate: '', proofFile: null },
-  });
+	useEffect(() => {
+		if (initialData) {
+			form.reset({
+				...initialData,
+				certificationId: initialData.certificationId,
+			});
+		} else {
+			form.reset(defaultData);
+		}
+	}, [initialData, form]);
 
-  const editForm = useForm<CertificationFormValues>({
-    resolver: zodResolver(certificationSchema),
-  });
-  
-  const handleAddNew = (data: CertificationFormValues) => {
-    // In a real app, you would upload file and get URL here.
-    const newEntry = { ...data, proofUrl: data.proofFile ? data.proofFile.name : '' };
-    delete (newEntry as any).proofFile;
-    setHistory([...history, newEntry]);
-    form.reset({ name: '', issuingOrganization: '', issueDate: '', proofFile: null });
-  };
+	const handleSubmit = (data: CertificationFormValues) => {
+		setIsSubmitting(true);
+		const payload: Certification = {
+			...data,
+			id: initialData?.id,
+		};
+		onSubmit(payload)
+			.then(() => onClose())
+			.finally(() => setIsSubmitting(false));
+	};
 
-  const handleUpdate = (index: number, data: CertificationFormValues) => {
-    const updatedHistory = [...history];
-    const newEntry = { ...data, proofUrl: data.proofFile ? data.proofFile.name : history[index].proofUrl };
-    delete (newEntry as any).proofFile;
-    updatedHistory[index] = newEntry;
-    setHistory(updatedHistory);
-    setEditingId(null);
-  };
-  
-  const handleRemove = (index: number) => {
-    setHistory(history.filter((_, i) => i !== index));
-    toast({
-        title: 'Entry Deleted',
-        description: 'The certification has been removed.',
-        variant: 'success'
-    })
-  };
+	return (
+		<Dialog open={isOpen} onOpenChange={onClose}>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
+				</DialogHeader>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4'>
+						<FormAutocomplete
+							control={form.control}
+							name='certificationId'
+							label='Certification'
+							placeholder='Select Certification'
+							options={certificationTypes}
+							getOptionValue={(option) => option.id!.toString()}
+							getOptionLabel={(option) => option.nameEn}
+							disabled={isSubmitting}
+						/>
+						<FormInput
+							control={form.control}
+							name='issuingAuthority'
+							label='Issuing Authority'
+							placeholder='e.g., Vercel'
+							required
+							disabled={isSubmitting}
+						/>
+						<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+							<FormDatePicker
+								control={form.control}
+								name='examDate'
+								label='Exam Date'
+								disabled={isSubmitting}
+							/>
+							<FormDatePicker
+								control={form.control}
+								name='issueDate'
+								label='Issue Date'
+								disabled={isSubmitting}
+							/>
+							<FormDatePicker
+								control={form.control}
+								name='expireDate'
+								label='Expiry Date'
+								disabled={isSubmitting}
+							/>
+						</div>
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+							<FormInput control={form.control} name='score' label='Score' disabled={isSubmitting} />
+							<FormInput control={form.control} name='outOf' label='Out Of' disabled={isSubmitting} />
+						</div>
 
-  const startEditing = (index: number, item: Certification) => {
-    setEditingId(index);
-    editForm.reset({...item, proofFile: null});
-  };
+						<FormFileUpload
+							control={form.control}
+							name='certificateFile'
+							label='Certificate'
+							accept='.pdf, image/*'
+							required
+						/>
+						<DialogFooter className='pt-4'>
+							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
+								Cancel
+							</Button>
+							<Button type='submit' disabled={isSubmitting}>
+								{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+								{initialData ? 'Save Changes' : 'Add Certification'}
+							</Button>
+						</DialogFooter>
+					</form>
+				</Form>
+			</DialogContent>
+		</Dialog>
+	);
+}
 
-  const renderItem = (item: Certification, index: number) => {
-    if (editingId === index) {
-      return (
-         <Form {...editForm}>
-            <form onSubmit={editForm.handleSubmit((data) => handleUpdate(index, data))}>
-                <Card key={index} className="p-4 bg-muted/50">
-                    <CardContent className="p-0 space-y-4">
-                        <FormInput
-                            control={editForm.control}
-                            name="name"
-                            label="Certificate Name"
-                            required
-                        />
-                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className='md:col-span-2'>
-                                <FormInput
-                                    control={editForm.control}
-                                    name="issuingOrganization"
-                                    label="Issuing Organization"
-                                    required
-                                />
-                            </div>
-                            <FormDatePicker
-                                control={editForm.control}
-                                name="issueDate"
-                                label="Issue Date"
-                                required
-                            />
-                        </div>
-                        <FormField
-                          control={editForm.control}
-                          name="proofFile"
-                          render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Proof (PDF)</FormLabel>
-                                <FormControl>
-                                    <div className="relative flex items-center justify-center w-full">
-                                        <label htmlFor={`edit-file-upload-${index}`} className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
-                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                                                <p className="text-sm text-muted-foreground">
-                                                    <span className="font-semibold">Click to upload</span> or drag and drop
-                                                </p>
-                                            </div>
-                                            <Input id={`edit-file-upload-${index}`} type="file" className="hidden" onChange={(e) => field.onChange(e.target.files ? e.target.files[0] : null)} />
-                                        </label>
-                                    </div>
-                                </FormControl>
-                                {field.value ? (
-                                    <div className="mt-2">
-                                        <FilePreview file={field.value} onRemove={() => field.onChange(null)} />
-                                    </div>
-                                ) : item.proofUrl && (
-                                    <div className="mt-2">
-                                        <FilePreview file={item.proofUrl} onRemove={() => editForm.setValue('proofUrl', '')} />
-                                    </div>
-                                )}
-                                <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                    </CardContent>
-                    <CardFooter className="p-0 pt-4 flex justify-end gap-2">
-                        <Button type="button" variant="ghost" onClick={() => setEditingId(null)}>Cancel</Button>
-                        <Button type="submit">Save</Button>
-                    </CardFooter>
-                </Card>
-            </form>
-        </Form>
-      );
-    }
+export default function ProfileFormCertifications({ certification }: { certification: ICommonMasterData[] }) {
+	const { toast } = useToast();
+	const [history, setHistory] = useState<Certification[]>([]);
+	const [editingItem, setEditingItem] = useState<Certification | undefined>(undefined);
+	const [itemToDelete, setItemToDelete] = useState<Certification | null>(null);
+	const [isFormOpen, setIsFormOpen] = useState(false);
+	const [isLoading, setIsLoading] = useState(true);
 
-    return (
-        <Card key={index} className="p-4 flex justify-between items-start">
-            <div>
-                <p className="font-semibold">{item.name}</p>
-                <p className="text-sm text-muted-foreground">{item.issuingOrganization} - {item.issueDate}</p>
-                 {item.proofUrl && (
-                    <Link href={item.proofUrl} target="_blank" className="text-xs text-primary hover:underline flex items-center gap-1 mt-1">
-                        <FileText className="h-3 w-3" />
-                        View Certificate
-                    </Link>
-                )}
-            </div>
-            <div className="flex gap-2">
-                 <Button variant="ghost" size="icon" onClick={() => startEditing(index, item)}>
-                    <Edit className="h-4 w-4" />
-                </Button>
-                <ConfirmationDialog
-                    trigger={
-                        <Button variant="ghost" size="icon">
-                            <Trash className="h-4 w-4 text-danger" />
-                        </Button>
-                    }
-                    description='This action cannot be undone. This will permanently delete this certification.'
-                    onConfirm={() => handleRemove(index)}
-                    confirmText='Delete'
-                />
-            </div>
-        </Card>
-    );
-  };
+	const loadData = React.useCallback(async () => {
+		setIsLoading(true);
+		try {
+			const [certRes] = await Promise.all([JobseekerProfileService.certification.get()]);
+			setHistory(certRes.body);
+		} catch (error) {
+			toast({
+				description: 'Failed to load certifications.',
+				variant: 'danger',
+			});
+		} finally {
+			setIsLoading(false);
+		}
+	}, [toast]);
 
-  return (
-    <div className="space-y-6">
-        <Card className="glassmorphism">
-            <CardHeader>
-                <CardTitle>Your Certifications</CardTitle>
-                <CardDescription>Listed below are your professional certifications.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                {history.map(renderItem)}
-                {history.length === 0 && (
-                    <p className="text-center text-muted-foreground py-4">No certifications added yet.</p>
-                )}
-            </CardContent>
-        </Card>
-        
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleAddNew)}>
-                <Card className="glassmorphism">
-                    <CardHeader>
-                        <CardTitle>Add New Certification</CardTitle>
-                        <CardDescription>Add a new certification to your profile.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <FormInput
-                            control={form.control}
-                            name="name"
-                            label="Certificate Name"
-                            placeholder="e.g. Certified React Developer"
-                            required
-                        />
-                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="md:col-span-2">
-                                <FormInput
-                                    control={form.control}
-                                    name="issuingOrganization"
-                                    label="Issuing Organization"
-                                    placeholder="e.g. Vercel"
-                                    required
-                                />
-                            </div>
-                            <FormDatePicker
-                                control={form.control}
-                                name="issueDate"
-                                label="Issue Date"
-                                required
-                            />
-                        </div>
-                        <FormField
-                          control={form.control}
-                          name="proofFile"
-                          render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Proof (PDF)</FormLabel>
-                                <FormControl>
-                                    <div className="relative flex items-center justify-center w-full">
-                                        <label htmlFor="add-file-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
-                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                                                <p className="text-sm text-muted-foreground">
-                                                    <span className="font-semibold">Click to upload</span> or drag and drop
-                                                </p>
-                                            </div>
-                                            <Input id="add-file-upload" type="file" className="hidden" onChange={(e) => field.onChange(e.target.files ? e.target.files[0] : null)} />
-                                        </label>
-                                    </div>
-                                </FormControl>
-                                {field.value && (
-                                    <div className="mt-2">
-                                        <FilePreview file={field.value} onRemove={() => field.onChange(null)} />
-                                    </div>
-                                )}
-                                <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                    </CardContent>
-                    <CardFooter>
-                        <Button type="submit"><PlusCircle className="mr-2 h-4 w-4" /> Add Entry</Button>
-                    </CardFooter>
-                </Card>
-            </form>
-        </Form>
-    </div>
-  );
+	useEffect(() => {
+		loadData();
+	}, [loadData]);
+
+	const handleOpenForm = (item?: Certification) => {
+		setEditingItem(item);
+		setIsFormOpen(true);
+	};
+
+	const handleCloseForm = () => {
+		setIsFormOpen(false);
+		setEditingItem(undefined);
+	};
+
+	const handleFormSubmit = async (formData: Certification) => {
+		try {
+			const response = await JobseekerProfileService.certification.save(makeFormData(formData));
+			toast({ description: response.message, variant: 'success' });
+			loadData();
+			return true;
+		} catch (error: any) {
+			toast({ description: error.message || 'An error occurred.', variant: 'danger' });
+			return false;
+		}
+	};
+
+	const handleRemove = async () => {
+		if (!itemToDelete?.id) return;
+		try {
+			await JobseekerProfileService.certification.delete(itemToDelete.id);
+			toast({ description: 'Certification deleted successfully.', variant: 'success' });
+			loadData();
+		} catch (error: any) {
+			toast({
+				description: error.message || 'Failed to delete certification.',
+				variant: 'danger',
+			});
+		} finally {
+			setItemToDelete(null);
+		}
+	};
+
+	const renderItem = (item: Certification) => {
+		return (
+			<Card key={item.id} className='p-4 flex justify-between items-start'>
+				<div>
+					<p className='font-semibold'>{item.certification?.nameEn}</p>
+					<p className='text-sm text-muted-foreground'>{item.issuingAuthority}</p>
+					{item.issueDate && (
+						<p className='text-xs text-muted-foreground'>
+							Issued: {format(parseISO(item.issueDate), 'MMM yyyy')}
+						</p>
+					)}
+					{item.score && (
+						<p className='text-xs text-muted-foreground'>
+							Score: {item.score}
+							{item.outOf && ` / ${item.outOf}`}
+						</p>
+					)}
+					{item.certificateFile && (
+						<FilePreviewer file={item.certificateFile}>
+							<button className='text-xs text-primary hover:underline flex items-center gap-1 mt-1'>
+								<FileText className='h-3 w-3' />
+								View Certificate
+							</button>
+						</FilePreviewer>
+					)}
+				</div>
+				<div className='flex gap-2'>
+					<Button variant='ghost' size='icon' onClick={() => handleOpenForm(item)}>
+						<Edit className='h-4 w-4' />
+					</Button>
+					<Button variant='ghost' size='icon' onClick={() => setItemToDelete(item)}>
+						<Trash className='h-4 w-4 text-danger' />
+					</Button>
+				</div>
+			</Card>
+		);
+	};
+
+	return (
+		<div className='space-y-6'>
+			<Card className='glassmorphism'>
+				<CardHeader>
+					<div className='flex justify-between items-center'>
+						<div className='space-y-1.5'>
+							<CardTitle>Your Certifications</CardTitle>
+							<CardDescription>Listed below are your professional certifications.</CardDescription>
+						</div>
+						<Button onClick={() => handleOpenForm()}>
+							<PlusCircle className='mr-2 h-4 w-4' />
+							Add New
+						</Button>
+					</div>
+				</CardHeader>
+				<CardContent className='space-y-4'>
+					{isLoading ? (
+						[...Array(2)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
+					) : history.length > 0 ? (
+						history.map(renderItem)
+					) : (
+						<p className='text-center text-muted-foreground py-8'>No certifications added yet.</p>
+					)}
+				</CardContent>
+			</Card>
+
+			{isFormOpen && (
+				<CertificationForm
+					isOpen={isFormOpen}
+					onClose={handleCloseForm}
+					onSubmit={handleFormSubmit}
+					initialData={editingItem}
+					noun='Certification'
+					certificationTypes={certification}
+				/>
+			)}
+			<ConfirmationDialog
+				open={!!itemToDelete}
+				onOpenChange={(open) => !open && setItemToDelete(null)}
+				description='This will permanently delete this certification.'
+				onConfirm={handleRemove}
+				confirmText='Delete'
+			/>
+		</div>
+	);
 }

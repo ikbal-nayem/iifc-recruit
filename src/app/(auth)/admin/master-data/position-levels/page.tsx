@@ -1,6 +1,6 @@
 'use client';
 
-import { MasterDataCrud } from '@/components/app/admin/master-data-crud';
+import { MasterDataCrud } from '@/components/app/admin/master-data/master-data-crud';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
@@ -23,7 +23,7 @@ export default function MasterPositionLevelsPage() {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { name: search },
+					body: { nameEn: search },
 					meta: { page: page, limit: meta.limit },
 				};
 				const response = await MasterDataService.positionLevel.getList(payload);
@@ -51,9 +51,9 @@ export default function MasterPositionLevelsPage() {
 		loadItems(newPage, debouncedSearch);
 	};
 
-	const handleAdd = async (name: string): Promise<boolean | null> => {
+	const handleAdd = async (data: { nameEn: string; nameBn: string }): Promise<boolean | null> => {
 		try {
-			const resp = await MasterDataService.positionLevel.add({ name, isActive: true });
+			const resp = await MasterDataService.positionLevel.add({ ...data, active: true });
 			toast({ description: resp.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch);
 			return true;
@@ -91,7 +91,7 @@ export default function MasterPositionLevelsPage() {
 	};
 
 	return (
-		<MasterDataCrud<ICommonMasterData>
+		<MasterDataCrud
 			title='Position Levels'
 			description='Manage the seniority levels for job positions.'
 			noun='Position Level'

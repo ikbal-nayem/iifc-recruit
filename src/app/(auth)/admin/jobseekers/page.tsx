@@ -1,4 +1,4 @@
-import { JobseekerManagement } from '@/components/app/admin/jobseeker-management';
+import { JobseekerManagement } from '@/components/app/admin/jobseeker/jobseeker-management';
 
 export default function AdminJobseekersPage() {
 	return (

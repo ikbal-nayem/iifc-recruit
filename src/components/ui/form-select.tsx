@@ -5,6 +5,7 @@ import * as React from 'react';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 
 interface FormSelectProps<TFieldValues extends FieldValues> {
 	control: Control<TFieldValues>;
@@ -12,8 +13,10 @@ interface FormSelectProps<TFieldValues extends FieldValues> {
 	label: string;
 	placeholder?: string;
 	required?: boolean;
-	options: { label: string; value: string }[];
+	options: any[];
 	disabled?: boolean;
+	labelKey?: string;
+	valueKey?: string;
 }
 
 export function FormSelect<TFieldValues extends FieldValues>({
@@ -24,6 +27,8 @@ export function FormSelect<TFieldValues extends FieldValues>({
 	required = false,
 	options,
 	disabled = false,
+	labelKey = 'label',
+	valueKey = 'value',
 	...props
 }: FormSelectProps<TFieldValues>) {
 	return (
@@ -33,16 +38,21 @@ export function FormSelect<TFieldValues extends FieldValues>({
 			render={({ field }) => (
 				<FormItem>
 					<FormLabel required={required}>{label}</FormLabel>
-					<Select onValueChange={field.onChange} defaultValue={field.value} disabled={disabled} {...props}>
+					<Select
+						onValueChange={field.onChange}
+						defaultValue={field.value?.toString()}
+						disabled={disabled}
+						{...props}
+					>
 						<FormControl>
-							<SelectTrigger>
+							<SelectTrigger className={cn('h-11', !field.value && 'text-muted-foreground')}>
 								<SelectValue placeholder={placeholder} />
 							</SelectTrigger>
 						</FormControl>
 						<SelectContent>
 							{options.map((option) => (
-								<SelectItem key={option.value} value={option.value}>
-									{option.label}
+								<SelectItem key={option[valueKey]} value={option[valueKey]?.toString()}>
+									{option[labelKey]}
 								</SelectItem>
 							))}
 						</SelectContent>

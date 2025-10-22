@@ -1,5 +1,4 @@
-
-import { JobListings } from '@/components/app/job-listings';
+import { JobListings } from '@/components/app/public/job-listings';
 
 export default function JobseekerFindJobPage() {
   return (

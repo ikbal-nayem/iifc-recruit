@@ -1,296 +1,370 @@
 
 'use client';
 
-import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import type { Candidate, AcademicInfo } from '@/lib/types';
-import { PlusCircle, Trash, Save, Edit, FileText, Upload, X } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { FormInput } from '@/components/ui/form-input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { FilePreviewer } from '@/components/ui/file-previewer';
+import { Form } from '@/components/ui/form';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
+import { FormFileUpload } from '@/components/ui/form-file-upload';
+import { FormInput } from '@/components/ui/form-input';
+import { FormRadioGroup } from '@/components/ui/form-radio-group';
+import { FormSelect } from '@/components/ui/form-select';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
+import { ResultSystem } from '@/interfaces/common.interface';
+import { AcademicInfo } from '@/interfaces/jobseeker.interface';
+import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
+import { makeFormData } from '@/lib/utils';
+import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Edit, FileText, Loader2, PlusCircle, Trash } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 
 const academicInfoSchema = z.object({
-  degree: z.string().min(1, 'Degree is required.'),
-  institution: z.string().min(1, 'Institution is required.'),
-  graduationYear: z.coerce.number().min(1950, 'Invalid year.').max(new Date().getFullYear() + 5),
-  certificateFiles: z.any().optional(),
+	degreeLevelId: z.number().min(1, 'Degree level is required'),
+	domainId: z.number().min(1, 'Domain is required'),
+	institutionId: z.number().min(1, 'Institution is required'),
+	degreeTitle: z.string().min(1, 'Degree title is required'),
+	specializationArea: z.string().optional(),
+	resultSystem: z.nativeEnum(ResultSystem).default(ResultSystem.GRADE),
+	resultAchieved: z.string().optional(),
+	cgpa: z.coerce.number().optional(),
+	outOfCgpa: z.coerce.number().optional(),
+	passingYear: z.string().min(4, 'Passing year is required'),
+	duration: z.coerce.number().optional(),
+	achievement: z.string().optional(),
+	certificateFile: z.any().optional(),
 });
 
 type AcademicFormValues = z.infer<typeof academicInfoSchema>;
 
-interface ProfileFormProps {
-  candidate: Candidate;
+interface AcademicFormProps {
+	isOpen: boolean;
+	onClose: () => void;
+	onSubmit: (data: any, id?: string) => Promise<boolean>;
+	initialData?: AcademicInfo;
+	noun: string;
+	masterData: {
+		degreeLevels: ICommonMasterData[];
+		domains: ICommonMasterData[];
+		institutions: IEducationInstitution[];
+	};
 }
 
-const FilePreview = ({ file, onRemove }: { file: File | string; onRemove: () => void }) => {
-    const isFile = file instanceof File;
-    const name = isFile ? file.name : file;
-    const size = isFile ? `(${(file.size / 1024).toFixed(1)} KB)` : '';
-
-    return (
-        <div className="p-2 border rounded-lg flex items-center justify-between bg-muted/50">
-            <div className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" />
-                <div className="text-sm">
-                    <p className="font-medium truncate max-w-xs">{name}</p>
-                    {size && <p className="text-xs text-muted-foreground">{size}</p>}
-                </div>
-            </div>
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onRemove}>
-                <X className="h-4 w-4" />
-            </Button>
-        </div>
-    )
+const defaultValues = {
+	degreeLevelId: undefined,
+	domainId: undefined,
+	institutionId: undefined,
+	degreeTitle: '',
+	specializationArea: '',
+	resultSystem: ResultSystem.GRADE,
+	resultAchieved: '',
+	cgpa: '' as unknown as undefined,
+	outOfCgpa: '' as unknown as undefined,
+	passingYear: '',
+	duration: '' as unknown as undefined,
+	achievement: '',
+	certificateFile: null,
 };
 
+function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData }: AcademicFormProps) {
+	const form = useForm<AcademicFormValues>({
+		resolver: zodResolver(academicInfoSchema),
+		defaultValues: defaultValues,
+	});
 
-export function ProfileFormAcademic({ candidate }: ProfileFormProps) {
-  const { toast } = useToast();
-  const [history, setHistory] = React.useState(candidate.academicInfo);
-  const [editingId, setEditingId] = React.useState<number | null>(null);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<AcademicFormValues>({
-    resolver: zodResolver(academicInfoSchema),
-    defaultValues: { degree: '', institution: '', graduationYear: undefined, certificateFiles: [] },
-  });
+	useEffect(() => {
+		if (initialData) {
+			form.reset({
+				...initialData,
+				degreeLevelId: initialData.degreeLevel?.id,
+				domainId: initialData.domain?.id,
+				institutionId: initialData.institution?.id,
+			});
+		} else {
+			form.reset(defaultValues);
+		}
+	}, [initialData, form]);
 
-  const editForm = useForm<AcademicFormValues>({
-    resolver: zodResolver(academicInfoSchema),
-  });
-  
-  const handleAddNew = (data: AcademicFormValues) => {
-    // In a real app, you would upload files and get URLs here.
-    const newEntry = { ...data, certificateUrls: data.certificateFiles?.map((f: File) => f.name) || [] };
-    delete (newEntry as any).certificateFiles;
-    setHistory([...history, newEntry]);
-    form.reset({ degree: '', institution: '', graduationYear: undefined, certificateFiles: [] });
-  };
+	const handleSubmit = async (data: AcademicFormValues) => {
+		setIsSubmitting(true);
+		const success = await onSubmit(data, initialData?.id);
+		if (success) {
+			onClose();
+		}
+		setIsSubmitting(false);
+	};
 
-  const handleUpdate = (index: number, data: AcademicFormValues) => {
-    const updatedHistory = [...history];
-    const newEntry = { ...data, certificateUrls: data.certificateFiles?.map((f: File) => f.name) || [] };
-    delete (newEntry as any).certificateFiles;
-    updatedHistory[index] = newEntry;
-    setHistory(updatedHistory);
-    setEditingId(null);
-  };
-  
-  const handleRemove = (index: number) => {
-    setHistory(history.filter((_, i) => i !== index));
-    toast({
-        title: 'Entry Deleted',
-        description: 'The academic record has been removed.',
-        variant: 'success'
-    })
-  };
+	const watchResultSystem = form.watch('resultSystem');
 
-  const startEditing = (index: number, item: AcademicInfo) => {
-    setEditingId(index);
-    editForm.reset({...item, certificateFiles: []});
-  };
+	const currentYear = new Date().getFullYear();
+	const years = Array.from({ length: currentYear - 1959 }, (_, i) => {
+		const year = currentYear - i;
+		return { value: year.toString(), label: year.toString() };
+	});
 
-  const renderItem = (item: AcademicInfo, index: number) => {
-    if (editingId === index) {
-      return (
-         <Form {...editForm}>
-            <form onSubmit={editForm.handleSubmit((data) => handleUpdate(index, data))}>
-                <Card key={index} className="p-4 bg-muted/50">
-                    <CardContent className="p-0 space-y-4">
-                        <FormInput
-                            control={editForm.control}
-                            name="degree"
-                            label="Degree"
-                            required
-                        />
-                        <FormInput
-                            control={editForm.control}
-                            name="institution"
-                            label="Institution"
-                            required
-                        />
-                        <FormInput
-                            control={editForm.control}
-                            name="graduationYear"
-                            label="Graduation Year"
-                            type="number"
-                            required
-                        />
-                        <FormField
-                            control={editForm.control}
-                            name="certificateFiles"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Certificates (Multi-file)</FormLabel>
-                                    <FormControl>
-                                        <div className="relative flex items-center justify-center w-full">
-                                            <label htmlFor={`edit-file-upload-${index}`} className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
-                                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                    <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                                                    <p className="text-sm text-muted-foreground">
-                                                        <span className="font-semibold">Click to upload</span> or drag and drop
-                                                    </p>
-                                                </div>
-                                                <Input id={`edit-file-upload-${index}`} type="file" multiple className="hidden" onChange={(e) => field.onChange(Array.from(e.target.files || []))} />
-                                            </label>
-                                        </div>
-                                    </FormControl>
-                                    <div className="space-y-2 mt-2">
-                                        {field.value?.map((file: File, i: number) => (
-                                            <FilePreview key={i} file={file} onRemove={() => {
-                                                const newFiles = [...field.value];
-                                                newFiles.splice(i, 1);
-                                                field.onChange(newFiles);
-                                            }} />
-                                        ))}
-                                    </div>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </CardContent>
-                    <CardFooter className="p-0 pt-4 flex justify-end gap-2">
-                        <Button type="button" variant="ghost" onClick={() => setEditingId(null)}>Cancel</Button>
-                        <Button type="submit">Save</Button>
-                    </CardFooter>
-                </Card>
-            </form>
-        </Form>
-      );
-    }
+	return (
+		<Dialog open={isOpen} onOpenChange={onClose}>
+			<DialogContent className='max-w-2xl'>
+				<DialogHeader>
+					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
+				</DialogHeader>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4 pr-1'>
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+							<FormAutocomplete
+								control={form.control}
+								name='degreeLevelId'
+								label='Degree Level'
+								required
+								options={masterData.degreeLevels}
+								getOptionValue={(option) => option.id!.toString()}
+								getOptionLabel={(option) => option.nameEn}
+							/>
+							<FormAutocomplete
+								control={form.control}
+								name='domainId'
+								label='Domain / Subject'
+								required
+								options={masterData.domains}
+								getOptionValue={(option) => option.id!.toString()}
+								getOptionLabel={(option) => option.nameEn}
+							/>
+						</div>
+						<FormAutocomplete
+							control={form.control}
+							name='institutionId'
+							label='Institution'
+							required
+							options={masterData.institutions}
+							getOptionValue={(option) => option.id!.toString()}
+							getOptionLabel={(option) => option.nameEn}
+						/>
+						<FormInput
+							control={form.control}
+							name='degreeTitle'
+							label='Degree Title'
+							required
+							placeholder='e.g., Bachelor of Science in CSE'
+						/>
+						<FormInput control={form.control} name='specializationArea' label='Specialization Area' />
+						<FormRadioGroup
+							control={form.control}
+							name='resultSystem'
+							label='Result System'
+							required
+							options={[
+								{ value: ResultSystem.GRADE, label: 'Grade' },
+								{ value: ResultSystem.DIVISION, label: 'Division' },
+								{ value: ResultSystem.CLASS, label: 'Class' },
+							]}
+						/>
+						{watchResultSystem === ResultSystem.GRADE ? (
+							<div className='grid grid-cols-2 gap-4'>
+								<FormInput control={form.control} name='cgpa' label='CGPA' type='number' step='0.01' />
+								<FormInput control={form.control} name='outOfCgpa' label='Out of' type='number' />
+							</div>
+						) : (
+							<FormInput control={form.control} name='resultAchieved' label='Result Achieved' />
+						)}
+						<div className='grid grid-cols-2 gap-4'>
+							<FormSelect
+								control={form.control}
+								name='passingYear'
+								label='Passing Year'
+								required
+								options={years}
+								placeholder='Select year'
+							/>
+							<FormInput control={form.control} name='duration' label='Duration (Years)' type='number' />
+						</div>
 
-    return (
-        <Card key={index} className="p-4 flex justify-between items-center">
-            <div>
-                <p className="font-semibold">{item.degree}</p>
-                <p className="text-sm text-muted-foreground">{item.institution} - {item.graduationYear}</p>
-                {item.certificateUrls && item.certificateUrls.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                        {item.certificateUrls.map((url, i) => (
-                            <Badge key={i} variant="outline" className="text-xs">
-                                <FileText className="h-3 w-3 mr-1" />
-                                {url.split('/').pop()}
-                            </Badge>
-                        ))}
-                    </div>
-                )}
-            </div>
-            <div className="flex gap-2">
-                 <Button variant="ghost" size="icon" onClick={() => startEditing(index, item)}>
-                    <Edit className="h-4 w-4" />
-                </Button>
-                <ConfirmationDialog
-                    trigger={
-                        <Button variant="ghost" size="icon">
-                            <Trash className="h-4 w-4 text-danger" />
-                        </Button>
-                    }
-                    description='This action cannot be undone. This will permanently delete this academic record.'
-                    onConfirm={() => handleRemove(index)}
-                    confirmText='Delete'
-                />
-            </div>
-        </Card>
-    );
-  };
+						<FormInput control={form.control} name='achievement' label='Achievement' />
+						<FormFileUpload
+							control={form.control}
+							name='certificateFile'
+							label='Certificate (Optional)'
+							accept='.pdf, image/*'
+						/>
 
-  return (
-    <div className="space-y-6">
-        <Card className="glassmorphism">
-            <CardHeader>
-                <CardTitle>Your Academic History</CardTitle>
-                <CardDescription>Listed below is your educational background.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                {history.map(renderItem)}
-                {history.length === 0 && (
-                    <p className="text-center text-muted-foreground py-4">No academic history added yet.</p>
-                )}
-            </CardContent>
-        </Card>
-        
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleAddNew)}>
-                <Card className="glassmorphism">
-                    <CardHeader>
-                        <CardTitle>Add New Education</CardTitle>
-                        <CardDescription>Add a new degree to your profile.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <FormInput
-                            control={form.control}
-                            name="degree"
-                            label="Degree"
-                            placeholder="e.g. B.S. in Computer Science"
-                            required
-                        />
-                        <FormInput
-                            control={form.control}
-                            name="institution"
-                            label="Institution"
-                            placeholder="e.g. Stanford University"
-                            required
-                        />
-                        <FormInput
-                            control={form.control}
-                            name="graduationYear"
-                            label="Graduation Year"
-                            placeholder="e.g. 2024"
-                            type="number"
-                            required
-                        />
-                        <FormField
-                            control={form.control}
-                            name="certificateFiles"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Certificates (Multi-file)</FormLabel>
-                                    <FormControl>
-                                        <div className="relative flex items-center justify-center w-full">
-                                            <label htmlFor="add-file-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted">
-                                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                    <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                                                    <p className="text-sm text-muted-foreground">
-                                                        <span className="font-semibold">Click to upload</span> or drag and drop
-                                                    </p>
-                                                </div>
-                                                <Input id="add-file-upload" type="file" multiple className="hidden" onChange={(e) => field.onChange(Array.from(e.target.files || []))} />
-                                            </label>
-                                        </div>
-                                    </FormControl>
-                                    <div className="space-y-2 mt-2">
-                                        {field.value?.map((file: File, i: number) => (
-                                            <FilePreview key={i} file={file} onRemove={() => {
-                                                const newFiles = [...field.value];
-                                                newFiles.splice(i, 1);
-                                                field.onChange(newFiles);
-                                            }} />
-                                        ))}
-                                    </div>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </CardContent>
-                    <CardFooter>
-                        <Button type="submit"><PlusCircle className="mr-2 h-4 w-4" /> Add Entry</Button>
-                    </CardFooter>
-                </Card>
-            </form>
-        </Form>
-    </div>
-  );
+						<DialogFooter className='pt-4'>
+							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
+								Cancel
+							</Button>
+							<Button type='submit' disabled={isSubmitting}>
+								{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+								{initialData ? 'Save Changes' : 'Add Entry'}
+							</Button>
+						</DialogFooter>
+					</form>
+				</Form>
+			</DialogContent>
+		</Dialog>
+	);
+}
+
+interface ProfileFormAcademicProps {
+	masterData: {
+		degreeLevels: ICommonMasterData[];
+		domains: ICommonMasterData[];
+		institutions: IEducationInstitution[];
+	};
+}
+
+export function ProfileFormAcademic({ masterData }: ProfileFormAcademicProps) {
+	const { toast } = useToast();
+	const [history, setHistory] = React.useState<AcademicInfo[]>([]);
+	const [editingItem, setEditingItem] = React.useState<AcademicInfo | undefined>(undefined);
+	const [isFormOpen, setIsFormOpen] = React.useState(false);
+	const [isLoading, setIsLoading] = React.useState(true);
+
+	const loadData = React.useCallback(async () => {
+		setIsLoading(true);
+		try {
+			const academicRes = await JobseekerProfileService.academic.get();
+			setHistory(academicRes.body);
+		} catch (error) {
+			toast({
+				description: 'Failed to load academic history.',
+				variant: 'danger',
+			});
+		} finally {
+			setIsLoading(false);
+		}
+	}, [toast]);
+
+	React.useEffect(() => {
+		loadData();
+	}, [loadData]);
+
+	const handleOpenForm = (item?: AcademicInfo) => {
+		setEditingItem(item);
+		setIsFormOpen(true);
+	};
+
+	const handleCloseForm = () => {
+		setEditingItem(undefined);
+		setIsFormOpen(false);
+	};
+
+	const handleFormSubmit = async (data: AcademicFormValues, id?: string) => {
+		try {
+			const payload: any = { ...data, id };
+			const formData = makeFormData(payload);
+			const response = await JobseekerProfileService.academic.save(formData);
+			toast({ description: response.message, variant: 'success' });
+			loadData();
+			return true;
+		} catch (error: any) {
+			toast({ title: 'Error', description: error.message || 'An error occurred.', variant: 'danger' });
+			return false;
+		}
+	};
+
+	const handleRemove = async (id: string) => {
+		try {
+			await JobseekerProfileService.academic.delete(id);
+			toast({
+				title: 'Entry Deleted',
+				description: 'The academic record has been removed.',
+				variant: 'success',
+			});
+			loadData();
+		} catch (error: any) {
+			toast({
+				title: 'Error',
+				description: error.message || 'Failed to delete record.',
+				variant: 'danger',
+			});
+		}
+	};
+
+	const renderItem = (item: AcademicInfo) => {
+		const resultText =
+			item.resultSystem === ResultSystem.GRADE
+				? `CGPA: ${item.cgpa}/${item.outOfCgpa}`
+				: `Result: ${item.resultAchieved}`;
+		return (
+			<Card key={item.id} className='p-4 flex justify-between items-start'>
+				<div>
+					<p className='font-semibold'>{item.degreeTitle}</p>
+					<p className='text-sm text-muted-foreground'>
+						{item.institution.nameEn} | {item.degreeLevel.nameEn} in {item.domain.nameEn}
+					</p>
+					<p className='text-xs text-muted-foreground'>
+						{item.passingYear} | {resultText}
+					</p>
+					{item.certificateFile && (
+						<FilePreviewer file={item.certificateFile}>
+							<button className='text-xs text-primary hover:underline flex items-center gap-1 mt-1'>
+								<FileText className='h-3 w-3' />
+								View Certificate
+							</button>
+						</FilePreviewer>
+					)}
+				</div>
+				<div className='flex gap-2'>
+					<Button variant='ghost' size='icon' onClick={() => handleOpenForm(item)}>
+						<Edit className='h-4 w-4' />
+					</Button>
+					<ConfirmationDialog
+						trigger={
+							<Button variant='ghost' size='icon'>
+								<Trash className='h-4 w-4 text-danger' />
+							</Button>
+						}
+						description='This action cannot be undone. This will permanently delete this academic record.'
+						onConfirm={() => handleRemove(item.id!)}
+						confirmText='Delete'
+					/>
+				</div>
+			</Card>
+		);
+	};
+
+	return (
+		<div className='space-y-6'>
+			<Card className='glassmorphism'>
+				<CardHeader>
+					<div className='flex justify-between items-center'>
+						<div className='space-y-1.5'>
+							<CardTitle>Your Academic History</CardTitle>
+							<CardDescription>Listed below is your educational background.</CardDescription>
+						</div>
+						<Button onClick={() => handleOpenForm()}>
+							<PlusCircle className='mr-2 h-4 w-4' />
+							Add New
+						</Button>
+					</div>
+				</CardHeader>
+				<CardContent className='space-y-4'>
+					{isLoading ? (
+						[...Array(2)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
+					) : history.length > 0 ? (
+						history.map(renderItem)
+					) : (
+						<p className='text-center text-muted-foreground py-8'>No academic history added yet.</p>
+					)}
+				</CardContent>
+			</Card>
+
+			{isFormOpen && (
+				<AcademicForm
+					isOpen={isFormOpen}
+					onClose={handleCloseForm}
+					onSubmit={handleFormSubmit}
+					initialData={editingItem}
+					noun='Education'
+					masterData={masterData}
+				/>
+			)}
+		</div>
+	);
 }

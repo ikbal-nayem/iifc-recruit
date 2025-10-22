@@ -1,6 +1,6 @@
 'use client';
 
-import { MasterDataCrud } from '@/components/app/admin/master-data-crud';
+import { MasterDataCrud } from '@/components/app/admin/master-data/master-data-crud';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
@@ -23,7 +23,7 @@ export default function MasterSkillsPage() {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { name: search },
+					body: { nameEn: search },
 					meta: { page: page, limit: meta.limit },
 				};
 				const response = await MasterDataService.skill.getList(payload);
@@ -40,7 +40,7 @@ export default function MasterSkillsPage() {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit]
+		[meta.limit, toast]
 	);
 
 	useEffect(() => {
@@ -51,10 +51,10 @@ export default function MasterSkillsPage() {
 		loadSkills(newPage, debouncedSearch);
 	};
 
-	const handleAdd = async (name: string): Promise<boolean | null> => {
+	const handleAdd = async (data: { nameEn: string, nameBn: string }): Promise<boolean | null> => {
 		try {
-			const resp = await MasterDataService.skill.add({ name, isActive: true });
-			toast({ description: resp.message, variant: 'success' });
+			const resp = await MasterDataService.skill.add({ ...data, active: true });
+			toast({ description: resp.message || "Skill added succesfully.", variant: 'success' });
 			// Refresh list to show the new item
 			loadSkills(meta.page, debouncedSearch);
 			return true;
@@ -69,7 +69,7 @@ export default function MasterSkillsPage() {
 		try {
 			const updatedSkill = await MasterDataService.skill.update(item);
 			setSkills(skills.map((s) => (s?.id === item?.id ? updatedSkill?.body : s)));
-			toast({ description: updatedSkill?.message, variant: 'success' });
+			toast({ description: updatedSkill?.message || "Skill updated succesfully", variant: 'success' });
 			return true;
 		} catch (error) {
 			console.error('Failed to update skill', error);
@@ -92,7 +92,7 @@ export default function MasterSkillsPage() {
 	};
 
 	return (
-		<MasterDataCrud<ICommonMasterData>
+		<MasterDataCrud
 			title='Skills'
 			description='Manage the skills used in candidate profiles.'
 			noun='Skill'

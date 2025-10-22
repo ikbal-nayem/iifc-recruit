@@ -1,7 +1,6 @@
 
 'use client';
 
-import { Publication } from '@/app/(auth)/jobseeker/profile-edit/publications/page';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
@@ -11,6 +10,7 @@ import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import { Publication } from '@/interfaces/jobseeker.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
@@ -41,13 +41,9 @@ interface PublicationFormProps {
 function PublicationForm({ isOpen, onClose, onSubmit, initialData, noun }: PublicationFormProps) {
 	const form = useForm<PublicationFormValues>({
 		resolver: zodResolver(publicationSchema),
-		defaultValues: initialData || defaultData,
+		values: initialData || defaultData,
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
-
-	useEffect(() => {
-		form.reset(initialData || defaultData);
-	}, [initialData, form]);
 
 	const handleSubmit = async (data: PublicationFormValues) => {
 		setIsSubmitting(true);
@@ -117,6 +113,7 @@ export function ProfileFormPublications() {
 	const { toast } = useToast();
 	const [history, setHistory] = React.useState<Publication[]>([]);
 	const [editingItem, setEditingItem] = React.useState<Publication | undefined>(undefined);
+	const [itemToDelete, setItemToDelete] = React.useState<Publication | null>(null);
 	const [isFormOpen, setIsFormOpen] = React.useState(false);
 	const [isLoading, setIsLoading] = React.useState(true);
 
@@ -164,9 +161,10 @@ export function ProfileFormPublications() {
 		}
 	};
 
-	const handleRemove = async (id: string) => {
+	const handleRemove = async () => {
+		if (!itemToDelete?.id) return;
 		try {
-			const response = await JobseekerProfileService.publication.delete(id);
+			const response = await JobseekerProfileService.publication.delete(itemToDelete.id);
 			toast({ description: response.message || 'Publication deleted successfully.', variant: 'success' });
 			loadPublications();
 		} catch (error: any) {
@@ -175,6 +173,8 @@ export function ProfileFormPublications() {
 				description: error.message || 'Failed to delete publication.',
 				variant: 'danger',
 			});
+		} finally {
+			setItemToDelete(null);
 		}
 	};
 
@@ -200,16 +200,9 @@ export function ProfileFormPublications() {
 					<Button variant='ghost' size='icon' onClick={() => handleOpenForm(item)}>
 						<Edit className='h-4 w-4' />
 					</Button>
-					<ConfirmationDialog
-						trigger={
-							<Button variant='ghost' size='icon'>
-								<Trash className='h-4 w-4 text-danger' />
-							</Button>
-						}
-						description='This action cannot be undone. This will permanently delete this publication.'
-						onConfirm={() => handleRemove(item.id!)}
-						confirmText='Delete'
-					/>
+					<Button variant='ghost' size='icon' onClick={() => setItemToDelete(item)}>
+						<Trash className='h-4 w-4 text-danger' />
+					</Button>
 				</div>
 			</Card>
 		);
@@ -250,6 +243,13 @@ export function ProfileFormPublications() {
 					noun='Publication'
 				/>
 			)}
+			<ConfirmationDialog
+				open={!!itemToDelete}
+				onOpenChange={(open) => !open && setItemToDelete(null)}
+				description='This action cannot be undone. This will permanently delete this publication.'
+				onConfirm={handleRemove}
+				confirmText='Delete'
+			/>
 		</div>
 	);
 }

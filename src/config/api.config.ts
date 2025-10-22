@@ -61,13 +61,34 @@ axiosIns.interceptors.response.use(
 	(error) => {
 		if (error?.response) {
 			if (error.response?.status === 401) logout();
+
+			// Handle Spring Boot validation errors
+			if (error.response?.data?.error) {
+				try {
+					const errorObj = JSON.parse(error.response.data.error);
+					if (errorObj && typeof errorObj === 'object') {
+						const messages = Object.values(errorObj).join('\n');
+						if (messages) {
+							return Promise.reject({
+								status: error.response?.status,
+								message: messages,
+								body: {},
+							});
+						}
+					}
+				} catch (e) {
+					// Not a JSON error, fall through to default handling
+				}
+			}
+
 			if (error.response?.data) {
 				return Promise.reject({
 					status: error.response?.status,
-					message: error.response?.data?.message || error.response?.data?.error,
-					body: {},
+					message: error.response?.data?.message || error.response?.data?.error || 'An unknown error occurred.',
+					body: error.response?.data?.body || {},
 				});
 			}
+
 			return Promise.reject({
 				message: error.message,
 				status: error?.response?.status || error.status || 500,

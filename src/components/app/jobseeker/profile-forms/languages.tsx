@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -9,12 +10,9 @@ import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormSelect } from '@/components/ui/form-select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { ProficiancyLevel } from '@/interfaces/common.interface';
 import { Language } from '@/interfaces/jobseeker.interface';
-import { ICommonMasterData } from '@/interfaces/master-data.interface';
-import { proficiencyOptions } from '@/lib/data';
+import { ICommonMasterData, EnumDTO } from '@/interfaces/master-data.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
-import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
 import * as React from 'react';
@@ -22,15 +20,8 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 const languageSchema = z.object({
-	languageId: z.number().min(1, 'Language is required.'),
-	proficiency: z
-		.enum([
-			ProficiancyLevel.BEGINNER,
-			ProficiancyLevel.INTERMEDIATE,
-			ProficiancyLevel.ADVANCED,
-			ProficiancyLevel.NATIVE,
-		])
-		.default(ProficiancyLevel.INTERMEDIATE),
+	languageId: z.coerce.number().min(1, 'Language is required.'),
+	proficiency: z.string().min(1, 'Proficiency is required'),
 });
 
 type LanguageFormValues = z.infer<typeof languageSchema>;
@@ -41,21 +32,26 @@ interface LanguageFormProps {
 	onSubmit: (data: LanguageFormValues, id?: number) => Promise<boolean>;
 	initialData?: Language;
 	noun: string;
-	languageOptions: { label: string; value: number }[];
+	languageOptions: ICommonMasterData[];
+	proficiencyOptions: EnumDTO[];
 }
 
-const defaultValues = { languageId: 0, proficiency: ProficiancyLevel.INTERMEDIATE };
+const defaultValues = { languageId: undefined, proficiency: '' };
 
-function LanguageForm({ isOpen, onClose, onSubmit, initialData, noun, languageOptions }: LanguageFormProps) {
+function LanguageForm({
+	isOpen,
+	onClose,
+	onSubmit,
+	initialData,
+	noun,
+	languageOptions,
+	proficiencyOptions,
+}: LanguageFormProps) {
 	const form = useForm<LanguageFormValues>({
 		resolver: zodResolver(languageSchema),
-		defaultValues: initialData || defaultValues,
+		values: initialData || defaultValues,
 	});
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
-
-	React.useEffect(() => {
-		form.reset(initialData || defaultValues);
-	}, [initialData, form]);
 
 	const handleSubmit = async (data: LanguageFormValues) => {
 		setIsSubmitting(true);
@@ -81,6 +77,8 @@ function LanguageForm({ isOpen, onClose, onSubmit, initialData, noun, languageOp
 							placeholder='Select a language'
 							required
 							options={languageOptions}
+							getOptionLabel={(option) => option.name}
+							getOptionValue={(option) => option.id!}
 							disabled={isSubmitting}
 						/>
 						<FormSelect
@@ -90,6 +88,8 @@ function LanguageForm({ isOpen, onClose, onSubmit, initialData, noun, languageOp
 							required
 							options={proficiencyOptions}
 							placeholder='Select proficiency'
+							labelKey='nameEn'
+							valueKey='value'
 							disabled={isSubmitting}
 						/>
 						<DialogFooter className='pt-4'>
@@ -108,26 +108,27 @@ function LanguageForm({ isOpen, onClose, onSubmit, initialData, noun, languageOp
 	);
 }
 
-export function ProfileFormLanguages() {
+interface ProfileFormLanguagesProps {
+	languageOptions: ICommonMasterData[];
+	proficiencyOptions: EnumDTO[];
+}
+
+export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: ProfileFormLanguagesProps) {
 	const { toast } = useToast();
 	const [history, setHistory] = React.useState<Language[]>([]);
 	const [editingItem, setEditingItem] = React.useState<Language | undefined>(undefined);
+	const [itemToDelete, setItemToDelete] = React.useState<Language | null>(null);
 	const [isFormOpen, setIsFormOpen] = React.useState(false);
 	const [isLoading, setIsLoading] = React.useState(true);
-	const [languageOptions, setLanguageOptions] = React.useState<ICommonMasterData[]>([]);
 
-	const loadLanguages = React.useCallback(async () => {
+	const loadData = React.useCallback(async () => {
 		setIsLoading(true);
 		try {
-			const [languagesRes, masterLanguagesRes] = await Promise.all([
-				JobseekerProfileService.language.get(),
-				MasterDataService.language.get(),
-			]);
+			const languagesRes = await JobseekerProfileService.language.get();
 			setHistory(languagesRes.body);
-			setLanguageOptions(masterLanguagesRes.body);
 		} catch (error) {
 			toast({
-				description: 'Failed to load languages.',
+				description: 'Failed to load data.',
 				variant: 'danger',
 			});
 		} finally {
@@ -136,8 +137,8 @@ export function ProfileFormLanguages() {
 	}, [toast]);
 
 	React.useEffect(() => {
-		loadLanguages();
-	}, [loadLanguages]);
+		loadData();
+	}, [loadData]);
 
 	const handleOpenForm = (item?: Language) => {
 		setEditingItem(item);
@@ -156,7 +157,7 @@ export function ProfileFormLanguages() {
 				? await JobseekerProfileService.language.update({ ...payload, id })
 				: await JobseekerProfileService.language.add(payload);
 			toast({ description: response.message, variant: 'success' });
-			loadLanguages();
+			loadData();
 			return true;
 		} catch (error: any) {
 			toast({ title: 'Error', description: error.message || 'An error occurred.', variant: 'danger' });
@@ -164,17 +165,20 @@ export function ProfileFormLanguages() {
 		}
 	};
 
-	const handleRemove = async (id: number) => {
+	const handleRemove = async () => {
+		if (!itemToDelete?.id) return;
 		try {
-			const response = await JobseekerProfileService.language.delete(id);
+			const response = await JobseekerProfileService.language.delete(itemToDelete.id);
 			toast({ description: response.message || 'Language deleted successfully.', variant: 'success' });
-			loadLanguages();
+			loadData();
 		} catch (error: any) {
 			toast({
 				title: 'Error',
 				description: error.message || 'Failed to delete language.',
 				variant: 'danger',
 			});
+		} finally {
+			setItemToDelete(null);
 		}
 	};
 
@@ -190,16 +194,9 @@ export function ProfileFormLanguages() {
 					<Button variant='ghost' size='icon' onClick={() => handleOpenForm(item)}>
 						<Edit className='h-4 w-4' />
 					</Button>
-					<ConfirmationDialog
-						trigger={
-							<Button variant='ghost' size='icon'>
-								<Trash className='h-4 w-4 text-danger' />
-							</Button>
-						}
-						description='This action cannot be undone. This will permanently delete this language from your profile.'
-						onConfirm={() => handleRemove(item.id!)}
-						confirmText='Delete'
-					/>
+					<Button variant='ghost' size='icon' onClick={() => setItemToDelete(item)}>
+						<Trash className='h-4 w-4 text-danger' />
+					</Button>
 				</div>
 			</Card>
 		);
@@ -238,9 +235,17 @@ export function ProfileFormLanguages() {
 					onSubmit={handleFormSubmit}
 					initialData={editingItem}
 					noun='Language'
-					languageOptions={languageOptions.map((l) => ({ label: l.name, value: l.id as number }))}
+					languageOptions={languageOptions}
+					proficiencyOptions={proficiencyOptions}
 				/>
 			)}
+			<ConfirmationDialog
+				open={!!itemToDelete}
+				onOpenChange={(open) => !open && setItemToDelete(null)}
+				description='This action cannot be undone. This will permanently delete this language from your profile.'
+				onConfirm={handleRemove}
+				confirmText='Delete'
+			/>
 		</div>
 	);
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { MasterDataCrud } from '@/components/app/admin/master-data-crud';
+import { MasterDataCrud } from '@/components/app/admin/master-data/master-data-crud';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
@@ -23,7 +23,7 @@ export default function MasterDegreeLevelsPage() {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { name: search },
+					body: { nameEn: search },
 					meta: { page: page, limit: meta.limit },
 				};
 				const response = await MasterDataService.degreeLevel.getList(payload);
@@ -51,9 +51,9 @@ export default function MasterDegreeLevelsPage() {
 		loadItems(newPage, debouncedSearch);
 	};
 
-	const handleAdd = async (name: string): Promise<boolean | null> => {
+	const handleAdd = async (data: { nameEn: string, nameBn: string }): Promise<boolean | null> => {
 		try {
-			const resp = await MasterDataService.degreeLevel.add({ name, isActive: true });
+			const resp = await MasterDataService.degreeLevel.add({ ...data, isActive: true });
 			toast({ description: resp.message, variant: 'success' });
 			loadItems(meta.page, debouncedSearch);
 			return true;
@@ -91,7 +91,7 @@ export default function MasterDegreeLevelsPage() {
 	};
 
 	return (
-		<MasterDataCrud<ICommonMasterData>
+		<MasterDataCrud
 			title='Degree Levels'
 			description="Manage the academic degree levels (e.g., Bachelor's, Master's)."
 			noun='Degree Level'

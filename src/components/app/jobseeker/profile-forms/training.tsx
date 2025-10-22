@@ -4,16 +4,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { FilePreviewer } from '@/components/ui/file-previewer';
+import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
+import { FormFileUpload } from '@/components/ui/form-file-upload';
 import { FormInput } from '@/components/ui/form-input';
-import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Training } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
-import { makePreviewURL } from '@/lib/utils';
+import { makeFormData } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO } from 'date-fns';
@@ -26,10 +27,10 @@ const trainingSchema = z
 	.object({
 		name: z.string().min(1, 'Training name is required.'),
 		institutionName: z.string().min(1, 'Institution is required.'),
-		trainingTypeId: z.string().min(1, 'Training type is required.'),
+		trainingTypeId: z.string().optional(),
 		startDate: z.string().min(1, 'Start date is required.'),
 		endDate: z.string().min(1, 'End date is required.'),
-		certificate: z.any().optional(),
+		certificateFile: z.any().optional(),
 	})
 	.refine((data) => new Date(data.startDate) <= new Date(data.endDate), {
 		message: 'End date cannot be before start date.',
@@ -43,7 +44,7 @@ const defaultData = { name: '', institutionName: '', trainingTypeId: '', startDa
 interface TrainingFormProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onSubmit: (data: TrainingFormValues, id?: number) => Promise<boolean>;
+	onSubmit: (data: Training) => Promise<boolean>;
 	initialData?: Training;
 	noun: string;
 	trainingTypes: ICommonMasterData[];
@@ -52,21 +53,38 @@ interface TrainingFormProps {
 function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTypes }: TrainingFormProps) {
 	const form = useForm<TrainingFormValues>({
 		resolver: zodResolver(trainingSchema),
-		defaultValues: initialData || defaultData,
+		defaultValues: initialData
+			? {
+					...initialData,
+					trainingTypeId: initialData.trainingTypeId?.toString(),
+					certificateFile: initialData.certificateFile,
+			  }
+			: defaultData,
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	useEffect(() => {
-		form.reset(initialData || defaultData);
+		form.reset(
+			initialData
+				? {
+						...initialData,
+						trainingTypeId: initialData.trainingTypeId?.toString(),
+				  }
+				: defaultData
+		);
 	}, [initialData, form]);
 
-	const handleSubmit = async (data: TrainingFormValues) => {
+	const handleSubmit = (data: TrainingFormValues) => {
 		setIsSubmitting(true);
-		const success = await onSubmit(data, initialData?.id);
-		if (success) {
-			onClose();
-		}
-		setIsSubmitting(false);
+		const payload: Training = {
+			...data,
+			id: initialData?.id,
+			trainingTypeId: data.trainingTypeId ? parseInt(data.trainingTypeId) : undefined,
+		};
+
+		onSubmit(payload)
+			.then(() => onClose())
+			.finally(() => setIsSubmitting(false));
 	};
 
 	return (
@@ -85,25 +103,23 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 							required
 							disabled={isSubmitting}
 						/>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-							<FormInput
-								control={form.control}
-								name='institutionName'
-								label='Institution'
-								placeholder='e.g., Coursera'
-								required
-								disabled={isSubmitting}
-							/>
-							<FormAutocomplete
-								control={form.control}
-								name='trainingTypeId'
-								label='Training Type'
-								placeholder='Select type'
-								required
-								options={trainingTypes.map((t) => ({ value: t.id!, label: t.name }))}
-								disabled={isSubmitting}
-							/>
-						</div>
+						<FormInput
+							control={form.control}
+							name='institutionName'
+							label='Institution'
+							placeholder='e.g., Coursera'
+							required
+							disabled={isSubmitting}
+						/>
+						<FormAutocomplete
+							control={form.control}
+							name='trainingTypeId'
+							label='Training Type'
+							placeholder='Select type'
+							options={trainingTypes.map((t) => ({ value: t.id!.toString(), label: t.name }))}
+							disabled={isSubmitting}
+						/>
+
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 							<FormDatePicker
 								control={form.control}
@@ -120,22 +136,11 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 								disabled={isSubmitting}
 							/>
 						</div>
-						<FormField
+						<FormFileUpload
 							control={form.control}
-							name='certificate'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Certificate (Optional PDF)</FormLabel>
-									<FormControl>
-										<Input
-											type='file'
-											accept='.pdf'
-											onChange={(e) => field.onChange(e.target.files ? e.target.files[0] : null)}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
+							name='certificateFile'
+							label='CertificateFile'
+							accept='.pdf, .image/*'
 						/>
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
@@ -186,20 +191,9 @@ export function ProfileFormTraining({ trainingTypes }: { trainingTypes: ICommonM
 		setEditingItem(undefined);
 	};
 
-	const handleFormSubmit = async (data: TrainingFormValues, id?: number) => {
-		// In a real app, handle file upload here. For now, we'll just use the name.
-		const certificateUrl = data.certificate
-			? data.certificate.name
-			: id
-			? editingItem?.certificate
-			: undefined;
-		const payload = { ...data, certificateUrl };
-		delete (payload as any).certificate;
-
+	const handleFormSubmit = async (formData: Training) => {
 		try {
-			const response = id
-				? await JobseekerProfileService.training.update({ ...payload, id })
-				: await JobseekerProfileService.training.add(payload);
+			const response = await JobseekerProfileService.training.save(makeFormData(formData));
 			toast({ description: response.message, variant: 'success' });
 			loadTrainings();
 			return true;
@@ -216,7 +210,6 @@ export function ProfileFormTraining({ trainingTypes }: { trainingTypes: ICommonM
 			loadTrainings();
 		} catch (error: any) {
 			toast({
-				title: 'Error',
 				description: error.message || 'Failed to delete training.',
 				variant: 'danger',
 			});
@@ -232,16 +225,13 @@ export function ProfileFormTraining({ trainingTypes }: { trainingTypes: ICommonM
 					<p className='text-xs text-muted-foreground'>
 						{format(parseISO(item.startDate), 'MMM yyyy')} - {format(parseISO(item.endDate), 'MMM yyyy')}
 					</p>
-					{item.certificate && (
-						<a
-							href={makePreviewURL(item.certificate)}
-							target='_blank'
-							rel='noopener noreferrer'
-							className='text-xs text-primary hover:underline flex items-center gap-1 mt-1'
-						>
-							<FileText className='h-3 w-3' />
-							View Certificate
-						</a>
+					{item.certificateFile && (
+						<FilePreviewer file={item.certificateFile}>
+							<button className='text-xs text-primary hover:underline flex items-center gap-1 mt-1'>
+								<FileText className='h-3 w-3' />
+								View CertificateFile
+							</button>
+						</FilePreviewer>
 					)}
 				</div>
 				<div className='flex gap-2'>

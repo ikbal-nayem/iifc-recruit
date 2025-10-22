@@ -35,7 +35,7 @@ interface AlertProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
 	({ className, variant, children, icon, iconClassName, showIcon = true, ...props }, ref) => {
-		const IconComponent = variant ? variantIcons[variant] : Info;
+		const IconComponent = variant ? variantIcons[variant] || Info : Info;
 
 		const displayIcon = showIcon ? icon ?? <IconComponent className={cn('h-5 w-5', iconClassName)} /> : null;
 
