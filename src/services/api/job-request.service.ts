@@ -18,6 +18,11 @@ export const JobRequestService = {
 	getRequestedPostById: async (id: string): Promise<IApiResponse<RequestedPost>> =>
 		await axiosIns.get(`/job-request/requested-post/get-by-id/${id}`),
 
+	setExaminer: async (payload: {
+		requestedPostId: number;
+		examinerId: number;
+	}): Promise<IApiResponse<any>> => await axiosIns.post('/job-request/requested-post/set-examiner', payload),
+
 	getById: async (id: string): Promise<IApiResponse<JobRequest>> =>
 		await axiosIns.get(`/job-request/get-by-id/${id}`),
 

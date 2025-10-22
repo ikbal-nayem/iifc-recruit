@@ -36,6 +36,8 @@ export type RequestedPost = {
 	negotiable?: boolean;
 	yearsOfContract?: number | null;
 	totalApplied?: number;
+	examinerId?: number;
+	examiner?: IClientOrganization;
 };
 
 export type JobRequest = {

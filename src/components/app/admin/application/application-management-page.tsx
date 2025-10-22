@@ -13,7 +13,8 @@ import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO, IClientOrganization } from '@/interfaces/master-data.interface';
 import { cn, getStatusVariant } from '@/lib/utils';
 import { ApplicationService } from '@/services/api/application.service';
-import { ArrowLeft, Building, ChevronsRight, Loader2, Save, UserPlus, Users } from 'lucide-react';
+import { JobRequestService } from '@/services/api/job-request.service';
+import { ArrowLeft, Building, ChevronsRight, Loader2, UserPlus, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ApplicantListManager } from './applicant-list-manager';
@@ -36,8 +37,9 @@ export function ApplicationManagementPage({
 	const { toast } = useToast();
 	const router = useRouter();
 	const [examiners] = useState<IClientOrganization[]>(initialExaminers);
-	const [selectedExaminer, setSelectedExaminer] = useState<string | undefined>(undefined);
+	const [selectedExaminer, setSelectedExaminer] = useState<number | undefined>(requestedPost.examinerId);
 	const [isSaving, setIsSaving] = useState(false);
+	const [isProceeding, setIsProceeding] = useState(false);
 	const [applicants, setApplicants] = useState<Application[]>([]);
 	const [applicantsMeta, setApplicantsMeta] = useState<IMeta>(initMeta);
 	const [isLoadingApplicants, setIsLoadingApplicants] = useState(true);
@@ -90,15 +92,13 @@ export function ApplicationManagementPage({
 
 	const handleProceed = async () => {
 		if (!selectedExaminer) {
-			toast({ title: 'Examiner Required', description: 'Please select an examiner to proceed.' });
+			toast({ title: 'Examiner Required', description: 'Please select and save an examiner to proceed.' });
 			return;
 		}
 
-		setIsSaving(true);
+		setIsProceeding(true);
 		try {
-			console.log('Selected Examiner:', selectedExaminer);
-			console.log('Post to be updated', requestedPost);
-
+			console.log('Proceeding with examiner:', selectedExaminer);
 			toast({
 				title: 'Request Processing',
 				description: 'The request has been moved to the processing stage.',
@@ -112,7 +112,7 @@ export function ApplicationManagementPage({
 				variant: 'danger',
 			});
 		} finally {
-			setIsSaving(false);
+			setIsProceeding(false);
 		}
 	};
 
@@ -142,6 +142,32 @@ export function ApplicationManagementPage({
 			});
 	};
 
+	const handleSaveExaminer = async (examinerId: number): Promise<boolean> => {
+		setIsSaving(true);
+		try {
+			await JobRequestService.setExaminer({
+				requestedPostId: requestedPost.id!,
+				examinerId: examinerId,
+			});
+			toast({
+				title: 'Examiner Saved',
+				description: 'The examining organization has been assigned.',
+				variant: 'success',
+			});
+			setSelectedExaminer(examinerId);
+			return true;
+		} catch (error: any) {
+			toast({
+				title: 'Save Failed',
+				description: error.message || 'Could not save the examiner.',
+				variant: 'danger',
+			});
+			return false;
+		} finally {
+			setIsSaving(false);
+		}
+	};
+
 	const handlePageChange = (newPage: number) => {
 		loadApplicants(newPage, statusFilter);
 	};
@@ -164,12 +190,6 @@ export function ApplicationManagementPage({
 					<ArrowLeft className='mr-2 h-4 w-4' />
 					Back
 				</Button>
-				<div>
-					<Button onClick={handleProceed} disabled={isSaving}>
-						{isSaving ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Save className='mr-2 h-4 w-4' />}
-						Proceed
-					</Button>
-				</div>
 			</div>
 
 			<Card className='glassmorphism'>
@@ -200,9 +220,7 @@ export function ApplicationManagementPage({
 						onClick={() => handleFilterChange(item.status)}
 						className={cn(
 							'cursor-pointer transition-all hover:shadow-md hover:-translate-y-1',
-							statusFilter === item.status
-								? 'bg-primary/10 border-primary'
-								: 'bg-card'
+							statusFilter === item.status ? 'bg-primary/10 border-primary' : 'bg-card'
 						)}
 					>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
@@ -263,12 +281,13 @@ export function ApplicationManagementPage({
 			<ExaminerSetup
 				examiners={examiners}
 				selectedExaminer={selectedExaminer}
-				onExaminerChange={setSelectedExaminer}
+				onSave={handleSaveExaminer}
+				isSaving={isSaving}
 			/>
 
 			<div className='flex justify-center mt-6'>
-				<Button onClick={handleProceed} disabled={isSaving} size='lg'>
-					{isSaving ? (
+				<Button onClick={handleProceed} disabled={isProceeding || !selectedExaminer} size='lg'>
+					{isProceeding ? (
 						<Loader2 className='mr-2 h-4 w-4 animate-spin' />
 					) : (
 						<ChevronsRight className='mr-2 h-4 w-4' />
