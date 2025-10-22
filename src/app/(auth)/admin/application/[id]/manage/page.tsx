@@ -40,5 +40,5 @@ export default async function ManageApplicationPage({ params }: { params: { id: 
 
 	const { post, examiners, statuses } = await getData(requestedParams.id);
 
-	return <ApplicationManagementPage requestedPost={post} initialExaminers={examiners} statuses={statuses} />;
+	return <ApplicationManagementPage requestedPost={post} examiners={examiners} statuses={statuses} />;
 }

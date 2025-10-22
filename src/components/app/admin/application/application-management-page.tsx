@@ -7,7 +7,6 @@ import {
 	Card,
 	CardContent,
 	CardDescription,
-	CardFooter,
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
@@ -34,14 +33,12 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ApplicantListManager } from './applicant-list-manager';
 import { ApplicantsTable } from './applicants-table';
-import { ExaminerSetup } from './examiner-setup';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Warning } from 'postcss';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 
 interface ApplicationManagementPageProps {
 	requestedPost: RequestedPost;
-	initialExaminers: IClientOrganization[];
+	examiners: IClientOrganization[];
 	statuses: EnumDTO[];
 }
 
@@ -49,14 +46,11 @@ const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
 
 export function ApplicationManagementPage({
 	requestedPost,
-	initialExaminers,
+	examiners,
 	statuses,
 }: ApplicationManagementPageProps) {
 	const { toast } = useToast();
 	const router = useRouter();
-	const [examiners] = useState<IClientOrganization[]>(initialExaminers);
-	const [selectedExaminer, setSelectedExaminer] = useState<number | undefined>(requestedPost.examinerId);
-	const [isSaving, setIsSaving] = useState(false);
 	const [isProceeding, setIsProceeding] = useState(false);
 	const [applicants, setApplicants] = useState<Application[]>([]);
 	const [applicantsMeta, setApplicantsMeta] = useState<IMeta>(initMeta);
@@ -174,32 +168,6 @@ export function ApplicationManagementPage({
 			});
 	};
 
-	const handleSaveExaminer = async (examinerId: number): Promise<boolean> => {
-		setIsSaving(true);
-		try {
-			await JobRequestService.setExaminer({
-				requestedPostId: requestedPost.id!,
-				examinerId: examinerId,
-			});
-			toast({
-				title: 'Examiner Saved',
-				description: 'The examining organization has been assigned.',
-				variant: 'success',
-			});
-			setSelectedExaminer(examinerId);
-			return true;
-		} catch (error: any) {
-			toast({
-				title: 'Save Failed',
-				description: error.message || 'Could not save the examiner.',
-				variant: 'danger',
-			});
-			return false;
-		} finally {
-			setIsSaving(false);
-		}
-	};
-
 	const handlePageChange = (newPage: number) => {
 		loadApplicants(newPage, statusFilter);
 	};
@@ -314,13 +282,6 @@ export function ApplicationManagementPage({
 					/>
 				</CardContent>
 			</Card>
-
-			<ExaminerSetup
-				examiners={examiners}
-				selectedExaminer={selectedExaminer}
-				onSave={handleSaveExaminer}
-				isSaving={isSaving}
-			/>
 
 			<div className='flex justify-center mt-6'>
 				<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg'>
