@@ -12,7 +12,6 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
@@ -20,7 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequestedPostStatus, RequestedPost } from '@/interfaces/job.interface';
-import { EnumDTO, IClientOrganization } from '@/interfaces/master-data.interface';
+import { EnumDTO } from '@/interfaces/master-data.interface';
 import { cn, getStatusVariant } from '@/lib/utils';
 import { ApplicationService } from '@/services/api/application.service';
 import { JobRequestService } from '@/services/api/job-request.service';
@@ -60,7 +59,7 @@ export function ApplicationManagementPage({
 		initialPost.examinerId?.toString()
 	);
 
-	const form = useForm();
+	const examinerForm = useForm();
 
 	const applicantStats = useMemo(() => {
 		return applicants.reduce(
@@ -377,17 +376,19 @@ export function ApplicationManagementPage({
 						</DialogDescription>
 					</DialogHeader>
 					<div className='py-4'>
-						<FormAutocomplete
-							name='examinerId'
-							label='Examiner'
-							placeholder='Search for an examining organization...'
-							required
-							loadOptions={getExaminerAsync}
-							getOptionValue={(option) => option.id!.toString()}
-							getOptionLabel={(option) => option.nameEn}
-							value={selectedExaminerId}
-							onValueChange={setSelectedExaminerId}
-						/>
+						<Form {...examinerForm}>
+							<FormAutocomplete
+								name='examinerId'
+								label='Examiner'
+								placeholder='Search for an examining organization...'
+								required
+								loadOptions={getExaminerAsync}
+								getOptionValue={(option) => option.id!.toString()}
+								getOptionLabel={(option) => option.nameEn}
+								value={selectedExaminerId}
+								onValueChange={setSelectedExaminerId}
+							/>
+						</Form>
 					</div>
 					<DialogFooter>
 						<Button variant='ghost' onClick={() => setIsExaminerDialogOpen(false)}>
