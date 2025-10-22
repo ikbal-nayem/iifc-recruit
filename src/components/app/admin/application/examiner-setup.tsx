@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +8,7 @@ import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Button } from '../../ui/button';
+import { Button } from '@/components/ui/button';
 import { Loader2, Save } from 'lucide-react';
 import { useEffect } from 'react';
 
