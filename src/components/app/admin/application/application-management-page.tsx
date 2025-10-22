@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -24,6 +25,7 @@ import { EnumDTO, IClientOrganization } from '@/interfaces/master-data.interface
 import { cn, getStatusVariant } from '@/lib/utils';
 import { ApplicationService } from '@/services/api/application.service';
 import { JobRequestService } from '@/services/api/job-request.service';
+import { getExaminerAsync } from '@/services/async-api';
 import { ArrowLeft, Building, ChevronsRight, Edit, Loader2, UserPlus, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -33,7 +35,6 @@ import { ApplicantsTable } from './applicants-table';
 
 interface ApplicationManagementPageProps {
 	requestedPost: RequestedPost;
-	examiners: IClientOrganization[];
 	statuses: EnumDTO[];
 }
 
@@ -41,7 +42,6 @@ const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
 
 export function ApplicationManagementPage({
 	requestedPost,
-	examiners,
 	statuses,
 }: ApplicationManagementPageProps) {
 	const { toast } = useToast();
@@ -187,37 +187,6 @@ export function ApplicationManagementPage({
 		loadApplicants(newPage, statusFilter);
 	};
 
-	const handleExaminerChange = async () => {
-		if (!selectedPostForExaminer || !selectedExaminerId) return;
-
-		const requestedPostId = selectedPostForExaminer.id!;
-		const examinerId = Number(selectedExaminerId);
-
-		setIsSavingExaminer(requestedPostId);
-		try {
-			await JobRequestService.setExaminer({ requestedPostId, examinerId });
-			setData((prev) =>
-				prev.map((post) =>
-					post.id === requestedPostId
-						? { ...post, examinerId: examinerId, examiner: examiners.find((e) => e.id === examinerId) }
-						: post
-				)
-			);
-			toast({
-				description: 'Examiner assigned successfully.',
-				variant: 'success',
-			});
-			setSelectedPostForExaminer(null);
-		} catch (error: any) {
-			toast({
-				description: error.message || 'Failed to assign examiner.',
-				variant: 'danger',
-			});
-		} finally {
-			setIsSavingExaminer(null);
-		}
-	};
-
 	const handleOpenExaminerDialog = (item: RequestedPost) => {
 		setSelectedPostForExaminer(item);
 		setSelectedExaminerId(item.examinerId?.toString());
@@ -261,20 +230,6 @@ export function ApplicationManagementPage({
 								{requestedPost.vacancy} Vacancies
 							</span>
 						</div>
-						{requestedPost.status === JobRequestedPostStatus.PENDING && (
-							<div className='flex items-center gap-2 text-sm'>
-								<span className='text-muted-foreground'>Examiner:</span>
-								<span className='font-semibold'>{requestedPost.examiner?.nameEn || 'Not Assigned'}</span>
-								<Button
-									variant='ghost'
-									size='icon'
-									className='h-7 w-7'
-									onClick={() => handleOpenExaminerDialog(requestedPost)}
-								>
-									<Edit className='h-4 w-4 text-primary' />
-								</Button>
-							</div>
-						)}
 					</CardDescription>
 				</CardHeader>
 			</Card>
@@ -355,49 +310,6 @@ export function ApplicationManagementPage({
 				</Button>
 			</div>
 
-			<Dialog
-				open={!!selectedPostForExaminer}
-				onOpenChange={(open) => !open && setSelectedPostForExaminer(null)}
-			>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Assign Examiner</DialogTitle>
-						<DialogDescription>
-							Select an examiner for the post: &quot;{selectedPostForExaminer?.post?.nameEn}&quot;.
-						</DialogDescription>
-					</DialogHeader>
-					<Form {...form}>
-						<div className='py-4'>
-							<FormAutocomplete
-								name='examinerId'
-								label='Examiner'
-								placeholder='Select an Examiner'
-								options={examiners}
-								getOptionValue={(option) => option.id!.toString()}
-								getOptionLabel={(option) => option.nameEn}
-								value={selectedExaminerId}
-								onValueChange={setSelectedExaminerId}
-								required
-							/>
-						</div>
-					</Form>
-					<DialogFooter>
-						<Button variant='ghost' onClick={() => setSelectedPostForExaminer(null)}>
-							Cancel
-						</Button>
-						<Button
-							onClick={handleExaminerChange}
-							disabled={isSavingExaminer === selectedPostForExaminer?.id}
-						>
-							{isSavingExaminer === selectedPostForExaminer?.id && (
-								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-							)}
-							Save
-						</Button>
-					</DialogFooter>
-				</DialogContent>
-			</Dialog>
-
 			<Dialog open={isProceedConfirmationOpen} onOpenChange={setIsProceedConfirmationOpen}>
 				<DialogContent>
 					<DialogHeader>
@@ -420,7 +332,7 @@ export function ApplicationManagementPage({
 								name='proceedExaminerId'
 								label=''
 								placeholder='Search for an examining organization...'
-								options={examiners}
+								loadOptions={getExaminerAsync}
 								getOptionValue={(option) => option.id!}
 								getOptionLabel={(option) => option.nameEn}
 								value={proceedExaminerId?.toString()}

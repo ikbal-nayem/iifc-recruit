@@ -1,3 +1,4 @@
+
 import { ApplicationManagementPage } from '@/components/app/admin/application/application-management-page';
 import { APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { EnumDTO } from '@/interfaces/master-data.interface';
@@ -7,14 +8,12 @@ import { notFound } from 'next/navigation';
 
 async function getData(requestedPostId: string) {
 	try {
-		const [postRes, examinerRes, statusRes] = await Promise.all([
+		const [postRes, statusRes] = await Promise.all([
 			JobRequestService.getRequestedPostById(requestedPostId),
-			MasterDataService.clientOrganization.getList({ body: { isExaminer: true } }),
 			MasterDataService.getEnum('application-status'),
 		]);
 
 		const post = postRes.body;
-		const examiners = examinerRes.body;
 		const allStatuses = statusRes.body as EnumDTO[];
 
 		const desiredStatuses = [
@@ -26,7 +25,6 @@ async function getData(requestedPostId: string) {
 
 		return {
 			post,
-			examiners,
 			statuses: filteredStatuses,
 		};
 	} catch (error) {
@@ -38,7 +36,7 @@ async function getData(requestedPostId: string) {
 export default async function ManageApplicationPage({ params }: { params: { id: string } }) {
 	const requestedParams = await params;
 
-	const { post, examiners, statuses } = await getData(requestedParams.id);
+	const { post, statuses } = await getData(requestedParams.id);
 
-	return <ApplicationManagementPage requestedPost={post} examiners={examiners} statuses={statuses} />;
+	return <ApplicationManagementPage requestedPost={post} statuses={statuses} />;
 }
