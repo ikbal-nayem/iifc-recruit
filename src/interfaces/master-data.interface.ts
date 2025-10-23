@@ -9,7 +9,7 @@ export type EnumDTO = {
 };
 
 export interface ICommonMasterData {
-	id?: number;
+	id?: string;
 	nameEn: string;
 	nameBn: string;
 	active: boolean;
@@ -23,14 +23,14 @@ export interface IOutsourcingZone extends ICommonMasterData {}
 
 export interface IPost extends ICommonMasterData {
 	outsourcing?: boolean;
-	outsourcingCategoryId?: number;
+	outsourcingCategoryId?: string;
 	outsourcingCategory?: IOutsourcingCategory;
 }
 
 export interface IOutsourcingCharge {
-	id?: number;
-	categoryId: number;
-	zoneId: number;
+	id?: string;
+	categoryId: string;
+	zoneId: string;
 	monthlyServiceCharge: number;
 	active: boolean;
 	category?: IOutsourcingCategory;
@@ -45,8 +45,8 @@ export interface IEducationInstitution extends ICommonMasterData {
 
 export interface IOrganization extends ICommonMasterData {
 	countryCode: string;
-	organizationTypeId: number;
-	industryTypeId?: number;
+	organizationTypeId: string;
+	industryTypeId?: string;
 	address?: string;
 	phone?: string;
 	email?: string;
@@ -58,10 +58,10 @@ export interface IOrganization extends ICommonMasterData {
 }
 
 export interface IClientOrganization {
-    id?: number;
+    id?: string;
     nameEn: string;
     nameBn: string;
-    organizationTypeId?: number;
+    organizationTypeId?: string;
     organizationType?: ICommonMasterData;
     address?: string;
     contactPersonName?: string;

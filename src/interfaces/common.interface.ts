@@ -38,7 +38,7 @@ export interface IApiRequest {
 }
 
 export interface IFile {
-	id: number;
+	id: string;
 	originalFileName: string;
 	fileName: string;
 	fileType: string;

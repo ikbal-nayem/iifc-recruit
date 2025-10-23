@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -163,7 +164,7 @@ export function ApplicationManagementPage({
 		try {
 			const response = await JobRequestService.getRequestedPostUpdate({
 				...requestedPost,
-				examinerId: +selectedExaminerId,
+				examinerId: selectedExaminerId,
 			});
 			const updatedPost = response.body;
 			setRequestedPost(updatedPost);
@@ -387,6 +388,7 @@ export function ApplicationManagementPage({
 					<div className='py-4'>
 						<Form {...examinerForm}>
 							<FormAutocomplete
+								control={examinerForm.control}
 								name='examinerId'
 								label='Examiner'
 								placeholder='Search for an examining organization...'

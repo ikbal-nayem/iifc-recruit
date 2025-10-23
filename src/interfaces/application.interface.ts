@@ -1,3 +1,4 @@
+
 import { RequestedPost } from './job.interface';
 import { JobseekerSearch } from './jobseeker.interface';
 import { EnumDTO } from './master-data.interface';
@@ -17,8 +18,8 @@ export type Application = {
 	status: APPLICATION_STATUS;
 	statusDTO: EnumDTO;
 	applicationDate: string;
-	applicantId: number;
+	applicantId: string;
 	applicant?: JobseekerSearch;
-	requestedPostId: number;
+	requestedPostId: string;
 	requestedPost?: RequestedPost;
 };

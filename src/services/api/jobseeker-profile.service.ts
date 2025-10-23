@@ -1,3 +1,4 @@
+
 import { axiosIns } from '@/config/api.config';
 import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
 import {
@@ -18,7 +19,7 @@ import {
 } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 
-const createProfileCrud = <T extends { id?: number | string }>(entity: string) => ({
+const createProfileCrud = <T extends { id?: string }>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/jobseeker/${entity}/get-by-user`),
 
 	add: async (payload: Omit<T, 'id'>): Promise<IApiResponse<T>> =>
@@ -27,22 +28,22 @@ const createProfileCrud = <T extends { id?: number | string }>(entity: string) =
 	update: async (payload: T): Promise<IApiResponse<T>> =>
 		await axiosIns.put(`/jobseeker/${entity}/update`, payload),
 
-	delete: async (id: number | string): Promise<IApiResponse<void>> =>
+	delete: async (id: string): Promise<IApiResponse<void>> =>
 		await axiosIns.delete(`/jobseeker/${entity}/delete/${id}`),
 });
 
-const createProfileCrudWithFormData = <T extends { id?: number | string }>(entity: string) => ({
+const createProfileCrudWithFormData = <T extends { id?: string }>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[] | T>> => await axiosIns.get(`/jobseeker/${entity}/get-by-user`),
 
 	save: async (formData: FormData | T): Promise<IApiResponse<T>> =>
 		await axiosIns.post(`/jobseeker/${entity}/save`, formData),
 
-	delete: async (id: number | string): Promise<IApiResponse<void>> =>
+	delete: async (id: string): Promise<IApiResponse<void>> =>
 		await axiosIns.delete(`/jobseeker/${entity}/delete/${id}`),
 });
 
 export const JobseekerProfileService = {
-	getProfile: async (id?: number): Promise<IApiResponse<Jobseeker>> =>
+	getProfile: async (id?: string): Promise<IApiResponse<Jobseeker>> =>
 		await axiosIns.get(id ? `/jobseeker/profile/get-by-user?id=${id}` : '/jobseeker/profile/get-by-user'),
 
 	getProfileCompletion: async (): Promise<IApiResponse<IProfileCompletionStatus>> =>
@@ -81,12 +82,12 @@ export const JobseekerProfileService = {
 	getSkills: async (): Promise<IApiResponse<ICommonMasterData[]>> =>
 		await axiosIns.get(`/jobseeker/skill/get-by-user`),
 
-	saveSkills: async (payload: { skillIds: (number | string | undefined)[] }): Promise<IApiResponse<any>> =>
+	saveSkills: async (payload: { skillIds: (string | undefined)[] }): Promise<IApiResponse<any>> =>
 		await axiosIns.post('/jobseeker/skill/save', payload),
 
 	resume: {
 		...createProfileCrudWithFormData<Resume>('resume'),
-		setActive: async (resumeId: number): Promise<IApiResponse<any>> =>
+		setActive: async (resumeId: string): Promise<IApiResponse<any>> =>
 			await axiosIns.post(`/jobseeker/resume/toggle-active-status?resumeId=${resumeId}`),
 	},
 };

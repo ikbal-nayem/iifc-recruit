@@ -1,3 +1,4 @@
+
 import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from './master-data.interface';
 
 export enum JobRequestType {
@@ -18,13 +19,13 @@ export enum JobRequestedPostStatus {
 }
 
 export type RequestedPost = {
-	id?: number;
-	jobRequestId?: number;
+	id?: string;
+	jobRequestId?: string;
 	jobRequest?: JobRequest;
-	postId: number;
+	postId: string;
 	post?: IPost;
 	vacancy: number;
-	outsourcingZoneId?: number;
+	outsourcingZoneId?: string;
 	outsourcingZone?: IOutsourcingZone;
 	fromDate?: string;
 	toDate?: string;
@@ -36,14 +37,14 @@ export type RequestedPost = {
 	negotiable?: boolean;
 	yearsOfContract?: number | null;
 	totalApplied?: number;
-	examinerId?: number;
+	examinerId?: string;
 	examiner?: IClientOrganization;
 };
 
 export type JobRequest = {
 	id?: string;
 	memoNo: string;
-	clientOrganizationId: number;
+	clientOrganizationId: string;
 	clientOrganization?: IClientOrganization;
 	subject: string;
 	description?: string;

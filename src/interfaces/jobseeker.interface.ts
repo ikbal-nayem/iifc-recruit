@@ -3,8 +3,8 @@ import { IFile, ResultSystem } from './common.interface';
 import { EnumDTO, ICommonMasterData, IEducationInstitution, IOrganization } from './master-data.interface';
 
 export type Language = {
-	id?: number;
-	languageId: number;
+	id?: string;
+	languageId: string;
 	language?: ICommonMasterData;
 	proficiency: string;
 };
@@ -18,17 +18,17 @@ export type Publication = {
 };
 
 export type Award = {
-	id?: number;
+	id?: string;
 	name: string;
 	description: string;
 	date: string;
 };
 
 export type Training = {
-	id?: number;
+	id?: string;
 	name: string;
 	institutionName: string;
-	trainingTypeId?: number;
+	trainingTypeId?: string;
 	trainingType?: ICommonMasterData;
 	startDate: string;
 	endDate: string;
@@ -36,9 +36,9 @@ export type Training = {
 };
 
 export type Certification = {
-	id?: number;
+	id?: string;
 	certification?: ICommonMasterData;
-	certificationId?: number;
+	certificationId?: string;
 	issuingAuthority: string;
 	examDate?: string;
 	issueDate?: string;
@@ -69,9 +69,9 @@ export type ProfessionalInfo = {
 	id?: string;
 	positionTitle: string;
 	positionLevel?: ICommonMasterData;
-	positionLevelId: number;
+	positionLevelId: string;
 	organization?: IOrganization;
-	organizationId: number;
+	organizationId: string;
 	responsibilities: string;
 	joinDate: string;
 	resignDate?: string;
@@ -86,14 +86,14 @@ export type ProfessionalInfo = {
 };
 
 export type Resume = {
-	id: number;
+	id: string;
 	createdOn: string;
 	file: IFile;
 	isActive: boolean;
 };
 
 export type ChildInfo = {
-	id?: number;
+	id?: string;
 	name: string;
 	gender: string;
 	genderDTO?: EnumDTO;
@@ -102,16 +102,16 @@ export type ChildInfo = {
 };
 
 export type FamilyInfo = {
-	id?: number;
+	id?: string;
 	name: string;
 	profession: string;
-	ownDistrictId?: number;
+	ownDistrictId?: string;
 	status?: string;
 	children: ChildInfo[];
 };
 
 export type PersonalInfo = {
-	id?: number;
+	id?: string;
 	// Basic Info
 	fullName?: string;
 	firstName: string;
@@ -141,15 +141,15 @@ export type PersonalInfo = {
 	professionalStatusDTO?: EnumDTO;
 
 	// Address
-	presentDivisionId?: number;
-	presentDistrictId?: number;
-	presentUpazilaId?: number;
+	presentDivisionId?: string;
+	presentDistrictId?: string;
+	presentUpazilaId?: string;
 	presentAddress?: string;
 	presentPostCode?: number;
 	sameAsPresentAddress?: boolean;
-	permanentDivisionId?: number;
-	permanentDistrictId?: number;
-	permanentUpazilaId?: number;
+	permanentDivisionId?: string;
+	permanentDistrictId?: string;
+	permanentUpazilaId?: string;
 	permanentAddress?: string;
 	permanentPostCode?: number;
 
@@ -194,7 +194,7 @@ export interface IProfileCompletionStatus {
 
 
 export type JobseekerSearch = {
-	userId: number;
+	userId: string;
   firstName: string;
   lastName: string;
   middleName: string;
