@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -17,7 +18,7 @@ import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -31,6 +32,7 @@ import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { getStatusVariant } from '@/lib/utils';
 import { FileText, Loader2, RotateCcw, UserCheck, UserPlus } from 'lucide-react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
+import { cn } from '@/lib/utils';
 
 interface ApplicantsTableProps {
 	applicants: Application[];
@@ -214,7 +216,7 @@ export function ApplicantsTable({
 	};
 
 	return (
-		<>
+		<div className='space-y-4'>
 			<div className='flex flex-col sm:flex-row items-center gap-4'>
 				<Input
 					placeholder='Filter by applicant name...'
@@ -245,9 +247,11 @@ export function ApplicantsTable({
 			</div>
 
 			{/* Mobile View */}
-			<div className='md:hidden mt-4 space-y-2'>
-				{isLoading ? (
-					<Loader2 className='mx-auto h-6 w-6 animate-spin' />
+			<div className='md:hidden space-y-2'>
+				{isLoading && !applicants.length ? (
+					<div className='text-center py-16'>
+						<Loader2 className='mx-auto h-6 w-6 animate-spin' />
+					</div>
 				) : applicants.length > 0 ? (
 					applicants.map(renderMobileCard)
 				) : (
@@ -257,49 +261,57 @@ export function ApplicantsTable({
 				)}
 			</div>
 
-			<div className='hidden md:block rounded-md border glassmorphism mt-4'>
-				<Table>
-					<TableHeader>
-						{table.getHeaderGroups().map((headerGroup) => (
-							<TableRow key={headerGroup.id}>
-								{headerGroup.headers.map((header) => {
-									return (
-										<TableHead key={header.id} className='py-2 font-bold'>
-											{header.isPlaceholder
-												? null
-												: flexRender(header.column.columnDef.header, header.getContext())}
-										</TableHead>
-									);
-								})}
-							</TableRow>
-						))}
-					</TableHeader>
-					<TableBody>
-						{table.getRowModel().rows?.length ? (
-							table.getRowModel().rows.map((row) => (
-								<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-									{row.getVisibleCells().map((cell) => (
-										<TableCell key={cell.id} className='py-2'>
-											{flexRender(cell.column.columnDef.cell, cell.getContext())}
-										</TableCell>
-									))}
+			{/* Desktop View */}
+			<Card className='hidden md:block rounded-md border glassmorphism'>
+				<CardContent className='p-0'>
+					<Table>
+						<TableHeader>
+							{table.getHeaderGroups().map((headerGroup) => (
+								<TableRow key={headerGroup.id}>
+									{headerGroup.headers.map((header) => {
+										return (
+											<TableHead key={header.id} className='py-3 font-bold'>
+												{header.isPlaceholder
+													? null
+													: flexRender(header.column.columnDef.header, header.getContext())}
+											</TableHead>
+										);
+									})}
 								</TableRow>
-							))
-						) : (
-							<TableRow>
-								<TableCell colSpan={columns.length} className='h-24 text-center'>
-									No applicants found for this post.
-								</TableCell>
-							</TableRow>
-						)}
-					</TableBody>
-				</Table>
-			</div>
-			{meta.totalRecords && meta.totalRecords > 0 ? (
-				<CardFooter>
-					<Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} noun={'Applicant'} />
-				</CardFooter>
-			) : null}
+							))}
+						</TableHeader>
+						<TableBody
+							className={cn(
+								'transition-opacity duration-300',
+								isLoading ? 'opacity-50' : 'opacity-100'
+							)}
+						>
+							{table.getRowModel().rows?.length ? (
+								table.getRowModel().rows.map((row) => (
+									<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+										{row.getVisibleCells().map((cell) => (
+											<TableCell key={cell.id} className='py-3'>
+												{flexRender(cell.column.columnDef.cell, cell.getContext())}
+											</TableCell>
+										))}
+									</TableRow>
+								))
+							) : (
+								<TableRow>
+									<TableCell colSpan={columns.length} className='h-24 text-center'>
+										No applicants found for this post.
+									</TableCell>
+								</TableRow>
+							)}
+						</TableBody>
+					</Table>
+				</CardContent>
+				{meta.totalRecords && meta.totalRecords > 0 ? (
+					<CardFooter className='py-4'>
+						<Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} noun={'Applicant'} />
+					</CardFooter>
+				) : null}
+			</Card>
 			<Dialog open={!!selectedApplicant} onOpenChange={(isOpen) => !isOpen && setSelectedApplicant(null)}>
 				<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
 					{selectedApplicant && <JobseekerProfileView jobseekerId={selectedApplicant.userId} />}
@@ -316,6 +328,6 @@ export function ApplicantsTable({
 				onConfirm={handleBulkActionConfirm}
 				variant={bulkAction?.type === APPLICATION_STATUS.HIRED ? 'warning' : 'default'}
 			/>
-		</>
+		</div>
 	);
 }
