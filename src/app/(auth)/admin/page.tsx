@@ -13,11 +13,11 @@ async function getDashboardData() {
 		]);
 
 		return {
-			pendingJobRequests: pendingRequestsRes.status === 'fulfilled' ? pendingRequestsRes.value.meta.totalRecords || 0 : 0,
+			pendingJobRequests: pendingRequestsRes.status === 'fulfilled' ? pendingRequestsRes.value.meta?.totalRecords || 0 : 0,
 			processingApplications:
-				processingAppsRes.status === 'fulfilled' ? processingAppsRes.value.meta.totalRecords || 0 : 0,
+				processingAppsRes.status === 'fulfilled' ? processingAppsRes.value.meta?.totalRecords || 0 : 0,
 			shortlistedCandidates:
-				shortlistedRes.status === 'fulfilled' ? shortlistedRes.value.meta.totalRecords || 0 : 0,
+				shortlistedRes.status === 'fulfilled' ? shortlistedRes.value.meta?.totalRecords || 0 : 0,
 		};
 	} catch (error) {
 		console.error('Failed to load dashboard data:', error);
