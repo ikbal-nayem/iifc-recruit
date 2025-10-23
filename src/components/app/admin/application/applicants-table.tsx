@@ -48,7 +48,6 @@ import { Form } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
 import { useToast } from '@/hooks/use-toast';
 
@@ -180,7 +179,7 @@ export function ApplicantsTable({
 		}
 
 		if (requestedPostStatus === JobRequestedPostStatus.PROCESSING || isShortlisted) {
-			if (application.status === APPLICATION_STATUS.ACCEPTED || application.status === APPLICATION_STATUS.SHORTLISTED) {
+			if (application.status === APPLICATION_STATUS.ACCEPTED) {
 				items.push({
 					label: 'Call for Interview',
 					icon: <CalendarIcon className='mr-2 h-4 w-4' />,
@@ -193,8 +192,33 @@ export function ApplicantsTable({
 		}
 
 		if (application.status === APPLICATION_STATUS.INTERVIEW) {
+			items.push(
+				{
+					label: 'Change Interview Time',
+					icon: <CalendarIcon className='mr-2 h-4 w-4' />,
+					onClick: () => {
+						setInterviewApplicants([application]);
+						setIsInterviewModalOpen(true);
+					},
+				},
+				{
+					label: 'Set Interview Marks',
+					icon: <Award className='mr-2 h-4 w-4' />,
+					onClick: () => {
+						setMarksApplicant(application);
+						marksForm.setValue('marks', application.marks || 0);
+						setIsMarksModalOpen(true);
+					},
+				}
+			);
+		}
+
+		if (
+			application.status === APPLICATION_STATUS.SHORTLISTED ||
+			application.status === APPLICATION_STATUS.REJECTED
+		) {
 			items.push({
-				label: 'Set Interview Marks',
+				label: 'Edit Marks',
 				icon: <Award className='mr-2 h-4 w-4' />,
 				onClick: () => {
 					setMarksApplicant(application);
@@ -204,7 +228,7 @@ export function ApplicantsTable({
 			});
 		}
 
-		if (isShortlisted) {
+		if (isShortlisted && application.status === APPLICATION_STATUS.SHORTLISTED) {
 			items.push(
 				{ isSeparator: true },
 				{
