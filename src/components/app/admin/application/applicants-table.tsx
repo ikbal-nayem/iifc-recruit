@@ -92,6 +92,7 @@ export function ApplicantsTable({
 		count: number;
 	} | null>(null);
 	const [isInterviewModalOpen, setIsInterviewModalOpen] = React.useState(false);
+	const [interviewApplicants, setInterviewApplicants] = React.useState<Application[]>([]);
 	const [isMarksModalOpen, setIsMarksModalOpen] = React.useState(false);
 	const [marksApplicant, setMarksApplicant] = React.useState<Application | null>(null);
 
@@ -135,6 +136,7 @@ export function ApplicantsTable({
 		if (!bulkAction) return;
 		const selected = table.getSelectedRowModel().rows.map((row) => row.original);
 		if (bulkAction.type === APPLICATION_STATUS.INTERVIEW) {
+			setInterviewApplicants(selected);
 			setIsInterviewModalOpen(true);
 		} else {
 			handleStatusChange(selected, bulkAction.type);
@@ -143,14 +145,14 @@ export function ApplicantsTable({
 	};
 
 	const handleInterviewScheduleSubmit = (values: InterviewFormValues) => {
-		const selected = table.getSelectedRowModel().rows.map((row) => row.original);
-		handleStatusChange(selected, APPLICATION_STATUS.INTERVIEW, values);
+		handleStatusChange(interviewApplicants, APPLICATION_STATUS.INTERVIEW, values);
 		setIsInterviewModalOpen(false);
 		toast({
 			title: 'Interview Scheduled',
-			description: `Interview has been scheduled for ${selected.length} applicant(s).`,
+			description: `Interview has been scheduled for ${interviewApplicants.length} applicant(s).`,
 			variant: 'success',
 		});
+		setInterviewApplicants([]);
 	};
 
 	const handleMarksSubmit = (newStatus: APPLICATION_STATUS) => {
@@ -170,18 +172,6 @@ export function ApplicantsTable({
 			},
 		];
 
-		if (application.status === APPLICATION_STATUS.INTERVIEW) {
-			items.push({
-				label: 'Set Interview Marks',
-				icon: <Award className='mr-2 h-4 w-4' />,
-				onClick: () => {
-					setMarksApplicant(application);
-					marksForm.setValue('marks', application.marks || 0);
-					setIsMarksModalOpen(true);
-				},
-			});
-		}
-
 		if (requestedPostStatus === JobRequestedPostStatus.PENDING) {
 			items.push({ isSeparator: true });
 			if (application.status === APPLICATION_STATUS.ACCEPTED) {
@@ -197,6 +187,31 @@ export function ApplicantsTable({
 					onClick: () => handleStatusChange([application], APPLICATION_STATUS.ACCEPTED),
 				});
 			}
+		}
+
+		if (requestedPostStatus === JobRequestedPostStatus.PROCESSING || isShortlisted) {
+			if (application.status === APPLICATION_STATUS.ACCEPTED || application.status === APPLICATION_STATUS.SHORTLISTED) {
+				items.push({
+					label: 'Call for Interview',
+					icon: <CalendarIcon className='mr-2 h-4 w-4' />,
+					onClick: () => {
+						setInterviewApplicants([application]);
+						setIsInterviewModalOpen(true);
+					},
+				});
+			}
+		}
+
+		if (application.status === APPLICATION_STATUS.INTERVIEW) {
+			items.push({
+				label: 'Set Interview Marks',
+				icon: <Award className='mr-2 h-4 w-4' />,
+				onClick: () => {
+					setMarksApplicant(application);
+					marksForm.setValue('marks', application.marks || 0);
+					setIsMarksModalOpen(true);
+				},
+			});
 		}
 
 		if (isShortlisted) {
