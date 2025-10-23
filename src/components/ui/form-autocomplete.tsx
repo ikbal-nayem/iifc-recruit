@@ -35,6 +35,7 @@ interface FormAutocompleteProps<
 	disabled?: boolean;
 	onValueChange?: (value: string) => void;
 	value?: string;
+	initialLabel?: string;
 	onInputChange?: (value: string) => void;
 }
 
@@ -55,6 +56,7 @@ export function FormAutocomplete<
 	disabled = false,
 	onValueChange,
 	value,
+	initialLabel,
 }: FormAutocompleteProps<TFieldValues, TOption>) {
 	const [open, setOpen] = React.useState(false);
 	const [asyncOptions, setAsyncOptions] = React.useState<TOption[]>([]);
@@ -79,16 +81,65 @@ export function FormAutocomplete<
 		[options, value, getOptionValue]
 	);
 
-	const renderTrigger = (currentValue?: string | number) => (
+	const renderTrigger = (currentValue?: string, currentLabel?: string) => (
 		<Button
 			variant='outline'
 			role='combobox'
 			className={cn('w-full justify-between h-11', !currentValue && 'text-muted-foreground')}
 			disabled={disabled}
 		>
-			{currentValue && selectedOption ? getOptionLabel(selectedOption) : placeholder || 'Select...'}
+			{currentLabel || placeholder || 'Select...'}
 			<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
 		</Button>
+	);
+
+	const popoverContent = (
+		<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
+			<Command shouldFilter={!loadOptions}>
+				<CommandInput
+					placeholder={`Search ${label.toLowerCase()}...`}
+					onValueChange={setSearchQuery}
+					value={searchQuery}
+				/>
+				<CommandList>
+					{isLoading ? (
+						<div className='p-2 flex justify-center'>
+							<Loader2 className='h-6 w-6 animate-spin' />
+						</div>
+					) : (
+						<>
+							<CommandEmpty>No options found.</CommandEmpty>
+							<CommandGroup>
+								{options.map((option) => (
+									<CommandItem
+										key={getOptionValue(option)}
+										value={getOptionLabel(option)}
+										onSelect={() => {
+											if (control && name) {
+												control.setValue(name, getOptionValue(option));
+											}
+											if (onValueChange) {
+												onValueChange(getOptionValue(option));
+											}
+											setOpen(false);
+											setSearchQuery('');
+										}}
+									>
+										<Check
+											className={cn(
+												'mr-2 h-4 w-4',
+												value === getOptionValue(option) ? 'opacity-100' : 'opacity-0'
+											)}
+										/>
+										{renderOption ? renderOption(option) : getOptionLabel(option)}
+									</CommandItem>
+								))}
+							</CommandGroup>
+						</>
+					)}
+				</CommandList>
+			</Command>
+		</PopoverContent>
 	);
 
 	if (!control) {
@@ -97,51 +148,10 @@ export function FormAutocomplete<
 				<div className='space-y-2'>
 					{label && <FormLabel required={required}>{label}</FormLabel>}
 					<Popover open={open} onOpenChange={setOpen}>
-						<PopoverTrigger asChild>{renderTrigger(value)}</PopoverTrigger>
-						<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
-							<Command shouldFilter={!loadOptions}>
-								<CommandInput
-									placeholder={`Search ${label.toLowerCase()}...`}
-									onValueChange={setSearchQuery}
-									value={searchQuery}
-								/>
-								<CommandList>
-									{isLoading ? (
-										<div className='p-2 flex justify-center'>
-											<Loader2 className='h-6 w-6 animate-spin' />
-										</div>
-									) : (
-										<>
-											<CommandEmpty>No options found.</CommandEmpty>
-											<CommandGroup>
-												{options.map((option) => (
-													<CommandItem
-														key={getOptionValue(option)}
-														value={getOptionLabel(option)}
-														onSelect={() => {
-															const newValue = getOptionValue(option);
-															if (onValueChange) {
-																onValueChange(newValue);
-															}
-															setOpen(false);
-															setSearchQuery('');
-														}}
-													>
-														<Check
-															className={cn(
-																'mr-2 h-4 w-4',
-																value === getOptionValue(option) ? 'opacity-100' : 'opacity-0'
-															)}
-														/>
-														{renderOption ? renderOption(option) : getOptionLabel(option)}
-													</CommandItem>
-												))}
-											</CommandGroup>
-										</>
-									)}
-								</CommandList>
-							</Command>
-						</PopoverContent>
+						<PopoverTrigger asChild>
+							{renderTrigger(value, selectedOption ? getOptionLabel(selectedOption) : initialLabel)}
+						</PopoverTrigger>
+						{popoverContent}
 					</Popover>
 				</div>
 			</FormItem>
@@ -158,49 +168,11 @@ export function FormAutocomplete<
 						<FormLabel required={required}>{label}</FormLabel>
 						<Popover open={open} onOpenChange={setOpen}>
 							<PopoverTrigger asChild>
-								<FormControl>{renderTrigger(field.value)}</FormControl>
+								<FormControl>
+									{renderTrigger(field.value, selectedOption ? getOptionLabel(selectedOption) : initialLabel)}
+								</FormControl>
 							</PopoverTrigger>
-							<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
-								<Command shouldFilter={!loadOptions}>
-									<CommandInput
-										placeholder={`Search ${label.toLowerCase()}...`}
-										onValueChange={setSearchQuery}
-										value={searchQuery}
-									/>
-									<CommandList>
-										{isLoading ? (
-											<div className='p-2 flex justify-center'>
-												<Loader2 className='h-6 w-6 animate-spin' />
-											</div>
-										) : (
-											<>
-												<CommandEmpty>No options found.</CommandEmpty>
-												<CommandGroup>
-													{options.map((option) => (
-														<CommandItem
-															key={getOptionValue(option)}
-															value={getOptionLabel(option)}
-															onSelect={() => {
-																field.onChange(getOptionValue(option));
-																setOpen(false);
-																setSearchQuery('');
-															}}
-														>
-															<Check
-																className={cn(
-																	'mr-2 h-4 w-4',
-																	field.value === getOptionValue(option) ? 'opacity-100' : 'opacity-0'
-																)}
-															/>
-															{renderOption ? renderOption(option) : getOptionLabel(option)}
-														</CommandItem>
-													))}
-												</CommandGroup>
-											</>
-										)}
-									</CommandList>
-								</Command>
-							</PopoverContent>
+							{popoverContent}
 						</Popover>
 					</div>
 					<FormMessage />

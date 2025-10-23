@@ -107,7 +107,6 @@ export function ApplicationManagementPage({
 		loadApplicants(0, statusFilter);
 	}, [statusFilter, loadApplicants]);
 
-
 	const handleApplyApplicants = (newApplicants: JobseekerSearch[], onSuccess?: () => void) => {
 		const payload = newApplicants.map((js) => ({
 			applicantId: js.userId,
@@ -185,7 +184,7 @@ export function ApplicationManagementPage({
 	};
 
 	const handleProceed = async () => {
-		if (!selectedExaminerId) {
+		if (!requestedPost.examinerId) {
 			toast({
 				title: 'Examiner Required',
 				description: 'Please assign an examiner before proceeding.',
@@ -199,7 +198,7 @@ export function ApplicationManagementPage({
 		setIsProceeding(true);
 		try {
 			// Logic to move accepted applicants to the next stage
-			console.log('Proceeding with examiner:', selectedExaminerId);
+			console.log('Proceeding with examiner:', requestedPost.examinerId);
 			toast({
 				title: 'Request Processing',
 				description: 'The request has been moved to the processing stage.',
@@ -397,6 +396,7 @@ export function ApplicationManagementPage({
 								getOptionValue={(option) => option.id!.toString()}
 								getOptionLabel={(option) => option.nameEn}
 								value={selectedExaminerId}
+								initialLabel={requestedPost.examiner?.nameEn}
 								onValueChange={setSelectedExaminerId}
 							/>
 						</Form>
@@ -415,3 +415,4 @@ export function ApplicationManagementPage({
 		</div>
 	);
 }
+
