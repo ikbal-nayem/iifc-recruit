@@ -76,7 +76,19 @@ export function FormAutocomplete<
 		}
 	}, [debouncedSearchQuery, loadOptions, open]);
 
-	const popoverContent = (
+	const renderTrigger = (value: any, displayLabel?: string) => (
+		<Button
+			variant='outline'
+			role='combobox'
+			className={cn('w-full justify-between h-11', !value && 'text-muted-foreground')}
+			disabled={disabled}
+		>
+			{displayLabel || placeholder || 'Select...'}
+			<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+		</Button>
+	);
+
+	const renderPopoverContent = (field?: any) => (
 		<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
 			<Command shouldFilter={!loadOptions}>
 				<CommandInput
@@ -96,10 +108,10 @@ export function FormAutocomplete<
 								{options.map((option) => (
 									<CommandItem
 										key={getOptionValue(option)}
-										value={getOptionLabel(option)}
+										value={getOptionValue(option)}
 										onSelect={() => {
-											if (control && control.setValue) {
-												control.setValue(name, getOptionValue(option));
+											if (field) {
+												field.onChange(getOptionValue(option));
 											}
 											if (onValueChange) {
 												onValueChange(getOptionValue(option));
@@ -111,7 +123,8 @@ export function FormAutocomplete<
 										<Check
 											className={cn(
 												'mr-2 h-4 w-4',
-												(control ? control._getWatch(name) : controlledValue) === getOptionValue(option)
+												(field?.value?.toString() === getOptionValue(option) ||
+													controlledValue === getOptionValue(option))
 													? 'opacity-100'
 													: 'opacity-0'
 											)}
@@ -135,17 +148,9 @@ export function FormAutocomplete<
 					{label && <FormLabel required={required}>{label}</FormLabel>}
 					<Popover open={open} onOpenChange={setOpen}>
 						<PopoverTrigger asChild>
-							<Button
-								variant='outline'
-								role='combobox'
-								className={cn('w-full justify-between h-11', !controlledValue && 'text-muted-foreground')}
-								disabled={disabled}
-							>
-								{selectedOption ? getOptionLabel(selectedOption) : initialLabel || placeholder || 'Select...'}
-								<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-							</Button>
+							{renderTrigger(controlledValue, selectedOption ? getOptionLabel(selectedOption) : initialLabel)}
 						</PopoverTrigger>
-						{popoverContent}
+						{renderPopoverContent()}
 					</Popover>
 				</div>
 			</FormItem>
@@ -157,7 +162,7 @@ export function FormAutocomplete<
 			control={control}
 			name={name}
 			render={({ field }) => {
-				const selectedOption = options.find((option) => getOptionValue(option) === field.value);
+				const selectedOption = options.find((option) => getOptionValue(option) === field.value?.toString());
 				return (
 					<FormItem>
 						<div className='space-y-2'>
@@ -165,20 +170,13 @@ export function FormAutocomplete<
 							<Popover open={open} onOpenChange={setOpen}>
 								<PopoverTrigger asChild>
 									<FormControl>
-										<Button
-											variant='outline'
-											role='combobox'
-											className={cn('w-full justify-between h-11', !field.value && 'text-muted-foreground')}
-											disabled={disabled}
-										>
-											{selectedOption
-												? getOptionLabel(selectedOption)
-												: initialLabel || placeholder || 'Select...'}
-											<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-										</Button>
+										{renderTrigger(
+											field.value,
+											selectedOption ? getOptionLabel(selectedOption) : initialLabel
+										)}
 									</FormControl>
 								</PopoverTrigger>
-								{popoverContent}
+								{renderPopoverContent(field)}
 							</Popover>
 						</div>
 						<FormMessage />
