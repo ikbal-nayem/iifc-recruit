@@ -230,8 +230,6 @@ export function ApplicationManagementPage({
 			})),
 	];
 
-	const hiredCount = applicantStats[APPLICATION_STATUS.HIRED] || 0;
-
 	return (
 		<div className='space-y-6'>
 			<div className='flex items-center justify-between'>
@@ -280,42 +278,32 @@ export function ApplicationManagementPage({
 				</CardHeader>
 			</Card>
 
-			<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-				<Card className='glassmorphism p-4 md:col-span-2'>
-					<CardContent className='p-0'>
-						<div className='grid grid-cols-2 md:grid-cols-3 gap-3'>
-							{mainStatItems.map((item) => (
-								<button
-									key={item.label}
-									onClick={() => setStatusFilter(item.status)}
+			<Card className='glassmorphism p-4'>
+				<CardContent className='p-0'>
+					<div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3'>
+						{mainStatItems.map((item) => (
+							<button
+								key={item.label}
+								onClick={() => setStatusFilter(item.status)}
+								className={cn(
+									'p-3 rounded-md text-left transition-all hover:bg-muted',
+									statusFilter === item.status && 'bg-primary/10'
+								)}
+							>
+								<p
 									className={cn(
-										'p-3 rounded-md text-left transition-all hover:bg-muted',
-										statusFilter === item.status && 'bg-primary/10'
+										'text-2xl font-bold',
+										statusFilter === item.status ? 'text-primary' : 'text-foreground'
 									)}
 								>
-									<p
-										className={cn(
-											'text-2xl font-bold',
-											statusFilter === item.status ? 'text-primary' : 'text-foreground'
-										)}
-									>
-										{item.value}
-									</p>
-									<p className='text-sm font-medium text-muted-foreground'>{item.label}</p>
-								</button>
-							))}
-						</div>
-					</CardContent>
-				</Card>
-				<Card className='glassmorphism p-4'>
-					<CardContent className='p-0 flex flex-col justify-center h-full'>
-						<div className='p-3 rounded-md text-left w-full'>
-							<p className='text-2xl font-bold text-foreground'>{hiredCount}</p>
-							<p className='text-sm font-medium text-muted-foreground'>Hired</p>
-						</div>
-					</CardContent>
-				</Card>
-			</div>
+									{item.value}
+								</p>
+								<p className='text-sm font-medium text-muted-foreground'>{item.label}</p>
+							</button>
+						))}
+					</div>
+				</CardContent>
+			</Card>
 
 			<Card>
 				<CardHeader className='flex-row items-center justify-between'>
