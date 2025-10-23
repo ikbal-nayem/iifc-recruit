@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequest, JobRequestStatus, JobRequestType } from '@/interfaces/job.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { cn, getStatusVariant } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { differenceInDays, format, parseISO } from 'date-fns';
 import {
 	Building,
@@ -30,6 +30,7 @@ import {
 	Trash,
 } from 'lucide-react';
 import * as React from 'react';
+import { getStatusVariant } from '@/lib/color-mapping';
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
 

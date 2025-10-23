@@ -1,17 +1,17 @@
-
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { ROUTES } from '@/constants/routes.constant';
 import { JobRequest, JobRequestStatus, JobRequestType } from '@/interfaces/job.interface';
-import { cn, getStatusVariant } from '@/lib/utils';
+import { getStatusVariant } from '@/lib/color-mapping';
+import { cn } from '@/lib/utils';
 import { differenceInDays, format, parseISO } from 'date-fns';
-import { ArrowLeft, Building, Calendar, Edit, FileText, Send, UserCog } from 'lucide-react';
+import { ArrowLeft, Building, Edit, FileText, Send, UserCog } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
-import { Separator } from '@/components/ui/separator';
-import { ROUTES } from '@/constants/routes.constant';
 
 export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: JobRequest }) {
 	const router = useRouter();

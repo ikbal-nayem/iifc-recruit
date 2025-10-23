@@ -17,9 +17,9 @@ async function getData(requestedPostId: string) {
 		const allStatuses = statusRes.body as EnumDTO[];
 
 		const desiredStatuses = [
+			APPLICATION_STATUS.ACCEPTED.toString(),
 			APPLICATION_STATUS.SHORTLISTED.toString(),
 			APPLICATION_STATUS.INTERVIEW.toString(),
-			APPLICATION_STATUS.HIRED.toString(),
 			APPLICATION_STATUS.REJECTED.toString(),
 		];
 		const filteredStatuses = allStatuses.filter((s) => desiredStatuses.includes(s.value));

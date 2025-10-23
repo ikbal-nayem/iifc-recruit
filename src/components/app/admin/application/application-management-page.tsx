@@ -279,11 +279,11 @@ export function ApplicationManagementPage({
 			</Card>
 
 			<ScrollArea className='w-full whitespace-nowrap'>
-				<div className='flex w-max space-x-4 pb-4'>
+				<div className='flex w-max space-x-4'>
 					<Card
 						className={cn(
 							'p-4 rounded-lg cursor-pointer transition-all text-center hover:bg-muted min-w-[160px]',
-							statusFilter === null && 'bg-primary/10 ring-2 ring-primary'
+							statusFilter === null && 'bg-primary/10 border-2 border-primary'
 						)}
 						onClick={() => setStatusFilter(null)}
 					>
@@ -297,7 +297,7 @@ export function ApplicationManagementPage({
 							onClick={() => setStatusFilter(item.status)}
 							className={cn(
 								'p-4 rounded-lg cursor-pointer transition-all text-center hover:bg-muted min-w-[160px]',
-								statusFilter === item.status && 'bg-primary/10 ring-2 ring-primary'
+								statusFilter === item.status && 'bg-primary/10 border-2 border-primary'
 							)}
 						>
 							<p className='text-3xl font-bold'>{item.value}</p>
