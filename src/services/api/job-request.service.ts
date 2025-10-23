@@ -21,6 +21,9 @@ export const JobRequestService = {
 	getRequestedPostUpdate: async (payload: RequestedPost): Promise<IApiResponse<RequestedPost>> =>
 		await axiosIns.put(`/job-request/requested-post/update`, payload),
 
+	proceedToProcess: async (id: string): Promise<IApiResponse<any>> =>
+		await axiosIns.post(`/job-request/requested-post/proceed-to-process?requestedPostId=${id}`),
+
 	getById: async (id: string): Promise<IApiResponse<JobRequest>> =>
 		await axiosIns.get(`/job-request/get-by-id/${id}`),
 

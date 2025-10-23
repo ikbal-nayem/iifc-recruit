@@ -197,8 +197,7 @@ export function ApplicationManagementPage({
 
 		setIsProceeding(true);
 		try {
-			// Logic to move accepted applicants to the next stage
-			console.log('Proceeding with examiner:', requestedPost.examinerId);
+			await JobRequestService.proceedToProcess(requestedPost.id!);
 			toast({
 				title: 'Request Processing',
 				description: 'The request has been moved to the processing stage.',
@@ -415,4 +414,3 @@ export function ApplicationManagementPage({
 		</div>
 	);
 }
-
