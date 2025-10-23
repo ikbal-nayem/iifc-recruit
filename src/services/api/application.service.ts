@@ -8,6 +8,9 @@ export const ApplicationService = {
 	getList: async (payload: IApiRequest): Promise<IApiResponse<Application[]>> =>
 		await axiosIns.post('/application/get-list', payload),
 
+	getProcessingList: async (payload: IApiRequest): Promise<IApiResponse<Application[]>> =>
+		await axiosIns.post('/application/get-processing-list', payload),
+
 	createAll: async (payload: IObject[]): Promise<IApiResponse<Application[]>> =>
 		await axiosIns.post('/application/create-all', payload),
 

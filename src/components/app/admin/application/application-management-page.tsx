@@ -91,7 +91,9 @@ export function ApplicationManagementPage({
 					body: { requestedPostId: requestedPost.id, ...(status && { status: status }) },
 					meta: { page, limit: applicantsMeta.limit },
 				};
-				const response = await ApplicationService.getList(payload);
+				const response = isProcessing
+					? await ApplicationService.getProcessingList(payload)
+					: await ApplicationService.getList(payload);
 				setApplicants(response.body);
 				setApplicantsMeta(response.meta);
 			} catch (error: any) {
@@ -103,7 +105,7 @@ export function ApplicationManagementPage({
 				setIsLoadingApplicants(false);
 			}
 		},
-		[requestedPost.id, toast, applicantsMeta.limit]
+		[requestedPost.id, toast, applicantsMeta.limit, isProcessing]
 	);
 
 	useEffect(() => {
