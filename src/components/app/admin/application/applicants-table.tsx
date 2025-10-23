@@ -402,7 +402,11 @@ export function ApplicantsTable({
 								Accept ({selectedRowCount})
 							</Button>
 						)}
-						{(requestedPostStatus === JobRequestedPostStatus.PROCESSING || isShortlisted) && (
+						{(requestedPostStatus === JobRequestedPostStatus.PROCESSING ||
+							(isShortlisted &&
+								table
+									.getSelectedRowModel()
+									.rows.every((row) => row.original.status !== APPLICATION_STATUS.INTERVIEW))) && (
 							<Button size='sm' variant='lite-info' onClick={handleBulkInterview}>
 								<CalendarIcon className='mr-2 h-4 w-4' /> Call for Interview ({selectedRowCount})
 							</Button>
@@ -545,16 +549,21 @@ export function ApplicantsTable({
 								type='number'
 								required
 							/>
-							<DialogFooter>
+							<DialogFooter className='gap-2'>
 								<Button
 									type='button'
-									variant='outline'
+									variant='danger'
 									onClick={() => handleMarksSubmit(APPLICATION_STATUS.REJECTED)}
+									className='flex-1'
 								>
 									Reject
 								</Button>
-								<Button type='button' onClick={() => handleMarksSubmit(APPLICATION_STATUS.SHORTLISTED)}>
-									Accept & Shortlist
+								<Button
+									type='button'
+									onClick={() => handleMarksSubmit(APPLICATION_STATUS.SHORTLISTED)}
+									className='flex-1'
+								>
+									Shortlist
 								</Button>
 							</DialogFooter>
 						</div>
