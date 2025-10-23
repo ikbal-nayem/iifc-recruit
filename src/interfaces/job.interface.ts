@@ -15,6 +15,7 @@ export enum JobRequestStatus {
 export enum JobRequestedPostStatus {
 	PENDING = 'PENDING',
 	PROCESSING = 'PROCESSING',
+	SHORTLISTED = 'SHORTLISTED',
 	COMPLETED = 'COMPLETED',
 }
 
