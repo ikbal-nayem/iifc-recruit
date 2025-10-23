@@ -4,7 +4,7 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import {
 	Dialog,
 	DialogContent,
@@ -65,20 +65,23 @@ export function ApplicationManagementPage({
 	const examinerForm = useForm();
 
 	const applicantStats = useMemo(() => {
-		return applicants.reduce(
-			(acc, applicant) => {
-				const status = applicant.status;
-				acc[status] = (acc[status] || 0) + 1;
-				acc.total++;
+		const stats = statuses.reduce(
+			(acc, status) => {
+				acc[status.value] = 0;
 				return acc;
 			},
-			{
-				total: 0,
-				[APPLICATION_STATUS.APPLIED]: 0,
-				[APPLICATION_STATUS.ACCEPTED]: 0,
-			} as Record<Application['status'] | 'total', number>
+			{} as Record<string, number>
 		);
-	}, [applicants]);
+		stats.total = 0;
+
+		applicants.forEach((applicant) => {
+			if (stats.hasOwnProperty(applicant.status)) {
+				stats[applicant.status]++;
+			}
+			stats.total++;
+		});
+		return stats;
+	}, [applicants, statuses]);
 
 	const loadApplicants = useCallback(
 		async (page: number, status?: string | null) => {
@@ -110,7 +113,7 @@ export function ApplicationManagementPage({
 	const handleApplyApplicants = (newApplicants: JobseekerSearch[], onSuccess?: () => void) => {
 		const payload = newApplicants.map((js) => ({
 			applicantId: js.userId,
-			requestedPostId: requestedPost.id!,
+			requestedPostId: requestedPost.id,
 			status: APPLICATION_STATUS.APPLIED,
 		}));
 
@@ -197,7 +200,7 @@ export function ApplicationManagementPage({
 
 		setIsProceeding(true);
 		try {
-			await JobRequestService.proceedToProcess(requestedPost.id!);
+			await JobRequestService.proceedToProcess(requestedPost.id);
 			toast({
 				title: 'Request Processing',
 				description: 'The request has been moved to the processing stage.',
@@ -218,8 +221,11 @@ export function ApplicationManagementPage({
 
 	const statItems = [
 		{ label: 'Total Applicants', value: applicantStats.total, status: null },
-		{ label: 'Applied', value: applicantStats.APPLIED, status: APPLICATION_STATUS.APPLIED },
-		{ label: 'Accepted', value: applicantStats.ACCEPTED, status: APPLICATION_STATUS.ACCEPTED },
+		...statuses.map((status) => ({
+			label: status.nameEn,
+			value: applicantStats[status.value] || 0,
+			status: status.value,
+		})),
 	];
 
 	return (
@@ -270,36 +276,32 @@ export function ApplicationManagementPage({
 				</CardHeader>
 			</Card>
 
-			<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
-				{statItems.map(
-					(item) =>
-						(item.status !== APPLICATION_STATUS.HIRED ||
-							requestedPost.status !== JobRequestedPostStatus.PENDING) && (
-							<Card
+			<Card className='glassmorphism p-4'>
+				<CardContent className='p-0'>
+					<div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3'>
+						{statItems.map((item) => (
+							<button
 								key={item.label}
 								onClick={() => setStatusFilter(item.status)}
 								className={cn(
-									'cursor-pointer transition-all hover:shadow-md hover:-translate-y-1',
-									statusFilter === item.status ? 'bg-primary/10 border-primary' : 'bg-card'
+									'p-3 rounded-md text-left transition-all hover:bg-muted',
+									statusFilter === item.status && 'bg-primary/10'
 								)}
 							>
-								<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-									<CardTitle className='text-sm font-medium'>{item.label}</CardTitle>
-								</CardHeader>
-								<CardContent>
-									<div
-										className={cn(
-											'text-3xl font-bold',
-											statusFilter === item.status ? 'text-primary' : 'text-foreground'
-										)}
-									>
-										{item.value}
-									</div>
-								</CardContent>
-							</Card>
-						)
-				)}
-			</div>
+								<p
+									className={cn(
+										'text-2xl font-bold',
+										statusFilter === item.status ? 'text-primary' : 'text-foreground'
+									)}
+								>
+									{item.value}
+								</p>
+								<p className='text-sm font-medium text-muted-foreground'>{item.label}</p>
+							</button>
+						))}
+					</div>
+				</CardContent>
+			</Card>
 
 			<Card>
 				<CardHeader className='flex-row items-center justify-between'>
@@ -355,6 +357,10 @@ export function ApplicationManagementPage({
 						</DialogDescription>
 					</DialogHeader>
 					<div className='space-y-4 py-4'>
+						<div className='rounded-md border p-4 text-sm'>
+							<p className='text-muted-foreground'>Assigned Examiner</p>
+							<p className='font-semibold'>{requestedPost.examiner?.nameEn || 'Not Assigned'}</p>
+						</div>
 						<Alert variant='warning'>
 							<AlertTitle>Important</AlertTitle>
 							<AlertDescription>
@@ -392,7 +398,7 @@ export function ApplicationManagementPage({
 								placeholder='Search for an examining organization...'
 								required
 								loadOptions={getExaminerAsync}
-								getOptionValue={(option) => option.id!.toString()}
+								getOptionValue={(option) => option.id}
 								getOptionLabel={(option) => option.nameEn}
 								value={selectedExaminerId}
 								initialLabel={requestedPost.examiner?.nameEn}
