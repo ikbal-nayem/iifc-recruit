@@ -2,7 +2,6 @@
 'use client';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -14,8 +13,6 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
-import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { ROUTES } from '@/constants/routes.constant';
 import { useToast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
@@ -23,18 +20,15 @@ import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO } from '@/interfaces/master-data.interface';
-import { getStatusVariant } from '@/lib/color-mapping';
 import { ApplicationService } from '@/services/api/application.service';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { getExaminerAsync } from '@/services/async-api';
-import { ArrowLeft, Building, ChevronsRight, Edit, Loader2, UserPlus, Users } from 'lucide-react';
+import { ArrowLeft, ChevronsRight, Loader2, UserPlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useCallback, useEffect, useState } from 'react';
 import { ApplicantListManager } from './applicant-list-manager';
 import { ApplicantsTable } from './applicants-table';
-import { cn } from '@/lib/utils';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { ApplicationManagementHeader } from './application-management-header';
+import { ApplicationStats } from './application-stats';
 
 interface ApplicationManagementPageProps {
 	requestedPost: RequestedPost;
@@ -59,30 +53,6 @@ export function ApplicationManagementPage({
 	const [isAddCandidateOpen, setIsAddCandidateOpen] = useState(false);
 	const [statusFilter, setStatusFilter] = useState<string | null>(null);
 	const [isProceedConfirmationOpen, setIsProceedConfirmationOpen] = useState(false);
-
-	const [isExaminerDialogOpen, setIsExaminerDialogOpen] = useState(false);
-	const [isSavingExaminer, setIsSavingExaminer] = useState(false);
-	const [selectedExaminerId, setSelectedExaminerId] = useState<string | undefined>(
-		initialPost.examinerId?.toString()
-	);
-
-	const examinerForm = useForm();
-
-	const applicantStats = useMemo(() => {
-		const stats: Record<string, number> = {};
-		statuses.forEach((status) => {
-			stats[status.value] = 0;
-		});
-		stats.total = 0;
-
-		applicants.forEach((applicant) => {
-			if (stats.hasOwnProperty(applicant.status)) {
-				stats[applicant.status]++;
-			}
-		});
-		stats.total = applicants.length;
-		return stats;
-	}, [applicants, statuses]);
 
 	const loadApplicants = useCallback(
 		async (page: number, status?: string | null) => {
@@ -160,35 +130,6 @@ export function ApplicationManagementPage({
 		loadApplicants(newPage, statusFilter);
 	};
 
-	const handleSaveExaminer = async () => {
-		if (!selectedExaminerId) {
-			toast({ title: 'Error', description: 'No examiner selected.', variant: 'danger' });
-			return;
-		}
-		setIsSavingExaminer(true);
-		try {
-			const response = await JobRequestService.getRequestedPostUpdate({
-				...requestedPost,
-				examinerId: selectedExaminerId,
-			});
-			const updatedPost = response.body;
-			setRequestedPost(updatedPost);
-			toast({
-				title: 'Examiner Assigned',
-				description: 'The examining organization has been assigned to this post.',
-				variant: 'success',
-			});
-			setIsExaminerDialogOpen(false);
-		} catch (error: any) {
-			toast({
-				description: error.message || 'Failed to assign examiner.',
-				variant: 'danger',
-			});
-		} finally {
-			setIsSavingExaminer(false);
-		}
-	};
-
 	const handleProceed = async () => {
 		if (!isProcessing && !requestedPost.examinerId) {
 			toast({
@@ -197,7 +138,6 @@ export function ApplicationManagementPage({
 				variant: 'warning',
 			});
 			setIsProceedConfirmationOpen(false);
-			setIsExaminerDialogOpen(true);
 			return;
 		}
 
@@ -225,12 +165,6 @@ export function ApplicationManagementPage({
 		}
 	};
 
-	const mainStatItems = statuses.map((status) => ({
-		label: status.nameEn,
-		value: applicantStats[status.value] || 0,
-		status: status.value,
-	}));
-
 	return (
 		<div className='space-y-6'>
 			<div className='flex items-center justify-between'>
@@ -244,72 +178,19 @@ export function ApplicationManagementPage({
 				</Button>
 			</div>
 
-			<Card className='glassmorphism'>
-				<CardHeader>
-					<div className='flex items-center gap-4'>
-						<CardTitle>{requestedPost?.post?.nameEn}</CardTitle>
-						{requestedPost.statusDTO?.nameEn && (
-							<Badge variant={getStatusVariant(requestedPost.status)}>{requestedPost.statusDTO.nameEn}</Badge>
-						)}
-					</div>
-					<div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
-						<CardDescription className='flex flex-wrap items-center gap-x-4'>
-							<span className='flex items-center gap-1.5'>
-								<Building className='h-4 w-4' />
-								{requestedPost.jobRequest?.clientOrganization?.nameEn}
-							</span>
-							<span className='flex items-center gap-1.5'>
-								<Users className='h-4 w-4' />
-								{requestedPost.vacancy} Vacancies
-							</span>
-						</CardDescription>
-						<div className='flex items-center gap-2 text-sm'>
-							<span className='text-muted-foreground'>Examiner:</span>
-							<span className='font-semibold'>{requestedPost.examiner?.nameEn || 'Not Assigned'}</span>
-							{!isProcessing && (
-								<Button
-									variant='ghost'
-									size='icon'
-									className='h-7 w-7'
-									onClick={() => setIsExaminerDialogOpen(true)}
-								>
-									<Edit className='h-4 w-4 text-primary' />
-								</Button>
-							)}
-						</div>
-					</div>
-				</CardHeader>
-			</Card>
+			<ApplicationManagementHeader
+				requestedPost={requestedPost}
+				setRequestedPost={setRequestedPost}
+				isProcessing={isProcessing}
+			/>
 
-			<ScrollArea className='w-full whitespace-nowrap'>
-				<div className='flex w-max space-x-4'>
-					<Card
-						className={cn(
-							'p-4 rounded-lg cursor-pointer transition-all text-center hover:bg-muted min-w-[160px]',
-							statusFilter === null && 'bg-primary/10 border-2 border-primary'
-						)}
-						onClick={() => setStatusFilter(null)}
-					>
-						<p className='text-3xl font-bold'>{applicantStats.total || 0}</p>
-						<p className='text-sm text-muted-foreground'>Total Applicants</p>
-					</Card>
+			<ApplicationStats
+				statuses={statuses}
+				applicants={applicants}
+				statusFilter={statusFilter}
+				onFilterChange={setStatusFilter}
+			/>
 
-					{mainStatItems.map((item) => (
-						<Card
-							key={item.label}
-							onClick={() => setStatusFilter(item.status)}
-							className={cn(
-								'p-4 rounded-lg cursor-pointer transition-all text-center hover:bg-muted min-w-[160px]',
-								statusFilter === item.status && 'bg-primary/10 border-2 border-primary'
-							)}
-						>
-							<p className='text-3xl font-bold'>{item.value}</p>
-							<p className='text-sm text-muted-foreground'>{item.label}</p>
-						</Card>
-					))}
-				</div>
-				<ScrollBar orientation='horizontal' />
-			</ScrollArea>
 			<Card>
 				<CardHeader className='flex-row items-center justify-between'>
 					<div>
@@ -385,44 +266,6 @@ export function ApplicationManagementPage({
 						<Button onClick={handleProceed} disabled={isProceeding}>
 							{isProceeding ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : null}
 							Confirm & Proceed
-						</Button>
-					</DialogFooter>
-				</DialogContent>
-			</Dialog>
-
-			{/* Assign examiner */}
-			<Dialog open={isExaminerDialogOpen} onOpenChange={setIsExaminerDialogOpen}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Assign Examiner</DialogTitle>
-						<DialogDescription>
-							Select an examiner for the post: &quot;{requestedPost.post?.nameEn}&quot;.
-						</DialogDescription>
-					</DialogHeader>
-					<div className='py-4'>
-						<Form {...examinerForm}>
-							<FormAutocomplete
-								control={examinerForm.control}
-								name='examinerId'
-								label='Examiner'
-								placeholder='Search for an examining organization...'
-								required
-								loadOptions={getExaminerAsync}
-								getOptionValue={(option) => option.id!.toString()}
-								getOptionLabel={(option) => option.nameEn}
-								value={selectedExaminerId}
-								initialLabel={requestedPost.examiner?.nameEn}
-								onValueChange={setSelectedExaminerId}
-							/>
-						</Form>
-					</div>
-					<DialogFooter>
-						<Button variant='ghost' onClick={() => setIsExaminerDialogOpen(false)}>
-							Cancel
-						</Button>
-						<Button onClick={handleSaveExaminer} disabled={isSavingExaminer}>
-							{isSavingExaminer && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-							Save
 						</Button>
 					</DialogFooter>
 				</DialogContent>
