@@ -29,6 +29,8 @@ import {
 	UserCog,
 	Users,
 	Users2,
+	CalendarCheck,
+	History,
 } from 'lucide-react';
 
 export interface NavLink {
@@ -61,12 +63,12 @@ export const adminNavLinks: NavLink[] = [
 			{
 				href: ROUTES.JOB_REQUEST_PENDING,
 				label: 'Pending',
-				icon: Clock,
+				icon: History,
 			},
 			{
 				href: ROUTES.JOB_REQUEST_PROCESSING,
 				label: 'Processing',
-				icon: Play,
+				icon: Briefcase,
 			},
 			{
 				href: ROUTES.JOB_REQUEST_COMPLETED,
@@ -94,7 +96,7 @@ export const adminNavLinks: NavLink[] = [
 			{
 				href: ROUTES.APPLICATION_SHORTLISTED,
 				label: 'Shortlisted',
-				icon: CheckCircle,
+				icon: CalendarCheck,
 			},
 			{
 				href: ROUTES.APPLICATION_COMPLETED,

@@ -22,4 +22,5 @@ export type Application = {
 	applicant?: JobseekerSearch;
 	requestedPostId: string;
 	requestedPost?: RequestedPost;
+	interviewDate?: string;
 };

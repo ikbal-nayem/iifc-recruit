@@ -21,7 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -29,12 +29,19 @@ import { Application, APPLICATION_STATUS } from '@/interfaces/application.interf
 import { IMeta } from '@/interfaces/common.interface';
 import { JobRequestedPostStatus } from '@/interfaces/job.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
-import { FileText, Loader2, RotateCcw, UserCheck, UserPlus } from 'lucide-react';
+import { FileText, Loader2, RotateCcw, UserCheck, UserPlus, Calendar as CalendarIcon, Briefcase } from 'lucide-react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 import { cn } from '@/lib/utils';
-import { formatDate } from 'date-fns';
+import { format, formatDate } from 'date-fns';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { DATE_FORMAT } from '@/constants/common.constant';
+import { Form } from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { FormDatePicker } from '@/components/ui/form-datepicker';
+import { FormInput } from '@/components/ui/form-input';
+import { useToast } from '@/hooks/use-toast';
 
 interface ApplicantsTableProps {
 	applicants: Application[];
@@ -45,6 +52,12 @@ interface ApplicantsTableProps {
 	requestedPostStatus?: JobRequestedPostStatus;
 }
 
+const interviewSchema = z.object({
+	interviewDate: z.string().min(1, 'Interview date is required.'),
+	interviewTime: z.string().min(1, 'Interview time is required.'),
+});
+type InterviewFormValues = z.infer<typeof interviewSchema>;
+
 export function ApplicantsTable({
 	applicants,
 	updateApplication,
@@ -53,26 +66,63 @@ export function ApplicantsTable({
 	onPageChange,
 	requestedPostStatus,
 }: ApplicantsTableProps) {
+	const { toast } = useToast();
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 	const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 	const [selectedApplicant, setSelectedApplicant] = React.useState<JobseekerSearch | null>(null);
 	const [bulkAction, setBulkAction] = React.useState<{
-		type: APPLICATION_STATUS.HIRED | APPLICATION_STATUS.ACCEPTED;
+		type: APPLICATION_STATUS.HIRED | APPLICATION_STATUS.ACCEPTED | APPLICATION_STATUS.INTERVIEW;
 		count: number;
 	} | null>(null);
+	const [isInterviewModalOpen, setIsInterviewModalOpen] = React.useState(false);
 
-	const handleStatusChange = async (applications: Application[], newStatus: APPLICATION_STATUS) => {
-		const updatedApplications = applications.map((application) => ({ ...application, status: newStatus }));
+	const interviewForm = useForm<InterviewFormValues>({
+		resolver: zodResolver(interviewSchema),
+	});
+
+	const handleStatusChange = async (
+		applications: Application[],
+		newStatus: APPLICATION_STATUS,
+		details?: { interviewDate?: string; interviewTime?: string }
+	) => {
+		const updatedApplications = applications.map((application) => ({
+			...application,
+			status: newStatus,
+			...(newStatus === APPLICATION_STATUS.INTERVIEW &&
+				details && {
+					interviewDate: format(
+						new Date(`${details.interviewDate}T${details.interviewTime}`),
+						"yyyy-MM-dd'T'HH:mm:ss"
+					),
+				}),
+		}));
 		const resp = await updateApplication(updatedApplications);
-		resp && table.resetRowSelection();
+		if (resp) {
+			table.resetRowSelection();
+		}
 	};
 
 	const handleBulkActionConfirm = () => {
 		if (!bulkAction) return;
 		const selected = table.getSelectedRowModel().rows.map((row) => row.original);
-		handleStatusChange(selected, bulkAction.type);
+		if (bulkAction.type === APPLICATION_STATUS.INTERVIEW) {
+			setIsInterviewModalOpen(true);
+		} else {
+			handleStatusChange(selected, bulkAction.type);
+		}
 		setBulkAction(null);
+	};
+
+	const handleInterviewScheduleSubmit = (values: InterviewFormValues) => {
+		const selected = table.getSelectedRowModel().rows.map((row) => row.original);
+		handleStatusChange(selected, APPLICATION_STATUS.INTERVIEW, values);
+		setIsInterviewModalOpen(false);
+		toast({
+			title: 'Interview Scheduled',
+			description: `Interview has been scheduled for ${selected.length} applicant(s).`,
+			variant: 'success',
+		});
 	};
 
 	const getActionItems = (application: Application): ActionItem[] => {
@@ -159,14 +209,23 @@ export function ApplicantsTable({
 			cell: ({ row }) => {
 				const { appliedDate } = row.original;
 				return <span>{formatDate(appliedDate, DATE_FORMAT.DISPLAY_DATE)}</span>;
-			}
+			},
 		},
 		{
 			accessorKey: 'status',
 			header: 'Status',
 			cell: ({ row }) => {
-				const { status, statusDTO } = row.original;
-				return <Badge variant={getStatusVariant(status)}>{statusDTO.nameEn}</Badge>;
+				const { status, statusDTO, interviewDate } = row.original;
+				return (
+					<div className='flex flex-col gap-1'>
+						<Badge variant={getStatusVariant(status)}>{statusDTO.nameEn}</Badge>
+						{status === APPLICATION_STATUS.INTERVIEW && interviewDate && (
+							<span className='text-xs text-muted-foreground'>
+								{format(new Date(interviewDate), 'PPp')}
+							</span>
+						)}
+					</div>
+				);
 			},
 		},
 		{
@@ -210,10 +269,17 @@ export function ApplicantsTable({
 					</Avatar>
 					<div>
 						<p className='font-semibold text-sm'>{fullName}</p>
-						<p className='text-xs text-muted-foreground'>Applied: {formatDate(applicant.appliedDate, DATE_FORMAT.DISPLAY_DATE)}</p>
+						<p className='text-xs text-muted-foreground'>
+							Applied: {formatDate(applicant.appliedDate, DATE_FORMAT.DISPLAY_DATE)}
+						</p>
 						<Badge variant={getStatusVariant(applicant.status)} className='mt-2 text-xs'>
-							{applicant.status}
+							{applicant.statusDTO.nameEn}
 						</Badge>
+						{applicant.status === APPLICATION_STATUS.INTERVIEW && applicant.interviewDate && (
+							<p className='text-xs text-muted-foreground mt-1'>
+								{format(new Date(applicant.interviewDate), 'PPp')}
+							</p>
+						)}
 					</div>
 				</div>
 				<ActionMenu items={getActionItems(applicant)} />
@@ -239,6 +305,15 @@ export function ApplicantsTable({
 						>
 							Accept ({selectedRowCount})
 						</Button>
+						{requestedPostStatus === JobRequestedPostStatus.PROCESSING && (
+							<Button
+								size='sm'
+								variant='lite-info'
+								onClick={() => setBulkAction({ type: APPLICATION_STATUS.INTERVIEW, count: selectedRowCount })}
+							>
+								<CalendarIcon className='mr-2 h-4 w-4' /> Call for Interview ({selectedRowCount})
+							</Button>
+						)}
 						{requestedPostStatus !== JobRequestedPostStatus.PENDING && (
 							<Button
 								size='sm'
@@ -325,15 +400,50 @@ export function ApplicantsTable({
 			</Dialog>
 
 			<ConfirmationDialog
-				open={!!bulkAction}
+				open={!!bulkAction && bulkAction.type !== APPLICATION_STATUS.INTERVIEW}
 				onOpenChange={(isOpen) => !isOpen && setBulkAction(null)}
-				title={`Confirm Bulk Action: ${bulkAction?.type === APPLICATION_STATUS.ACCEPTED ? 'Accept' : 'Hire'}`}
+				title={`Confirm Bulk Action: ${
+					bulkAction?.type === APPLICATION_STATUS.ACCEPTED ? 'Accept' : 'Hire'
+				}`}
 				description={`Are you sure you want to mark ${bulkAction?.count} applicant(s) as ${
 					bulkAction?.type === APPLICATION_STATUS.ACCEPTED ? 'Accepted' : 'Hired'
 				}?`}
 				onConfirm={handleBulkActionConfirm}
 				variant={bulkAction?.type === APPLICATION_STATUS.HIRED ? 'warning' : 'default'}
 			/>
+			<Dialog open={isInterviewModalOpen} onOpenChange={setIsInterviewModalOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Schedule Interview</DialogTitle>
+					</DialogHeader>
+					<Form {...interviewForm}>
+						<form
+							onSubmit={interviewForm.handleSubmit(handleInterviewScheduleSubmit)}
+							className='space-y-4 py-4'
+						>
+							<FormDatePicker
+								control={interviewForm.control}
+								name='interviewDate'
+								label='Interview Date'
+								required
+							/>
+							<FormInput
+								control={interviewForm.control}
+								name='interviewTime'
+								label='Interview Time'
+								type='time'
+								required
+							/>
+							<DialogFooter>
+								<Button type='button' variant='ghost' onClick={() => setIsInterviewModalOpen(false)}>
+									Cancel
+								</Button>
+								<Button type='submit'>Schedule</Button>
+							</DialogFooter>
+						</form>
+					</Form>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }
