@@ -20,7 +20,7 @@ import { Control, FieldPath, FieldValues } from 'react-hook-form';
 
 interface FormAutocompleteProps<
 	TFieldValues extends FieldValues,
-	TOption = { value: string | number; label: string },
+	TOption = { value: string; label: string },
 > {
 	control?: Control<TFieldValues> | any;
 	name: FieldPath<TFieldValues>;
@@ -29,12 +29,12 @@ interface FormAutocompleteProps<
 	required?: boolean;
 	options?: TOption[];
 	loadOptions?: (searchKey: string, callback: (options: TOption[]) => void) => void;
-	getOptionValue: (option: TOption) => string | number;
+	getOptionValue: (option: TOption) => string;
 	getOptionLabel: (option: TOption) => string;
 	renderOption?: (option: TOption) => React.ReactNode;
 	disabled?: boolean;
-	onValueChange?: (value: string | number | undefined) => void;
-	value?: string | number;
+	onValueChange?: (value: string) => void;
+	value?: string;
 	onInputChange?: (value: string) => void;
 }
 

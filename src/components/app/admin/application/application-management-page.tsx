@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -16,16 +15,18 @@ import {
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
+import { ROUTES } from '@/constants/routes.constant';
 import { useToast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequestedPostStatus, RequestedPost } from '@/interfaces/job.interface';
+import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO } from '@/interfaces/master-data.interface';
 import { cn, getStatusVariant } from '@/lib/utils';
 import { ApplicationService } from '@/services/api/application.service';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { getExaminerAsync } from '@/services/async-api';
-import { ArrowLeft, Building, ChevronsRight, Edit, Loader2, UserCog, UserPlus, Users } from 'lucide-react';
+import { ArrowLeft, Building, ChevronsRight, Edit, Loader2, UserPlus, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -105,39 +106,6 @@ export function ApplicationManagementPage({
 		loadApplicants(0, statusFilter);
 	}, [statusFilter, loadApplicants]);
 
-	const handleProceed = async () => {
-		if (!selectedExaminerId) {
-			toast({
-				title: 'Examiner Required',
-				description: 'Please assign an examiner before proceeding.',
-				variant: 'warning',
-			});
-			setIsProceedConfirmationOpen(false);
-			setIsExaminerDialogOpen(true);
-			return;
-		}
-
-		setIsProceeding(true);
-		try {
-			// Logic to move accepted applicants to the next stage
-			console.log('Proceeding with examiner:', selectedExaminerId);
-			toast({
-				title: 'Request Processing',
-				description: 'The request has been moved to the processing stage.',
-				variant: 'success',
-			});
-			router.push('/admin/application/processing');
-		} catch (error: any) {
-			toast({
-				title: 'Error',
-				description: error.message || 'Failed to proceed to the next stage.',
-				variant: 'danger',
-			});
-		} finally {
-			setIsProceeding(false);
-			setIsProceedConfirmationOpen(false);
-		}
-	};
 
 	const handleApplyApplicants = (newApplicants: JobseekerSearch[], onSuccess?: () => void) => {
 		const payload = newApplicants.map((js) => ({
@@ -193,9 +161,9 @@ export function ApplicationManagementPage({
 		}
 		setIsSavingExaminer(true);
 		try {
-			const response = await JobRequestService.setExaminer({
-				requestedPostId: requestedPost.id!,
-				examinerId: Number(selectedExaminerId),
+			const response = await JobRequestService.getRequestedPostUpdate({
+				...requestedPost,
+				examinerId: +selectedExaminerId,
 			});
 			const updatedPost = response.body;
 			setRequestedPost(updatedPost);
@@ -207,12 +175,45 @@ export function ApplicationManagementPage({
 			setIsExaminerDialogOpen(false);
 		} catch (error: any) {
 			toast({
-				title: 'Error',
 				description: error.message || 'Failed to assign examiner.',
 				variant: 'danger',
 			});
 		} finally {
 			setIsSavingExaminer(false);
+		}
+	};
+
+	const handleProceed = async () => {
+		if (!selectedExaminerId) {
+			toast({
+				title: 'Examiner Required',
+				description: 'Please assign an examiner before proceeding.',
+				variant: 'warning',
+			});
+			setIsProceedConfirmationOpen(false);
+			setIsExaminerDialogOpen(true);
+			return;
+		}
+
+		setIsProceeding(true);
+		try {
+			// Logic to move accepted applicants to the next stage
+			console.log('Proceeding with examiner:', selectedExaminerId);
+			toast({
+				title: 'Request Processing',
+				description: 'The request has been moved to the processing stage.',
+				variant: 'success',
+			});
+			router.push(ROUTES.APPLICATION_PROCESSING);
+		} catch (error: any) {
+			toast({
+				title: 'Error',
+				description: error.message || 'Failed to proceed to the next stage.',
+				variant: 'danger',
+			});
+		} finally {
+			setIsProceeding(false);
+			setIsProceedConfirmationOpen(false);
 		}
 	};
 
@@ -257,7 +258,12 @@ export function ApplicationManagementPage({
 						<div className='flex items-center gap-2 text-sm'>
 							<span className='text-muted-foreground'>Examiner:</span>
 							<span className='font-semibold'>{requestedPost.examiner?.nameEn || 'Not Assigned'}</span>
-							<Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setIsExaminerDialogOpen(true)}>
+							<Button
+								variant='ghost'
+								size='icon'
+								className='h-7 w-7'
+								onClick={() => setIsExaminerDialogOpen(true)}
+							>
 								<Edit className='h-4 w-4 text-primary' />
 							</Button>
 						</div>
@@ -368,6 +374,8 @@ export function ApplicationManagementPage({
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
+
+			{/* Assign examiner */}
 			<Dialog open={isExaminerDialogOpen} onOpenChange={setIsExaminerDialogOpen}>
 				<DialogContent>
 					<DialogHeader>
