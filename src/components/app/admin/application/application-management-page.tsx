@@ -27,7 +27,7 @@ import { cn, getStatusVariant } from '@/lib/utils';
 import { ApplicationService } from '@/services/api/application.service';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { getExaminerAsync } from '@/services/async-api';
-import { ArrowLeft, Building, ChevronsRight, Edit, Loader2, UserPlus, Users } from 'lucide-react';
+import { ArrowLeft, Building, ChevronsRight, Edit, Loader2, UserCheck, UserPlus, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -219,14 +219,18 @@ export function ApplicationManagementPage({
 		}
 	};
 
-	const statItems = [
+	const mainStatItems = [
 		{ label: 'Total Applicants', value: applicantStats.total, status: null },
-		...statuses.map((status) => ({
-			label: status.nameEn,
-			value: applicantStats[status.value] || 0,
-			status: status.value,
-		})),
+		...statuses
+			.filter((s) => s.value !== APPLICATION_STATUS.HIRED)
+			.map((status) => ({
+				label: status.nameEn,
+				value: applicantStats[status.value] || 0,
+				status: status.value,
+			})),
 	];
+
+	const hiredCount = applicantStats[APPLICATION_STATUS.HIRED] || 0;
 
 	return (
 		<div className='space-y-6'>
@@ -276,32 +280,55 @@ export function ApplicationManagementPage({
 				</CardHeader>
 			</Card>
 
-			<Card className='glassmorphism p-4'>
-				<CardContent className='p-0'>
-					<div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3'>
-						{statItems.map((item) => (
-							<button
-								key={item.label}
-								onClick={() => setStatusFilter(item.status)}
-								className={cn(
-									'p-3 rounded-md text-left transition-all hover:bg-muted',
-									statusFilter === item.status && 'bg-primary/10'
-								)}
-							>
-								<p
+			<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+				<Card className='glassmorphism p-4 md:col-span-2'>
+					<CardContent className='p-0'>
+						<div className='grid grid-cols-2 md:grid-cols-3 gap-3'>
+							{mainStatItems.map((item) => (
+								<button
+									key={item.label}
+									onClick={() => setStatusFilter(item.status)}
 									className={cn(
-										'text-2xl font-bold',
-										statusFilter === item.status ? 'text-primary' : 'text-foreground'
+										'p-3 rounded-md text-left transition-all hover:bg-muted',
+										statusFilter === item.status && 'bg-primary/10'
 									)}
 								>
-									{item.value}
-								</p>
-								<p className='text-sm font-medium text-muted-foreground'>{item.label}</p>
-							</button>
-						))}
-					</div>
-				</CardContent>
-			</Card>
+									<p
+										className={cn(
+											'text-2xl font-bold',
+											statusFilter === item.status ? 'text-primary' : 'text-foreground'
+										)}
+									>
+										{item.value}
+									</p>
+									<p className='text-sm font-medium text-muted-foreground'>{item.label}</p>
+								</button>
+							))}
+						</div>
+					</CardContent>
+				</Card>
+				<Card className='glassmorphism p-4'>
+					<CardContent className='p-0 flex flex-col justify-center h-full'>
+						<button
+							onClick={() => setStatusFilter(APPLICATION_STATUS.HIRED)}
+							className={cn(
+								'p-3 rounded-md text-left transition-all hover:bg-muted w-full',
+								statusFilter === APPLICATION_STATUS.HIRED && 'bg-primary/10'
+							)}
+						>
+							<p
+								className={cn(
+									'text-2xl font-bold',
+									statusFilter === APPLICATION_STATUS.HIRED ? 'text-primary' : 'text-foreground'
+								)}
+							>
+								{hiredCount}
+							</p>
+							<p className='text-sm font-medium text-muted-foreground'>Hired</p>
+						</button>
+					</CardContent>
+				</Card>
+			</div>
 
 			<Card>
 				<CardHeader className='flex-row items-center justify-between'>
@@ -398,7 +425,7 @@ export function ApplicationManagementPage({
 								placeholder='Search for an examining organization...'
 								required
 								loadOptions={getExaminerAsync}
-								getOptionValue={(option) => option.id}
+								getOptionValue={(option) => option.id!.toString()}
 								getOptionLabel={(option) => option.nameEn}
 								value={selectedExaminerId}
 								initialLabel={requestedPost.examiner?.nameEn}
