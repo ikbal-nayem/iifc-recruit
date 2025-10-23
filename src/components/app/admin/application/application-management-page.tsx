@@ -34,6 +34,7 @@ import { useForm } from 'react-hook-form';
 import { ApplicantListManager } from './applicant-list-manager';
 import { ApplicantsTable } from './applicants-table';
 import { cn } from '@/lib/utils';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 interface ApplicationManagementPageProps {
 	requestedPost: RequestedPost;
@@ -277,32 +278,35 @@ export function ApplicationManagementPage({
 				</CardHeader>
 			</Card>
 
-			<div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
-				<Card
-					className={cn(
-						'p-4 rounded-lg cursor-pointer transition-all text-center hover:bg-muted',
-						statusFilter === null && 'bg-primary/10 ring-2 ring-primary'
-					)}
-					onClick={() => setStatusFilter(null)}
-				>
-					<p className='text-3xl font-bold'>{applicantStats.total || 0}</p>
-					<p className='text-sm text-muted-foreground'>Total Applicants</p>
-				</Card>
-
-				{mainStatItems.map((item) => (
+			<ScrollArea className='w-full whitespace-nowrap'>
+				<div className='flex w-max space-x-4 pb-4'>
 					<Card
-						key={item.label}
-						onClick={() => setStatusFilter(item.status)}
 						className={cn(
-							'p-4 rounded-lg cursor-pointer transition-all text-center hover:bg-muted',
-							statusFilter === item.status && 'bg-primary/10 ring-2 ring-primary'
+							'p-4 rounded-lg cursor-pointer transition-all text-center hover:bg-muted min-w-[160px]',
+							statusFilter === null && 'bg-primary/10 ring-2 ring-primary'
 						)}
+						onClick={() => setStatusFilter(null)}
 					>
-						<p className='text-3xl font-bold'>{item.value}</p>
-						<p className='text-sm text-muted-foreground'>{item.label}</p>
+						<p className='text-3xl font-bold'>{applicantStats.total || 0}</p>
+						<p className='text-sm text-muted-foreground'>Total Applicants</p>
 					</Card>
-				))}
-			</div>
+
+					{mainStatItems.map((item) => (
+						<Card
+							key={item.label}
+							onClick={() => setStatusFilter(item.status)}
+							className={cn(
+								'p-4 rounded-lg cursor-pointer transition-all text-center hover:bg-muted min-w-[160px]',
+								statusFilter === item.status && 'bg-primary/10 ring-2 ring-primary'
+							)}
+						>
+							<p className='text-3xl font-bold'>{item.value}</p>
+							<p className='text-sm text-muted-foreground'>{item.label}</p>
+						</Card>
+					))}
+				</div>
+				<ScrollBar orientation='horizontal' />
+			</ScrollArea>
 			<Card>
 				<CardHeader className='flex-row items-center justify-between'>
 					<div>
