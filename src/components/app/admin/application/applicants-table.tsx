@@ -87,7 +87,7 @@ export function ApplicantsTable({
 	const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 	const [selectedApplicant, setSelectedApplicant] = React.useState<JobseekerSearch | null>(null);
 	const [bulkAction, setBulkAction] = React.useState<{
-		type: APPLICATION_STATUS.HIRED | APPLICATION_STATUS.ACCEPTED | APPLICATION_STATUS.INTERVIEW;
+		type: APPLICATION_STATUS.HIRED | APPLICATION_STATUS.ACCEPTED;
 		count: number;
 	} | null>(null);
 	const [isInterviewModalOpen, setIsInterviewModalOpen] = React.useState(false);
@@ -130,12 +130,7 @@ export function ApplicantsTable({
 	const handleBulkActionConfirm = () => {
 		if (!bulkAction) return;
 		const selected = table.getSelectedRowModel().rows.map((row) => row.original);
-		if (bulkAction.type === APPLICATION_STATUS.INTERVIEW) {
-			setInterviewApplicants(selected);
-			setIsInterviewModalOpen(true);
-		} else {
-			handleStatusChange(selected, bulkAction.type);
-		}
+		handleStatusChange(selected, bulkAction.type);
 		setBulkAction(null);
 	};
 
@@ -322,6 +317,12 @@ export function ApplicantsTable({
 
 	const selectedRowCount = Object.keys(rowSelection).length;
 
+	const handleBulkInterview = () => {
+		const selected = table.getSelectedRowModel().rows.map((row) => row.original);
+		setInterviewApplicants(selected);
+		setIsInterviewModalOpen(true);
+	};
+
 	const renderMobileCard = (applicant: Application) => {
 		const { fullName, profileImage, firstName, lastName } = applicant.applicant as JobseekerSearch;
 		return (
@@ -378,11 +379,7 @@ export function ApplicantsTable({
 							</Button>
 						)}
 						{(requestedPostStatus === JobRequestedPostStatus.PROCESSING || isShortlisted) && (
-							<Button
-								size='sm'
-								variant='lite-info'
-								onClick={() => setBulkAction({ type: APPLICATION_STATUS.INTERVIEW, count: selectedRowCount })}
-							>
+							<Button size='sm' variant='lite-info' onClick={handleBulkInterview}>
 								<CalendarIcon className='mr-2 h-4 w-4' /> Call for Interview ({selectedRowCount})
 							</Button>
 						)}
@@ -472,7 +469,7 @@ export function ApplicantsTable({
 			</Dialog>
 
 			<ConfirmationDialog
-				open={!!bulkAction && bulkAction.type !== APPLICATION_STATUS.INTERVIEW}
+				open={!!bulkAction}
 				onOpenChange={(isOpen) => !isOpen && setBulkAction(null)}
 				title={`Confirm Bulk Action: ${
 					bulkAction?.type === APPLICATION_STATUS.ACCEPTED ? 'Accept' : 'Hire'
