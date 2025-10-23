@@ -10,29 +10,29 @@ import { SessionStorageService } from '@/services/storage.service';
 const SPLASH_SHOWN_KEY = 'splash_shown';
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
-  const [showSplash, setShowSplash] = useState(true);
-  const [isClient, setIsClient] = useState(false);
+	const [isClient, setIsClient] = useState(false);
+	const [showSplash, setShowSplash] = useState(true);
 
-  useEffect(() => {
-    initializeAuthHeader();
-    setIsClient(true);
-    const splashShown = SessionStorageService.get(SPLASH_SHOWN_KEY);
-    if (splashShown) {
-      setShowSplash(false);
-    } else {
-      SessionStorageService.set(SPLASH_SHOWN_KEY, 'true');
-    }
-  }, []);
+	useEffect(() => {
+		setIsClient(true);
+		initializeAuthHeader();
 
-  if (!isClient) {
-    return null; 
-  }
+		if (SessionStorageService.get(SPLASH_SHOWN_KEY)) {
+			setShowSplash(false);
+		} else {
+			SessionStorageService.set(SPLASH_SHOWN_KEY, 'true');
+		}
+	}, []);
 
-  return (
-    <>
-      <TopLoader />
-      <Toaster />
-      {showSplash ? <SplashScreen onFinish={() => setShowSplash(false)} /> : children}
-    </>
-  );
+	if (!isClient) {
+		return null;
+	}
+
+	return (
+		<>
+			<TopLoader />
+			<Toaster />
+			{showSplash ? <SplashScreen onFinish={() => setShowSplash(false)} /> : children}
+		</>
+	);
 }
