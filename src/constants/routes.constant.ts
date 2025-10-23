@@ -16,6 +16,7 @@ export const ROUTES = {
 	APPLICATION_COMPLETED: '/admin/application/completed',
 	MANAGE_PENDING_APPLICATION: (id?: string) => `/admin/application/pending/${id}`,
 	MANAGE_PROCESSING_APPLICATION: (id?: string) => `/admin/application/processing/${id}`,
+	MANAGE_SHORTLISTED_APPLICATION: (id?: string) => `/admin/application/shortlisted/${id}`,
 
 	CLIENT_ORGANIZATIONS: '/admin/client-organizations',
 	CLIENT_ORGANIZATION_DETAILS: (id?: string | string) => `/admin/client-organizations/${id}`,

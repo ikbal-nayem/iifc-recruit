@@ -64,20 +64,31 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 
 	const getActionItems = (item: RequestedPost): ActionItem[] => {
 		const items: ActionItem[] = [];
+		let manageHref = '';
 
-		if (item.status === JobRequestedPostStatus.PENDING) {
+		switch (item.status) {
+			case JobRequestedPostStatus.PENDING:
+				manageHref = ROUTES.MANAGE_PENDING_APPLICATION(item.id);
+				break;
+			case JobRequestedPostStatus.PROCESSING:
+				manageHref = ROUTES.MANAGE_PROCESSING_APPLICATION(item.id);
+				break;
+			case JobRequestedPostStatus.SHORTLISTED:
+				manageHref = ROUTES.MANAGE_SHORTLISTED_APPLICATION(item.id);
+				break;
+			default:
+				// No action for completed or other statuses for now
+				break;
+		}
+
+		if (manageHref) {
 			items.push({
 				label: 'Manage Applicants',
 				icon: <UserCog className='mr-2 h-4 w-4' />,
-				href: ROUTES.MANAGE_PENDING_APPLICATION(item.id),
-			});
-		} else {
-			items.push({
-				label: 'View Applicants',
-				icon: <UserCog className='mr-2 h-4 w-4' />,
-				href: ROUTES.MANAGE_PROCESSING_APPLICATION(item.id),
+				href: manageHref,
 			});
 		}
+
 		return items;
 	};
 

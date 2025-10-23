@@ -34,6 +34,7 @@ interface ApplicationManagementPageProps {
 	requestedPost: RequestedPost;
 	statuses: EnumDTO[];
 	isProcessing?: boolean;
+	isShortlisted?: boolean;
 }
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
@@ -42,6 +43,7 @@ export function ApplicationManagementPage({
 	requestedPost: initialPost,
 	statuses,
 	isProcessing = false,
+	isShortlisted = false,
 }: ApplicationManagementPageProps) {
 	const { toast } = useToast();
 	const router = useRouter();
@@ -62,9 +64,10 @@ export function ApplicationManagementPage({
 					body: { requestedPostId: requestedPost.id, ...(status && { status: status }) },
 					meta: { page, limit: applicantsMeta.limit },
 				};
-				const response = isProcessing
-					? await ApplicationService.getProcessingList(payload)
-					: await ApplicationService.getList(payload);
+				const response =
+					isProcessing || isShortlisted
+						? await ApplicationService.getProcessingList(payload)
+						: await ApplicationService.getList(payload);
 				setApplicants(response.body);
 				setApplicantsMeta(response.meta);
 			} catch (error: any) {
@@ -76,7 +79,7 @@ export function ApplicationManagementPage({
 				setIsLoadingApplicants(false);
 			}
 		},
-		[requestedPost.id, toast, applicantsMeta.limit, isProcessing]
+		[requestedPost.id, toast, applicantsMeta.limit, isProcessing, isShortlisted]
 	);
 
 	useEffect(() => {
@@ -131,7 +134,7 @@ export function ApplicationManagementPage({
 	};
 
 	const handleProceed = async () => {
-		if (!isProcessing && !requestedPost.examinerId) {
+		if (!isProcessing && !isShortlisted && !requestedPost.examinerId) {
 			toast({
 				title: 'Examiner Required',
 				description: 'Please assign an examiner before proceeding.',
@@ -143,7 +146,12 @@ export function ApplicationManagementPage({
 
 		setIsProceeding(true);
 		try {
-			const targetStatus = isProcessing ? JobRequestStatus.SHORTLISTED : JobRequestStatus.PROCESSING;
+			const targetStatus = isProcessing
+				? JobRequestStatus.SHORTLISTED
+				: isShortlisted
+				? JobRequestStatus.COMPLETED
+				: JobRequestStatus.PROCESSING;
+
 			await JobRequestService.updateStatus(requestedPost.id!, targetStatus);
 			toast({
 				title: 'Request Processing',
@@ -151,7 +159,9 @@ export function ApplicationManagementPage({
 				variant: 'success',
 			});
 
-			const redirectRoute = isProcessing ? ROUTES.APPLICATION_SHORTLISTED : ROUTES.APPLICATION_PROCESSING;
+			let redirectRoute = ROUTES.APPLICATION_PROCESSING;
+			if (isProcessing) redirectRoute = ROUTES.APPLICATION_SHORTLISTED;
+			if (isShortlisted) redirectRoute = ROUTES.APPLICATION_COMPLETED;
 			router.push(redirectRoute);
 		} catch (error: any) {
 			toast({
@@ -165,6 +175,18 @@ export function ApplicationManagementPage({
 		}
 	};
 
+	const getProceedButtonText = () => {
+		if (isProcessing) return 'Proceed to Shortlist';
+		if (isShortlisted) return 'Mark as Completed';
+		return 'Proceed to Next Stage';
+	};
+
+	const getDialogDescription = () => {
+		if (isProcessing) return 'You are about to move the selected applicants to the shortlisted stage.';
+		if (isShortlisted) return 'You are about to mark this job request as completed.';
+		return 'You are about to move the selected applicants to the processing stage.';
+	};
+
 	return (
 		<div className='space-y-6'>
 			<div className='flex items-center justify-between'>
@@ -174,14 +196,14 @@ export function ApplicationManagementPage({
 				</Button>
 				<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg'>
 					<ChevronsRight className='mr-2 h-4 w-4' />
-					Proceed to {isProcessing ? 'Shortlist' : 'Next Stage'}
+					{getProceedButtonText()}
 				</Button>
 			</div>
 
 			<ApplicationManagementHeader
 				requestedPost={requestedPost}
 				setRequestedPost={setRequestedPost}
-				isProcessing={isProcessing}
+				isProcessing={isProcessing || isShortlisted}
 			/>
 
 			<ApplicationStats
@@ -197,7 +219,7 @@ export function ApplicationManagementPage({
 						<CardTitle>Applied Candidates</CardTitle>
 						<CardDescription>These candidates have applied for the circular post.</CardDescription>
 					</div>
-					{!isProcessing && (
+					{!isProcessing && !isShortlisted && (
 						<Dialog open={isAddCandidateOpen} onOpenChange={setIsAddCandidateOpen}>
 							<DialogTrigger asChild>
 								<Button variant='outline'>
@@ -227,6 +249,7 @@ export function ApplicationManagementPage({
 						onPageChange={handlePageChange}
 						updateApplication={handleUpdateApplication}
 						requestedPostStatus={requestedPost.status}
+						isShortlisted={isShortlisted}
 					/>
 				</CardContent>
 			</Card>
@@ -234,18 +257,15 @@ export function ApplicationManagementPage({
 			<div className='flex justify-center mt-6'>
 				<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg'>
 					<ChevronsRight className='mr-2 h-4 w-4' />
-					Proceed to {isProcessing ? 'Shortlist' : 'Next Stage'}
+					{getProceedButtonText()}
 				</Button>
 			</div>
 
 			<Dialog open={isProceedConfirmationOpen} onOpenChange={setIsProceedConfirmationOpen}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Proceed to {isProcessing ? 'Shortlist' : 'Next Stage'}?</DialogTitle>
-						<DialogDescription>
-							You are about to move the selected applicants to the{' '}
-							{isProcessing ? 'shortlisted' : 'processing'} stage.
-						</DialogDescription>
+						<DialogTitle>Proceed to Next Stage?</DialogTitle>
+						<DialogDescription>{getDialogDescription()}</DialogDescription>
 					</DialogHeader>
 					<div className='space-y-4 py-4'>
 						<div className='rounded-md border p-4 text-sm'>

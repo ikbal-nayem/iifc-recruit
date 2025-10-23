@@ -21,7 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -50,6 +50,7 @@ interface ApplicantsTableProps {
 	meta: IMeta;
 	onPageChange: (page: number) => void;
 	requestedPostStatus?: JobRequestedPostStatus;
+	isShortlisted?: boolean;
 }
 
 const interviewSchema = z.object({
@@ -65,6 +66,7 @@ export function ApplicantsTable({
 	meta,
 	onPageChange,
 	requestedPostStatus,
+	isShortlisted = false,
 }: ApplicantsTableProps) {
 	const { toast } = useToast();
 	const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -132,30 +134,36 @@ export function ApplicantsTable({
 				icon: <FileText className='mr-2 h-4 w-4' />,
 				onClick: () => setSelectedApplicant(application.applicant as JobseekerSearch),
 			},
-			{ isSeparator: true },
 		];
 
-		if (application.status === APPLICATION_STATUS.ACCEPTED) {
-			items.push({
-				label: 'Revert to Applied',
-				icon: <RotateCcw className='mr-2 h-4 w-4' />,
-				onClick: () => handleStatusChange([application], APPLICATION_STATUS.APPLIED),
-			});
-		} else {
-			items.push({
-				label: 'Mark as Accepted',
-				icon: <UserCheck className='mr-2 h-4 w-4' />,
-				onClick: () => handleStatusChange([application], APPLICATION_STATUS.ACCEPTED),
-			});
+		if (requestedPostStatus === JobRequestedPostStatus.PENDING) {
+			items.push({ isSeparator: true });
+			if (application.status === APPLICATION_STATUS.ACCEPTED) {
+				items.push({
+					label: 'Revert to Applied',
+					icon: <RotateCcw className='mr-2 h-4 w-4' />,
+					onClick: () => handleStatusChange([application], APPLICATION_STATUS.APPLIED),
+				});
+			} else {
+				items.push({
+					label: 'Mark as Accepted',
+					icon: <UserCheck className='mr-2 h-4 w-4' />,
+					onClick: () => handleStatusChange([application], APPLICATION_STATUS.ACCEPTED),
+				});
+			}
 		}
 
-		if (requestedPostStatus !== JobRequestedPostStatus.PENDING) {
-			items.push({
-				label: 'Mark as Hired',
-				icon: <UserPlus className='mr-2 h-4 w-4' />,
-				onClick: () => handleStatusChange([application], APPLICATION_STATUS.HIRED),
-			});
+		if (isShortlisted) {
+			items.push(
+				{ isSeparator: true },
+				{
+					label: 'Mark as Hired',
+					icon: <UserPlus className='mr-2 h-4 w-4' />,
+					onClick: () => handleStatusChange([application], APPLICATION_STATUS.HIRED),
+				}
+			);
 		}
+
 		return items;
 	};
 
@@ -298,14 +306,16 @@ export function ApplicantsTable({
 				/>
 				{selectedRowCount > 0 && (
 					<div className='flex items-center gap-2'>
-						<Button
-							size='sm'
-							variant='lite-success'
-							onClick={() => setBulkAction({ type: APPLICATION_STATUS.ACCEPTED, count: selectedRowCount })}
-						>
-							Accept ({selectedRowCount})
-						</Button>
-						{requestedPostStatus === JobRequestedPostStatus.PROCESSING && (
+						{requestedPostStatus === JobRequestedPostStatus.PENDING && (
+							<Button
+								size='sm'
+								variant='lite-success'
+								onClick={() => setBulkAction({ type: APPLICATION_STATUS.ACCEPTED, count: selectedRowCount })}
+							>
+								Accept ({selectedRowCount})
+							</Button>
+						)}
+						{(requestedPostStatus === JobRequestedPostStatus.PROCESSING || isShortlisted) && (
 							<Button
 								size='sm'
 								variant='lite-info'
@@ -314,7 +324,7 @@ export function ApplicantsTable({
 								<CalendarIcon className='mr-2 h-4 w-4' /> Call for Interview ({selectedRowCount})
 							</Button>
 						)}
-						{requestedPostStatus !== JobRequestedPostStatus.PENDING && (
+						{isShortlisted && (
 							<Button
 								size='sm'
 								variant='lite-warning'
