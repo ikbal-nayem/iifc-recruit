@@ -29,7 +29,16 @@ import { Application, APPLICATION_STATUS } from '@/interfaces/application.interf
 import { IMeta } from '@/interfaces/common.interface';
 import { JobRequestedPostStatus } from '@/interfaces/job.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
-import { FileText, Loader2, RotateCcw, UserCheck, UserPlus, Calendar as CalendarIcon, Briefcase } from 'lucide-react';
+import {
+	FileText,
+	Loader2,
+	RotateCcw,
+	UserCheck,
+	UserPlus,
+	Calendar as CalendarIcon,
+	Briefcase,
+	Award,
+} from 'lucide-react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 import { cn } from '@/lib/utils';
 import { format, formatDate } from 'date-fns';
@@ -59,6 +68,11 @@ const interviewSchema = z.object({
 });
 type InterviewFormValues = z.infer<typeof interviewSchema>;
 
+const marksSchema = z.object({
+	marks: z.coerce.number().min(0, 'Marks cannot be negative.').max(100, 'Marks cannot be over 100.'),
+});
+type MarksFormValues = z.infer<typeof marksSchema>;
+
 export function ApplicantsTable({
 	applicants,
 	updateApplication,
@@ -78,30 +92,42 @@ export function ApplicantsTable({
 		count: number;
 	} | null>(null);
 	const [isInterviewModalOpen, setIsInterviewModalOpen] = React.useState(false);
+	const [isMarksModalOpen, setIsMarksModalOpen] = React.useState(false);
+	const [marksApplicant, setMarksApplicant] = React.useState<Application | null>(null);
 
 	const interviewForm = useForm<InterviewFormValues>({
 		resolver: zodResolver(interviewSchema),
 	});
 
+	const marksForm = useForm<MarksFormValues>({
+		resolver: zodResolver(marksSchema),
+	});
+
 	const handleStatusChange = async (
 		applications: Application[],
 		newStatus: APPLICATION_STATUS,
-		details?: { interviewDate?: string; interviewTime?: string }
+		details?: { interviewDate?: string; interviewTime?: string; marks?: number }
 	) => {
 		const updatedApplications = applications.map((application) => ({
 			...application,
 			status: newStatus,
 			...(newStatus === APPLICATION_STATUS.INTERVIEW &&
-				details && {
+				details?.interviewDate &&
+				details.interviewTime && {
 					interviewDate: format(
 						new Date(`${details.interviewDate}T${details.interviewTime}`),
 						"yyyy-MM-dd'T'HH:mm:ss"
 					),
 				}),
+			...(details?.marks !== undefined && { marks: details.marks }),
 		}));
+
 		const resp = await updateApplication(updatedApplications);
 		if (resp) {
 			table.resetRowSelection();
+			setIsMarksModalOpen(false);
+			setMarksApplicant(null);
+			marksForm.reset();
 		}
 	};
 
@@ -127,6 +153,14 @@ export function ApplicantsTable({
 		});
 	};
 
+	const handleMarksSubmit = (newStatus: APPLICATION_STATUS) => {
+		marksForm.handleSubmit((values) => {
+			if (marksApplicant) {
+				handleStatusChange([marksApplicant], newStatus, { marks: values.marks });
+			}
+		})();
+	};
+
 	const getActionItems = (application: Application): ActionItem[] => {
 		const items: ActionItem[] = [
 			{
@@ -135,6 +169,18 @@ export function ApplicantsTable({
 				onClick: () => setSelectedApplicant(application.applicant as JobseekerSearch),
 			},
 		];
+
+		if (application.status === APPLICATION_STATUS.INTERVIEW) {
+			items.push({
+				label: 'Set Interview Marks',
+				icon: <Award className='mr-2 h-4 w-4' />,
+				onClick: () => {
+					setMarksApplicant(application);
+					marksForm.setValue('marks', application.marks || 0);
+					setIsMarksModalOpen(true);
+				},
+			});
+		}
 
 		if (requestedPostStatus === JobRequestedPostStatus.PENDING) {
 			items.push({ isSeparator: true });
@@ -223,7 +269,7 @@ export function ApplicantsTable({
 			accessorKey: 'status',
 			header: 'Status',
 			cell: ({ row }) => {
-				const { status, statusDTO, interviewDate } = row.original;
+				const { status, statusDTO, interviewDate, marks } = row.original;
 				return (
 					<div className='flex flex-col gap-1'>
 						<Badge variant={getStatusVariant(status)}>{statusDTO.nameEn}</Badge>
@@ -231,6 +277,9 @@ export function ApplicantsTable({
 							<span className='text-xs text-muted-foreground'>
 								{format(new Date(interviewDate), 'PPp')}
 							</span>
+						)}
+						{marks !== null && marks !== undefined && (
+							<span className='text-xs font-semibold text-primary'>Marks: {marks}</span>
 						)}
 					</div>
 				);
@@ -287,6 +336,9 @@ export function ApplicantsTable({
 							<p className='text-xs text-muted-foreground mt-1'>
 								{format(new Date(applicant.interviewDate), 'PPp')}
 							</p>
+						)}
+						{applicant.marks !== null && applicant.marks !== undefined && (
+							<p className='text-xs font-semibold text-primary mt-1'>Marks: {applicant.marks}</p>
 						)}
 					</div>
 				</div>
@@ -451,6 +503,36 @@ export function ApplicantsTable({
 								<Button type='submit'>Schedule</Button>
 							</DialogFooter>
 						</form>
+					</Form>
+				</DialogContent>
+			</Dialog>
+			<Dialog open={isMarksModalOpen} onOpenChange={setIsMarksModalOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Set Interview Marks</DialogTitle>
+					</DialogHeader>
+					<Form {...marksForm}>
+						<div className='space-y-4 py-4'>
+							<FormInput
+								control={marksForm.control}
+								name='marks'
+								label='Marks (out of 100)'
+								type='number'
+								required
+							/>
+							<DialogFooter>
+								<Button
+									type='button'
+									variant='outline'
+									onClick={() => handleMarksSubmit(APPLICATION_STATUS.REJECTED)}
+								>
+									Reject
+								</Button>
+								<Button type='button' onClick={() => handleMarksSubmit(APPLICATION_STATUS.SHORTLISTED)}>
+									Accept & Shortlist
+								</Button>
+							</DialogFooter>
+						</div>
 					</Form>
 				</DialogContent>
 			</Dialog>

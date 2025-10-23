@@ -23,4 +23,5 @@ export type Application = {
 	requestedPostId: string;
 	requestedPost?: RequestedPost;
 	interviewDate?: string;
+	marks?: number;
 };
