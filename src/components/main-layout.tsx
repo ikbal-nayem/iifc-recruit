@@ -10,28 +10,29 @@ import { SessionStorageService } from '@/services/storage.service';
 const SPLASH_SHOWN_KEY = 'splash_shown';
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
-  const [showSplash, setShowSplash] = useState<boolean | null>(null);
+  const [showSplash, setShowSplash] = useState(true);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    // Initialize auth header on client side
     initializeAuthHeader();
-    // Check if splash screen has been shown
+    setIsClient(true);
     const splashShown = SessionStorageService.get(SPLASH_SHOWN_KEY);
-    setShowSplash(!splashShown);
-    if (!splashShown) {
+    if (splashShown) {
+      setShowSplash(false);
+    } else {
       SessionStorageService.set(SPLASH_SHOWN_KEY, 'true');
     }
   }, []);
 
-  // Show nothing until we know whether to show splash screen
-  if (showSplash === null) return null;
+  if (!isClient) {
+    return null; 
+  }
 
   return (
     <>
       <TopLoader />
       <Toaster />
-      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
-      {!showSplash && children}
+      {showSplash ? <SplashScreen onFinish={() => setShowSplash(false)} /> : children}
     </>
   );
 }
