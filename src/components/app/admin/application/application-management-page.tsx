@@ -200,7 +200,7 @@ export function ApplicationManagementPage({
 
 		setIsProceeding(true);
 		try {
-			await JobRequestService.proceedToProcess(requestedPost.id);
+			await JobRequestService.proceedToProcess(requestedPost.id as string);
 			toast({
 				title: 'Request Processing',
 				description: 'The request has been moved to the processing stage.',
