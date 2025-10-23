@@ -309,23 +309,10 @@ export function ApplicationManagementPage({
 				</Card>
 				<Card className='glassmorphism p-4'>
 					<CardContent className='p-0 flex flex-col justify-center h-full'>
-						<button
-							onClick={() => setStatusFilter(APPLICATION_STATUS.HIRED)}
-							className={cn(
-								'p-3 rounded-md text-left transition-all hover:bg-muted w-full',
-								statusFilter === APPLICATION_STATUS.HIRED && 'bg-primary/10'
-							)}
-						>
-							<p
-								className={cn(
-									'text-2xl font-bold',
-									statusFilter === APPLICATION_STATUS.HIRED ? 'text-primary' : 'text-foreground'
-								)}
-							>
-								{hiredCount}
-							</p>
+						<div className='p-3 rounded-md text-left w-full'>
+							<p className='text-2xl font-bold text-foreground'>{hiredCount}</p>
 							<p className='text-sm font-medium text-muted-foreground'>Hired</p>
-						</button>
+						</div>
 					</CardContent>
 				</Card>
 			</div>
