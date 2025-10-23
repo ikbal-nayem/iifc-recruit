@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
@@ -68,13 +69,13 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 			items.push({
 				label: 'Manage Applicants',
 				icon: <UserCog className='mr-2 h-4 w-4' />,
-				href: ROUTES.APPLICATION_MANAGE(item.id),
+				href: ROUTES.MANAGE_PENDING_APPLICATION(item.id),
 			});
 		} else {
 			items.push({
 				label: 'View Applicants',
 				icon: <UserCog className='mr-2 h-4 w-4' />,
-				href: ROUTES.APPLICATION_MANAGE(item.id),
+				href: ROUTES.MANAGE_PROCESSING_APPLICATION(item.id),
 			});
 		}
 		return items;
