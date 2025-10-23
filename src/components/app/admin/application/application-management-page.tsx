@@ -12,6 +12,7 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
+	DialogTrigger,
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
@@ -218,16 +219,13 @@ export function ApplicationManagementPage({
 		}
 	};
 
-	const mainStatItems = [
-		{ label: 'Total Applicants', value: applicantStats.total, status: null },
-		...statuses
-			.filter((s) => s.value !== APPLICATION_STATUS.HIRED)
-			.map((status) => ({
-				label: status.nameEn,
-				value: applicantStats[status.value] || 0,
-				status: status.value,
-			})),
-	];
+	const mainStatItems = statuses
+		.filter((s) => s.value !== APPLICATION_STATUS.HIRED)
+		.map((status) => ({
+			label: status.nameEn,
+			value: applicantStats[status.value] || 0,
+			status: status.value,
+		}));
 
 	return (
 		<div className='space-y-6'>
@@ -276,29 +274,34 @@ export function ApplicationManagementPage({
 					</div>
 				</CardHeader>
 			</Card>
-
-			<div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
-				{mainStatItems.map((item) => (
-					<Card
-						key={item.label}
-						onClick={() => setStatusFilter(item.status)}
+			<Card className='glassmorphism p-4'>
+				<div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 text-center'>
+					<div
 						className={cn(
-							'glassmorphism cursor-pointer transition-all hover:bg-muted',
-							statusFilter === item.status && 'bg-primary/10 ring-2 ring-primary'
+							'p-4 rounded-lg cursor-pointer transition-all hover:bg-muted',
+							statusFilter === null && 'bg-primary/10 ring-2 ring-primary'
 						)}
+						onClick={() => setStatusFilter(null)}
 					>
-						<CardHeader className='p-4'>
-							<CardDescription>{item.label}</CardDescription>
-							<CardTitle
-								className={cn('text-4xl', statusFilter === item.status && 'text-primary')}
-							>
-								{item.value}
-							</CardTitle>
-						</CardHeader>
-					</Card>
-				))}
-			</div>
+						<p className='text-3xl font-bold'>{applicantStats.total || 0}</p>
+						<p className='text-sm text-muted-foreground'>Total Applicants</p>
+					</div>
 
+					{mainStatItems.map((item) => (
+						<div
+							key={item.label}
+							onClick={() => setStatusFilter(item.status)}
+							className={cn(
+								'p-4 rounded-lg cursor-pointer transition-all hover:bg-muted',
+								statusFilter === item.status && 'bg-primary/10 ring-2 ring-primary'
+							)}
+						>
+							<p className='text-3xl font-bold'>{item.value}</p>
+							<p className='text-sm text-muted-foreground'>{item.label}</p>
+						</div>
+					))}
+				</div>
+			</Card>
 			<Card>
 				<CardHeader className='flex-row items-center justify-between'>
 					<div>
