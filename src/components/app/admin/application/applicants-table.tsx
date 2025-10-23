@@ -178,17 +178,18 @@ export function ApplicantsTable({
 			}
 		}
 
-		if (requestedPostStatus === JobRequestedPostStatus.PROCESSING || isShortlisted) {
-			if (application.status === APPLICATION_STATUS.ACCEPTED) {
-				items.push({
-					label: 'Call for Interview',
-					icon: <CalendarIcon className='mr-2 h-4 w-4' />,
-					onClick: () => {
-						setInterviewApplicants([application]);
-						setIsInterviewModalOpen(true);
-					},
-				});
-			}
+		if (
+			(requestedPostStatus === JobRequestedPostStatus.PROCESSING || isShortlisted) &&
+			application.status === APPLICATION_STATUS.ACCEPTED
+		) {
+			items.push({
+				label: 'Call for Interview',
+				icon: <CalendarIcon className='mr-2 h-4 w-4' />,
+				onClick: () => {
+					setInterviewApplicants([application]);
+					setIsInterviewModalOpen(true);
+				},
+			});
 		}
 
 		if (application.status === APPLICATION_STATUS.INTERVIEW) {
@@ -303,9 +304,7 @@ export function ApplicantsTable({
 					<div className='flex flex-col gap-1'>
 						<Badge variant={getStatusVariant(status)}>{statusDTO.nameEn}</Badge>
 						{status === APPLICATION_STATUS.INTERVIEW && interviewDate && (
-							<span className='text-xs text-muted-foreground'>
-								{format(new Date(interviewDate), 'PPp')}
-							</span>
+							<span className='text-xs text-muted-foreground'>{format(new Date(interviewDate), 'PPp')}</span>
 						)}
 						{marks !== null && marks !== undefined && (
 							<span className='text-xs font-semibold text-primary'>Marks: {marks}</span>
@@ -540,8 +539,27 @@ export function ApplicantsTable({
 					<DialogHeader>
 						<DialogTitle>Set Interview Marks</DialogTitle>
 					</DialogHeader>
+					{marksApplicant && (
+						<div className='flex items-center gap-3 p-4 border-b border-t'>
+							<Avatar>
+								<AvatarImage
+									src={(marksApplicant.applicant as JobseekerSearch).profileImage?.filePath}
+								/>
+								<AvatarFallback>
+									{(marksApplicant.applicant as JobseekerSearch).firstName?.[0]}
+									{(marksApplicant.applicant as JobseekerSearch).lastName?.[0]}
+								</AvatarFallback>
+							</Avatar>
+							<div>
+								<p className='font-semibold'>{(marksApplicant.applicant as JobseekerSearch).fullName}</p>
+								<p className='text-xs text-muted-foreground'>
+									{(marksApplicant.applicant as JobseekerSearch).email}
+								</p>
+							</div>
+						</div>
+					)}
 					<Form {...marksForm}>
-						<div className='space-y-4 py-4'>
+						<div className='space-y-4 p-4'>
 							<FormInput
 								control={marksForm.control}
 								name='marks'
@@ -549,7 +567,7 @@ export function ApplicantsTable({
 								type='number'
 								required
 							/>
-							<DialogFooter className='gap-2'>
+							<DialogFooter className='gap-2 !mt-6'>
 								<Button
 									type='button'
 									variant='danger'
