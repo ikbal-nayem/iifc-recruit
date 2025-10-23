@@ -12,7 +12,6 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
@@ -278,32 +277,27 @@ export function ApplicationManagementPage({
 				</CardHeader>
 			</Card>
 
-			<Card className='glassmorphism p-4'>
-				<CardContent className='p-0'>
-					<div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3'>
-						{mainStatItems.map((item) => (
-							<button
-								key={item.label}
-								onClick={() => setStatusFilter(item.status)}
-								className={cn(
-									'p-3 rounded-md text-left transition-all hover:bg-muted',
-									statusFilter === item.status && 'bg-primary/10'
-								)}
+			<div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
+				{mainStatItems.map((item) => (
+					<Card
+						key={item.label}
+						onClick={() => setStatusFilter(item.status)}
+						className={cn(
+							'glassmorphism cursor-pointer transition-all hover:bg-muted',
+							statusFilter === item.status && 'bg-primary/10 ring-2 ring-primary'
+						)}
+					>
+						<CardHeader className='p-4'>
+							<CardDescription>{item.label}</CardDescription>
+							<CardTitle
+								className={cn('text-4xl', statusFilter === item.status && 'text-primary')}
 							>
-								<p
-									className={cn(
-										'text-2xl font-bold',
-										statusFilter === item.status ? 'text-primary' : 'text-foreground'
-									)}
-								>
-									{item.value}
-								</p>
-								<p className='text-sm font-medium text-muted-foreground'>{item.label}</p>
-							</button>
-						))}
-					</div>
-				</CardContent>
-			</Card>
+								{item.value}
+							</CardTitle>
+						</CardHeader>
+					</Card>
+				))}
+			</div>
 
 			<Card>
 				<CardHeader className='flex-row items-center justify-between'>
