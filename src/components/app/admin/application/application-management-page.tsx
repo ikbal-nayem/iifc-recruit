@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -37,6 +38,7 @@ import { cn } from '@/lib/utils';
 interface ApplicationManagementPageProps {
 	requestedPost: RequestedPost;
 	statuses: EnumDTO[];
+	isProcessing?: boolean;
 }
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
@@ -44,6 +46,7 @@ const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
 export function ApplicationManagementPage({
 	requestedPost: initialPost,
 	statuses,
+	isProcessing = false,
 }: ApplicationManagementPageProps) {
 	const { toast } = useToast();
 	const router = useRouter();
@@ -65,18 +68,18 @@ export function ApplicationManagementPage({
 	const examinerForm = useForm();
 
 	const applicantStats = useMemo(() => {
-		const stats = statuses.reduce((acc, status) => {
-			acc[status.value] = 0;
-			return acc;
-		}, {} as Record<string, number>);
+		const stats: Record<string, number> = {};
+		statuses.forEach((status) => {
+			stats[status.value] = 0;
+		});
 		stats.total = 0;
 
 		applicants.forEach((applicant) => {
 			if (stats.hasOwnProperty(applicant.status)) {
 				stats[applicant.status]++;
 			}
-			stats.total++;
 		});
+		stats.total = applicants.length;
 		return stats;
 	}, [applicants, statuses]);
 
@@ -184,7 +187,7 @@ export function ApplicationManagementPage({
 	};
 
 	const handleProceed = async () => {
-		if (!requestedPost.examinerId) {
+		if (!isProcessing && !requestedPost.examinerId) {
 			toast({
 				title: 'Examiner Required',
 				description: 'Please assign an examiner before proceeding.',
@@ -216,13 +219,11 @@ export function ApplicationManagementPage({
 		}
 	};
 
-	const mainStatItems = statuses
-		.filter((s) => s.value !== APPLICATION_STATUS.HIRED)
-		.map((status) => ({
-			label: status.nameEn,
-			value: applicantStats[status.value] || 0,
-			status: status.value,
-		}));
+	const mainStatItems = statuses.map((status) => ({
+		label: status.nameEn,
+		value: applicantStats[status.value] || 0,
+		status: status.value,
+	}));
 
 	return (
 		<div className='space-y-6'>
@@ -231,10 +232,12 @@ export function ApplicationManagementPage({
 					<ArrowLeft className='mr-2 h-4 w-4' />
 					Back
 				</Button>
-				<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg'>
-					<ChevronsRight className='mr-2 h-4 w-4' />
-					Proceed to Next Stage
-				</Button>
+				{!isProcessing && (
+					<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg'>
+						<ChevronsRight className='mr-2 h-4 w-4' />
+						Proceed to Next Stage
+					</Button>
+				)}
 			</div>
 
 			<Card className='glassmorphism'>
@@ -271,34 +274,33 @@ export function ApplicationManagementPage({
 					</div>
 				</CardHeader>
 			</Card>
-			<Card className='glassmorphism p-4'>
-				<div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 text-center'>
-					<div
-						className={cn(
-							'p-4 rounded-lg cursor-pointer transition-all hover:bg-muted',
-							statusFilter === null && 'bg-primary/10 ring-2 ring-primary'
-						)}
-						onClick={() => setStatusFilter(null)}
-					>
-						<p className='text-3xl font-bold'>{applicantStats.total || 0}</p>
-						<p className='text-sm text-muted-foreground'>Total Applicants</p>
-					</div>
 
-					{mainStatItems.map((item) => (
-						<div
-							key={item.label}
-							onClick={() => setStatusFilter(item.status)}
-							className={cn(
-								'p-4 rounded-lg cursor-pointer transition-all hover:bg-muted',
-								statusFilter === item.status && 'bg-primary/10 ring-2 ring-primary'
-							)}
-						>
-							<p className='text-3xl font-bold'>{item.value}</p>
-							<p className='text-sm text-muted-foreground'>{item.label}</p>
-						</div>
-					))}
-				</div>
-			</Card>
+			<div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+				<Card
+					className={cn(
+						'p-4 rounded-lg cursor-pointer transition-all text-center hover:bg-muted',
+						statusFilter === null && 'bg-primary/10 ring-2 ring-primary'
+					)}
+					onClick={() => setStatusFilter(null)}
+				>
+					<p className='text-3xl font-bold'>{applicantStats.total || 0}</p>
+					<p className='text-sm text-muted-foreground'>Total Applicants</p>
+				</Card>
+
+				{mainStatItems.map((item) => (
+					<Card
+						key={item.label}
+						onClick={() => setStatusFilter(item.status)}
+						className={cn(
+							'p-4 rounded-lg cursor-pointer transition-all text-center hover:bg-muted',
+							statusFilter === item.status && 'bg-primary/10 ring-2 ring-primary'
+						)}
+					>
+						<p className='text-3xl font-bold'>{item.value}</p>
+						<p className='text-sm text-muted-foreground'>{item.label}</p>
+					</Card>
+				))}
+			</div>
 			<Card>
 				<CardHeader className='flex-row items-center justify-between'>
 					<div>
@@ -337,12 +339,14 @@ export function ApplicationManagementPage({
 				</CardContent>
 			</Card>
 
-			<div className='flex justify-center mt-6'>
-				<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg'>
-					<ChevronsRight className='mr-2 h-4 w-4' />
-					Proceed to Next Stage
-				</Button>
-			</div>
+			{!isProcessing && (
+				<div className='flex justify-center mt-6'>
+					<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg'>
+						<ChevronsRight className='mr-2 h-4 w-4' />
+						Proceed to Next Stage
+					</Button>
+				</div>
+			)}
 
 			<Dialog open={isProceedConfirmationOpen} onOpenChange={setIsProceedConfirmationOpen}>
 				<DialogContent>
