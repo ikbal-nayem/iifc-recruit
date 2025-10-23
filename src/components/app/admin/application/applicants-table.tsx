@@ -63,8 +63,7 @@ interface ApplicantsTableProps {
 }
 
 const interviewSchema = z.object({
-	interviewDate: z.string().min(1, 'Interview date is required.'),
-	interviewTime: z.string().min(1, 'Interview time is required.'),
+	interviewDateTime: z.string().min(1, 'Interview date and time is required.'),
 });
 type InterviewFormValues = z.infer<typeof interviewSchema>;
 
@@ -107,18 +106,14 @@ export function ApplicantsTable({
 	const handleStatusChange = async (
 		applications: Application[],
 		newStatus: APPLICATION_STATUS,
-		details?: { interviewDate?: string; interviewTime?: string; marks?: number }
+		details?: { interviewDateTime?: string; marks?: number }
 	) => {
 		const updatedApplications = applications.map((application) => ({
 			...application,
 			status: newStatus,
 			...(newStatus === APPLICATION_STATUS.INTERVIEW &&
-				details?.interviewDate &&
-				details.interviewTime && {
-					interviewDate: format(
-						new Date(`${details.interviewDate}T${details.interviewTime}`),
-						"yyyy-MM-dd'T'HH:mm:ss"
-					),
+				details?.interviewDateTime && {
+					interviewDate: format(new Date(details.interviewDateTime), "yyyy-MM-dd'T'HH:mm:ss"),
 				}),
 			...(details?.marks !== undefined && { marks: details.marks }),
 		}));
@@ -498,17 +493,11 @@ export function ApplicantsTable({
 							onSubmit={interviewForm.handleSubmit(handleInterviewScheduleSubmit)}
 							className='space-y-4 py-4'
 						>
-							<FormDatePicker
-								control={interviewForm.control}
-								name='interviewDate'
-								label='Interview Date'
-								required
-							/>
 							<FormInput
 								control={interviewForm.control}
-								name='interviewTime'
-								label='Interview Time'
-								type='time'
+								name='interviewDateTime'
+								label='Interview Date & Time'
+								type='datetime-local'
 								required
 							/>
 							<DialogFooter>
