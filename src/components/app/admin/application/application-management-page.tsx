@@ -1,10 +1,9 @@
-
 'use client';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
 	Dialog,
 	DialogContent,
@@ -20,19 +19,20 @@ import { ROUTES } from '@/constants/routes.constant';
 import { useToast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
-import { JobRequestedPostStatus, RequestedPost } from '@/interfaces/job.interface';
+import { RequestedPost } from '@/interfaces/job.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO } from '@/interfaces/master-data.interface';
-import { cn, getStatusVariant } from '@/lib/utils';
+import { getStatusVariant } from '@/lib/color-mapping';
 import { ApplicationService } from '@/services/api/application.service';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { getExaminerAsync } from '@/services/async-api';
-import { ArrowLeft, Building, ChevronsRight, Edit, Loader2, UserCheck, UserPlus, Users } from 'lucide-react';
+import { ArrowLeft, Building, ChevronsRight, Edit, Loader2, UserPlus, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ApplicantListManager } from './applicant-list-manager';
 import { ApplicantsTable } from './applicants-table';
+import { cn } from '@/lib/utils';
 
 interface ApplicationManagementPageProps {
 	requestedPost: RequestedPost;
@@ -65,13 +65,10 @@ export function ApplicationManagementPage({
 	const examinerForm = useForm();
 
 	const applicantStats = useMemo(() => {
-		const stats = statuses.reduce(
-			(acc, status) => {
-				acc[status.value] = 0;
-				return acc;
-			},
-			{} as Record<string, number>
-		);
+		const stats = statuses.reduce((acc, status) => {
+			acc[status.value] = 0;
+			return acc;
+		}, {} as Record<string, number>);
 		stats.total = 0;
 
 		applicants.forEach((applicant) => {

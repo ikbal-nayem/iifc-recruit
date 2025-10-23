@@ -13,8 +13,8 @@ export const ROUTES = {
 	APPLICATION_PENDING: '/admin/application/pending',
 	APPLICATION_PROCESSING: '/admin/application/processing',
 	APPLICATION_COMPLETED: '/admin/application/completed',
-	APPLICATION_MANAGE: (id?: number) => `/admin/application/${id}/manage`,
+	APPLICATION_MANAGE: (id?: string) => `/admin/application/${id}/manage`,
 
 	CLIENT_ORGANIZATIONS: '/admin/client-organizations',
-	CLIENT_ORGANIZATION_DETAILS: (id?: number | string) => `/admin/client-organizations/${id}`,
+	CLIENT_ORGANIZATION_DETAILS: (id?: string | string) => `/admin/client-organizations/${id}`,
 };

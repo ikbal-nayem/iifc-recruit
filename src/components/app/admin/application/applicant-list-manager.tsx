@@ -39,14 +39,14 @@ import { z } from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 
 const filterSchema = z.object({
-	skillIds: z.array(z.number()).optional(),
+	skillIds: z.array(z.string()).optional(),
 });
 
 type FilterFormValues = z.infer<typeof filterSchema>;
 
 interface ApplicantListManagerProps {
 	onApply: (applicants: JobseekerSearch[], onSuccess?: () => void) => void;
-	existingApplicantIds?: (number | undefined)[];
+	existingApplicantIds?: (string | undefined)[];
 }
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
@@ -76,7 +76,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 	});
 
 	const searchApplicants = useCallback(
-		async (page: number, searchCriteria: { searchKey?: string; skillIds?: number[] }) => {
+		async (page: number, searchCriteria: { searchKey?: string; skillIds?: string[] }) => {
 			setIsLoading(true);
 			try {
 				const response = await JobseekerProfileService.search({
@@ -107,9 +107,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 	}, [debouncedTextSearch, searchApplicants, filterForm]);
 
 	const onFilterSubmit = (values: FilterFormValues) => {
-		searchApplicants(0, {
-			...values,
-		});
+		searchApplicants(0, {...values,});
 	};
 
 	const columns: ColumnDef<JobseekerSearch>[] = [
@@ -217,7 +215,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 									setSelectedSkills(newSkills);
 									filterForm.setValue(
 										'skillIds',
-										newSkills.map((s) => s.id as number)
+										newSkills.map((s) => s.id)
 									);
 								}}
 								onRemove={(skill) => {
@@ -225,7 +223,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 									setSelectedSkills(newSkills);
 									filterForm.setValue(
 										'skillIds',
-										newSkills.map((s) => s.id as number)
+										newSkills.map((s) => s.id)
 									);
 								}}
 							/>

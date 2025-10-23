@@ -29,10 +29,12 @@ import { Application, APPLICATION_STATUS } from '@/interfaces/application.interf
 import { IMeta } from '@/interfaces/common.interface';
 import { JobRequestedPostStatus } from '@/interfaces/job.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
-import { getStatusVariant } from '@/lib/utils';
 import { FileText, Loader2, RotateCcw, UserCheck, UserPlus } from 'lucide-react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 import { cn } from '@/lib/utils';
+import { formatDate } from 'date-fns';
+import { getStatusVariant } from '@/lib/color-mapping';
+import { DATE_FORMAT } from '@/constants/common.constant';
 
 interface ApplicantsTableProps {
 	applicants: Application[];
@@ -152,8 +154,12 @@ export function ApplicantsTable({
 			},
 		},
 		{
-			accessorKey: 'applicationDate',
+			accessorKey: 'appliedDate',
 			header: 'Date Applied',
+			cell: ({ row }) => {
+				const { appliedDate } = row.original;
+				return <span>{formatDate(appliedDate, DATE_FORMAT.DISPLAY_DATE)}</span>;
+			}
 		},
 		{
 			accessorKey: 'status',
@@ -204,7 +210,7 @@ export function ApplicantsTable({
 					</Avatar>
 					<div>
 						<p className='font-semibold text-sm'>{fullName}</p>
-						<p className='text-xs text-muted-foreground'>Applied: {applicant.applicationDate}</p>
+						<p className='text-xs text-muted-foreground'>Applied: {formatDate(applicant.appliedDate, DATE_FORMAT.DISPLAY_DATE)}</p>
 						<Badge variant={getStatusVariant(applicant.status)} className='mt-2 text-xs'>
 							{applicant.status}
 						</Badge>

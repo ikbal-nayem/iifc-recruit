@@ -13,15 +13,15 @@ import { Loader2, Save } from 'lucide-react';
 import { useEffect } from 'react';
 
 const formSchema = z.object({
-	examinerId: z.coerce.number().min(1, 'Please select an examiner.'),
+	examinerId: z.coerce.string().min(1, 'Please select an examiner.'),
 });
 
 type ExaminerFormValues = z.infer<typeof formSchema>;
 
 interface ExaminerSetupProps {
 	examiners: IClientOrganization[];
-	selectedExaminer: number | undefined;
-	onSave: (examinerId: number) => Promise<boolean>;
+	selectedExaminer: string;
+	onSave: (examinerId: string) => Promise<boolean>;
 	isSaving: boolean;
 }
 

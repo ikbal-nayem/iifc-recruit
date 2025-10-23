@@ -11,7 +11,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequestedPostStatus, JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
-import { getStatusVariant } from '@/lib/utils';
+import { getStatusVariant } from '@/lib/color-mapping';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { Building, Search, UserCog, Users } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
@@ -88,23 +88,18 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 						<p className='font-semibold'>{item.post?.nameEn}</p>
 						<Badge variant={getStatusVariant(item.status)}>{item.statusDTO?.nameEn}</Badge>
 					</div>
-					<div className='text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-2'>
+					<div className='text-sm text-muted-foreground flex flex-wrap gap-x-5 gap-y-2'>
 						<span className='flex items-center gap-1.5'>
 							<Building className='h-4 w-4' /> {item.jobRequest?.clientOrganization?.nameEn || 'N/A'}
 						</span>
 						<span className='flex items-center gap-1.5'>
 							<Users className='h-4 w-4' /> {item.vacancy} vacancies
 						</span>
-						{/* <span className='flex items-center gap-1.5 font-medium'>
-							<UserCog className='h-4 w-4' /> {item.totalApplied || 0} applicants
-						</span> */}
-					</div>
-					{status === JobRequestStatus.PENDING && (
-						<div className='flex items-center gap-2 text-sm'>
+						<Badge variant='outline' className='flex items-center gap-1.5'>
 							<span className='text-muted-foreground'>Examiner:</span>
 							<span className='font-semibold'>{item.examiner?.nameEn || 'Not Assigned'}</span>
-						</div>
-					)}
+						</Badge>
+					</div>
 				</div>
 				<div className='flex items-center gap-4 w-full sm:w-auto justify-end'>
 					<ActionMenu items={getActionItems(item)} />

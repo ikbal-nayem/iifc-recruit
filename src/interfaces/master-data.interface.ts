@@ -1,5 +1,3 @@
-
-import { STATUS_TYPE } from '@/constants/common.constant';
 import { IObject } from './common.interface';
 
 export type EnumDTO = {
@@ -9,13 +7,12 @@ export type EnumDTO = {
 };
 
 export interface ICommonMasterData {
-	id?: string;
+	id: string;
 	nameEn: string;
 	nameBn: string;
 	active: boolean;
 	code?: string;
 }
-
 
 export interface IOutsourcingCategory extends ICommonMasterData {}
 
@@ -37,7 +34,6 @@ export interface IOutsourcingCharge {
 	zone?: IOutsourcingZone;
 }
 
-
 export interface IEducationInstitution extends ICommonMasterData {
 	fkCountry: string;
 	country?: IObject;
@@ -58,31 +54,26 @@ export interface IOrganization extends ICommonMasterData {
 }
 
 export interface IClientOrganization {
-    id?: string;
-    nameEn: string;
-    nameBn: string;
-    organizationTypeId?: string;
-    organizationType?: ICommonMasterData;
-    address?: string;
-    contactPersonName?: string;
-    contactNumber?: string;
-    email?: string;
-    website?: string;
-    active: boolean;
-    isClient?: boolean;
-    isExaminer?: boolean;
+	id?: string;
+	nameEn: string;
+	nameBn: string;
+	organizationTypeId?: string;
+	organizationType?: ICommonMasterData;
+	address?: string;
+	contactPersonName?: string;
+	contactNumber?: string;
+	email?: string;
+	website?: string;
+	active: boolean;
+	isClient?: boolean;
+	isExaminer?: boolean;
 }
 
 export interface IOrganizationUser {
-    id: string;
-    name: string;
-    email: string;
-    role: 'Admin' | 'Member';
-    status: 'Active' | 'Inactive';
-    avatar: string;
-}
-
-
-export interface IStatus extends ICommonMasterData {
-	statusType: typeof STATUS_TYPE[keyof typeof STATUS_TYPE];
+	id: string;
+	name: string;
+	email: string;
+	role: 'Admin' | 'Member';
+	status: 'Active' | 'Inactive';
+	avatar: string;
 }

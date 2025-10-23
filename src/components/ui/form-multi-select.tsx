@@ -21,7 +21,7 @@ import { Control, FieldPath, FieldValues } from 'react-hook-form';
 
 interface FormMultiSelectProps<
 	TFieldValues extends FieldValues,
-	TOption = { id: number | string; nameEn: string },
+	TOption = { id: string; nameEn: string },
 > {
 	control: Control<TFieldValues> | any;
 	name: FieldPath<TFieldValues>;
@@ -39,7 +39,7 @@ interface FormMultiSelectProps<
 
 export function FormMultiSelect<
 	TFieldValues extends FieldValues,
-	TOption extends { id: number | string; nameEn: string },
+	TOption extends { id: string; nameEn: string },
 >({
 	control,
 	name,
