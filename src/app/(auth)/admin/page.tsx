@@ -42,7 +42,7 @@ export default async function AdminDashboard() {
 				<AdminDashboardCards data={await getDashboardData()} />
 			</Suspense>
 
-			<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-7'>
+			<div className='grid gap-6 md:grid-cols-2 lg:grid-cols-5'>
 				<Suspense fallback={<AdminDashboardChartsSkeleton />}>
 					<AdminDashboardCharts />
 				</Suspense>

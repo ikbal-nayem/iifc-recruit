@@ -12,7 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export function AdminDashboardRecentActivity() {
     return (
-        <Card className="col-span-4 lg:col-span-3 glassmorphism">
+        <Card className="col-span-full lg:col-span-2 glassmorphism">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
             <CardDescription>
@@ -48,7 +48,7 @@ export function AdminDashboardRecentActivity() {
 
 export function AdminDashboardRecentActivitySkeleton() {
     return (
-        <Card className="col-span-4 lg:col-span-3">
+        <Card className="col-span-full lg:col-span-2">
             <CardHeader>
                 <Skeleton className="h-7 w-32" />
                 <Skeleton className="h-4 w-48" />
