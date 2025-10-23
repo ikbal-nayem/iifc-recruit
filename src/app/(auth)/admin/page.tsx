@@ -1,7 +1,6 @@
 
 import { AdminDashboardCards, AdminDashboardCardsSkeleton } from '@/components/app/admin/dashboard/dashboard-cards';
 import { AdminDashboardCharts, AdminDashboardChartsSkeleton } from '@/components/app/admin/dashboard/dashboard-charts';
-import { AdminDashboardRecentActivity, AdminDashboardRecentActivitySkeleton } from '@/components/app/admin/dashboard/dashboard-recent-activity';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { Suspense } from 'react';
 
@@ -42,12 +41,9 @@ export default async function AdminDashboard() {
 				<AdminDashboardCards data={await getDashboardData()} />
 			</Suspense>
 
-			<div className='grid gap-6 md:grid-cols-2 lg:grid-cols-5'>
+			<div className='grid gap-6 md:grid-cols-1'>
 				<Suspense fallback={<AdminDashboardChartsSkeleton />}>
 					<AdminDashboardCharts />
-				</Suspense>
-				<Suspense fallback={<AdminDashboardRecentActivitySkeleton />}>
-					<AdminDashboardRecentActivity />
 				</Suspense>
 			</div>
 		</div>
