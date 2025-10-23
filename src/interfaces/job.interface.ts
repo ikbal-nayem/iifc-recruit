@@ -9,6 +9,7 @@ export enum JobRequestType {
 export enum JobRequestStatus {
 	PENDING = 'PENDING',
 	PROCESSING = 'PROCESSING',
+	SHORTLISTED = 'SHORTLISTED',
 	COMPLETED = 'COMPLETED',
 }
 

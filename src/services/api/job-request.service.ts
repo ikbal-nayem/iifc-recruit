@@ -1,3 +1,4 @@
+
 import { axiosIns } from '@/config/api.config';
 import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
 import { JobRequest, JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
@@ -29,6 +30,6 @@ export const JobRequestService = {
 
 	delete: async (id: string): Promise<void> => await axiosIns.delete(`/job-request/delete/${id}`),
 
-	updateStatus: async (id: string, status: JobRequestStatus): Promise<IApiResponse<JobRequest>> =>
-		await axiosIns.put(`/job-request/update-status/${id}?status=${status}`),
+	updateStatus: async (id: string, status: JobRequestStatus): Promise<IApiResponse<RequestedPost>> =>
+		await axiosIns.put(`/job-request/requested-post/update-status/${id}?status=${status}`),
 };

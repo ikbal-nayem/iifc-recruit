@@ -1,3 +1,4 @@
+
 import { ROUTES } from '@/constants/routes.constant';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -89,6 +90,11 @@ export const adminNavLinks: NavLink[] = [
 				href: ROUTES.APPLICATION_PROCESSING,
 				label: 'Processing',
 				icon: Play,
+			},
+			{
+				href: ROUTES.APPLICATION_SHORTLISTED,
+				label: 'Shortlisted',
+				icon: CheckCircle,
 			},
 			{
 				href: ROUTES.APPLICATION_COMPLETED,

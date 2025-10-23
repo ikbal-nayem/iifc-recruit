@@ -20,7 +20,7 @@ import { ROUTES } from '@/constants/routes.constant';
 import { useToast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
-import { RequestedPost } from '@/interfaces/job.interface';
+import { JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO } from '@/interfaces/master-data.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
@@ -203,13 +203,16 @@ export function ApplicationManagementPage({
 
 		setIsProceeding(true);
 		try {
-			await JobRequestService.proceedToProcess(requestedPost.id as string);
+			const targetStatus = isProcessing ? JobRequestStatus.SHORTLISTED : JobRequestStatus.PROCESSING;
+			await JobRequestService.updateStatus(requestedPost.id!, targetStatus);
 			toast({
 				title: 'Request Processing',
-				description: 'The request has been moved to the processing stage.',
+				description: `The request has been moved to the ${targetStatus.toLowerCase()} stage.`,
 				variant: 'success',
 			});
-			router.push(ROUTES.APPLICATION_PROCESSING);
+
+			const redirectRoute = isProcessing ? ROUTES.APPLICATION_SHORTLISTED : ROUTES.APPLICATION_PROCESSING;
+			router.push(redirectRoute);
 		} catch (error: any) {
 			toast({
 				title: 'Error',
@@ -235,12 +238,10 @@ export function ApplicationManagementPage({
 					<ArrowLeft className='mr-2 h-4 w-4' />
 					Back
 				</Button>
-				{!isProcessing && (
-					<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg'>
-						<ChevronsRight className='mr-2 h-4 w-4' />
-						Proceed to Next Stage
-					</Button>
-				)}
+				<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg'>
+					<ChevronsRight className='mr-2 h-4 w-4' />
+					Proceed to {isProcessing ? 'Shortlist' : 'Next Stage'}
+				</Button>
 			</div>
 
 			<Card className='glassmorphism'>
@@ -265,14 +266,16 @@ export function ApplicationManagementPage({
 						<div className='flex items-center gap-2 text-sm'>
 							<span className='text-muted-foreground'>Examiner:</span>
 							<span className='font-semibold'>{requestedPost.examiner?.nameEn || 'Not Assigned'}</span>
-							<Button
-								variant='ghost'
-								size='icon'
-								className='h-7 w-7'
-								onClick={() => setIsExaminerDialogOpen(true)}
-							>
-								<Edit className='h-4 w-4 text-primary' />
-							</Button>
+							{!isProcessing && (
+								<Button
+									variant='ghost'
+									size='icon'
+									className='h-7 w-7'
+									onClick={() => setIsExaminerDialogOpen(true)}
+								>
+									<Edit className='h-4 w-4 text-primary' />
+								</Button>
+							)}
 						</div>
 					</div>
 				</CardHeader>
@@ -313,25 +316,27 @@ export function ApplicationManagementPage({
 						<CardTitle>Applied Candidates</CardTitle>
 						<CardDescription>These candidates have applied for the circular post.</CardDescription>
 					</div>
-					<Dialog open={isAddCandidateOpen} onOpenChange={setIsAddCandidateOpen}>
-						<DialogTrigger asChild>
-							<Button variant='outline'>
-								<UserPlus className='mr-2 h-4 w-4' />
-								Add Candidate
-							</Button>
-						</DialogTrigger>
-						<DialogContent className='max-w-4xl h-[90vh] flex flex-col p-0'>
-							<DialogHeader className='p-6 pb-0'>
-								<DialogTitle>Add Applicants to Primary List</DialogTitle>
-							</DialogHeader>
-							<div className='flex-1 overflow-y-auto px-6'>
-								<ApplicantListManager
-									onApply={handleApplyApplicants}
-									existingApplicantIds={applicants.map((a) => a.applicantId)}
-								/>
-							</div>
-						</DialogContent>
-					</Dialog>
+					{!isProcessing && (
+						<Dialog open={isAddCandidateOpen} onOpenChange={setIsAddCandidateOpen}>
+							<DialogTrigger asChild>
+								<Button variant='outline'>
+									<UserPlus className='mr-2 h-4 w-4' />
+									Add Candidate
+								</Button>
+							</DialogTrigger>
+							<DialogContent className='max-w-4xl h-[90vh] flex flex-col p-0'>
+								<DialogHeader className='p-6 pb-0'>
+									<DialogTitle>Add Applicants to Primary List</DialogTitle>
+								</DialogHeader>
+								<div className='flex-1 overflow-y-auto px-6'>
+									<ApplicantListManager
+										onApply={handleApplyApplicants}
+										existingApplicantIds={applicants.map((a) => a.applicantId)}
+									/>
+								</div>
+							</DialogContent>
+						</Dialog>
+					)}
 				</CardHeader>
 				<CardContent>
 					<ApplicantsTable
@@ -345,21 +350,20 @@ export function ApplicationManagementPage({
 				</CardContent>
 			</Card>
 
-			{!isProcessing && (
-				<div className='flex justify-center mt-6'>
-					<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg'>
-						<ChevronsRight className='mr-2 h-4 w-4' />
-						Proceed to Next Stage
-					</Button>
-				</div>
-			)}
+			<div className='flex justify-center mt-6'>
+				<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg'>
+					<ChevronsRight className='mr-2 h-4 w-4' />
+					Proceed to {isProcessing ? 'Shortlist' : 'Next Stage'}
+				</Button>
+			</div>
 
 			<Dialog open={isProceedConfirmationOpen} onOpenChange={setIsProceedConfirmationOpen}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Proceed to Next Stage?</DialogTitle>
+						<DialogTitle>Proceed to {isProcessing ? 'Shortlist' : 'Next Stage'}?</DialogTitle>
 						<DialogDescription>
-							You are about to move the selected applicants to the next stage of the recruitment process.
+							You are about to move the selected applicants to the{' '}
+							{isProcessing ? 'shortlisted' : 'processing'} stage.
 						</DialogDescription>
 					</DialogHeader>
 					<div className='space-y-4 py-4'>
