@@ -179,21 +179,24 @@ export function ApplicantsTable({
 		}
 
 		if (
-			(requestedPostStatus === JobRequestedPostStatus.PROCESSING || isShortlisted) &&
+			(requestedPostStatus === JobRequestedPostStatus.PROCESSING) &&
 			application.status === APPLICATION_STATUS.ACCEPTED
 		) {
-			items.push({
-				label: 'Call for Interview',
-				icon: <CalendarIcon className='mr-2 h-4 w-4' />,
-				onClick: () => {
-					setInterviewApplicants([application]);
-					setIsInterviewModalOpen(true);
-				},
-			});
+			items.push(
+				{ isSeparator: true },
+				{
+					label: 'Call for Interview',
+					icon: <CalendarIcon className='mr-2 h-4 w-4' />,
+					onClick: () => {
+						setInterviewApplicants([application]);
+						setIsInterviewModalOpen(true);
+					},
+				});
 		}
 
 		if (application.status === APPLICATION_STATUS.INTERVIEW) {
 			items.push(
+				{ isSeparator: true },
 				{
 					label: 'Change Interview Time',
 					icon: <CalendarIcon className='mr-2 h-4 w-4' />,
@@ -229,7 +232,8 @@ export function ApplicantsTable({
 			application.status === APPLICATION_STATUS.SHORTLISTED ||
 			application.status === APPLICATION_STATUS.REJECTED
 		) {
-			items.push({
+			items.push({ isSeparator: true },
+				{
 				label: 'Edit Marks',
 				icon: <Award className='mr-2 h-4 w-4' />,
 				onClick: () => {
@@ -401,15 +405,15 @@ export function ApplicantsTable({
 								Accept ({selectedRowCount})
 							</Button>
 						)}
-						{(requestedPostStatus === JobRequestedPostStatus.PROCESSING ||
-							(isShortlisted &&
-								table
-									.getSelectedRowModel()
-									.rows.every((row) => row.original.status !== APPLICATION_STATUS.INTERVIEW))) && (
-							<Button size='sm' variant='lite-info' onClick={handleBulkInterview}>
-								<CalendarIcon className='mr-2 h-4 w-4' /> Call for Interview ({selectedRowCount})
-							</Button>
-						)}
+						{requestedPostStatus === JobRequestedPostStatus.PROCESSING &&
+							!isShortlisted &&
+							table
+								.getSelectedRowModel()
+								.rows.every((row) => row.original.status !== APPLICATION_STATUS.INTERVIEW) && (
+								<Button size='sm' variant='lite-info' onClick={handleBulkInterview}>
+									<CalendarIcon className='mr-2 h-4 w-4' /> Call for Interview ({selectedRowCount})
+								</Button>
+							)}
 						{isShortlisted && (
 							<Button
 								size='sm'
@@ -567,19 +571,19 @@ export function ApplicantsTable({
 								type='number'
 								required
 							/>
-							<DialogFooter className='gap-2 !mt-6'>
+							<DialogFooter className='gap-2 !mt-6 flex-row justify-end'>
 								<Button
 									type='button'
 									variant='danger'
 									onClick={() => handleMarksSubmit(APPLICATION_STATUS.REJECTED)}
-									className='flex-1'
+									className='flex-1 sm:flex-auto'
 								>
 									Reject
 								</Button>
 								<Button
 									type='button'
 									onClick={() => handleMarksSubmit(APPLICATION_STATUS.SHORTLISTED)}
-									className='flex-1'
+									className='flex-1 sm:flex-auto'
 								>
 									Shortlist
 								</Button>
