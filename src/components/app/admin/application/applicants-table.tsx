@@ -455,7 +455,7 @@ export function ApplicantsTable({
 								</Button>
 								<Button
 									size='sm'
-									variant='lite-warning'
+									variant='lite-info'
 									onClick={() =>
 										setBulkAction({ type: APPLICATION_STATUS.SHORTLISTED, count: selectedRowCount })
 									}
