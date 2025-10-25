@@ -86,7 +86,7 @@ export function ApplicantsTable({
 	const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 	const [selectedApplicant, setSelectedApplicant] = React.useState<JobseekerSearch | null>(null);
 	const [bulkAction, setBulkAction] = React.useState<{
-		type: APPLICATION_STATUS.HIRED | APPLICATION_STATUS.ACCEPTED;
+		type: APPLICATION_STATUS;
 		count: number;
 	} | null>(null);
 	const [isInterviewModalOpen, setIsInterviewModalOpen] = React.useState(false);
@@ -179,7 +179,7 @@ export function ApplicantsTable({
 		}
 
 		if (
-			(requestedPostStatus === JobRequestedPostStatus.PROCESSING) &&
+			requestedPostStatus === JobRequestedPostStatus.PROCESSING &&
 			application.status === APPLICATION_STATUS.ACCEPTED
 		) {
 			items.push(
@@ -191,7 +191,8 @@ export function ApplicantsTable({
 						setInterviewApplicants([application]);
 						setIsInterviewModalOpen(true);
 					},
-				});
+				}
+			);
 		}
 
 		if (application.status === APPLICATION_STATUS.INTERVIEW) {
@@ -218,22 +219,25 @@ export function ApplicantsTable({
 		}
 
 		if (isShortlisted) {
-			if (application.status === APPLICATION_STATUS.SHORTLISTED) {
-				items.push(
-					{ isSeparator: true },
-					{
-						label: 'Mark as Hired',
-						icon: <UserPlus className='mr-2 h-4 w-4' />,
-						onClick: () => handleStatusChange([application], APPLICATION_STATUS.HIRED),
-					}
-				);
+			items.push({ isSeparator: true });
+			if (application.status === APPLICATION_STATUS.HIRED) {
+				items.push({
+					label: 'Revert to Shortlisted',
+					icon: <RotateCcw className='mr-2 h-4 w-4' />,
+					onClick: () => handleStatusChange([application], APPLICATION_STATUS.SHORTLISTED),
+				});
+			} else {
+				items.push({
+					label: 'Mark as Hired',
+					icon: <UserPlus className='mr-2 h-4 w-4' />,
+					onClick: () => handleStatusChange([application], APPLICATION_STATUS.HIRED),
+				});
 			}
 		} else if (
 			application.status === APPLICATION_STATUS.SHORTLISTED ||
 			application.status === APPLICATION_STATUS.REJECTED
 		) {
-			items.push({ isSeparator: true },
-				{
+			items.push({ isSeparator: true }, {
 				label: 'Edit Marks',
 				icon: <Award className='mr-2 h-4 w-4' />,
 				onClick: () => {
@@ -415,13 +419,24 @@ export function ApplicantsTable({
 								</Button>
 							)}
 						{isShortlisted && (
-							<Button
-								size='sm'
-								variant='lite-warning'
-								onClick={() => setBulkAction({ type: APPLICATION_STATUS.HIRED, count: selectedRowCount })}
-							>
-								<UserCheck className='mr-2 h-4 w-4' /> Hire ({selectedRowCount})
-							</Button>
+							<>
+								<Button
+									size='sm'
+									variant='lite-success'
+									onClick={() => setBulkAction({ type: APPLICATION_STATUS.HIRED, count: selectedRowCount })}
+								>
+									<UserCheck className='mr-2 h-4 w-4' /> Hire ({selectedRowCount})
+								</Button>
+								<Button
+									size='sm'
+									variant='outline'
+									onClick={() =>
+										setBulkAction({ type: APPLICATION_STATUS.SHORTLISTED, count: selectedRowCount })
+									}
+								>
+									<RotateCcw className='mr-2 h-4 w-4' /> Revert to Shortlisted ({selectedRowCount})
+								</Button>
+							</>
 						)}
 					</div>
 				)}
@@ -503,10 +518,18 @@ export function ApplicantsTable({
 				open={!!bulkAction}
 				onOpenChange={(isOpen) => !isOpen && setBulkAction(null)}
 				title={`Confirm Bulk Action: ${
-					bulkAction?.type === APPLICATION_STATUS.ACCEPTED ? 'Accept' : 'Hire'
+					bulkAction?.type === APPLICATION_STATUS.ACCEPTED
+						? 'Accept'
+						: bulkAction?.type === APPLICATION_STATUS.HIRED
+						? 'Hire'
+						: 'Revert'
 				}`}
 				description={`Are you sure you want to mark ${bulkAction?.count} applicant(s) as ${
-					bulkAction?.type === APPLICATION_STATUS.ACCEPTED ? 'Accepted' : 'Hired'
+					bulkAction?.type === APPLICATION_STATUS.ACCEPTED
+						? 'Accepted'
+						: bulkAction?.type === APPLICATION_STATUS.HIRED
+						? 'Hired'
+						: 'Shortlisted'
 				}?`}
 				onConfirm={handleBulkActionConfirm}
 				variant={bulkAction?.type === APPLICATION_STATUS.HIRED ? 'warning' : 'default'}
