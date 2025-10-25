@@ -58,6 +58,7 @@ interface ApplicantsTableProps {
 	meta: IMeta;
 	onPageChange: (page: number) => void;
 	requestedPostStatus?: JobRequestedPostStatus;
+	isProcessing?: boolean;
 	isShortlisted?: boolean;
 }
 
@@ -78,6 +79,7 @@ export function ApplicantsTable({
 	meta,
 	onPageChange,
 	requestedPostStatus,
+	isProcessing = false,
 	isShortlisted = false,
 }: ApplicantsTableProps) {
 	const { toast } = useToast();
@@ -237,15 +239,18 @@ export function ApplicantsTable({
 			application.status === APPLICATION_STATUS.SHORTLISTED ||
 			application.status === APPLICATION_STATUS.REJECTED
 		) {
-			items.push({ isSeparator: true }, {
-				label: 'Edit Marks',
-				icon: <Award className='mr-2 h-4 w-4' />,
-				onClick: () => {
-					setMarksApplicant(application);
-					marksForm.setValue('marks', application.marks || 0);
-					setIsMarksModalOpen(true);
-				},
-			});
+			items.push(
+				{ isSeparator: true },
+				{
+					label: 'Edit Marks',
+					icon: <Award className='mr-2 h-4 w-4' />,
+					onClick: () => {
+						setMarksApplicant(application);
+						marksForm.setValue('marks', application.marks || 0);
+						setIsMarksModalOpen(true);
+					},
+				}
+			);
 		}
 
 		return items;
@@ -296,9 +301,16 @@ export function ApplicantsTable({
 			},
 		},
 		{
-			accessorKey: 'appliedDate',
-			header: 'Date Applied',
+			accessorKey: isProcessing ? 'interviewDate' : 'appliedDate',
+			header: isProcessing ? 'Interview Date & Time' : 'Date Applied',
 			cell: ({ row }) => {
+				if (isProcessing) {
+					const { interviewDate, status } = row.original;
+					if (status === APPLICATION_STATUS.INTERVIEW && interviewDate) {
+						return <span>{format(new Date(interviewDate), 'Pp')}</span>;
+					}
+					return <span className='text-muted-foreground'>-</span>;
+				}
 				const { appliedDate } = row.original;
 				return <span>{formatDate(appliedDate, DATE_FORMAT.DISPLAY_DATE)}</span>;
 			},
@@ -395,7 +407,7 @@ export function ApplicantsTable({
 							</div>
 						</div>
 					</div>
-					<div className='self-end'>
+					<div className='self-start'>
 						<ActionMenu items={getActionItems(applicant)} />
 					</div>
 				</div>
@@ -423,7 +435,7 @@ export function ApplicantsTable({
 								Accept ({selectedRowCount})
 							</Button>
 						)}
-						{requestedPostStatus === JobRequestedPostStatus.PROCESSING &&
+						{isProcessing &&
 							!isShortlisted &&
 							table
 								.getSelectedRowModel()
