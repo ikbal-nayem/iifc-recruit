@@ -55,7 +55,6 @@ export const getStatusVariant = (status?: string): BadgeVariant => {
 
 		// Warning/Pending states - Lite variant
 		case 'pending':
-		case 'shortlisted':
 		case 'exam':
 			return 'lite-warning';
 
@@ -63,6 +62,7 @@ export const getStatusVariant = (status?: string): BadgeVariant => {
 		case 'in-progress':
 		case 'processing':
 		case 'interview':
+		case 'shortlisted':
 			return 'lite-info';
 
 		// Danger/Negative states
