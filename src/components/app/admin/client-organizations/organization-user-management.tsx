@@ -13,7 +13,7 @@ import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
 import { useToast } from '@/hooks/use-toast';
 import { IOrganizationUser } from '@/interfaces/master-data.interface';
-import { getStatusVariant } from '@/lib/utils';
+import { getStatusVariant } from '@/lib/color-mapping';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
 import React, { useState } from 'react';
