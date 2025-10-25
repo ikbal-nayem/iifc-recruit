@@ -24,7 +24,6 @@ import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { IMeta } from '@/interfaces/common.interface';
 import { JobRequestedPostStatus } from '@/interfaces/job.interface';
@@ -339,6 +338,7 @@ export function ApplicantsTable({
 		onColumnFiltersChange: setColumnFilters,
 		getFilteredRowModel: getFilteredRowModel(),
 		onRowSelectionChange: setRowSelection,
+		getRowId: (row) => row.id,
 		state: {
 			sorting,
 			columnFilters,
@@ -356,10 +356,17 @@ export function ApplicantsTable({
 
 	const renderMobileCard = (applicant: Application) => {
 		const { fullName, profileImage, firstName, lastName } = applicant.applicant as JobseekerSearch;
+		const row = table.getRow(applicant.id);
 		return (
 			<Card key={applicant.id} className='mb-2 p-3 glassmorphism'>
 				<div className='flex items-start justify-between gap-4'>
-					<div className='flex items-start gap-3'>
+					<Checkbox
+						checked={row.getIsSelected()}
+						onCheckedChange={(value) => row.toggleSelected(!!value)}
+						aria-label='Select row'
+						className='mt-1'
+					/>
+					<div className='flex-1 flex items-start gap-3'>
 						<Avatar>
 							<AvatarImage src={profileImage?.filePath} alt={fullName} data-ai-hint='avatar' />
 							<AvatarFallback>
@@ -367,7 +374,7 @@ export function ApplicantsTable({
 								{lastName?.[0]}
 							</AvatarFallback>
 						</Avatar>
-						<div>
+						<div className='flex-1'>
 							<p className='font-semibold text-sm'>{fullName}</p>
 							<p className='text-xs text-muted-foreground'>
 								Applied: {formatDate(applicant.appliedDate, DATE_FORMAT.DISPLAY_DATE)}
@@ -435,7 +442,7 @@ export function ApplicantsTable({
 								</Button>
 								<Button
 									size='sm'
-									variant='outline'
+									variant='lite-warning'
 									onClick={() =>
 										setBulkAction({ type: APPLICATION_STATUS.SHORTLISTED, count: selectedRowCount })
 									}
