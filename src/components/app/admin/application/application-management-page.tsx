@@ -146,22 +146,21 @@ export function ApplicationManagementPage({
 
 		setIsProceeding(true);
 		try {
-			const targetStatus = isProcessing
-				? JobRequestStatus.SHORTLISTED
-				: isShortlisted
-				? JobRequestStatus.COMPLETED
-				: JobRequestStatus.PROCESSING;
-
-			await JobRequestService.updateStatus(requestedPost.id!, targetStatus);
+			let redirectRoute = ROUTES.APPLICATION_PROCESSING;
+			if (isProcessing) {
+				await JobRequestService.proceedToShortlist(requestedPost.id!);
+				redirectRoute = ROUTES.APPLICATION_SHORTLISTED;
+			} else if (isShortlisted) {
+				await JobRequestService.updateStatus(requestedPost.id!, JobRequestStatus.COMPLETED);
+				redirectRoute = ROUTES.APPLICATION_COMPLETED;
+			} else {
+				await JobRequestService.proceedToProcess(requestedPost.id!);
+			}
 			toast({
 				title: 'Request Processing',
-				description: `The request has been moved to the ${targetStatus.toLowerCase()} stage.`,
+				description: `The request has been moved to the next stage.`,
 				variant: 'success',
 			});
-
-			let redirectRoute = ROUTES.APPLICATION_PROCESSING;
-			if (isProcessing) redirectRoute = ROUTES.APPLICATION_SHORTLISTED;
-			if (isShortlisted) redirectRoute = ROUTES.APPLICATION_COMPLETED;
 			router.push(redirectRoute);
 		} catch (error: any) {
 			toast({

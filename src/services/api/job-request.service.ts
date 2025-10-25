@@ -25,6 +25,9 @@ export const JobRequestService = {
 	proceedToProcess: async (id: string): Promise<IApiResponse<any>> =>
 		await axiosIns.get(`/job-request/requested-post/proceed-to-process?id=${id}`),
 
+	proceedToShortlist: async (id: string): Promise<IApiResponse<any>> =>
+		await axiosIns.get(`/job-request/requested-post/proceed-to-shortlist?id=${id}`),
+
 	getById: async (id: string): Promise<IApiResponse<JobRequest>> =>
 		await axiosIns.get(`/job-request/get-by-id/${id}`),
 
