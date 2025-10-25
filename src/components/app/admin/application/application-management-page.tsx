@@ -183,19 +183,28 @@ export function ApplicationManagementPage({
 	const acceptedApplicantsCount = applicants.filter(
 		(app) => app.status === APPLICATION_STATUS.ACCEPTED
 	).length;
+	const shortlistedApplicantsCount = applicants.filter(
+		(app) => app.status === APPLICATION_STATUS.SHORTLISTED
+	).length;
 
 	const getDialogDescription = () => {
+		if (isProcessing) {
+			const countText =
+				shortlistedApplicantsCount > 0
+					? `This will finalize the list with ${shortlistedApplicantsCount} shortlisted applicant(s)`
+					: 'No applicants have been shortlisted yet';
+			return `${countText}. Are you sure you want to proceed?`;
+		}
+
+		if (isShortlisted) {
+			return 'You are about to mark this entire job request as completed. This action cannot be undone.';
+		}
+
 		const countText =
 			acceptedApplicantsCount > 0
 				? `This will move ${acceptedApplicantsCount} accepted applicant(s)`
 				: 'No accepted applicants will be moved';
 
-		if (isProcessing) {
-			return `You are about to move ${acceptedApplicantsCount} accepted applicants to the shortlisting stage. Please confirm to proceed.`;
-		}
-		if (isShortlisted) {
-			return 'You are about to mark this entire job request as completed. This action cannot be undone.';
-		}
 		return `${countText} to the processing stage.`;
 	};
 
@@ -283,12 +292,12 @@ export function ApplicationManagementPage({
 					</DialogHeader>
 					<div className='space-y-4 py-4'>
 						{!isProcessing && !isShortlisted && (
-						<div className='rounded-md border p-4 text-sm'>
-							<p className='text-muted-foreground'>Assigned Examiner</p>
-							<p className='font-semibold'>{requestedPost.examiner?.nameEn || 'Not Assigned'}</p>
-						</div>
+							<div className='rounded-md border p-4 text-sm'>
+								<p className='text-muted-foreground'>Assigned Examiner</p>
+								<p className='font-semibold'>{requestedPost.examiner?.nameEn || 'Not Assigned'}</p>
+							</div>
 						)}
-						{!isShortlisted && (
+						{!isShortlisted && !isProcessing && (
 							<Alert variant='warning'>
 								<AlertTitle>Important</AlertTitle>
 								<AlertDescription>
