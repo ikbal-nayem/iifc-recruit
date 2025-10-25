@@ -357,34 +357,40 @@ export function ApplicantsTable({
 	const renderMobileCard = (applicant: Application) => {
 		const { fullName, profileImage, firstName, lastName } = applicant.applicant as JobseekerSearch;
 		return (
-			<Card key={applicant.id} className='mb-2 p-3 flex justify-between items-start glassmorphism'>
-				<div className='flex items-center gap-3'>
-					<Avatar>
-						<AvatarImage src={profileImage?.filePath} alt={fullName} data-ai-hint='avatar' />
-						<AvatarFallback>
-							{firstName?.[0]}
-							{lastName?.[0]}
-						</AvatarFallback>
-					</Avatar>
-					<div>
-						<p className='font-semibold text-sm'>{fullName}</p>
-						<p className='text-xs text-muted-foreground'>
-							Applied: {formatDate(applicant.appliedDate, DATE_FORMAT.DISPLAY_DATE)}
-						</p>
-						<Badge variant={getStatusVariant(applicant.status)} className='mt-2 text-xs'>
-							{applicant.statusDTO.nameEn}
-						</Badge>
-						{applicant.status === APPLICATION_STATUS.INTERVIEW && applicant.interviewDate && (
-							<p className='text-xs text-muted-foreground mt-1'>
-								{format(new Date(applicant.interviewDate), 'PPp')}
+			<Card key={applicant.id} className='mb-2 p-3 glassmorphism'>
+				<div className='flex items-start justify-between gap-4'>
+					<div className='flex items-start gap-3'>
+						<Avatar>
+							<AvatarImage src={profileImage?.filePath} alt={fullName} data-ai-hint='avatar' />
+							<AvatarFallback>
+								{firstName?.[0]}
+								{lastName?.[0]}
+							</AvatarFallback>
+						</Avatar>
+						<div>
+							<p className='font-semibold text-sm'>{fullName}</p>
+							<p className='text-xs text-muted-foreground'>
+								Applied: {formatDate(applicant.appliedDate, DATE_FORMAT.DISPLAY_DATE)}
 							</p>
-						)}
-						{applicant.marks !== null && applicant.marks !== undefined && (
-							<p className='text-xs font-semibold text-primary mt-1'>Marks: {applicant.marks}</p>
-						)}
+							<div className='mt-2 flex flex-col items-start gap-1'>
+								<Badge variant={getStatusVariant(applicant.status)} className='text-xs'>
+									{applicant.statusDTO.nameEn}
+								</Badge>
+								{applicant.status === APPLICATION_STATUS.INTERVIEW && applicant.interviewDate && (
+									<p className='text-xs text-muted-foreground mt-1'>
+										{format(new Date(applicant.interviewDate), 'PPp')}
+									</p>
+								)}
+								{applicant.marks !== null && applicant.marks !== undefined && (
+									<p className='text-xs font-semibold text-primary mt-1'>Marks: {applicant.marks}</p>
+								)}
+							</div>
+						</div>
+					</div>
+					<div className='self-end'>
+						<ActionMenu items={getActionItems(applicant)} />
 					</div>
 				</div>
-				<ActionMenu items={getActionItems(applicant)} />
 			</Card>
 		);
 	};
@@ -429,7 +435,7 @@ export function ApplicantsTable({
 								</Button>
 								<Button
 									size='sm'
-									variant='lite-warning'
+									variant='outline'
 									onClick={() =>
 										setBulkAction({ type: APPLICATION_STATUS.SHORTLISTED, count: selectedRowCount })
 									}
