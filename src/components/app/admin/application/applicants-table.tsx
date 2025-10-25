@@ -309,7 +309,7 @@ export function ApplicantsTable({
 			cell: ({ row }) => {
 				const { status, statusDTO, interviewDate, marks } = row.original;
 				return (
-					<div className='flex flex-col gap-1'>
+					<div className='flex flex-col items-start gap-1'>
 						<Badge variant={getStatusVariant(status)}>{statusDTO.nameEn}</Badge>
 						{status === APPLICATION_STATUS.INTERVIEW && interviewDate && (
 							<span className='text-xs text-muted-foreground'>{format(new Date(interviewDate), 'PPp')}</span>
@@ -419,7 +419,7 @@ export function ApplicantsTable({
 								</Button>
 							)}
 						{isShortlisted && (
-							<>
+							<div className='flex gap-2'>
 								<Button
 									size='sm'
 									variant='lite-success'
@@ -436,7 +436,7 @@ export function ApplicantsTable({
 								>
 									<RotateCcw className='mr-2 h-4 w-4' /> Revert to Shortlisted ({selectedRowCount})
 								</Button>
-							</>
+							</div>
 						)}
 					</div>
 				)}
@@ -619,4 +619,5 @@ export function ApplicantsTable({
 	);
 }
 
+    
     
