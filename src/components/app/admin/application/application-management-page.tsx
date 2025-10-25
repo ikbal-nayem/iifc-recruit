@@ -306,6 +306,14 @@ export function ApplicationManagementPage({
 								</AlertDescription>
 							</Alert>
 						)}
+						{isProcessing && (
+							<Alert variant='warning'>
+								<AlertTitle>Important</AlertTitle>
+								<AlertDescription>
+									Only applicants with the &quot;Shortlisted&quot; status will be moved to the next stage.
+								</AlertDescription>
+							</Alert>
+						)}
 					</div>
 					<DialogFooter>
 						<Button variant='ghost' onClick={() => setIsProceedConfirmationOpen(false)}>
