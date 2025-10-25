@@ -190,10 +190,14 @@ export function ApplicationManagementPage({
 	const getDialogDescription = () => {
 		if (isProcessing) {
 			const countText =
-				shortlistedApplicantsCount > 0
-					? `This will finalize the list with ${shortlistedApplicantsCount} shortlisted applicant(s)`
-					: 'No applicants have been shortlisted yet';
-			return `${countText}. Are you sure you want to proceed?`;
+				shortlistedApplicantsCount > 0 ? (
+					<>
+						This will finalize the list with <strong>{shortlistedApplicantsCount} shortlisted applicant(s)</strong>
+					</>
+				) : (
+					'No applicants have been shortlisted yet'
+				);
+			return <>{countText}. Are you sure you want to proceed?</>;
 		}
 
 		if (isShortlisted) {
@@ -201,11 +205,15 @@ export function ApplicationManagementPage({
 		}
 
 		const countText =
-			acceptedApplicantsCount > 0
-				? `This will move ${acceptedApplicantsCount} accepted applicant(s)`
-				: 'No accepted applicants will be moved';
+			acceptedApplicantsCount > 0 ? (
+				<>
+					This will move <strong>{acceptedApplicantsCount} accepted applicant(s)</strong>
+				</>
+			) : (
+				'No accepted applicants will be moved'
+			);
 
-		return `${countText} to the processing stage.`;
+		return <>{countText} to the processing stage.</>;
 	};
 
 	return (
