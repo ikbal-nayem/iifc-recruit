@@ -191,7 +191,7 @@ export function ApplicationManagementPage({
 				: 'No accepted applicants will be moved';
 
 		if (isProcessing) {
-			return `${countText} to the shortlisting stage.`;
+			return `You are about to move ${acceptedApplicantsCount} accepted applicants to the shortlisting stage. Please confirm to proceed.`;
 		}
 		if (isShortlisted) {
 			return 'You are about to mark this entire job request as completed. This action cannot be undone.';
@@ -276,14 +276,18 @@ export function ApplicationManagementPage({
 			<Dialog open={isProceedConfirmationOpen} onOpenChange={setIsProceedConfirmationOpen}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Proceed to Next Stage?</DialogTitle>
+						<DialogTitle>
+							{isProcessing ? 'Proceed to Shortlist?' : 'Proceed to Next Stage?'}
+						</DialogTitle>
 						<DialogDescription>{getDialogDescription()}</DialogDescription>
 					</DialogHeader>
 					<div className='space-y-4 py-4'>
+						{!isProcessing && !isShortlisted && (
 						<div className='rounded-md border p-4 text-sm'>
 							<p className='text-muted-foreground'>Assigned Examiner</p>
 							<p className='font-semibold'>{requestedPost.examiner?.nameEn || 'Not Assigned'}</p>
 						</div>
+						)}
 						{!isShortlisted && (
 							<Alert variant='warning'>
 								<AlertTitle>Important</AlertTitle>
