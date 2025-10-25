@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -27,7 +28,7 @@ import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { jobseekers as initialJobseekers } from '@/lib/data';
 import type { Jobseeker } from '@/lib/types';
-import { getStatusVariant } from '@/lib/utils';
+import { getStatusVariant } from '@/lib/color-mapping';
 import { FileText, Send, Star, UserX } from 'lucide-react';
 
 export function JobseekerManagement() {
@@ -173,7 +174,7 @@ export function JobseekerManagement() {
 				placeholder='Filter by name, email, or skill...'
 				value={(table.getColumn('personalInfo')?.getFilterValue() as string) ?? ''}
 				onChange={(event) => table.getColumn('personalInfo')?.setFilterValue(event.target.value)}
-				className='max-w-sm'
+				className='w-full md:max-w-sm'
 			/>
 			{/* Mobile View */}
 			<div className='md:hidden'>
