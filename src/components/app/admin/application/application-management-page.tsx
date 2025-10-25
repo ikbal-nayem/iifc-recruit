@@ -180,10 +180,23 @@ export function ApplicationManagementPage({
 		return 'Proceed to Next Stage';
 	};
 
+	const acceptedApplicantsCount = applicants.filter(
+		(app) => app.status === APPLICATION_STATUS.ACCEPTED
+	).length;
+
 	const getDialogDescription = () => {
-		if (isProcessing) return 'You are about to move the selected applicants to the shortlisted stage.';
-		if (isShortlisted) return 'You are about to mark this job request as completed.';
-		return 'You are about to move the selected applicants to the processing stage.';
+		const countText =
+			acceptedApplicantsCount > 0
+				? `This will move ${acceptedApplicantsCount} accepted applicant(s)`
+				: 'No accepted applicants will be moved';
+
+		if (isProcessing) {
+			return `${countText} to the shortlisting stage.`;
+		}
+		if (isShortlisted) {
+			return 'You are about to mark this entire job request as completed. This action cannot be undone.';
+		}
+		return `${countText} to the processing stage.`;
 	};
 
 	return (
@@ -271,12 +284,15 @@ export function ApplicationManagementPage({
 							<p className='text-muted-foreground'>Assigned Examiner</p>
 							<p className='font-semibold'>{requestedPost.examiner?.nameEn || 'Not Assigned'}</p>
 						</div>
-						<Alert variant='warning'>
-							<AlertTitle>Important</AlertTitle>
-							<AlertDescription>
-								Only applicants with the &quot;Accepted&quot; status will be moved to the next stage.
-							</AlertDescription>
-						</Alert>
+						{!isShortlisted && (
+							<Alert variant='warning'>
+								<AlertTitle>Important</AlertTitle>
+								<AlertDescription>
+									Only applicants with the &quot;Accepted&quot; status will be moved to the next stage. Ensure
+									all desired candidates are marked as accepted before proceeding.
+								</AlertDescription>
+							</Alert>
+						)}
 					</div>
 					<DialogFooter>
 						<Button variant='ghost' onClick={() => setIsProceedConfirmationOpen(false)}>
