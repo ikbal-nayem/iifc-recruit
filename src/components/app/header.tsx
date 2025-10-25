@@ -76,10 +76,6 @@ export default function Header() {
 		<header className='sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6'>
 			<div className='flex items-center gap-2'>
 				<SidebarTrigger className='md:hidden' />
-				<Button variant='ghost' size='icon' className='h-8 w-8' onClick={() => router.back()}>
-					<ArrowLeft className='h-4 w-4' />
-					<span className='sr-only'>Go back</span>
-				</Button>
 				<nav className='hidden md:flex items-center text-sm font-medium text-muted-foreground'>
 					{breadcrumbs.map((crumb, index) => (
 						<React.Fragment key={crumb.href}>
