@@ -214,7 +214,18 @@ export function ApplicantsTable({
 			);
 		}
 
-		if (
+		if (isShortlisted) {
+			if (application.status === APPLICATION_STATUS.SHORTLISTED) {
+				items.push(
+					{ isSeparator: true },
+					{
+						label: 'Mark as Hired',
+						icon: <UserPlus className='mr-2 h-4 w-4' />,
+						onClick: () => handleStatusChange([application], APPLICATION_STATUS.HIRED),
+					}
+				);
+			}
+		} else if (
 			application.status === APPLICATION_STATUS.SHORTLISTED ||
 			application.status === APPLICATION_STATUS.REJECTED
 		) {
@@ -227,17 +238,6 @@ export function ApplicantsTable({
 					setIsMarksModalOpen(true);
 				},
 			});
-		}
-
-		if (isShortlisted && application.status === APPLICATION_STATUS.SHORTLISTED) {
-			items.push(
-				{ isSeparator: true },
-				{
-					label: 'Mark as Hired',
-					icon: <UserPlus className='mr-2 h-4 w-4' />,
-					onClick: () => handleStatusChange([application], APPLICATION_STATUS.HIRED),
-				}
-			);
 		}
 
 		return items;
