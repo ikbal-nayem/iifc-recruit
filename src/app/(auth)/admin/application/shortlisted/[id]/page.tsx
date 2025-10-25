@@ -18,7 +18,6 @@ async function getData(requestedPostId: string) {
 
 		const desiredStatuses = [
 			APPLICATION_STATUS.SHORTLISTED.toString(),
-			APPLICATION_STATUS.INTERVIEW.toString(),
 			APPLICATION_STATUS.HIRED.toString(),
 			APPLICATION_STATUS.REJECTED.toString(),
 		];
