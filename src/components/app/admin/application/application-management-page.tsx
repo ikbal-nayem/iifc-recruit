@@ -196,32 +196,45 @@ export function ApplicationManagementPage({
 
 	const getDialogDescription = () => {
 		if (isProcessing) {
-			const countText =
-				shortlistedApplicantsCount > 0 ? (
-					<>
-						This will finalize the list with <strong>{shortlistedApplicantsCount} shortlisted applicant(s)</strong>
-					</>
-				) : (
-					'No applicants have been shortlisted yet'
-				);
-			return <>{countText}. Are you sure you want to proceed?</>;
+			return (
+				<>
+					This will finalize the list with <strong>{shortlistedApplicantsCount} shortlisted applicant(s)</strong>. Are you sure you want to proceed?
+				</>
+			);
 		}
 
 		if (isShortlisted) {
 			return 'You are about to mark this entire job request as completed. This action cannot be undone.';
 		}
 
-		const countText =
-			acceptedApplicantsCount > 0 ? (
-				<>
-					This will move <strong>{acceptedApplicantsCount} accepted applicant(s)</strong>
-				</>
-			) : (
-				'No accepted applicants will be moved'
-			);
-
-		return <>{countText} to the processing stage.</>;
+		return (
+			<>
+				You are about to move <strong>{acceptedApplicantsCount} accepted applicant(s)</strong> to the shortlisting stage.
+				Please confirm to proceed.
+			</>
+		);
 	};
+
+	const getCardTexts = () => {
+		if (isProcessing) {
+			return {
+				title: 'Processing Candidates',
+				description: 'Manage candidates who have been accepted for processing.',
+			};
+		}
+		if (isShortlisted) {
+			return {
+				title: 'Shortlisted Candidates',
+				description: 'Final candidates who have been shortlisted for the role.',
+			};
+		}
+		return {
+			title: 'Applied Candidates',
+			description: 'These candidates have applied for the circular post.',
+		};
+	};
+	
+	const cardTexts = getCardTexts();
 
 	return (
 		<div className='space-y-6'>
@@ -252,8 +265,8 @@ export function ApplicationManagementPage({
 			<Card>
 				<CardHeader className='flex-row items-center justify-between'>
 					<div>
-						<CardTitle>Applied Candidates</CardTitle>
-						<CardDescription>These candidates have applied for the circular post.</CardDescription>
+						<CardTitle>{cardTexts.title}</CardTitle>
+						<CardDescription>{cardTexts.description}</CardDescription>
 					</div>
 					{!isProcessing && !isShortlisted && (
 						<Dialog open={isAddCandidateOpen} onOpenChange={setIsAddCandidateOpen}>
@@ -307,25 +320,25 @@ export function ApplicationManagementPage({
 					</DialogHeader>
 					<div className='space-y-4 py-4'>
 						{!isProcessing && !isShortlisted && (
-							<div className='rounded-md border p-4 text-sm'>
-								<p className='text-muted-foreground'>Assigned Examiner</p>
-								<p className='font-semibold'>{requestedPost.examiner?.nameEn || 'Not Assigned'}</p>
-							</div>
+							<>
+								<div className='rounded-md border p-4 text-sm'>
+									<p className='text-muted-foreground'>Assigned Examiner</p>
+									<p className='font-semibold'>{requestedPost.examiner?.nameEn || 'Not Assigned'}</p>
+								</div>
+								<Alert variant='warning'>
+									<AlertTitle>Important</AlertTitle>
+									<AlertDescription>
+										Only applicants with the &quot;Accepted&quot; status will be moved to the next stage. Ensure
+										all desired candidates are marked as accepted before proceeding.
+									</AlertDescription>
+								</Alert>
+							</>
 						)}
 						{isProcessing && !isShortlisted && (
 							<Alert variant='warning'>
 								<AlertTitle>Important</AlertTitle>
 								<AlertDescription>
 									Only applicants with the &quot;Shortlisted&quot; status will be moved to the next stage.
-								</AlertDescription>
-							</Alert>
-						)}
-						{!isProcessing && !isShortlisted && (
-							<Alert variant='warning'>
-								<AlertTitle>Important</AlertTitle>
-								<AlertDescription>
-									Only applicants with the &quot;Accepted&quot; status will be moved to the next stage. Ensure
-									all desired candidates are marked as accepted before proceeding.
 								</AlertDescription>
 							</Alert>
 						)}
