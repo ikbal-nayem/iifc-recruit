@@ -64,10 +64,16 @@ export function ApplicationManagementPage({
 					body: { requestedPostId: requestedPost.id, ...(status && { status: status }) },
 					meta: { page, limit: applicantsMeta.limit },
 				};
-				const response =
-					isProcessing || isShortlisted
-						? await ApplicationService.getProcessingList(payload)
-						: await ApplicationService.getList(payload);
+
+				let response;
+				if (isShortlisted) {
+					response = await ApplicationService.getShortlistedList(payload);
+				} else if (isProcessing) {
+					response = await ApplicationService.getProcessingList(payload);
+				} else {
+					response = await ApplicationService.getList(payload);
+				}
+
 				setApplicants(response.body);
 				setApplicantsMeta(response.meta);
 			} catch (error: any) {
@@ -81,6 +87,7 @@ export function ApplicationManagementPage({
 		},
 		[requestedPost.id, toast, applicantsMeta.limit, isProcessing, isShortlisted]
 	);
+
 
 	useEffect(() => {
 		loadApplicants(0, statusFilter);
@@ -305,20 +312,20 @@ export function ApplicationManagementPage({
 								<p className='font-semibold'>{requestedPost.examiner?.nameEn || 'Not Assigned'}</p>
 							</div>
 						)}
-						{!isShortlisted && !isProcessing && (
+						{isProcessing && !isShortlisted && (
+							<Alert variant='warning'>
+								<AlertTitle>Important</AlertTitle>
+								<AlertDescription>
+									Only applicants with the &quot;Shortlisted&quot; status will be moved to the next stage.
+								</AlertDescription>
+							</Alert>
+						)}
+						{!isProcessing && !isShortlisted && (
 							<Alert variant='warning'>
 								<AlertTitle>Important</AlertTitle>
 								<AlertDescription>
 									Only applicants with the &quot;Accepted&quot; status will be moved to the next stage. Ensure
 									all desired candidates are marked as accepted before proceeding.
-								</AlertDescription>
-							</Alert>
-						)}
-						{isProcessing && (
-							<Alert variant='warning'>
-								<AlertTitle>Important</AlertTitle>
-								<AlertDescription>
-									Only applicants with the &quot;Shortlisted&quot; status will be moved to the next stage.
 								</AlertDescription>
 							</Alert>
 						)}
