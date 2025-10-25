@@ -24,20 +24,19 @@ import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { IMeta } from '@/interfaces/common.interface';
 import { JobRequestedPostStatus } from '@/interfaces/job.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import {
+	Award,
+	Briefcase,
+	Calendar as CalendarIcon,
 	FileText,
 	Loader2,
 	RotateCcw,
 	UserCheck,
 	UserPlus,
-	Calendar as CalendarIcon,
-	Briefcase,
-	Award,
 } from 'lucide-react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 import { cn } from '@/lib/utils';
@@ -50,6 +49,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { FormInput } from '@/components/ui/form-input';
 import { useToast } from '@/hooks/use-toast';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface ApplicantsTableProps {
 	applicants: Application[];
@@ -405,12 +405,12 @@ export function ApplicantsTable({
 
 	return (
 		<div className='space-y-4'>
-			<div className='flex flex-col sm:flex-row items-center gap-4'>
+			<div className='flex flex-col sm:flex-row items-center justify-start gap-4'>
 				<Input
 					placeholder='Filter by applicant name...'
 					value={(table.getColumn('applicant')?.getFilterValue() as string) ?? ''}
 					onChange={(event) => table.getColumn('applicant')?.setFilterValue(event.target.value)}
-					className='max-w-sm w-full'
+					className='w-full md:max-w-sm'
 				/>
 				{selectedRowCount > 0 && (
 					<div className='flex items-center gap-2'>
