@@ -17,7 +17,6 @@ import * as React from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -26,28 +25,61 @@ import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { jobseekers as initialJobseekers } from '@/lib/data';
-import type { Jobseeker } from '@/lib/types';
-import { getStatusVariant } from '@/lib/color-mapping';
-import { FileText, Send, Star, UserX } from 'lucide-react';
+import { FileText, Send, UserX } from 'lucide-react';
+import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
+import { IApiRequest, IMeta } from '@/interfaces/common.interface';
+import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
+import { useDebounce } from '@/hooks/use-debounce';
+import { Pagination } from '@/components/ui/pagination';
+import { Skeleton } from '@/components/ui/skeleton';
+import { makePreviewURL } from '@/lib/file-oparations';
+
+const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
 
 export function JobseekerManagement() {
-	const [data, setData] = React.useState<Jobseeker[]>(initialJobseekers);
+	const [data, setData] = React.useState<JobseekerSearch[]>([]);
+	const [meta, setMeta] = React.useState<IMeta>(initMeta);
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-	const [selectedJobseeker, setSelectedJobseeker] = React.useState<Jobseeker | null>(null);
+	const [selectedJobseeker, setSelectedJobseeker] = React.useState<JobseekerSearch | null>(null);
 	const { toast } = useToast();
+	const [isLoading, setIsLoading] = React.useState(true);
+	const [searchQuery, setSearchQuery] = React.useState('');
+	const debouncedSearch = useDebounce(searchQuery, 500);
 
-	const handleStatusChange = (jobseekerId: string, newStatus: Jobseeker['status']) => {
-		setData((prevData) => prevData.map((js) => (js.id === jobseekerId ? { ...js, status: newStatus } : js)));
-		toast({
-			title: 'Status Updated',
-			description: `Jobseeker status updated to ${newStatus}.`,
-			variant: 'success',
-		});
+	const loadJobseekers = React.useCallback(
+		async (page: number, search: string) => {
+			setIsLoading(true);
+			try {
+				const payload: IApiRequest = {
+					body: { searchKey: search },
+					meta: { page, limit: meta.limit },
+				};
+				const response = await JobseekerProfileService.search(payload);
+				setData(response.body);
+				setMeta(response.meta);
+			} catch (error: any) {
+				toast({
+					title: 'Error',
+					description: error.message || 'Failed to load jobseekers.',
+					variant: 'danger',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[meta.limit, toast]
+	);
+
+	React.useEffect(() => {
+		loadJobseekers(0, debouncedSearch);
+	}, [debouncedSearch, loadJobseekers]);
+
+	const handlePageChange = (newPage: number) => {
+		loadJobseekers(newPage, debouncedSearch);
 	};
 
-	const getActionItems = (jobseeker: Jobseeker): ActionItem[] => [
+	const getActionItems = (jobseeker: JobseekerSearch): ActionItem[] => [
 		{
 			label: 'View Full Profile',
 			icon: <FileText className='mr-2 h-4 w-4' />,
@@ -56,36 +88,35 @@ export function JobseekerManagement() {
 		{
 			label: 'Contact',
 			icon: <Send className='mr-2 h-4 w-4' />,
-			onClick: () => toast({ description: `Contacting ${jobseeker.personalInfo.name}... (not implemented)` }),
+			onClick: () => toast({ description: `Contacting ${jobseeker.fullName}... (not implemented)` }),
 		},
 		{ isSeparator: true },
 		{
-			label: 'Mark as Active',
-			icon: <Star className='mr-2 h-4 w-4' />,
-			onClick: () => handleStatusChange(jobseeker.id, 'Active'),
-		},
-		{
-			label: 'Mark as Passive',
+			label: 'Deactivate',
 			icon: <UserX className='mr-2 h-4 w-4' />,
-			onClick: () => handleStatusChange(jobseeker.id, 'Passive'),
+			onClick: () => alert('Deactivating... (not implemented)'),
+			variant: 'danger',
 		},
 	];
 
-	const columns: ColumnDef<Jobseeker>[] = [
+	const columns: ColumnDef<JobseekerSearch>[] = [
 		{
-			accessorKey: 'personalInfo',
+			accessorKey: 'fullName',
 			header: 'Name',
 			cell: ({ row }) => {
 				const jobseeker = row.original;
-				const { name, email, avatar } = jobseeker.personalInfo;
+				const { fullName, email, profileImage, firstName, lastName } = jobseeker;
 				return (
 					<div className='flex items-center gap-3'>
 						<Avatar>
-							<AvatarImage src={avatar} alt={name} data-ai-hint='avatar' />
-							<AvatarFallback>{name?.charAt(0)}</AvatarFallback>
+							<AvatarImage src={makePreviewURL(profileImage)} alt={fullName} data-ai-hint='avatar' />
+							<AvatarFallback>
+								{firstName?.charAt(0)}
+								{lastName?.charAt(0)}
+							</AvatarFallback>
 						</Avatar>
 						<div>
-							<div className='font-medium'>{name}</div>
+							<div className='font-medium'>{fullName}</div>
 							<div className='text-sm text-muted-foreground'>{email}</div>
 						</div>
 					</div>
@@ -93,28 +124,8 @@ export function JobseekerManagement() {
 			},
 		},
 		{
-			accessorKey: 'skills',
-			header: 'Top Skills',
-			cell: ({ row }) => {
-				const skills = row.getValue('skills') as string[];
-				return (
-					<div className='flex flex-wrap gap-1'>
-						{skills.slice(0, 3).map((skill) => (
-							<Badge key={skill} variant='secondary'>
-								{skill}
-							</Badge>
-						))}
-					</div>
-				);
-			},
-		},
-		{
-			accessorKey: 'status',
-			header: 'Status',
-			cell: ({ row }) => {
-				const status = row.getValue('status') as string;
-				return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
-			},
+			accessorKey: 'phone',
+			header: 'Phone',
 		},
 		{
 			id: 'actions',
@@ -138,29 +149,29 @@ export function JobseekerManagement() {
 			sorting,
 			columnFilters,
 		},
+		manualPagination: true,
+		pageCount: meta.totalPageCount,
 	});
 
-	const renderMobileCard = (jobseeker: Jobseeker) => (
-		<Card key={jobseeker.id} className='mb-4 glassmorphism'>
+	const renderMobileCard = (jobseeker: JobseekerSearch) => (
+		<Card key={jobseeker.userId} className='mb-4 glassmorphism'>
 			<div className='p-4 flex justify-between items-start'>
 				<div className='flex items-center gap-4'>
 					<Avatar>
 						<AvatarImage
-							src={jobseeker.personalInfo.avatar}
-							alt={jobseeker.personalInfo.name}
+							src={makePreviewURL(jobseeker.profileImage)}
+							alt={jobseeker.fullName}
 							data-ai-hint='avatar'
 						/>
-						<AvatarFallback>{jobseeker.personalInfo.name?.charAt(0)}</AvatarFallback>
+						<AvatarFallback>
+							{jobseeker.firstName?.charAt(0)}
+							{jobseeker.lastName?.charAt(0)}
+						</AvatarFallback>
 					</Avatar>
 					<div>
-						<p className='font-semibold'>{jobseeker.personalInfo.name}</p>
-						<div className='flex flex-wrap gap-1 mt-2'>
-							{jobseeker.skills.slice(0, 2).map((skill) => (
-								<Badge key={skill} variant='secondary'>
-									{skill}
-								</Badge>
-							))}
-						</div>
+						<p className='font-semibold'>{jobseeker.fullName}</p>
+						<p className='text-sm text-muted-foreground'>{jobseeker.email}</p>
+						<p className='text-sm text-muted-foreground'>{jobseeker.phone}</p>
 					</div>
 				</div>
 				<ActionMenu items={getActionItems(jobseeker)} />
@@ -171,14 +182,16 @@ export function JobseekerManagement() {
 	return (
 		<div className='space-y-4'>
 			<Input
-				placeholder='Filter by name, email, or skill...'
-				value={(table.getColumn('personalInfo')?.getFilterValue() as string) ?? ''}
-				onChange={(event) => table.getColumn('personalInfo')?.setFilterValue(event.target.value)}
+				placeholder='Filter by name, email, or phone...'
+				value={searchQuery}
+				onChange={(event) => setSearchQuery(event.target.value)}
 				className='w-full md:max-w-sm'
 			/>
 			{/* Mobile View */}
 			<div className='md:hidden'>
-				{data.length > 0 ? (
+				{isLoading ? (
+					[...Array(5)].map((_, i) => <Skeleton key={i} className='h-24 w-full' />)
+				) : data.length > 0 ? (
 					data.map(renderMobileCard)
 				) : (
 					<div className='text-center py-16'>
@@ -186,6 +199,7 @@ export function JobseekerManagement() {
 					</div>
 				)}
 			</div>
+			{/* Desktop View */}
 			<div className='hidden md:block rounded-md border glassmorphism'>
 				<Table>
 					<TableHeader>
@@ -204,7 +218,15 @@ export function JobseekerManagement() {
 						))}
 					</TableHeader>
 					<TableBody>
-						{table.getRowModel().rows?.length ? (
+						{isLoading ? (
+							[...Array(meta.limit)].map((_, i) => (
+								<TableRow key={i}>
+									<TableCell colSpan={columns.length}>
+										<Skeleton className='h-10 w-full' />
+									</TableCell>
+								</TableRow>
+							))
+						) : table.getRowModel().rows?.length ? (
 							table.getRowModel().rows.map((row) => (
 								<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
 									{row.getVisibleCells().map((cell) => (
@@ -224,28 +246,13 @@ export function JobseekerManagement() {
 					</TableBody>
 				</Table>
 			</div>
-			<div className='flex items-center justify-end space-x-2 py-4'>
-				<Button
-					variant='outline'
-					size='sm'
-					onClick={() => table.previousPage()}
-					disabled={!table.getCanPreviousPage()}
-				>
-					Previous
-				</Button>
-				<Button
-					variant='outline'
-					size='sm'
-					onClick={() => table.nextPage()}
-					disabled={!table.getCanNextPage()}
-				>
-					Next
-				</Button>
-			</div>
+			{meta && meta.totalRecords && meta.totalRecords > 0 ? (
+				<Pagination meta={meta} isLoading={isLoading} onPageChange={handlePageChange} noun={'jobseeker'} />
+			) : null}
 
 			<Dialog open={!!selectedJobseeker} onOpenChange={(isOpen) => !isOpen && setSelectedJobseeker(null)}>
 				<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
-					{selectedJobseeker && <JobseekerProfileView jobseeker={selectedJobseeker} />}
+					{selectedJobseeker && <JobseekerProfileView jobseekerId={selectedJobseeker.userId} />}
 				</DialogContent>
 			</Dialog>
 		</div>
