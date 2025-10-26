@@ -3,42 +3,36 @@
 
 import {
 	ColumnDef,
-	ColumnFiltersState,
 	flexRender,
 	getCoreRowModel,
-	getFilteredRowModel,
-	getPaginationRowModel,
-	getSortedRowModel,
-	SortingState,
 	useReactTable,
 } from '@tanstack/react-table';
 import * as React from 'react';
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-
-import { JobseekerProfileView } from '@/components/app/jobseeker/jobseeker-profile-view';
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
-import { FileText, Filter, Loader2, Search, Send, UserX } from 'lucide-react';
-import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
-import { IApiRequest, IMeta } from '@/interfaces/common.interface';
-import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
-import { useDebounce } from '@/hooks/use-debounce';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { FormMultiSelect } from '@/components/ui/form-multi-select';
+import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
-import { makePreviewURL } from '@/lib/file-oparations';
-import { z } from 'zod';
-import { FormProvider, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useDebounce } from '@/hooks/use-debounce';
+import { useToast } from '@/hooks/use-toast';
+import { IApiRequest, IMeta } from '@/interfaces/common.interface';
+import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { makePreviewURL } from '@/lib/file-oparations';
+import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { getSkillsAsync } from '@/services/async-api';
-import { FormMultiSelect } from '@/components/ui/form-multi-select';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { FileText, Filter, Loader2, Search, Send, UserX } from 'lucide-react';
+import { FormProvider, useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
 
@@ -161,9 +155,6 @@ export function JobseekerManagement() {
 		data,
 		columns,
 		getCoreRowModel: getCoreRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		manualPagination: true,
-		pageCount: meta.totalPageCount,
 	});
 
 	const renderMobileCard = (jobseeker: JobseekerSearch) => (
@@ -225,7 +216,7 @@ export function JobseekerManagement() {
 								/>
 							</div>
 							<div className='flex items-end'>
-								<Button type='submit' className='w-full md:w-auto'>
+								<Button type='submit' className='w-full md:w-auto h-11'>
 									<Filter className='mr-2 h-4 w-4' /> Filter
 								</Button>
 							</div>
