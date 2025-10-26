@@ -1,3 +1,4 @@
+
 'use client';
 
 import { FormMasterData } from '@/app/(auth)/admin/client-organizations/page';
@@ -13,8 +14,10 @@ import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormCheckbox } from '@/components/ui/form-checkbox';
 import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ROUTES } from '@/constants/routes.constant';
 import { useDebounce } from '@/hooks/use-debounce';
@@ -229,16 +232,23 @@ export function ClientOrganizationCrud({
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
 
+	const [isClientFilter, setIsClientFilter] = useState(false);
+	const [isExaminerFilter, setIsExaminerFilter] = useState(false);
+
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [editingItem, setEditingItem] = useState<IClientOrganization | undefined>(undefined);
 	const [itemToDelete, setItemToDelete] = useState<IClientOrganization | null>(null);
 
 	const loadItems = useCallback(
-		async (page: number, search: string) => {
+		async (page: number, search: string, isClient?: boolean, isExaminer?: boolean) => {
 			setIsLoading(true);
 			try {
+				const body: { name: string; isClient?: boolean; isExaminer?: boolean } = { name: search };
+				if (isClient) body.isClient = true;
+				if (isExaminer) body.isExaminer = true;
+
 				const payload: IApiRequest = {
-					body: { name: search },
+					body,
 					meta: { page: page, limit: meta.limit },
 				};
 				const response = await MasterDataService.clientOrganization.getList(payload);
@@ -258,11 +268,11 @@ export function ClientOrganizationCrud({
 	);
 
 	useEffect(() => {
-		loadItems(0, debouncedSearch);
-	}, [debouncedSearch, loadItems]);
+		loadItems(0, debouncedSearch, isClientFilter, isExaminerFilter);
+	}, [debouncedSearch, isClientFilter, isExaminerFilter, loadItems]);
 
 	const handlePageChange = (newPage: number) => {
-		loadItems(newPage, debouncedSearch);
+		loadItems(newPage, debouncedSearch, isClientFilter, isExaminerFilter);
 	};
 
 	const handleOpenForm = (item?: IClientOrganization) => {
@@ -288,7 +298,7 @@ export function ClientOrganizationCrud({
 				: await MasterDataService.clientOrganization.add(payload);
 
 			toast({ description: response.message, variant: 'success' });
-			loadItems(meta.page, debouncedSearch);
+			loadItems(meta.page, debouncedSearch, isClientFilter, isExaminerFilter);
 		} catch (error: any) {
 			console.error('Failed to save item', error);
 			toast({ title: 'Error', description: error.message || `Failed to save ${noun}.`, variant: 'danger' });
@@ -304,7 +314,7 @@ export function ClientOrganizationCrud({
 				description: 'Client organization deleted successfully.',
 				variant: 'success',
 			});
-			loadItems(meta.page, debouncedSearch);
+			loadItems(meta.page, debouncedSearch, isClientFilter, isExaminerFilter);
 		} catch (error: any) {
 			console.error('Failed to delete item', error);
 			toast({
@@ -423,15 +433,28 @@ export function ClientOrganizationCrud({
 				</Button>
 			</div>
 			<Card className='glassmorphism'>
-				<CardContent className='pt-6'>
-					<div className='relative w-full lg:max-w-xs'>
-						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-						<Input
-							placeholder={`Search ${noun.toLowerCase()}s...`}
-							onChange={(e) => setSearchQuery(e.target.value)}
-							className='pl-10'
-						/>
+				<CardContent className='pt-6 space-y-4'>
+					<div className='flex flex-col sm:flex-row gap-4'>
+						<div className='relative w-full sm:max-w-xs'>
+							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+							<Input
+								placeholder={`Search ${noun.toLowerCase()}s...`}
+								onChange={(e) => setSearchQuery(e.target.value)}
+								className='pl-10 h-10'
+							/>
+						</div>
+						<div className='flex items-center gap-4'>
+							<div className='flex items-center space-x-2'>
+								<Switch id='client-filter' checked={isClientFilter} onCheckedChange={setIsClientFilter} />
+								<Label htmlFor='client-filter'>Is Client</Label>
+							</div>
+							<div className='flex items-center space-x-2'>
+								<Switch id='examiner-filter' checked={isExaminerFilter} onCheckedChange={setIsExaminerFilter} />
+								<Label htmlFor='examiner-filter'>Is Examiner</Label>
+							</div>
+						</div>
 					</div>
+
 					<div className='mt-4 rounded-md border'>
 						<Table>
 							<TableHeader>
