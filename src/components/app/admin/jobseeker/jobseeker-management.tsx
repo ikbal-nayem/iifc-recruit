@@ -14,7 +14,7 @@ import {
 } from '@tanstack/react-table';
 import * as React from 'react';
 
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 import { Button } from '@/components/ui/button';
@@ -217,6 +217,12 @@ export function JobseekerManagement() {
 
 			<Dialog open={!!selectedJobseeker} onOpenChange={(isOpen) => !isOpen && setSelectedJobseeker(null)}>
 				<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
+					<DialogHeader>
+						<DialogTitle>Jobseeker Profile</DialogTitle>
+						<DialogDescription>
+              This is a preview of the jobseeker&apos;s full profile.
+						</DialogDescription>
+					</DialogHeader>
 					{selectedJobseeker && <JobseekerProfileView jobseekerId={selectedJobseeker.userId} />}
 				</DialogContent>
 			</Dialog>
