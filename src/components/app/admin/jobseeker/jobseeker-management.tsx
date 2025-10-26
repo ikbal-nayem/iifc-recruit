@@ -188,8 +188,8 @@ export function JobseekerManagement() {
 			<Card className='glassmorphism p-4'>
 				<FormProvider {...filterForm}>
 					<form onSubmit={filterForm.handleSubmit(onFilterSubmit)} className='space-y-4'>
-						<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-							<div className='w-full md:col-span-2'>
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+							<div className='w-full'>
 								<FormMultiSelect
 									control={filterForm.control}
 									name='skillIds'
@@ -221,23 +221,21 @@ export function JobseekerManagement() {
 								</Button>
 							</div>
 						</div>
+						<div className='relative w-full md:max-w-sm'>
+							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+							<Input
+								placeholder='Search by name, email, or phone...'
+								value={searchQuery}
+								onChange={(event) => setSearchQuery(event.target.value)}
+								className='pl-10'
+							/>
+						</div>
 					</form>
 				</FormProvider>
 			</Card>
 
 			<Card className='glassmorphism'>
-				<CardHeader>
-					<div className='relative w-full md:max-w-sm'>
-						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-						<Input
-							placeholder='Search by name, email, or phone...'
-							value={searchQuery}
-							onChange={(event) => setSearchQuery(event.target.value)}
-							className='pl-10'
-						/>
-					</div>
-				</CardHeader>
-				<CardContent>
+				<CardContent className='pt-6'>
 					{/* Mobile View */}
 					<div className='md:hidden space-y-4'>
 						{isLoading ? (
