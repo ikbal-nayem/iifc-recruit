@@ -23,7 +23,7 @@ import { Input } from '@/components/ui/input';
 import { JobseekerProfileView } from '@/components/app/jobseeker/jobseeker-profile-view';
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { FileText, Filter, Loader2, Search, Send, UserX } from 'lucide-react';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
@@ -124,6 +124,48 @@ export function JobseekerManagement() {
 		},
 	];
 
+	const columns: ColumnDef<JobseekerSearch>[] = [
+		{
+			accessorKey: 'fullName',
+			header: 'Applicant',
+			cell: ({ row }) => {
+				const { fullName, email, profileImage, firstName, lastName } = row.original;
+				return (
+					<div className='flex items-center gap-3'>
+						<Avatar>
+							<AvatarImage src={makePreviewURL(profileImage)} alt={fullName} />
+							<AvatarFallback>
+								{firstName?.charAt(0)}
+								{lastName?.charAt(0)}
+							</AvatarFallback>
+						</Avatar>
+						<div>
+							<p className='font-semibold'>{fullName}</p>
+							<p className='text-xs text-muted-foreground'>{email}</p>
+						</div>
+					</div>
+				);
+			},
+		},
+		{
+			accessorKey: 'phone',
+			header: 'Phone',
+		},
+		{
+			id: 'actions',
+			cell: ({ row }) => <ActionMenu items={getActionItems(row.original)} />,
+		},
+	];
+
+	const table = useReactTable({
+		data,
+		columns,
+		getCoreRowModel: getCoreRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+		manualPagination: true,
+		pageCount: meta.totalPageCount,
+	});
+
 	const renderMobileCard = (jobseeker: JobseekerSearch) => (
 		<Card key={jobseeker.userId} className='mb-4 glassmorphism'>
 			<div className='p-4 flex justify-between items-start'>
@@ -155,12 +197,13 @@ export function JobseekerManagement() {
 			<Card className='glassmorphism p-4'>
 				<FormProvider {...filterForm}>
 					<form onSubmit={filterForm.handleSubmit(onFilterSubmit)} className='space-y-4'>
-						<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-							<div className='md:col-span-2'>
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+							<div className='w-full'>
 								<FormMultiSelect
 									control={filterForm.control}
 									name='skillIds'
-									placeholder='Filter by skills...'
+									label='Filter by skills'
+									placeholder='Select skills...'
 									loadOptions={getSkillsAsync}
 									selected={selectedSkills}
 									onAdd={(skill) => {
@@ -181,47 +224,102 @@ export function JobseekerManagement() {
 									}}
 								/>
 							</div>
-							<div className='relative w-full'>
-								<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-								<Input
-									placeholder='Search by name, email, or phone...'
-									value={searchQuery}
-									onChange={(event) => setSearchQuery(event.target.value)}
-									className='pl-10 h-11'
-								/>
+							<div className='flex items-end'>
+								<Button type='submit' className='w-full md:w-auto'>
+									<Filter className='mr-2 h-4 w-4' /> Filter
+								</Button>
 							</div>
 						</div>
-
-						<Button type='submit'>
-							<Filter className='mr-2 h-4 w-4' /> Filter
-						</Button>
 					</form>
 				</FormProvider>
 			</Card>
 
-			<div className='space-y-4'>
-				{isLoading ? (
-					[...Array(5)].map((_, i) => <Skeleton key={i} className='h-24 w-full' />)
-				) : data.length > 0 ? (
-					data.map(renderMobileCard)
-				) : (
-					<Card className='text-center py-16 glassmorphism'>
-						<p className='text-muted-foreground'>No jobseekers found.</p>
-					</Card>
-				)}
-			</div>
+			<Card className='glassmorphism'>
+				<CardHeader>
+					<div className='relative w-full md:max-w-sm'>
+						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+						<Input
+							placeholder='Search by name, email, or phone...'
+							value={searchQuery}
+							onChange={(event) => setSearchQuery(event.target.value)}
+							className='pl-10 h-11'
+						/>
+					</div>
+				</CardHeader>
+				<CardContent>
+					{/* Mobile View */}
+					<div className='md:hidden space-y-4'>
+						{isLoading ? (
+							[...Array(5)].map((_, i) => <Skeleton key={i} className='h-24 w-full' />)
+						) : data.length > 0 ? (
+							data.map(renderMobileCard)
+						) : (
+							<div className='text-center py-16'>
+								<p className='text-muted-foreground'>No jobseekers found.</p>
+							</div>
+						)}
+					</div>
 
-			{meta && meta.totalRecords && meta.totalRecords > 0 ? (
-				<Pagination meta={meta} isLoading={isLoading} onPageChange={handlePageChange} noun={'jobseeker'} />
-			) : null}
+					{/* Desktop View */}
+					<div className='hidden md:block rounded-md border'>
+						<Table>
+							<TableHeader>
+								{table.getHeaderGroups().map((headerGroup) => (
+									<TableRow key={headerGroup.id}>
+										{headerGroup.headers.map((header) => {
+											return (
+												<TableHead key={header.id}>
+													{header.isPlaceholder
+														? null
+														: flexRender(header.column.columnDef.header, header.getContext())}
+												</TableHead>
+											);
+										})}
+									</TableRow>
+								))}
+							</TableHeader>
+							<TableBody>
+								{isLoading ? (
+									[...Array(meta.limit)].map((_, i) => (
+										<TableRow key={i}>
+											<TableCell colSpan={columns.length}>
+												<Skeleton className='h-12 w-full' />
+											</TableCell>
+										</TableRow>
+									))
+								) : table.getRowModel().rows?.length ? (
+									table.getRowModel().rows.map((row) => (
+										<TableRow key={row.id}>
+											{row.getVisibleCells().map((cell) => (
+												<TableCell key={cell.id}>
+													{flexRender(cell.column.columnDef.cell, cell.getContext())}
+												</TableCell>
+											))}
+										</TableRow>
+									))
+								) : (
+									<TableRow>
+										<TableCell colSpan={columns.length} className='h-24 text-center'>
+											No results.
+										</TableCell>
+									</TableRow>
+								)}
+							</TableBody>
+						</Table>
+					</div>
+				</CardContent>
+				{meta && meta.totalRecords && meta.totalRecords > 0 ? (
+					<CardFooter>
+						<Pagination meta={meta} isLoading={isLoading} onPageChange={handlePageChange} noun={'jobseeker'} />
+					</CardFooter>
+				) : null}
+			</Card>
 
 			<Dialog open={!!selectedJobseeker} onOpenChange={(isOpen) => !isOpen && setSelectedJobseeker(null)}>
 				<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
 					<DialogHeader>
 						<DialogTitle>Jobseeker Profile</DialogTitle>
-						<DialogDescription>
-              This is a preview of the jobseeker&apos;s full profile.
-						</DialogDescription>
+						<DialogDescription>This is a preview of the jobseeker&apos;s full profile.</DialogDescription>
 					</DialogHeader>
 					{selectedJobseeker && <JobseekerProfileView jobseekerId={selectedJobseeker.userId} />}
 				</DialogContent>
