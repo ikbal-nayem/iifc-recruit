@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -42,7 +41,7 @@ const formSchema = z
 			.min(1, 'Bengali name is required.')
 			.refine(isBangla, 'Only Bengali characters are allowed.'),
 		outsourcing: z.boolean().default(false),
-		outsourcingCategoryId: z.coerce.number().optional(),
+		outsourcingCategoryId: z.coerce.string().optional(),
 	})
 	.refine((data) => !data.outsourcing || (data.outsourcing && data.outsourcingCategoryId), {
 		message: 'Category is required for outsourcing posts.',

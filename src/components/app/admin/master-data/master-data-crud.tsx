@@ -42,7 +42,7 @@ type FormValues = z.infer<typeof formSchema>;
 interface MasterDataFormProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onSubmit: (data: FormValues, id?: number) => Promise<boolean | null>;
+	onSubmit: (data: FormValues, id?: string) => Promise<boolean | null>;
 	initialData?: ICommonMasterData;
 	noun: string;
 }
@@ -156,7 +156,7 @@ export function MasterDataCrud({
 		setEditingItem(undefined);
 	};
 
-	const handleFormSubmit = async (data: FormValues, id?: number) => {
+	const handleFormSubmit = async (data: FormValues, id?: string) => {
 		if (editingItem && id) {
 			const payload = { ...editingItem, nameEn: data.nameEn, nameBn: data.nameBn };
 			return onUpdate(payload);

@@ -3,6 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
@@ -17,14 +18,13 @@ import { IMeta } from '@/interfaces/common.interface';
 import { IOutsourcingCategory, IOutsourcingCharge, IOutsourcingZone } from '@/interfaces/master-data.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 const formSchema = z.object({
-	categoryId: z.coerce.number().min(1, 'Category is required.'),
-	zoneId: z.coerce.number().min(1, 'Zone is required.'),
+	categoryId: z.coerce.string().min(1, 'Category is required.'),
+	zoneId: z.coerce.string().min(1, 'Zone is required.'),
 	monthlyServiceCharge: z.coerce.number().min(1, 'Monthly Service Charge is required.'),
 });
 type FormValues = z.infer<typeof formSchema>;
@@ -143,7 +143,7 @@ interface OutsourcingChargeCrudProps {
 	zones: IOutsourcingZone[];
 	onAdd: (item: Omit<IOutsourcingCharge, 'id'>) => Promise<boolean>;
 	onUpdate: (item: IOutsourcingCharge) => Promise<boolean>;
-	onDelete: (id: number) => Promise<boolean>;
+	onDelete: (id: string) => Promise<boolean>;
 	onPageChange: (page: number) => void;
 	onSearch: (query: string) => void;
 	categoryFilter: string;

@@ -23,12 +23,12 @@ import { useFieldArray, useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 const requestedPostSchema = z.object({
-	id: z.number().optional(),
-	postId: z.coerce.number().min(1, 'Post is required.'),
+	id: z.string().optional(),
+	postId: z.coerce.string().min(1, 'Post is required.'),
 	vacancy: z.coerce.number().min(1, 'Vacancy must be at least 1.'),
 	experienceRequired: z.coerce.number().optional(),
 	negotiable: z.boolean().default(false),
-	outsourcingZoneId: z.coerce.number().optional(),
+	outsourcingZoneId: z.coerce.string().optional(),
 	salaryFrom: z.coerce.number().optional(),
 	salaryTo: z.coerce.number().optional(),
 	yearsOfContract: z.coerce.number().optional().nullable(),
@@ -36,7 +36,7 @@ const requestedPostSchema = z.object({
 
 const jobRequestSchema = z.object({
 	memoNo: z.string().min(1, 'Memo No. is required.'),
-	clientOrganizationId: z.coerce.number().min(1, 'Client Organization is required.'),
+	clientOrganizationId: z.coerce.string().min(1, 'Client Organization is required.'),
 	subject: z.string().min(1, 'Subject is required.'),
 	description: z.string().optional(),
 	requestDate: z.string().min(1, 'Request date is required.'),
@@ -198,7 +198,7 @@ export function JobRequestForm({
 								placeholder='Select a client'
 								required
 								options={clientOrganizations}
-								getOptionValue={(option) => option.id as number}
+								getOptionValue={(option) => option?.id!}
 								getOptionLabel={(option) => option?.nameEn}
 							/>
 							<FormInput
@@ -249,7 +249,7 @@ export function JobRequestForm({
 											required
 											placeholder={isLoadingPosts ? 'Loading posts...' : 'Select Post'}
 											options={filteredPosts}
-											getOptionValue={(opt) => opt.id as number}
+											getOptionValue={(opt) => opt?.id!}
 											getOptionLabel={(opt) => opt?.nameEn}
 											disabled={isLoadingPosts}
 											onInputChange={setPostSearchQuery}
@@ -280,7 +280,7 @@ export function JobRequestForm({
 												required
 												placeholder='Select Zone'
 												options={outsourcingZones}
-												getOptionValue={(opt) => opt.id as number}
+												getOptionValue={(opt) => opt.id}
 												getOptionLabel={(opt) => opt?.nameEn}
 											/>
 											<FormInput

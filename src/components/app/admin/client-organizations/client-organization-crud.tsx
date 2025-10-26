@@ -44,7 +44,7 @@ const formSchema = z
 		nameBn: z.string().min(1, 'Bengali name is required.').refine(isBangla, {
 			message: 'Only Bengali characters, numbers, and some special characters are allowed.',
 		}),
-		organizationTypeId: z.coerce.number().min(1, 'Organization Type is required.'),
+		organizationTypeId: z.coerce.string().min(1, 'Organization Type is required.'),
 		address: z.string().optional(),
 		contactPersonName: z.string().optional(),
 		contactNumber: z.string().optional(),
@@ -82,7 +82,7 @@ function ClientOrganizationForm({
 		values: {
 			nameEn: initialData?.nameEn || '',
 			nameBn: initialData?.nameBn || '',
-			organizationTypeId: initialData?.organizationTypeId as number,
+			organizationTypeId: initialData?.organizationTypeId!,
 			address: initialData?.address || '',
 			contactPersonName: initialData?.contactPersonName || '',
 			contactNumber: initialData?.contactNumber || '',
