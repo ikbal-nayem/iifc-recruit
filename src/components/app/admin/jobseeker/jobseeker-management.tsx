@@ -188,8 +188,8 @@ export function JobseekerManagement() {
 			<Card className='glassmorphism p-4'>
 				<FormProvider {...filterForm}>
 					<form onSubmit={filterForm.handleSubmit(onFilterSubmit)} className='space-y-4'>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-							<div className='w-full'>
+						<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+							<div className='w-full md:col-span-2'>
 								<FormMultiSelect
 									control={filterForm.control}
 									name='skillIds'
@@ -216,7 +216,7 @@ export function JobseekerManagement() {
 								/>
 							</div>
 							<div className='flex items-end'>
-								<Button type='submit' className='w-full md:w-auto h-11'>
+								<Button type='submit' className='w-full md:w-auto h-10'>
 									<Filter className='mr-2 h-4 w-4' /> Filter
 								</Button>
 							</div>
@@ -233,7 +233,7 @@ export function JobseekerManagement() {
 							placeholder='Search by name, email, or phone...'
 							value={searchQuery}
 							onChange={(event) => setSearchQuery(event.target.value)}
-							className='pl-10 h-11'
+							className='pl-10'
 						/>
 					</div>
 				</CardHeader>

@@ -45,7 +45,7 @@ export function FormSelect<TFieldValues extends FieldValues>({
 						{...props}
 					>
 						<FormControl>
-							<SelectTrigger className={cn('h-11', !field.value && 'text-muted-foreground')}>
+							<SelectTrigger className={cn(!field.value && 'text-muted-foreground')}>
 								<SelectValue placeholder={placeholder} />
 							</SelectTrigger>
 						</FormControl>

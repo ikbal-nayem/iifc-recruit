@@ -44,7 +44,7 @@ export function FormDatePicker<TFieldValues extends FieldValues>({
 									<Button
 										variant={'outline'}
 										className={cn(
-											'w-full pl-3 text-left font-normal h-11',
+											'w-full pl-3 text-left font-normal h-10',
 											!field.value && 'text-muted-foreground'
 										)}
 									>

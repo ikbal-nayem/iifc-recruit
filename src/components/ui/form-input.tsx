@@ -1,3 +1,4 @@
+
 'use client';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -43,7 +44,7 @@ export function FormInput<TFieldValues extends FieldValues>({
 								{...props}
 								{...field}
 								type={isPassword ? (showPassword ? 'text' : 'password') : type}
-								className={cn(startIcon && 'pl-10', isPassword && 'pr-10', 'h-11')}
+								className={cn(startIcon && 'pl-10', isPassword && 'pr-10')}
 							/>
 							{isPassword && (
 								<Button
