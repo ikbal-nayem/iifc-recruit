@@ -25,7 +25,7 @@ async function getJobRequest(id: string): Promise<JobRequest> {
 async function getMasterData(): Promise<MasterData> {
 	try {
 		const [clientOrgsRes, postsRes, zonesRes, requestTypesRes] = await Promise.allSettled([
-			MasterDataService.clientOrganization.get(),
+			MasterDataService.clientOrganization.getList({body: { isClient: true }}),
 			MasterDataService.post.getList({}),
 			MasterDataService.outsourcingZone.get(),
 			MasterDataService.getEnum('job-request-type'),

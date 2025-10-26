@@ -22,34 +22,33 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Form } from '@/components/ui/form';
+import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { DATE_FORMAT } from '@/constants/common.constant';
+import { useToast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { IMeta } from '@/interfaces/common.interface';
 import { JobRequestedPostStatus } from '@/interfaces/job.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
+import { getStatusVariant } from '@/lib/color-mapping';
+import { cn } from '@/lib/utils';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { format, formatDate } from 'date-fns';
 import {
 	Award,
-	Briefcase,
 	Calendar as CalendarIcon,
 	FileText,
 	Loader2,
 	RotateCcw,
 	UserCheck,
-	UserPlus,
+	UserPlus
 } from 'lucide-react';
-import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
-import { cn } from '@/lib/utils';
-import { format, formatDate } from 'date-fns';
-import { getStatusVariant } from '@/lib/color-mapping';
-import { DATE_FORMAT } from '@/constants/common.constant';
-import { Form } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { FormInput } from '@/components/ui/form-input';
-import { useToast } from '@/hooks/use-toast';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 
 interface ApplicantsTableProps {
 	applicants: Application[];
@@ -63,7 +62,7 @@ interface ApplicantsTableProps {
 }
 
 const interviewSchema = z.object({
-	interviewDateTime: z.string().min(1, 'Interview date and time is required.'),
+	interviewTimeTime: z.string().min(1, 'Interview date and time is required.'),
 });
 type InterviewFormValues = z.infer<typeof interviewSchema>;
 
@@ -107,14 +106,14 @@ export function ApplicantsTable({
 	const handleStatusChange = async (
 		applications: Application[],
 		newStatus: APPLICATION_STATUS,
-		details?: { interviewDateTime?: string; marks?: number }
+		details?: { interviewTimeTime?: string; marks?: number }
 	) => {
 		const updatedApplications = applications.map((application) => ({
 			...application,
 			status: newStatus,
 			...(newStatus === APPLICATION_STATUS.INTERVIEW &&
-				details?.interviewDateTime && {
-					interviewDate: format(new Date(details.interviewDateTime), "yyyy-MM-dd'T'HH:mm:ss"),
+				details?.interviewTimeTime && {
+					interviewTime: format(new Date(details.interviewTimeTime), "yyyy-MM-dd'T'HH:mm:ss"),
 				}),
 			...(details?.marks !== undefined && { marks: details.marks }),
 		}));
@@ -301,13 +300,13 @@ export function ApplicantsTable({
 			},
 		},
 		{
-			accessorKey: isProcessing ? 'interviewDate' : 'appliedDate',
+			accessorKey: isProcessing ? 'interviewTime' : 'appliedDate',
 			header: isProcessing ? 'Interview Date & Time' : 'Date Applied',
 			cell: ({ row }) => {
 				if (isProcessing) {
-					const { interviewDate, status } = row.original;
-					if (status === APPLICATION_STATUS.INTERVIEW && interviewDate) {
-						return <span>{format(new Date(interviewDate), 'Pp')}</span>;
+					const { interviewTime, status } = row.original;
+					if (status === APPLICATION_STATUS.INTERVIEW && interviewTime) {
+						return <span>{format(new Date(interviewTime), 'PPp')}</span>;
 					}
 					return <span className='text-muted-foreground'>-</span>;
 				}
@@ -319,13 +318,10 @@ export function ApplicantsTable({
 			accessorKey: 'status',
 			header: 'Status',
 			cell: ({ row }) => {
-				const { status, statusDTO, interviewDate, marks } = row.original;
+				const { status, statusDTO, marks } = row.original;
 				return (
 					<div className='flex flex-col items-start gap-1'>
 						<Badge variant={getStatusVariant(status)}>{statusDTO.nameEn}</Badge>
-						{status === APPLICATION_STATUS.INTERVIEW && interviewDate && (
-							<span className='text-xs text-muted-foreground'>{format(new Date(interviewDate), 'PPp')}</span>
-						)}
 						{marks !== null && marks !== undefined && (
 							<span className='text-xs font-semibold text-primary'>Marks: {marks}</span>
 						)}
@@ -396,9 +392,9 @@ export function ApplicantsTable({
 								<Badge variant={getStatusVariant(applicant.status)} className='text-xs'>
 									{applicant.statusDTO.nameEn}
 								</Badge>
-								{applicant.status === APPLICATION_STATUS.INTERVIEW && applicant.interviewDate && (
+								{applicant.status === APPLICATION_STATUS.INTERVIEW && applicant.interviewTime && (
 									<p className='text-xs text-muted-foreground mt-1'>
-										{format(new Date(applicant.interviewDate), 'PPp')}
+										{format(new Date(applicant.interviewTime), 'PPp')}
 									</p>
 								)}
 								{applicant.marks !== null && applicant.marks !== undefined && (
@@ -572,7 +568,7 @@ export function ApplicantsTable({
 						>
 							<FormInput
 								control={interviewForm.control}
-								name='interviewDateTime'
+								name='interviewTimeTime'
 								label='Interview Date & Time'
 								type='datetime-local'
 								required

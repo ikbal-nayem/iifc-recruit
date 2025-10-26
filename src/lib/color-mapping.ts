@@ -50,6 +50,7 @@ export const getStatusVariant = (status?: string): BadgeVariant => {
 		// Info states - Outline variant
 		case 'applied':
 		case 'reviewing':
+		case 'interview':
 		case 'in-review':
 			return 'outline-info';
 
@@ -61,7 +62,6 @@ export const getStatusVariant = (status?: string): BadgeVariant => {
 		// Info/Progress states - Lite variant
 		case 'in-progress':
 		case 'processing':
-		case 'interview':
 		case 'shortlisted':
 			return 'lite-info';
 

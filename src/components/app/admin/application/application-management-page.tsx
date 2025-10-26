@@ -97,7 +97,7 @@ export function ApplicationManagementPage({
 		const payload = newApplicants.map((js) => ({
 			applicantId: js.userId,
 			requestedPostId: requestedPost.id,
-			status: APPLICATION_STATUS.APPLIED,
+			status: APPLICATION_STATUS.ACCEPTED,
 		}));
 
 		ApplicationService.createAll(payload)
@@ -298,6 +298,7 @@ export function ApplicationManagementPage({
 						onPageChange={handlePageChange}
 						updateApplication={handleUpdateApplication}
 						requestedPostStatus={requestedPost.status}
+						isProcessing={isProcessing}
 						isShortlisted={isShortlisted}
 					/>
 				</CardContent>
