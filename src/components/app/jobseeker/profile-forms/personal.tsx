@@ -24,6 +24,7 @@ import { Linkedin, Loader2, Mail, Phone, Save, Upload, Video } from 'lucide-reac
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { UserService } from '@/services/api/user.service';
 
 const profileImageSchema = z.object({
 	avatarFile: z
@@ -74,8 +75,7 @@ function ProfileImageCard({
 		const formData = new FormData();
 		formData.append('file', data.avatarFile);
 
-		JobseekerProfileService.personalInfo
-			.saveProfileImage(formData)
+		UserService.saveProfileImage(formData)
 			.then((res) => {
 				toast({
 					title: 'Photo Updated',

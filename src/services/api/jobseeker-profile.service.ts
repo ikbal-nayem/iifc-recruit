@@ -19,7 +19,7 @@ import {
 } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 
-const createProfileCrud = <T extends { id?: string }>(entity: string) => ({
+const createProfileCrud = <T extends { id?: string | number }>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[]>> => await axiosIns.get(`/jobseeker/${entity}/get-by-user`),
 
 	add: async (payload: Omit<T, 'id'>): Promise<IApiResponse<T>> =>
@@ -28,17 +28,17 @@ const createProfileCrud = <T extends { id?: string }>(entity: string) => ({
 	update: async (payload: T): Promise<IApiResponse<T>> =>
 		await axiosIns.put(`/jobseeker/${entity}/update`, payload),
 
-	delete: async (id: string): Promise<IApiResponse<void>> =>
+	delete: async (id: string | number): Promise<IApiResponse<void>> =>
 		await axiosIns.delete(`/jobseeker/${entity}/delete/${id}`),
 });
 
-const createProfileCrudWithFormData = <T extends { id?: string }>(entity: string) => ({
+const createProfileCrudWithFormData = <T extends { id?: string | number }>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[] | T>> => await axiosIns.get(`/jobseeker/${entity}/get-by-user`),
 
 	save: async (formData: FormData | T): Promise<IApiResponse<T>> =>
 		await axiosIns.post(`/jobseeker/${entity}/save`, formData),
 
-	delete: async (id: string): Promise<IApiResponse<void>> =>
+	delete: async (id: string | number): Promise<IApiResponse<void>> =>
 		await axiosIns.delete(`/jobseeker/${entity}/delete/${id}`),
 });
 
@@ -54,10 +54,6 @@ export const JobseekerProfileService = {
 
 	personalInfo: {
 		...createProfileCrudWithFormData<PersonalInfo>('personal-info'),
-		saveProfileImage: async (formData: FormData): Promise<IApiResponse<any>> =>
-			await axiosIns.post('/jobseeker/profile-image/save', formData, {
-				headers: { 'Content-Type': 'multipart/form-data' },
-			}),
 	},
 	spouse: {
 		get: async (): Promise<IApiResponse<FamilyInfo>> => await axiosIns.get('/jobseeker/spouse/get-by-user'),

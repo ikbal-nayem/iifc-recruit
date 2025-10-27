@@ -8,11 +8,12 @@ import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Mail, Phone, Save, Upload } from 'lucide-react';
+import { Mail, Phone, Save, Upload, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { UserService } from '@/services/api/user.service';
 
 const profileImageSchema = z.object({
 	avatarFile: z
@@ -30,15 +31,18 @@ type ProfileImageFormValues = z.infer<typeof profileImageSchema>;
 function ProfileImageCard({ avatar }: { avatar: string }) {
 	const { toast } = useToast();
 	const [avatarPreview, setAvatarPreview] = React.useState<string | null>(avatar);
+	const [isSubmitting, setIsSubmitting] = React.useState(false);
 
 	const form = useForm<ProfileImageFormValues>({
 		resolver: zodResolver(profileImageSchema),
 	});
 
+	const avatarFile = form.watch('avatarFile');
+
 	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
 		if (file) {
-			form.setValue('avatarFile', file);
+			form.setValue('avatarFile', file, { shouldValidate: true });
 			if (avatarPreview && avatarPreview.startsWith('blob:')) {
 				URL.revokeObjectURL(avatarPreview);
 			}
@@ -48,13 +52,29 @@ function ProfileImageCard({ avatar }: { avatar: string }) {
 	};
 
 	const onImageSubmit = (data: ProfileImageFormValues) => {
-		console.log('New avatar file:', data.avatarFile);
-		toast({
-			title: 'Photo Updated',
-			description: 'Your new profile photo has been saved.',
-			variant: 'success',
-		});
-		// Here you would typically upload the file and then update the UI
+		setIsSubmitting(true);
+		const formData = new FormData();
+		formData.append('file', data.avatarFile);
+
+		UserService.saveProfileImage(formData)
+			.then((res) => {
+				toast({
+					title: 'Photo Updated',
+					description: res.message || 'Your new profile photo has been saved.',
+					variant: 'success',
+				});
+				form.reset();
+			})
+			.catch((err) => {
+				toast({
+					title: 'Upload Failed',
+					description: err.message || 'There was a problem uploading your photo.',
+					variant: 'danger',
+				});
+			})
+			.finally(() => {
+				setIsSubmitting(false);
+			});
 	};
 
 	return (
@@ -104,7 +124,8 @@ function ProfileImageCard({ avatar }: { avatar: string }) {
 						</div>
 					</CardContent>
 					<CardFooter>
-						<Button type='submit' disabled={!form.formState.isDirty}>
+						<Button type='submit' disabled={!avatarFile || isSubmitting}>
+							{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
 							Save Photo
 						</Button>
 					</CardFooter>
