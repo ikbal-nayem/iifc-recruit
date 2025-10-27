@@ -1,117 +1,117 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
-import { AUTH_INFO } from '@/constants/auth.constant';
+import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/contexts/auth-context';
 import { useToast } from '@/hooks/use-toast';
-import { IAuthInfo } from '@/interfaces/auth.interface';
-import { AuthService } from '@/services/api/auth.service';
-import { LocalStorageService } from '@/services/storage.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-const formSchema = z.object({
-	email: z.string().email('Please enter a valid email address.'),
+const loginSchema = z.object({
+	email: z.string().email('Please enter a valid email.'),
 	password: z.string().min(1, 'Password is required.'),
 });
 
-type LoginFormValues = z.infer<typeof formSchema>;
+type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
-	const { toast } = useToast();
 	const router = useRouter();
+	const { login, user } = useAuth();
+	const { toast } = useToast();
+	const [isLoading, setIsLoading] = React.useState(false);
 
 	const form = useForm<LoginFormValues>({
-		resolver: zodResolver(formSchema),
-		defaultValues: { email: '', password: '' },
+		resolver: zodResolver(loginSchema),
+		defaultValues: {
+			email: '',
+			password: '',
+		},
 	});
 
+	React.useEffect(() => {
+		if (user) {
+			const { userType } = user;
+			if (userType === 'SYSTEM' || userType === 'IIFC_ADMIN') {
+				router.push('/admin');
+			} else if (userType === 'JOB_SEEKER') {
+				router.push('/jobseeker');
+			} else {
+				router.push('/');
+			}
+		}
+	}, [user, router]);
+
 	const onSubmit = async (data: LoginFormValues) => {
+		setIsLoading(true);
 		try {
-			const res = await AuthService.login(data);
-			const authInfo: IAuthInfo = {
-				accessToken: res.body.token,
-				refreshToken: res.body.token,
-				expiresIn: 3600,
-			};
-			LocalStorageService.set(AUTH_INFO, authInfo);
+			await login(data.email, data.password);
 			toast({
 				title: 'Login Successful',
 				description: 'Welcome back!',
 				variant: 'success',
 			});
-			router.push('/jobseeker');
+			// Redirection is handled by the useEffect
 		} catch (error: any) {
 			toast({
 				title: 'Login Failed',
-				description: error.message || 'Please check your credentials and try again.',
+				description: error?.message || 'Invalid email or password. Please try again.',
 				variant: 'danger',
 			});
+		} finally {
+			setIsLoading(false);
 		}
 	};
 
 	return (
-		<Card className='glassmorphism w-full'>
-			<CardHeader className='text-center'>
-				<div className='flex justify-center mb-4'>
-					<Image src='/iifc-logo.png' alt='IIFC Logo' width={48} height={48} className='h-12 w-auto' />
+		<div className='w-full space-y-6'>
+			<div className='text-center'>
+				<h1 className='text-3xl font-bold font-headline'>Welcome Back</h1>
+				<p className='text-muted-foreground'>Sign in to continue to your account.</p>
+			</div>
+			<Form {...form}>
+				<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+					<FormInput
+						control={form.control}
+						name='email'
+						label='Email'
+						type='email'
+						placeholder='you@example.com'
+						required
+					/>
+					<FormInput
+						control={form.control}
+						name='password'
+						label='Password'
+						type='password'
+						placeholder='••••••••'
+						required
+					/>
+					<Button type='submit' className='w-full' disabled={isLoading}>
+						{isLoading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+						Sign In
+					</Button>
+				</form>
+			</Form>
+			<div className='relative'>
+				<Separator />
+				<div className='absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center'>
+					<span className='bg-background px-2 text-sm text-muted-foreground'>OR</span>
 				</div>
-				<CardTitle className='font-headline'>Welcome Back!</CardTitle>
-				<CardDescription>Sign in to your account to continue.</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<Form {...form}>
-					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
-						<FormInput
-							control={form.control}
-							name='email'
-							label='Email'
-							type='email'
-							placeholder='you@example.com'
-							required
-						/>
-						<div className='space-y-2'>
-							<div className='flex justify-between items-center'>
-								<FormLabel required>Password</FormLabel>
-								<Link href='#' className='text-xs text-primary hover:underline'>
-									Forgot password?
-								</Link>
-							</div>
-							<FormInput
-								control={form.control}
-								name='password'
-								label=''
-								type='password'
-								placeholder='••••••••'
-							/>
-						</div>
-
-						<Button type='submit' className='w-full' disabled={form.formState.isSubmitting}>
-							{form.formState.isSubmitting ? (
-								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-							) : null}
-							Sign In
-						</Button>
-					</form>
-				</Form>
-			</CardContent>
-			<CardFooter className='flex-col items-start gap-4'>
-				<div className='text-center w-full'>
-					<p className='text-sm text-muted-foreground'>
-						{"Don't have an account? "}
-						<Link href='/signup' className='text-primary font-medium hover:underline'>
-							Sign Up
-						</Link>
-					</p>
-				</div>
-			</CardFooter>
-		</Card>
+			</div>
+			<p className='text-center text-sm'>
+				Don&apos;t have an account?{' '}
+				<Button variant='link' className='p-0 h-auto' asChild>
+					<Link href='/signup'>Sign up</Link>
+				</Button>
+			</p>
+		</div>
 	);
 }

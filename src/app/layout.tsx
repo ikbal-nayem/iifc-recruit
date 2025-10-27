@@ -1,3 +1,4 @@
+import { AuthProvider } from '@/contexts/auth-context';
 import { MainLayout } from '@/components/main-layout';
 import { Lato, Source_Code_Pro } from 'next/font/google';
 import { Suspense } from 'react';
@@ -32,7 +33,9 @@ export default function RootLayout({
 			</head>
 			<body className='font-body antialiased flex flex-col min-h-screen'>
 				<Suspense>
-					<MainLayout>{children}</MainLayout>
+					<AuthProvider>
+						<MainLayout>{children}</MainLayout>
+					</AuthProvider>
 				</Suspense>
 			</body>
 		</html>
