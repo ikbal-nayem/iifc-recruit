@@ -4,7 +4,6 @@
 import { AUTH_INFO } from '@/constants/auth.constant';
 import { IAuthInfo, IUser } from '@/interfaces/auth.interface';
 import { AuthService } from '@/services/api/auth.service';
-import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { LocalStorageService } from '@/services/storage.service';
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { setAuthHeader } from '@/config/api.config';
@@ -31,24 +30,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			if (storedAuthInfo) {
 				setAuthInfo(storedAuthInfo);
 				setAuthHeader(storedAuthInfo.accessToken);
-				const userType = storedAuthInfo.userType;
-				let profile: Partial<IUser> = { ...storedAuthInfo };
-
-				if (userType === 'JOB_SEEKER') {
-					try {
-						const profileRes = await JobseekerProfileService.personalInfo.get();
-						profile = { ...profile, ...profileRes.body };
-					} catch (e) {
-						console.error('Failed to fetch jobseeker profile');
-					}
-				} else {
-					profile = {
-						firstName: 'Admin',
-						lastName: 'User',
-						email: storedAuthInfo.username,
-					};
+				try {
+					const userProfileRes = await AuthService.getUserProfile();
+					setUser(userProfileRes.body);
+				} catch (error) {
+					console.error('Failed to fetch user profile on load', error);
+					logout(); // Log out if session is invalid
 				}
-				setUser(profile as IUser);
 			}
 			setIsLoading(false);
 		};
@@ -57,28 +45,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	const login = async (username: string, password: string) => {
-		const response = await AuthService.login({ username, password });
+		const response = await AuthService.login({ email: username, password });
 		const newAuthInfo = response.body;
 		setAuthInfo(newAuthInfo);
 		setAuthHeader(newAuthInfo.accessToken);
 		LocalStorageService.set(AUTH_INFO, newAuthInfo);
 
-		let profile: Partial<IUser> = { ...newAuthInfo };
-		if (newAuthInfo.userType === 'JOB_SEEKER') {
-			try {
-				const profileRes = await JobseekerProfileService.personalInfo.get();
-				profile = { ...profile, ...profileRes.body };
-			} catch (e) {
-				console.error('Failed to fetch jobseeker profile on login');
-			}
-		} else {
-			profile = {
-				firstName: 'Admin',
-				lastName: 'User',
-				email: newAuthInfo.username,
-			};
+		try {
+			const userProfileRes = await AuthService.getUserProfile();
+			setUser(userProfileRes.body);
+		} catch (error) {
+			console.error('Failed to fetch user profile on login', error);
+			// Handle error, maybe logout the user
 		}
-		setUser(profile as IUser);
 	};
 
 	const logout = () => {
