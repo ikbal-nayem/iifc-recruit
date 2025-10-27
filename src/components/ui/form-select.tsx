@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 
 interface FormSelectProps<TFieldValues extends FieldValues> {
-	control: Control<TFieldValues>;
+	control: Control<TFieldValues | any>;
 	name: FieldPath<TFieldValues>;
 	label: string;
 	placeholder?: string;

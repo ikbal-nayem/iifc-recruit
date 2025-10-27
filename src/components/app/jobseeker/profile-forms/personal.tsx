@@ -169,15 +169,15 @@ const personalInfoSchema = z.object({
 	nid: z.string().optional(),
 	passportNo: z.string().optional(),
 	birthCertificate: z.string().optional(),
-	presentDivisionId: z.coerce.number().optional(),
-	presentDistrictId: z.coerce.number().optional(),
-	presentUpazilaId: z.coerce.number().optional(),
+	presentDivisionId: z.coerce.string().optional(),
+	presentDistrictId: z.coerce.string().optional(),
+	presentUpazilaId: z.coerce.string().optional(),
 	presentAddress: z.string().optional(),
 	presentPostCode: z.coerce.number().optional(),
 	sameAsPresentAddress: z.boolean().default(false),
-	permanentDivisionId: z.coerce.number().optional(),
-	permanentDistrictId: z.coerce.number().optional(),
-	permanentUpazilaId: z.coerce.number().optional(),
+	permanentDivisionId: z.coerce.string().optional(),
+	permanentDistrictId: z.coerce.string().optional(),
+	permanentUpazilaId: z.coerce.string().optional(),
 	permanentAddress: z.string().optional(),
 	permanentPostCode: z.coerce.number().optional(),
 	linkedInProfile: z.string().url().optional().or(z.literal('')),
@@ -208,7 +208,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 		resolver: zodResolver(personalInfoSchema),
 		defaultValues: {
 			...personalInfo,
-			sameAsPresentAddress: personalInfo.sameAsPresentAddress ?? true,
+			sameAsPresentAddress: personalInfo?.sameAsPresentAddress ?? true,
 		},
 	});
 
@@ -219,7 +219,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 	const watchSameAsPresent = form.watch('sameAsPresentAddress');
 
 	const useFetchDependentData = (
-		watchId: number | undefined,
+		watchId: string | undefined,
 		fetcher: (id: string) => Promise<IApiResponse<ICommonMasterData[]>>,
 		setData: React.Dispatch<React.SetStateAction<ICommonMasterData[]>>,
 		setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
@@ -328,9 +328,9 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 	return (
 		<div className='space-y-6'>
 			<ProfileImageCard
-				profileImage={personalInfo.profileImage}
-				firstName={personalInfo.firstName}
-				lastName={personalInfo.lastName}
+				profileImage={personalInfo?.profileImage}
+				firstName={personalInfo?.firstName}
+				lastName={personalInfo?.lastName}
 			/>
 
 			<Form {...form}>
@@ -425,13 +425,6 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 										labelKey='nameEn'
 										valueKey='value'
 									/>
-									{/* <FormSelect
-										control={form.control}
-										name='professionalStatus'
-										label='Professional Status'
-										placeholder='Select status'
-										options={masterData.professionalStatuses.map((s) => ({ label: s.nameEn, value: s.value }))}
-									/> */}
 								</div>
 							</CardContent>
 						</Card>
