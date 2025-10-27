@@ -151,9 +151,8 @@ function ProfileImageCard({
 }
 
 const personalInfoSchema = z.object({
-	id: z.number().optional(),
+	id: z.string().optional(),
 	firstName: z.string().min(1, 'First name is required'),
-	middleName: z.string().optional(),
 	lastName: z.string().min(1, 'Last name is required'),
 	fatherName: z.string().min(1, "Father's name is required"),
 	motherName: z.string().min(1, "Mother's name is required"),
@@ -165,7 +164,6 @@ const personalInfoSchema = z.object({
 	maritalStatus: z.string().min(1, 'Marital status is required'),
 	nationality: z.string().min(1, 'Nationality is required'),
 	religion: z.string().optional(),
-	// professionalStatus: z.string().optional(),
 	nid: z.string().optional(),
 	passportNo: z.string().optional(),
 	birthCertificate: z.string().optional(),
@@ -360,7 +358,6 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 										placeholder='e.g. John'
 										required
 									/>
-									<FormInput control={form.control} name='middleName' label='Middle Name' />
 									<FormInput
 										control={form.control}
 										name='lastName'
