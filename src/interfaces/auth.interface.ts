@@ -1,12 +1,22 @@
+import { IFile } from "./common.interface";
+
+export type UserType = 'SYSTEM' | 'IIFC_ADMIN' | 'JOB_SEEKER' | 'CLIENT' | 'EXAMINER';
+
 export interface IAuthInfo {
   accessToken: string;
   refreshToken: string;
-  expiresIn: number;
+  username: string;
+  userType: UserType;
+  roles: string[];
 }
 
 export interface IUser {
-  id: number;
+  id?: string;
   username: string;
   email: string;
   roles: string[];
+  userType: UserType;
+  firstName: string;
+  lastName: string;
+  profileImage?: IFile;
 }

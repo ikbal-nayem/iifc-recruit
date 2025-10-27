@@ -8,6 +8,7 @@ const axiosIns = axios.create({
 	baseURL: ENV.API_GATEWAY,
 	headers: {
 		Accept: 'application/json',
+		'clientId': 'iifc-recruitment-client',
 	},
 });
 
@@ -28,7 +29,6 @@ const initializeAuthHeader = () => {
 
 axiosIns.interceptors.request.use(
 	(config) => {
-		// config.headers['udid'] = config?.headers?.['udid'] || getCookie('udid');
 		return config;
 	},
 	(error) => {
@@ -62,7 +62,6 @@ axiosIns.interceptors.response.use(
 		if (error?.response) {
 			if (error.response?.status === 401) logout();
 
-			// Handle Spring Boot validation errors
 			if (error.response?.data?.error) {
 				try {
 					const errorObj = JSON.parse(error.response.data.error);
@@ -105,7 +104,9 @@ axiosIns.interceptors.response.use(
 
 const logout = () => {
 	LocalStorageService.clear();
-	window.location.reload();
+	if (isBrowser) {
+		window.location.href = '/login';
+	}
 };
 
 export { axiosIns, setAuthHeader, initializeAuthHeader };
