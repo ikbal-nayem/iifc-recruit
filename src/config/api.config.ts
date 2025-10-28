@@ -1,3 +1,4 @@
+
 import { AUTH_INFO } from '@/constants/auth.constant';
 import { ENV } from '@/constants/env.constant';
 import { IAuthInfo } from '@/interfaces/auth.interface';
@@ -60,16 +61,22 @@ axiosIns.interceptors.response.use(
 	},
 	(error) => {
 		if (error?.response) {
-			if (error.response?.status === 401) logout();
+			const { config, data, status } = error.response;
+			const isAuthRoute = config.url.includes('/api/auth/login') || config.url.includes('/auth/signup');
 
-			if (error.response?.data?.error) {
+			// Only trigger global logout for non-auth routes on 401
+			if (status === 401 && !isAuthRoute) {
+				logout();
+			}
+
+			if (data?.error) {
 				try {
-					const errorObj = JSON.parse(error.response.data.error);
+					const errorObj = JSON.parse(data.error);
 					if (errorObj && typeof errorObj === 'object') {
 						const messages = Object.values(errorObj).join('\n');
 						if (messages) {
 							return Promise.reject({
-								status: error.response?.status,
+								status: status,
 								message: messages,
 								body: {},
 							});
@@ -80,17 +87,17 @@ axiosIns.interceptors.response.use(
 				}
 			}
 
-			if (error.response?.data) {
+			if (data) {
 				return Promise.reject({
-					status: error.response?.status,
-					message: error.response?.data?.message || error.response?.data?.error || 'An unknown error occurred.',
-					body: error.response?.data?.body || {},
+					status: status,
+					message: data?.message || data?.error || 'An unknown error occurred.',
+					body: data?.body || {},
 				});
 			}
 
 			return Promise.reject({
 				message: error.message,
-				status: error?.response?.status || error.status || 500,
+				status: status || error.status || 500,
 			});
 		} else {
 			return Promise.reject({
