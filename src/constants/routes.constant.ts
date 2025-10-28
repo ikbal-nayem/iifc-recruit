@@ -6,6 +6,11 @@ export const ROUTES = {
 		FORGOT_PASSWORD: '/forgot-password',
 		RESET_PASSWORD: '/reset-password',
 	},
+
+	DASHBOARD: {
+		ADMIN: '/admin',
+		JOB_SEEKER: '/jobseeker',
+	},
 	
 	HOME: '/',
 	JOB_REQUESTS: '/admin/job-management/request',

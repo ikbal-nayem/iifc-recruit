@@ -1,19 +1,18 @@
-
 'use client';
 
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form } from '@/components/ui/form';
+import { FormInput } from '@/components/ui/form-input';
+import { useAuth } from '@/contexts/auth-context';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { Button } from '@/components/ui/button';
-import { Form } from '@/components/ui/form';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAuth } from '@/contexts/auth-context';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { AlertCircle, Loader2 } from 'lucide-react';
-import { FormInput } from '@/components/ui/form-input';
-import { useState } from 'react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const loginSchema = z.object({
 	username: z.string().min(6, 'Please enter a valid email or phone number.'),
@@ -40,8 +39,8 @@ export default function LoginForm() {
 		setIsLoading(true);
 		setError(null);
 		try {
-			await login(data.username, data.password);
-			router.push('/admin'); // Redirect to dashboard after successful login
+			const user = await login(data.username, data.password);
+			user && user.userType === 'JOB_SEEKER' ? router.push('/jobseeker') : router.push('/admin');
 		} catch (err: any) {
 			setError(err.message || 'An unexpected error occurred. Please try again.');
 		} finally {
@@ -60,9 +59,7 @@ export default function LoginForm() {
 					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
 						{error && (
 							<Alert variant='danger'>
-								<AlertDescription className='flex items-center gap-2'>
-									{error}
-								</AlertDescription>
+								<AlertDescription className='flex items-center gap-2'>{error}</AlertDescription>
 							</Alert>
 						)}
 						<FormInput

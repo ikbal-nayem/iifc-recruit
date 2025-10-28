@@ -13,7 +13,7 @@ interface AuthContextType {
 	authInfo: IAuthInfo | null;
 	isAuthenticated: boolean;
 	isLoading: boolean;
-	login: (username: string, password: string) => Promise<void>;
+	login: (username: string, password: string) => Promise<void | IUser>;
 	logout: () => void;
 }
 
@@ -61,6 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		try {
 			const userProfileRes = await AuthService.getUserProfile();
 			setUser(userProfileRes.body);
+			return userProfileRes.body;
 		} catch (error) {
 			console.error('Failed to fetch user profile on login', error);
 			// Handle error, maybe logout the user
