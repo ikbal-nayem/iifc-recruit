@@ -9,7 +9,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { setAuthHeader } from '@/config/api.config';
 
 interface AuthContextType {
-	user: IUser | null;
+	currectUser: IUser | null;
 	authInfo: IAuthInfo | null;
 	isAuthenticated: boolean;
 	isLoading: boolean;
@@ -71,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	return (
 		<AuthContext.Provider
 			value={{
-				user,
+				currectUser: user,
 				authInfo,
 				isAuthenticated: !!user,
 				isLoading,

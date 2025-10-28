@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -16,7 +15,6 @@ import { useAuth } from '@/contexts/auth-context';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { adminNavLinks, jobseekerNavLinks } from '@/lib/nav-links';
 import { LogOut, UserCog } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React from 'react';
@@ -38,7 +36,7 @@ const getBreadcrumbs = (pathname: string) => {
 export default function Header() {
 	const pathname = usePathname();
 	const router = useRouter();
-	const { user, logout } = useAuth();
+	const { currectUser, logout } = useAuth();
 
 	const breadcrumbs = getBreadcrumbs(pathname);
 
@@ -49,15 +47,17 @@ export default function Header() {
 
 	const handleProfileClick = () => {
 		const targetPath =
-			user?.userType === 'SYSTEM' || user?.userType === 'IIFC_ADMIN' ? '/admin/profile' : '/jobseeker/profile-edit';
+			currectUser?.userType === 'SYSTEM' || currectUser?.userType === 'IIFC_ADMIN'
+				? '/admin/profile'
+				: '/jobseeker/profile-edit';
 		router.push(targetPath);
 	};
 
 	const getNavLinks = () => {
-		if (user?.userType === 'SYSTEM' || user?.userType === 'IIFC_ADMIN') {
+		if (currectUser?.userType === 'SYSTEM' || currectUser?.userType === 'IIFC_ADMIN') {
 			return adminNavLinks;
 		}
-		if (user?.userType === 'JOB_SEEKER') {
+		if (currectUser?.userType === 'JOB_SEEKER') {
 			return jobseekerNavLinks;
 		}
 		return [];
@@ -72,10 +72,7 @@ export default function Header() {
 					{breadcrumbs.map((crumb, index) => (
 						<React.Fragment key={crumb.href}>
 							{index > 0 && <span className='mx-2'>/</span>}
-							<Link
-								href={crumb.href}
-								className='hover:text-foreground transition-colors'
-							>
+							<Link href={crumb.href} className='hover:text-foreground transition-colors'>
 								{crumb.label}
 							</Link>
 						</React.Fragment>
@@ -85,18 +82,18 @@ export default function Header() {
 
 			<div className='flex-1' />
 
-			{user && (
+			{currectUser && (
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button variant='ghost' className='relative h-9 w-9 rounded-full'>
 							<Avatar>
 								<AvatarImage
-									src={makePreviewURL(user.profileImage?.filePath)}
-									alt={user.fullName || user.firstName}
+									src={makePreviewURL(currectUser.profileImage)}
+									alt={currectUser.fullName || currectUser.firstName}
 								/>
 								<AvatarFallback>
-									{user.firstName?.charAt(0)}
-									{user.lastName?.charAt(0)}
+									{currectUser.firstName?.charAt(0)}
+									{currectUser.lastName?.charAt(0)}
 								</AvatarFallback>
 							</Avatar>
 						</Button>
@@ -104,8 +101,10 @@ export default function Header() {
 					<DropdownMenuContent className='w-56' align='end' forceMount>
 						<DropdownMenuLabel className='font-normal'>
 							<div className='flex flex-col space-y-1'>
-								<p className='text-sm font-medium leading-none'>{user.fullName || user.firstName}</p>
-								<p className='text-xs leading-none text-muted-foreground'>{user.email}</p>
+								<p className='text-sm font-medium leading-none'>
+									{currectUser.fullName || currectUser.firstName}
+								</p>
+								<p className='text-xs leading-none text-muted-foreground'>{currectUser.email}</p>
 							</div>
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
