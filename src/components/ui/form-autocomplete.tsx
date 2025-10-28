@@ -80,7 +80,7 @@ export function FormAutocomplete<
 		<Button
 			variant='outline'
 			role='combobox'
-			className={cn('w-full justify-between h-11', !value && 'text-muted-foreground')}
+			className={cn('w-full justify-between min-h-11', !value && 'text-muted-foreground')}
 			disabled={disabled}
 		>
 			{displayLabel || placeholder || 'Select...'}

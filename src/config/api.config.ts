@@ -30,6 +30,7 @@ const initializeAuthHeader = () => {
 
 axiosIns.interceptors.request.use(
 	(config) => {
+		console.log("Requested URL -> ", config.url, config.headers)
 		return config;
 	},
 	(error) => {
@@ -47,6 +48,7 @@ axiosIns.interceptors.request.use(
 		});
 	}
 );
+// If any response get 401 status, then try to get new token using refresh token if refresh token exists and the api is not login api. then retry the failed request.
 
 axiosIns.interceptors.response.use(
 	(res: any) => {
@@ -62,6 +64,7 @@ axiosIns.interceptors.response.use(
 	(error) => {
 		if (error?.response) {
 			const { data, status } = error.response;
+			// console.log(error.response)
 
 			if (status === 401) {
 				logout();
