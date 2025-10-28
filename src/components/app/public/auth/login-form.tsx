@@ -16,8 +16,8 @@ import { useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const loginSchema = z.object({
-	username: z.string().email('Please enter a valid email address.'),
-	password: z.string().min(1, 'Password is required.'),
+	username: z.string().min(6, 'Please enter a valid email or phone number.'),
+	password: z.string().min(6, 'Password should be at least 6 digit.'),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -69,7 +69,7 @@ export default function LoginForm() {
 						<FormInput
 							control={form.control}
 							name='username'
-							label='Email'
+							label='Email/Phone'
 							type='email'
 							placeholder='you@example.com'
 							required
@@ -80,6 +80,7 @@ export default function LoginForm() {
 							name='password'
 							label='Password'
 							type='password'
+							placeholder='******'
 							required
 							disabled={isLoading}
 						/>

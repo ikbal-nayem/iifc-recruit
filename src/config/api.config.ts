@@ -18,7 +18,7 @@ const setAuthHeader = (token?: string) => {
 		return;
 	}
 	const authInfo: IAuthInfo = LocalStorageService.get(AUTH_INFO) || null;
-	if (authInfo) axiosIns.defaults.headers.common['Authorization'] = 'Bearer ' + authInfo?.accessToken;
+	if (authInfo) axiosIns.defaults.headers.common['Authorization'] = 'Bearer ' + authInfo?.access_token;
 };
 
 const initializeAuthHeader = () => {

@@ -1,4 +1,5 @@
-import { EnumDTO, IFile } from "./common.interface";
+import { IFile } from "./common.interface";
+import { EnumDTO } from "./master-data.interface";
 
 export type UserType = 'SYSTEM' | 'IIFC_ADMIN' | 'JOB_SEEKER' | 'CLIENT' | 'EXAMINER';
 
