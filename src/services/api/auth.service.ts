@@ -11,5 +11,5 @@ export const AuthService = {
 		await axiosIns.post('/auth/signup', payload),
 	
 	getUserProfile: async (): Promise<IApiResponse<IUser>> =>
-		await axiosIns.get('/auth/user'),
+		await axiosIns.get('/api/auth/user'),
 };

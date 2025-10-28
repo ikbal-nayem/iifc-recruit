@@ -3,11 +3,10 @@ import { IFile } from "./common.interface";
 export type UserType = 'SYSTEM' | 'IIFC_ADMIN' | 'JOB_SEEKER' | 'CLIENT' | 'EXAMINER';
 
 export interface IAuthInfo {
-  accessToken: string;
-  refreshToken: string;
-  username: string;
-  userType: UserType;
-  roles: string[];
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  expires_in: number;
 }
 
 export interface IUser {

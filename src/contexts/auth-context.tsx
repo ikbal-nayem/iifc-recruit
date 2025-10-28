@@ -24,12 +24,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [authInfo, setAuthInfo] = useState<IAuthInfo | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 
+	const logout = () => {
+		setUser(null);
+		setAuthInfo(null);
+		setAuthHeader();
+		LocalStorageService.delete(AUTH_INFO);
+	};
+
 	useEffect(() => {
 		const loadUserFromStorage = async () => {
 			const storedAuthInfo = LocalStorageService.get(AUTH_INFO);
 			if (storedAuthInfo) {
 				setAuthInfo(storedAuthInfo);
-				setAuthHeader(storedAuthInfo.accessToken);
+				setAuthHeader(storedAuthInfo.access_token);
 				try {
 					const userProfileRes = await AuthService.getUserProfile();
 					setUser(userProfileRes.body);
@@ -48,7 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		const response = await AuthService.login({ username, password });
 		const newAuthInfo = response.body;
 		setAuthInfo(newAuthInfo);
-		setAuthHeader(newAuthInfo.accessToken);
+		setAuthHeader(newAuthInfo.access_token);
 		LocalStorageService.set(AUTH_INFO, newAuthInfo);
 
 		try {
@@ -58,13 +65,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			console.error('Failed to fetch user profile on login', error);
 			// Handle error, maybe logout the user
 		}
-	};
-
-	const logout = () => {
-		setUser(null);
-		setAuthInfo(null);
-		setAuthHeader();
-		LocalStorageService.delete(AUTH_INFO);
 	};
 
 	return (
