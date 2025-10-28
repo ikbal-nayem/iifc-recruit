@@ -1,117 +1,101 @@
 
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Form } from '@/components/ui/form';
-import { FormInput } from '@/components/ui/form-input';
-import { Separator } from '@/components/ui/separator';
-import { useAuth } from '@/contexts/auth-context';
-import { useToast } from '@/hooks/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { Button } from '@/components/ui/button';
+import { Form } from '@/components/ui/form';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/contexts/auth-context';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { AlertCircle, Loader2 } from 'lucide-react';
+import { FormInput } from '@/components/ui/form-input';
+import { useState } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const loginSchema = z.object({
-	email: z.string().email('Please enter a valid email.'),
+	username: z.string().email('Please enter a valid email address.'),
 	password: z.string().min(1, 'Password is required.'),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
+	const { login } = useAuth();
 	const router = useRouter();
-	const { login, user } = useAuth();
-	const { toast } = useToast();
-	const [isLoading, setIsLoading] = React.useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
 	const form = useForm<LoginFormValues>({
 		resolver: zodResolver(loginSchema),
 		defaultValues: {
-			email: '',
+			username: '',
 			password: '',
 		},
 	});
 
-	React.useEffect(() => {
-		if (user) {
-			const { userType } = user;
-			if (userType === 'SYSTEM' || userType === 'IIFC_ADMIN') {
-				router.push('/admin');
-			} else if (userType === 'JOB_SEEKER') {
-				router.push('/jobseeker');
-			} else {
-				router.push('/');
-			}
-		}
-	}, [user, router]);
-
-	const onSubmit = async (data: LoginFormValues) => {
+	async function onSubmit(data: LoginFormValues) {
 		setIsLoading(true);
+		setError(null);
 		try {
-			await login(data.email, data.password);
-			toast({
-				title: 'Login Successful',
-				description: 'Welcome back!',
-				variant: 'success',
-			});
-			// Redirection is handled by the useEffect
-		} catch (error: any) {
-			toast({
-				title: 'Login Failed',
-				description: error?.message || 'Invalid email or password. Please try again.',
-				variant: 'danger',
-			});
+			await login(data.username, data.password);
+			router.push('/admin'); // Redirect to dashboard after successful login
+		} catch (err: any) {
+			setError(err.message || 'An unexpected error occurred. Please try again.');
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}
 
 	return (
-		<div className='w-full space-y-6'>
-			<div className='text-center'>
-				<h1 className='text-3xl font-bold font-headline'>Welcome Back</h1>
-				<p className='text-muted-foreground'>Sign in to continue to your account.</p>
-			</div>
-			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
-					<FormInput
-						control={form.control}
-						name='email'
-						label='Email'
-						type='email'
-						placeholder='you@example.com'
-						required
-					/>
-					<FormInput
-						control={form.control}
-						name='password'
-						label='Password'
-						type='password'
-						placeholder='••••••••'
-						required
-					/>
-					<Button type='submit' className='w-full' disabled={isLoading}>
-						{isLoading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-						Sign In
-					</Button>
-				</form>
-			</Form>
-			<div className='relative'>
-				<Separator />
-				<div className='absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center'>
-					<span className='bg-background px-2 text-sm text-muted-foreground'>OR</span>
+		<Card className='w-full max-w-sm glassmorphism'>
+			<CardHeader className='text-center'>
+				<CardTitle className='text-2xl font-headline'>Welcome Back!</CardTitle>
+				<CardDescription>Enter your credentials to access your account.</CardDescription>
+			</CardHeader>
+			<CardContent>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+						{error && (
+							<Alert variant='danger'>
+								<AlertDescription className='flex items-center gap-2'>
+									<AlertCircle className='h-4 w-4' />
+									{error}
+								</AlertDescription>
+							</Alert>
+						)}
+						<FormInput
+							control={form.control}
+							name='username'
+							label='Email'
+							type='email'
+							placeholder='you@example.com'
+							required
+							disabled={isLoading}
+						/>
+						<FormInput
+							control={form.control}
+							name='password'
+							label='Password'
+							type='password'
+							required
+							disabled={isLoading}
+						/>
+						<Button type='submit' className='w-full' disabled={isLoading}>
+							{isLoading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+							Sign In
+						</Button>
+					</form>
+				</Form>
+				<div className='mt-4 text-center text-sm'>
+					Don&apos;t have an account?{' '}
+					<Link href='/signup' className='underline text-primary'>
+						Sign up
+					</Link>
 				</div>
-			</div>
-			<p className='text-center text-sm'>
-				Don&apos;t have an account?{' '}
-				<Button variant='link' className='p-0 h-auto' asChild>
-					<Link href='/signup'>Sign up</Link>
-				</Button>
-			</p>
-		</div>
+			</CardContent>
+		</Card>
 	);
 }
