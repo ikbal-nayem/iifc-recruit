@@ -1,6 +1,7 @@
+
 'use client';
 
-import { setAuthHeader } from '@/config/api.config';
+import { initializeAuthHeader, setAuthHeader } from '@/config/api.config';
 import { AUTH_INFO } from '@/constants/auth.constant';
 import { ROUTES } from '@/constants/routes.constant';
 import { IAuthInfo, IUser } from '@/interfaces/auth.interface';
@@ -21,6 +22,17 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const setCookie = (name: string, value: string, days: number) => {
+    let expires = "";
+    if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+}
+
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [user, setUser] = useState<IUser | null>(null);
 	const [authInfo, setAuthInfo] = useState<IAuthInfo | null>(null);
@@ -30,14 +42,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const logout = () => {
 		nProgress.start();
 		AuthService.logout()
-			.then(() => {
+			.catch((e) => console.error('Logout failed but proceeding', e))
+			.finally(() => {
 				setUser(null);
 				setAuthInfo(null);
-				setAuthHeader();
+				initializeAuthHeader();
 				LocalStorageService.delete(AUTH_INFO);
+                setCookie(AUTH_INFO, '', -1);
 				router.push(ROUTES.AUTH.LOGIN);
-			})
-			.finally(() => nProgress.done());
+				nProgress.done();
+			});
 	};
 
 	useEffect(() => {
@@ -45,7 +59,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			const storedAuthInfo = LocalStorageService.get(AUTH_INFO);
 			if (storedAuthInfo) {
 				setAuthInfo(storedAuthInfo);
-				setAuthHeader(storedAuthInfo.access_token);
+				initializeAuthHeader();
 				try {
 					const userProfileRes = await AuthService.getUserProfile();
 					setUser(userProfileRes.body);
@@ -64,8 +78,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		const response = await AuthService.login({ username, password });
 		const newAuthInfo = response.body;
 		setAuthInfo(newAuthInfo);
-		setAuthHeader(newAuthInfo.access_token);
+		initializeAuthHeader();
 		LocalStorageService.set(AUTH_INFO, newAuthInfo);
+		setCookie(AUTH_INFO, JSON.stringify(newAuthInfo), 7);
+
 
 		try {
 			const userProfileRes = await AuthService.getUserProfile();
