@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	const login = async (username: string, password: string) => {
-		const response = await AuthService.login({ email: username, password });
+		const response = await AuthService.login({ username, password });
 		const newAuthInfo = response.body;
 		setAuthInfo(newAuthInfo);
 		setAuthHeader(newAuthInfo.accessToken);
