@@ -81,7 +81,7 @@ export function JobseekerManagement() {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit, toast]
+		[meta?.limit, toast]
 	);
 
 	const onFilterSubmit = (values: FilterFormValues) => {

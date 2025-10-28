@@ -40,11 +40,6 @@ export default function Header() {
 
 	const breadcrumbs = getBreadcrumbs(pathname);
 
-	const handleLogout = () => {
-		logout();
-		router.push('/login');
-	};
-
 	const handleProfileClick = () => {
 		const targetPath =
 			currectUser?.userType === 'SYSTEM' || currectUser?.userType === 'IIFC_ADMIN'
@@ -121,7 +116,7 @@ export default function Header() {
 							<span>Edit Profile</span>
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem onClick={handleLogout}>
+						<DropdownMenuItem onClick={logout}>
 							<LogOut className='mr-2 h-4 w-4' />
 							<span>Log out</span>
 						</DropdownMenuItem>

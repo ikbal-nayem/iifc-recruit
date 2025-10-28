@@ -1,12 +1,14 @@
-
 'use client';
 
+import { setAuthHeader } from '@/config/api.config';
 import { AUTH_INFO } from '@/constants/auth.constant';
+import { ROUTES } from '@/constants/routes.constant';
 import { IAuthInfo, IUser } from '@/interfaces/auth.interface';
 import { AuthService } from '@/services/api/auth.service';
 import { LocalStorageService } from '@/services/storage.service';
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { setAuthHeader } from '@/config/api.config';
+import { useRouter } from 'next/navigation';
+import nProgress from 'nprogress';
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
 interface AuthContextType {
 	currectUser: IUser | null;
@@ -23,12 +25,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [user, setUser] = useState<IUser | null>(null);
 	const [authInfo, setAuthInfo] = useState<IAuthInfo | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
+	const router = useRouter();
 
 	const logout = () => {
-		setUser(null);
-		setAuthInfo(null);
-		setAuthHeader();
-		LocalStorageService.delete(AUTH_INFO);
+		nProgress.start();
+		AuthService.logout()
+			.then(() => {
+				setUser(null);
+				setAuthInfo(null);
+				setAuthHeader();
+				LocalStorageService.delete(AUTH_INFO);
+				router.push(ROUTES.AUTH.LOGIN);
+			})
+			.finally(() => nProgress.done());
 	};
 
 	useEffect(() => {
