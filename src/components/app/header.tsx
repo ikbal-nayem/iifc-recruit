@@ -53,10 +53,6 @@ export default function Header() {
 		router.push(targetPath);
 	};
 
-	const getFullName = () => {
-		return [user?.firstName, user?.lastName].filter(Boolean).join(' ');
-	};
-
 	const getNavLinks = () => {
 		if (user?.userType === 'SYSTEM' || user?.userType === 'IIFC_ADMIN') {
 			return adminNavLinks;
@@ -96,7 +92,7 @@ export default function Header() {
 							<Avatar>
 								<AvatarImage
 									src={makePreviewURL(user.profileImage?.filePath)}
-									alt={getFullName()}
+									alt={user.fullName || user.firstName}
 								/>
 								<AvatarFallback>
 									{user.firstName?.charAt(0)}
@@ -108,7 +104,7 @@ export default function Header() {
 					<DropdownMenuContent className='w-56' align='end' forceMount>
 						<DropdownMenuLabel className='font-normal'>
 							<div className='flex flex-col space-y-1'>
-								<p className='text-sm font-medium leading-none'>{getFullName()}</p>
+								<p className='text-sm font-medium leading-none'>{user.fullName || user.firstName}</p>
 								<p className='text-xs leading-none text-muted-foreground'>{user.email}</p>
 							</div>
 						</DropdownMenuLabel>

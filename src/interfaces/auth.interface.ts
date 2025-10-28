@@ -1,4 +1,4 @@
-import { IFile } from "./common.interface";
+import { EnumDTO, IFile } from "./common.interface";
 
 export type UserType = 'SYSTEM' | 'IIFC_ADMIN' | 'JOB_SEEKER' | 'CLIENT' | 'EXAMINER';
 
@@ -17,5 +17,10 @@ export interface IUser {
   userType: UserType;
   firstName: string;
   lastName: string;
+  fullName?: string;
+  phone?: string;
   profileImage?: IFile;
+  dateOfBirth?: string;
+  gender?: string;
+  genderDTO?: EnumDTO;
 }
