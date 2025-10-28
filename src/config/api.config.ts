@@ -1,6 +1,6 @@
-
 import { AUTH_INFO } from '@/constants/auth.constant';
 import { ENV } from '@/constants/env.constant';
+import { ROUTES } from '@/constants/routes.constant';
 import { IAuthInfo } from '@/interfaces/auth.interface';
 import { LocalStorageService, isBrowser } from '@/services/storage.service';
 import axios from 'axios';
@@ -9,7 +9,7 @@ const axiosIns = axios.create({
 	baseURL: ENV.API_GATEWAY,
 	headers: {
 		Accept: 'application/json',
-		'clientId': 'iifc-recruitment-client',
+		clientId: 'iifc-recruitment-client',
 	},
 });
 
@@ -23,10 +23,10 @@ const setAuthHeader = (token?: string) => {
 };
 
 const initializeAuthHeader = () => {
-    if (isBrowser) {
-        setAuthHeader();
-    }
-}
+	if (isBrowser) {
+		setAuthHeader();
+	}
+};
 
 axiosIns.interceptors.request.use(
 	(config) => {
@@ -61,11 +61,9 @@ axiosIns.interceptors.response.use(
 	},
 	(error) => {
 		if (error?.response) {
-			const { config, data, status } = error.response;
-			const isAuthRoute = config.url.includes('/api/auth/login') || config.url.includes('/auth/signup');
+			const { data, status } = error.response;
 
-			// Only trigger global logout for non-auth routes on 401
-			if (status === 401 && !isAuthRoute) {
+			if (status === 401) {
 				logout();
 			}
 
@@ -110,10 +108,11 @@ axiosIns.interceptors.response.use(
 );
 
 const logout = () => {
-	LocalStorageService.clear();
 	if (isBrowser) {
-		window.location.href = '/login';
+		if (window.location.pathname === ROUTES.AUTH.LOGIN) return;
+		LocalStorageService.clear();
+		window.location.href = ROUTES.AUTH.LOGIN;
 	}
 };
 
-export { axiosIns, setAuthHeader, initializeAuthHeader };
+export { axiosIns, initializeAuthHeader, setAuthHeader };

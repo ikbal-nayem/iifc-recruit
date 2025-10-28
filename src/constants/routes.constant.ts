@@ -1,5 +1,12 @@
 
 export const ROUTES = {
+	AUTH: {
+		LOGIN: '/login',
+		REGISTER: '/register',
+		FORGOT_PASSWORD: '/forgot-password',
+		RESET_PASSWORD: '/reset-password',
+	},
+	
 	HOME: '/',
 	JOB_REQUESTS: '/admin/job-management/request',
 	JOB_REQUEST_CREATE: '/admin/job-management/request/create',
