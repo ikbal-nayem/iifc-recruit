@@ -30,7 +30,7 @@ const initializeAuthHeader = () => {
 
 axiosIns.interceptors.request.use(
 	(config) => {
-		console.log("Requested URL -> ", config.url, config.headers)
+		console.log('Requested URL -> ', config.url, config.headers);
 		return config;
 	},
 	(error) => {
