@@ -9,11 +9,11 @@ export const makePreviewURL = (file: File | IFile | string | null | undefined) =
 	if (!file) return '';
 	if (typeof file === 'string') {
 		if (file.startsWith('http')) return file;
-		return `${ENV.API_GATEWAY}/files/get?path=${file}`;
+		return `${ENV.API_GATEWAY}/files/public/get?path=${file}`;
 	}
 	if ('filePath' in file) {
 		if (file.filePath.startsWith('http')) return file.filePath;
-		return `${ENV.API_GATEWAY}/files/get?path=${file.filePath}`;
+		return `${ENV.API_GATEWAY}/files/public/get?path=${file.filePath}`;
 	}
 	return URL.createObjectURL(file);
 };

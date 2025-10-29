@@ -2,7 +2,7 @@
 export const ROUTES = {
 	AUTH: {
 		LOGIN: '/login',
-		REGISTER: '/register',
+		SIGNUP: '/signup',
 		FORGOT_PASSWORD: '/forgot-password',
 		RESET_PASSWORD: '/reset-password',
 	},
@@ -10,6 +10,11 @@ export const ROUTES = {
 	DASHBOARD: {
 		ADMIN: '/admin',
 		JOB_SEEKER: '/jobseeker',
+	},
+
+	JOB_SEEKER: {
+		APPLICATIONS: '/jobseeker/applications',
+		PROFILE: '/jobseeker/profile',
 	},
 	
 	HOME: '/',

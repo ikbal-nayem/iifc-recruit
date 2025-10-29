@@ -1,6 +1,6 @@
-import { addDays, format, subDays, subMonths, subYears } from 'date-fns';
-import type { Activity, Job, Jobseeker } from './types';
 import { Application } from '@/interfaces/application.interface';
+import { addDays, format, subDays, subMonths, subYears } from 'date-fns';
+import type { Job, Jobseeker } from './types';
 
 export const jobseekers: Jobseeker[] = [
 	{
@@ -78,153 +78,6 @@ export const jobseekers: Jobseeker[] = [
 		trainings: [],
 		resumes: [],
 		status: 'Active',
-	},
-	{
-		id: 'c2',
-		personalInfo: {
-			firstName: 'Bob',
-			lastName: 'Smith',
-			fatherName: 'Robert Smith',
-			motherName: 'Susan Smith',
-			email: 'bob.s@example.com',
-			phone: '234-567-8901',
-			dateOfBirth: format(subYears(new Date(), 35), 'yyyy-MM-dd'),
-			gender: 'Male',
-			maritalStatus: 'Single',
-			nationality: 'Bangladeshi',
-			religion: 'Christianity',
-			professionalStatus: 'Mid-Level',
-			presentAddress: '456 Innovation Drive, Panchlaish, Chattogram, 4203',
-			permanentAddress: '456 Innovation Drive, Panchlaish, Chattogram, 4203',
-			profileImage: { filePath: 'https://picsum.photos/seed/bob/100/100' } as any,
-			careerObjective: 'Product Manager driving innovation and growth',
-		},
-		academicInfo: [
-			{
-				degree: 'MBA',
-				institution: 'Columbia Business School',
-				graduationYear: 2018,
-			},
-		],
-		professionalInfo: [
-			{
-				company: 'Solutions Inc.',
-				role: 'Product Manager',
-				fromDate: format(new Date(2018, 8, 1), 'yyyy-MM-dd'),
-				isPresent: true,
-				responsibilities: [
-					'Defined product roadmap for B2B SaaS platform',
-					'Conducted market research and user interviews',
-				],
-			},
-		],
-		skills: ['Product Management', 'Agile', 'JIRA', 'Market Research', 'Roadmap Planning'],
-		certifications: [],
-		languages: [{ languageId: 1, proficiency: 'NATIVE' }],
-		publications: [],
-		awards: [],
-		trainings: [],
-		resumes: [
-			// { id: 'res3', fileName: 'Bob_Smith_Product_Resume.pdf', url: '/resumes/bob_smith_resume.pdf', isActive: true, createdAt: format(subDays(new Date(), 30), 'yyyy-MM-dd') }
-		],
-		status: 'Passive',
-	},
-	{
-		id: 'c3',
-		personalInfo: {
-			firstName: 'Charlie',
-			lastName: 'Brown',
-			fatherName: 'Charles Brown Sr.',
-			motherName: 'Sally Brown',
-			email: 'charlie.b@example.com',
-			phone: '345-678-9012',
-			dateOfBirth: format(subYears(new Date(), 28), 'yyyy-MM-dd'),
-			gender: 'Male',
-			maritalStatus: 'Single',
-			nationality: 'Bangladeshi',
-			religion: 'Hinduism',
-			professionalStatus: 'Entry-Level',
-			presentAddress: '789 ML Lane, Sylhet Sadar, Sylhet, 3100',
-			permanentAddress: '789 ML Lane, Sylhet Sadar, Sylhet, 3100',
-			profileImage: { filePath: 'https://picsum.photos/seed/charlie/100/100' } as any,
-			careerObjective: 'Data Scientist passionate about machine learning',
-		},
-		academicInfo: [
-			{
-				degree: 'M.S. in Data Science',
-				institution: 'University of Texas at Austin',
-				graduationYear: 2020,
-			},
-		],
-		professionalInfo: [
-			{
-				company: 'DataWiz',
-				role: 'Data Scientist',
-				fromDate: format(new Date(2020, 0, 15), 'yyyy-MM-dd'),
-				isPresent: true,
-				responsibilities: [
-					'Developed predictive models for customer churn',
-					'Built data visualization dashboards in Tableau',
-				],
-			},
-		],
-		skills: ['Python', 'TensorFlow', 'PyTorch', 'SQL', 'Tableau', 'Machine Learning'],
-		certifications: [],
-		languages: [{ languageId: 1, proficiency: 'NATIVE' }],
-		publications: [],
-		awards: [],
-		trainings: [],
-		resumes: [
-			// { id: 'res4', fileName: 'Charlie_Brown_Data_Science.pdf', url: '/resumes/charlie_brown_resume.pdf', isActive: true, createdAt: format(subDays(new Date(), 5), 'yyyy-MM-dd') }
-		],
-		status: 'Active',
-	},
-	{
-		id: 'c4',
-		personalInfo: {
-			firstName: 'Diana',
-			lastName: 'Prince',
-			fatherName: 'Zeus',
-			motherName: 'Hippolyta',
-			email: 'diana.p@example.com',
-			phone: '456-789-0123',
-			dateOfBirth: format(subYears(new Date(), 26), 'yyyy-MM-dd'),
-			gender: 'Female',
-			maritalStatus: 'Single',
-			nationality: 'Bangladeshi',
-			religion: 'Buddhism',
-			professionalStatus: 'Student',
-			presentAddress: '101 Design Street, Boalia, Rajshahi, 6000',
-			permanentAddress: '101 Design Street, Boalia, Rajshahi, 6000',
-			profileImage: { filePath: 'https://picsum.photos/seed/diana/100/100' } as any,
-			careerObjective: 'UX/UI Designer creating intuitive user experiences',
-		},
-		academicInfo: [
-			{
-				degree: 'B.A. in Graphic Design',
-				institution: 'Rhode Island School of Design',
-				graduationYear: 2019,
-			},
-		],
-		professionalInfo: [
-			{
-				company: 'Creative Minds',
-				role: 'UX/UI Designer',
-				fromDate: format(new Date(2019, 6, 1), 'yyyy-MM-dd'),
-				isPresent: true,
-				responsibilities: ['Designed user flows and wireframes', 'Conducted usability testing sessions'],
-			},
-		],
-		skills: ['Figma', 'Sketch', 'Adobe XD', 'User Research', 'Prototyping'],
-		certifications: [],
-		languages: [{ languageId: 1, proficiency: 'NATIVE' }],
-		publications: [],
-		awards: [],
-		trainings: [],
-		resumes: [
-			// { id: 'res5', fileName: 'Diana_Prince_UX_Portfolio_Resume.pdf', url: '/resumes/diana_prince_resume.pdf', isActive: true, createdAt: format(subWeeks(new Date(), 2), 'yyyy-MM-dd') }
-		],
-		status: 'Hired',
 	},
 ];
 
@@ -793,36 +646,5 @@ export const applications: Application[] = [
 		jobseekerId: 'c4',
 		status: 'Applied',
 		applicationDate: format(subDays(new Date(), 3), 'yyyy-MM-dd'),
-	},
-];
-
-export const activities: Activity[] = [
-	{
-		id: 'act1',
-		user: { name: 'Admin User', avatar: 'https://picsum.photos/seed/admin/100/100' },
-		action: 'posted a new job:',
-		target: 'Public Relations Officer',
-		timestamp: format(subDays(new Date(), 1), 'yyyy-MM-dd HH:mm'),
-	},
-	{
-		id: 'act2',
-		user: { name: 'Alice Johnson', avatar: 'https://picsum.photos/seed/alice/100/100' },
-		action: 'applied for:',
-		target: 'Assistant Director',
-		timestamp: format(subDays(new Date(), 1), 'yyyy-MM-dd HH:mm'),
-	},
-	{
-		id: 'act3',
-		user: { name: 'Admin User', avatar: 'https://picsum.photos/seed/admin/100/100' },
-		action: 'shortlisted',
-		target: 'Charlie Brown for IT Officer',
-		timestamp: format(new Date(), 'yyyy-MM-dd HH:mm'),
-	},
-	{
-		id: 'act4',
-		user: { name: 'Admin User', avatar: 'https://picsum.photos/seed/admin/100/100' },
-		action: 'changed status of',
-		target: 'Upazila Nirbahi Officer (UNO) to Closed',
-		timestamp: format(subDays(new Date(), 2), 'yyyy-MM-dd HH:mm'),
 	},
 ];

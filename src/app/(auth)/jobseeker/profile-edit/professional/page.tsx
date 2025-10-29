@@ -1,9 +1,9 @@
 import { ProfileFormProfessional } from '@/components/app/jobseeker/profile-forms/professional';
-import { IBilingualMasterData, IOrganization } from '@/interfaces/master-data.interface';
+import { ICommonMasterData, IOrganization } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 
 export type ProfessionalExperienceMasterData = {
-	positionLevels: IBilingualMasterData[];
+	positionLevels: ICommonMasterData[];
 	organizations: IOrganization[];
 };
 

@@ -47,7 +47,10 @@ class AxiosInstance {
 		this.instance.interceptors.response.use(
 			(res: any) => {
 				if (res?.data?.status === 200) return { ...res.data };
-				if (res?.data?.status === 401) this.logout();
+				if (res?.data?.status === 401) {
+					(location.pathname !== ROUTES.AUTH.LOGIN || location.pathname !== ROUTES.AUTH.SIGNUP) &&
+						this.logout();
+				}
 				return Promise.reject({
 					body: res.data.body,
 					status: res.data.status,

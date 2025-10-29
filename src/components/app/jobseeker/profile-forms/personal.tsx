@@ -158,7 +158,7 @@ const personalInfoSchema = z.object({
 	motherName: z.string().min(1, "Mother's name is required"),
 	email: z.string().email(),
 	phone: z.string().min(1, 'Phone number is required'),
-	careerObjective: z.string().min(1, 'Career objective is required'),
+	careerObjective: z.string().optional(),
 	dateOfBirth: z.string().min(1, 'Date of birth is required'),
 	gender: z.string().min(1, 'Gender is required'),
 	maritalStatus: z.string().min(1, 'Marital status is required'),
@@ -215,6 +215,8 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 	const watchPermanentDivisionId = form.watch('permanentDivisionId');
 	const watchPermanentDistrictId = form.watch('permanentDistrictId');
 	const watchSameAsPresent = form.watch('sameAsPresentAddress');
+
+	console.log(personalInfo)
 
 	const useFetchDependentData = (
 		watchId: string | undefined,
@@ -375,7 +377,6 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 									name='careerObjective'
 									label='Career Objective / Headline'
 									placeholder='e.g. Senior Frontend Developer seeking new challenges...'
-									required
 								/>
 								<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
 									<FormDatePicker
@@ -460,7 +461,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 												label='Division'
 												placeholder='Select division'
 												options={masterData.divisions}
-												labelKey='name'
+												labelKey='nameEn'
 												valueKey='id'
 											/>
 											<FormSelect
@@ -470,7 +471,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 												placeholder='Select district'
 												disabled={isLoadingPresentDistricts}
 												options={presentDistricts}
-												labelKey='name'
+												labelKey='nameEn'
 												valueKey='id'
 											/>
 											<FormSelect
@@ -480,7 +481,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 												placeholder='Select upazila'
 												disabled={isLoadingPresentUpazilas}
 												options={presentUpazilas}
-												labelKey='name'
+												labelKey='nameEn'
 												valueKey='id'
 											/>
 										</div>

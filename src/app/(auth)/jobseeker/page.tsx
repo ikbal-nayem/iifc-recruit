@@ -2,8 +2,9 @@ import { ProfileCompletion } from '@/components/app/jobseeker/profile-completion
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ROUTES } from '@/constants/routes.constant';
 import { IProfileCompletionStatus } from '@/interfaces/jobseeker.interface';
-import { applications, jobseekers, jobs } from '@/lib/data';
+import { applications, jobs, jobseekers } from '@/lib/data';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { ArrowRight, Briefcase, FileText, Star } from 'lucide-react';
 import Link from 'next/link';
@@ -31,8 +32,9 @@ export default async function JobseekerDashboardPage() {
 	const stats = {
 		totalApplications: jobseekerApplications.length,
 		interviews: jobseekerApplications.filter((app) => app.status === 'Interview').length,
-		activeApplications: jobseekerApplications.filter((app) => !['Hired', 'Rejected', 'Closed'].includes(app.status))
-			.length,
+		activeApplications: jobseekerApplications.filter(
+			(app) => !['Hired', 'Rejected', 'Closed'].includes(app.status)
+		).length,
 	};
 
 	return (
@@ -111,7 +113,7 @@ export default async function JobseekerDashboardPage() {
 				</CardContent>
 				<CardFooter>
 					<Button asChild variant='link' className='group'>
-						<Link href='/jobseeker/applications'>
+						<Link href={ROUTES.JOB_SEEKER.APPLICATIONS}>
 							View All Applications{' '}
 							<ArrowRight className='ml-2 h-4 w-4 transition-transform group-hover:translate-x-1' />
 						</Link>

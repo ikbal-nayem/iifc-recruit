@@ -1,5 +1,6 @@
 'use client';
 
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
@@ -8,12 +9,11 @@ import { useToast } from '@/hooks/use-toast';
 import { AuthService } from '@/services/api/auth.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import Link from 'next/link';
 
 const formSchema = z.object({
 	email: z.string().email('Please enter a valid email address.'),
@@ -69,7 +69,7 @@ export default function ForgotPasswordPage() {
 						<FormInput
 							control={form.control}
 							name='email'
-							label='Email'
+							label='Email/Phone Number'
 							type='email'
 							placeholder='you@example.com'
 							required
