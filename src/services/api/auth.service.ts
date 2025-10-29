@@ -14,7 +14,7 @@ export const AuthService = {
 	},
 
 	signup: async (payload: IObject): Promise<IApiResponse<void>> =>
-		await axiosIns.post('/api/auth/signup', payload),
+		await axiosIns.post('/user/public/signup', payload),
 
 	getUserProfile: async (): Promise<IApiResponse<IUser>> => {
 		return axiosIns.get('/api/auth/user');

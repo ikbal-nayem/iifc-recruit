@@ -9,9 +9,10 @@ import { Button } from '@/components/ui/button';
 import { CardContent } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
+import { ROUTES } from '@/constants/routes.constant';
 import { useToast } from '@/hooks/use-toast';
 import { AuthService } from '@/services/api/auth.service';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { Loader2, UserRoundPlus } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -57,18 +58,17 @@ export default function SignupForm() {
 		setIsLoading(true);
 		setError(null);
 		try {
-			await AuthService.signup({
+			const res = await AuthService.signup({
 				firstName: data.firstName,
 				lastName: data.lastName,
 				email: data.email,
 				password: data.password,
 			});
 			toast({
-				title: 'Account Created!',
-				description: 'You can now log in with your new credentials.',
+				description: res.message || 'You can now log in with your new credentials.',
 				variant: 'success',
 			});
-			router.push('/login');
+			router.push(ROUTES.AUTH.LOGIN);
 		} catch (err: any) {
 			setError(err.message || 'An unexpected error occurred. Please try again.');
 		} finally {
@@ -82,10 +82,7 @@ export default function SignupForm() {
 				<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
 					{error && (
 						<Alert variant='danger'>
-							<AlertDescription className='flex items-center gap-2'>
-								<AlertCircle className='h-4 w-4' />
-								{error}
-							</AlertDescription>
+							<AlertDescription className='flex items-center gap-2'>{error}</AlertDescription>
 						</Alert>
 					)}
 					<div className='grid grid-cols-2 gap-4'>
@@ -118,6 +115,7 @@ export default function SignupForm() {
 						name='password'
 						label='Password'
 						type='password'
+						placeholder='●●●●●●'
 						required
 						disabled={isLoading}
 					/>
@@ -126,11 +124,16 @@ export default function SignupForm() {
 						name='confirmPassword'
 						label='Confirm Password'
 						type='password'
+						placeholder='●●●●●●'
 						required
 						disabled={isLoading}
 					/>
 					<Button type='submit' className='w-full' disabled={isLoading}>
-						{isLoading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+						{isLoading ? (
+							<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+						) : (
+							<UserRoundPlus className='mr-2 h-4 w-4' />
+						)}
 						Create Account
 					</Button>
 				</form>

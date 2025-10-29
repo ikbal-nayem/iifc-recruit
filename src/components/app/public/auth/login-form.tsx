@@ -79,7 +79,7 @@ export default function LoginForm() {
 						name='password'
 						label='Password'
 						type='password'
-						placeholder='******'
+						placeholder='●●●●●●'
 						required
 						disabled={isLoading}
 					/>
