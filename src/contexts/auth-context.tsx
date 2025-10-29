@@ -34,9 +34,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 				setUser(null);
 				setAuthInfo(null);
 				setAuthToken();
-				LocalStorageService.delete(AUTH_INFO);
-				CookieService.remove(ACCESS_TOKEN);
-				CookieService.remove(REFRESH_TOKEN);
+				removeAuthInfo();
 				router.push(ROUTES.AUTH.LOGIN);
 			})
 			.finally(() => nProgress.done());
@@ -67,9 +65,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		const newAuthInfo = response.body;
 		setAuthInfo(newAuthInfo);
 		setAuthToken(newAuthInfo.access_token);
-		LocalStorageService.set(AUTH_INFO, newAuthInfo);
-		CookieService.set(ACCESS_TOKEN, newAuthInfo.access_token, 1);
-		CookieService.set(REFRESH_TOKEN, newAuthInfo.refresh_token, 1);
+		storeAuthInfo(newAuthInfo);
 
 		try {
 			const userProfileRes = await AuthService.getUserProfile();
@@ -95,6 +91,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			{children}
 		</AuthContext.Provider>
 	);
+};
+
+const storeAuthInfo = (authInfo: IAuthInfo) => {
+	LocalStorageService.set(AUTH_INFO, authInfo);
+	CookieService.set(ACCESS_TOKEN, authInfo.access_token, 1);
+	CookieService.set(REFRESH_TOKEN, authInfo.refresh_token, 1);
+};
+
+const removeAuthInfo = () => {
+	LocalStorageService.delete(AUTH_INFO);
+	CookieService.remove(ACCESS_TOKEN);
+	CookieService.remove(REFRESH_TOKEN);
 };
 
 export const useAuth = () => {
