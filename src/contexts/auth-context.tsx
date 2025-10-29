@@ -1,3 +1,4 @@
+
 'use client';
 
 import { setAuthToken } from '@/config/api.config';
@@ -5,7 +6,7 @@ import { ACCESS_TOKEN, AUTH_INFO, REFRESH_TOKEN } from '@/constants/auth.constan
 import { ROUTES } from '@/constants/routes.constant';
 import { IAuthInfo, IUser } from '@/interfaces/auth.interface';
 import { AuthService } from '@/services/api/auth.service';
-import { CookieService, LocalStorageService } from '@/services/storage.service';
+import { clearAuthInfo, CookieService, LocalStorageService } from '@/services/storage.service';
 import { useRouter } from 'next/navigation';
 import nProgress from 'nprogress';
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
@@ -21,6 +22,17 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const setCookie = (name: string, value: string, days: number) => {
+    let expires = "";
+    if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+}
+
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [user, setUser] = useState<IUser | null>(null);
 	const [authInfo, setAuthInfo] = useState<IAuthInfo | null>(null);
@@ -30,14 +42,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const logout = () => {
 		nProgress.start();
 		AuthService.logout()
-			.then(() => {
+			.catch((e) => console.error('Logout failed but proceeding', e))
+			.finally(() => {
 				setUser(null);
 				setAuthInfo(null);
 				setAuthToken();
-				removeAuthInfo();
+				clearAuthInfo();
 				router.push(ROUTES.AUTH.LOGIN);
-			})
-			.finally(() => nProgress.done());
+				nProgress.done();
+			});
 	};
 
 	useEffect(() => {
@@ -97,12 +110,6 @@ const storeAuthInfo = (authInfo: IAuthInfo) => {
 	LocalStorageService.set(AUTH_INFO, authInfo);
 	CookieService.set(ACCESS_TOKEN, authInfo.access_token, 1);
 	CookieService.set(REFRESH_TOKEN, authInfo.refresh_token, 1);
-};
-
-const removeAuthInfo = () => {
-	LocalStorageService.delete(AUTH_INFO);
-	CookieService.remove(ACCESS_TOKEN);
-	CookieService.remove(REFRESH_TOKEN);
 };
 
 export const useAuth = () => {

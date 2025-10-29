@@ -1,5 +1,7 @@
 "use client";
 
+import { ACCESS_TOKEN, AUTH_INFO, REFRESH_TOKEN } from "@/constants/auth.constant";
+
 export const isBrowser = typeof window !== 'undefined';
 export const isServer = typeof window === 'undefined';
 
@@ -82,3 +84,9 @@ export class CookieService {
     document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
   }
 }
+
+export const clearAuthInfo = () => {
+    LocalStorageService.delete(AUTH_INFO);
+    CookieService.remove(ACCESS_TOKEN);
+    CookieService.remove(REFRESH_TOKEN);
+};

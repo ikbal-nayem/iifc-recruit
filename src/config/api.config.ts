@@ -1,7 +1,7 @@
 import { ACCESS_TOKEN } from '@/constants/auth.constant';
 import { ENV } from '@/constants/env.constant';
 import { ROUTES } from '@/constants/routes.constant';
-import { CookieService, LocalStorageService, isBrowser } from '@/services/storage.service';
+import { clearAuthInfo, isBrowser } from '@/services/storage.service';
 import axios from 'axios';
 const { cookies } = require('next/headers');
 
@@ -23,7 +23,7 @@ class AxiosInstance {
 
 	private async getAuthToken() {
 		try {
-			const cookieStore = await cookies()
+			const cookieStore = await cookies();
 			return cookieStore.get(ACCESS_TOKEN)?.value || null;
 		} catch (e) {
 			return null;
@@ -44,7 +44,6 @@ class AxiosInstance {
 			}
 		);
 
-		// Response interceptor (keep your existing logic)
 		this.instance.interceptors.response.use(
 			(res: any) => {
 				if (res?.data?.status === 200) return { ...res.data };
@@ -76,15 +75,12 @@ class AxiosInstance {
 	}
 
 	private handleResponseError(error: any) {
-		// Your existing error handling logic
 		if (error?.response) {
 			const { data, status } = error.response;
 
 			if (status === 401) {
-				if (location.pathname !== ROUTES.AUTH.LOGIN) this.logout();
+				location.pathname !== ROUTES.AUTH.LOGIN && this.logout();
 			}
-
-			// ... rest of your error handling
 		}
 
 		return Promise.reject({
@@ -96,8 +92,7 @@ class AxiosInstance {
 
 	private logout() {
 		if (isBrowser) {
-			LocalStorageService.clear();
-			CookieService.remove(ACCESS_TOKEN);
+			clearAuthInfo();
 			window.location.href = ROUTES.AUTH.LOGIN;
 		}
 	}
