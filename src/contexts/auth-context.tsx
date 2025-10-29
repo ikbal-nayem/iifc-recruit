@@ -1,11 +1,11 @@
 'use client';
 
-import { setAuthHeader } from '@/config/api.config';
-import { AUTH_INFO } from '@/constants/auth.constant';
+import { setAuthToken } from '@/config/api.config';
+import { ACCESS_TOKEN, AUTH_INFO, REFRESH_TOKEN } from '@/constants/auth.constant';
 import { ROUTES } from '@/constants/routes.constant';
 import { IAuthInfo, IUser } from '@/interfaces/auth.interface';
 import { AuthService } from '@/services/api/auth.service';
-import { LocalStorageService } from '@/services/storage.service';
+import { CookieService, LocalStorageService } from '@/services/storage.service';
 import { useRouter } from 'next/navigation';
 import nProgress from 'nprogress';
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
@@ -33,8 +33,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			.then(() => {
 				setUser(null);
 				setAuthInfo(null);
-				setAuthHeader();
+				setAuthToken();
 				LocalStorageService.delete(AUTH_INFO);
+				CookieService.remove(ACCESS_TOKEN);
+				CookieService.remove(REFRESH_TOKEN);
 				router.push(ROUTES.AUTH.LOGIN);
 			})
 			.finally(() => nProgress.done());
@@ -45,7 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			const storedAuthInfo = LocalStorageService.get(AUTH_INFO);
 			if (storedAuthInfo) {
 				setAuthInfo(storedAuthInfo);
-				setAuthHeader(storedAuthInfo.access_token);
+				setAuthToken(storedAuthInfo.access_token);
 				try {
 					const userProfileRes = await AuthService.getUserProfile();
 					setUser(userProfileRes.body);
@@ -64,8 +66,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		const response = await AuthService.login({ username, password });
 		const newAuthInfo = response.body;
 		setAuthInfo(newAuthInfo);
-		setAuthHeader(newAuthInfo.access_token);
+		setAuthToken(newAuthInfo.access_token);
 		LocalStorageService.set(AUTH_INFO, newAuthInfo);
+		CookieService.set(ACCESS_TOKEN, newAuthInfo.access_token, 1);
+		CookieService.set(REFRESH_TOKEN, newAuthInfo.refresh_token, 1);
 
 		try {
 			const userProfileRes = await AuthService.getUserProfile();
