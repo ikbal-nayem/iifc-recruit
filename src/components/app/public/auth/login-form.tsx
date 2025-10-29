@@ -1,18 +1,18 @@
 'use client';
 
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { CardContent, CardFooter } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { useAuth } from '@/contexts/auth-context';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
+import { Loader2, LogIn } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const loginSchema = z.object({
 	username: z.string().min(1, 'Username or Email is required.'),
@@ -85,7 +85,11 @@ export default function LoginForm() {
 					</CardContent>
 					<CardFooter className='flex flex-col gap-4'>
 						<Button type='submit' className='w-full' disabled={isLoading}>
-							{isLoading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+							{isLoading ? (
+								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+							) : (
+								<LogIn className='mr-2 h-4 w-4' />
+							)}
 							Log In
 						</Button>
 						<p className='text-sm text-center text-muted-foreground'>
