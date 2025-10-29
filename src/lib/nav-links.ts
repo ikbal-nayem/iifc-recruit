@@ -16,6 +16,7 @@ import {
 	GraduationCap,
 	Handshake,
 	Heart,
+	History,
 	Languages,
 	LayoutDashboard,
 	Network,
@@ -23,6 +24,7 @@ import {
 	PlusCircle,
 	Search,
 	Settings,
+	Shield,
 	Star,
 	User,
 	UserCircle,
@@ -30,7 +32,6 @@ import {
 	Users,
 	Users2,
 	CalendarCheck,
-	History,
 } from 'lucide-react';
 
 export interface NavLink {
@@ -204,6 +205,7 @@ export const jobseekerNavLinks: NavLink[] = [
 			{ href: '/jobseeker/profile-edit/publications', label: 'Publications', icon: BookOpen },
 			{ href: '/jobseeker/profile-edit/awards', label: 'Awards', icon: Award },
 			{ href: '/jobseeker/profile-edit/resume', label: 'Resume', icon: FileText },
+			{ href: '/jobseeker/profile-edit/security', label: 'Security', icon: Shield },
 		],
 	},
 	{

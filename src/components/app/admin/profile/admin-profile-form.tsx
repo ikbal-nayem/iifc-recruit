@@ -1,19 +1,20 @@
 
 'use client';
 
+import { ChangePasswordForm } from '@/components/app/change-password-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Mail, Phone, Save, Upload, Loader2 } from 'lucide-react';
+import { Loader2, Mail, Phone, Save, Upload } from 'lucide-react';
 import Image from 'next/image';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { UserService } from '@/services/api/user.service';
 
 const profileImageSchema = z.object({
 	avatarFile: z
@@ -235,6 +236,7 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
 					</Card>
 				</form>
 			</Form>
+			<ChangePasswordForm />
 		</div>
 	);
 }
