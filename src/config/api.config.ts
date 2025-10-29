@@ -14,6 +14,7 @@ class AxiosInstance {
 			headers: {
 				Accept: 'application/json',
 				clientId: 'iifc-recruitment-client',
+				withCredentials: true,
 			},
 		});
 
