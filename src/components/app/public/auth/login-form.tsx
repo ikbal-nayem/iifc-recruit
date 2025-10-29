@@ -1,33 +1,31 @@
 'use client';
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { CardContent } from '@/components/ui/card';
+import { CardContent, CardFooter } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { useAuth } from '@/contexts/auth-context';
-import useLoader from '@/hooks/use-loader';
-import { UserType } from '@/interfaces/auth.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import * as z from 'zod';
+import { z } from 'zod';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const loginSchema = z.object({
-	username: z.string().min(6, 'Please enter a valid email or phone number.'),
-	password: z.string().min(6, 'Password should be at least 6 digit.'),
+	username: z.string().min(1, 'Username or Email is required.'),
+	password: z.string().min(1, 'Password is required.'),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
-	const { login, isAuthenticated, currectUser } = useAuth();
+	const { login } = useAuth();
 	const router = useRouter();
-	const [isLoading, setIsLoading] = useLoader(false);
 	const [error, setError] = useState<string | null>(null);
+	const [isLoading, setIsLoading] = useState(false);
 
 	const form = useForm<LoginFormValues>({
 		resolver: zodResolver(loginSchema),
@@ -37,64 +35,68 @@ export default function LoginForm() {
 		},
 	});
 
-	const redirectIfAuthenticated = (userType: UserType) => {
-		userType === 'JOB_SEEKER' ? router.replace('/jobseeker') : router.replace('/admin');
-	};
-
-	if (isAuthenticated && currectUser) redirectIfAuthenticated(currectUser?.userType);
-
-	async function onSubmit(data: LoginFormValues) {
+	const onSubmit = async (data: LoginFormValues) => {
 		setIsLoading(true);
 		setError(null);
 		try {
 			const user = await login(data.username, data.password);
-			user && redirectIfAuthenticated(user.userType);
+			if (user?.userType === 'SYSTEM' || user?.userType === 'IIFC_ADMIN') {
+				router.push('/admin');
+			} else {
+				router.push('/jobseeker');
+			}
 		} catch (err: any) {
 			setError(err.message || 'An unexpected error occurred. Please try again.');
 		} finally {
 			setIsLoading(false);
 		}
-	}
+	};
 
 	return (
-		<CardContent>
+		<>
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
-					{error && (
-						<Alert variant='danger'>
-							<AlertDescription className='flex items-center gap-2'>{error}</AlertDescription>
-						</Alert>
-					)}
-					<FormInput
-						control={form.control}
-						name='username'
-						label='Email/Phone'
-						type='email'
-						placeholder='you@example.com'
-						required
-						disabled={isLoading}
-					/>
-					<FormInput
-						control={form.control}
-						name='password'
-						label='Password'
-						type='password'
-						placeholder='●●●●●●'
-						required
-						disabled={isLoading}
-					/>
-					<Button type='submit' className='w-full' disabled={isLoading}>
-						{isLoading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-						Sign In
-					</Button>
+				<form onSubmit={form.handleSubmit(onSubmit)}>
+					<CardContent className='space-y-4'>
+						{error && (
+							<Alert variant='danger'>
+								<AlertDescription>{error}</AlertDescription>
+							</Alert>
+						)}
+						<FormInput
+							control={form.control}
+							name='username'
+							label='Username or Email'
+							placeholder='you@example.com'
+							required
+						/>
+						<FormInput
+							control={form.control}
+							name='password'
+							label='Password'
+							type='password'
+							placeholder='Enter your password'
+							required
+						/>
+						<div className='text-right text-sm'>
+							<Link href='/forgot-password' className='text-primary hover:underline'>
+								Forgot Password?
+							</Link>
+						</div>
+					</CardContent>
+					<CardFooter className='flex flex-col gap-4'>
+						<Button type='submit' className='w-full' disabled={isLoading}>
+							{isLoading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+							Log In
+						</Button>
+						<p className='text-sm text-center text-muted-foreground'>
+							Don&apos;t have an account?{' '}
+							<Link href='/signup' className='text-primary hover:underline font-semibold'>
+								Sign up
+							</Link>
+						</p>
+					</CardFooter>
 				</form>
 			</Form>
-			<div className='mt-4 text-center text-sm'>
-				Don&apos;t have an account?{' '}
-				<Link href='/signup' className='underline text-primary'>
-					Sign up
-				</Link>
-			</div>
-		</CardContent>
+		</>
 	);
 }

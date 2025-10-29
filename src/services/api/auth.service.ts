@@ -19,4 +19,13 @@ export const AuthService = {
 	getUserProfile: async (): Promise<IApiResponse<IUser>> => {
 		return axiosIns.get('/api/auth/user');
 	},
+	changePassword: async (payload: IObject): Promise<IApiResponse<void>> => {
+		return axiosIns.post('/api/auth/change-password', payload);
+	},
+	forgotPassword: async (email: string): Promise<IApiResponse<void>> => {
+		return axiosIns.post(`/api/auth/forgot-password?email=${email}`);
+	},
+	resetPassword: async (payload: IObject): Promise<IApiResponse<void>> => {
+		return axiosIns.post('/api/auth/reset-password', payload);
+	},
 };

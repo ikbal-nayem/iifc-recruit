@@ -15,7 +15,9 @@ export function ProfileTabs() {
 
 	return profileTabs.map((tab) => {
 		const isActive =
-			tab.href === '/jobseeker/profile-edit' ? pathname === tab.href : pathname.startsWith(tab.href);
+			tab.href === '/jobseeker/profile-edit'
+				? pathname === tab.href
+				: pathname.startsWith(tab.href);
 
 		return (
 			<Link
