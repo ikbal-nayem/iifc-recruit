@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 				setAuthInfo(storedAuthInfo);
 				setAuthToken(storedAuthInfo.access_token);
 				try {
-					const userProfileRes = await AuthService.getUserProfile();
+					const userProfileRes = await AuthService.getUserDetails();
 					setUser(userProfileRes.body);
 				} catch (error) {
 					console.error('Failed to fetch user profile on load', error);
@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		storeAuthInfo(newAuthInfo);
 
 		try {
-			const userProfileRes = await AuthService.getUserProfile();
+			const userProfileRes = await AuthService.getUserDetails();
 			setUser(userProfileRes.body);
 			return userProfileRes.body;
 		} catch (error) {
