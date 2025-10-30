@@ -111,10 +111,6 @@ export default function Header() {
 									<span>{link.label}</span>
 								</DropdownMenuItem>
 							))}
-						<DropdownMenuItem onClick={handleProfileClick}>
-							<UserCog className='mr-2 h-4 w-4' />
-							<span>Edit Profile</span>
-						</DropdownMenuItem>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem onClick={logout}>
 							<LogOut className='mr-2 h-4 w-4' />

@@ -210,7 +210,6 @@ export const jobseekerNavLinks: NavLink[] = [
 			{ href: '/jobseeker/profile-edit/publications', label: 'Publications', icon: BookOpen },
 			{ href: '/jobseeker/profile-edit/awards', label: 'Awards', icon: Award },
 			{ href: '/jobseeker/profile-edit/resume', label: 'Resume', icon: FileText },
-			{ href: '/jobseeker/profile-edit/security', label: 'Security', icon: Shield },
 		],
 	},
 	{
