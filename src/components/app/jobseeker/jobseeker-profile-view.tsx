@@ -124,7 +124,7 @@ export function JobseekerProfileView({
 			<div className='flex flex-col sm:flex-row items-start gap-6'>
 				<Avatar className='h-28 w-28 border-4 border-background shadow-md'>
 					<AvatarImage
-						src={makePreviewURL(personalInfo.profileImage?.filePath)}
+						src={makePreviewURL(personalInfo.profileImage?.filePath) || '/user-placeholder.png'}
 						alt={personalInfo.fullName}
 					/>
 					<AvatarFallback>

@@ -78,7 +78,7 @@ export default function Header() {
 						<Button variant='ghost' className='relative h-9 w-9 rounded-full'>
 							<Avatar>
 								<AvatarImage
-									src={makePreviewURL(currectUser.profileImage)}
+									src={makePreviewURL(currectUser.profileImage) || '/user-placeholder.png'}
 									alt={currectUser.fullName || currectUser.firstName}
 								/>
 								<AvatarFallback>
