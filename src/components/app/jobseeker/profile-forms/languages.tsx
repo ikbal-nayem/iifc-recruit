@@ -188,7 +188,7 @@ export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: Pr
 			<Card key={item.id} className='p-4 flex justify-between items-center'>
 				<div>
 					<p className='font-semibold'>{languageName}</p>
-					<p className='text-sm text-muted-foreground'>{item.proficiency}</p>
+					<p className='text-sm text-muted-foreground'>{item?.proficiencyDTO?.nameEn}</p>
 				</div>
 				<div className='flex gap-2'>
 					<Button variant='ghost' size='icon' onClick={() => handleOpenForm(item)}>

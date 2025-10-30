@@ -15,6 +15,7 @@ export type JobseekerSkill = {
 	skill?: ICommonMasterData;
 	yearsOfExperience: number;
 	proficiency: ProficiencyLevel;
+	proficiencyDTO?: EnumDTO;
 };
 
 export type Language = {
@@ -22,6 +23,7 @@ export type Language = {
 	languageId: string;
 	language?: ICommonMasterData;
 	proficiency: string;
+	proficiencyDTO?: EnumDTO;
 };
 
 export type Publication = {

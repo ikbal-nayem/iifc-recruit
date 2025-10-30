@@ -27,6 +27,8 @@ const skillSchema = z.object({
 
 type SkillFormValues = z.infer<typeof skillSchema>;
 
+const defaultValues = { skillId: '', yearsOfExperience: 0, proficiency: ProficiencyLevel.INTERMEDIATE };
+
 interface SkillFormProps {
 	isOpen: boolean;
 	onClose: () => void;
@@ -38,14 +40,12 @@ interface SkillFormProps {
 function SkillForm({ isOpen, onClose, onSubmit, initialData, noun }: SkillFormProps) {
 	const form = useForm<SkillFormValues>({
 		resolver: zodResolver(skillSchema),
-		defaultValues: initialData || { proficiency: ProficiencyLevel.INTERMEDIATE, yearsOfExperience: 0 },
+		defaultValues: initialData || defaultValues,
 	});
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
 
 	React.useEffect(() => {
-		form.reset(
-			initialData ? { ...initialData } : { proficiency: ProficiencyLevel.INTERMEDIATE, yearsOfExperience: 0 }
-		);
+		form.reset(initialData ? { ...initialData } : defaultValues);
 	}, [initialData, form]);
 
 	const handleSubmit = async (data: SkillFormValues) => {
@@ -79,6 +79,7 @@ function SkillForm({ isOpen, onClose, onSubmit, initialData, noun }: SkillFormPr
 							loadOptions={getSkillsAsync}
 							getOptionValue={(option) => option.id}
 							getOptionLabel={(option) => option.nameEn}
+							initialLabel={initialData?.skill?.nameEn}
 						/>
 						<FormInput
 							control={form.control}
@@ -177,7 +178,7 @@ export function ProfileFormSkills() {
 			<div>
 				<p className='font-semibold'>{item.skill?.nameEn}</p>
 				<p className='text-sm text-muted-foreground'>
-					{item.yearsOfExperience} years of experience &middot; {item.proficiency}
+					{item.yearsOfExperience} years of experience &middot; {item?.proficiencyDTO?.nameEn}
 				</p>
 			</div>
 			<div className='flex gap-2'>
