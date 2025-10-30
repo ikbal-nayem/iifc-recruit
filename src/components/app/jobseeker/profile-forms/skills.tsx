@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -44,7 +43,9 @@ function SkillForm({ isOpen, onClose, onSubmit, initialData, noun }: SkillFormPr
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
 
 	React.useEffect(() => {
-		form.reset(initialData ? { ...initialData } : { proficiency: ProficiencyLevel.INTERMEDIATE, yearsOfExperience: 0 });
+		form.reset(
+			initialData ? { ...initialData } : { proficiency: ProficiencyLevel.INTERMEDIATE, yearsOfExperience: 0 }
+		);
 	}, [initialData, form]);
 
 	const handleSubmit = async (data: SkillFormValues) => {

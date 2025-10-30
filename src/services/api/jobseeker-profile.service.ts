@@ -1,6 +1,5 @@
-
 import { axiosIns } from '@/config/api.config';
-import { IApiRequest, IApiResponse, IObject } from '@/interfaces/common.interface';
+import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
 import {
 	AcademicInfo,
 	Award,
@@ -18,9 +17,8 @@ import {
 	Resume,
 	Training,
 } from '@/interfaces/jobseeker.interface';
-import { ICommonMasterData } from '@/interfaces/master-data.interface';
 
-const createProfileCrud = <T extends { id?: string | number }>(entity: string) => ({
+const createProfileCrud = <T extends { id?: string }>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[]>> => {
 		return axiosIns.get(`/jobseeker/${entity}/get-by-user`);
 	},
@@ -33,12 +31,12 @@ const createProfileCrud = <T extends { id?: string | number }>(entity: string) =
 		return axiosIns.put(`/jobseeker/${entity}/update`, payload);
 	},
 
-	delete: async (id: string | number): Promise<IApiResponse<void>> => {
+	delete: async (id: string): Promise<IApiResponse<void>> => {
 		return axiosIns.delete(`/jobseeker/${entity}/delete/${id}`);
 	},
 });
 
-const createProfileCrudWithFormData = <T extends { id?: string | number }>(entity: string) => ({
+const createProfileCrudWithFormData = <T extends { id?: string }>(entity: string) => ({
 	get: async (): Promise<IApiResponse<T[] | T>> => {
 		return axiosIns.get(`/jobseeker/${entity}/get-by-user`);
 	},
@@ -47,7 +45,7 @@ const createProfileCrudWithFormData = <T extends { id?: string | number }>(entit
 		return axiosIns.post(`/jobseeker/${entity}/save`, formData);
 	},
 
-	delete: async (id: string | number): Promise<IApiResponse<void>> => {
+	delete: async (id: string): Promise<IApiResponse<void>> => {
 		return axiosIns.delete(`/jobseeker/${entity}/delete/${id}`);
 	},
 });
@@ -94,14 +92,6 @@ export const JobseekerProfileService = {
 	training: createProfileCrudWithFormData<Training>('training'),
 	certification: createProfileCrudWithFormData<Certification>('certification'),
 
-	getSkills: async (): Promise<IApiResponse<ICommonMasterData[]>> => {
-		return axiosIns.get(`/jobseeker/skill/get-by-user`);
-	},
-
-	saveSkills: async (payload: { skillIds: (string | undefined)[] }): Promise<IApiResponse<any>> => {
-		return axiosIns.post('/jobseeker/skill/save', payload);
-	},
-
 	resume: {
 		get: async (): Promise<IApiResponse<Resume[]>> => {
 			return axiosIns.get(`/jobseeker/resume/get-by-user`);
@@ -109,10 +99,10 @@ export const JobseekerProfileService = {
 		add: async (formData: FormData): Promise<IApiResponse<Resume>> => {
 			return axiosIns.post(`/jobseeker/resume/create`, formData);
 		},
-		delete: async (id: string | number): Promise<IApiResponse<void>> => {
+		delete: async (id: string): Promise<IApiResponse<void>> => {
 			return axiosIns.delete(`/jobseeker/resume/delete/${id}`);
 		},
-		setActive: async (resumeId: string | number): Promise<IApiResponse<any>> => {
+		setActive: async (resumeId: string): Promise<IApiResponse<any>> => {
 			return axiosIns.post(`/jobseeker/resume/toggle-active-status?resumeId=${resumeId}`);
 		},
 	},

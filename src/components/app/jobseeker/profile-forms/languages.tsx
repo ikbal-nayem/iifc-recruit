@@ -20,7 +20,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 const languageSchema = z.object({
-	languageId: z.coerce.number().min(1, 'Language is required.'),
+	languageId: z.coerce.string().min(1, 'Language is required.'),
 	proficiency: z.string().min(1, 'Proficiency is required'),
 });
 
@@ -29,14 +29,14 @@ type LanguageFormValues = z.infer<typeof languageSchema>;
 interface LanguageFormProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onSubmit: (data: LanguageFormValues, id?: number) => Promise<boolean>;
+	onSubmit: (data: LanguageFormValues, id?: string) => Promise<boolean>;
 	initialData?: Language;
 	noun: string;
 	languageOptions: ICommonMasterData[];
 	proficiencyOptions: EnumDTO[];
 }
 
-const defaultValues = { languageId: undefined, proficiency: '' };
+const defaultValues = { languageId: '', proficiency: '' };
 
 function LanguageForm({
 	isOpen,
@@ -66,7 +66,7 @@ function LanguageForm({
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
+					<DialogTitle>{initialData ? `Edit ${noun}` : `Add ${noun}`}</DialogTitle>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4'>
@@ -77,7 +77,7 @@ function LanguageForm({
 							placeholder='Select a language'
 							required
 							options={languageOptions}
-							getOptionLabel={(option) => option.name}
+							getOptionLabel={(option) => option.nameEn}
 							getOptionValue={(option) => option.id!}
 							disabled={isSubmitting}
 						/>
@@ -150,7 +150,7 @@ export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: Pr
 		setEditingItem(undefined);
 	};
 
-	const handleFormSubmit = async (data: LanguageFormValues, id?: number) => {
+	const handleFormSubmit = async (data: LanguageFormValues, id?: string) => {
 		const payload = { ...data };
 		try {
 			const response = id
@@ -183,7 +183,7 @@ export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: Pr
 	};
 
 	const renderItem = (item: Language) => {
-		const languageName = languageOptions.find((l) => l.id === item.languageId)?.name || item.language?.name;
+		const languageName = languageOptions.find((l) => l.id === item.languageId)?.nameEn || item.language?.nameEn;
 		return (
 			<Card key={item.id} className='p-4 flex justify-between items-center'>
 				<div>
