@@ -8,10 +8,7 @@ export const UserService = {
 		});
 	},
 
-	createJobseeker: async (payload: IObject): Promise<IApiResponse<any>> => {
-		return axiosIns.post('/user/jobseeker/create', payload);
-	},
 	bulkCreateJobseeker: async (payload: IObject): Promise<IApiResponse<any[]>> => {
-		return axiosIns.post('/user/jobseeker/bulk-create', payload);
+		return axiosIns.post('/user/jobseeker/bulk-signup', payload);
 	},
 };

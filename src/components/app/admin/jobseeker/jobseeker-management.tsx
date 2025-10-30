@@ -20,7 +20,14 @@ import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
@@ -122,7 +129,11 @@ function JobseekerForm({
 	const handleSingleSubmit = async (data: UserFormValues) => {
 		setIsSubmitting(true);
 		try {
-			await UserService.createJobseeker(data);
+			const { clientOrganizationId, ...userData } = data;
+			await UserService.bulkCreateJobseeker({
+				clientOrganizationId,
+				users: [userData],
+			});
 			toast({ title: 'Success', description: 'Jobseeker created successfully.' });
 			onSuccess();
 			onClose();
