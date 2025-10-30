@@ -51,6 +51,10 @@ export default function Header() {
 		return [];
 	};
 	const navLinks = getNavLinks();
+	const role =
+		currectUser?.userType === 'SYSTEM' || currectUser?.userType === 'IIFC_ADMIN'
+			? 'admin'
+			: 'jobseeker';
 
 	const headerLinks = navLinks.filter(
 		(link) =>
@@ -101,14 +105,12 @@ export default function Header() {
 							</div>
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
-						{navLinks
-							.filter((link) => link.inHeader)
-							.map((link) => (
-								<DropdownMenuItem key={link.href} onClick={() => router.push(link.href)}>
-									{link.icon && <link.icon className='mr-2 h-4 w-4' />}
-									<span>{link.label}</span>
-								</DropdownMenuItem>
-							))}
+						{headerLinks.map((link) => (
+							<DropdownMenuItem key={link.href} onClick={() => router.push(link.href)}>
+								{link.icon && <link.icon className='mr-2 h-4 w-4' />}
+								<span>{link.label}</span>
+							</DropdownMenuItem>
+						))}
 						<DropdownMenuSeparator />
 						<DropdownMenuItem onClick={logout}>
 							<LogOut className='mr-2 h-4 w-4' />
