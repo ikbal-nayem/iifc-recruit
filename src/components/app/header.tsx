@@ -15,7 +15,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useAuth } from '@/contexts/auth-context';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { adminNavLinks, jobseekerNavLinks } from '@/lib/nav-links';
-import { LogOut, UserCog } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React from 'react';
@@ -40,14 +40,6 @@ export default function Header() {
 	const { currectUser, logout } = useAuth();
 
 	const breadcrumbs = getBreadcrumbs(pathname);
-
-	const handleProfileClick = () => {
-		const targetPath =
-			currectUser?.userType === 'SYSTEM' || currectUser?.userType === 'IIFC_ADMIN'
-				? '/admin/profile'
-				: '/jobseeker/profile-edit';
-		router.push(targetPath);
-	};
 
 	const getNavLinks = () => {
 		if (currectUser?.userType === 'SYSTEM' || currectUser?.userType === 'IIFC_ADMIN') {
@@ -104,7 +96,7 @@ export default function Header() {
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
 						{navLinks
-							.filter((link) => !link.separator && !link.submenu)
+							.filter((link) => link.inHeader && !link.separator)
 							.map((link) => (
 								<DropdownMenuItem key={link.href} onClick={() => router.push(link.href)}>
 									{link.icon && <link.icon className='mr-2 h-4 w-4' />}

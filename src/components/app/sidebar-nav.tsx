@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -101,7 +102,12 @@ export default function SidebarNav() {
 	const pathname = usePathname();
 	const role = pathname.split('/')[1];
 
-	const navItems = role === 'admin' ? adminNavLinks : role === 'jobseeker' ? jobseekerNavLinks : [];
+	const navItems =
+		role === 'admin'
+			? adminNavLinks.filter((link) => !link.inHeader)
+			: role === 'jobseeker'
+			? jobseekerNavLinks.filter((link) => !link.inHeader)
+			: [];
 
 	return (
 		<>

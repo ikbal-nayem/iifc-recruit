@@ -41,6 +41,7 @@ export interface NavLink {
 	separator?: boolean;
 	isActive?: (pathname: string, hash?: string) => boolean;
 	submenu?: NavLink[];
+	inHeader?: boolean;
 }
 
 export const adminNavLinks: NavLink[] = [
@@ -49,6 +50,7 @@ export const adminNavLinks: NavLink[] = [
 		label: 'Dashboard',
 		icon: LayoutDashboard,
 		isActive: (pathname) => pathname === '/admin',
+		inHeader: true,
 	},
 	{
 		href: ROUTES.JOB_REQUESTS,
@@ -106,12 +108,13 @@ export const adminNavLinks: NavLink[] = [
 			},
 		],
 	},
-	{ href: '/admin/jobseekers', label: 'Jobseekers', icon: Users },
+	{ href: '/admin/jobseekers', label: 'Jobseekers', icon: Users, inHeader: true },
 	{ href: ROUTES.CLIENT_ORGANIZATIONS, label: 'Client Organizations', icon: Handshake },
 	{
 		href: '/admin/security',
-		label: 'Security',
+		label: 'Change Password',
 		icon: Shield,
+		inHeader: true,
 	},
 	{
 		href: '#',
@@ -182,11 +185,13 @@ export const jobseekerNavLinks: NavLink[] = [
 		label: 'Dashboard',
 		icon: LayoutDashboard,
 		isActive: (pathname) => pathname === '/jobseeker',
+		inHeader: true,
 	},
 	{
 		href: '/jobseeker/profile-view',
 		label: 'My Profile',
 		icon: UserCircle,
+		inHeader: true,
 	},
 	{
 		href: '/jobseeker/profile-edit',
@@ -216,15 +221,18 @@ export const jobseekerNavLinks: NavLink[] = [
 		href: '/jobseeker/applications',
 		label: 'My Applications',
 		icon: FileText,
+		inHeader: true,
 	},
 	{
 		href: '/jobseeker/find-job',
 		label: 'Find Job',
 		icon: Search,
+		inHeader: true,
 	},
 	{
 		href: '/jobseeker/security',
-		label: 'Security',
+		label: 'Change Password',
 		icon: Shield,
+		inHeader: true,
 	},
 ];
