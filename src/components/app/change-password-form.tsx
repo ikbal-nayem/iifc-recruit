@@ -1,7 +1,8 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { useToast } from '@/hooks/use-toast';
@@ -65,13 +66,7 @@ export function ChangePasswordForm() {
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)}>
 				<Card className='glassmorphism'>
-					<CardHeader>
-						<CardTitle>Change Your Password</CardTitle>
-						<CardDescription>
-							Enter your current password and a new password to update your account security.
-						</CardDescription>
-					</CardHeader>
-					<CardContent className='space-y-4'>
+					<CardContent className='space-y-4 pt-6'>
 						<FormInput
 							control={form.control}
 							name='currentPassword'
