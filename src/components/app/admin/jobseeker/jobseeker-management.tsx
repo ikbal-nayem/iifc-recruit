@@ -30,6 +30,8 @@ import { JobseekerProfileService } from '@/services/api/jobseeker-profile.servic
 import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FileText, Loader2, PlusCircle, Search, Send, UserX } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
