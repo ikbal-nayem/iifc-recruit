@@ -8,6 +8,7 @@ import {
 	useReactTable,
 } from '@tanstack/react-table';
 import * as React from 'react';
+import * as z from 'zod';
 
 import {
 	Dialog,
@@ -17,28 +18,44 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from '@/components/ui/table';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+	Card,
+	CardContent,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
+import { FormFileUpload } from '@/components/ui/form-file-upload';
 import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
+import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FileText, Loader2, Search, Send, UserX } from 'lucide-react';
+import { Download, FileText, Loader2, Search, Send, UserX } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import * as z from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 
 const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
@@ -48,27 +65,53 @@ const userSchema = z.object({
 	lastName: z.string().min(1, 'Last name is required.'),
 	email: z.string().email('Email should be valid.'),
 	phone: z.string().optional(),
+	clientOrganizationId: z.string().min(1, 'Client Organization is required.'),
 });
 type UserFormValues = z.infer<typeof userSchema>;
+
+const bulkUserSchema = z.object({
+	clientOrganizationId: z.string().min(1, 'Client Organization is required.'),
+	file: z
+		.any()
+		.refine((file) => file, 'File is required.')
+		.refine(
+			(file) =>
+				[
+					'application/vnd.ms-excel',
+					'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+					'text/csv',
+				].includes(file?.type),
+			'Only .xls, .xlsx, and .csv files are accepted.'
+		),
+});
+
+type BulkUserFormValues = z.infer<typeof bulkUserSchema>;
 
 function JobseekerForm({
 	isOpen,
 	onClose,
 	onSuccess,
+	organizations,
 }: {
 	isOpen: boolean;
 	onClose: () => void;
 	onSuccess: () => void;
+	organizations: IClientOrganization[];
 }) {
 	const { toast } = useToast();
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
+	const [activeTab, setActiveTab] = React.useState('single');
 
-	const form = useForm<UserFormValues>({
+	const singleForm = useForm<UserFormValues>({
 		resolver: zodResolver(userSchema),
-		defaultValues: { firstName: '', lastName: '', email: '', phone: '' },
+		defaultValues: { firstName: '', lastName: '', email: '', phone: '', clientOrganizationId: '' },
 	});
 
-	const handleSubmit = async (data: UserFormValues) => {
+	const bulkForm = useForm<BulkUserFormValues>({
+		resolver: zodResolver(bulkUserSchema),
+	});
+
+	const handleSingleSubmit = async (data: UserFormValues) => {
 		setIsSubmitting(true);
 		try {
 			await UserService.createJobseeker(data);
@@ -86,31 +129,147 @@ function JobseekerForm({
 		}
 	};
 
+	const handleBulkSubmit = async (data: BulkUserFormValues) => {
+		setIsSubmitting(true);
+		try {
+			const formData = new FormData();
+			formData.append('file', data.file);
+			formData.append('clientOrganizationId', data.clientOrganizationId);
+
+			await UserService.bulkCreateJobseeker(formData);
+			toast({ title: 'Success', description: 'Bulk jobseeker import started successfully.' });
+			onSuccess();
+			onClose();
+		} catch (error: any) {
+			toast({
+				title: 'Error',
+				description: error.message || 'Failed to import jobseekers.',
+				variant: 'danger',
+			});
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>Create New Jobseeker</DialogTitle>
+					<DialogDescription>
+						Add a single jobseeker or upload a file for bulk import.
+					</DialogDescription>
 				</DialogHeader>
-				<Form {...form}>
-					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-2'>
-						<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-							<FormInput control={form.control} name='firstName' label='First Name' required />
-							<FormInput control={form.control} name='lastName' label='Last Name' required />
-						</div>
-						<FormInput control={form.control} name='email' label='Email' type='email' required />
-						<FormInput control={form.control} name='phone' label='Phone' />
-						<DialogFooter className='pt-4'>
-							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
-								Cancel
-							</Button>
-							<Button type='submit' disabled={isSubmitting}>
-								{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-								Create Jobseeker
-							</Button>
-						</DialogFooter>
-					</form>
-				</Form>
+				<Tabs value={activeTab} onValueChange={setActiveTab} className='w-full'>
+					<TabsList className='grid w-full grid-cols-2'>
+						<TabsTrigger value='single'>Single Entry</TabsTrigger>
+						<TabsTrigger value='bulk'>Bulk Upload</TabsTrigger>
+					</TabsList>
+					<TabsContent value='single'>
+						<Form {...singleForm}>
+							<form
+								onSubmit={singleForm.handleSubmit(handleSingleSubmit)}
+								className='space-y-4 py-4'
+							>
+								<FormAutocomplete
+									control={singleForm.control}
+									name='clientOrganizationId'
+									label='Client Organization'
+									required
+									placeholder='Select an organization'
+									options={organizations}
+									getOptionValue={(option) => option.id!}
+									getOptionLabel={(option) => option.nameEn}
+								/>
+								<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+									<FormInput
+										control={singleForm.control}
+										name='firstName'
+										label='First Name'
+										required
+									/>
+									<FormInput
+										control={singleForm.control}
+										name='lastName'
+										label='Last Name'
+										required
+									/>
+								</div>
+								<FormInput
+									control={singleForm.control}
+									name='email'
+									label='Email'
+									type='email'
+									required
+								/>
+								<FormInput control={singleForm.control} name='phone' label='Phone' />
+								<DialogFooter className='pt-4'>
+									<Button
+										type='button'
+										variant='ghost'
+										onClick={onClose}
+										disabled={isSubmitting}
+									>
+										Cancel
+									</Button>
+									<Button type='submit' disabled={isSubmitting}>
+										{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+										Create Jobseeker
+									</Button>
+								</DialogFooter>
+							</form>
+						</Form>
+					</TabsContent>
+					<TabsContent value='bulk'>
+						<Form {...bulkForm}>
+							<form
+								onSubmit={bulkForm.handleSubmit(handleBulkSubmit)}
+								className='space-y-4 py-4'
+							>
+								<FormAutocomplete
+									control={bulkForm.control}
+									name='clientOrganizationId'
+									label='Client Organization'
+									required
+									placeholder='Select an organization'
+									options={organizations}
+									getOptionValue={(option) => option.id!}
+									getOptionLabel={(option) => option.nameEn}
+								/>
+								<FormFileUpload
+									control={bulkForm.control}
+									name='file'
+									label='Upload File'
+									required
+									accept='.xls, .xlsx, .csv'
+								/>
+								<Button
+									type='button'
+									variant='link'
+									className='p-0 h-auto'
+									// onClick={() => window.open('/path/to/sample/file.xlsx', '_blank')}
+								>
+									<Download className='mr-2 h-4 w-4' />
+									Download Sample File
+								</Button>
+								<DialogFooter className='pt-4'>
+									<Button
+										type='button'
+										variant='ghost'
+										onClick={onClose}
+										disabled={isSubmitting}
+									>
+										Cancel
+									</Button>
+									<Button type='submit' disabled={isSubmitting}>
+										{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+										Upload and Create
+									</Button>
+								</DialogFooter>
+							</form>
+						</Form>
+					</TabsContent>
+				</Tabs>
 			</DialogContent>
 		</Dialog>
 	);
@@ -118,14 +277,18 @@ function JobseekerForm({
 
 export function JobseekerManagement({
 	isFormOpen,
-	onAdd,
+	setIsFormOpen,
+	organizations,
 }: {
 	isFormOpen: boolean;
-	onAdd: () => void;
+	setIsFormOpen: (open: boolean) => void;
+	organizations: IClientOrganization[];
 }) {
 	const [data, setData] = React.useState<JobseekerSearch[]>([]);
 	const [meta, setMeta] = React.useState<IMeta>(initMeta);
-	const [selectedJobseeker, setSelectedJobseeker] = React.useState<JobseekerSearch | null>(null);
+	const [selectedJobseeker, setSelectedJobseeker] = React.useState<JobseekerSearch | null>(
+		null
+	);
 	const { toast } = useToast();
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [searchQuery, setSearchQuery] = React.useState('');
@@ -137,7 +300,7 @@ export function JobseekerManagement({
 			try {
 				const payload: IApiRequest = {
 					body: { searchKey: search },
-					meta: { page, limit: meta.limit },
+					meta: { page, limit: initMeta.limit },
 				};
 				const response = await JobseekerProfileService.search(payload);
 				setData(response.body);
@@ -152,7 +315,7 @@ export function JobseekerManagement({
 				setIsLoading(false);
 			}
 		},
-		[meta?.limit, toast]
+		[toast]
 	);
 
 	React.useEffect(() => {
@@ -172,7 +335,8 @@ export function JobseekerManagement({
 		{
 			label: 'Contact',
 			icon: <Send className='mr-2 h-4 w-4' />,
-			onClick: () => toast({ description: `Contacting ${jobseeker.fullName}... (not implemented)` }),
+			onClick: () =>
+				toast({ description: `Contacting ${jobseeker.fullName}... (not implemented)` }),
 		},
 		{ isSeparator: true },
 		{
@@ -298,7 +462,7 @@ export function JobseekerManagement({
 							</TableHeader>
 							<TableBody>
 								{isLoading ? (
-									[...Array(meta.limit)].map((_, i) => (
+									[...Array(initMeta.limit)].map((_, i) => (
 										<TableRow key={i}>
 											<TableCell colSpan={columns.length}>
 												<Skeleton className='h-12 w-full' />
@@ -328,24 +492,35 @@ export function JobseekerManagement({
 				</CardContent>
 				{meta && meta.totalRecords && meta.totalRecords > 0 ? (
 					<CardFooter>
-						<Pagination meta={meta} isLoading={isLoading} onPageChange={handlePageChange} noun={'jobseeker'} />
+						<Pagination
+							meta={meta}
+							isLoading={isLoading}
+							onPageChange={handlePageChange}
+							noun={'jobseeker'}
+						/>
 					</CardFooter>
 				) : null}
 			</Card>
 
-			<Dialog open={!!selectedJobseeker} onOpenChange={(isOpen) => !isOpen && setSelectedJobseeker(null)}>
+			<Dialog
+				open={!!selectedJobseeker}
+				onOpenChange={(isOpen) => !isOpen && setSelectedJobseeker(null)}
+			>
 				<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
 					<DialogHeader>
 						<DialogTitle>Jobseeker Profile</DialogTitle>
-						<DialogDescription>This is a preview of the jobseeker&apos;s full profile.</DialogDescription>
+						<DialogDescription>
+							This is a preview of the jobseeker&apos;s full profile.
+						</DialogDescription>
 					</DialogHeader>
 					{selectedJobseeker && <JobseekerProfileView jobseekerId={selectedJobseeker.userId} />}
 				</DialogContent>
 			</Dialog>
 			<JobseekerForm
 				isOpen={isFormOpen}
-				onClose={() => onAdd()}
+				onClose={() => setIsFormOpen(false)}
 				onSuccess={() => loadJobseekers(0, '')}
+				organizations={organizations}
 			/>
 		</div>
 	);
