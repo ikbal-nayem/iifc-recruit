@@ -9,7 +9,14 @@ import {
 } from '@tanstack/react-table';
 import * as React from 'react';
 
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
@@ -29,7 +36,7 @@ import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FileText, Loader2, PlusCircle, Search, Send, UserX } from 'lucide-react';
+import { FileText, Loader2, Search, Send, UserX } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
@@ -109,7 +116,13 @@ function JobseekerForm({
 	);
 }
 
-export function JobseekerManagement() {
+export function JobseekerManagement({
+	isFormOpen,
+	setIsFormOpen,
+}: {
+	isFormOpen: boolean;
+	setIsFormOpen: (isOpen: boolean) => void;
+}) {
 	const [data, setData] = React.useState<JobseekerSearch[]>([]);
 	const [meta, setMeta] = React.useState<IMeta>(initMeta);
 	const [selectedJobseeker, setSelectedJobseeker] = React.useState<JobseekerSearch | null>(null);
@@ -117,7 +130,6 @@ export function JobseekerManagement() {
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [searchQuery, setSearchQuery] = React.useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
-	const [isFormOpen, setIsFormOpen] = React.useState(false);
 
 	const loadJobseekers = React.useCallback(
 		async (page: number, search: string) => {
@@ -238,20 +250,14 @@ export function JobseekerManagement() {
 
 	return (
 		<div className='space-y-4'>
-			<div className='flex justify-between items-center'>
-				<div className='relative w-full md:max-w-sm'>
-					<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-					<Input
-						placeholder='Search by name, email, or phone...'
-						value={searchQuery}
-						onChange={(event) => setSearchQuery(event.target.value)}
-						className='pl-10 h-11'
-					/>
-				</div>
-				<Button onClick={() => setIsFormOpen(true)}>
-					<PlusCircle className='mr-2 h-4 w-4' />
-					Create Jobseeker
-				</Button>
+			<div className='relative w-full md:max-w-sm'>
+				<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+				<Input
+					placeholder='Search by name, email, or phone...'
+					value={searchQuery}
+					onChange={(event) => setSearchQuery(event.target.value)}
+					className='pl-10 h-11'
+				/>
 			</div>
 
 			<Card className='glassmorphism'>
