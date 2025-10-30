@@ -51,16 +51,8 @@ export default function Header() {
 		return [];
 	};
 	const navLinks = getNavLinks();
-	const role =
-		currectUser?.userType === 'SYSTEM' || currectUser?.userType === 'IIFC_ADMIN'
-			? 'admin'
-			: 'jobseeker';
 
-	const headerLinks = navLinks.filter(
-		(link) =>
-			link.inHeader ||
-			(role === 'jobseeker' && (link.label === 'Dashboard' || link.label === 'My Profile'))
-	);
+	const headerLinks = navLinks.filter((link) => link.inHeader);
 
 	return (
 		<header className='sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-white/80 backdrop-blur-sm px-4 md:px-6'>
