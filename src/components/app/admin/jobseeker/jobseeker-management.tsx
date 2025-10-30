@@ -3,8 +3,8 @@
 
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import * as React from 'react';
-import * as z from 'zod';
 import * as XLSX from 'xlsx';
+import * as z from 'zod';
 
 import {
 	Sheet,
@@ -20,6 +20,13 @@ import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 import {
 	Form,
 	FormControl,
@@ -40,14 +47,12 @@ import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
-import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
+import { cn } from '@/lib/utils';
 import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Download, FileText, Loader2, Search, Send, UserX } from 'lucide-react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { cn } from '@/lib/utils';
 
 const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
 
@@ -396,7 +401,7 @@ function JobseekerForm({
 											</Table>
 										</div>
 									</CardContent>
-									<SheetFooter className='p-6 bg-muted/30 border-t'>
+									<SheetFooter className='p-6 bg-white border-t'>
 										<Button type='button' variant='ghost' onClick={resetState} disabled={isSubmitting}>
 											Cancel
 										</Button>
@@ -419,11 +424,11 @@ function JobseekerForm({
 
 export function JobseekerManagement({
 	isFormOpen,
-	onAdd,
+	setIsFormOpen,
 	organizations,
 }: {
 	isFormOpen: boolean;
-	onAdd: () => void;
+	setIsFormOpen: (isOpen: boolean) => void;
 	organizations: IClientOrganization[];
 }) {
 	const [data, setData] = React.useState<JobseekerSearch[]>([]);
@@ -643,7 +648,7 @@ export function JobseekerManagement({
 			</Dialog>
 			<JobseekerForm
 				isOpen={isFormOpen}
-				onClose={() => onAdd()}
+				onClose={() => setIsFormOpen(false)}
 				onSuccess={() => loadJobseekers(0, '')}
 				organizations={organizations}
 			/>
