@@ -104,9 +104,9 @@ export default function SidebarNav() {
 
 	const navItems =
 		role === 'admin'
-			? adminNavLinks.filter((link) => !link.inHeader)
+			? adminNavLinks.filter((link) => link.sidebar !== false)
 			: role === 'jobseeker'
-			? jobseekerNavLinks.filter((link) => !link.inHeader)
+			? jobseekerNavLinks.filter((link) => link.sidebar !== false)
 			: [];
 
 	return (
