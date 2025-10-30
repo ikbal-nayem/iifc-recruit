@@ -6,6 +6,7 @@ import { CardContent, CardFooter } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { useAuth } from '@/contexts/auth-context';
+import { toast } from '@/hooks/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, LogIn } from 'lucide-react';
 import Link from 'next/link';
@@ -40,6 +41,7 @@ export default function LoginForm() {
 		setError(null);
 		try {
 			const user = await login(data.username, data.password);
+			toast.success({description: 'Logged in successfully.'});
 			if (user?.userType === 'SYSTEM' || user?.userType === 'IIFC_ADMIN') {
 				router.push('/admin');
 			} else {

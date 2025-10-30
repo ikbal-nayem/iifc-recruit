@@ -47,10 +47,6 @@ class AxiosInstance {
 		this.instance.interceptors.response.use(
 			(res: any) => {
 				if (res?.data?.status === 200) return { ...res.data };
-				if (res?.data?.status === 401) {
-					(location.pathname !== ROUTES.AUTH.LOGIN || location.pathname !== ROUTES.AUTH.SIGNUP) &&
-						this.logout();
-				}
 				return Promise.reject({
 					body: res.data.body,
 					status: res.data.status,
@@ -77,18 +73,14 @@ class AxiosInstance {
 		};
 	}
 
-	private handleResponseError(error: any) {
-		if (error?.response) {
-			const { data, status } = error.response;
-
-			if (status === 401) {
-				location.pathname !== ROUTES.AUTH.LOGIN && this.logout();
-			}
+	private handleResponseError(error: any) {		
+		if (error?.response?.status === 401) {
+			location.pathname !== ROUTES.AUTH.LOGIN && this.logout();
 		}
 
 		return Promise.reject({
-			status: 500,
-			message: 'Server not responding',
+			status: error?.response?.status || 500,
+			message: error?.response?.data?.message || 'Server not responding',
 			body: {},
 		});
 	}
