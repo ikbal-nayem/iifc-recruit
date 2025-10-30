@@ -2,38 +2,53 @@
 import { AdminDashboardCards, AdminDashboardCardsSkeleton } from '@/components/app/admin/dashboard/dashboard-cards';
 import { AdminDashboardCharts, AdminDashboardChartsSkeleton } from '@/components/app/admin/dashboard/dashboard-charts';
 import { JobRequestService } from '@/services/api/job-request.service';
+import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
+import { MasterDataService } from '@/services/api/master-data.service';
 import { Suspense } from 'react';
 
 async function getDashboardData() {
 	try {
-		const [pendingRequestsRes, processingPostsRes, shortlistedPostsRes, completedRequestsRes] = await Promise.allSettled([
+		const [
+			pendingRequestsRes,
+			processingPostsRes,
+			jobseekersRes,
+			clientsRes,
+			examinersRes,
+			completedRequestsRes,
+		] = await Promise.allSettled([
 			JobRequestService.getList({ body: { status: 'PENDING' }, meta: { limit: 1 } }),
 			JobRequestService.getRequestedPosts({ body: { status: 'PROCESSING' }, meta: { limit: 1 } }),
-			JobRequestService.getRequestedPosts({ body: { status: 'SHORTLISTED' }, meta: { limit: 1 } }),
+			JobseekerProfileService.search({ meta: { limit: 1 } }),
+			MasterDataService.clientOrganization.getList({ body: { isClient: true }, meta: { limit: 1 } }),
+			MasterDataService.clientOrganization.getList({ body: { isExaminer: true }, meta: { limit: 1 } }),
 			JobRequestService.getList({ body: { status: 'COMPLETED' }, meta: { limit: 1 } }),
 		]);
 
-		const pendingJobRequests =
-			pendingRequestsRes.status === 'fulfilled' ? pendingRequestsRes.value.meta?.totalRecords || 0 : 0;
-		const processingApplications =
-			processingPostsRes.status === 'fulfilled' ? processingPostsRes.value.meta?.totalRecords || 0 : 0;
-		const shortlistedCandidates =
-			shortlistedPostsRes.status === 'fulfilled' ? shortlistedPostsRes.value.meta?.totalRecords || 0 : 0;
-		const completedJobRequests =
-			completedRequestsRes.status === 'fulfilled' ? completedRequestsRes.value.meta?.totalRecords || 0 : 0;
+		const getValue = (res: PromiseSettledResult<any>) =>
+			res.status === 'fulfilled' ? res.value.meta?.totalRecords || 0 : 0;
 
-		// Using mock data if API returns 0 for all
+		const pendingJobRequests = getValue(pendingRequestsRes);
+		const processingApplications = getValue(processingPostsRes);
+		const totalJobseekers = getValue(jobseekersRes);
+		const clientOrganizations = getValue(clientsRes);
+		const examinerOrganizations = getValue(examinersRes);
+		const completedJobRequests = getValue(completedRequestsRes);
+		
 		const useMockData =
 			pendingJobRequests === 0 &&
 			processingApplications === 0 &&
-			shortlistedCandidates === 0 &&
+			totalJobseekers === 0 &&
+			clientOrganizations === 0 &&
+			examinerOrganizations === 0 &&
 			completedJobRequests === 0;
 
 		return {
 			cards: {
 				pendingJobRequests: useMockData ? 12 : pendingJobRequests,
 				processingApplications: useMockData ? 8 : processingApplications,
-				shortlistedCandidates: useMockData ? 23 : shortlistedCandidates,
+				totalJobseekers: useMockData ? 150 : totalJobseekers,
+				clientOrganizations: useMockData ? 25 : clientOrganizations,
+				examinerOrganizations: useMockData ? 10 : examinerOrganizations,
 			},
 			charts: {
 				requestStatusData: useMockData
@@ -71,7 +86,9 @@ async function getDashboardData() {
 			cards: {
 				pendingJobRequests: 12,
 				processingApplications: 8,
-				shortlistedCandidates: 23,
+				totalJobseekers: 150,
+				clientOrganizations: 25,
+				examinerOrganizations: 10,
 			},
 			charts: {
 				requestStatusData: [
