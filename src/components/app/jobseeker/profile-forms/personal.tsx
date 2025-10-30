@@ -216,8 +216,6 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 	const watchPermanentDistrictId = form.watch('permanentDistrictId');
 	const watchSameAsPresent = form.watch('sameAsPresentAddress');
 
-	console.log(personalInfo)
-
 	const useFetchDependentData = (
 		watchId: string | undefined,
 		fetcher: (id: string) => Promise<IApiResponse<ICommonMasterData[]>>,
