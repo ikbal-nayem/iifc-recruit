@@ -15,6 +15,8 @@ import Image from 'next/image';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { makePreviewURL } from '@/lib/file-oparations';
 
 const profileImageSchema = z.object({
 	avatarFile: z
@@ -95,14 +97,17 @@ function ProfileImageCard({
 				<form onSubmit={form.handleSubmit(onImageSubmit)}>
 					<CardContent className='space-y-4'>
 						<div className='flex items-center gap-6'>
-							<Image
-								src={avatarPreview || profileImage?.filePath || '/user-placeholder.png'}
-								alt='Admin Avatar'
-								width={80}
-								height={80}
-								className='rounded-full object-cover h-20 w-20 border'
-								data-ai-hint='avatar person'
-							/>
+							<Avatar className='h-20 w-20'>
+								<AvatarImage
+									src={avatarPreview || makePreviewURL(profileImage?.filePath) || '/user-placeholder.png'}
+									alt='Admin Avatar'
+								/>
+								<AvatarFallback>
+									{firstName?.[0]}
+									{lastName?.[0]}
+								</AvatarFallback>
+							</Avatar>
+
 							<FormField
 								control={form.control}
 								name='avatarFile'
