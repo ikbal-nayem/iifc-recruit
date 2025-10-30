@@ -7,6 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { IFile } from '@/interfaces/common.interface';
 import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Mail, Phone, Save, Upload } from 'lucide-react';
@@ -28,12 +29,128 @@ const profileImageSchema = z.object({
 
 type ProfileImageFormValues = z.infer<typeof profileImageSchema>;
 
+function ProfileImageCard({
+	profileImage,
+	firstName,
+	lastName,
+}: {
+	profileImage?: IFile;
+	firstName?: string;
+	lastName?: string;
+}) {
+	const { toast } = useToast();
+	const [avatarPreview, setAvatarPreview] = React.useState<string | null>(null);
+	const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+	const form = useForm<ProfileImageFormValues>({
+		resolver: zodResolver(profileImageSchema),
+	});
+
+	const avatarFile = form.watch('avatarFile');
+
+	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const file = event.target.files?.[0];
+		if (file) {
+			form.setValue('avatarFile', file, { shouldValidate: true });
+			if (avatarPreview && avatarPreview.startsWith('blob:')) {
+				URL.revokeObjectURL(avatarPreview);
+			}
+			setAvatarPreview(URL.createObjectURL(file));
+			form.clearErrors('avatarFile');
+		}
+	};
+
+	const onImageSubmit = (data: ProfileImageFormValues) => {
+		setIsSubmitting(true);
+		const formData = new FormData();
+		formData.append('file', data.avatarFile);
+
+		UserService.saveProfileImage(formData)
+			.then((res) => {
+				toast({
+					title: 'Photo Updated',
+					description: res.message || 'Your new profile photo has been saved.',
+					variant: 'success',
+				});
+				form.reset();
+			})
+			.catch((err) => {
+				toast({
+					title: 'Upload Failed',
+					description: err.message || 'There was a problem uploading your photo.',
+					variant: 'danger',
+				});
+			})
+			.finally(() => {
+				setIsSubmitting(false);
+			});
+	};
+
+	return (
+		<Card className='glassmorphism'>
+			<CardHeader>
+				<CardTitle>Profile Photo</CardTitle>
+			</CardHeader>
+			<Form {...form}>
+				<form onSubmit={form.handleSubmit(onImageSubmit)}>
+					<CardContent className='space-y-4'>
+						<div className='flex items-center gap-6'>
+							<Image
+								src={avatarPreview || profileImage?.filePath || '/user-placeholder.png'}
+								alt='Admin Avatar'
+								width={80}
+								height={80}
+								className='rounded-full object-cover h-20 w-20 border'
+								data-ai-hint='avatar person'
+							/>
+							<FormField
+								control={form.control}
+								name='avatarFile'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel
+											htmlFor='avatar-upload'
+											className='font-normal text-sm text-muted-foreground'
+										>
+											<Button asChild variant='outline'>
+												<span>Choose Photo</span>
+											</Button>
+											<FormControl>
+												<Input
+													id='avatar-upload'
+													type='file'
+													className='sr-only'
+													accept='image/png, image/jpeg, image/gif'
+													onChange={handleFileChange}
+												/>
+											</FormControl>
+											<p className='text-xs pt-2'>PNG, JPG, GIF up to 10MB</p>
+										</FormLabel>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+					</CardContent>
+					<CardFooter>
+						<Button type='submit' disabled={!avatarFile || isSubmitting}>
+							{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+							Save Photo
+						</Button>
+					</CardFooter>
+				</form>
+			</Form>
+		</Card>
+	);
+}
+
 interface AdminProfileFormProps {
 	user: {
 		name: string;
 		email: string;
 		phone: string;
 		avatar: string;
+		profileImage?: IFile;
 	};
 }
 
@@ -49,15 +166,9 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 export function AdminProfileForm({ user }: AdminProfileFormProps) {
 	const { toast } = useToast();
 	const nameParts = user.name.split(' ');
-	const [avatarPreview, setAvatarPreview] = React.useState<string | null>(user.avatar);
-	const [isImageSubmitting, setIsImageSubmitting] = React.useState(false);
 	const [isDetailsSubmitting, setIsDetailsSubmitting] = React.useState(false);
 
-	const imageForm = useForm<ProfileImageFormValues>({
-		resolver: zodResolver(profileImageSchema),
-	});
-
-	const detailsForm = useForm<ProfileFormValues>({
+	const form = useForm<ProfileFormValues>({
 		resolver: zodResolver(profileSchema),
 		defaultValues: {
 			firstName: nameParts[0] || '',
@@ -67,47 +178,7 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
 		},
 	});
 
-	const avatarFile = imageForm.watch('avatarFile');
-
-	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		const file = event.target.files?.[0];
-		if (file) {
-			imageForm.setValue('avatarFile', file, { shouldValidate: true });
-			if (avatarPreview && avatarPreview.startsWith('blob:')) {
-				URL.revokeObjectURL(avatarPreview);
-			}
-			setAvatarPreview(URL.createObjectURL(file));
-			imageForm.clearErrors('avatarFile');
-		}
-	};
-
-	const onImageSubmit = (data: ProfileImageFormValues) => {
-		setIsImageSubmitting(true);
-		const formData = new FormData();
-		formData.append('file', data.avatarFile);
-
-		UserService.saveProfileImage(formData)
-			.then((res) => {
-				toast({
-					title: 'Photo Updated',
-					description: res.message || 'Your new profile photo has been saved.',
-					variant: 'success',
-				});
-				imageForm.reset();
-			})
-			.catch((err) => {
-				toast({
-					title: 'Upload Failed',
-					description: err.message || 'There was a problem uploading your photo.',
-					variant: 'danger',
-				});
-			})
-			.finally(() => {
-				setIsImageSubmitting(false);
-			});
-	};
-
-	const onDetailsSubmit = (data: ProfileFormValues) => {
+	const onSubmit = (data: ProfileFormValues) => {
 		setIsDetailsSubmitting(true);
 		console.log(data);
 		setTimeout(() => {
@@ -121,68 +192,27 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
 	};
 
 	return (
-		<Card className='glassmorphism'>
-			<CardHeader>
-				<CardTitle>Profile Details</CardTitle>
-				<CardDescription>Update your photo and personal information here.</CardDescription>
-			</CardHeader>
-			<CardContent className='grid grid-cols-1 md:grid-cols-3 gap-8 pt-2'>
-				<div className='md:col-span-1 space-y-4'>
-					<h3 className='font-medium'>Profile Photo</h3>
-					<Form {...imageForm}>
-						<form onSubmit={imageForm.handleSubmit(onImageSubmit)} className='space-y-4'>
-							<div className='flex flex-col items-center gap-4'>
-								<Image
-									src={avatarPreview || user.avatar}
-									alt='Admin Avatar'
-									width={128}
-									height={128}
-									className='rounded-full object-cover h-32 w-32 border-4 border-muted'
-									data-ai-hint='avatar person'
-								/>
-								<FormField
-									control={imageForm.control}
-									name='avatarFile'
-									render={() => (
-										<FormItem>
-											<FormControl>
-												<Input
-													id='avatar-upload'
-													type='file'
-													className='sr-only'
-													accept='image/png, image/jpeg, image/gif'
-													onChange={handleFileChange}
-												/>
-											</FormControl>
-											<Button asChild variant='outline' className='w-full'>
-												<label htmlFor='avatar-upload'>
-													<Upload className='mr-2 h-4 w-4' /> Choose Photo
-												</label>
-											</Button>
-											<p className='text-xs text-center text-muted-foreground pt-1'>PNG, JPG, GIF up to 10MB</p>
-											<FormMessage className='text-center' />
-										</FormItem>
-									)}
-								/>
+		<div className='space-y-6'>
+			<ProfileImageCard
+				profileImage={user.profileImage}
+				firstName={form.getValues('firstName')}
+				lastName={form.getValues('lastName')}
+			/>
+			<Form {...form}>
+				<form onSubmit={form.handleSubmit(onSubmit)}>
+					<Card className='glassmorphism'>
+						<CardHeader>
+							<CardTitle>Personal Details</CardTitle>
+						</CardHeader>
+						<CardContent className='space-y-6'>
+							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+								<FormInput control={form.control} name='firstName' label='First Name' required />
+								<FormInput control={form.control} name='lastName' label='Last Name' required />
 							</div>
-							<Button type='submit' className='w-full' disabled={!avatarFile || isImageSubmitting}>
-								{isImageSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-								Save Photo
-							</Button>
-						</form>
-					</Form>
-				</div>
 
-				<div className='md:col-span-2'>
-					<Form {...detailsForm}>
-						<form onSubmit={detailsForm.handleSubmit(onDetailsSubmit)} className='space-y-6'>
-							<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-								<FormInput control={detailsForm.control} name='firstName' label='First Name' required />
-								<FormInput control={detailsForm.control} name='lastName' label='Last Name' required />
-							</div>
-							<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 								<FormInput
-									control={detailsForm.control}
+									control={form.control}
 									name='email'
 									label='Email'
 									type='email'
@@ -190,24 +220,24 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
 									startIcon={<Mail className='h-4 w-4 text-muted-foreground' />}
 								/>
 								<FormInput
-									control={detailsForm.control}
+									control={form.control}
 									name='phone'
 									label='Phone'
 									required
 									startIcon={<Phone className='h-4 w-4 text-muted-foreground' />}
 								/>
 							</div>
-							<div className='flex justify-end'>
-								<Button type='submit' disabled={isDetailsSubmitting}>
-									{isDetailsSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-									<Save className='mr-2 h-4 w-4' />
-									Save Changes
-								</Button>
-							</div>
-						</form>
-					</Form>
-				</div>
-			</CardContent>
-		</Card>
+						</CardContent>
+						<CardFooter>
+							<Button type='submit' disabled={isDetailsSubmitting}>
+								{isDetailsSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+								<Save className='mr-2 h-4 w-4' />
+								Save Changes
+							</Button>
+						</CardFooter>
+					</Card>
+				</form>
+			</Form>
+		</div>
 	);
 }
