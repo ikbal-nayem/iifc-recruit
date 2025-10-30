@@ -15,10 +15,6 @@ export const AuthService = {
 
 	signup: async (payload: IObject): Promise<IApiResponse<void>> =>
 		await axiosIns.post('/user/jobseeker/public/signup', payload),
-
-	getUserDetails: async (): Promise<IApiResponse<IUser>> => {
-		return axiosIns.get('/user/get-details');
-	},
 	
 	changePassword: async (payload: IObject): Promise<IApiResponse<void>> => {
 		return axiosIns.post('/user/update-password', payload);

@@ -5,6 +5,7 @@ import { ACCESS_TOKEN, AUTH_INFO, REFRESH_TOKEN } from '@/constants/auth.constan
 import { ROUTES } from '@/constants/routes.constant';
 import { IAuthInfo, IUser } from '@/interfaces/auth.interface';
 import { AuthService } from '@/services/api/auth.service';
+import { UserService } from '@/services/api/user.service';
 import { clearAuthInfo, CookieService, LocalStorageService } from '@/services/storage.service';
 import { useRouter } from 'next/navigation';
 import nProgress from 'nprogress';
@@ -50,7 +51,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 				setAuthInfo(storedAuthInfo);
 				setAuthToken(storedAuthInfo.access_token);
 				try {
-					const userProfileRes = await AuthService.getUserDetails();
+					const userProfileRes = await UserService.getUserDetails();
 					setUser(userProfileRes.body);
 				} catch (error) {
 					console.error('Failed to fetch user profile on load', error);
@@ -72,7 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		storeAuthInfo(newAuthInfo);
 
 		try {
-			const userProfileRes = await AuthService.getUserDetails();
+			const userProfileRes = await UserService.getUserDetails();
 			setUser(userProfileRes.body);
 			return userProfileRes.body;
 		} catch (error) {
