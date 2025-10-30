@@ -1,7 +1,6 @@
 
 'use client';
 
-import { ChangePasswordForm } from '@/components/app/change-password-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -15,6 +14,7 @@ import Image from 'next/image';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { ChangePasswordForm } from '../../change-password-form';
 
 const profileImageSchema = z.object({
 	avatarFile: z
@@ -236,7 +236,6 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
 					</Card>
 				</form>
 			</Form>
-			<ChangePasswordForm />
 		</div>
 	);
 }
