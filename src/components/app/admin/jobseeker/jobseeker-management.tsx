@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
@@ -19,9 +20,8 @@ import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
-import { FormFileUpload } from '@/components/ui/form-file-upload';
 import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
@@ -40,6 +40,7 @@ import { Download, FileText, Loader2, Search, Send, UserX } from 'lucide-react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 
 const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
 
@@ -407,11 +408,11 @@ function JobseekerForm({
 
 export function JobseekerManagement({
 	isFormOpen,
-	setIsFormOpen,
+	onAdd,
 	organizations,
 }: {
 	isFormOpen: boolean;
-	setIsFormOpen: (open: boolean) => void;
+	onAdd: () => void;
 	organizations: IClientOrganization[];
 }) {
 	const [data, setData] = React.useState<JobseekerSearch[]>([]);
@@ -631,7 +632,7 @@ export function JobseekerManagement({
 			</Dialog>
 			<JobseekerForm
 				isOpen={isFormOpen}
-				onClose={() => setIsFormOpen(false)}
+				onClose={() => onAdd()}
 				onSuccess={() => loadJobseekers(0, '')}
 				organizations={organizations}
 			/>
