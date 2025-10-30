@@ -23,15 +23,14 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const setCookie = (name: string, value: string, days: number) => {
-    let expires = "";
-    if (days) {
-        const date = new Date();
-        date.setTime(date.getTime() + (days*24*60*60*1000));
-        expires = "; expires=" + date.toUTCString();
-    }
-    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
-}
-
+	let expires = '';
+	if (days) {
+		const date = new Date();
+		date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+		expires = '; expires=' + date.toUTCString();
+	}
+	document.cookie = name + '=' + (value || '') + expires + '; path=/';
+};
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [user, setUser] = useState<IUser | null>(null);
@@ -42,7 +41,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const logout = () => {
 		nProgress.start();
 		AuthService.logout()
-			.catch((e) => console.error('Logout failed but proceeding', e))
+			.catch(() => {
+				// Do nothing, just proceed to logout from client
+			})
 			.finally(() => {
 				setUser(null);
 				setAuthInfo(null);
@@ -71,6 +72,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		};
 
 		loadUserFromStorage();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const login = async (username: string, password: string) => {
