@@ -109,7 +109,7 @@ export const adminNavLinks: NavLink[] = [
 	{ href: '/admin/jobseekers', label: 'Jobseekers', icon: Users },
 	{ href: ROUTES.CLIENT_ORGANIZATIONS, label: 'Client Organizations', icon: Handshake },
 	{
-		href: '/admin/profile/security',
+		href: '/admin/security',
 		label: 'Security',
 		icon: Shield,
 	},
@@ -223,7 +223,7 @@ export const jobseekerNavLinks: NavLink[] = [
 		icon: Search,
 	},
 	{
-		href: '/jobseeker/profile-edit/security',
+		href: '/jobseeker/security',
 		label: 'Security',
 		icon: Shield,
 	},
