@@ -41,7 +41,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 
-const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
+const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
 
 const userSchema = z.object({
 	firstName: z.string().min(1, 'First name is required.'),
@@ -118,10 +118,10 @@ function JobseekerForm({
 
 export function JobseekerManagement({
 	isFormOpen,
-	setIsFormOpen,
+	onAdd,
 }: {
 	isFormOpen: boolean;
-	setIsFormOpen: (isOpen: boolean) => void;
+	onAdd: () => void;
 }) {
 	const [data, setData] = React.useState<JobseekerSearch[]>([]);
 	const [meta, setMeta] = React.useState<IMeta>(initMeta);
@@ -344,7 +344,7 @@ export function JobseekerManagement({
 			</Dialog>
 			<JobseekerForm
 				isOpen={isFormOpen}
-				onClose={() => setIsFormOpen(false)}
+				onClose={() => onAdd()}
 				onSuccess={() => loadJobseekers(0, '')}
 			/>
 		</div>
