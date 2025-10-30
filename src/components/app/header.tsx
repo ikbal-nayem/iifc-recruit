@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -87,8 +88,7 @@ export default function Header() {
 									alt={currectUser.fullName || currectUser.firstName}
 								/>
 								<AvatarFallback>
-									{currectUser.firstName?.charAt(0)}
-									{currectUser.lastName?.charAt(0)}
+									{currectUser.fullName?.charAt(0) || currectUser.firstName?.charAt(0)}
 								</AvatarFallback>
 							</Avatar>
 						</Button>

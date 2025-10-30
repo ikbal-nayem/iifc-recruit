@@ -109,6 +109,11 @@ export const adminNavLinks: NavLink[] = [
 	{ href: '/admin/jobseekers', label: 'Jobseekers', icon: Users },
 	{ href: ROUTES.CLIENT_ORGANIZATIONS, label: 'Client Organizations', icon: Handshake },
 	{
+		href: '/admin/profile/security',
+		label: 'Security',
+		icon: Shield,
+	},
+	{
 		href: '#',
 		label: 'Separator',
 		icon: Users, // Icon is not used, but required by type
@@ -217,5 +222,10 @@ export const jobseekerNavLinks: NavLink[] = [
 		href: '/jobseeker/find-job',
 		label: 'Find Job',
 		icon: Search,
+	},
+	{
+		href: '/jobseeker/profile-edit/security',
+		label: 'Security',
+		icon: Shield,
 	},
 ];
