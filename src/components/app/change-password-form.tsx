@@ -14,7 +14,7 @@ import { AuthService } from '@/services/api/auth.service';
 
 const changePasswordSchema = z
 	.object({
-		oldPassword: z.string().min(1, 'Current password is required'),
+		currentPassword: z.string().min(1, 'Current password is required'),
 		newPassword: z.string().min(8, 'New password must be at least 8 characters.'),
 		confirmPassword: z.string(),
 	})
@@ -32,7 +32,7 @@ export function ChangePasswordForm() {
 	const form = useForm<ChangePasswordFormValues>({
 		resolver: zodResolver(changePasswordSchema),
 		defaultValues: {
-			oldPassword: '',
+			currentPassword: '',
 			newPassword: '',
 			confirmPassword: '',
 		},
@@ -40,7 +40,7 @@ export function ChangePasswordForm() {
 
 	const onSubmit = (data: ChangePasswordFormValues) => {
 		setIsLoading(true);
-		AuthService.changePassword({ oldPassword: data.oldPassword, newPassword: data.newPassword })
+		AuthService.changePassword({ currentPassword: data.currentPassword, newPassword: data.newPassword })
 			.then(() => {
 				toast({
 					title: 'Password Updated',
@@ -66,7 +66,7 @@ export function ChangePasswordForm() {
 			<form onSubmit={form.handleSubmit(onSubmit)}>
 				<Card className='glassmorphism'>
 					<CardHeader>
-						<CardTitle>Change Password</CardTitle>
+						<CardTitle>Change Your Password</CardTitle>
 						<CardDescription>
 							Enter your current password and a new password to update your account security.
 						</CardDescription>
@@ -74,7 +74,7 @@ export function ChangePasswordForm() {
 					<CardContent className='space-y-4'>
 						<FormInput
 							control={form.control}
-							name='oldPassword'
+							name='currentPassword'
 							label='Current Password'
 							type='password'
 							required
