@@ -2,6 +2,21 @@
 import { IFile, ResultSystem } from './common.interface';
 import { EnumDTO, ICommonMasterData, IEducationInstitution, IOrganization } from './master-data.interface';
 
+export enum ProficiencyLevel {
+	BEGINNER = 'BEGINNER',
+	INTERMEDIATE = 'INTERMEDIATE',
+	ADVANCED = 'ADVANCED',
+	EXPERT = 'EXPERT',
+}
+
+export type JobseekerSkill = {
+	id?: string;
+	skillId: string;
+	skill?: ICommonMasterData;
+	yearsOfExperience: number;
+	proficiency: ProficiencyLevel;
+};
+
 export type Language = {
 	id?: string;
 	languageId: string;
@@ -180,7 +195,7 @@ export type Jobseeker = {
 	languages: Language[];
 	publications: Publication[];
 	awards: Award[];
-	skills: ICommonMasterData[];
+	skills: JobseekerSkill[];
 	resume: Resume;
 };
 

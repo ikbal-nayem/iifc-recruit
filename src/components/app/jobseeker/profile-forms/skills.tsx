@@ -1,167 +1,131 @@
 
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList,
-} from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Form } from '@/components/ui/form';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
+import { FormInput } from '@/components/ui/form-input';
+import { FormSelect } from '@/components/ui/form-select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
-import { ICommonMasterData } from '@/interfaces/master-data.interface';
-import { cn } from '@/lib/utils';
+import { JobseekerSkill, ProficiencyLevel } from '@/interfaces/jobseeker.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
-import { MasterDataService } from '@/services/api/master-data.service';
-import { Check, Loader2, Save, X } from 'lucide-react';
+import { getSkillsAsync } from '@/services/async-api';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
 import * as React from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 
-interface SkillSelectorProps {
-	selectedSkills: ICommonMasterData[];
-	onAddSkill: (skill: ICommonMasterData) => void;
-	onRemoveSkill: (skill: ICommonMasterData) => void;
+const skillSchema = z.object({
+	skillId: z.coerce.string().min(1, 'Skill is required.'),
+	yearsOfExperience: z.coerce.number().min(0, 'Years of experience must be 0 or more.'),
+	proficiency: z.nativeEnum(ProficiencyLevel),
+});
+
+type SkillFormValues = z.infer<typeof skillSchema>;
+
+interface SkillFormProps {
+	isOpen: boolean;
+	onClose: () => void;
+	onSubmit: (data: SkillFormValues, id?: string) => Promise<boolean>;
+	initialData?: JobseekerSkill;
+	noun: string;
 }
 
-const SkillSelector = React.memo(function SkillSelector({
-	selectedSkills,
-	onAddSkill,
-	onRemoveSkill,
-}: SkillSelectorProps) {
-	const [open, setOpen] = React.useState(false);
-	const [searchQuery, setSearchQuery] = React.useState('');
-	const [suggestedSkills, setSuggestedSkills] = React.useState<ICommonMasterData[]>([]);
-	const [isLoadingSuggestions, setIsLoadingSuggestions] = React.useState(false);
-
-	const debouncedSearch = useDebounce(searchQuery, 300);
+function SkillForm({ isOpen, onClose, onSubmit, initialData, noun }: SkillFormProps) {
+	const form = useForm<SkillFormValues>({
+		resolver: zodResolver(skillSchema),
+		defaultValues: initialData || { proficiency: ProficiencyLevel.INTERMEDIATE, yearsOfExperience: 0 },
+	});
+	const [isSubmitting, setIsSubmitting] = React.useState(false);
 
 	React.useEffect(() => {
-		if (debouncedSearch) {
-			setIsLoadingSuggestions(true);
-			MasterDataService.skill
-				.getList({ body: { name: debouncedSearch }, meta: { page: 0, limit: 30 } })
-				.then((res) => setSuggestedSkills(res.body))
-				.finally(() => setIsLoadingSuggestions(false));
-		} else {
-			setSuggestedSkills([]);
-		}
-	}, [debouncedSearch]);
+		form.reset(initialData ? { ...initialData } : { proficiency: ProficiencyLevel.INTERMEDIATE, yearsOfExperience: 0 });
+	}, [initialData, form]);
 
-	const handleSelectSkill = (skill: ICommonMasterData) => {
-		if (!selectedSkills.some((s) => s.id === skill.id)) {
-			onAddSkill(skill);
+	const handleSubmit = async (data: SkillFormValues) => {
+		setIsSubmitting(true);
+		const success = await onSubmit(data, initialData?.id);
+		if (success) {
+			onClose();
 		}
-		setSearchQuery('');
+		setIsSubmitting(false);
 	};
 
-	const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-		if (e.key === 'Enter') {
-			e.preventDefault();
-		}
-	};
+	const proficiencyLevels = Object.values(ProficiencyLevel).map((level) => ({
+		value: level,
+		label: level.charAt(0) + level.slice(1).toLowerCase(),
+	}));
 
 	return (
-		<Popover open={open} onOpenChange={setOpen}>
-			<PopoverTrigger asChild>
-				<div
-					className={cn(
-						'flex flex-wrap gap-2 p-3 border rounded-lg min-h-[44px] items-center cursor-text w-full justify-start font-normal h-auto',
-						!selectedSkills.length && 'text-muted-foreground'
-					)}
-				>
-					{selectedSkills.map((skill) => (
-						<Badge key={skill.id} variant='secondary' className='text-sm py-1 px-2'>
-							{skill.name}
-							<button
-								className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
-								onClick={(e) => {
-									e.preventDefault();
-									e.stopPropagation();
-									onRemoveSkill(skill);
-								}}
-							>
-								<X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
-							</button>
-						</Badge>
-					))}
-					{selectedSkills.length === 0 ? (
-						<span className='text-muted-foreground'>Add a skill...</span>
-					) : (
-						<span className='text-muted-foreground text-sm'>Add more...</span>
-					)}
-				</div>
-			</PopoverTrigger>
-			<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
-				<Command shouldFilter={false} onKeyDown={handleKeyDown}>
-					<CommandInput
-						placeholder='Search skill...'
-						value={searchQuery}
-						onValueChange={setSearchQuery}
-					/>
-					<CommandList>
-						{isLoadingSuggestions && (
-							<div className='p-2 flex justify-center'>
-								<Loader2 className='h-6 w-6 animate-spin' />
-							</div>
-						)}
-						{!isLoadingSuggestions && debouncedSearch && suggestedSkills.length === 0 && (
-							<CommandEmpty>No skill found.</CommandEmpty>
-						)}
-						{!isLoadingSuggestions && !debouncedSearch && (
-							<CommandEmpty>Type to search for skills.</CommandEmpty>
-						)}
-						<CommandGroup>
-							{suggestedSkills.map((skill) => (
-								<CommandItem
-									key={skill.id}
-									value={skill.name}
-									onSelect={() => {
-										handleSelectSkill(skill);
-										setOpen(false);
-									}}
-								>
-									<Check
-										className={cn(
-											'mr-2 h-4 w-4',
-											selectedSkills.some((s) => s.name === skill.name) ? 'opacity-100' : 'opacity-0'
-										)}
-									/>
-									{skill.name}
-								</CommandItem>
-							))}
-						</CommandGroup>
-					</CommandList>
-				</Command>
-			</PopoverContent>
-		</Popover>
+		<Dialog open={isOpen} onOpenChange={onClose}>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
+				</DialogHeader>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4'>
+						<FormAutocomplete
+							control={form.control}
+							name='skillId'
+							label='Skill'
+							placeholder='Search for a skill'
+							required
+							loadOptions={getSkillsAsync}
+							getOptionValue={(option) => option.id}
+							getOptionLabel={(option) => option.nameEn}
+						/>
+						<FormInput
+							control={form.control}
+							name='yearsOfExperience'
+							label='Years of Experience'
+							type='number'
+							required
+						/>
+						<FormSelect
+							control={form.control}
+							name='proficiency'
+							label='Proficiency'
+							required
+							options={proficiencyLevels}
+						/>
+						<DialogFooter className='pt-4'>
+							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
+								Cancel
+							</Button>
+							<Button type='submit' disabled={isSubmitting}>
+								{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+								{initialData ? 'Save Changes' : 'Add Skill'}
+							</Button>
+						</DialogFooter>
+					</form>
+				</Form>
+			</DialogContent>
+		</Dialog>
 	);
-});
+}
 
 export function ProfileFormSkills() {
 	const { toast } = useToast();
-	const [skills, setSkills] = React.useState<ICommonMasterData[]>([]);
-	const [isSkillsLoading, setIsSkillsLoading] = React.useState(true);
-	const [isSaving, setIsSaving] = React.useState(false);
+	const [skills, setSkills] = React.useState<JobseekerSkill[]>([]);
+	const [isLoading, setIsLoading] = React.useState(true);
+	const [editingItem, setEditingItem] = React.useState<JobseekerSkill | undefined>(undefined);
+	const [itemToDelete, setItemToDelete] = React.useState<JobseekerSkill | null>(null);
+	const [isFormOpen, setIsFormOpen] = React.useState(false);
 
 	const loadSkills = React.useCallback(async () => {
-		setIsSkillsLoading(true);
+		setIsLoading(true);
 		try {
-			const response = await JobseekerProfileService.getSkills();
+			const response = await JobseekerProfileService.skill.get();
 			setSkills(response.body);
 		} catch (error) {
-			toast({
-				title: 'Error',
-				description: 'Failed to load skills.',
-				variant: 'danger',
-			});
+			toast({ title: 'Error', description: 'Failed to load skills.', variant: 'danger' });
 		} finally {
-			setIsSkillsLoading(false);
+			setIsLoading(false);
 		}
 	}, [toast]);
 
@@ -169,60 +133,104 @@ export function ProfileFormSkills() {
 		loadSkills();
 	}, [loadSkills]);
 
-	const handleAddSkill = (skill: ICommonMasterData) => {
-		if (skill.name && !skills.some((s) => s.name === skill.name)) {
-			setSkills([...skills, skill]);
+	const handleOpenForm = (item?: JobseekerSkill) => {
+		setEditingItem(item);
+		setIsFormOpen(true);
+	};
+
+	const handleCloseForm = () => {
+		setIsFormOpen(false);
+		setEditingItem(undefined);
+	};
+
+	const handleFormSubmit = async (data: SkillFormValues, id?: string) => {
+		try {
+			const payload = { ...data, id };
+			const response = id
+				? await JobseekerProfileService.skill.update(payload as JobseekerSkill)
+				: await JobseekerProfileService.skill.add(payload);
+			toast({ description: response.message, variant: 'success' });
+			loadSkills();
+			return true;
+		} catch (error: any) {
+			toast({ title: 'Error', description: error.message || 'An error occurred.', variant: 'danger' });
+			return false;
 		}
 	};
 
-	const handleRemoveSkill = (skillToRemove: ICommonMasterData) => {
-		setSkills(skills.filter((skill) => skill.name !== skillToRemove.name));
+	const handleRemove = async () => {
+		if (!itemToDelete?.id) return;
+		try {
+			await JobseekerProfileService.skill.delete(itemToDelete.id);
+			toast({ description: 'Skill deleted successfully.', variant: 'success' });
+			loadSkills();
+		} catch (error: any) {
+			toast({ title: 'Error', description: error.message || 'Failed to delete skill.', variant: 'danger' });
+		} finally {
+			setItemToDelete(null);
+		}
 	};
 
-	const handleSaveChanges = async () => {
-		setIsSaving(true);
-		const skillIds = skills.map((s) => s.id).filter((id) => !!id);
-		JobseekerProfileService.saveSkills({ skillIds })
-			.then((res) => {
-				toast({
-					description: res.message || 'Your skills have been successfully saved.',
-					variant: 'success',
-				});
-			})
-			.catch((error) => {
-				toast({
-					description: error?.message || 'Failed to save skills.',
-					variant: 'danger',
-				});
-			})
-			.finally(() => setIsSaving(false));
-	};
+	const renderItem = (item: JobseekerSkill) => (
+		<Card key={item.id} className='p-4 flex justify-between items-start'>
+			<div>
+				<p className='font-semibold'>{item.skill?.nameEn}</p>
+				<p className='text-sm text-muted-foreground'>
+					{item.yearsOfExperience} years of experience &middot; {item.proficiency}
+				</p>
+			</div>
+			<div className='flex gap-2'>
+				<Button variant='ghost' size='icon' onClick={() => handleOpenForm(item)}>
+					<Edit className='h-4 w-4' />
+				</Button>
+				<Button variant='ghost' size='icon' onClick={() => setItemToDelete(item)}>
+					<Trash className='h-4 w-4 text-danger' />
+				</Button>
+			</div>
+		</Card>
+	);
 
 	return (
-		<Card className='glassmorphism'>
-			<CardHeader>
-				<CardTitle>Skills</CardTitle>
-				<CardDescription>
-					Highlight your expertise. Add skills relevant to jobs you're interested in.
-				</CardDescription>
-			</CardHeader>
-			<CardContent className='space-y-4'>
-				{isSkillsLoading ? (
-					<Skeleton className='h-11 w-full' />
-				) : (
-					<SkillSelector
-						selectedSkills={skills}
-						onAddSkill={handleAddSkill}
-						onRemoveSkill={handleRemoveSkill}
-					/>
-				)}
-			</CardContent>
-			<CardFooter>
-				<Button onClick={handleSaveChanges} disabled={isSaving}>
-					{isSaving ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Save className='mr-2 h-4 w-4' />}
-					Save Changes
-				</Button>
-			</CardFooter>
-		</Card>
+		<div className='space-y-6'>
+			<Card className='glassmorphism'>
+				<CardHeader>
+					<div className='flex justify-between items-center'>
+						<div className='space-y-1.5'>
+							<CardTitle>Your Skills</CardTitle>
+							<CardDescription>Highlight your expertise by adding your professional skills.</CardDescription>
+						</div>
+						<Button onClick={() => handleOpenForm()}>
+							<PlusCircle className='mr-2 h-4 w-4' />
+							Add New
+						</Button>
+					</div>
+				</CardHeader>
+				<CardContent className='space-y-4'>
+					{isLoading ? (
+						[...Array(3)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
+					) : skills.length > 0 ? (
+						skills.map(renderItem)
+					) : (
+						<p className='text-center text-muted-foreground py-8'>No skills added yet.</p>
+					)}
+				</CardContent>
+			</Card>
+			{isFormOpen && (
+				<SkillForm
+					isOpen={isFormOpen}
+					onClose={handleCloseForm}
+					onSubmit={handleFormSubmit}
+					initialData={editingItem}
+					noun='Skill'
+				/>
+			)}
+			<ConfirmationDialog
+				open={!!itemToDelete}
+				onOpenChange={(open) => !open && setItemToDelete(null)}
+				description={`Are you sure you want to delete the skill "${itemToDelete?.skill?.nameEn}"?`}
+				onConfirm={handleRemove}
+				confirmText='Delete'
+			/>
+		</div>
 	);
 }

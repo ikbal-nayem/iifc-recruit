@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -108,15 +109,6 @@ export function JobseekerProfileView({
 			.filter(Boolean)
 			.join(', ');
 	};
-
-	const skillColors = [
-		'bg-sky-100 text-sky-800 border-sky-200',
-		'bg-emerald-100 text-emerald-800 border-emerald-200',
-		'bg-rose-100 text-rose-800 border-rose-200',
-		'bg-amber-100 text-amber-800 border-amber-200',
-		'bg-violet-100 text-violet-800 border-violet-200',
-		'bg-lime-100 text-lime-800 border-lime-200',
-	];
 
 	const DetailItem = ({ label, value }: { label: string; value?: React.ReactNode }) =>
 		value ? (
@@ -369,11 +361,14 @@ export function JobseekerProfileView({
 									Skills
 								</CardTitle>
 							</CardHeader>
-							<CardContent className='flex flex-wrap gap-2'>
-								{skills.map((skill: ICommonMasterData, index) => (
-									<Badge key={skill.id} className={skillColors[index % skillColors.length]}>
-										{skill.nameEn}
-									</Badge>
+							<CardContent className='flex flex-col gap-2'>
+								{skills.map((skill: JobseekerSkill) => (
+									<div key={skill.id} className='text-sm'>
+										<p className='font-semibold'>{skill.skill?.nameEn}</p>
+										<p className='text-xs text-muted-foreground'>
+											{skill.proficiency} &middot; {skill.yearsOfExperience} years
+										</p>
+									</div>
 								))}
 							</CardContent>
 						</Card>

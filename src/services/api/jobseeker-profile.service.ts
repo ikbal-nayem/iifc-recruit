@@ -1,5 +1,6 @@
+
 import { axiosIns } from '@/config/api.config';
-import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
+import { IApiRequest, IApiResponse, IObject } from '@/interfaces/common.interface';
 import {
 	AcademicInfo,
 	Award,
@@ -9,6 +10,7 @@ import {
 	IProfileCompletionStatus,
 	Jobseeker,
 	JobseekerSearch,
+	JobseekerSkill,
 	Language,
 	PersonalInfo,
 	ProfessionalInfo,
@@ -86,6 +88,7 @@ export const JobseekerProfileService = {
 	publication: createProfileCrud<Publication>('publication'),
 	language: createProfileCrud<Language>('language'),
 	award: createProfileCrud<Award>('award'),
+	skill: createProfileCrud<JobseekerSkill>('skill'),
 	academic: createProfileCrudWithFormData<AcademicInfo>('education'),
 	experience: createProfileCrudWithFormData<ProfessionalInfo>('experience'),
 	training: createProfileCrudWithFormData<Training>('training'),
