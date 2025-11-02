@@ -1,4 +1,3 @@
-
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,7 +14,7 @@ import {
 import { getStatusVariant } from '@/lib/color-mapping';
 import { cn } from '@/lib/utils';
 import { differenceInDays, format, isFuture, parseISO } from 'date-fns';
-import { ArrowLeft, Building, Calendar, Edit, FileText, Send } from 'lucide-react';
+import { ArrowLeft, Building, Edit, FileText, Pencil, Send } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
@@ -102,9 +101,10 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					<CardDescription>Details of each post included in this request.</CardDescription>
 				</CardHeader>
 				<CardContent className='space-y-4'>
-					{request.requestedPosts.map((post, index) => {
+					{request.requestedPosts?.map((post, index) => {
 						const isCircularPublished = post.status === JobRequestedPostStatus.CIRCULAR_PUBLISHED;
-						const isCircularEditable = isCircularPublished && post.circularEndDate && isFuture(parseISO(post.circularEndDate));
+						const isCircularEditable =
+							isCircularPublished && post.circularEndDate && isFuture(post.circularEndDate);
 						return (
 							<Card key={index} className='p-4 border rounded-lg bg-muted/30 space-y-4'>
 								<div className='flex items-start justify-between'>
@@ -115,25 +115,29 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 									</div>
 									<div className='flex items-center gap-2 text-right'>
 										<div className='flex flex-col items-end gap-1'>
-											<Badge variant={getStatusVariant(post.status)}>{post.statusDTO?.nameEn}</Badge>
+											<Badge variant={getStatusVariant(post.status)}>
+												{post.statusDTO?.nameEn}{' '}
+												{isCircularEditable && (
+													<Pencil
+														className='ms-1 h-3 w-3 hover:scale-x-110'
+														onClick={() => setSelectedPost(post)}
+														role='button'
+													/>
+												)}
+											</Badge>
 											{isCircularPublished && post.circularEndDate && (
 												<p className='text-xs text-muted-foreground'>
 													Ends: {format(parseISO(post.circularEndDate), 'PPP')}
 												</p>
 											)}
 										</div>
-										{(request.status === JobRequestStatus.PROCESSING ||
-											request.status === JobRequestStatus.PENDING) &&
+										{request.status === JobRequestStatus.PROCESSING &&
+											post.status === JobRequestedPostStatus.PENDING &&
 											!isCircularPublished && (
 												<Button size='sm' onClick={() => setSelectedPost(post)} title='Publish as circular'>
 													<Send className='h-4 w-4' />
 												</Button>
 											)}
-										{isCircularEditable && (
-											<Button variant='outline' size='sm' onClick={() => setSelectedPost(post)}>
-												<Edit className='mr-2 h-4 w-4' /> Edit Circular
-											</Button>
-										)}
 									</div>
 								</div>
 
