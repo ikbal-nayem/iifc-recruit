@@ -187,7 +187,7 @@ export function JobseekerForm({
 		onClose();
 	};
 
-	const getTableColumns = (): ColumnDef<any>[] => {
+	const columns = React.useMemo<ColumnDef<any>[]>(() => {
 		const baseColumns: ColumnDef<any>[] = [
 			{
 				accessorKey: 'firstName',
@@ -261,11 +261,11 @@ export function JobseekerForm({
 		}
 
 		return baseColumns;
-	};
+	}, [editableForm.control, step]);
 
 	const table = useReactTable({
 		data: fields,
-		columns: getTableColumns(),
+		columns,
 		getCoreRowModel: getCoreRowModel(),
 	});
 
@@ -314,8 +314,8 @@ export function JobseekerForm({
 					</Form>
 				) : (
 					<div className='flex-1 flex flex-col min-h-0'>
-						<Form {...bulkForm}>
-							<div className='px-6 py-4 border-b'>
+						<div className='px-6 py-4 border-b'>
+							<Form {...bulkForm}>
 								<FormAutocomplete
 									control={bulkForm.control}
 									name='organizationId'
@@ -327,11 +327,9 @@ export function JobseekerForm({
 									getOptionLabel={(option) => option.nameEn}
 									disabled={step !== 'upload'}
 								/>
-							</div>
 
-							{step === 'upload' && (
-								<div className='px-6 py-4'>
-									<div className='space-y-4'>
+								{step === 'upload' && (
+									<div className='mt-4 space-y-2'>
 										<FormField
 											control={bulkForm.control}
 											name='file'
@@ -352,9 +350,10 @@ export function JobseekerForm({
 											</Button>
 										</Link>
 									</div>
-								</div>
-							)}
-						</Form>
+								)}
+							</Form>
+						</div>
+
 						{(step === 'preview' || step === 'result') && (
 							<Form {...editableForm}>
 								<form
