@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -16,14 +15,14 @@ import {
 	SheetTitle,
 } from '@/components/ui/sheet';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
 import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { cn } from '@/lib/utils';
 import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { Download, Loader2 } from 'lucide-react';
+import { Check, Download, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import * as React from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
@@ -81,7 +80,6 @@ export function JobseekerForm({
 }) {
 	const [activeTab, setActiveTab] = React.useState('single');
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
-	const [previewData, setPreviewData] = React.useState<any[]>([]);
 	const [step, setStep] = React.useState<'upload' | 'preview' | 'result'>('upload');
 
 	const singleForm = useForm<UserFormValues>({
@@ -141,7 +139,6 @@ export function JobseekerForm({
 					...item,
 					phone: item.phone ? String(item.phone) : '',
 				}));
-				setPreviewData(json);
 				replace(modJson as any);
 				setStep('preview');
 			};
@@ -151,8 +148,10 @@ export function JobseekerForm({
 
 	const handleBulkSubmit = async (data: EditableUserFormValues) => {
 		setIsSubmitting(true);
+		bulkForm.clearErrors();
 		const organizationId = bulkForm.getValues('organizationId');
 		if (!organizationId) {
+			bulkForm.setError('organizationId', { message: 'Select an organization.', type: 'required' });
 			toast.error({
 				description: 'Please select a client organization.',
 			});
@@ -182,7 +181,6 @@ export function JobseekerForm({
 		singleForm.reset();
 		bulkForm.reset();
 		editableForm.reset();
-		setPreviewData([]);
 		setStep('upload');
 		onClose();
 	};
@@ -241,20 +239,16 @@ export function JobseekerForm({
 
 		if (step === 'result') {
 			baseColumns.push({
-				accessorKey: 'status',
+				accessorKey: 'alreadyExists',
 				header: 'Status',
 				cell: ({ row }) => (
 					<span
 						className={cn(
-							'text-xs font-semibold px-4',
-							row.original.status === 'Created'
-								? 'text-success'
-								: row.original.status === 'Exists'
-								? 'text-warning'
-								: 'text-danger'
+							'flex justify-center text-xs font-semibold px-4',
+							row.original.alreadyExists ? 'text-warning' : 'text-success'
 						)}
 					>
-						{row.original.status}
+						{row.original.alreadyExists ? 'Exists' : <Check className='inline-block' />}
 					</span>
 				),
 			});
@@ -325,7 +319,7 @@ export function JobseekerForm({
 									options={organizations}
 									getOptionValue={(option) => option.id!}
 									getOptionLabel={(option) => option.nameEn}
-									disabled={step !== 'upload'}
+									onValueChange={()=>bulkForm.clearErrors()}
 								/>
 
 								{step === 'upload' && (
@@ -361,9 +355,7 @@ export function JobseekerForm({
 									className='flex-1 flex flex-col min-h-0'
 								>
 									<CardHeader>
-										<CardTitle>
-											{step === 'preview' ? 'Preview and Edit' : 'Import Results'}
-										</CardTitle>
+										<CardTitle>{step === 'preview' ? 'Preview and Edit' : 'Import Results'}</CardTitle>
 									</CardHeader>
 									<CardContent className='flex-1 overflow-auto'>
 										<div className='border rounded-md'>
@@ -393,9 +385,9 @@ export function JobseekerForm({
 											</Table>
 										</div>
 									</CardContent>
-									<SheetFooter className='p-6 bg-background border-t'>
-										<Button type='button' variant='ghost' onClick={resetState} disabled={isSubmitting}>
-											Cancel
+									<SheetFooter className='p-3 bg-background border-t'>
+										<Button type='button' variant='outline' onClick={resetState} disabled={isSubmitting}>
+											Close
 										</Button>
 										{step === 'preview' && (
 											<Button type='submit' disabled={isSubmitting}>
