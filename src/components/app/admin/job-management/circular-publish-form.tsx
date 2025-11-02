@@ -1,10 +1,6 @@
 
 'use client';
 
-import {
-	generateJobDescription,
-	GenerateJobDescriptionInput,
-} from '@/ai/flows/job-description-generator';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
@@ -18,7 +14,7 @@ import { format } from 'date-fns';
 import { Bot, Loader2 } from 'lucide-react';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import * as z from 'zod';
 
 const formSchema = z.object({
 	circularPublishDate: z.string().min(1, 'Publish date is required.'),
@@ -56,12 +52,12 @@ export function CircularPublishForm({ isOpen, onClose, post, onSuccess }: Circul
 	const handleGenerateDescription = async () => {
 		setIsGenerating(true);
 		try {
-			const input: GenerateJobDescriptionInput = {
-				jobTitle: post.post?.nameEn || '',
-				keywords: post.post?.nameEn || '', // Can be enhanced later
-			};
-			const result = await generateJobDescription(input);
-			form.setValue('jobDescription', result.jobDescription);
+			// AI generation logic was here
+			toast({
+				title: 'AI Not Available',
+				description: 'AI-powered job description generation is currently disabled.',
+				variant: 'warning',
+			});
 		} catch (error) {
 			console.error('AI generation failed', error);
 			toast({
