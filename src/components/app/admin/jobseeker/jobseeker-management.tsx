@@ -26,7 +26,7 @@ import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
-import { FileText, Search, Send, UserX } from 'lucide-react';
+import { Building, FileText, Search, Send, UserX } from 'lucide-react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 import { JobseekerForm } from './jobseeker-form';
 
@@ -106,7 +106,7 @@ export function JobseekerManagement({
 			accessorKey: 'fullName',
 			header: 'Applicant',
 			cell: ({ row }) => {
-				const { fullName, email, profileImage, firstName, lastName } = row.original;
+				const { fullName, email, profileImage, firstName, lastName, phone, organizationNameEn } = row.original;
 				return (
 					<div className='flex items-center gap-3'>
 						<Avatar>
@@ -119,6 +119,12 @@ export function JobseekerManagement({
 						<div>
 							<p className='font-semibold'>{fullName}</p>
 							<p className='text-xs text-muted-foreground'>{email}</p>
+							<p className='text-xs text-muted-foreground'>{phone}</p>
+							{organizationNameEn && (
+								<p className='text-xs text-muted-foreground flex items-center gap-1.5 pt-1'>
+									<Building className='h-3 w-3' /> {organizationNameEn}
+								</p>
+							)}
 						</div>
 					</div>
 				);
@@ -145,7 +151,11 @@ export function JobseekerManagement({
 			<div className='p-4 flex justify-between items-start'>
 				<div className='flex items-center gap-4'>
 					<Avatar>
-						<AvatarImage src={makePreviewURL(jobseeker.profileImage)} alt={jobseeker.fullName} data-ai-hint='avatar' />
+						<AvatarImage
+							src={makePreviewURL(jobseeker.profileImage)}
+							alt={jobseeker.fullName}
+							data-ai-hint='avatar'
+						/>
 						<AvatarFallback>
 							{jobseeker.firstName?.charAt(0)}
 							{jobseeker.lastName?.charAt(0)}
@@ -155,6 +165,11 @@ export function JobseekerManagement({
 						<p className='font-semibold'>{jobseeker.fullName}</p>
 						<p className='text-sm text-muted-foreground'>{jobseeker.email}</p>
 						<p className='text-sm text-muted-foreground'>{jobseeker.phone}</p>
+						{jobseeker.organizationNameEn && (
+							<p className='text-sm text-muted-foreground flex items-center gap-1.5 pt-1'>
+								<Building className='h-4 w-4' /> {jobseeker.organizationNameEn}
+							</p>
+						)}
 					</div>
 				</div>
 				<ActionMenu items={getActionItems(jobseeker)} />

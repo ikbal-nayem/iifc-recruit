@@ -220,4 +220,7 @@ export type JobseekerSearch = {
   email: string;
   phone: string;
 	profileImage?: IFile;
+	organizationId?: string;
+	organizationNameEn?: string;
+	organizationNameBn?: string;
 }
