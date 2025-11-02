@@ -210,7 +210,7 @@ function ClientOrganizationForm({
 	);
 }
 
-const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0, totalPageCount: 1 };
+const initMeta: IMeta = { page: 0, limit: 20 };
 
 interface ClientOrganizationCrudProps {
 	title: string;

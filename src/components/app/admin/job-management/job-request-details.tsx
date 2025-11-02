@@ -1,10 +1,10 @@
-
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ROUTES } from '@/constants/routes.constant';
+import { toast } from '@/hooks/use-toast';
 import {
 	JobRequest,
 	JobRequestedPostStatus,
@@ -14,18 +14,16 @@ import {
 } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { cn } from '@/lib/utils';
+import { JobRequestService } from '@/services/api/job-request.service';
 import { differenceInDays, format, isFuture, parseISO } from 'date-fns';
 import { ArrowLeft, Building, CheckCircle, Edit, FileText, Loader2, Pencil, Send, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { CircularPublishForm } from './circular-publish-form';
-import { JobRequestService } from '@/services/api/job-request.service';
-import { useToast } from '@/hooks/use-toast';
 
 export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: JobRequest }) {
 	const router = useRouter();
-	const { toast } = useToast();
 	const [request, setRequest] = React.useState<JobRequest>(initialJobRequest);
 	const [selectedPost, setSelectedPost] = React.useState<RequestedPost | null>(null);
 	const [isCompleting, setIsCompleting] = React.useState(false);
@@ -43,17 +41,14 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 		setIsCompleting(true);
 		try {
 			await JobRequestService.updateStatus(request.id!, JobRequestStatus.COMPLETED);
-			toast({
+			toast.success({
 				title: 'Request Completed',
 				description: 'The job request has been marked as completed.',
-				variant: 'success',
 			});
 			router.push(ROUTES.JOB_REQUEST_COMPLETED);
 		} catch (error: any) {
-			toast({
-				title: 'Error',
+			toast.error({
 				description: error.message || 'Failed to complete the job request.',
-				variant: 'danger',
 			});
 		} finally {
 			setIsCompleting(false);

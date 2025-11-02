@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -16,7 +14,7 @@ import { IOrganizationUser } from '@/interfaces/master-data.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
