@@ -1,4 +1,3 @@
-
 import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from './master-data.interface';
 
 export enum JobRequestType {
@@ -18,7 +17,7 @@ export enum JobRequestedPostStatus {
 	PROCESSING = 'PROCESSING',
 	SHORTLISTED = 'SHORTLISTED',
 	COMPLETED = 'COMPLETED',
-	PUBLISHED = 'PUBLISHED',
+	CIRCULAR_PUBLISHED = 'CIRCULAR_PUBLISHED',
 }
 
 export type RequestedPost = {

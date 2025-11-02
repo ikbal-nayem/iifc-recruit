@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,7 @@ import { RequestedPost } from '@/interfaces/job.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
-import { Bot, Loader2 } from 'lucide-react';
+import { Loader2, Send } from 'lucide-react';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -93,7 +92,7 @@ export function CircularPublishForm({ isOpen, onClose, post, onSuccess }: Circul
 	};
 
 	return (
-		<Dialog open={isOpen} onOpenChange={onClose}>
+		<Dialog open={isOpen} onOpenChange={onClose} defaultOpen>
 			<DialogContent className='max-w-3xl'>
 				<DialogHeader>
 					<DialogTitle>Publish Circular for: {post.post?.nameEn}</DialogTitle>
@@ -110,32 +109,14 @@ export function CircularPublishForm({ isOpen, onClose, post, onSuccess }: Circul
 							<FormDatePicker control={form.control} name='circularEndDate' label='End Date' required />
 						</div>
 
-						<div className='space-y-1'>
-							<div className='flex justify-between items-center'>
-								<label className='text-sm font-medium'>Job Description</label>
-								<Button
-									type='button'
-									variant='ghost'
-									size='sm'
-									onClick={handleGenerateDescription}
-									disabled={isGenerating}
-								>
-									{isGenerating ? (
-										<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-									) : (
-										<Bot className='mr-2 h-4 w-4' />
-									)}
-									AI Generate
-								</Button>
-							</div>
-							<FormTextarea
-								control={form.control}
-								name='jobDescription'
-								placeholder='A brief about the job...'
-								rows={5}
-								required
-							/>
-						</div>
+						<FormTextarea
+							label='Job Description'
+							control={form.control}
+							name='jobDescription'
+							placeholder='A brief about the job...'
+							rows={5}
+							required
+						/>
 
 						<FormTextarea
 							control={form.control}
@@ -155,12 +136,12 @@ export function CircularPublishForm({ isOpen, onClose, post, onSuccess }: Circul
 						/>
 
 						<DialogFooter className='pt-4'>
-							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
+							<Button type='button' variant='outline' onClick={onClose} disabled={isSubmitting}>
 								Cancel
 							</Button>
 							<Button type='submit' disabled={isSubmitting}>
 								{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-								Publish Circular
+								<Send className='mr-2 h-4 w-4' /> Publish Circular
 							</Button>
 						</DialogFooter>
 					</form>

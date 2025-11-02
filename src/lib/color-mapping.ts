@@ -28,7 +28,7 @@ export const getStatusVariant = (status?: string): BadgeVariant => {
 
 		case 'active':
 		case 'approved':
-		case 'accepted':
+		case 'shortlisted':
 			return 'lite-success';
 
 		// Secondary states
@@ -40,6 +40,7 @@ export const getStatusVariant = (status?: string): BadgeVariant => {
 		// Success states - Outline variant
 		case 'verified':
 		case 'confirmed':
+		case 'accepted':
 			return 'outline-success';
 
 		// Warning states - Outline variant
@@ -62,7 +63,6 @@ export const getStatusVariant = (status?: string): BadgeVariant => {
 		// Info/Progress states - Lite variant
 		case 'in-progress':
 		case 'processing':
-		case 'shortlisted':
 			return 'lite-info';
 
 		// Danger/Negative states

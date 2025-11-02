@@ -112,7 +112,8 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 								<div className='flex items-center gap-2'>
 									<Badge variant={getStatusVariant(post.status)}>{post.statusDTO?.nameEn}</Badge>
 									{request.status === JobRequestStatus.PROCESSING &&
-										post.status !== JobRequestedPostStatus.PUBLISHED && (
+										post.status === JobRequestedPostStatus.PENDING.toString() &&
+										post.status !== JobRequestedPostStatus.CIRCULAR_PUBLISHED.toString() && (
 											<Button size='sm' onClick={() => setSelectedPost(post)}>
 												<Send className='mr-2 h-4 w-4' /> Publish
 											</Button>
