@@ -1,4 +1,3 @@
-
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,7 +14,7 @@ import {
 import { getStatusVariant } from '@/lib/color-mapping';
 import { cn } from '@/lib/utils';
 import { differenceInDays, format, parseISO } from 'date-fns';
-import { ArrowLeft, Building, Edit, FileText, Send, UserCog } from 'lucide-react';
+import { ArrowLeft, Building, Edit, FileText, Send } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
@@ -43,13 +42,6 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					Back to Requests
 				</Button>
 				<div className='flex gap-2'>
-					{request.status === JobRequestStatus.PENDING && (
-						<Button asChild>
-							<Link href={ROUTES.JOB_REQUEST_MANAGE(request.id)}>
-								<UserCog className='mr-2 h-4 w-4' /> Manage Request
-							</Link>
-						</Button>
-					)}
 					<Button asChild>
 						<Link href={ROUTES.JOB_REQUEST_EDIT(request.id)}>
 							<Edit className='mr-2 h-4 w-4' /> Edit Request
