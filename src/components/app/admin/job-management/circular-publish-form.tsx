@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -35,7 +36,6 @@ interface CircularPublishFormProps {
 export function CircularPublishForm({ isOpen, onClose, post, onSuccess }: CircularPublishFormProps) {
 	const { toast } = useToast();
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
-	const [isGenerating, setIsGenerating] = React.useState(false);
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
@@ -47,27 +47,6 @@ export function CircularPublishForm({ isOpen, onClose, post, onSuccess }: Circul
 			jobRequirements: post.jobRequirements || '',
 		},
 	});
-
-	const handleGenerateDescription = async () => {
-		setIsGenerating(true);
-		try {
-			// AI generation logic was here
-			toast({
-				title: 'AI Not Available',
-				description: 'AI-powered job description generation is currently disabled.',
-				variant: 'warning',
-			});
-		} catch (error) {
-			console.error('AI generation failed', error);
-			toast({
-				title: 'AI Generation Failed',
-				description: 'Could not generate job description.',
-				variant: 'danger',
-			});
-		} finally {
-			setIsGenerating(false);
-		}
-	};
 
 	const onSubmit = async (data: FormValues) => {
 		setIsSubmitting(true);
@@ -93,7 +72,7 @@ export function CircularPublishForm({ isOpen, onClose, post, onSuccess }: Circul
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose} defaultOpen>
-			<DialogContent className='max-w-3xl'>
+			<DialogContent className='max-w-3xl' closeOnOutsideClick={false}>
 				<DialogHeader>
 					<DialogTitle>Publish Circular for: {post.post?.nameEn}</DialogTitle>
 				</DialogHeader>
