@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,7 @@ import {
 	SheetTitle,
 } from '@/components/ui/sheet';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
 import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { cn } from '@/lib/utils';
@@ -90,6 +91,9 @@ export function JobseekerForm({
 
 	const bulkForm = useForm<BulkUserFormValues>({
 		resolver: zodResolver(bulkUserSchema),
+		defaultValues: {
+			organizationId: '',
+		},
 	});
 
 	const editableForm = useForm<EditableUserFormValues>({
@@ -113,7 +117,6 @@ export function JobseekerForm({
 		} catch (error: any) {
 			toast.error({
 				description: error.message || 'Failed to create jobseeker.',
-				variant: 'danger',
 			});
 		} finally {
 			setIsSubmitting(false);
@@ -169,7 +172,6 @@ export function JobseekerForm({
 		} catch (error: any) {
 			toast.error({
 				description: error.message || 'Failed to import jobseekers.',
-				variant: 'danger',
 			});
 		} finally {
 			setIsSubmitting(false);
@@ -195,7 +197,7 @@ export function JobseekerForm({
 						control={editableForm.control}
 						name={`users.${row.index}.firstName`}
 						onFocus={(e) => e.target.select()}
-						className='ring-offset-0 focus-visible:ring-offset-0 border-none'
+						className='border-none'
 					/>
 				),
 			},
@@ -312,8 +314,8 @@ export function JobseekerForm({
 					</Form>
 				) : (
 					<div className='flex-1 flex flex-col min-h-0'>
-						<div className='px-6 py-4 border-b'>
-							<Form {...bulkForm}>
+						<Form {...bulkForm}>
+							<div className='px-6 py-4 border-b'>
 								<FormAutocomplete
 									control={bulkForm.control}
 									name='organizationId'
@@ -325,34 +327,34 @@ export function JobseekerForm({
 									getOptionLabel={(option) => option.nameEn}
 									disabled={step !== 'upload'}
 								/>
-							</Form>
-						</div>
+							</div>
 
-						{step === 'upload' && (
-							<form className='px-6 py-4'>
-								<div className='space-y-4'>
-									<FormField
-										control={bulkForm.control}
-										name='file'
-										render={({ field }) => (
-											<FormItem>
-												<FormLabel required>Upload File</FormLabel>
-												<FormControl>
-													<Input type='file' accept='.xls, .xlsx, .csv' onChange={handleBulkFileChange} />
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										)}
-									/>
-									<Link href='/files/jobseeker-bulk-upload-sample.xlsx' target='_top' download>
-										<Button type='button' variant='link' className='p-0 h-auto mt-1'>
-											<Download className='mr-2 h-4 w-4' />
-											Download Sample File
-										</Button>
-									</Link>
+							{step === 'upload' && (
+								<div className='px-6 py-4'>
+									<div className='space-y-4'>
+										<FormField
+											control={bulkForm.control}
+											name='file'
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel required>Upload File</FormLabel>
+													<FormControl>
+														<Input type='file' accept='.xls, .xlsx, .csv' onChange={handleBulkFileChange} />
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<Link href='/files/jobseeker-bulk-upload-sample.xlsx' target='_top' download>
+											<Button type='button' variant='link' className='p-0 h-auto mt-1'>
+												<Download className='mr-2 h-4 w-4' />
+												Download Sample File
+											</Button>
+										</Link>
+									</div>
 								</div>
-							</form>
-						)}
+							)}
+						</Form>
 						{(step === 'preview' || step === 'result') && (
 							<Form {...editableForm}>
 								<form
