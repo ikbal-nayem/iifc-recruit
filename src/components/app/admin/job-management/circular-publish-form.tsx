@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Form } from '@/components/ui/form';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormTextarea } from '@/components/ui/form-textarea';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { RequestedPost } from '@/interfaces/job.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,7 +14,6 @@ import { Loader2, Send } from 'lucide-react';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-
 const formSchema = z.object({
 	circularPublishDate: z.string().min(1, 'Publish date is required.'),
 	circularEndDate: z.string().min(1, 'End date is required.'),
@@ -34,7 +32,6 @@ interface CircularPublishFormProps {
 }
 
 export function CircularPublishForm({ isOpen, onClose, post, onSuccess }: CircularPublishFormProps) {
-	const { toast } = useToast();
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
 
 	const form = useForm<FormValues>({
@@ -56,15 +53,11 @@ export function CircularPublishForm({ isOpen, onClose, post, onSuccess }: Circul
 				...data,
 			};
 			const response = await JobRequestService.publishCircular(payload);
-			toast({ description: 'Circular published successfully.', variant: 'success' });
+			toast.success({ description: 'Circular published successfully.' });
 			onSuccess(response.body);
 			onClose();
 		} catch (error: any) {
-			toast({
-				title: 'Error',
-				description: error.message || 'Failed to publish circular.',
-				variant: 'danger',
-			});
+			toast.error({ description: error.message || 'Failed to publish circular.' });
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -93,7 +86,7 @@ export function CircularPublishForm({ isOpen, onClose, post, onSuccess }: Circul
 							control={form.control}
 							name='jobDescription'
 							placeholder='A brief about the job...'
-							rows={5}
+							rows={3}
 							required
 						/>
 
