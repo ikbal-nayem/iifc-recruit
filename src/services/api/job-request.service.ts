@@ -1,3 +1,4 @@
+
 import { axiosIns } from '@/config/api.config';
 import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
 import { JobRequest, JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
@@ -20,6 +21,9 @@ export const JobRequestService = {
 	},
 	getRequestedPostUpdate: async (payload: RequestedPost): Promise<IApiResponse<RequestedPost>> => {
 		return axiosIns.put(`/job-request/requested-post/update`, payload);
+	},
+	publishCircular: async (payload: Partial<RequestedPost>): Promise<IApiResponse<RequestedPost>> => {
+		return axiosIns.post(`/job-request/requested-post/publish-circular`, payload);
 	},
 	proceedToProcess: async (id: string): Promise<IApiResponse<any>> => {
 		return axiosIns.get(`/job-request/requested-post/proceed-to-process?id=${id}`);

@@ -1,10 +1,17 @@
+
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ROUTES } from '@/constants/routes.constant';
-import { JobRequest, JobRequestStatus, JobRequestType } from '@/interfaces/job.interface';
+import {
+	JobRequest,
+	JobRequestedPostStatus,
+	JobRequestStatus,
+	JobRequestType,
+	RequestedPost,
+} from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { cn } from '@/lib/utils';
 import { differenceInDays, format, parseISO } from 'date-fns';
@@ -12,12 +19,21 @@ import { ArrowLeft, Building, Edit, FileText, Send, UserCog } from 'lucide-react
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
+import { CircularPublishForm } from './circular-publish-form';
 
 export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: JobRequest }) {
 	const router = useRouter();
-	const [request] = React.useState<JobRequest>(initialJobRequest);
+	const [request, setRequest] = React.useState<JobRequest>(initialJobRequest);
+	const [selectedPost, setSelectedPost] = React.useState<RequestedPost | null>(null);
 
 	const isDeadlineSoon = differenceInDays(parseISO(request.deadline), new Date()) <= 7;
+
+	const handlePublishSuccess = (updatedPost: RequestedPost) => {
+		setRequest((prevRequest) => ({
+			...prevRequest,
+			requestedPosts: prevRequest.requestedPosts.map((p) => (p.id === updatedPost.id ? updatedPost : p)),
+		}));
+	};
 
 	return (
 		<div className='space-y-6'>
@@ -32,11 +48,6 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 							<Link href={ROUTES.JOB_REQUEST_MANAGE(request.id)}>
 								<UserCog className='mr-2 h-4 w-4' /> Manage Request
 							</Link>
-						</Button>
-					)}
-					{request.status === JobRequestStatus.PROCESSING && (
-						<Button>
-							<Send className='mr-2 h-4 w-4' /> Publish as Circular
 						</Button>
 					)}
 					<Button asChild>
@@ -101,10 +112,20 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					{request.requestedPosts.map((post, index) => (
 						<Card key={index} className='p-4 border rounded-lg bg-muted/30 space-y-4'>
 							<div className='flex items-start justify-between'>
-								<CardTitle className='text-xl font-semibold'>
-									{post.post?.nameEn} ({post.vacancy} Vacancies)
-								</CardTitle>
-								<Badge variant={getStatusVariant(post.status)}>{post.statusDTO?.nameEn}</Badge>
+								<div>
+									<CardTitle className='text-xl font-semibold'>
+										{post.post?.nameEn} ({post.vacancy} Vacancies)
+									</CardTitle>
+								</div>
+								<div className='flex items-center gap-2'>
+									<Badge variant={getStatusVariant(post.status)}>{post.statusDTO?.nameEn}</Badge>
+									{request.status === JobRequestStatus.PROCESSING &&
+										post.status !== JobRequestedPostStatus.PUBLISHED && (
+											<Button size='sm' onClick={() => setSelectedPost(post)}>
+												<Send className='mr-2 h-4 w-4' /> Publish
+											</Button>
+										)}
+								</div>
 							</div>
 
 							<Separator />
@@ -154,6 +175,15 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					))}
 				</CardContent>
 			</Card>
+
+			{selectedPost && (
+				<CircularPublishForm
+					isOpen={!!selectedPost}
+					onClose={() => setSelectedPost(null)}
+					post={selectedPost}
+					onSuccess={handlePublishSuccess}
+				/>
+			)}
 		</div>
 	);
 }

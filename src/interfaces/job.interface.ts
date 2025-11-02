@@ -18,6 +18,7 @@ export enum JobRequestedPostStatus {
 	PROCESSING = 'PROCESSING',
 	SHORTLISTED = 'SHORTLISTED',
 	COMPLETED = 'COMPLETED',
+	PUBLISHED = 'PUBLISHED',
 }
 
 export type RequestedPost = {
@@ -41,6 +42,11 @@ export type RequestedPost = {
 	totalApplied?: number;
 	examinerId?: string;
 	examiner?: IClientOrganization;
+	circularPublishDate?: string;
+	circularEndDate?: string;
+	jobDescription?: string;
+	jobResponsibilities?: string;
+	jobRequirements?: string;
 };
 
 export type JobRequest = {
