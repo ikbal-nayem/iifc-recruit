@@ -131,10 +131,6 @@ export function JobseekerManagement({
 			},
 		},
 		{
-			accessorKey: 'phone',
-			header: 'Phone',
-		},
-		{
 			id: 'actions',
 			cell: ({ row }) => <ActionMenu items={getActionItems(row.original)} />,
 		},
