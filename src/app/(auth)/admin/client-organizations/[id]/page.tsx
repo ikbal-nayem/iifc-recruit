@@ -1,46 +1,34 @@
-'use client';
-
 import { OrganizationUserManagement } from '@/components/app/admin/client-organizations/organization-user-management';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageLoader } from '@/components/ui/page-loader';
-import { useToast } from '@/hooks/use-toast';
-import { IClientOrganization } from '@/interfaces/master-data.interface';
+import { IClientOrganization, IRole } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
+import { RoleService } from '@/services/api/role.service';
 import { Globe, Mail, MapPin, Phone } from 'lucide-react';
-import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { notFound } from 'next/navigation';
 
-export default function ClientOrganizationDetailsPage() {
-	const params = useParams();
-	const { id } = params;
-	const [organization, setOrganization] = useState<IClientOrganization | null>(null);
-	const [loading, setLoading] = useState(true);
-	const { toast } = useToast();
+async function getData(id: string) {
+	try {
+		const [orgRes, rolesRes] = await Promise.all([
+			MasterDataService.clientOrganization.getDetails(id),
+			RoleService.getList(),
+		]);
 
-	useEffect(() => {
-		if (typeof id === 'string') {
-			MasterDataService.clientOrganization
-				.getDetails(id)
-				.then((res) => {
-					setOrganization(res.body);
-				})
-				.catch((err) => {
-					toast({
-						description: err.message || 'Failed to load organization details.',
-						variant: 'danger',
-					});
-				})
-				.finally(() => setLoading(false));
-		}
-	}, [id, toast]);
-
-	if (loading) {
-		return <PageLoader />;
+		return {
+			organization: orgRes.body,
+			roles: rolesRes.body,
+		};
+	} catch (error) {
+		console.error('Failed to load organization details:', error);
+		notFound();
 	}
+}
+
+export default async function ClientOrganizationDetailsPage({ params }: { params: { id: string } }) {
+	const { organization, roles } = await getData(params.id);
 
 	if (!organization) {
-		return <div>Organization not found.</div>;
+		notFound();
 	}
 
 	return (
@@ -112,7 +100,7 @@ export default function ClientOrganizationDetailsPage() {
 				</CardContent>
 			</Card>
 
-			<OrganizationUserManagement organizationId={id as string} />
+			<OrganizationUserManagement organizationId={params.id as string} roles={roles} />
 		</div>
 	);
 }

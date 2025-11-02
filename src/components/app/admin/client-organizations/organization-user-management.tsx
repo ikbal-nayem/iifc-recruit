@@ -10,7 +10,7 @@ import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
 import { useToast } from '@/hooks/use-toast';
-import { IOrganizationUser } from '@/interfaces/master-data.interface';
+import { IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
@@ -22,7 +22,7 @@ const userSchema = z
 	.object({
 		name: z.string().min(1, 'Name is required.'),
 		email: z.string().email('Please enter a valid email.'),
-		role: z.enum(['Admin', 'Member']),
+		role: z.string().min(1, 'Role is required'),
 		password: z.string().min(8, 'Password must be at least 8 characters.'),
 		confirmPassword: z.string(),
 	})
@@ -38,12 +38,13 @@ interface UserFormProps {
 	onClose: () => void;
 	organizationId: string;
 	onUserCreated: () => void;
+	roles: IRole[];
 }
 
-function UserForm({ isOpen, onClose, organizationId, onUserCreated }: UserFormProps) {
+function UserForm({ isOpen, onClose, organizationId, onUserCreated, roles }: UserFormProps) {
 	const form = useForm<UserFormValues>({
 		resolver: zodResolver(userSchema),
-		defaultValues: { name: '', email: '', role: 'Member', password: '', confirmPassword: '' },
+		defaultValues: { name: '', email: '', role: '', password: '', confirmPassword: '' },
 	});
 	const { toast } = useToast();
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -79,10 +80,9 @@ function UserForm({ isOpen, onClose, organizationId, onUserCreated }: UserFormPr
 							name='role'
 							label='Role'
 							required
-							options={[
-								{ value: 'Admin', label: 'Admin' },
-								{ value: 'Member', label: 'Member' },
-							]}
+							options={roles}
+							labelKey='nameEn'
+							valueKey='id'
 						/>
 						<FormInput control={form.control} name='password' label='Password' type='password' required />
 						<FormInput
@@ -135,7 +135,7 @@ const mockUsers: IOrganizationUser[] = [
 	},
 ];
 
-export function OrganizationUserManagement({ organizationId }: { organizationId: string }) {
+export function OrganizationUserManagement({ organizationId, roles }: { organizationId: string, roles: IRole[] }) {
 	const [users, setUsers] = useState<IOrganizationUser[]>(mockUsers);
 	const [isUserFormOpen, setIsUserFormOpen] = useState(false);
 
@@ -196,6 +196,7 @@ export function OrganizationUserManagement({ organizationId }: { organizationId:
 				onClose={() => setIsUserFormOpen(false)}
 				organizationId={organizationId}
 				onUserCreated={handleUserCreated}
+				roles={roles}
 			/>
 		</>
 	);

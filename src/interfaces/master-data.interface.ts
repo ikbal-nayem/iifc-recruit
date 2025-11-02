@@ -14,6 +14,10 @@ export interface ICommonMasterData {
 	code?: string;
 }
 
+export interface IRole extends ICommonMasterData {
+	
+}
+
 export interface IOutsourcingCategory extends ICommonMasterData {}
 
 export interface IOutsourcingZone extends ICommonMasterData {}
