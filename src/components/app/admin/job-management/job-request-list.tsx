@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
@@ -14,23 +13,12 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequest, JobRequestStatus, JobRequestType } from '@/interfaces/job.interface';
-import { JobRequestService } from '@/services/api/job-request.service';
-import { cn } from '@/lib/utils';
-import { differenceInDays, format, parseISO } from 'date-fns';
-import {
-	Building,
-	Calendar,
-	Check,
-	CheckCircle,
-	Edit,
-	Eye,
-	FileText,
-	Search,
-	Send,
-	Trash,
-} from 'lucide-react';
-import * as React from 'react';
 import { getStatusVariant } from '@/lib/color-mapping';
+import { cn } from '@/lib/utils';
+import { JobRequestService } from '@/services/api/job-request.service';
+import { differenceInDays, format, parseISO } from 'date-fns';
+import { Building, Calendar, Check, CheckCircle, Edit, Eye, FileText, Search, Trash } from 'lucide-react';
+import * as React from 'react';
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
 
@@ -141,11 +129,6 @@ export function JobRequestList({ status }: JobRequestListProps) {
 		if (request.status === JobRequestStatus.PROCESSING) {
 			items.push(
 				{ isSeparator: true },
-				{
-					label: 'Publish as Circular',
-					icon: <Send className='mr-2 h-4 w-4' />,
-					onClick: () => alert('Publishing...'), // Placeholder
-				},
 				{
 					label: 'Mark as Completed',
 					icon: <CheckCircle className='mr-2 h-4 w-4' />,
