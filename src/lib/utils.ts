@@ -1,3 +1,4 @@
+
 import { IObject } from '@/interfaces/common.interface';
 import { clsx, type ClassValue } from 'clsx';
 import { format } from 'date-fns';
@@ -20,6 +21,7 @@ export const isNull = (val: string | null | undefined | Array<any> | IObject) =>
 };
 
 export const makeReqDateFormat = (date: Date | string | number) => {
+	if (!date) return '';
 	return format(new Date(date), 'yyyy-MM-dd');
 };
 

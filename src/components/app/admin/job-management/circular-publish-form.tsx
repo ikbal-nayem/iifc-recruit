@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -5,7 +6,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Form } from '@/components/ui/form';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormTextarea } from '@/components/ui/form-textarea';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { RequestedPost } from '@/interfaces/job.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -33,6 +34,7 @@ interface CircularPublishFormProps {
 
 export function CircularPublishForm({ isOpen, onClose, post, onSuccess }: CircularPublishFormProps) {
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
+	const isEditing = !!post.circularPublishDate;
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
@@ -53,11 +55,11 @@ export function CircularPublishForm({ isOpen, onClose, post, onSuccess }: Circul
 				...data,
 			};
 			const response = await JobRequestService.publishCircular(payload);
-			toast.success({ description: 'Circular published successfully.' });
+			toast({ description: `Circular ${isEditing ? 'updated' : 'published'} successfully.`, variant: 'success' });
 			onSuccess(response.body);
 			onClose();
 		} catch (error: any) {
-			toast.error({ description: error.message || 'Failed to publish circular.' });
+			toast({ description: error.message || 'Failed to publish circular.', variant: 'danger' });
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -67,7 +69,9 @@ export function CircularPublishForm({ isOpen, onClose, post, onSuccess }: Circul
 		<Dialog open={isOpen} onOpenChange={onClose} defaultOpen>
 			<DialogContent className='max-w-3xl' closeOnOutsideClick={false}>
 				<DialogHeader>
-					<DialogTitle>Publish Circular for: {post.post?.nameEn}</DialogTitle>
+					<DialogTitle>
+						{isEditing ? 'Edit' : 'Publish'} Circular for: {post.post?.nameEn}
+					</DialogTitle>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4 py-4'>
@@ -113,7 +117,7 @@ export function CircularPublishForm({ isOpen, onClose, post, onSuccess }: Circul
 							</Button>
 							<Button type='submit' disabled={isSubmitting}>
 								{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-								<Send className='mr-2 h-4 w-4' /> Publish Circular
+								<Send className='mr-2 h-4 w-4' /> {isEditing ? 'Update Circular' : 'Publish Circular'}
 							</Button>
 						</DialogFooter>
 					</form>

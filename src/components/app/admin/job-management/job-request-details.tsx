@@ -1,3 +1,4 @@
+
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,8 +14,8 @@ import {
 } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { cn } from '@/lib/utils';
-import { differenceInDays, format, parseISO } from 'date-fns';
-import { ArrowLeft, Building, Edit, FileText, Send } from 'lucide-react';
+import { differenceInDays, format, isFuture, parseISO } from 'date-fns';
+import { ArrowLeft, Building, Calendar, Edit, FileText, Send } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
@@ -101,71 +102,86 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					<CardDescription>Details of each post included in this request.</CardDescription>
 				</CardHeader>
 				<CardContent className='space-y-4'>
-					{request.requestedPosts.map((post, index) => (
-						<Card key={index} className='p-4 border rounded-lg bg-muted/30 space-y-4'>
-							<div className='flex items-start justify-between'>
-								<div>
-									<CardTitle className='text-xl font-semibold'>
-										{post.post?.nameEn} ({post.vacancy} Vacancies)
-									</CardTitle>
-								</div>
-								<div className='flex items-center gap-2'>
-									<Badge variant={getStatusVariant(post.status)}>{post.statusDTO?.nameEn}</Badge>
-									{request.status === JobRequestStatus.PROCESSING &&
-										post.status === JobRequestedPostStatus.PENDING.toString() &&
-										post.status !== JobRequestedPostStatus.CIRCULAR_PUBLISHED.toString() && (
-											<Button size='sm' onClick={() => setSelectedPost(post)}>
-												<Send className='mr-2 h-4 w-4' /> Publish
+					{request.requestedPosts.map((post, index) => {
+						const isCircularPublished = post.status === JobRequestedPostStatus.CIRCULAR_PUBLISHED;
+						const isCircularEditable = isCircularPublished && post.circularEndDate && isFuture(parseISO(post.circularEndDate));
+						return (
+							<Card key={index} className='p-4 border rounded-lg bg-muted/30 space-y-4'>
+								<div className='flex items-start justify-between'>
+									<div>
+										<CardTitle className='text-xl font-semibold'>
+											{post.post?.nameEn} ({post.vacancy} Vacancies)
+										</CardTitle>
+									</div>
+									<div className='flex items-center gap-2 text-right'>
+										<div className='flex flex-col items-end gap-1'>
+											<Badge variant={getStatusVariant(post.status)}>{post.statusDTO?.nameEn}</Badge>
+											{isCircularPublished && post.circularEndDate && (
+												<p className='text-xs text-muted-foreground'>
+													Ends: {format(parseISO(post.circularEndDate), 'PPP')}
+												</p>
+											)}
+										</div>
+										{request.status === JobRequestStatus.PROCESSING &&
+											!isCircularPublished && (
+												<Button size='sm' onClick={() => setSelectedPost(post)}>
+													<Send className='mr-2 h-4 w-4' /> Publish
+												</Button>
+											)}
+										{isCircularEditable && (
+											<Button variant='outline' size='sm' onClick={() => setSelectedPost(post)}>
+												<Edit className='mr-2 h-4 w-4' /> Edit Circular
 											</Button>
 										)}
-								</div>
-							</div>
-
-							<Separator />
-
-							<div className='grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 text-sm'>
-								{post.experienceRequired && post.experienceRequired > 0 && (
-									<div>
-										<p className='text-muted-foreground'>Experience</p>
-										<p className='font-medium'>{post.experienceRequired} years</p>
 									</div>
-								)}
-								{request.type === JobRequestType.OUTSOURCING ? (
-									<>
-										{post.outsourcingZone?.nameEn && (
-											<div>
-												<p className='text-muted-foreground'>Zone</p>
-												<p className='font-medium'>{post.outsourcingZone?.nameEn}</p>
-											</div>
-										)}
-										{post.yearsOfContract && post.yearsOfContract > 0 ? (
-											<div>
-												<p className='text-muted-foreground'>Contract Period</p>
-												<p className='font-medium'>{post.yearsOfContract} years</p>
-											</div>
-										) : null}
-									</>
-								) : (
-									<>
-										{post.salaryFrom && post.salaryTo && (
-											<div>
-												<p className='text-muted-foreground'>Salary Range</p>
-												<p className='font-medium'>
-													{post.salaryFrom} - {post.salaryTo}
-												</p>
-											</div>
-										)}
-										{post.negotiable && (
-											<div>
-												<p className='text-muted-foreground'>Salary</p>
-												<p className='font-medium'>Negotiable</p>
-											</div>
-										)}
-									</>
-								)}
-							</div>
-						</Card>
-					))}
+								</div>
+
+								<Separator />
+
+								<div className='grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 text-sm'>
+									{post.experienceRequired && post.experienceRequired > 0 && (
+										<div>
+											<p className='text-muted-foreground'>Experience</p>
+											<p className='font-medium'>{post.experienceRequired} years</p>
+										</div>
+									)}
+									{request.type === JobRequestType.OUTSOURCING ? (
+										<>
+											{post.outsourcingZone?.nameEn && (
+												<div>
+													<p className='text-muted-foreground'>Zone</p>
+													<p className='font-medium'>{post.outsourcingZone?.nameEn}</p>
+												</div>
+											)}
+											{post.yearsOfContract && post.yearsOfContract > 0 ? (
+												<div>
+													<p className='text-muted-foreground'>Contract Period</p>
+													<p className='font-medium'>{post.yearsOfContract} years</p>
+												</div>
+											) : null}
+										</>
+									) : (
+										<>
+											{post.salaryFrom && post.salaryTo && (
+												<div>
+													<p className='text-muted-foreground'>Salary Range</p>
+													<p className='font-medium'>
+														{post.salaryFrom} - {post.salaryTo}
+													</p>
+												</div>
+											)}
+											{post.negotiable && (
+												<div>
+													<p className='text-muted-foreground'>Salary</p>
+													<p className='font-medium'>Negotiable</p>
+												</div>
+											)}
+										</>
+									)}
+								</div>
+							</Card>
+						);
+					})}
 				</CardContent>
 			</Card>
 
