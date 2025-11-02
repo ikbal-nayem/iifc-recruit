@@ -23,7 +23,7 @@ export const JobRequestService = {
 		return axiosIns.put(`/job-request/requested-post/update`, payload);
 	},
 	publishCircular: async (payload: Partial<RequestedPost>): Promise<IApiResponse<RequestedPost>> => {
-		return axiosIns.post(`/job-request/requested-post/publish-circular`, payload);
+		return axiosIns.post(`/job-request/requested-post/publish-as-circular`, payload);
 	},
 	proceedToProcess: async (id: string): Promise<IApiResponse<any>> => {
 		return axiosIns.get(`/job-request/requested-post/proceed-to-process?id=${id}`);
