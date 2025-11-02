@@ -16,7 +16,7 @@ import { JobRequestService } from '@/services/api/job-request.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
 import { Bot, Loader2 } from 'lucide-react';
-import * from 'react';
+import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
