@@ -82,7 +82,7 @@ export function JobseekerForm({
 	const { toast } = useToast();
 	const [activeTab, setActiveTab] = React.useState('single');
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
-	const [setPreviewData] = React.useState<any[]>([]);
+	const [previewData, setPreviewData] = React.useState<any[]>([]);
 	const [step, setStep] = React.useState<'upload' | 'preview' | 'result'>('upload');
 
 	const singleForm = useForm<UserFormValues>({
@@ -252,7 +252,7 @@ export function JobseekerForm({
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && resetState()}>
-			<SheetContent className='sm:max-w-[800px] w-full p-0 flex flex-col' side='right'>
+			<SheetContent className='sm:max-w-[800px] w-full p-0 flex flex-col bg-white' side='right'>
 				<SheetHeader className='p-6 pb-2'>
 					<SheetTitle>Create New Jobseeker(s)</SheetTitle>
 					<SheetDescription>Add a single jobseeker or upload a file for bulk import.</SheetDescription>
