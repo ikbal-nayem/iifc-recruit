@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils';
 import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { Download, FileText, Loader2 } from 'lucide-react';
+import { Download, Loader2 } from 'lucide-react';
 import * as React from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import * as XLSX from 'xlsx';
@@ -283,7 +283,7 @@ export function JobseekerForm({
 							<FormInput control={singleForm.control} name='email' label='Email' type='email' required />
 							<FormInput control={singleForm.control} name='phone' label='Phone' />
 							<SheetFooter className='pt-4'>
-								<Button type='button' variant='ghost' onClick={resetState} disabled={isSubmitting}>
+								<Button type='button' variant='outline' onClick={resetState} disabled={isSubmitting}>
 									Cancel
 								</Button>
 								<Button type='submit' disabled={isSubmitting}>
