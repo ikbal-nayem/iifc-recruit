@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -314,17 +313,19 @@ export function JobseekerForm({
 				) : (
 					<div className='flex-1 flex flex-col min-h-0'>
 						<div className='px-6 py-4 border-b'>
-							<FormAutocomplete
-								control={bulkForm.control}
-								name='organizationId'
-								label='Client Organization'
-								required
-								placeholder='Select an organization'
-								options={organizations}
-								getOptionValue={(option) => option.id!}
-								getOptionLabel={(option) => option.nameEn}
-								disabled={step !== 'upload'}
-							/>
+							<Form {...bulkForm}>
+								<FormAutocomplete
+									control={bulkForm.control}
+									name='organizationId'
+									label='Client Organization'
+									required
+									placeholder='Select an organization'
+									options={organizations}
+									getOptionValue={(option) => option.id!}
+									getOptionLabel={(option) => option.nameEn}
+									disabled={step !== 'upload'}
+								/>
+							</Form>
 						</div>
 
 						{step === 'upload' && (
