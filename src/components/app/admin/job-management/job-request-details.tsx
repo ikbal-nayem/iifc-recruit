@@ -122,7 +122,8 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 												</p>
 											)}
 										</div>
-										{request.status === JobRequestStatus.PROCESSING &&
+										{(request.status === JobRequestStatus.PROCESSING ||
+											request.status === JobRequestStatus.PENDING) &&
 											!isCircularPublished && (
 												<Button size='sm' onClick={() => setSelectedPost(post)}>
 													<Send className='mr-2 h-4 w-4' /> Publish
