@@ -1,4 +1,3 @@
-
 'use client';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -12,7 +11,7 @@ import { Button } from './button';
 interface FormInputProps<TFieldValues extends FieldValues> extends React.ComponentProps<'input'> {
 	control: Control<TFieldValues | any>;
 	name: FieldPath<TFieldValues>;
-	label: string;
+	label?: string;
 	required?: boolean;
 	startIcon?: React.ReactNode;
 }
@@ -36,7 +35,7 @@ export function FormInput<TFieldValues extends FieldValues>({
 			name={name}
 			render={({ field }) => (
 				<FormItem>
-					<FormLabel required={required}>{label}</FormLabel>
+					{!!label && <FormLabel required={required}>{label}</FormLabel>}
 					<FormControl>
 						<div className='relative flex items-center'>
 							{startIcon && <div className='absolute left-3'>{startIcon}</div>}

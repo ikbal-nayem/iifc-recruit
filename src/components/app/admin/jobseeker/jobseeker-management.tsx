@@ -40,7 +40,7 @@ import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
@@ -53,6 +53,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Download, FileText, Loader2, Search, Send, UserX } from 'lucide-react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
+import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 
 const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
 

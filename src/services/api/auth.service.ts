@@ -1,5 +1,5 @@
 import { axiosIns } from '@/config/api.config';
-import { IAuthInfo, IUser } from '@/interfaces/auth.interface';
+import { IAuthInfo } from '@/interfaces/auth.interface';
 import { IApiResponse, IObject } from '@/interfaces/common.interface';
 
 export const AuthService = {
