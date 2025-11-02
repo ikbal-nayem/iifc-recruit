@@ -22,6 +22,7 @@ export const getStatusVariant = (status?: string): BadgeVariant => {
 	switch (lowerCaseStatus) {
 		// Success states
 		case 'published':
+		case 'circular_published':
 		case 'hired':
 		case 'completed':
 			return 'success';

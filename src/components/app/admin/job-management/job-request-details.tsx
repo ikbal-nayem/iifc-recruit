@@ -125,8 +125,8 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 										{(request.status === JobRequestStatus.PROCESSING ||
 											request.status === JobRequestStatus.PENDING) &&
 											!isCircularPublished && (
-												<Button size='sm' onClick={() => setSelectedPost(post)}>
-													<Send className='mr-2 h-4 w-4' /> Publish
+												<Button size='sm' onClick={() => setSelectedPost(post)} title='Publish as circular'>
+													<Send className='h-4 w-4' />
 												</Button>
 											)}
 										{isCircularEditable && (
