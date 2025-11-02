@@ -10,7 +10,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTES } from '@/constants/routes.constant';
 import { useDebounce } from '@/hooks/use-debounce';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequest, JobRequestStatus, JobRequestType } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
@@ -32,7 +32,6 @@ export function JobRequestList({ status }: JobRequestListProps) {
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [searchQuery, setSearchQuery] = React.useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
-	const { toast } = useToast();
 	const [itemToDelete, setItemToDelete] = React.useState<JobRequest | null>(null);
 
 	const loadItems = React.useCallback(
@@ -47,16 +46,14 @@ export function JobRequestList({ status }: JobRequestListProps) {
 				setData(response.body);
 				setMeta(response.meta);
 			} catch (error: any) {
-				toast({
-					title: 'Error',
+				toast.error({
 					description: error.message || 'Failed to load job requests.',
-					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit, toast, status]
+		[meta.limit, status]
 	);
 
 	React.useEffect(() => {
@@ -88,14 +85,10 @@ export function JobRequestList({ status }: JobRequestListProps) {
 		if (!itemToDelete?.id) return;
 		try {
 			await JobRequestService.delete(itemToDelete.id);
-			toast({ description: 'Job request deleted successfully', variant: 'success' });
+			toast.success({ description: 'Job request deleted successfully' });
 			loadItems(meta.page, debouncedSearch);
 		} catch (error: any) {
-			toast({
-				title: 'Error',
-				description: error.message || 'Failed to delete job request.',
-				variant: 'danger',
-			});
+			toast.error({ description: error.message || 'Failed to delete job request.' });
 		} finally {
 			setItemToDelete(null);
 		}
