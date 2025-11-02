@@ -14,7 +14,7 @@ import {
 import { getStatusVariant } from '@/lib/color-mapping';
 import { cn } from '@/lib/utils';
 import { differenceInDays, format, isFuture, parseISO } from 'date-fns';
-import { ArrowLeft, Building, Edit, FileText, Pencil, Send } from 'lucide-react';
+import { ArrowLeft, Building, Edit, FileText, Pencil, Send, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
@@ -109,9 +109,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 							<Card key={index} className='p-4 border rounded-lg bg-muted/30 space-y-4'>
 								<div className='flex items-start justify-between'>
 									<div>
-										<CardTitle className='text-xl font-semibold'>
-											{post.post?.nameEn} ({post.vacancy} Vacancies)
-										</CardTitle>
+										<CardTitle className='text-xl font-semibold'>{post.post?.nameEn}</CardTitle>
 									</div>
 									<div className='flex items-center gap-2 text-right'>
 										<div className='flex flex-col items-end gap-1'>
@@ -131,7 +129,8 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 												</p>
 											)}
 										</div>
-										{request.status === JobRequestStatus.PROCESSING &&
+										{(request.status === JobRequestStatus.PENDING ||
+											request.status === JobRequestStatus.PROCESSING) &&
 											post.status === JobRequestedPostStatus.PENDING &&
 											!isCircularPublished && (
 												<Button size='sm' onClick={() => setSelectedPost(post)} title='Publish as circular'>
@@ -144,6 +143,13 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 								<Separator />
 
 								<div className='grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 text-sm'>
+									<div>
+										<p className='text-muted-foreground'>Vacancies</p>
+										<p className='font-medium flex items-center gap-1.5'>
+											<Users className='h-4 w-4' />
+											{post.vacancy}
+										</p>
+									</div>
 									{post.experienceRequired && post.experienceRequired > 0 && (
 										<div>
 											<p className='text-muted-foreground'>Experience</p>
