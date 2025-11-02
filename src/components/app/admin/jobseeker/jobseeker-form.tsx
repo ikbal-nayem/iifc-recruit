@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -17,29 +16,29 @@ import {
 } from '@/components/ui/sheet';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { cn } from '@/lib/utils';
 import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { Download, Loader2 } from 'lucide-react';
+import Link from 'next/link';
 import * as React from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import * as XLSX from 'xlsx';
 import * as z from 'zod';
-
 const userSchema = z.object({
 	firstName: z.string().min(1, 'First name is required.'),
 	lastName: z.string().min(1, 'Last name is required.'),
 	email: z.string().email('Email should be valid.'),
 	phone: z.string().optional(),
-	clientOrganizationId: z.string().min(1, 'Client Organization is required.'),
+	organizationId: z.string().min(1, 'Organization is required.'),
 });
 type UserFormValues = z.infer<typeof userSchema>;
 
 const bulkUserSchema = z.object({
-	clientOrganizationId: z.string().min(1, 'Client Organization is required.'),
+	organizationId: z.string().min(1, 'Organization is required.'),
 	file: z
 		.any()
 		.refine((file) => file, 'File is required.')
@@ -79,7 +78,6 @@ export function JobseekerForm({
 	onSuccess: () => void;
 	organizations: IClientOrganization[];
 }) {
-	const { toast } = useToast();
 	const [activeTab, setActiveTab] = React.useState('single');
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
 	const [previewData, setPreviewData] = React.useState<any[]>([]);
@@ -87,7 +85,7 @@ export function JobseekerForm({
 
 	const singleForm = useForm<UserFormValues>({
 		resolver: zodResolver(userSchema),
-		defaultValues: { firstName: '', lastName: '', email: '', phone: '', clientOrganizationId: '' },
+		defaultValues: { firstName: '', lastName: '', email: '', phone: '', organizationId: '' },
 	});
 
 	const bulkForm = useForm<BulkUserFormValues>({
@@ -107,16 +105,16 @@ export function JobseekerForm({
 	const handleSingleSubmit = async (data: UserFormValues) => {
 		setIsSubmitting(true);
 		try {
-			const { clientOrganizationId, ...userData } = data;
-			await UserService.bulkCreateJobseeker({
-				clientOrganizationId,
-				users: [userData],
-			});
-			toast({ title: 'Success', description: 'Jobseeker created successfully.' });
+			const { organizationId, ...userData } = data;
+			const response = await UserService.bulkCreateJobseeker([{ organizationId, ...userData }]);
+			toast.success({ description: response.message || 'Jobseeker created successfully.' });
 			onSuccess();
 			onClose();
 		} catch (error: any) {
-			toast({ title: 'Error', description: error.message || 'Failed to create jobseeker.', variant: 'danger' });
+			toast.error({
+				description: error.message || 'Failed to create jobseeker.',
+				variant: 'danger',
+			});
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -134,10 +132,14 @@ export function JobseekerForm({
 				const worksheet = workbook.Sheets[sheetName];
 				const json = XLSX.utils.sheet_to_json(worksheet, {
 					header: ['firstName', 'lastName', 'email', 'phone'],
-					range: 1, // Skip header row
+					range: 1,
 				});
+				const modJson = json.map((item: any) => ({
+					...item,
+					phone: item.phone ? String(item.phone) : '',
+				}));
 				setPreviewData(json);
-				replace(json as any);
+				replace(modJson as any);
 				setStep('preview');
 			};
 			reader.readAsArrayBuffer(file);
@@ -146,30 +148,29 @@ export function JobseekerForm({
 
 	const handleBulkSubmit = async (data: EditableUserFormValues) => {
 		setIsSubmitting(true);
-		const clientOrganizationId = bulkForm.getValues('clientOrganizationId');
-		if (!clientOrganizationId) {
-			toast({
-				title: 'Error',
+		const organizationId = bulkForm.getValues('organizationId');
+		if (!organizationId) {
+			toast.error({
 				description: 'Please select a client organization.',
-				variant: 'danger',
 			});
 			setIsSubmitting(false);
 			return;
 		}
 
 		try {
-			const response = await UserService.bulkCreateJobseeker({
-				clientOrganizationId,
-				users: data.users,
-			});
-			// Assuming API returns a status for each user
+			const response = await UserService.bulkCreateJobseeker(
+				data.users.map((user) => ({ organizationId, ...user }))
+			);
 			const results = response.body;
 			replace(results);
 			setStep('result');
-			toast({ title: 'Success', description: 'Bulk import process completed.' });
+			toast.success({ description: 'Bulk import process completed.' });
 			onSuccess();
 		} catch (error: any) {
-			toast({ title: 'Error', description: error.message || 'Failed to import jobseekers.', variant: 'danger' });
+			toast.error({
+				description: error.message || 'Failed to import jobseekers.',
+				variant: 'danger',
+			});
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -193,7 +194,7 @@ export function JobseekerForm({
 					<FormInput
 						control={editableForm.control}
 						name={`users.${row.index}.firstName`}
-						className='border-none'
+						className='ring-offset-0 focus-visible:ring-offset-0'
 					/>
 				),
 			},
@@ -201,21 +202,33 @@ export function JobseekerForm({
 				accessorKey: 'lastName',
 				header: 'Last Name',
 				cell: ({ row }) => (
-					<FormInput control={editableForm.control} name={`users.${row.index}.lastName`} className='border-none' />
+					<FormInput
+						control={editableForm.control}
+						name={`users.${row.index}.lastName`}
+						className='border-none'
+					/>
 				),
 			},
 			{
 				accessorKey: 'email',
 				header: 'Email',
 				cell: ({ row }) => (
-					<FormInput control={editableForm.control} name={`users.${row.index}.email`} className='border-none' />
+					<FormInput
+						control={editableForm.control}
+						name={`users.${row.index}.email`}
+						className='border-none'
+					/>
 				),
 			},
 			{
 				accessorKey: 'phone',
 				header: 'Phone',
 				cell: ({ row }) => (
-					<FormInput control={editableForm.control} name={`users.${row.index}.phone`} className='border-none' />
+					<FormInput
+						control={editableForm.control}
+						name={`users.${row.index}.phone`}
+						className='border-none'
+					/>
 				),
 			},
 		];
@@ -268,7 +281,7 @@ export function JobseekerForm({
 						<form onSubmit={singleForm.handleSubmit(handleSingleSubmit)} className='space-y-4 px-6 py-4'>
 							<FormAutocomplete
 								control={singleForm.control}
-								name='clientOrganizationId'
+								name='organizationId'
 								label='Client Organization'
 								required
 								placeholder='Select an organization'
@@ -296,15 +309,11 @@ export function JobseekerForm({
 				) : (
 					<div className='flex-1 flex flex-col min-h-0'>
 						<Form {...bulkForm}>
-							<form
-								onChange={() => {}}
-								className='px-6 py-4 border-b'
-								hidden={step !== 'upload'}
-							>
+							<form className='px-6 py-4 border-b' hidden={step !== 'upload'}>
 								<div className='space-y-4'>
 									<FormAutocomplete
 										control={bulkForm.control}
-										name='clientOrganizationId'
+										name='organizationId'
 										label='Client Organization'
 										required
 										placeholder='Select an organization'
@@ -319,21 +328,19 @@ export function JobseekerForm({
 											<FormItem>
 												<FormLabel required>Upload File</FormLabel>
 												<FormControl>
-													<Input
-														type='file'
-														accept='.xls, .xlsx, .csv'
-														onChange={handleBulkFileChange}
-													/>
+													<Input type='file' accept='.xls, .xlsx, .csv' onChange={handleBulkFileChange} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
 										)}
 									/>
 
-									<Button type='button' variant='link' className='p-0 h-auto'>
-										<Download className='mr-2 h-4 w-4' />
-										Download Sample File
-									</Button>
+									<Link href='/files/jobseeker-bulk-upload-sample.xlsx' target='_top' download>
+										<Button type='button' variant='link' className='p-0 h-auto mt-1'>
+											<Download className='mr-2 h-4 w-4' />
+											Download Sample File
+										</Button>
+									</Link>
 								</div>
 							</form>
 						</Form>
