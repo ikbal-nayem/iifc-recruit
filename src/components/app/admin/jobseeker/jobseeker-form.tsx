@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -265,7 +266,7 @@ export function JobseekerForm({
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && resetState()}>
-			<SheetContent className='sm:max-w-[800px] w-full p-0 flex flex-col bg-white' side='right'>
+			<SheetContent className='sm:max-w-[800px] w-full p-0 flex flex-col' side='right'>
 				<SheetHeader className='p-6 pb-2'>
 					<SheetTitle>Create New Jobseeker(s)</SheetTitle>
 					<SheetDescription>Add a single jobseeker or upload a file for bulk import.</SheetDescription>
@@ -309,40 +310,45 @@ export function JobseekerForm({
 				) : (
 					<div className='flex-1 flex flex-col min-h-0'>
 						<Form {...bulkForm}>
-							<form className='px-6 py-4 border-b' hidden={step !== 'upload'}>
-								<div className='space-y-4'>
-									<FormAutocomplete
-										control={bulkForm.control}
-										name='organizationId'
-										label='Client Organization'
-										required
-										placeholder='Select an organization'
-										options={organizations}
-										getOptionValue={(option) => option.id!}
-										getOptionLabel={(option) => option.nameEn}
-									/>
-									<FormField
-										control={bulkForm.control}
-										name='file'
-										render={({ field }) => (
-											<FormItem>
-												<FormLabel required>Upload File</FormLabel>
-												<FormControl>
-													<Input type='file' accept='.xls, .xlsx, .csv' onChange={handleBulkFileChange} />
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										)}
-									/>
+							<div className='px-6 py-4 border-b'>
+								<FormAutocomplete
+									control={bulkForm.control}
+									name='organizationId'
+									label='Client Organization'
+									required
+									placeholder='Select an organization'
+									options={organizations}
+									getOptionValue={(option) => option.id!}
+									getOptionLabel={(option) => option.nameEn}
+									disabled={step !== 'upload'}
+								/>
+							</div>
 
-									<Link href='/files/jobseeker-bulk-upload-sample.xlsx' target='_top' download>
-										<Button type='button' variant='link' className='p-0 h-auto mt-1'>
-											<Download className='mr-2 h-4 w-4' />
-											Download Sample File
-										</Button>
-									</Link>
-								</div>
-							</form>
+							{step === 'upload' && (
+								<form className='px-6 py-4'>
+									<div className='space-y-4'>
+										<FormField
+											control={bulkForm.control}
+											name='file'
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel required>Upload File</FormLabel>
+													<FormControl>
+														<Input type='file' accept='.xls, .xlsx, .csv' onChange={handleBulkFileChange} />
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<Link href='/files/jobseeker-bulk-upload-sample.xlsx' target='_top' download>
+											<Button type='button' variant='link' className='p-0 h-auto mt-1'>
+												<Download className='mr-2 h-4 w-4' />
+												Download Sample File
+											</Button>
+										</Link>
+									</div>
+								</form>
+							)}
 						</Form>
 						{(step === 'preview' || step === 'result') && (
 							<Form {...editableForm}>
@@ -381,7 +387,7 @@ export function JobseekerForm({
 											</Table>
 										</div>
 									</CardContent>
-									<SheetFooter className='p-6 bg-white border-t'>
+									<SheetFooter className='p-6 bg-background border-t'>
 										<Button type='button' variant='ghost' onClick={resetState} disabled={isSubmitting}>
 											Cancel
 										</Button>
