@@ -1,3 +1,4 @@
+
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,16 +15,20 @@ import {
 import { getStatusVariant } from '@/lib/color-mapping';
 import { cn } from '@/lib/utils';
 import { differenceInDays, format, isFuture, parseISO } from 'date-fns';
-import { ArrowLeft, Building, Edit, FileText, Pencil, Send, Users } from 'lucide-react';
+import { ArrowLeft, Building, CheckCircle, Edit, FileText, Loader2, Pencil, Send, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { CircularPublishForm } from './circular-publish-form';
+import { JobRequestService } from '@/services/api/job-request.service';
+import { useToast } from '@/hooks/use-toast';
 
 export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: JobRequest }) {
 	const router = useRouter();
+	const { toast } = useToast();
 	const [request, setRequest] = React.useState<JobRequest>(initialJobRequest);
 	const [selectedPost, setSelectedPost] = React.useState<RequestedPost | null>(null);
+	const [isCompleting, setIsCompleting] = React.useState(false);
 
 	const isDeadlineSoon = differenceInDays(parseISO(request.deadline), new Date()) <= 7;
 
@@ -34,6 +39,27 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 		}));
 	};
 
+	const handleMarkAsComplete = async () => {
+		setIsCompleting(true);
+		try {
+			await JobRequestService.updateStatus(request.id!, JobRequestStatus.COMPLETED);
+			toast({
+				title: 'Request Completed',
+				description: 'The job request has been marked as completed.',
+				variant: 'success',
+			});
+			router.push(ROUTES.JOB_REQUEST_COMPLETED);
+		} catch (error: any) {
+			toast({
+				title: 'Error',
+				description: error.message || 'Failed to complete the job request.',
+				variant: 'danger',
+			});
+		} finally {
+			setIsCompleting(false);
+		}
+	};
+
 	return (
 		<div className='space-y-6'>
 			<div className='flex items-center justify-between'>
@@ -42,6 +68,16 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					Back to Requests
 				</Button>
 				<div className='flex gap-2'>
+					{request.status === JobRequestStatus.PROCESSING && (
+						<Button onClick={handleMarkAsComplete} disabled={isCompleting}>
+							{isCompleting ? (
+								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+							) : (
+								<CheckCircle className='mr-2 h-4 w-4' />
+							)}
+							Mark as Complete
+						</Button>
+					)}
 					<Button asChild>
 						<Link href={ROUTES.JOB_REQUEST_EDIT(request.id)}>
 							<Edit className='mr-2 h-4 w-4' /> Edit Request
@@ -104,7 +140,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					{request.requestedPosts?.map((post, index) => {
 						const isCircularPublished = post.status === JobRequestedPostStatus.CIRCULAR_PUBLISHED;
 						const isCircularEditable =
-							isCircularPublished && post.circularEndDate && isFuture(post.circularEndDate);
+							isCircularPublished && post.circularEndDate && isFuture(parseISO(post.circularEndDate));
 						return (
 							<Card key={index} className='p-4 border rounded-lg bg-muted/30 space-y-4'>
 								<div className='flex items-start justify-between'>
