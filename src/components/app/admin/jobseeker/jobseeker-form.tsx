@@ -195,7 +195,8 @@ export function JobseekerForm({
 					<FormInput
 						control={editableForm.control}
 						name={`users.${row.index}.firstName`}
-						className='ring-offset-0 focus-visible:ring-offset-0'
+						onFocus={(e) => e.target.select()}
+						className='ring-offset-0 focus-visible:ring-offset-0 border-none'
 					/>
 				),
 			},
@@ -206,6 +207,7 @@ export function JobseekerForm({
 					<FormInput
 						control={editableForm.control}
 						name={`users.${row.index}.lastName`}
+						onFocus={(e) => e.target.select()}
 						className='border-none'
 					/>
 				),
@@ -217,6 +219,7 @@ export function JobseekerForm({
 					<FormInput
 						control={editableForm.control}
 						name={`users.${row.index}.email`}
+						onFocus={(e) => e.target.select()}
 						className='border-none'
 					/>
 				),
@@ -228,6 +231,7 @@ export function JobseekerForm({
 					<FormInput
 						control={editableForm.control}
 						name={`users.${row.index}.phone`}
+						onFocus={(e) => e.target.select()}
 						className='border-none'
 					/>
 				),
@@ -241,7 +245,7 @@ export function JobseekerForm({
 				cell: ({ row }) => (
 					<span
 						className={cn(
-							'text-xs font-semibold',
+							'text-xs font-semibold px-4',
 							row.original.status === 'Created'
 								? 'text-success'
 								: row.original.status === 'Exists'
@@ -309,47 +313,45 @@ export function JobseekerForm({
 					</Form>
 				) : (
 					<div className='flex-1 flex flex-col min-h-0'>
-						<Form {...bulkForm}>
-							<div className='px-6 py-4 border-b'>
-								<FormAutocomplete
-									control={bulkForm.control}
-									name='organizationId'
-									label='Client Organization'
-									required
-									placeholder='Select an organization'
-									options={organizations}
-									getOptionValue={(option) => option.id!}
-									getOptionLabel={(option) => option.nameEn}
-									disabled={step !== 'upload'}
-								/>
-							</div>
+						<div className='px-6 py-4 border-b'>
+							<FormAutocomplete
+								control={bulkForm.control}
+								name='organizationId'
+								label='Client Organization'
+								required
+								placeholder='Select an organization'
+								options={organizations}
+								getOptionValue={(option) => option.id!}
+								getOptionLabel={(option) => option.nameEn}
+								disabled={step !== 'upload'}
+							/>
+						</div>
 
-							{step === 'upload' && (
-								<form className='px-6 py-4'>
-									<div className='space-y-4'>
-										<FormField
-											control={bulkForm.control}
-											name='file'
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel required>Upload File</FormLabel>
-													<FormControl>
-														<Input type='file' accept='.xls, .xlsx, .csv' onChange={handleBulkFileChange} />
-													</FormControl>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
-										<Link href='/files/jobseeker-bulk-upload-sample.xlsx' target='_top' download>
-											<Button type='button' variant='link' className='p-0 h-auto mt-1'>
-												<Download className='mr-2 h-4 w-4' />
-												Download Sample File
-											</Button>
-										</Link>
-									</div>
-								</form>
-							)}
-						</Form>
+						{step === 'upload' && (
+							<form className='px-6 py-4'>
+								<div className='space-y-4'>
+									<FormField
+										control={bulkForm.control}
+										name='file'
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel required>Upload File</FormLabel>
+												<FormControl>
+													<Input type='file' accept='.xls, .xlsx, .csv' onChange={handleBulkFileChange} />
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<Link href='/files/jobseeker-bulk-upload-sample.xlsx' target='_top' download>
+										<Button type='button' variant='link' className='p-0 h-auto mt-1'>
+											<Download className='mr-2 h-4 w-4' />
+											Download Sample File
+										</Button>
+									</Link>
+								</div>
+							</form>
+						)}
 						{(step === 'preview' || step === 'result') && (
 							<Form {...editableForm}>
 								<form
@@ -357,7 +359,9 @@ export function JobseekerForm({
 									className='flex-1 flex flex-col min-h-0'
 								>
 									<CardHeader>
-										<CardTitle>Preview and Edit</CardTitle>
+										<CardTitle>
+											{step === 'preview' ? 'Preview and Edit' : 'Import Results'}
+										</CardTitle>
 									</CardHeader>
 									<CardContent className='flex-1 overflow-auto'>
 										<div className='border rounded-md'>
