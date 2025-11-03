@@ -2,81 +2,86 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ICircular } from '@/interfaces/job.interface';
 import { cn } from '@/lib/utils';
 import { differenceInDays, format, isPast, parseISO } from 'date-fns';
-import { Building, CalendarDays, MapPin } from 'lucide-react';
+import { Briefcase, Clock, MapPin, Users } from 'lucide-react';
 import Link from 'next/link';
 
 interface JobCardProps {
 	job: ICircular;
-	backUrl: string;
-	view: 'grid' | 'list';
+	view?: 'grid' | 'list';
+	searchParams?: any;
 }
 
-export function JobCard({ job, backUrl, view }: JobCardProps) {
+export function JobCard({ job, view = 'grid', searchParams }: JobCardProps) {
 	const deadline = parseISO(job.circularEndDate);
-	const isPastDeadline = isPast(deadline);
-	const daysRemaining = differenceInDays(deadline, new Date());
+	const isDeadlinePast = isPast(deadline);
+	const daysLeft = differenceInDays(deadline, new Date());
 
-	const deadlineColorClass = isPastDeadline
-		? 'border-l-danger'
-		: daysRemaining <= 3
-		? 'border-l-warning'
-		: 'border-l-primary';
+	let deadlineText: string;
+	let deadlineColorClass = 'text-muted-foreground';
 
-	const deadlineText = isPastDeadline
-		? `Deadline Passed`
-		: daysRemaining < 1
-		? `Apply Today`
-		: `${daysRemaining} days left`;
+	if (isDeadlinePast) {
+		deadlineText = 'Deadline Passed';
+	} else {
+		deadlineText = `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left`;
+		if (daysLeft <= 3) {
+			deadlineColorClass = 'text-danger font-semibold';
+		} else if (daysLeft <= 7) {
+			deadlineColorClass = 'text-warning font-semibold';
+		}
+	}
 
-	const containerClasses = cn(
-		'group flex h-full w-full flex-col overflow-hidden rounded-lg border-l-4 bg-card text-card-foreground shadow-sm transition-all hover:shadow-lg hover:-translate-y-0.5',
-		deadlineColorClass,
-		view === 'list' && 'md:flex-row'
-	);
-
-	const contentClasses = cn(
-		'flex flex-1 flex-col justify-between p-4',
-		view === 'list' && 'md:p-6'
-	);
+	const queryParams = new URLSearchParams(searchParams);
+	const cardUrl = `/jobs/${job.id}?${queryParams.toString()}`;
 
 	return (
-		<Link href={`${backUrl.split('?')[0]}/${job.id}?${backUrl.split('?')[1] || ''}`} className='h-full'>
-			<Card className={containerClasses}>
-				<CardContent className={contentClasses}>
-					<div className='flex-1'>
-						<div className='mb-2 flex items-start justify-between'>
-							<h3 className='text-lg font-semibold leading-tight text-foreground transition-colors group-hover:text-primary'>
-								{job.postNameEn}
-							</h3>
-						</div>
-
-						<div className='mb-3 flex items-center gap-x-4 gap-y-1 text-sm text-muted-foreground'>
-							<span className='inline-flex items-center gap-1.5'>
-								<Building className='h-4 w-4' />
-								{job.clientOrganizationNameEn}
-							</span>
-							{job.outsourcingZoneNameEn && (
-								<span className='inline-flex items-center gap-1.5'>
-									<MapPin className='h-4 w-4' />
-									{job.outsourcingZoneNameEn}
-								</span>
-							)}
-						</div>
-						<p className='mb-4 line-clamp-2 text-sm text-muted-foreground'>{job.jobDescription}</p>
+		<Link href={cardUrl} className='block h-full'>
+			<Card
+				className={cn(
+					'h-full flex flex-col group glassmorphism card-hover transition-all duration-300',
+					view === 'grid' ? 'min-h-[260px]' : 'sm:flex-row'
+				)}
+			>
+				<CardHeader className={cn(view === 'list' && 'sm:w-2/3')}>
+					<div className='space-y-1.5'>
+						<CardTitle className='text-lg font-bold group-hover:text-primary transition-colors'>
+							{job.postNameEn}
+						</CardTitle>
+						<CardDescription className='flex items-center gap-2 text-sm font-medium text-muted-foreground'>
+							<Briefcase className='h-4 w-4' /> {job.clientOrganizationNameEn}
+						</CardDescription>
 					</div>
+					<div className='text-sm text-muted-foreground line-clamp-2 pt-2'>{job.jobDescription}</div>
+				</CardHeader>
 
-					<div className='flex items-center justify-between text-xs text-muted-foreground'>
-						<div className='flex items-center gap-1.5'>
-							<CalendarDays className='h-4 w-4' />
-							<span>{deadlineText}</span>
+				<CardContent
+					className={cn(
+						'flex flex-col justify-between flex-grow gap-4 pt-0',
+						view === 'list' && 'sm:w-1/3 sm:border-l sm:pl-6 sm:pt-6'
+					)}
+				>
+					<div className='space-y-2 text-sm'>
+						{job.outsourcingZoneNameEn && (
+							<div className='flex items-center gap-2 text-muted-foreground'>
+								<MapPin className='h-4 w-4' />
+								<span>{job.outsourcingZoneNameEn}</span>
+							</div>
+						)}
+						<div className='flex items-center gap-2 text-muted-foreground'>
+							<Users className='h-4 w-4' />
+							<span>{job.vacancy} Vacancies</span>
 						</div>
-						<Badge variant={job.outsourcing ? 'secondary' : 'outline'}>
-							{job.outsourcing ? 'Outsourcing' : 'Permanent'}
-						</Badge>
+						<div className='flex items-center gap-2 text-muted-foreground'>
+							<Clock className='h-4 w-4' />
+							<span>{job.outsourcing ? 'Outsourcing' : 'Permanent'}</span>
+						</div>
+					</div>
+					<div className='flex items-center justify-between gap-2'>
+						<Badge variant='outline'>Posted: {format(parseISO(job.circularPublishDate), 'dd MMM')}</Badge>
+						<span className={cn('text-sm font-medium', deadlineColorClass)}>{deadlineText}</span>
 					</div>
 				</CardContent>
 			</Card>
