@@ -1,3 +1,4 @@
+
 "use client";
 
 import { ACCESS_TOKEN, AUTH_INFO, REFRESH_TOKEN } from "@/constants/auth.constant";
@@ -87,6 +88,7 @@ export class CookieService {
 
 export const clearAuthInfo = () => {
     LocalStorageService.delete(AUTH_INFO);
+    SessionStorageService.delete('redirectUrl');
     CookieService.remove(ACCESS_TOKEN);
     CookieService.remove(REFRESH_TOKEN);
 };

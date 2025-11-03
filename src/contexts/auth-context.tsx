@@ -6,7 +6,7 @@ import { ROUTES } from '@/constants/routes.constant';
 import { IAuthInfo, IUser } from '@/interfaces/auth.interface';
 import { AuthService } from '@/services/api/auth.service';
 import { UserService } from '@/services/api/user.service';
-import { clearAuthInfo, CookieService, LocalStorageService } from '@/services/storage.service';
+import { clearAuthInfo, CookieService, LocalStorageService, SessionStorageService } from '@/services/storage.service';
 import { useRouter } from 'next/navigation';
 import nProgress from 'nprogress';
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
@@ -74,8 +74,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 		try {
 			const userProfileRes = await UserService.getUserDetails();
-			setUser(userProfileRes.body);
-			return userProfileRes.body;
+			const loggedInUser = userProfileRes.body;
+			setUser(loggedInUser);
+
+			const redirectUrl = SessionStorageService.get('redirectUrl');
+			SessionStorageService.delete('redirectUrl');
+			
+			if (redirectUrl) {
+				router.push(redirectUrl);
+			} else {
+				// Default redirection logic based on user type
+				if (loggedInUser.userType === 'JOB_SEEKER') {
+					router.push(ROUTES.DASHBOARD.JOB_SEEKER);
+				} else {
+					router.push(ROUTES.DASHBOARD.ADMIN);
+				}
+			}
+			return loggedInUser;
 		} catch (error) {
 			console.error('Failed to fetch user profile on login', error);
 			// Handle error, maybe logout the user

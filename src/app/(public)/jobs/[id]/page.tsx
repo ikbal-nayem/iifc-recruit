@@ -24,8 +24,8 @@ export default async function JobDetailsPage({
 	params,
 	searchParams,
 }: {
-	params: Promise<{ id: string }>;
-	searchParams: Promise<IObject>;
+	params: { id: string };
+	searchParams: IObject;
 }) {
 	const aParams = await params;
 	const aSearchParams = await searchParams;
@@ -76,7 +76,7 @@ export default async function JobDetailsPage({
 									</CardDescription>
 								</div>
 								<div className='flex-shrink-0'>
-									<JobDetailClient jobTitle={job.postNameEn} />
+									<JobDetailClient jobTitle={job.postNameEn} jobId={job.id} />
 								</div>
 							</div>
 						</CardHeader>
