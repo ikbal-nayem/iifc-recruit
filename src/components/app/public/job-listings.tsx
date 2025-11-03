@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Badge } from '@/components/ui/badge';
@@ -16,11 +15,10 @@ import { cn } from '@/lib/utils';
 import { CircularService } from '@/services/api/circular.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { differenceInDays, format, parseISO } from 'date-fns';
-import { Briefcase, Building, Clock, DollarSign, Grip, List, MapPin, Search } from 'lucide-react';
+import { Briefcase, Clock, DollarSign, Grip, List, MapPin, Search } from 'lucide-react';
 import Link from 'next/link';
 import * as React from 'react';
-import { Form, useForm } from 'react-hook-form';
-
+import { useForm } from 'react-hook-form';
 interface JobListingsProps {
 	isPaginated?: boolean;
 	showFilters?: boolean;
@@ -29,11 +27,7 @@ interface JobListingsProps {
 
 const initMeta: IMeta = { page: 0, limit: 12, totalRecords: 0 };
 
-export function JobListings({
-	isPaginated = true,
-	showFilters = true,
-	itemLimit = 12,
-}: JobListingsProps) {
+export function JobListings({ isPaginated = true, showFilters = true, itemLimit = 12 }: JobListingsProps) {
 	const [jobs, setJobs] = React.useState<ICircular[]>([]);
 	const [meta, setMeta] = React.useState<IMeta>({ ...initMeta, limit: itemLimit });
 	const [isLoading, setIsLoading] = React.useState(true);
@@ -43,8 +37,6 @@ export function JobListings({
 	const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid');
 
 	const debouncedSearch = useDebounce(searchQuery, 500);
-
-	const form = useForm();
 
 	React.useEffect(() => {
 		async function fetchZones() {
@@ -189,61 +181,53 @@ export function JobListings({
 	return (
 		<div className='space-y-8'>
 			{showFilters && (
-				<Form {...form}>
-					<div className='p-4 border rounded-lg bg-card shadow-sm space-y-4 md:space-y-0 md:flex md:items-center md:justify-between md:gap-4'>
-						<div className='flex-1 grid grid-cols-1 md:grid-cols-2 gap-4'>
-							<div className='relative w-full'>
-								<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-								<Input
-									placeholder='Search by job title or company...'
-									value={searchQuery}
-									onChange={(e) => setSearchQuery(e.target.value)}
-									className='pl-10 h-12'
-								/>
-							</div>
-							<FormSelect
-								control={form.control}
-								name='zone'
-								label=''
-								placeholder='All Zones'
-								options={[{ id: 'all', nameEn: 'All Zones' }, ...zones]}
-								getOptionValue={(option) => option.id}
-								getOptionLabel={(option) => option.nameEn}
-								onValueChange={(val) => setZoneFilter(val || 'all')}
-								value={zoneFilter}
+				<div className='p-4 border rounded-lg bg-card shadow-sm space-y-4 md:space-y-0 md:flex md:items-center md:justify-between md:gap-4'>
+					<div className='flex-1 grid grid-cols-1 md:grid-cols-2 gap-4'>
+						<div className='relative w-full'>
+							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+							<Input
+								placeholder='Search by job title or company...'
+								value={searchQuery}
+								onChange={(e) => setSearchQuery(e.target.value)}
+								className='pl-10 h-12'
 							/>
 						</div>
-						<div className='flex items-center justify-between border-t md:border-t-0 pt-4 md:pt-0 md:pl-4 md:border-l'>
-							<p className='text-sm text-muted-foreground font-medium'>
-								{meta.totalRecords ?? 0} jobs found
-							</p>
-							<div className='flex items-center gap-1 ml-4'>
-								<Button
-									variant={viewMode === 'grid' ? 'default' : 'ghost'}
-									size='icon'
-									onClick={() => setViewMode('grid')}
-								>
-									<Grip className='h-5 w-5' />
-								</Button>
-								<Button
-									variant={viewMode === 'list' ? 'default' : 'ghost'}
-									size='icon'
-									onClick={() => setViewMode('list')}
-								>
-									<List className='h-5 w-5' />
-								</Button>
-							</div>
+						<FormSelect
+							name='zone'
+							placeholder='All Zones'
+							options={[{ id: 'all', nameEn: 'All Zones' }, ...zones]}
+							getOptionValue={(option) => option.id}
+							getOptionLabel={(option) => option.nameEn}
+							onValueChange={(val) => setZoneFilter(val || 'all')}
+							value={zoneFilter}
+						/>
+					</div>
+					<div className='flex items-center justify-between border-t md:border-t-0 pt-4 md:pt-0 md:pl-4 md:border-l'>
+						<p className='text-sm text-muted-foreground font-medium'>{meta.totalRecords ?? 0} jobs found</p>
+						<div className='flex items-center gap-1 ml-4'>
+							<Button
+								variant={viewMode === 'grid' ? 'default' : 'ghost'}
+								size='icon'
+								onClick={() => setViewMode('grid')}
+							>
+								<Grip className='h-5 w-5' />
+							</Button>
+							<Button
+								variant={viewMode === 'list' ? 'default' : 'ghost'}
+								size='icon'
+								onClick={() => setViewMode('list')}
+							>
+								<List className='h-5 w-5' />
+							</Button>
 						</div>
 					</div>
-				</Form>
+				</div>
 			)}
 			{isLoading ? (
 				<div
 					className={cn(
 						'grid gap-6',
-						viewMode === 'grid'
-							? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-							: 'grid-cols-1 space-y-4'
+						viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1 space-y-4'
 					)}
 				>
 					{[...Array(itemLimit)].map((_, i) => (
@@ -255,9 +239,7 @@ export function JobListings({
 					<div
 						className={cn(
 							'grid gap-6',
-							viewMode === 'grid'
-								? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-								: 'grid-cols-1 space-y-4'
+							viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1 space-y-4'
 						)}
 					>
 						{jobs.map((job) =>

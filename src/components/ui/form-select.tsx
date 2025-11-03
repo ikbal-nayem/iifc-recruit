@@ -1,16 +1,14 @@
-
 'use client';
 
-import * as React from 'react';
-import { Control, FieldPath, FieldValues } from 'react-hook-form';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { Control, FieldPath, FieldValues } from 'react-hook-form';
 
 interface FormSelectProps<TFieldValues extends FieldValues, TOption> {
 	control?: Control<TFieldValues | any>;
 	name: FieldPath<TFieldValues>;
-	label: string;
+	label?: string;
 	placeholder?: string;
 	required?: boolean;
 	options: TOption[];
@@ -72,7 +70,7 @@ export function FormSelect<TFieldValues extends FieldValues, TOption>({
 	if (!control) {
 		return (
 			<FormItem>
-				<FormLabel required={required}>{label}</FormLabel>
+				{!!label && <FormLabel required={required}>{label}</FormLabel>}
 				{renderSelect()}
 			</FormItem>
 		);
@@ -84,7 +82,7 @@ export function FormSelect<TFieldValues extends FieldValues, TOption>({
 			name={name}
 			render={({ field }) => (
 				<FormItem>
-					<FormLabel required={required}>{label}</FormLabel>
+					{!!label && <FormLabel required={required}>{label}</FormLabel>}
 					{renderSelect(field)}
 					<FormMessage />
 				</FormItem>
