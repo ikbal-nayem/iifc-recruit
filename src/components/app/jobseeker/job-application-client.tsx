@@ -12,24 +12,29 @@ import {
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2, Send } from 'lucide-react';
-import * as React from 'react';
-import { ApplicationService } from '@/services/api/application.service';
 import { useAuth } from '@/contexts/auth-context';
+import { toast } from '@/hooks/use-toast';
+import { ApplicationService } from '@/services/api/application.service';
+import { Check, CheckCheck, Loader2, Send } from 'lucide-react';
+import * as React from 'react';
 
-export function JobApplicationClient({ jobTitle, jobId }: { jobTitle: string; jobId: string }) {
-	const { toast } = useToast();
+export function JobApplicationClient({
+	jobTitle,
+	jobOrganizationName,
+	jobId,
+}: {
+	jobTitle: string;
+	jobOrganizationName: string;
+	jobId: string;
+}) {
 	const { currectUser } = useAuth();
 	const [isApplying, setIsApplying] = React.useState(false);
 	const [isApplied, setIsApplied] = React.useState(false);
 
 	const handleApply = async () => {
 		if (!currectUser?.id) {
-			toast({
-				title: 'Error',
+			toast.error({
 				description: 'Could not identify the user. Please log in again.',
-				variant: 'danger',
 			});
 			return;
 		}
@@ -40,17 +45,15 @@ export function JobApplicationClient({ jobTitle, jobId }: { jobTitle: string; jo
 				applicantId: currectUser.id,
 				requestedPostId: jobId,
 			});
-			toast({
+			toast.success({
 				title: 'Application Submitted!',
 				description: `Your application for the ${jobTitle} position has been sent.`,
-				variant: 'success',
 			});
 			setIsApplied(true);
 		} catch (error: any) {
-			toast({
+			toast.error({
 				title: 'Application Failed',
 				description: error.message || 'There was a problem submitting your application.',
-				variant: 'danger',
 			});
 		} finally {
 			setIsApplying(false);
@@ -60,9 +63,12 @@ export function JobApplicationClient({ jobTitle, jobId }: { jobTitle: string; jo
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger asChild>
-				<Button disabled={isApplied}>
+				<Button variant={isApplied ? 'lite-success' : 'info'} className='font-semibold' disabled={isApplied}>
 					{isApplied ? (
-						'Applied'
+						<>
+							<CheckCheck className='mr-2 h-4 w-4' />
+							Applied
+						</>
 					) : (
 						<>
 							<Send className='mr-2 h-4 w-4' />
@@ -75,8 +81,14 @@ export function JobApplicationClient({ jobTitle, jobId }: { jobTitle: string; jo
 				<AlertDialogHeader>
 					<AlertDialogTitle>Confirm Application</AlertDialogTitle>
 					<AlertDialogDescription>
-						You are about to apply for the position of <strong>{jobTitle}</strong>. Your primary resume and
-						profile will be submitted. Are you sure you want to proceed?
+						You are about to apply for the following position. Your primary resume and profile will be
+						submitted.
+						<div className='my-3 text-info font-normal'>
+							<strong>Position:</strong> {jobTitle}
+							<br />
+							<strong>Organization:</strong> {jobOrganizationName}
+						</div>
+						Are you sure you want to proceed?
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>

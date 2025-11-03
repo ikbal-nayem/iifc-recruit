@@ -1,16 +1,14 @@
-
+import { JobApplicationClient } from '@/components/app/jobseeker/job-application-client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { IObject } from '@/interfaces/common.interface';
 import { ICircular } from '@/interfaces/job.interface';
 import { CircularService } from '@/services/api/circular.service';
-import clsx from 'clsx';
 import { format, isPast, parseISO } from 'date-fns';
-import { ArrowLeft, Briefcase, DollarSign, MapPin } from 'lucide-react';
+import { ArrowLeft, Briefcase, Check, DollarSign, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { JobApplicationClient } from '@/components/app/jobseeker/job-application-client';
 
 async function getJobDetails(id: string): Promise<ICircular | null> {
 	try {
@@ -26,16 +24,19 @@ export default async function JobDetailsPage({
 	params,
 	searchParams,
 }: {
-	params: { id: string };
-	searchParams: IObject;
+	params: Promise<{ id: string }>;
+	searchParams: Promise<IObject>;
 }) {
-	const job = await getJobDetails(params.id);
+	const aParams = await params;
+	const aSearchParams = await searchParams;
+
+	const job = await getJobDetails(aParams.id);
 
 	if (!job) {
 		notFound();
 	}
 
-	const queryParams = new URLSearchParams(searchParams as Record<string, string>);
+	const queryParams = new URLSearchParams(aSearchParams);
 	const backUrl = `/jobseeker/find-job?${queryParams.toString()}`;
 
 	const deadline = parseISO(job.circularEndDate);
@@ -79,9 +80,13 @@ export default async function JobDetailsPage({
 								</div>
 								<div className='flex-shrink-0'>
 									{!job.applied && !isPast(deadline) && (
-										<JobApplicationClient jobTitle={job.postNameEn} jobId={job.id} />
+										<JobApplicationClient jobTitle={job.postNameEn} jobOrganizationName={job.clientOrganizationNameEn} jobId={job.id} />
 									)}
-									{job.applied && <Badge variant='success'>Applied</Badge>}
+									{job.applied && (
+										<Badge variant='success'>
+											<Check className='mr-2 h-4 w-4' /> Applied
+										</Badge>
+									)}
 								</div>
 							</div>
 						</CardHeader>
