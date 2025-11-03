@@ -182,6 +182,8 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 								required
 								options={years}
 								placeholder='Select year'
+								getOptionLabel={(option) => option.label}
+								getOptionValue={(option) => option.value}
 							/>
 							<FormInput control={form.control} name='duration' label='Duration (Years)' type='number' />
 						</div>

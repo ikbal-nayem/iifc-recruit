@@ -88,8 +88,8 @@ function ChildForm({ isOpen, onClose, onSubmit, initialData, genders }: ChildFor
 							required
 							placeholder='Select gender'
 							options={genders}
-							labelKey='nameEn'
-							valueKey='value'
+							getOptionLabel={(option) => option.nameEn}
+							getOptionValue={(option) => option.value}
 						/>
 						<FormDatePicker
 							control={form.control}
@@ -269,8 +269,8 @@ export function ProfileFormFamily({
 									label='Spouse Status'
 									placeholder='Select a status'
 									options={spouseStatuses}
-									labelKey='nameEn'
-									valueKey='value'
+									getOptionLabel={(option) => option.nameEn}
+									getOptionValue={(option) => option.value}
 								/>
 								<FormAutocomplete
 									control={form.control}

@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 
 interface FormSelectProps<TFieldValues extends FieldValues, TOption> {
-	control: Control<TFieldValues | any>;
+	control?: Control<TFieldValues | any>;
 	name: FieldPath<TFieldValues>;
 	label: string;
 	placeholder?: string;
@@ -17,6 +17,8 @@ interface FormSelectProps<TFieldValues extends FieldValues, TOption> {
 	disabled?: boolean;
 	getOptionLabel: (option: TOption) => string;
 	getOptionValue: (option: TOption) => string;
+	onValueChange?: (value: string | undefined) => void;
+	value?: string;
 }
 
 export function FormSelect<TFieldValues extends FieldValues, TOption>({
@@ -29,8 +31,53 @@ export function FormSelect<TFieldValues extends FieldValues, TOption>({
 	disabled = false,
 	getOptionLabel,
 	getOptionValue,
+	onValueChange,
+	value: controlledValue,
 	...props
 }: FormSelectProps<TFieldValues, TOption>) {
+	const renderSelect = (field?: any) => {
+		const currentValue = field?.value?.toString() ?? controlledValue;
+		const handleValueChange = (value: string) => {
+			if (field) {
+				field.onChange(value);
+			}
+			if (onValueChange) {
+				onValueChange(value);
+			}
+		};
+		return (
+			<Select
+				onValueChange={handleValueChange}
+				defaultValue={currentValue}
+				value={currentValue}
+				disabled={disabled}
+				{...props}
+			>
+				<FormControl>
+					<SelectTrigger className={cn(!currentValue && 'text-muted-foreground')}>
+						<SelectValue placeholder={placeholder} />
+					</SelectTrigger>
+				</FormControl>
+				<SelectContent>
+					{options.map((option, index) => (
+						<SelectItem key={index} value={getOptionValue(option)}>
+							{getOptionLabel(option)}
+						</SelectItem>
+					))}
+				</SelectContent>
+			</Select>
+		);
+	};
+
+	if (!control) {
+		return (
+			<FormItem>
+				<FormLabel required={required}>{label}</FormLabel>
+				{renderSelect()}
+			</FormItem>
+		);
+	}
+
 	return (
 		<FormField
 			control={control}
@@ -38,25 +85,7 @@ export function FormSelect<TFieldValues extends FieldValues, TOption>({
 			render={({ field }) => (
 				<FormItem>
 					<FormLabel required={required}>{label}</FormLabel>
-					<Select
-						onValueChange={field.onChange}
-						defaultValue={field.value?.toString()}
-						disabled={disabled}
-						{...props}
-					>
-						<FormControl>
-							<SelectTrigger className={cn(!field.value && 'text-muted-foreground')}>
-								<SelectValue placeholder={placeholder} />
-							</SelectTrigger>
-						</FormControl>
-						<SelectContent>
-							{options.map((option, index) => (
-								<SelectItem key={index} value={getOptionValue(option)}>
-									{getOptionLabel(option)}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
+					{renderSelect(field)}
 					<FormMessage />
 				</FormItem>
 			)}

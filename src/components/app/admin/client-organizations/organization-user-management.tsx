@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -81,8 +82,8 @@ function UserForm({ isOpen, onClose, organizationId, onUserCreated, roles }: Use
 							label='Role'
 							required
 							options={roles}
-							labelKey='nameEn'
-							valueKey='id'
+							getOptionLabel={(option) => option.nameEn}
+							getOptionValue={(option) => option.id!}
 						/>
 						<FormInput control={form.control} name='password' label='Password' type='password' required />
 						<FormInput

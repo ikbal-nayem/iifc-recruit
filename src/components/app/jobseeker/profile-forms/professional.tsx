@@ -192,6 +192,8 @@ function ProfessionalExperienceForm({
 									{ label: 'BDT', value: 'BDT' },
 									{ label: 'USD', value: 'USD' },
 								]}
+								getOptionLabel={(option) => option.label}
+								getOptionValue={(option) => option.value}
 							/>
 						</div>
 						<CardTitle className='text-lg pt-4'>Reference (Optional)</CardTitle>

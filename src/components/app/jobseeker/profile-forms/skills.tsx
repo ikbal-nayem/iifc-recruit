@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -94,6 +95,8 @@ function SkillForm({ isOpen, onClose, onSubmit, initialData, noun }: SkillFormPr
 							label='Proficiency'
 							required
 							options={proficiencyLevels}
+							getOptionLabel={(option) => option.label}
+							getOptionValue={(option) => option.value}
 						/>
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>

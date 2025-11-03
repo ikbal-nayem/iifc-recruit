@@ -110,6 +110,8 @@ export function CreateJobForm() {
                         { label: 'Contract', value: 'Contract' },
                         { label: 'Internship', value: 'Internship' },
                     ]}
+                    getOptionLabel={(option) => option.label}
+                    getOptionValue={(option) => option.value}
                  />
                  <FormInput
                     control={form.control}

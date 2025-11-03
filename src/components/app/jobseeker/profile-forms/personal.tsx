@@ -397,8 +397,8 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 										required
 										placeholder='Select gender'
 										options={masterData.genders}
-										labelKey='nameEn'
-										valueKey='value'
+										getOptionLabel={(option) => option.nameEn}
+										getOptionValue={(option) => option.value}
 									/>
 									<FormSelect
 										control={form.control}
@@ -407,8 +407,8 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 										required
 										placeholder='Select marital status'
 										options={masterData.maritalStatuses}
-										labelKey='nameEn'
-										valueKey='value'
+										getOptionLabel={(option) => option.nameEn}
+										getOptionValue={(option) => option.value}
 									/>
 								</div>
 								<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -418,8 +418,8 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 										label='Religion'
 										placeholder='Select religion'
 										options={masterData.religions}
-										labelKey='nameEn'
-										valueKey='value'
+										getOptionLabel={(option) => option.nameEn}
+										getOptionValue={(option) => option.value}
 									/>
 								</div>
 							</CardContent>
@@ -459,8 +459,8 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 												label='Division'
 												placeholder='Select division'
 												options={masterData.divisions}
-												labelKey='nameEn'
-												valueKey='id'
+												getOptionLabel={(option) => option.nameEn}
+												getOptionValue={(option) => option.id}
 											/>
 											<FormSelect
 												control={form.control}
@@ -469,8 +469,8 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 												placeholder='Select district'
 												disabled={isLoadingPresentDistricts}
 												options={presentDistricts}
-												labelKey='nameEn'
-												valueKey='id'
+												getOptionLabel={(option) => option.nameEn}
+												getOptionValue={(option) => option.id}
 											/>
 											<FormSelect
 												control={form.control}
@@ -479,8 +479,8 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 												placeholder='Select upazila'
 												disabled={isLoadingPresentUpazilas}
 												options={presentUpazilas}
-												labelKey='nameEn'
-												valueKey='id'
+												getOptionLabel={(option) => option.nameEn}
+												getOptionValue={(option) => option.id}
 											/>
 										</div>
 										<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -525,8 +525,8 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 													placeholder='Select division'
 													disabled={watchSameAsPresent}
 													options={masterData.divisions}
-													labelKey='name'
-													valueKey='id'
+													getOptionLabel={(option) => option.name}
+													getOptionValue={(option) => option.id}
 												/>
 												<FormSelect
 													control={form.control}
@@ -535,8 +535,8 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 													placeholder='Select district'
 													disabled={watchSameAsPresent || isLoadingPermanentDistricts}
 													options={permanentDistricts}
-													labelKey='name'
-													valueKey='id'
+													getOptionLabel={(option) => option.name}
+													getOptionValue={(option) => option.id}
 												/>
 												<FormSelect
 													control={form.control}
@@ -545,8 +545,8 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 													placeholder='Select upazila'
 													disabled={watchSameAsPresent || isLoadingPermanentUpazilas}
 													options={permanentUpazilas}
-													labelKey='name'
-													valueKey='id'
+													getOptionLabel={(option) => option.name}
+													getOptionValue={(option) => option.id}
 												/>
 											</div>
 											<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>

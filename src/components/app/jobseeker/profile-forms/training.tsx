@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -116,7 +117,9 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 							name='trainingTypeId'
 							label='Training Type'
 							placeholder='Select type'
-							options={trainingTypes.map((t) => ({ value: t.id!.toString(), label: t.name }))}
+							options={trainingTypes}
+							getOptionValue={(option) => option.id!.toString()}
+							getOptionLabel={(option) => option.nameEn}
 							disabled={isSubmitting}
 						/>
 

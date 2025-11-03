@@ -88,8 +88,8 @@ function LanguageForm({
 							required
 							options={proficiencyOptions}
 							placeholder='Select proficiency'
-							labelKey='nameEn'
-							valueKey='value'
+							getOptionLabel={(option) => option.nameEn}
+							getOptionValue={(option) => option.value}
 							disabled={isSubmitting}
 						/>
 						<DialogFooter className='pt-4'>
