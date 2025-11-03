@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -15,6 +16,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import Link from 'next/link';
 
 import { Card } from '@/components/ui/card';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -23,6 +25,8 @@ import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { ApplicationService } from '@/services/api/application.service';
 import { format } from 'date-fns';
+import { Eye } from 'lucide-react';
+import { JobCircularDetails } from '../../public/job-circular-details';
 
 const initMeta: IMeta = { page: 0, limit: 10 };
 
@@ -31,31 +35,35 @@ export function MyApplications() {
 	const [data, setData] = React.useState<Application[]>([]);
 	const [meta, setMeta] = React.useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = React.useState(true);
+	const [selectedJobId, setSelectedJobId] = React.useState<string | null>(null);
 
-	const loadApplications = React.useCallback(async (page: number) => {
-		setIsLoading(true);
-		try {
-			const payload: IApiRequest = {
-				meta: { page: page, limit: meta.limit },
-			};
-			const response = await ApplicationService.getByApplicant(payload);
-			setData(response.body);
-			setMeta(response.meta);
-		} catch (error: any) {
-			toast({
-				title: 'Error',
-				description: error.message || 'Failed to load your applications.',
-				variant: 'danger',
-			});
-		} finally {
-			setIsLoading(false);
-		}
-	}, [meta.limit, toast]);
+	const loadApplications = React.useCallback(
+		async (page: number) => {
+			setIsLoading(true);
+			try {
+				const payload: IApiRequest = {
+					meta: { page: page, limit: meta.limit },
+				};
+				const response = await ApplicationService.getByApplicant(payload);
+				setData(response.body);
+				setMeta(response.meta);
+			} catch (error: any) {
+				toast({
+					title: 'Error',
+					description: error.message || 'Failed to load your applications.',
+					variant: 'danger',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[meta.limit, toast]
+	);
 
 	React.useEffect(() => {
 		loadApplications(0);
 	}, [loadApplications]);
-	
+
 	const handlePageChange = (newPage: number) => {
 		loadApplications(newPage);
 	};
@@ -85,7 +93,7 @@ export function MyApplications() {
 			header: 'Date Applied',
 			cell: ({ row }) => {
 				return format(new Date(row.original.appliedDate), 'dd MMM, yyyy');
-			}
+			},
 		},
 		{
 			accessorKey: 'status',
@@ -93,6 +101,16 @@ export function MyApplications() {
 			cell: ({ row }) => {
 				const { status, statusDTO } = row.original;
 				return <Badge variant={getStatusVariant(status)}>{statusDTO.nameEn}</Badge>;
+			},
+		},
+		{
+			id: 'actions',
+			cell: ({ row }) => {
+				return (
+					<Button variant='ghost' size='sm' onClick={() => setSelectedJobId(row.original.requestedPostId)}>
+						<Eye className='h-4 w-4 mr-2' /> View
+					</Button>
+				);
 			},
 		},
 	];
@@ -124,6 +142,11 @@ export function MyApplications() {
 						<p className='text-sm font-medium'>{format(new Date(application.appliedDate), 'dd MMM, yyyy')}</p>
 					</div>
 					<Badge variant={getStatusVariant(application.status)}>{application.statusDTO.nameEn}</Badge>
+				</div>
+				<div className='pt-2'>
+					<Button variant='outline' size='sm' className='w-full' onClick={() => setSelectedJobId(application.requestedPostId)}>
+						<Eye className='h-4 w-4 mr-2' /> View Details
+					</Button>
 				</div>
 			</div>
 		</Card>
@@ -211,6 +234,12 @@ export function MyApplications() {
 					<Pagination meta={meta} isLoading={isLoading} onPageChange={handlePageChange} noun='application' />
 				</div>
 			)}
+			
+			<Dialog open={!!selectedJobId} onOpenChange={(isOpen) => !isOpen && setSelectedJobId(null)}>
+				<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto p-0'>
+					<JobCircularDetails circularId={selectedJobId!} />
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }
