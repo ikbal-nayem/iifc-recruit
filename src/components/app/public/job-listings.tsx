@@ -167,7 +167,6 @@ export function JobListings({
 									options={[{ id: 'all', nameEn: 'All Categories' }, ...categories]}
 									getOptionValue={(option) => option.id!}
 									getOptionLabel={(option) => option.nameEn}
-									className='h-11 bg-background'
 								/>
 							</div>
 							<div className='hidden sm:flex items-center gap-2'>
