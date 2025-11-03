@@ -1,9 +1,8 @@
-
 'use client';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -14,13 +13,11 @@ import { ICircular } from '@/interfaces/job.interface';
 import { IOutsourcingZone } from '@/interfaces/master-data.interface';
 import { cn } from '@/lib/utils';
 import { CircularService } from '@/services/api/circular.service';
-import { MasterDataService } from '@/services/api/master-data.service';
 import { differenceInDays, format, parseISO } from 'date-fns';
 import { Briefcase, Calendar, Clock, Grid, List, MapPin, Search } from 'lucide-react';
 import Link from 'next/link';
 import * as React from 'react';
-import { Form, useForm } from 'react-hook-form';
-import { FormSelect } from '@/components/ui/form-select';
+import { useForm } from 'react-hook-form';
 
 interface JobListingsProps {
 	isPaginated?: boolean;
@@ -36,35 +33,33 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [searchQuery, setSearchQuery] = React.useState('');
 	const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid');
-	const [zoneFilter, setZoneFilter] = React.useState('all');
+	const [zoneFilter, setZoneFilter] = React.useState<string | undefined>('all');
 	const [outsourcingZones, setOutsourcingZones] = React.useState<IOutsourcingZone[]>([]);
 	const { toast } = useToast();
 	const debouncedSearch = useDebounce(searchQuery, 500);
 
-	const form = useForm();
-
-	React.useEffect(() => {
-		MasterDataService.outsourcingZone
-			.get()
-			.then((res) => {
-				setOutsourcingZones([{ id: 'all', nameEn: 'All Zones', nameBn: 'সব জোন' } as any, ...res.body]);
-			})
-			.catch(() => {
-				toast({
-					title: 'Error',
-					description: 'Could not load outsourcing zones.',
-					variant: 'danger',
-				});
-			});
-	}, [toast]);
+	// React.useEffect(() => {
+	// 	MasterDataService.outsourcingZone
+	// 		.get()
+	// 		.then((res) => {
+	// 			setOutsourcingZones([{ id: 'all', nameEn: 'All Zones', nameBn: 'সব জোন' } as any, ...res.body]);
+	// 		})
+	// 		.catch(() => {
+	// 			toast({
+	// 				title: 'Error',
+	// 				description: 'Could not load outsourcing zones.',
+	// 				variant: 'danger',
+	// 			});
+	// 		});
+	// }, [toast]);
 
 	const loadJobs = React.useCallback(
-		async (page: number, search: string, zoneId: string) => {
+		async (page: number, search: string, zoneId?: string) => {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
 					body: {
-						postNameEn: search,
+						searchKey: search,
 						...(zoneId !== 'all' && { outsourcingZoneId: zoneId }),
 					},
 					meta: { page: page, limit: itemLimit },
@@ -109,9 +104,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 
 		return (
 			<Link key={job.id} href={`/jobs/${job.id}`} className='block h-full'>
-				<Card
-					className={cn('flex flex-col h-full glassmorphism card-hover transition-all', cardClass)}
-				>
+				<Card className={cn('flex flex-col h-full glassmorphism card-hover transition-all', cardClass)}>
 					<CardHeader>
 						<CardTitle className='text-lg font-bold group-hover:text-primary'>{job.postNameEn}</CardTitle>
 						<p className='text-sm text-muted-foreground'>{job.clientOrganizationNameEn}</p>
@@ -187,19 +180,18 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 	return (
 		<div className='space-y-8'>
 			{showFilters && (
-				<Form {...form}>
-					<div className='p-4 border rounded-lg bg-card glassmorphism'>
-						<div className='flex flex-col md:flex-row items-center gap-4'>
-							<div className='relative w-full flex-1'>
-								<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-								<Input
-									placeholder='Search by job title or keyword...'
-									value={searchQuery}
-									onChange={(e) => setSearchQuery(e.target.value)}
-									className='pl-10 h-11'
-								/>
-							</div>
-							<div className='w-full md:w-52'>
+				<div className='p-4 border rounded-lg bg-card glassmorphism'>
+					<div className='flex flex-col md:flex-row items-center gap-4'>
+						<div className='relative w-full flex-1'>
+							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+							<Input
+								placeholder='Search by job title or keyword...'
+								value={searchQuery}
+								onChange={(e) => setSearchQuery(e.target.value)}
+								className='pl-10 h-11'
+							/>
+						</div>
+						{/* <div className='w-full md:w-52'>
 								<FormSelect
 									control={form.control}
 									name='zoneFilter'
@@ -210,35 +202,34 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 									getOptionValue={(option) => option.id!}
 									getOptionLabel={(option) => option.nameEn}
 								/>
-							</div>
-							<div className='flex items-center gap-2'>
-								<Button
-									variant={viewMode === 'grid' ? 'default' : 'outline'}
-									size='icon'
-									onClick={() => setViewMode('grid')}
-								>
-									<Grid className='h-5 w-5' />
-								</Button>
-								<Button
-									variant={viewMode === 'list' ? 'default' : 'outline'}
-									size='icon'
-									onClick={() => setViewMode('list')}
-								>
-									<List className='h-5 w-5' />
-								</Button>
-							</div>
-						</div>
-						<div className='mt-4 text-sm text-muted-foreground'>
-							{isLoading ? (
-								<Skeleton className='h-5 w-32' />
-							) : (
-								<p>
-									Showing <strong>{jobs.length}</strong> of <strong>{meta.totalRecords}</strong> jobs
-								</p>
-							)}
+							</div> */}
+						<div className='flex items-center gap-2'>
+							<Button
+								variant={viewMode === 'grid' ? 'default' : 'outline'}
+								size='icon'
+								onClick={() => setViewMode('grid')}
+							>
+								<Grid className='h-5 w-5' />
+							</Button>
+							<Button
+								variant={viewMode === 'list' ? 'default' : 'outline'}
+								size='icon'
+								onClick={() => setViewMode('list')}
+							>
+								<List className='h-5 w-5' />
+							</Button>
 						</div>
 					</div>
-				</Form>
+					<div className='mt-4 text-sm text-muted-foreground'>
+						{isLoading ? (
+							<Skeleton className='h-5 w-32' />
+						) : (
+							<p>
+								Showing <strong>{jobs.length}</strong> of <strong>{meta?.totalRecords || 0}</strong> jobs
+							</p>
+						)}
+					</div>
+				</div>
 			)}
 
 			{isLoading ? (
@@ -249,13 +240,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 					)}
 				>
 					{[...Array(itemLimit)].map((_, i) => (
-						<Skeleton
-							key={i}
-							className={cn(
-								'w-full',
-								viewMode === 'grid' ? 'h-64' : 'h-24'
-							)}
-						/>
+						<Skeleton key={i} className={cn('w-full', viewMode === 'grid' ? 'h-64' : 'h-24')} />
 					))}
 				</div>
 			) : jobs.length > 0 ? (
@@ -270,9 +255,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 			) : (
 				<div className='text-center py-16'>
 					<h3 className='text-xl font-semibold'>No Jobs Found</h3>
-					<p className='text-muted-foreground mt-2'>
-						Try adjusting your search or filter criteria.
-					</p>
+					<p className='text-muted-foreground mt-2'>Try adjusting your search or filter criteria.</p>
 				</div>
 			)}
 
