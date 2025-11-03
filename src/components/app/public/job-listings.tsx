@@ -1,23 +1,20 @@
 
 'use client';
 
-import { Form, useForm } from 'react-hook-form';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Pagination } from '@/components/ui/pagination';
-import { Skeleton } from '@/components/ui/skeleton';
-import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { ICircular } from '@/interfaces/job.interface';
-import { CircularService } from '@/services/api/circular.service';
-import { Grid, List, Loader2, Search } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
+import { MasterDataService } from '@/services/api/master-data.service';
 import * as React from 'react';
 import { JobCard } from './job-card';
-import { IOutsourcingZone } from '@/interfaces/master-data.interface';
-import { MasterDataService } from '@/services/api/master-data.service';
+import { IApiRequest, IMeta } from '@/interfaces/common.interface';
+import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Pagination } from '@/components/ui/pagination';
+import { Input } from '@/components/ui/input';
+import { Search } from 'lucide-react';
+import { Form, useForm } from 'react-hook-form';
+import { IOutsourcingCategory } from '@/interfaces/master-data.interface';
+import { useSearchParams } from 'next/navigation';
 import { FormSelect } from '@/components/ui/form-select';
-import { cn } from '@/lib/utils';
 
 interface JobListingsProps {
 	isPaginated?: boolean;
@@ -25,186 +22,143 @@ interface JobListingsProps {
 	itemLimit?: number;
 }
 
-interface FilterValues {
-	searchKey: string;
-	zoneId: string;
-}
-
 const initMeta: IMeta = { page: 0, limit: 12, totalRecords: 0 };
 
 export function JobListings({
 	isPaginated = true,
 	showFilters = true,
-	itemLimit,
+	itemLimit = 12,
 }: JobListingsProps) {
 	const searchParams = useSearchParams();
 	const [jobs, setJobs] = React.useState<ICircular[]>([]);
-	const [meta, setMeta] = React.useState<IMeta>({ ...initMeta, limit: itemLimit || initMeta.limit });
+	const [meta, setMeta] = React.useState<IMeta>({ ...initMeta, limit: itemLimit });
 	const [isLoading, setIsLoading] = React.useState(true);
-	const [zones, setZones] = React.useState<IOutsourcingZone[]>([]);
-	const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid');
+	const { toast } = useToast();
+	const form = useForm();
 
-	const form = useForm<FilterValues>({
-		defaultValues: {
-			searchKey: searchParams.get('query') || '',
-			zoneId: 'all',
-		},
-	});
+	const [searchQuery, setSearchQuery] = React.useState(searchParams.get('q') || '');
+	const [categoryFilter, setCategoryFilter] = React.useState(searchParams.get('category') || 'all');
+	const [outsourcingCategories, setOutsourcingCategories] = React.useState<IOutsourcingCategory[]>([]);
 
-	const searchKey = form.watch('searchKey');
-	const zoneId = form.watch('zoneId');
-
-	const debouncedSearch = useDebounce(searchKey, 500);
-
-	const loadJobs = React.useCallback(
-		async (page: number, filters: Partial<FilterValues>) => {
-			setIsLoading(true);
-			const payload: IApiRequest = {
-				body: {
-					searchKey: filters.searchKey,
-					...(filters.zoneId !== 'all' && { zoneId: filters.zoneId }),
-				},
-				meta: { page, limit: meta.limit },
-			};
+	React.useEffect(() => {
+		async function fetchFilters() {
 			try {
+				const [categoriesRes] = await Promise.all([MasterDataService.outsourcingCategory.get()]);
+				setOutsourcingCategories(categoriesRes.body);
+			} catch (error) {
+				toast({
+					title: 'Error',
+					description: 'Could not load filter options.',
+					variant: 'danger',
+				});
+			}
+		}
+		if (showFilters) {
+			fetchFilters();
+		}
+	}, [showFilters, toast]);
+
+	const searchJobs = React.useCallback(
+		async (page: number, search: string, categoryId: string) => {
+			setIsLoading(true);
+			try {
+				const payload: IApiRequest = {
+					body: {
+						searchKey: search,
+						...(categoryId !== 'all' && { outsourcingCategoryId: categoryId }),
+					},
+					meta: { page: page, limit: itemLimit },
+				};
 				const response = await CircularService.search(payload);
-				setJobs(response.body || []);
+				setJobs(response.body);
 				setMeta(response.meta);
 			} catch (error) {
-				console.error('Failed to load jobs:', error);
-				setJobs([]);
+				console.error('Failed to search jobs', error);
+				toast({
+					title: 'Error',
+					description: 'Failed to load job listings.',
+					variant: 'danger',
+				});
 			} finally {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit]
+		[itemLimit, toast]
 	);
 
 	React.useEffect(() => {
-		const fetchZones = async () => {
-			try {
-				const response = await MasterDataService.outsourcingZone.get();
-				setZones(response.body || []);
-			} catch (error) {
-				console.error('Failed to load zones:', error);
-			}
-		};
-		fetchZones();
-	}, []);
-
-	React.useEffect(() => {
-		loadJobs(0, { searchKey: debouncedSearch, zoneId });
-	}, [debouncedSearch, zoneId, loadJobs]);
+		searchJobs(0, searchQuery, categoryFilter);
+	}, [searchQuery, categoryFilter, searchJobs]);
 
 	const handlePageChange = (newPage: number) => {
-		loadJobs(newPage, { searchKey: debouncedSearch, zoneId });
+		searchJobs(newPage, searchQuery, categoryFilter);
 	};
 
-	const onFilterSubmit = (data: FilterValues) => {
-		loadJobs(0, data);
+	const buildSearchQuery = () => {
+		const params = new URLSearchParams();
+		if (searchQuery) params.set('q', searchQuery);
+		if (categoryFilter !== 'all') params.set('category', categoryFilter);
+		return params.toString();
 	};
+
+	const FilterBar = () => (
+		<Form {...form}>
+			<div className='flex flex-col sm:flex-row gap-4 mb-8'>
+				<div className='relative flex-grow'>
+					<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+					<Input
+						placeholder='Search by job title or organization...'
+						value={searchQuery}
+						onChange={(e) => setSearchQuery(e.target.value)}
+						className='pl-10 h-12 w-full'
+					/>
+				</div>
+				<div className='w-full sm:w-52'>
+					<FormSelect
+						name='categoryFilter'
+						control={form.control}
+						placeholder='All Categories'
+						options={[{ id: 'all', nameEn: 'All Categories' }, ...outsourcingCategories]}
+						value={categoryFilter}
+						onValueChange={(value) => setCategoryFilter(value || 'all')}
+						getOptionValue={(option) => option.id}
+						getOptionLabel={(option) => option.nameEn}
+						className='h-12'
+					/>
+				</div>
+			</div>
+		</Form>
+	);
 
 	return (
 		<div className='space-y-8'>
-			{showFilters && (
-				<Form {...form}>
-					<form
-						onSubmit={form.handleSubmit(onFilterSubmit)}
-						className='flex flex-col md:flex-row gap-4 items-center p-4 border rounded-lg bg-card sticky top-20 z-10 glassmorphism'
-					>
-						<div className='relative w-full flex-1'>
-							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground' />
-							<Input
-								{...form.register('searchKey')}
-								placeholder='Search by job title or organization...'
-								className='w-full h-12 pl-12 text-base border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent'
-							/>
-						</div>
-						<div className='w-full md:w-52'>
-							<FormSelect
-								control={form.control}
-								name='zoneId'
-								options={[{ id: 'all', nameEn: 'All Zones' }, ...zones]}
-								getOptionValue={(option) => option.id!}
-								getOptionLabel={(option) => option.nameEn}
-								value={zoneId}
-								onValueChange={(value) => form.setValue('zoneId', value || 'all')}
-							/>
-						</div>
-						<div className='flex items-center gap-2'>
-							<Button
-								type='button'
-								variant={viewMode === 'grid' ? 'default' : 'outline'}
-								size='icon'
-								onClick={() => setViewMode('grid')}
-							>
-								<Grid className='h-5 w-5' />
-							</Button>
-							<Button
-								type='button'
-								variant={viewMode === 'list' ? 'default' : 'outline'}
-								size='icon'
-								onClick={() => setViewMode('list')}
-							>
-								<List className='h-5 w-5' />
-							</Button>
-						</div>
-					</form>
-				</Form>
-			)}
-			<div className='flex items-center justify-between'>
-				<p className='text-sm font-medium text-muted-foreground'>
-					Showing <span className='font-bold text-foreground'>{meta.totalRecords || 0}</span> jobs
-				</p>
-			</div>
+			{showFilters && <FilterBar />}
+
 			{isLoading ? (
-				<div
-					className={cn(
-						'grid gap-6',
-						viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'
-					)}
-				>
-					{[...Array(meta.limit)].map((_, i) => (
-						<Skeleton key={i} className={cn(viewMode === 'grid' ? 'h-64' : 'h-28')} />
+				<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+					{[...Array(itemLimit)].map((_, i) => (
+						<Skeleton key={i} className='h-64 w-full' />
 					))}
 				</div>
 			) : jobs.length > 0 ? (
-				<div
-					className={cn(
-						'grid gap-6',
-						viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'
+				<>
+					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+						{jobs.map((job) => (
+							<JobCard key={job.id} job={job} queryParams={buildSearchQuery()} />
+						))}
+					</div>
+					{isPaginated && meta && meta.totalRecords && meta.totalRecords > 0 && (
+						<Pagination meta={meta} isLoading={isLoading} onPageChange={handlePageChange} noun={'Job'} />
 					)}
-				>
-					{jobs.map((job) => (
-						<JobCard key={job.id} job={job} viewMode={viewMode} />
-					))}
-				</div>
+				</>
 			) : (
-				<Card className='flex flex-col items-center justify-center py-20 text-center'>
-					<Search className='h-16 w-16 text-muted-foreground/50 mb-4' />
+				<div className='text-center py-16'>
 					<h3 className='text-xl font-semibold'>No Jobs Found</h3>
-					<p className='text-muted-foreground'>Try adjusting your search filters.</p>
-				</Card>
-			)}
-
-			{isPaginated && meta && meta.totalRecords && meta.totalRecords > 0 ? (
-				<div className='flex justify-center pt-8'>
-					<Pagination meta={meta} onPageChange={handlePageChange} noun='job' />
+					<p className='text-muted-foreground mt-2'>
+						We couldn't find any jobs matching your criteria. Try adjusting your filters.
+					</p>
 				</div>
-			) : null}
+			)}
 		</div>
 	);
 }
-
-const useDebounce = (value: string, delay: number) => {
-	const [debouncedValue, setDebouncedValue] = React.useState(value);
-	React.useEffect(() => {
-		const handler = setTimeout(() => {
-			setDebouncedValue(value);
-		}, delay);
-		return () => {
-			clearTimeout(handler);
-		};
-	}, [value, delay]);
-	return debouncedValue;
-};
