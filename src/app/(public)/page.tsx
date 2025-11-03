@@ -17,7 +17,12 @@ export default function Home() {
 						</p>
 					</div>
 					<div className='max-w-2xl mx-auto mt-8'>
-						<Button size='lg' variant='outline' asChild>
+						<Button
+							size='lg'
+							variant='outline'
+							className='bg-white/20 border-white/30 text-white hover:bg-white/30 hover:text-white backdrop-blur-sm'
+							asChild
+						>
 							<Link href='/jobs'>
 								Browse All Jobs <MoveRight className='ml-2 h-4 w-4' />
 							</Link>
