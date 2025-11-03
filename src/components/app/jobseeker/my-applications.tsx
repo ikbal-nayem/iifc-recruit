@@ -15,45 +15,84 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import Link from 'next/link';
 
 import { Card } from '@/components/ui/card';
+import { Pagination } from '@/components/ui/pagination';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 import { Application } from '@/interfaces/application.interface';
+import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
-import type { Job } from '@/lib/types';
+import { ApplicationService } from '@/services/api/application.service';
+import { format } from 'date-fns';
 
-type ApplicationWithJob = Application & { job: Job | undefined };
+const initMeta: IMeta = { page: 0, limit: 10 };
 
 export function MyApplications() {
-	const [data, setData] = React.useState<ApplicationWithJob[]>([]);
+	const { toast } = useToast();
+	const [data, setData] = React.useState<Application[]>([]);
+	const [meta, setMeta] = React.useState<IMeta>(initMeta);
+	const [isLoading, setIsLoading] = React.useState(true);
 
-	const columns: ColumnDef<ApplicationWithJob>[] = [
+	const loadApplications = React.useCallback(async (page: number) => {
+		setIsLoading(true);
+		try {
+			const payload: IApiRequest = {
+				meta: { page: page, limit: meta.limit },
+			};
+			const response = await ApplicationService.getByApplicant(payload);
+			setData(response.body);
+			setMeta(response.meta);
+		} catch (error: any) {
+			toast({
+				title: 'Error',
+				description: error.message || 'Failed to load your applications.',
+				variant: 'danger',
+			});
+		} finally {
+			setIsLoading(false);
+		}
+	}, [meta.limit, toast]);
+
+	React.useEffect(() => {
+		loadApplications(0);
+	}, [loadApplications]);
+	
+	const handlePageChange = (newPage: number) => {
+		loadApplications(newPage);
+	};
+
+	const columns: ColumnDef<Application>[] = [
 		{
-			accessorKey: 'job.title',
+			accessorKey: 'requestedPost.post.nameEn',
 			header: 'Job Title',
 			cell: ({ row }) => {
 				const application = row.original;
 				return (
 					<Link
-						href={`/jobseeker/jobs/${application.id}`}
+						href={`/jobseeker/jobs/${application.requestedPostId}`}
 						className='font-medium text-primary hover:underline'
 					>
-						{application.job?.title}
+						{application.requestedPost?.post?.nameEn}
 					</Link>
 				);
 			},
 		},
 		{
-			accessorKey: 'job.department',
-			header: 'Department',
+			accessorKey: 'requestedPost.jobRequest.clientOrganization.nameEn',
+			header: 'Organization',
 		},
 		{
-			accessorKey: 'applicationDate',
+			accessorKey: 'appliedDate',
 			header: 'Date Applied',
+			cell: ({ row }) => {
+				return format(new Date(row.original.appliedDate), 'dd MMM, yyyy');
+			}
 		},
 		{
 			accessorKey: 'status',
 			header: 'Status',
 			cell: ({ row }) => {
-				const status = row.getValue('status') as string;
-				return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
+				const { status, statusDTO } = row.original;
+				return <Badge variant={getStatusVariant(status)}>{statusDTO.nameEn}</Badge>;
 			},
 		},
 	];
@@ -63,25 +102,43 @@ export function MyApplications() {
 		columns,
 		getCoreRowModel: getCoreRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
+		manualPagination: true,
+		pageCount: meta.totalPageCount,
 	});
 
-	const renderMobileCard = (application: ApplicationWithJob) => (
+	const renderMobileCard = (application: Application) => (
 		<Card key={application.id} className='mb-4 glassmorphism'>
 			<div className='p-4 space-y-2'>
 				<Link
-					href={`/jobseeker/jobs/${application.id}`}
+					href={`/jobseeker/jobs/${application.requestedPostId}`}
 					className='font-semibold text-lg text-primary hover:underline'
 				>
-					{application.job?.title}
+					{application.requestedPost?.post?.nameEn}
 				</Link>
-				<p className='text-sm text-muted-foreground'>{application.job?.department}</p>
+				<p className='text-sm text-muted-foreground'>
+					{application.requestedPost?.jobRequest?.clientOrganization?.nameEn}
+				</p>
 				<div className='flex justify-between items-center pt-2'>
 					<div>
 						<p className='text-xs text-muted-foreground'>Applied on</p>
-						<p className='text-sm font-medium'>{application.appliedDate}</p>
+						<p className='text-sm font-medium'>{format(new Date(application.appliedDate), 'dd MMM, yyyy')}</p>
 					</div>
-					<Badge variant={getStatusVariant(application.status)}>{application.status}</Badge>
+					<Badge variant={getStatusVariant(application.status)}>{application.statusDTO.nameEn}</Badge>
 				</div>
+			</div>
+		</Card>
+	);
+
+	const renderSkeletonCard = (key: number) => (
+		<Card key={key} className='mb-4 glassmorphism p-4 space-y-3'>
+			<Skeleton className='h-6 w-3/4' />
+			<Skeleton className='h-4 w-1/2' />
+			<div className='flex justify-between items-center pt-2'>
+				<div className='space-y-2'>
+					<Skeleton className='h-3 w-16' />
+					<Skeleton className='h-4 w-24' />
+				</div>
+				<Skeleton className='h-6 w-20 rounded-full' />
 			</div>
 		</Card>
 	);
@@ -90,11 +147,13 @@ export function MyApplications() {
 		<div className='space-y-4'>
 			{/* Mobile View */}
 			<div className='md:hidden'>
-				{data.length > 0 ? (
+				{isLoading ? (
+					[...Array(3)].map((_, i) => renderSkeletonCard(i))
+				) : data.length > 0 ? (
 					data.map(renderMobileCard)
 				) : (
 					<div className='text-center py-16'>
-						<p className='text-muted-foreground'>You haven't applied for any jobs yet.</p>
+						<p className='text-muted-foreground'>You haven&apos;t applied for any jobs yet.</p>
 					</div>
 				)}
 			</div>
@@ -118,9 +177,17 @@ export function MyApplications() {
 						))}
 					</TableHeader>
 					<TableBody>
-						{table.getRowModel().rows?.length ? (
+						{isLoading ? (
+							[...Array(5)].map((_, i) => (
+								<TableRow key={i}>
+									<TableCell colSpan={columns.length}>
+										<Skeleton className='h-8 w-full' />
+									</TableCell>
+								</TableRow>
+							))
+						) : table.getRowModel().rows?.length ? (
 							table.getRowModel().rows.map((row) => (
-								<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+								<TableRow key={row.id}>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell key={cell.id}>
 											{flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -131,7 +198,7 @@ export function MyApplications() {
 						) : (
 							<TableRow>
 								<TableCell colSpan={columns.length} className='h-24 text-center'>
-									You haven't applied for any jobs yet.
+									You haven&apos;t applied for any jobs yet.
 								</TableCell>
 							</TableRow>
 						)}
@@ -139,24 +206,9 @@ export function MyApplications() {
 				</Table>
 			</div>
 
-			{data.length > 0 && (
+			{meta && meta.totalRecords! > 0 && (
 				<div className='flex items-center justify-center md:justify-end space-x-2 py-4'>
-					<Button
-						variant='outline'
-						size='sm'
-						onClick={() => table.previousPage()}
-						disabled={!table.getCanPreviousPage()}
-					>
-						Previous
-					</Button>
-					<Button
-						variant='outline'
-						size='sm'
-						onClick={() => table.nextPage()}
-						disabled={!table.getCanNextPage()}
-					>
-						Next
-					</Button>
+					<Pagination meta={meta} isLoading={isLoading} onPageChange={handlePageChange} noun='application' />
 				</div>
 			)}
 		</div>
