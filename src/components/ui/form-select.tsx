@@ -7,19 +7,19 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/comp
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
-interface FormSelectProps<TFieldValues extends FieldValues> {
+interface FormSelectProps<TFieldValues extends FieldValues, TOption> {
 	control: Control<TFieldValues | any>;
 	name: FieldPath<TFieldValues>;
 	label: string;
 	placeholder?: string;
 	required?: boolean;
-	options: any[];
+	options: TOption[];
 	disabled?: boolean;
-	labelKey?: string;
-	valueKey?: string;
+	getOptionLabel: (option: TOption) => string;
+	getOptionValue: (option: TOption) => string;
 }
 
-export function FormSelect<TFieldValues extends FieldValues>({
+export function FormSelect<TFieldValues extends FieldValues, TOption>({
 	control,
 	name,
 	label,
@@ -27,10 +27,10 @@ export function FormSelect<TFieldValues extends FieldValues>({
 	required = false,
 	options,
 	disabled = false,
-	labelKey = 'label',
-	valueKey = 'value',
+	getOptionLabel,
+	getOptionValue,
 	...props
-}: FormSelectProps<TFieldValues>) {
+}: FormSelectProps<TFieldValues, TOption>) {
 	return (
 		<FormField
 			control={control}
@@ -50,9 +50,9 @@ export function FormSelect<TFieldValues extends FieldValues>({
 							</SelectTrigger>
 						</FormControl>
 						<SelectContent>
-							{options.map((option) => (
-								<SelectItem key={option[valueKey]} value={option[valueKey]?.toString()}>
-									{option[labelKey]}
+							{options.map((option, index) => (
+								<SelectItem key={index} value={getOptionValue(option)}>
+									{getOptionLabel(option)}
 								</SelectItem>
 							))}
 						</SelectContent>
