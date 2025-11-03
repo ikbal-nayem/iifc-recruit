@@ -15,7 +15,9 @@ export interface ICommonMasterData {
 }
 
 export interface IRole extends ICommonMasterData {
-	
+	roleCode: string;
+	parentId?: string;
+	parent?: IRole;
 }
 
 export interface IOutsourcingCategory extends ICommonMasterData {}

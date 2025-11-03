@@ -1,22 +1,29 @@
 import { OrganizationUserManagement } from '@/components/app/admin/client-organizations/organization-user-management';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { IClientOrganization, IRole } from '@/interfaces/master-data.interface';
+import { AuthService } from '@/services/api/auth.service';
 import { MasterDataService } from '@/services/api/master-data.service';
-import { RoleService } from '@/services/api/role.service';
 import { Globe, Mail, MapPin, Phone } from 'lucide-react';
 import { notFound } from 'next/navigation';
+
+const payload = { body: { system: false } };
 
 async function getData(id: string) {
 	try {
 		const [orgRes, rolesRes] = await Promise.all([
 			MasterDataService.clientOrganization.getDetails(id),
-			RoleService.getList(),
+			AuthService.getRoleList(payload),
 		]);
 
 		return {
 			organization: orgRes.body,
-			roles: rolesRes.body,
+			roles: rolesRes.body?.filter((role) =>
+				orgRes.body?.isClient
+					? role.code?.startsWith('CLIENT_')
+					: orgRes.body?.isExaminer
+					? role.code?.startsWith('EXAMINER_')
+					: false
+			),
 		};
 	} catch (error) {
 		console.error('Failed to load organization details:', error);
@@ -25,7 +32,8 @@ async function getData(id: string) {
 }
 
 export default async function ClientOrganizationDetailsPage({ params }: { params: { id: string } }) {
-	const { organization, roles } = await getData(params.id);
+	const aParams = await params;
+	const { organization, roles } = await getData(aParams.id);
 
 	if (!organization) {
 		notFound();
@@ -100,7 +108,7 @@ export default async function ClientOrganizationDetailsPage({ params }: { params
 				</CardContent>
 			</Card>
 
-			<OrganizationUserManagement organizationId={params.id as string} roles={roles} />
+			<OrganizationUserManagement organizationId={aParams.id} roles={roles} />
 		</div>
 	);
 }

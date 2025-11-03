@@ -108,35 +108,8 @@ function UserForm({ isOpen, onClose, organizationId, onUserCreated, roles }: Use
 	);
 }
 
-const mockUsers: IOrganizationUser[] = [
-	{
-		id: '1',
-		name: 'John Doe',
-		email: 'john.d@example.com',
-		role: 'Admin',
-		status: 'Active',
-		avatar: 'https://picsum.photos/seed/user1/100/100',
-	},
-	{
-		id: '2',
-		name: 'Jane Smith',
-		email: 'jane.s@example.com',
-		role: 'Member',
-		status: 'Active',
-		avatar: 'https://picsum.photos/seed/user2/100/100',
-	},
-	{
-		id: '3',
-		name: 'Peter Jones',
-		email: 'peter.j@example.com',
-		role: 'Member',
-		status: 'Inactive',
-		avatar: 'https://picsum.photos/seed/user3/100/100',
-	},
-];
-
 export function OrganizationUserManagement({ organizationId, roles }: { organizationId: string, roles: IRole[] }) {
-	const [users, setUsers] = useState<IOrganizationUser[]>(mockUsers);
+	const [users, setUsers] = useState<IOrganizationUser[]>([]);
 	const [isUserFormOpen, setIsUserFormOpen] = useState(false);
 
 	const handleUserCreated = () => {

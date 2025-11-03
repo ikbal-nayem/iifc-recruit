@@ -1,6 +1,7 @@
 import { axiosIns } from '@/config/api.config';
 import { IAuthInfo } from '@/interfaces/auth.interface';
-import { IApiResponse, IObject } from '@/interfaces/common.interface';
+import { IApiRequest, IApiResponse, IObject } from '@/interfaces/common.interface';
+import { IRole } from '@/interfaces/master-data.interface';
 
 export const AuthService = {
 	login: async (payload: IObject): Promise<IApiResponse<IAuthInfo>> =>
@@ -15,16 +16,20 @@ export const AuthService = {
 
 	signup: async (payload: IObject): Promise<IApiResponse<void>> =>
 		await axiosIns.post('/user/jobseeker/public/signup', payload),
-	
+
 	changePassword: async (payload: IObject): Promise<IApiResponse<void>> => {
 		return axiosIns.post('/user/update-password', payload);
 	},
-	
+
 	forgotPassword: async (email: string): Promise<IApiResponse<void>> => {
 		return axiosIns.post(`/api/auth/forgot-password?email=${email}`);
 	},
 
 	resetPassword: async (payload: IObject): Promise<IApiResponse<void>> => {
 		return axiosIns.post('/api/auth/reset-password', payload);
+	},
+
+	getRoleList: async (payload: IApiRequest): Promise<IApiResponse<IRole[]>> => {
+		return axiosIns.post('/role/get-list', payload);
 	},
 };
