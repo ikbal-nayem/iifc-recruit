@@ -92,7 +92,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 					</div>
 					<div className='flex items-center justify-between mt-3'>
 						<strong className='text-sm text-muted-foreground'>
-							Total {meta?.totalRecords || 0} job's found
+							Job found: <strong>{(meta?.totalRecords || 0).toLocaleString()}</strong>
 						</strong>
 						<div className='flex items-center justify-end gap-2'>
 							<Button

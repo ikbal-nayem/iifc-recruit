@@ -6,7 +6,7 @@ import { IObject } from '@/interfaces/common.interface';
 import { ICircular } from '@/interfaces/job.interface';
 import { CircularService } from '@/services/api/circular.service';
 import { format, isPast, parseISO } from 'date-fns';
-import { ArrowLeft, Briefcase, Check, DollarSign, MapPin } from 'lucide-react';
+import { ArrowLeft, Briefcase, CheckCheck, DollarSign, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -72,19 +72,24 @@ export default async function JobDetailsPage({
 										{(job.salaryFrom || job.salaryTo) && (
 											<span className='flex items-center gap-2'>
 												<DollarSign className='h-4 w-4' />
-												{job.salaryFrom}
-												{job.salaryTo ? ` - ${job.salaryTo}` : ''}
+												{job.salaryFrom?.toLocaleString()}
+												{job.salaryTo ? ` - ${job.salaryTo?.toLocaleString()}` : ''}
 											</span>
 										)}
 									</CardDescription>
 								</div>
 								<div className='flex-shrink-0'>
 									{!job.applied && !isPast(deadline) && (
-										<JobApplicationClient jobTitle={job.postNameEn} jobOrganizationName={job.clientOrganizationNameEn} jobId={job.id} />
+										<JobApplicationClient
+											jobTitle={job.postNameEn}
+											jobOrganizationName={job.clientOrganizationNameEn}
+											jobId={job.id}
+										/>
 									)}
 									{job.applied && (
-										<Badge variant='success'>
-											<Check className='mr-2 h-4 w-4' /> Applied
+										<Badge variant='lite-success'>
+											<CheckCheck className='mr-2 h-4 w-4' />
+											Applied
 										</Badge>
 									)}
 								</div>
