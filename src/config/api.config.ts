@@ -75,7 +75,7 @@ class AxiosInstance {
 
 	private handleResponseError(error: any) {		
 		if (error?.response?.status === 401) {
-			location.pathname !== ROUTES.AUTH.LOGIN && this.logout();
+			console.error("Authentication error: You are not authorized.")
 		}
 
 		return Promise.reject({
@@ -83,13 +83,6 @@ class AxiosInstance {
 			message: error?.response?.data?.message || 'Server not responding',
 			body: {},
 		});
-	}
-
-	private logout() {
-		if (isBrowser) {
-			clearAuthInfo();
-			window.location.href = ROUTES.AUTH.LOGIN;
-		}
 	}
 
 	public getInstance() {
