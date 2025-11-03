@@ -1,94 +1,40 @@
 
-'use client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from '@/hooks/use-toast';
 import { ICircular } from '@/interfaces/job.interface';
 import { CircularService } from '@/services/api/circular.service';
 import { format, parseISO } from 'date-fns';
 import { ArrowLeft, Briefcase, Clock, DollarSign, MapPin } from 'lucide-react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { Suspense, use, useCallback, useEffect, useState } from 'react';
+import { notFound } from 'next/navigation';
 import { JobDetailClient } from '../../../../components/app/jobseeker/job-detail-client';
 
-function JobDetailsLoading() {
-	return (
-		<div className='container mx-auto px-4 py-16'>
-			<Skeleton className='h-10 w-32 mb-6' />
-			<Card>
-				<CardHeader>
-					<Skeleton className='h-8 w-3/4 mb-2' />
-					<Skeleton className='h-5 w-1/2' />
-				</CardHeader>
-				<CardContent className='space-y-6'>
-					<div className='flex gap-4'>
-						<Skeleton className='h-6 w-24' />
-						<Skeleton className='h-6 w-32' />
-					</div>
-					{[...Array(3)].map((_, i) => (
-						<div key={i} className='space-y-2'>
-							<Skeleton className='h-6 w-40' />
-							<Skeleton className='h-4 w-full' />
-							<Skeleton className='h-4 w-full' />
-							<Skeleton className='h-4 w-3/4' />
-						</div>
-					))}
-				</CardContent>
-			</Card>
-		</div>
-	);
-}
-
-export default function JobDetailsPage({ params }: { params: { id: string } }) {
-	return (
-		<Suspense fallback={<JobDetailsLoading />}>
-			<JobDetailsContent params={params} />
-		</Suspense>
-	);
-}
-
-async function JobDetailsContent({ params }: { params: { id: string } }) {
-	const aParams = await params;
-	const searchParams = useSearchParams();
-	const [job, setJob] = useState<ICircular | null>(null);
-	const [isLoading, setIsLoading] = useState(true);
-
-	const getJobDetails = useCallback(async () => {
-		setIsLoading(true);
-		try {
-			const res = await CircularService.getDetails(aParams.id);
-			setJob(res.body);
-		} catch (error: any) {
-			toast.error({ description: error.message || 'Failed to load job details.' });
-		} finally {
-			setIsLoading(false);
-		}
-	}, []);
-
-	useEffect(() => {
-		getJobDetails();
-	}, [getJobDetails]);
-
-	if (isLoading) {
-		return <JobDetailsLoading />;
+async function getJobDetails(id: string): Promise<ICircular | null> {
+	try {
+		const res = await CircularService.getDetails(id);
+		return res.body;
+	} catch (error) {
+		console.error('Failed to load job details:', error);
+		// Return null to be handled by the component
+		return null;
 	}
+}
+
+export default async function JobDetailsPage({
+	params,
+	searchParams,
+}: {
+	params: { id: string };
+	searchParams: { [key: string]: string | string[] | undefined };
+}) {
+	const job = await getJobDetails(params.id);
 
 	if (!job) {
-		return (
-			<div className='container mx-auto py-16 text-center'>
-				<h2 className='text-2xl font-bold'>Job Not Found</h2>
-				<p className='text-muted-foreground'>The job you are looking for does not exist.</p>
-				<Button asChild className='mt-4'>
-					<Link href='/jobs'>Back to Listings</Link>
-				</Button>
-			</div>
-		);
+		notFound();
 	}
 
-	const queryParams = new URLSearchParams(searchParams.toString());
+	const queryParams = new URLSearchParams(searchParams as Record<string, string>);
 	const backUrl = `/jobs?${queryParams.toString()}`;
 
 	return (
