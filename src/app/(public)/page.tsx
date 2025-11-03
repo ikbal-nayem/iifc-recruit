@@ -1,5 +1,6 @@
 import { JobListings } from '@/components/app/public/job-listings';
 import { Button } from '@/components/ui/button';
+import { MoveRight, Search } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
@@ -16,8 +17,10 @@ export default function Home() {
 						</p>
 					</div>
 					<div className='max-w-2xl mx-auto mt-8'>
-						<Button size='lg' asChild>
-							<Link href='/jobs'>Browse All Jobs</Link>
+						<Button size='lg' variant='outline' asChild>
+							<Link href='/jobs'>
+								Browse All Jobs <MoveRight className='ml-2 h-4 w-4' />
+							</Link>
 						</Button>
 					</div>
 				</div>
@@ -27,8 +30,11 @@ export default function Home() {
 				<h2 className='text-3xl font-bold text-center mb-8 font-headline'>Featured Jobs</h2>
 				<JobListings isPaginated={false} showFilters={false} itemLimit={6} />
 				<div className='text-center mt-12'>
-					<Button variant='outline' size='lg' asChild>
-						<Link href='/jobs'>Browse All Jobs</Link>
+					<Button size='lg' asChild>
+						<Link href='/jobs'>
+							<Search className='mr-2 h-4 w-4' />
+							Search Mone Jobs
+						</Link>
 					</Button>
 				</div>
 			</div>

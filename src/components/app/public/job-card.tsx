@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Badge } from '@/components/ui/badge';
@@ -54,7 +53,9 @@ export function JobCard({ job, view = 'grid', searchParams }: JobCardProps) {
 							<Briefcase className='h-4 w-4' /> {job.clientOrganizationNameEn}
 						</CardDescription>
 					</div>
-					<div className='text-sm text-muted-foreground line-clamp-2 pt-2'>{job.jobDescription}</div>
+					<div className='text-sm text-muted-foreground line-clamp-2 pt-2' title={job.jobDescription}>
+						{job.jobDescription}
+					</div>
 				</CardHeader>
 
 				<CardContent
@@ -74,10 +75,10 @@ export function JobCard({ job, view = 'grid', searchParams }: JobCardProps) {
 							<Users className='h-4 w-4' />
 							<span>{job.vacancy} Vacancies</span>
 						</div>
-						<div className='flex items-center gap-2 text-muted-foreground'>
+						{/* <div className='flex items-center gap-2 text-muted-foreground'>
 							<Clock className='h-4 w-4' />
 							<span>{job.outsourcing ? 'Outsourcing' : 'Permanent'}</span>
-						</div>
+						</div> */}
 					</div>
 					<div className='flex items-center justify-between gap-2'>
 						<Badge variant='outline'>Posted: {format(parseISO(job.circularPublishDate), 'dd MMM')}</Badge>

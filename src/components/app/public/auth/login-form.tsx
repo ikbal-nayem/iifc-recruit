@@ -2,113 +2,109 @@
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { CardContent } from '@/components/ui/card';
+import { CardContent, CardFooter } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
-import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/contexts/auth-context';
-import { SessionStorageService } from '@/services/storage.service';
+import { toast } from '@/hooks/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
+import { Loader2, LogIn } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-const formSchema = z.object({
-	username: z.string().email('Please enter a valid email address.'),
+const loginSchema = z.object({
+	username: z.string().min(1, 'Username or Email is required.'),
 	password: z.string().min(1, 'Password is required.'),
 });
 
-type FormValues = z.infer<typeof formSchema>;
+type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
 	const { login } = useAuth();
 	const router = useRouter();
-	const searchParams = useSearchParams();
 	const [error, setError] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
+	const searchParams = useSearchParams();
 
-	useEffect(() => {
-		const redirectUrl = searchParams.get('redirectUrl');
-		if (redirectUrl) {
-			SessionStorageService.set('redirectUrl', redirectUrl);
-		}
-	}, [searchParams]);
+	const redirectUrl = searchParams.get('redirectUrl');
 
-	const form = useForm<FormValues>({
-		resolver: zodResolver(formSchema),
+	const form = useForm<LoginFormValues>({
+		resolver: zodResolver(loginSchema),
 		defaultValues: {
 			username: '',
 			password: '',
 		},
 	});
 
-	const onSubmit = async (data: FormValues) => {
+	const onSubmit = async (data: LoginFormValues) => {
 		setIsLoading(true);
 		setError(null);
 		try {
-			await login(data.username, data.password);
-			const redirectUrl = SessionStorageService.get('redirectUrl');
-			SessionStorageService.delete('redirectUrl');
-
-			if (redirectUrl) {
-				router.push(redirectUrl);
-			} else {
-				router.push(ROUTES.DASHBOARD.ADMIN);
-			}
+			const user = await login(data.username, data.password);
+			toast.success({ description: 'Logged in successfully.' });
+			if (user?.userType === 'SYSTEM' || user?.userType === 'IIFC_ADMIN') {
+				router.push('/admin');
+			} else if (redirectUrl) router.push(redirectUrl);
+			else router.push('/jobseeker');
 		} catch (err: any) {
-			setError(err.message || 'Login failed. Please check your credentials.');
+			setError(err.message || 'An unexpected error occurred. Please try again.');
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
 	return (
-		<CardContent>
+		<>
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
-					{error && (
-						<Alert variant='danger'>
-							<AlertDescription>{error}</AlertDescription>
-						</Alert>
-					)}
-					<FormInput
-						control={form.control}
-						name='username'
-						label='Email'
-						type='email'
-						placeholder='you@example.com'
-						required
-					/>
-					<FormInput
-						control={form.control}
-						name='password'
-						label='Password'
-						type='password'
-						placeholder='Enter your password'
-						required
-					/>
-					<div className='flex items-center justify-between'>
-						<div className='text-sm'>
-							<Link href={ROUTES.AUTH.FORGOT_PASSWORD} className='text-primary hover:underline'>
-								Forgot password?
+				<form onSubmit={form.handleSubmit(onSubmit)}>
+					<CardContent className='space-y-4'>
+						{error && (
+							<Alert variant='danger'>
+								<AlertDescription>{error}</AlertDescription>
+							</Alert>
+						)}
+						<FormInput
+							control={form.control}
+							name='username'
+							label='Username or Email'
+							placeholder='you@example.com'
+							required
+						/>
+						<FormInput
+							control={form.control}
+							name='password'
+							label='Password'
+							type='password'
+							placeholder='Enter your password'
+							required
+						/>
+						<div className='text-right text-sm'>
+							<Link href='/forgot-password' className='text-primary hover:underline'>
+								Forgot Password?
 							</Link>
 						</div>
-					</div>
-					<Button type='submit' className='w-full' disabled={isLoading}>
-						{isLoading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-						Log In
-					</Button>
-					<div className='text-center text-sm'>
-						Don&apos;t have an account?{' '}
-						<Link href={ROUTES.AUTH.SIGNUP} className='text-primary hover:underline'>
-							Sign up
-						</Link>
-					</div>
+					</CardContent>
+					<CardFooter className='flex flex-col gap-4'>
+						<Button type='submit' className='w-full' disabled={isLoading}>
+							{isLoading ? (
+								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+							) : (
+								<LogIn className='mr-2 h-4 w-4' />
+							)}
+							Log In
+						</Button>
+						<p className='text-sm text-center text-muted-foreground'>
+							Don&apos;t have an account?{' '}
+							<Link href='/signup' className='text-primary hover:underline font-semibold'>
+								Sign up
+							</Link>
+						</p>
+					</CardFooter>
 				</form>
 			</Form>
-		</CardContent>
+		</>
 	);
 }

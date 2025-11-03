@@ -74,7 +74,6 @@ export interface ICircular {
 	jobResponsibilities: string;
 	vacancy: number;
 	postId: string;
-	outsourcing: boolean;
 	postNameEn: string;
 	postNameBn: string;
 	outsourcingCategoryId?: string;

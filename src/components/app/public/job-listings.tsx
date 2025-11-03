@@ -1,19 +1,18 @@
-
 'use client';
 
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Pagination } from '@/components/ui/pagination';
+import { useDebounce } from '@/hooks/use-debounce';
 import { IApiRequest, IMeta, IObject } from '@/interfaces/common.interface';
 import { ICircular } from '@/interfaces/job.interface';
+import { cn } from '@/lib/utils';
 import { CircularService } from '@/services/api/circular.service';
-import { useDebounce } from '@/hooks/use-debounce';
+import { LayoutGrid, List, Search } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import * as React from 'react';
 import { JobCard } from './job-card';
-import { Pagination } from '@/components/ui/pagination';
-import { Input } from '@/components/ui/input';
-import { Search, List, LayoutGrid } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { useSearchParams } from 'next/navigation';
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
 
@@ -86,21 +85,23 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 		<div className='space-y-8'>
 			{showFilters && (
 				<Card className='p-4 glassmorphism'>
-					<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-						<div className='relative w-full'>
-							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-							<Input
-								placeholder='Search by job title...'
-								onChange={(e) => setSearchQuery(e.target.value)}
-								className='pl-10 h-12'
-							/>
-						</div>
+					<div className='relative w-full'>
+						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+						<Input
+							placeholder='Search by job title...'
+							onChange={(e) => setSearchQuery(e.target.value)}
+							className='pl-10 h-12'
+						/>
+					</div>
+					<div className='flex items-center justify-between mt-3'>
+						<strong className='text-sm text-muted-foreground'>
+							Total {meta?.totalRecords || 0} job's found
+						</strong>
 						<div className='flex items-center justify-end gap-2'>
 							<Button
 								variant={view === 'grid' ? 'default' : 'outline'}
 								size='icon'
 								onClick={() => setView('grid')}
-								className='h-12 w-12'
 							>
 								<LayoutGrid className='h-5 w-5' />
 							</Button>
@@ -108,7 +109,6 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 								variant={view === 'list' ? 'default' : 'outline'}
 								size='icon'
 								onClick={() => setView('list')}
-								className='h-12 w-12'
 							>
 								<List className='h-5 w-5' />
 							</Button>
@@ -122,7 +122,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 			) : circulars.length > 0 ? (
 				<div
 					className={cn(
-						'grid gap-6',
+						'grid gap-4',
 						view === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'
 					)}
 				>

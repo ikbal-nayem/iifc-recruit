@@ -4,8 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { IObject } from '@/interfaces/common.interface';
 import { ICircular } from '@/interfaces/job.interface';
 import { CircularService } from '@/services/api/circular.service';
-import { format, parseISO } from 'date-fns';
-import { ArrowLeft, Briefcase, Clock, DollarSign, MapPin } from 'lucide-react';
+import clsx from 'clsx';
+import { format, isPast, parseISO } from 'date-fns';
+import { ArrowLeft, Briefcase, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { JobDetailClient } from '../../../../components/app/jobseeker/job-detail-client';
@@ -39,6 +40,10 @@ export default async function JobDetailsPage({
 	const queryParams = new URLSearchParams(aSearchParams as Record<string, string>);
 	const backUrl = `/jobs?${queryParams.toString()}`;
 
+	const deadline = parseISO(job.circularEndDate);
+	const today = new Date();
+	const daysUntilDeadline = Math.ceil((deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
 	return (
 		<div className='container mx-auto px-4 py-5'>
 			<div className='mb-6'>
@@ -65,19 +70,22 @@ export default async function JobDetailsPage({
 												<MapPin className='h-4 w-4' /> {job.outsourcingZoneNameEn}
 											</span>
 										)}
-										<span className='flex items-center gap-2'>
+										{/* <span className='flex items-center gap-2'>
 											<Clock className='h-4 w-4' /> {job.outsourcing ? 'Outsourcing' : 'Permanent'}
-										</span>
+										</span> */}
 										{(job.salaryFrom || job.salaryTo) && (
 											<span className='flex items-center gap-2'>
-												<DollarSign className='h-4 w-4' /> {job.salaryFrom} - {job.salaryTo}
+												৳ {job.salaryFrom}
+												{clsx({ [` - job.salaryTo`]: !!job.salaryTo })}
 											</span>
 										)}
 									</CardDescription>
 								</div>
-								<div className='flex-shrink-0'>
-									<JobDetailClient jobTitle={job.postNameEn} jobId={job.id} />
-								</div>
+								{!isPast(deadline) && (
+									<div className='flex-shrink-0'>
+										<JobDetailClient jobTitle={job.postNameEn} jobId={job.id} />
+									</div>
+								)}
 							</div>
 						</CardHeader>
 						<CardContent className='space-y-6'>
@@ -85,8 +93,12 @@ export default async function JobDetailsPage({
 								<Badge variant='secondary'>
 									Posted: {format(parseISO(job.circularPublishDate), 'dd MMM, yyyy')}
 								</Badge>
-								<Badge variant='danger'>
-									Deadline: {format(parseISO(job.circularEndDate), 'dd MMM, yyyy')}
+								<Badge
+									variant={
+										daysUntilDeadline <= 3 ? 'danger' : daysUntilDeadline <= 7 ? 'warning' : 'secondary'
+									}
+								>
+									Deadline: {format(deadline, 'dd MMM, yyyy')}
 								</Badge>
 							</div>
 							<div>
