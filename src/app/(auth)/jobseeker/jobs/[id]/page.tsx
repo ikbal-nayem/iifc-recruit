@@ -44,7 +44,7 @@ export default async function JobDetailsPage({
 	const daysUntilDeadline = Math.ceil((deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
 	return (
-		<div className='container mx-auto px-4 py-8'>
+		<div className='container mx-auto px-4'>
 			<div className='mb-6'>
 				<Button variant='outline' asChild>
 					<Link href={backUrl}>
