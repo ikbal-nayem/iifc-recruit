@@ -1,3 +1,4 @@
+
 import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from './master-data.interface';
 
 export enum JobRequestType {
@@ -64,3 +65,29 @@ export type JobRequest = {
 	requestedPosts: RequestedPost[];
 	active?: boolean;
 };
+
+export interface ICircular {
+	id: string;
+	jobRequestType: string;
+	jobDescription: string;
+	jobRequirements: string;
+	jobResponsibilities: string;
+	postId: string;
+	outsourcing: boolean;
+	postNameEn: string;
+	postNameBn: string;
+	outsourcingCategoryId?: string;
+	outsourcingCategoryNameEn?: string;
+	outsourcingCategoryNameBn?: string;
+	clientOrganizationId: string;
+	clientOrganizationNameEn: string;
+	clientOrganizationNameBn: string;
+	outsourcingZoneId?: string;
+	outsourcingZoneNameEn?: string;
+	outsourcingZoneNameBn?: string;
+	circularPublishDate: string;
+	circularEndDate: string;
+	salaryFrom?: number;
+	salaryTo?: number;
+	applied: boolean;
+}
