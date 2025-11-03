@@ -1,3 +1,4 @@
+
 import { JobListings } from '@/components/app/public/job-listings';
 import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,31 +19,27 @@ export default function Home() {
             </p>
           </div>
           <div className="max-w-2xl mx-auto mt-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 p-2 rounded-lg bg-background shadow-lg border">
-              <div className="relative md:col-span-2">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Job title or keywords"
-                  className="w-full h-12 pl-12 text-base border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-              </div>
-               <Button size="lg" className="w-full h-12 text-base font-bold" asChild>
-                 <Link href="/jobs">
-                    <Search className="mr-2 h-5 w-5" />
-                    Find Jobs
-                 </Link>
-              </Button>
-            </div>
+             <Link href="/jobs">
+                <div className="relative">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Input
+                    type="text"
+                    placeholder="Job title, organization, or keywords"
+                    className="w-full h-14 pl-12 pr-4 text-base rounded-full shadow-lg cursor-pointer"
+                    readOnly
+                    />
+                </div>
+            </Link>
           </div>
         </div>
       </section>
 
       <div className="container mx-auto px-4 md:px-6 py-16">
+        <h2 className="text-3xl font-bold text-center mb-8 font-headline">Featured Jobs</h2>
         <JobListings isPaginated={false} showFilters={false} itemLimit={6} />
-         <div className="text-center mt-8">
-          <Button variant="outline" asChild>
-            <Link href="/jobs">Load More Jobs</Link>
+         <div className="text-center mt-12">
+          <Button variant="outline" size="lg" asChild>
+            <Link href="/jobs">Browse All Jobs</Link>
           </Button>
       </div>
       </div>
