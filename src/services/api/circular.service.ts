@@ -11,3 +11,4 @@ export const CircularService = {
 		return axiosIns.get(`/circular/public/get-by-id/${id}`);
 	},
 };
+
