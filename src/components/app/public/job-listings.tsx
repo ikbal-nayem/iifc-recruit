@@ -3,263 +3,302 @@
 
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { ICircular } from '@/interfaces/job.interface';
-import { IOutsourcingZone } from '@/interfaces/master-data.interface';
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { CircularService } from '@/services/api/circular.service';
 import { MasterDataService } from '@/services/api/master-data.service';
-import { useDebounce } from '@/hooks/use-debounce';
 import { cn } from '@/lib/utils';
-import { differenceInDays, isFuture, parseISO } from 'date-fns';
-import { Briefcase, Calendar, Grid, List, Loader2, MapPin, Search } from 'lucide-react';
+import { differenceInDays, parseISO } from 'date-fns';
+import { Building, Calendar, Clock, DollarSign, Grid, List, Loader2, MapPin, Search } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import * as React from 'react';
+import { Form, useForm } from 'react-hook-form';
+import { FormSelect } from '@/components/ui/form-select';
 import { Badge } from '../../ui/badge';
 import { Button } from '../../ui/button';
 import { Card, CardContent } from '../../ui/card';
 import { Input } from '../../ui/input';
 import { Pagination } from '../../ui/pagination';
 import { Skeleton } from '../../ui/skeleton';
-import { Form } from '@/components/ui/form';
-import { FormSelect } from '@/components/ui/form-select';
-import { useForm } from 'react-hook-form';
 
-const VIEW_MODE = {
-	GRID: 'grid',
-	LIST: 'list',
-};
+interface JobListingsProps {
+	isPaginated?: boolean;
+	showFilters?: boolean;
+	itemLimit?: number;
+}
 
-function JobCard({ job, viewMode }: { job: ICircular; viewMode: string }) {
+const JobCard = ({ job, viewMode }: { job: ICircular; viewMode: 'grid' | 'list' }) => {
 	const deadline = parseISO(job.circularEndDate);
-	const daysUntilDeadline = differenceInDays(deadline, new Date());
-	const isUrgent = isFuture(deadline) && daysUntilDeadline <= 7;
-	const isVeryUrgent = isFuture(deadline) && daysUntilDeadline <= 3;
+	const daysRemaining = differenceInDays(deadline, new Date());
+	const deadlineColorClass =
+		daysRemaining <= 3 ? 'border-danger animate-pulse-subtle' : daysRemaining <= 7 ? 'border-warning' : '';
 
-	const cardClasses = cn(
-		'group glassmorphism card-hover h-full flex flex-col',
-		isVeryUrgent && 'border-danger/50 animate-pulse-subtle',
-		isUrgent && !isVeryUrgent && 'border-warning/50'
-	);
-
-	if (viewMode === VIEW_MODE.LIST) {
+	if (viewMode === 'list') {
 		return (
-			<Link href={`/jobs/${job.id}`} className='block'>
-				<Card className={cn(cardClasses, 'flex-row items-center p-4')}>
-					<div className='flex-1'>
-						<p className='font-semibold group-hover:text-primary transition-colors'>{job.postNameEn}</p>
-						<p className='text-sm text-muted-foreground'>{job.clientOrganizationNameEn}</p>
-						<div className='flex items-center gap-4 text-xs text-muted-foreground mt-1'>
+			<Card
+				className={cn(
+					'w-full transition-all hover:shadow-md glassmorphism flex flex-col md:flex-row items-start',
+					deadlineColorClass
+				)}
+			>
+				<CardContent className='p-4 flex-1 space-y-2'>
+					<Link
+						href={`/jobs/${job.id}`}
+						className='block text-lg font-bold hover:text-primary transition-colors'
+					>
+						{job.postNameEn}
+					</Link>
+					<div className='flex items-center text-sm text-muted-foreground gap-x-4 gap-y-1 flex-wrap'>
+						<span className='flex items-center gap-1.5'>
+							<Building className='h-4 w-4' /> {job.clientOrganizationNameEn}
+						</span>
+						{job.outsourcingZoneNameEn && (
 							<span className='flex items-center gap-1.5'>
-								<MapPin className='h-3 w-3' /> {job.outsourcingZoneNameEn || 'N/A'}
+								<MapPin className='h-4 w-4' /> {job.outsourcingZoneNameEn}
 							</span>
+						)}
+					</div>
+					<div className='flex items-center text-sm text-muted-foreground gap-x-4 gap-y-1 flex-wrap'>
+						<span className='flex items-center gap-1.5'>
+							<Clock className='h-4 w-4' /> {job.outsourcing ? 'Outsourcing' : 'Permanent'}
+						</span>
+						{(job.salaryFrom || job.salaryTo) && (
 							<span className='flex items-center gap-1.5'>
-								<Briefcase className='h-3 w-3' /> {job.outsourcing ? 'Outsourcing' : 'Permanent'}
+								<DollarSign className='h-4 w-4' /> {job.salaryFrom} - {job.salaryTo}
 							</span>
-						</div>
+						)}
 					</div>
-					<div className='text-right'>
-						<Badge variant={isVeryUrgent ? 'danger' : isUrgent ? 'warning' : 'secondary'}>
-							<Calendar className='mr-1.5 h-3 w-3' />
-							{`Closes in ${daysUntilDeadline} ${daysUntilDeadline === 1 ? 'day' : 'days'}`}
-						</Badge>
-						<p className='text-xs text-muted-foreground mt-1'>
-							Posted on {format(parseISO(job.circularPublishDate), 'dd MMM')}
-						</p>
+				</CardContent>
+				<div className='p-4 flex md:flex-col items-end md:items-center justify-between md:justify-center w-full md:w-auto md:border-l border-t md:border-t-0 space-y-2'>
+					<div className='text-center'>
+						<div className='text-xs text-muted-foreground'>Deadline</div>
+						<div className='font-semibold'>{format(deadline, 'dd MMM, yyyy')}</div>
 					</div>
-				</Card>
-			</Link>
+					<Button asChild size='sm'>
+						<Link href={`/jobs/${job.id}`}>View Details</Link>
+					</Button>
+				</div>
+			</Card>
 		);
 	}
 
 	return (
-		<Link href={`/jobs/${job.id}`} className='block h-full'>
-			<Card className={cardClasses}>
-				<CardContent className='p-6 flex-grow'>
-					<Badge variant={isVeryUrgent ? 'danger' : isUrgent ? 'warning' : 'secondary'} className='mb-3'>
-						<Calendar className='mr-1.5 h-3 w-3' />
-						{`Closes in ${daysUntilDeadline} ${daysUntilDeadline === 1 ? 'day' : 'days'}`}
-					</Badge>
-					<h3 className='font-semibold group-hover:text-primary transition-colors'>{job.postNameEn}</h3>
-					<p className='text-sm text-muted-foreground mt-1'>{job.clientOrganizationNameEn}</p>
-					<div className='mt-4 space-y-2 text-sm text-muted-foreground'>
-						<p className='flex items-center gap-2'>
-							<MapPin className='h-4 w-4' />
-							<span>{job.outsourcingZoneNameEn || 'N/A'}</span>
-						</p>
-						<p className='flex items-center gap-2'>
-							<Briefcase className='h-4 w-4' />
-							<span>{job.outsourcing ? 'Outsourcing' : 'Permanent'}</span>
-						</p>
+		<Link href={`/jobs/${job.id}`}>
+			<Card className={cn('h-full transition-all hover:shadow-lg card-hover glassmorphism', deadlineColorClass)}>
+				<CardContent className='p-4 space-y-3'>
+					<div className='flex justify-between items-start'>
+						<Badge variant='secondary'>{job.outsourcing ? 'Outsourcing' : 'Permanent'}</Badge>
+						<div className='text-xs text-right text-muted-foreground'>
+							<p>Deadline</p>
+							<p>{format(deadline, 'dd MMM, yyyy')}</p>
+						</div>
+					</div>
+					<div>
+						<h3 className='font-bold text-lg leading-tight'>{job.postNameEn}</h3>
+						<p className='text-sm text-muted-foreground'>{job.clientOrganizationNameEn}</p>
+					</div>
+
+					<div className='text-sm text-muted-foreground space-y-1 pt-2 border-t'>
+						{job.outsourcingZoneNameEn && (
+							<span className='flex items-center gap-1.5'>
+								<MapPin className='h-4 w-4' /> {job.outsourcingZoneNameEn}
+							</span>
+						)}
+						{(job.salaryFrom || job.salaryTo) && (
+							<span className='flex items-center gap-1.5'>
+								<DollarSign className='h-4 w-4' /> {job.salaryFrom} - {job.salaryTo}
+							</span>
+						)}
 					</div>
 				</CardContent>
 			</Card>
 		</Link>
 	);
-}
+};
 
 export function JobListings({
 	isPaginated = true,
 	showFilters = true,
-	itemLimit = 12,
-}: {
-	isPaginated?: boolean;
-	showFilters?: boolean;
-	itemLimit?: number;
-}) {
+	itemLimit = 9,
+}: JobListingsProps) {
 	const searchParams = useSearchParams();
-	const router = useRouter();
+	const [jobs, setJobs] = React.useState<ICircular[]>([]);
+	const [outsourcingZones, setOutsourcingZones] = React.useState<ICommonMasterData[]>([]);
+	const [meta, setMeta] = React.useState<IMeta>({
+		page: 0,
+		limit: itemLimit,
+		totalRecords: 0,
+	});
+	const [isLoading, setIsLoading] = React.useState(true);
+	const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid');
 
-	const [jobs, setJobs] = useState<ICircular[]>([]);
-	const [meta, setMeta] = useState<IMeta>({ page: 0, limit: itemLimit });
-	const [isLoading, setIsLoading] = useState(true);
-	const [outsourcingZones, setOutsourcingZones] = useState<IOutsourcingZone[]>([]);
-
-	const [viewMode, setViewMode] = useState(VIEW_MODE.GRID);
-	const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
-	const [zoneFilter, setZoneFilter] = useState(searchParams.get('zone') || 'all');
-	const debouncedSearch = useDebounce(searchQuery, 500);
-
+	const [searchQuery, setSearchQuery] = React.useState('');
+	const [zoneFilter, setZoneFilter] = React.useState('');
 	const form = useForm();
 
-	const loadJobs = useCallback(
-		async (page: number) => {
+	const fetchJobs = React.useCallback(
+		async (page: number, search: string, zoneId: string) => {
 			setIsLoading(true);
-			const params = new URLSearchParams();
-			if (debouncedSearch) params.set('q', debouncedSearch);
-			if (zoneFilter !== 'all') params.set('zone', zoneFilter);
-
-			const payload: IApiRequest = {
-				body: { searchKey: debouncedSearch, outsourcingZoneId: zoneFilter === 'all' ? undefined : zoneFilter },
-				meta: { page, limit: itemLimit },
-			};
-			router.push(`?${params.toString()}`, { scroll: false });
-
 			try {
-				const res = await CircularService.search(payload);
-				setJobs(res.body);
-				setMeta(res.meta);
+				const payload: IApiRequest = {
+					body: {
+						searchKey: search,
+						...(zoneId && zoneId !== 'all' && { outsourcingZoneId: zoneId }),
+					},
+					meta: { page, limit: itemLimit },
+				};
+				const response = await CircularService.search(payload);
+				setJobs(response.body);
+				setMeta(response.meta);
 			} catch (error) {
-				console.error('Failed to load jobs:', error);
+				console.error(error);
 			} finally {
 				setIsLoading(false);
 			}
 		},
-		[debouncedSearch, zoneFilter, itemLimit, router]
+		[itemLimit]
 	);
 
-	useEffect(() => {
-		async function fetchZones() {
-			try {
-				const res = await MasterDataService.outsourcingZone.get();
-				setOutsourcingZones(res.body);
-			} catch (error) {
-				console.error('Failed to fetch zones');
-			}
+	const fetchZones = React.useCallback(async () => {
+		try {
+			const response = await MasterDataService.outsourcingZone.get();
+			setOutsourcingZones(response.body);
+		} catch (error) {
+			console.error('Failed to fetch outsourcing zones', error);
 		}
-		fetchZones();
 	}, []);
 
-	useEffect(() => {
-		loadJobs(0);
-	}, [loadJobs]);
+	React.useEffect(() => {
+		const page = parseInt(searchParams.get('page') || '1', 10) - 1;
+		fetchJobs(page, searchQuery, zoneFilter);
+	}, [searchParams, fetchJobs, searchQuery, zoneFilter]);
 
-	const handlePageChange = (page: number) => {
-		loadJobs(page);
+	React.useEffect(() => {
+		if (showFilters) {
+			fetchZones();
+		}
+	}, [showFilters, fetchZones]);
+
+	const handlePageChange = (newPage: number) => {
+		const params = new URLSearchParams(searchParams.toString());
+		params.set('page', (newPage + 1).toString());
+		window.history.pushState(null, '', `?${params.toString()}`);
+		fetchJobs(newPage, searchQuery, zoneFilter);
 	};
 
-	const gridClasses = cn(
-		'grid gap-6',
-		viewMode === VIEW_MODE.GRID
-			? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-			: 'grid-cols-1'
+	const JobListingSkeleton = () => (
+		<div
+			className={cn(
+				'grid gap-6',
+				viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'
+			)}
+		>
+			{[...Array(itemLimit)].map((_, i) => (
+				<Card key={i}>
+					<CardContent className='p-4 space-y-3'>
+						<div className='flex justify-between'>
+							<Skeleton className='h-5 w-24' />
+							<Skeleton className='h-5 w-16' />
+						</div>
+						<Skeleton className='h-6 w-3/4' />
+						<Skeleton className='h-5 w-1/2' />
+						<div className='pt-2 border-t space-y-2'>
+							<Skeleton className='h-4 w-full' />
+							<Skeleton className='h-4 w-2/3' />
+						</div>
+					</CardContent>
+				</Card>
+			))}
+		</div>
 	);
 
 	return (
 		<div className='space-y-8'>
 			{showFilters && (
-				<Card className='p-4 glassmorphism'>
-					<div className='flex flex-col md:flex-row items-center gap-4'>
-						<div className='relative w-full flex-1'>
-							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-							<Input
-								placeholder='Search by job title or company...'
-								className='pl-10 h-12'
-								value={searchQuery}
-								onChange={(e) => setSearchQuery(e.target.value)}
-							/>
-						</div>
-						<div className='flex items-center gap-2 w-full md:w-auto'>
-							<Form {...form}>
-								<div className='w-full md:w-52'>
-									<FormSelect
-										control={form.control}
-										name='zoneFilter'
-										label=''
-										placeholder='Filter by Zone...'
-										options={[{ id: 'all', nameEn: 'All Zones' }, ...outsourcingZones]}
-										valueKey='id'
-										labelKey='nameEn'
-										onValueChange={(val: any) => setZoneFilter(val as string)}
-										value={zoneFilter}
+				<Form {...form}>
+					<div className='p-4 border rounded-lg bg-card glassmorphism'>
+						<div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 items-end'>
+							<div className='md:col-span-2 lg:col-span-2'>
+								<label htmlFor='search' className='block text-sm font-medium mb-1'>
+									Job Title or Keyword
+								</label>
+								<div className='relative'>
+									<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground' />
+									<Input
+										id='search'
+										type='text'
+										placeholder='Search for jobs...'
+										className='w-full h-11 pl-12 text-base'
+										value={searchQuery}
+										onChange={(e) => setSearchQuery(e.target.value)}
 									/>
 								</div>
-							</Form>
+							</div>
+							<div className='w-full'>
+								<FormSelect
+									control={form.control}
+									name='zone'
+									label='Outsourcing Zone'
+									placeholder='All Zones'
+									options={[{ id: 'all', nameEn: 'All Zones' }, ...outsourcingZones]}
+									valueKey='id'
+									labelKey='nameEn'
+									onValueChange={setZoneFilter}
+								/>
+							</div>
 
-							<div className='bg-background border p-1 rounded-md flex items-center'>
-								<Button
-									variant={viewMode === VIEW_MODE.GRID ? 'secondary' : 'ghost'}
-									size='icon'
-									onClick={() => setViewMode(VIEW_MODE.GRID)}
-								>
-									<Grid className='h-5 w-5' />
-								</Button>
-								<Button
-									variant={viewMode === VIEW_MODE.LIST ? 'secondary' : 'ghost'}
-									size='icon'
-									onClick={() => setViewMode(VIEW_MODE.LIST)}
-								>
-									<List className='h-5 w-5' />
-								</Button>
+							<div className='flex items-end justify-between'>
+								<div className='text-sm font-semibold'>
+									{meta.totalRecords ?? 0} Jobs Found
+								</div>
+								<div className='flex items-center gap-1 border p-1 rounded-md'>
+									<Button
+										variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+										size='icon'
+										onClick={() => setViewMode('grid')}
+										className='h-8 w-8'
+									>
+										<Grid className='h-5 w-5' />
+									</Button>
+									<Button
+										variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+										size='icon'
+										onClick={() => setViewMode('list')}
+										className='h-8 w-8'
+									>
+										<List className='h-5 w-5' />
+									</Button>
+								</div>
 							</div>
 						</div>
 					</div>
-				</Card>
+				</Form>
 			)}
 
-			<div>
-				{showFilters && (
-					<div className='mb-4'>
-						<p className='text-sm text-muted-foreground'>
-							Showing <span className='font-bold text-foreground'>{meta.totalRecords || 0}</span> job
-							openings
-						</p>
-					</div>
-				)}
-				{isLoading ? (
-					<div className={gridClasses}>
-						{[...Array(itemLimit)].map((_, i) => (
-							<Skeleton key={i} className='h-48 rounded-lg' />
-						))}
-					</div>
-				) : jobs.length > 0 ? (
-					<div className={gridClasses}>
+			{isLoading ? (
+				<JobListingSkeleton />
+			) : jobs.length > 0 ? (
+				<>
+					<div
+						className={cn(
+							'grid gap-6',
+							viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'
+						)}
+					>
 						{jobs.map((job) => (
 							<JobCard key={job.id} job={job} viewMode={viewMode} />
 						))}
 					</div>
-				) : (
-					<div className='text-center py-16 border rounded-lg bg-background'>
-						<Search className='mx-auto h-12 w-12 text-muted-foreground' />
-						<h3 className='mt-4 text-lg font-semibold'>No Jobs Found</h3>
-						<p className='mt-2 text-sm text-muted-foreground'>
-							Try adjusting your search or filters to find what you&apos;re looking for.
-						</p>
-					</div>
-				)}
-			</div>
-
-			{isPaginated && meta && meta.totalRecords! > itemLimit && (
-				<div className='flex justify-center'>
-					<Pagination meta={meta} onPageChange={handlePageChange} noun='job' />
+					{isPaginated && meta.totalRecords && meta.totalRecords > itemLimit && (
+						<Pagination meta={meta} onPageChange={handlePageChange} noun='Job' />
+					)}
+				</>
+			) : (
+				<div className='text-center py-16'>
+					<h3 className='text-xl font-semibold'>No Jobs Found</h3>
+					<p className='text-muted-foreground mt-2'>
+						Your search did not match any job listings. Try different keywords or filters.
+					</p>
 				</div>
 			)}
 		</div>
