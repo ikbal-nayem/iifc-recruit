@@ -114,7 +114,7 @@ export default async function JobDetailsPage({
 							</div>
 							<div>
 								<h3 className='font-semibold text-lg mb-2'>Responsibilities</h3>
-								<ul className='ml-2 list-disc list-inside text-muted-foreground space-y-1 whitespace-pre-wrap'>
+								<ul className='ml-4 list-disc list-inside text-muted-foreground space-y-1 whitespace-pre-wrap'>
 									{job.jobResponsibilities?.split('\n').map((r, i) => (
 										<li key={i}>{r}</li>
 									))}
@@ -122,7 +122,7 @@ export default async function JobDetailsPage({
 							</div>
 							<div>
 								<h3 className='font-semibold text-lg mb-2'>Requirements</h3>
-								<ul className='ml-2 list-disc list-inside text-muted-foreground space-y-1 whitespace-pre-wrap'>
+								<ul className='ml-4 list-disc list-inside text-muted-foreground space-y-1 whitespace-pre-wrap'>
 									{job.jobRequirements.split('\n').map((r, i) => (
 										<li key={i}>{r}</li>
 									))}
