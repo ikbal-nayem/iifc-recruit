@@ -11,7 +11,7 @@ import { format, parseISO } from 'date-fns';
 import { ArrowLeft, Briefcase, Clock, DollarSign, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { Suspense, use, useCallback, useEffect, useState } from 'react';
 import { JobDetailClient } from '../../../../components/app/jobseeker/job-detail-client';
 
 function JobDetailsLoading() {
@@ -50,7 +50,8 @@ export default function JobDetailsPage({ params }: { params: { id: string } }) {
 	);
 }
 
-function JobDetailsContent({ params }: { params: { id: string } }) {
+async function JobDetailsContent({ params }: { params: { id: string } }) {
+	const aParams = await params;
 	const searchParams = useSearchParams();
 	const [job, setJob] = useState<ICircular | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
@@ -58,14 +59,14 @@ function JobDetailsContent({ params }: { params: { id: string } }) {
 	const getJobDetails = useCallback(async () => {
 		setIsLoading(true);
 		try {
-			const res = await CircularService.getDetails(params.id);
+			const res = await CircularService.getDetails(aParams.id);
 			setJob(res.body);
 		} catch (error: any) {
 			toast.error({ description: error.message || 'Failed to load job details.' });
 		} finally {
 			setIsLoading(false);
 		}
-	}, [params.id]);
+	}, []);
 
 	useEffect(() => {
 		getJobDetails();
