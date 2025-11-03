@@ -1,4 +1,3 @@
-
 'use client';
 
 import { PersonalInfoMasterData } from '@/app/(auth)/jobseeker/profile-edit/page';
@@ -12,19 +11,21 @@ import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/auth-context';
+import useLoader from '@/hooks/use-loader';
+import { toast, useToast } from '@/hooks/use-toast';
 import { IApiResponse, IFile } from '@/interfaces/common.interface';
 import { PersonalInfo } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
+import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Linkedin, Loader2, Mail, Phone, Save, Upload, Video } from 'lucide-react';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { UserService } from '@/services/api/user.service';
 
 const profileImageSchema = z.object({
 	avatarFile: z
@@ -48,9 +49,9 @@ function ProfileImageCard({
 	firstName?: string;
 	lastName?: string;
 }) {
-	const { toast } = useToast();
 	const [avatarPreview, setAvatarPreview] = React.useState<string | null>(null);
-	const [isSubmitting, setIsSubmitting] = React.useState(false);
+	const [isSubmitting, setIsSubmitting] = useLoader(false);
+	const { updateUserInfo } = useAuth();
 
 	const form = useForm<ProfileImageFormValues>({
 		resolver: zodResolver(profileImageSchema),
@@ -77,23 +78,20 @@ function ProfileImageCard({
 
 		UserService.saveProfileImage(formData)
 			.then((res) => {
-				toast({
+				toast.success({
 					title: 'Photo Updated',
 					description: res.message || 'Your new profile photo has been saved.',
-					variant: 'success',
 				});
+				updateUserInfo({ profileImage: res.body });
 				form.reset();
 			})
 			.catch((err) => {
-				toast({
+				toast.error({
 					title: 'Upload Failed',
 					description: err.message || 'There was a problem uploading your photo.',
-					variant: 'danger',
 				});
 			})
-			.finally(() => {
-				setIsSubmitting(false);
-			});
+			.finally(() => setIsSubmitting(false));
 	};
 
 	return (
@@ -102,7 +100,10 @@ function ProfileImageCard({
 				<form onSubmit={form.handleSubmit(onImageSubmit)}>
 					<div className='flex items-center gap-6'>
 						<Avatar className='h-28 w-28 border-2 border-primary/10'>
-							<AvatarImage src={avatarPreview || makePreviewURL(profileImage?.filePath) || '/user-placeholder.png'} alt='Admin Avatar' />
+							<AvatarImage
+								src={avatarPreview || makePreviewURL(profileImage?.filePath) || '/user-placeholder.png'}
+								alt='Admin Avatar'
+							/>
 							<AvatarFallback className='text-3xl'>
 								{firstName?.[0]}
 								{lastName?.[0]}
@@ -178,8 +179,8 @@ const personalInfoSchema = z.object({
 	permanentUpazilaId: z.coerce.string().optional(),
 	permanentAddress: z.string().optional(),
 	permanentPostCode: z.coerce.number().optional(),
-	linkedInProfile: z.string().url().optional().or(z.literal('')),
-	videoProfile: z.string().url().optional().or(z.literal('')),
+	linkedInProfile: z.string().url('Provide a valid LinkedIn profile URL').optional().or(z.literal('')),
+	videoProfile: z.string().url('Provide a valid YouTube video URL').optional().or(z.literal('')),
 });
 
 type PersonalInfoFormValues = z.infer<typeof personalInfoSchema>;
@@ -525,7 +526,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 													placeholder='Select division'
 													disabled={watchSameAsPresent}
 													options={masterData.divisions}
-													getOptionLabel={(option) => option.name}
+													getOptionLabel={(option) => option.nameEn}
 													getOptionValue={(option) => option.id}
 												/>
 												<FormSelect
@@ -535,7 +536,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 													placeholder='Select district'
 													disabled={watchSameAsPresent || isLoadingPermanentDistricts}
 													options={permanentDistricts}
-													getOptionLabel={(option) => option.name}
+													getOptionLabel={(option) => option.nameEn}
 													getOptionValue={(option) => option.id}
 												/>
 												<FormSelect
@@ -545,7 +546,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 													placeholder='Select upazila'
 													disabled={watchSameAsPresent || isLoadingPermanentUpazilas}
 													options={permanentUpazilas}
-													getOptionLabel={(option) => option.name}
+													getOptionLabel={(option) => option.nameEn}
 													getOptionValue={(option) => option.id}
 												/>
 											</div>

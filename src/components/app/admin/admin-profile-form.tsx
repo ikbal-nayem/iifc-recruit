@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -6,9 +5,12 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/contexts/auth-context';
+import useLoader from '@/hooks/use-loader';
 import { useToast } from '@/hooks/use-toast';
+import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Mail, Phone, Save, Upload } from 'lucide-react';
+import { Loader2, Mail, Phone, Save } from 'lucide-react';
 import Image from 'next/image';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
@@ -19,10 +21,10 @@ const profileImageSchema = z.object({
 		.any()
 		.refine((file) => !!file, 'Please select an image.')
 		.refine(
-			(file) => ['image/jpeg', 'image/png', 'image/gif'].includes(file?.type),
-			'Only .jpg, .png, and .gif formats are supported.'
+			(file) => ['image/jpeg', 'image/png'].includes(file?.type),
+			'Only .jpg and .png formats are supported.'
 		)
-		.refine((file) => file?.size <= 10 * 1024 * 1024, `Max file size is 10MB.`),
+		.refine((file) => file?.size <= 2 * 1024 * 1024, `Max file size is 2MB.`),
 });
 
 type ProfileImageFormValues = z.infer<typeof profileImageSchema>;
@@ -30,6 +32,8 @@ type ProfileImageFormValues = z.infer<typeof profileImageSchema>;
 function ProfileImageCard({ avatar }: { avatar: string }) {
 	const { toast } = useToast();
 	const [avatarPreview, setAvatarPreview] = React.useState<string | null>(avatar);
+	const [isSubmitting, setIsSubmitting] = useLoader(false);
+	const { updateUserInfo } = useAuth();
 
 	const form = useForm<ProfileImageFormValues>({
 		resolver: zodResolver(profileImageSchema),
@@ -48,13 +52,26 @@ function ProfileImageCard({ avatar }: { avatar: string }) {
 	};
 
 	const onImageSubmit = (data: ProfileImageFormValues) => {
-		console.log('New avatar file:', data.avatarFile);
-		toast({
-			title: 'Photo Updated',
-			description: 'Your new profile photo has been saved.',
-			variant: 'success',
-		});
-		// Here you would typically upload the file and then update the UI
+		setIsSubmitting(true);
+		const formData = new FormData();
+		formData.append('file', data.avatarFile);
+
+		UserService.saveProfileImage(formData)
+			.then((res) => {
+				toast.success({
+					title: 'Photo Updated',
+					description: res.message || 'Your new profile photo has been saved.',
+				});
+				updateUserInfo({ profileImage: res.body });
+				form.reset();
+			})
+			.catch((err) => {
+				toast.error({
+					title: 'Upload Failed',
+					description: err.message || 'There was a problem uploading your photo.',
+				});
+			})
+			.finally(() => setIsSubmitting(false));
 	};
 
 	return (
@@ -79,10 +96,7 @@ function ProfileImageCard({ avatar }: { avatar: string }) {
 								name='avatarFile'
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel
-											htmlFor='avatar-upload'
-											className='font-normal text-sm text-muted-foreground'
-										>
+										<FormLabel htmlFor='avatar-upload' className='font-normal text-sm text-muted-foreground'>
 											<Button asChild variant='outline'>
 												<span>Choose Photo</span>
 											</Button>
@@ -95,7 +109,7 @@ function ProfileImageCard({ avatar }: { avatar: string }) {
 													onChange={handleFileChange}
 												/>
 											</FormControl>
-											<p className='text-xs pt-2'>PNG, JPG, GIF up to 10MB</p>
+											<p className='text-xs pt-2'>PNG, JPG, GIF up to 2MB</p>
 										</FormLabel>
 										<FormMessage />
 									</FormItem>
@@ -104,7 +118,8 @@ function ProfileImageCard({ avatar }: { avatar: string }) {
 						</div>
 					</CardContent>
 					<CardFooter>
-						<Button type='submit' disabled={!form.formState.isDirty}>
+						<Button type='submit' disabled={!form.formState.isDirty || isSubmitting}>
+							{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
 							Save Photo
 						</Button>
 					</CardFooter>
@@ -166,8 +181,20 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
 						</CardHeader>
 						<CardContent className='space-y-6'>
 							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-								<FormInput control={form.control} name='firstName' label='First Name' placeholder='e.g. John' required />
-								<FormInput control={form.control} name='lastName' label='Last Name' placeholder='e.g. Doe' required />
+								<FormInput
+									control={form.control}
+									name='firstName'
+									label='First Name'
+									placeholder='e.g. John'
+									required
+								/>
+								<FormInput
+									control={form.control}
+									name='lastName'
+									label='Last Name'
+									placeholder='e.g. Doe'
+									required
+								/>
 							</div>
 
 							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>

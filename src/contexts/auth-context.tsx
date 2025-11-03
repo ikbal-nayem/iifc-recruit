@@ -13,6 +13,7 @@ import { createContext, ReactNode, useContext, useEffect, useState } from 'react
 
 interface AuthContextType {
 	currectUser: IUser | null;
+	updateUserInfo: (updatedUser: Partial<IUser>) => void;
 	authInfo: IAuthInfo | null;
 	isAuthenticated: boolean;
 	isLoading: boolean;
@@ -55,14 +56,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 					setUser(userProfileRes.body);
 				} catch (error) {
 					console.error('Failed to fetch user profile on load', error);
-					logout(); // Log out if session is invalid
+					logout();
 				}
 			}
 			setIsLoading(false);
 		};
 
 		loadUserFromStorage();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const login = async (username: string, password: string) => {
@@ -97,10 +97,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		}
 	};
 
+	const updateUserInfo = (updatedUser: Partial<IUser>) => {
+		setUser(prev => ({ ...prev, ...updatedUser}) as IUser);
+	};
+
+
 	return (
 		<AuthContext.Provider
 			value={{
 				currectUser: user,
+				updateUserInfo,
 				authInfo,
 				isAuthenticated: !!user,
 				isLoading,
