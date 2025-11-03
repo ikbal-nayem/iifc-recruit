@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { useDebounce } from '@/hooks/use-debounce';
-import { IApiRequest, IMeta, IObject } from '@/interfaces/common.interface';
+import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { ICircular } from '@/interfaces/job.interface';
 import { cn } from '@/lib/utils';
 import { CircularService } from '@/services/api/circular.service';
@@ -37,11 +37,8 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 		async (page: number, search: string) => {
 			setIsLoading(true);
 			try {
-				const body: IObject = {
-					nameEn: search,
-				};
 				const payload: IApiRequest = {
-					body,
+					body: { searchKey: search },
 					meta: { page: page, limit: itemLimit },
 				};
 				const response = await CircularService.search(payload);
