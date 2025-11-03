@@ -144,7 +144,12 @@ export function MyApplications() {
 					<Badge variant={getStatusVariant(application.status)}>{application.statusDTO.nameEn}</Badge>
 				</div>
 				<div className='pt-2'>
-					<Button variant='outline' size='sm' className='w-full' onClick={() => setSelectedJobId(application.requestedPostId)}>
+					<Button
+						variant='outline'
+						size='sm'
+						className='w-full'
+						onClick={() => setSelectedJobId(application.requestedPostId)}
+					>
 						<Eye className='h-4 w-4 mr-2' /> View Details
 					</Button>
 				</div>
@@ -234,10 +239,10 @@ export function MyApplications() {
 					<Pagination meta={meta} isLoading={isLoading} onPageChange={handlePageChange} noun='application' />
 				</div>
 			)}
-			
+
 			<Dialog open={!!selectedJobId} onOpenChange={(isOpen) => !isOpen && setSelectedJobId(null)}>
 				<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto p-0'>
-					<JobCircularDetails circularId={selectedJobId!} />
+					<JobCircularDetails circularId={selectedJobId!} isReadOnly={true} />
 				</DialogContent>
 			</Dialog>
 		</div>
