@@ -1,8 +1,8 @@
-
 'use client';
 
 import {
 	ColumnDef,
+	createColumnHelper,
 	flexRender,
 	getCoreRowModel,
 	getPaginationRowModel,
@@ -19,19 +19,18 @@ import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { Application } from '@/interfaces/application.interface';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { ApplicationService } from '@/services/api/application.service';
 import { format } from 'date-fns';
 import { Eye } from 'lucide-react';
-import { JobCircularDetails } from '../../public/job-circular-details';
+import { JobCircularDetails } from '../public/job-circular-details';
 
-const initMeta: IMeta = { page: 0, limit: 10 };
+const initMeta: IMeta = { page: 0, limit: 20 };
 
 export function MyApplications() {
-	const { toast } = useToast();
 	const [data, setData] = React.useState<Application[]>([]);
 	const [meta, setMeta] = React.useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = React.useState(true);
@@ -48,16 +47,14 @@ export function MyApplications() {
 				setData(response.body);
 				setMeta(response.meta);
 			} catch (error: any) {
-				toast({
-					title: 'Error',
+				toast.error({
 					description: error.message || 'Failed to load your applications.',
-					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit, toast]
+		[meta.limit]
 	);
 
 	React.useEffect(() => {
@@ -105,10 +102,16 @@ export function MyApplications() {
 		},
 		{
 			id: 'actions',
+			size: 50,
 			cell: ({ row }) => {
 				return (
-					<Button variant='ghost' size='sm' onClick={() => setSelectedJobId(row.original.requestedPostId)}>
-						<Eye className='h-4 w-4 mr-2' /> View
+					<Button
+						size='icon'
+						variant="lite-success"
+						className='float-end'
+						onClick={() => setSelectedJobId(row.original.requestedPostId)}
+					>
+						<Eye className='h-4 w-4' />
 					</Button>
 				);
 			},
