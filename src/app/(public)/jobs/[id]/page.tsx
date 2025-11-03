@@ -1,7 +1,7 @@
-
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { IObject } from '@/interfaces/common.interface';
 import { ICircular } from '@/interfaces/job.interface';
 import { CircularService } from '@/services/api/circular.service';
 import { format, parseISO } from 'date-fns';
@@ -16,7 +16,6 @@ async function getJobDetails(id: string): Promise<ICircular | null> {
 		return res.body;
 	} catch (error) {
 		console.error('Failed to load job details:', error);
-		// Return null to be handled by the component
 		return null;
 	}
 }
@@ -25,20 +24,23 @@ export default async function JobDetailsPage({
 	params,
 	searchParams,
 }: {
-	params: { id: string };
-	searchParams: { [key: string]: string | string[] | undefined };
+	params: Promise<{ id: string }>;
+	searchParams: Promise<IObject>;
 }) {
-	const job = await getJobDetails(params.id);
+	const aParams = await params;
+	const aSearchParams = await searchParams;
+
+	const job = await getJobDetails(aParams.id);
 
 	if (!job) {
 		notFound();
 	}
 
-	const queryParams = new URLSearchParams(searchParams as Record<string, string>);
+	const queryParams = new URLSearchParams(aSearchParams as Record<string, string>);
 	const backUrl = `/jobs?${queryParams.toString()}`;
 
 	return (
-		<div className='container mx-auto px-4 py-16'>
+		<div className='container mx-auto px-4 py-5'>
 			<div className='mb-6'>
 				<Button variant='outline' asChild>
 					<Link href={backUrl}>
@@ -94,7 +96,7 @@ export default async function JobDetailsPage({
 							<div>
 								<h3 className='font-semibold text-lg mb-2'>Responsibilities</h3>
 								<ul className='list-disc list-inside text-muted-foreground space-y-1 whitespace-pre-wrap'>
-									{job.jobResponsibilities.split('\n').map((r, i) => (
+									{job.jobResponsibilities?.split('\n').map((r, i) => (
 										<li key={i}>{r}</li>
 									))}
 								</ul>
