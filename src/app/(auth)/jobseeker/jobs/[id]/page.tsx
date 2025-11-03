@@ -1,95 +1,119 @@
 
-
-'use client';
-
-import { Suspense } from 'react';
-import { jobs as allJobs } from '@/lib/data';
-import { notFound, useSearchParams } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, MapPin, Clock, Building, DollarSign, Calendar, ArrowLeft } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { IObject } from '@/interfaces/common.interface';
+import { ICircular } from '@/interfaces/job.interface';
+import { CircularService } from '@/services/api/circular.service';
+import clsx from 'clsx';
+import { format, isPast, parseISO } from 'date-fns';
+import { ArrowLeft, Briefcase, DollarSign, MapPin } from 'lucide-react';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { JobApplicationClient } from '@/components/app/jobseeker/job-application-client';
-import JobseekerJobDetailsLoading from './loading';
 
-export default function JobDetailsPage({ params }: { params: { id: string } }) {
-  return (
-    <Suspense fallback={<JobseekerJobDetailsLoading />}>
-      <JobDetailsContent params={params} />
-    </Suspense>
-  );
+async function getJobDetails(id: string): Promise<ICircular | null> {
+	try {
+		const res = await CircularService.getDetails(id);
+		return res.body;
+	} catch (error) {
+		console.error('Failed to load job details:', error);
+		return null;
+	}
 }
 
-function JobDetailsContent({ params }: { params: { id: string } }) {
-	const searchParams = useSearchParams();
-	const job = allJobs.find((j) => j.id === params?.id);
+export default async function JobDetailsPage({
+	params,
+	searchParams,
+}: {
+	params: { id: string };
+	searchParams: IObject;
+}) {
+	const job = await getJobDetails(params.id);
 
 	if (!job) {
 		notFound();
 	}
-	
-	const queryParams = new URLSearchParams(searchParams.toString());
-    const backUrl = `/jobseeker/find-job?${queryParams.toString()}`;
+
+	const queryParams = new URLSearchParams(searchParams as Record<string, string>);
+	const backUrl = `/jobseeker/find-job?${queryParams.toString()}`;
+
+	const deadline = parseISO(job.circularEndDate);
+	const today = new Date();
+	const daysUntilDeadline = Math.ceil((deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
 	return (
 		<div className='container mx-auto px-4 py-8'>
-            <div className="mb-6">
-                <Button variant="outline" asChild>
-                    <Link href={backUrl}>
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to Listings
-                    </Link>
-                </Button>
-            </div>
+			<div className='mb-6'>
+				<Button variant='outline' asChild>
+					<Link href={backUrl}>
+						<ArrowLeft className='mr-2 h-4 w-4' />
+						Back to Listings
+					</Link>
+				</Button>
+			</div>
 			<div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
 				<div className='lg:col-span-3'>
 					<Card className='glassmorphism'>
 						<CardHeader>
 							<div className='flex justify-between items-start gap-4'>
 								<div className='flex-1'>
-									<CardTitle className='font-headline text-3xl'>{job.title}</CardTitle>
+									<CardTitle className='font-headline text-3xl'>{job.postNameEn}</CardTitle>
 									<CardDescription className='flex flex-wrap items-center gap-x-4 gap-y-2 pt-4'>
 										<span className='flex items-center gap-2'>
-											<Briefcase className='h-4 w-4' /> {job.department}
+											<Briefcase className='h-4 w-4' /> {job.clientOrganizationNameEn}
 										</span>
-										<span className='flex items-center gap-2'>
-											<MapPin className='h-4 w-4' /> {job.location}
-										</span>
-										<span className='flex items-center gap-2'>
-											<Clock className='h-4 w-4' /> {job.type}
-										</span>
-										<span className='flex items-center gap-2'>
-											<DollarSign className='h-4 w-4' /> {job.salaryRange}
-										</span>
+										{job.outsourcingZoneNameEn && (
+											<span className='flex items-center gap-2'>
+												<MapPin className='h-4 w-4' /> {job.outsourcingZoneNameEn}
+											</span>
+										)}
+										{(job.salaryFrom || job.salaryTo) && (
+											<span className='flex items-center gap-2'>
+												<DollarSign className='h-4 w-4' />
+												{job.salaryFrom}
+												{job.salaryTo ? ` - ${job.salaryTo}` : ''}
+											</span>
+										)}
 									</CardDescription>
 								</div>
 								<div className='flex-shrink-0'>
-									<JobApplicationClient jobTitle={job.title} />
+									{!job.applied && !isPast(deadline) && (
+										<JobApplicationClient jobTitle={job.postNameEn} jobId={job.id} />
+									)}
+									{job.applied && <Badge variant='success'>Applied</Badge>}
 								</div>
 							</div>
 						</CardHeader>
 						<CardContent className='space-y-6'>
 							<div className='flex items-center gap-4 text-sm'>
-								<Badge variant='secondary'>Posted: {job.postedDate}</Badge>
-								<Badge variant='danger'>Deadline: {job.applicationDeadline}</Badge>
+								<Badge variant='secondary'>
+									Posted: {format(parseISO(job.circularPublishDate), 'dd MMM, yyyy')}
+								</Badge>
+								<Badge
+									variant={
+										daysUntilDeadline <= 3 ? 'danger' : daysUntilDeadline <= 7 ? 'warning' : 'secondary'
+									}
+								>
+									Deadline: {format(deadline, 'dd MMM, yyyy')}
+								</Badge>
 							</div>
 							<div>
 								<h3 className='font-semibold text-lg mb-2'>Job Description</h3>
-								<p className='text-muted-foreground'>{job.description}</p>
+								<p className='text-muted-foreground whitespace-pre-wrap'>{job.jobDescription}</p>
 							</div>
 							<div>
 								<h3 className='font-semibold text-lg mb-2'>Responsibilities</h3>
-								<ul className='list-disc list-inside text-muted-foreground space-y-1'>
-									{job.responsibilities.map((r, i) => (
+								<ul className='list-disc list-inside text-muted-foreground space-y-1 whitespace-pre-wrap'>
+									{job.jobResponsibilities?.split('\n').map((r, i) => (
 										<li key={i}>{r}</li>
 									))}
 								</ul>
 							</div>
 							<div>
 								<h3 className='font-semibold text-lg mb-2'>Requirements</h3>
-								<ul className='list-disc list-inside text-muted-foreground space-y-1'>
-									{job.requirements.map((r, i) => (
+								<ul className='list-disc list-inside text-muted-foreground space-y-1 whitespace-pre-wrap'>
+									{job.jobRequirements.split('\n').map((r, i) => (
 										<li key={i}>{r}</li>
 									))}
 								</ul>
