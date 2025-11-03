@@ -2,9 +2,8 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ICircular } from '@/interfaces/job.interface';
-import { cn } from '@/lib/utils';
 import { differenceInDays, format, parseISO } from 'date-fns';
 import { Building, CalendarDays, MapPin } from 'lucide-react';
 import Link from 'next/link';
