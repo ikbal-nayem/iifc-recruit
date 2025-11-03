@@ -1,25 +1,24 @@
-
 'use client';
 
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { FormSelect } from '@/components/ui/form-select';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Pagination } from '@/components/ui/pagination';
+import { useDebounce } from '@/hooks/use-debounce';
+import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { ICircular } from '@/interfaces/job.interface';
 import { IOutsourcingZone } from '@/interfaces/master-data.interface';
+import { cn } from '@/lib/utils';
 import { CircularService } from '@/services/api/circular.service';
 import { MasterDataService } from '@/services/api/master-data.service';
-import { cn } from '@/lib/utils';
-import { useDebounce } from '@/hooks/use-debounce';
-import { useToast } from '@/hooks/use-toast';
-import { format, isBefore, differenceInDays, parseISO } from 'date-fns';
-import { Briefcase, Building, Calendar, Clock, LayoutGrid, List, Loader2, MapPin, Search } from 'lucide-react';
+import { differenceInDays, format, isBefore, parseISO } from 'date-fns';
+import { Briefcase, Clock, LayoutGrid, List, MapPin, Search } from 'lucide-react';
 import Link from 'next/link';
 import * as React from 'react';
 import { Form, useForm } from 'react-hook-form';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Pagination } from '@/components/ui/pagination';
-import { FormSelect } from '@/components/ui/form-select';
-import { Label } from '@/components/ui/label';
 
 interface JobListingsProps {
 	isPaginated?: boolean;
@@ -97,10 +96,10 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 		const cardBorderColor = isExpired
 			? 'border-slate-300'
 			: daysUntilDeadline <= 3
-			  ? 'border-danger animate-pulse-subtle'
-			  : daysUntilDeadline <= 7
-			    ? 'border-warning'
-			    : 'border-transparent';
+			? 'border-danger animate-pulse-subtle'
+			: daysUntilDeadline <= 7
+			? 'border-warning'
+			: 'border-transparent';
 
 		return (
 			<Link href={`/jobs/${job.id}`} className='h-full'>
@@ -113,7 +112,9 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 				>
 					<div className={cn('p-6 flex-1', viewMode === 'list' && 'md:border-r')}>
 						<div className='flex justify-between items-start'>
-							<h3 className='font-bold text-lg group-hover:text-primary transition-colors'>{job.postNameEn}</h3>
+							<h3 className='font-bold text-lg group-hover:text-primary transition-colors'>
+								{job.postNameEn}
+							</h3>
 						</div>
 						<p className='text-sm text-muted-foreground mt-1'>{job.clientOrganizationNameEn}</p>
 
@@ -152,19 +153,17 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 										isExpired
 											? 'text-slate-500'
 											: daysUntilDeadline <= 3
-											  ? 'text-danger'
-											  : daysUntilDeadline <= 7
-											    ? 'text-warning'
-											    : ''
+											? 'text-danger'
+											: daysUntilDeadline <= 7
+											? 'text-warning'
+											: ''
 									)}
 								>
 									{format(deadline, 'dd MMM, yyyy')}
 								</p>
 							</div>
 						</div>
-						<Button className='w-full'>
-							{isExpired ? 'View Details' : 'Apply Now'}
-						</Button>
+						<Button className='w-full'>{isExpired ? 'View Details' : 'Apply Now'}</Button>
 					</div>
 				</Card>
 			</Link>
@@ -204,9 +203,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 							</div>
 						</div>
 						<div className='flex-shrink-0 flex items-center justify-between w-full md:w-auto'>
-							<p className='text-sm font-medium md:hidden'>
-								{meta.totalRecords ?? 0} jobs found
-							</p>
+							<p className='text-sm font-medium md:hidden'>{meta.totalRecords ?? 0} jobs found</p>
 							<div className='flex items-center gap-2'>
 								<Button
 									variant={viewMode === 'grid' ? 'default' : 'outline'}
@@ -225,19 +222,12 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 							</div>
 						</div>
 					</div>
-					<p className='hidden md:block text-sm font-medium mt-2'>
-						{meta.totalRecords ?? 0} jobs found
-					</p>
+					<p className='hidden md:block text-sm font-medium mt-2'>{meta.totalRecords ?? 0} jobs found</p>
 				</Form>
 			)}
 
 			{isLoading ? (
-				<div
-					className={cn(
-						'grid gap-6',
-						viewMode === 'grid' && 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-					)}
-				>
+				<div className={cn('grid gap-6', viewMode === 'grid' && 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3')}>
 					{[...Array(itemLimit)].map((_, i) => (
 						<Card key={i} className='h-60 animate-pulse bg-muted/50'></Card>
 					))}
@@ -246,10 +236,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 				<>
 					{jobs.length > 0 ? (
 						<div
-							className={cn(
-								'grid gap-6',
-								viewMode === 'grid' && 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-							)}
+							className={cn('grid gap-6', viewMode === 'grid' && 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3')}
 						>
 							{jobs.map((job) => (
 								<JobCard key={job.id} job={job} />
