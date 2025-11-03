@@ -1,83 +1,92 @@
-
-
 'use client';
 
-import * as React from 'react';
-import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-import { Send } from 'lucide-react';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { FormFileUpload } from '@/components/ui/form-file-upload';
-import { Form } from '@/components/ui/form';
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2, Send } from 'lucide-react';
+import * as React from 'react';
+import { ApplicationService } from '@/services/api/application.service';
+import { useAuth } from '@/contexts/auth-context';
 
-const applicationSchema = z.object({
-    coverLetter: z.any().optional(),
-});
+export function JobApplicationClient({ jobTitle, jobId }: { jobTitle: string; jobId: string }) {
+	const { toast } = useToast();
+	const { currectUser } = useAuth();
+	const [isApplying, setIsApplying] = React.useState(false);
+	const [isApplied, setIsApplied] = React.useState(false);
 
-type ApplicationFormValues = z.infer<typeof applicationSchema>;
+	const handleApply = async () => {
+		if (!currectUser?.id) {
+			toast({
+				title: 'Error',
+				description: 'Could not identify the user. Please log in again.',
+				variant: 'danger',
+			});
+			return;
+		}
 
-export function JobApplicationClient({ jobTitle }: { jobTitle: string }) {
-  const { toast } = useToast();
-  
-  const form = useForm<ApplicationFormValues>({
-    resolver: zodResolver(applicationSchema),
-  });
+		setIsApplying(true);
+		try {
+			await ApplicationService.apply({
+				applicantId: currectUser.id,
+				requestedPostId: jobId,
+			});
+			toast({
+				title: 'Application Submitted!',
+				description: `Your application for the ${jobTitle} position has been sent.`,
+				variant: 'success',
+			});
+			setIsApplied(true);
+		} catch (error: any) {
+			toast({
+				title: 'Application Failed',
+				description: error.message || 'There was a problem submitting your application.',
+				variant: 'danger',
+			});
+		} finally {
+			setIsApplying(false);
+		}
+	};
 
-  const handleApply = (data: ApplicationFormValues) => {
-    // In a real app, you would handle the file upload here.
-    console.log('Applying with cover letter:', data.coverLetter?.name);
-    toast({
-      title: 'Application Submitted!',
-      description: `Your application for the ${jobTitle} position has been sent.`,
-      variant: 'success',
-    });
-    form.reset(); // Reset after submission
-  };
-
-
-  return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button>
-          <Send className="mr-2 h-4 w-4" />
-          Apply Now
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Apply for {jobTitle}</AlertDialogTitle>
-          <AlertDialogDescription>
-            You can optionally attach a cover letter (PDF) to your application. Your default profile will be submitted.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleApply)} className="space-y-4 py-4">
-                <FormFileUpload
-                    control={form.control}
-                    name="coverLetter"
-                    label="Cover Letter (Optional PDF)"
-                    accept=".pdf"
-                />
-                 <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction type="submit">Confirm & Apply</AlertDialogAction>
-                </AlertDialogFooter>
-            </form>
-        </Form>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
+	return (
+		<AlertDialog>
+			<AlertDialogTrigger asChild>
+				<Button disabled={isApplied}>
+					{isApplied ? (
+						'Applied'
+					) : (
+						<>
+							<Send className='mr-2 h-4 w-4' />
+							Apply Now
+						</>
+					)}
+				</Button>
+			</AlertDialogTrigger>
+			<AlertDialogContent>
+				<AlertDialogHeader>
+					<AlertDialogTitle>Confirm Application</AlertDialogTitle>
+					<AlertDialogDescription>
+						You are about to apply for the position of <strong>{jobTitle}</strong>. Your primary resume and
+						profile will be submitted. Are you sure you want to proceed?
+					</AlertDialogDescription>
+				</AlertDialogHeader>
+				<AlertDialogFooter>
+					<AlertDialogCancel disabled={isApplying}>Cancel</AlertDialogCancel>
+					<AlertDialogAction onClick={handleApply} disabled={isApplying}>
+						{isApplying && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+						Confirm & Apply
+					</AlertDialogAction>
+				</AlertDialogFooter>
+			</AlertDialogContent>
+		</AlertDialog>
+	);
 }

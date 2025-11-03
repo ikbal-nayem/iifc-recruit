@@ -17,4 +17,7 @@ export const ApplicationService = {
 
 	updateAll: async (payload: IObject[]): Promise<IApiResponse<Application[]>> =>
 		await axiosIns.put('/application/update-all', payload),
+
+	apply: async (payload: { applicantId: string; requestedPostId: string }): Promise<IApiResponse<any>> =>
+		await axiosIns.post('/application/apply', payload),
 };
