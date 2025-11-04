@@ -5,6 +5,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
+import { Label } from './label';
 
 interface FormSelectProps<TFieldValues extends FieldValues, TOption> {
 	control?: Control<TFieldValues | any>;
@@ -70,10 +71,10 @@ export function FormSelect<TFieldValues extends FieldValues, TOption>({
 
 	if (!control) {
 		return (
-			<FormItem>
-				{!!label && <FormLabel required={required}>{label}</FormLabel>}
+			<div className='space-y-2'>
+				{!!label && <Label required={required}>{label}</Label>}
 				{renderSelect()}
-			</FormItem>
+			</div>
 		);
 	}
 
