@@ -53,11 +53,9 @@ export function FormSelect<TFieldValues extends FieldValues, TOption>({
 				disabled={disabled}
 				{...props}
 			>
-				<FormControl>
-					<SelectTrigger className={cn(!currentValue && 'text-muted-foreground')}>
-						<SelectValue placeholder={placeholder} />
-					</SelectTrigger>
-				</FormControl>
+				<SelectTrigger className={cn(!currentValue && 'text-muted-foreground')}>
+					<SelectValue placeholder={placeholder} />
+				</SelectTrigger>
 				<SelectContent>
 					{options.map((option, index) => (
 						<SelectItem key={index} value={getOptionValue(option)}>
