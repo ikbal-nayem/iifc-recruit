@@ -10,6 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
+import { FormTextarea } from '@/components/ui/form-textarea';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/auth-context';
 import useLoader from '@/hooks/use-loader';
@@ -166,8 +167,12 @@ const personalInfoSchema = z.object({
 	nationality: z.string().min(1, 'Nationality is required'),
 	religion: z.string().optional(),
 	nid: z.string().max(17, 'NID maximum 17 digits').min(10, 'NID minimum 10 digits').optional(),
-	passportNo: z.string().max(17, 'NID maximum 17 digits').optional(),
-	birthCertificate: z.string().optional(),
+	passportNo: z.string().max(10, 'NID maximum 10 digits').optional(),
+	birthCertificate: z
+		.string()
+		.max(17, 'NID maximum 17 digits')
+		.regex(/^\d+$/, 'Birth certificate must be numeric')
+		.optional(),
 	presentDivisionId: z.coerce.string().optional(),
 	presentDistrictId: z.coerce.string().optional(),
 	presentUpazilaId: z.coerce.string().optional(),
@@ -179,8 +184,18 @@ const personalInfoSchema = z.object({
 	permanentUpazilaId: z.coerce.string().optional(),
 	permanentAddress: z.string().optional(),
 	permanentPostCode: z.coerce.number().optional(),
-	linkedInProfile: z.string().url('Provide a valid LinkedIn profile URL').optional().or(z.literal('')),
-	videoProfile: z.string().url('Provide a valid YouTube video URL').optional().or(z.literal('')),
+	linkedInProfile: z
+		.string()
+		.url('Provide a valid LinkedIn profile URL')
+		.max(150, 'Maximum 150 digits')
+		.optional()
+		.or(z.literal('')),
+	videoProfile: z
+		.string()
+		.url('Provide a valid YouTube video URL')
+		.max(150, 'Maximum 150 digits')
+		.optional()
+		.or(z.literal('')),
 });
 
 type PersonalInfoFormValues = z.infer<typeof personalInfoSchema>;
@@ -371,11 +386,12 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 									<FormInput control={form.control} name='fatherName' label="Father's Name" required />
 									<FormInput control={form.control} name='motherName' label="Mother's Name" required />
 								</div>
-								<FormInput
+								<FormTextarea
 									control={form.control}
 									name='careerObjective'
 									label='Career Objective / Headline'
 									placeholder='e.g. Senior Frontend Developer seeking new challenges...'
+									rows={3}
 								/>
 								<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
 									<FormDatePicker
