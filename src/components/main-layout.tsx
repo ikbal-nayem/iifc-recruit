@@ -14,6 +14,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
 	useEffect(() => {
 		setIsClient(true);
+		// This logic now runs only on the client, after the initial render
 		if (SessionStorageService.get(SPLASH_SHOWN_KEY)) {
 			setShowSplash(false);
 		} else {
@@ -21,15 +22,18 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 		}
 	}, []);
 
-	if (!isClient) {
-		return null;
+	// On the server, and for the very first client render, showSplash will always be true,
+	// matching the server output.
+	if (showSplash) {
+		return <SplashScreen onFinish={() => setShowSplash(false)} />;
 	}
-
+	
+	// Once the splash screen is finished, or if it was never shown on subsequent loads, render the main content.
 	return (
 		<>
 			<TopLoader />
 			<Toaster />
-			{showSplash ? <SplashScreen onFinish={() => setShowSplash(false)} /> : children}
+			{children}
 		</>
 	);
 }
