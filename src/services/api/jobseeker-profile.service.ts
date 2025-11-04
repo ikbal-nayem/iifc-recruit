@@ -37,7 +37,7 @@ const createProfileCrud = <T extends { id?: string }>(entity: string) => ({
 });
 
 const createProfileCrudWithFormData = <T extends { id?: string }>(entity: string) => ({
-	get: async (): Promise<IApiResponse<T[] | T>> => {
+	get: async (): Promise<IApiResponse<T[]>> => {
 		return axiosIns.get(`/jobseeker/${entity}/get-by-user`);
 	},
 

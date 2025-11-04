@@ -1,6 +1,3 @@
-
-'use client';
-
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
@@ -37,9 +34,7 @@ export function FormSelect<TFieldValues extends FieldValues, TOption>({
 	...props
 }: FormSelectProps<TFieldValues, TOption>) {
 	const renderSelect = (field?: any) => {
-		// The Radix Select component works with string values.
-		// We ensure the value passed to it is always a string.
-		const currentValue = field?.value?.toString() ?? controlledValue;
+		const currentValue = field?.value ?? controlledValue;
 
 		const handleValueChange = (value: string) => {
 			if (onValueChange) {
@@ -47,8 +42,6 @@ export function FormSelect<TFieldValues extends FieldValues, TOption>({
 			}
 
 			if (field) {
-				// When updating the form state, we check the original value's type.
-				// If it was a number, we convert the selected string back to a number.
 				const isNumberField = typeof field.value === 'number';
 				field.onChange(isNumberField ? Number(value) : value);
 			}
@@ -77,7 +70,10 @@ export function FormSelect<TFieldValues extends FieldValues, TOption>({
 	if (!control) {
 		return (
 			<div className='space-y-2'>
-				{!!label && <Label required={required}>{label}</Label>}
+				<Label>
+					{label}
+					{required && <span className='text-danger font-semibold'> *</span>}
+				</Label>
 				{renderSelect()}
 			</div>
 		);

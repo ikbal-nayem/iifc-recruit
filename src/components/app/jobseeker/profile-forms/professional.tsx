@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ProfessionalExperienceMasterData } from '@/app/(auth)/jobseeker/profile-edit/professional/page';
@@ -16,7 +15,7 @@ import { FormSelect } from '@/components/ui/form-select';
 import { FormSwitch } from '@/components/ui/form-switch';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { ProfessionalInfo } from '@/interfaces/jobseeker.interface';
 import { makeFormData } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
@@ -30,8 +29,8 @@ import * as z from 'zod';
 const professionalInfoSchema = z
 	.object({
 		positionTitle: z.string().min(1, 'Position Title is required.'),
-		positionLevelId: z.coerce.number().min(1, 'Position Level is required.'),
-		organizationId: z.coerce.number().min(1, 'Organization is required.'),
+		positionLevelId: z.coerce.string().min(1, 'Position Level is required.'),
+		organizationId: z.coerce.string().min(1, 'Organization is required.'),
 		responsibilities: z.string().min(1, 'Please list at least one responsibility.'),
 		joinDate: z.string().min(1, 'Join date is required.'),
 		resignDate: z.string().optional(),
@@ -61,8 +60,8 @@ interface ProfessionalExperienceFormProps {
 
 const defaultValues: ProfessionalInfo = {
 	positionTitle: '',
-	positionLevelId: 0,
-	organizationId: 0,
+	positionLevelId: '',
+	organizationId: '',
 	responsibilities: '',
 	joinDate: '',
 	resignDate: '',
@@ -226,7 +225,6 @@ interface ProfileFormProps {
 }
 
 export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
-	const { toast } = useToast();
 	const [history, setHistory] = React.useState<ProfessionalInfo[]>([]);
 	const [editingItem, setEditingItem] = React.useState<ProfessionalInfo | undefined>(undefined);
 	const [isFormOpen, setIsFormOpen] = React.useState(false);
@@ -238,15 +236,13 @@ export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
 			const response = await JobseekerProfileService.experience.get();
 			setHistory(response.body);
 		} catch (error) {
-			toast({
-				title: 'Error',
+			toast.error({
 				description: 'Failed to load professional experience.',
-				variant: 'danger',
 			});
 		} finally {
 			setIsLoading(false);
 		}
-	}, [toast]);
+	}, []);
 
 	React.useEffect(() => {
 		loadExperience();
@@ -257,33 +253,28 @@ export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
 			const payload: any = { ...data, id: editingItem?.id };
 			const formData = makeFormData(payload);
 			const response = await JobseekerProfileService.experience.save(formData);
-			toast({ description: response.message, variant: 'success' });
+			toast.success({ description: response.message });
 			loadExperience();
 			return true;
 		} catch (error: any) {
-			toast({
-				title: 'Error',
+			toast.error({
 				description: error?.message || 'Failed to save experience.',
-				variant: 'danger',
 			});
 			return false;
 		}
 	};
 
-	const handleRemove = async (id: string | number) => {
+	const handleRemove = async (id: string) => {
 		try {
 			await JobseekerProfileService.experience.delete(id);
-			toast({
+			toast.success({
 				title: 'Entry Deleted',
 				description: 'The professional record has been removed.',
-				variant: 'success',
 			});
 			loadExperience();
 		} catch (error: any) {
-			toast({
-				title: 'Error',
+			toast.error({
 				description: error.message || 'Failed to delete experience.',
-				variant: 'danger',
 			});
 		}
 	};
