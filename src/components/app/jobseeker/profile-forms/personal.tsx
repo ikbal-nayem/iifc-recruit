@@ -160,7 +160,7 @@ const personalInfoSchema = z.object({
 	motherName: z.string().min(1, "Mother's name is required"),
 	email: z.string().email(),
 	phone: z.string().min(1, 'Phone number is required'),
-	careerObjective: z.string().optional(),
+	careerObjective: z.string().max(500, 'Maximum 500 characters allowed').optional(),
 	dateOfBirth: z.string().min(1, 'Date of birth is required'),
 	gender: z.string().min(1, 'Gender is required'),
 	maritalStatus: z.string().min(1, 'Marital status is required'),
