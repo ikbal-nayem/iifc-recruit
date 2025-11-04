@@ -124,7 +124,7 @@ function ProfessionalExperienceForm({
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent className='max-w-2xl' closeOnOutsideClick={false}>
 				<DialogHeader>
-					<DialogTitle>{initialData ? 'Edit Experience' : 'Add New Experience'}</DialogTitle>
+					<DialogTitle>{initialData ? 'Edit Experience' : 'Add Experience Info'}</DialogTitle>
 				</DialogHeader>
 
 				<Form {...form}>

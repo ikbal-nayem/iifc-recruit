@@ -26,10 +26,10 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 const academicInfoSchema = z.object({
-	degreeLevelId: z.number().min(1, 'Degree level is required'),
-	domainId: z.number().min(1, 'Domain is required'),
-	institutionId: z.number().min(1, 'Institution is required'),
-	degreeTitle: z.string().min(1, 'Degree title is required'),
+	degreeLevelId: z.string().min(1, 'Degree level is required'),
+	domainId: z.string().min(1, 'Domain is required'),
+	institutionId: z.string().min(1, 'Institution is required'),
+	degreeTitle: z.string().min(1, 'Degree title is required').max(100, 'Degree title must be at most 100 characters'),
 	specializationArea: z.string().optional(),
 	resultSystem: z.nativeEnum(ResultSystem).default(ResultSystem.GRADE),
 	resultAchieved: z.string().optional(),
@@ -114,7 +114,7 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent className='max-w-2xl'>
 				<DialogHeader>
-					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
+					<DialogTitle>{initialData ? `Edit ${noun}` : `Add ${noun} Info`}</DialogTitle>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4 pr-1'>

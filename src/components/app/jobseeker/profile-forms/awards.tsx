@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -8,21 +7,22 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Form } from '@/components/ui/form';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
+import { FormTextarea } from '@/components/ui/form-textarea';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { Award } from '@/interfaces/jobseeker.interface';
 import { makeReqDateFormat } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
 import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 const awardSchema = z.object({
-	name: z.string().min(1, 'Award name is required.'),
-	description: z.string().min(1, 'Awarding body is required.'),
+	name: z.string().min(1, 'Award name is required.').max(100, 'Award name maximum 100 characters.'),
+	description: z.string().min(1, 'Awarding body is required.').max(255, 'Awarding body maximum 100 characters.'),
 	date: z.string().min(1, 'Date is required.'),
 });
 
@@ -33,7 +33,7 @@ const defaultData = { name: '', description: '', date: '' };
 interface AwardFormProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onSubmit: (data: AwardFormValues, id?: number) => Promise<boolean>;
+	onSubmit: (data: AwardFormValues, id?: string) => Promise<boolean>;
 	initialData?: Award;
 	noun: string;
 }
@@ -56,7 +56,7 @@ function AwardForm({ isOpen, onClose, onSubmit, initialData, noun }: AwardFormPr
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
+					<DialogTitle>{initialData ? `Edit ${noun}` : `Add ${noun} Info`}</DialogTitle>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4'>
@@ -68,13 +68,15 @@ function AwardForm({ isOpen, onClose, onSubmit, initialData, noun }: AwardFormPr
 							required
 							disabled={isSubmitting}
 						/>
-						<FormInput
+						<FormTextarea
 							control={form.control}
 							name='description'
 							label='Awarding Body'
 							placeholder='e.g., TechCorp'
 							required
 							disabled={isSubmitting}
+							rows={3}
+							maxLength={255}
 						/>
 						<FormDatePicker
 							control={form.control}
@@ -100,7 +102,6 @@ function AwardForm({ isOpen, onClose, onSubmit, initialData, noun }: AwardFormPr
 }
 
 export function ProfileFormAwards() {
-	const { toast } = useToast();
 	const [history, setHistory] = React.useState<Award[]>([]);
 	const [editingItem, setEditingItem] = React.useState<Award | undefined>(undefined);
 	const [itemToDelete, setItemToDelete] = React.useState<Award | null>(null);
@@ -113,14 +114,13 @@ export function ProfileFormAwards() {
 			const response = await JobseekerProfileService.award.get();
 			setHistory(response.body);
 		} catch (error) {
-			toast({
+			toast.error({
 				description: 'Failed to load awards.',
-				variant: 'danger',
 			});
 		} finally {
 			setIsLoading(false);
 		}
-	}, [toast]);
+	}, []);
 
 	React.useEffect(() => {
 		loadAwards();
@@ -136,7 +136,7 @@ export function ProfileFormAwards() {
 		setEditingItem(undefined);
 	};
 
-	const handleFormSubmit = async (data: AwardFormValues, id?: number) => {
+	const handleFormSubmit = async (data: AwardFormValues, id?: string) => {
 		const payload = { ...data };
 		try {
 			const response = id
@@ -146,7 +146,7 @@ export function ProfileFormAwards() {
 			loadAwards();
 			return true;
 		} catch (error: any) {
-			toast({ title: 'Error', description: error.message || 'An error occurred.', variant: 'danger' });
+			toast.error({ description: error.message || 'An error occurred.' });
 			return false;
 		}
 	};

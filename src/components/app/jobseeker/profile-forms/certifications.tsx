@@ -27,7 +27,7 @@ import * as z from 'zod';
 const certificationSchema = z
 	.object({
 		issuingAuthority: z.string().min(1, 'Issuing organization is required.'),
-		certificationId: z.coerce.number().optional(),
+		certificationId: z.coerce.string().optional(),
 		examDate: z.string().optional(),
 		issueDate: z.string().optional(),
 		expireDate: z.string().optional(),
@@ -122,7 +122,7 @@ function CertificationForm({
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
+					<DialogTitle>{initialData ? `Edit ${noun}` : `Add ${noun} Info`}</DialogTitle>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4'>
