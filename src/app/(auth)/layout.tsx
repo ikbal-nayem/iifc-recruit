@@ -18,7 +18,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 	useEffect(() => {
 		if (!isLoading) {
 			if (!isAuthenticated || !currectUser) {
-				router.replace('/login');
+				router.replace(ROUTES.AUTH.LOGIN);
 				return;
 			}
 
