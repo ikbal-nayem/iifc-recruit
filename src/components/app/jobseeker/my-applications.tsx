@@ -29,7 +29,7 @@ import { Eye } from 'lucide-react';
 import { JobCircularDetails } from '../public/job-circular-details';
 import { EnumDTO } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FormSelect } from '../ui/form-select';
 
 const initMeta: IMeta = { page: 0, limit: 10 };
 
@@ -194,21 +194,17 @@ export function MyApplications() {
 
 	return (
 		<div className='space-y-4'>
-			<div className='w-full max-w-xs space-y-2'>
-				<label htmlFor='status-filter' className='text-sm font-medium'>Filter by Status</label>
-				<Select value={statusFilter} onValueChange={setStatusFilter}>
-					<SelectTrigger id='status-filter'>
-						<SelectValue placeholder='Filter by status...' />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value='all'>All Statuses</SelectItem>
-						{statuses.map((status) => (
-							<SelectItem key={status.value} value={status.value}>
-								{status.nameEn}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
+			<div className='w-full max-w-xs'>
+				<FormSelect
+					name='statusFilter'
+					label='Filter by Status'
+					placeholder='Filter by status...'
+					value={statusFilter}
+					onValueChange={(value) => setStatusFilter(value || 'all')}
+					options={[{ value: 'all', nameEn: 'All Statuses' }, ...statuses]}
+					getOptionLabel={(option) => option.nameEn}
+					getOptionValue={(option) => option.value}
+				/>
 			</div>
 			{/* Mobile View */}
 			<div className='md:hidden'>
