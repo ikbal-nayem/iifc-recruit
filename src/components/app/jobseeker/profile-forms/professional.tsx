@@ -6,15 +6,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FilePreviewer } from '@/components/ui/file-previewer';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { FormAutocomplete } from '@/components/ui/form-autocomplete';
+import { Form } from '@/components/ui/form';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormFileUpload } from '@/components/ui/form-file-upload';
 import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
 import { FormSwitch } from '@/components/ui/form-switch';
+import { FormTextarea } from '@/components/ui/form-textarea';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { ProfessionalInfo } from '@/interfaces/jobseeker.interface';
 import { makeFormData } from '@/lib/utils';
@@ -28,10 +27,18 @@ import * as z from 'zod';
 
 const professionalInfoSchema = z
 	.object({
-		positionTitle: z.string().min(1, 'Position Title is required.'),
-		positionLevelId: z.coerce.string().min(1, 'Position Level is required.'),
-		organizationId: z.coerce.string().min(1, 'Organization is required.'),
-		responsibilities: z.string().min(1, 'Please list at least one responsibility.'),
+		positionTitle: z.string().min(1, 'Position Title is required.').max(100, 'Position Title is too long.'),
+		// positionLevelId: z.coerce.string().min(1, 'Position Level is required.'),
+		organizationNameEn: z.coerce
+			.string()
+			.min(1, 'Organization is required.')
+			.max(100, 'Organization name is too long.'),
+		// organizationId: z.coerce.string().min(1, 'Organization is required.'),
+		responsibilities: z
+			.string()
+			.min(1, 'Please list at least one responsibility.')
+			.max(1000, 'Responsibilities description is too long.')
+			.optional(),
 		joinDate: z.string().min(1, 'Join date is required.'),
 		resignDate: z.string().optional(),
 		isCurrent: z.boolean().default(false),
@@ -60,8 +67,9 @@ interface ProfessionalExperienceFormProps {
 
 const defaultValues: ProfessionalInfo = {
 	positionTitle: '',
-	positionLevelId: '',
-	organizationId: '',
+	// positionLevelId: '',
+	organizationNameEn: '',
+	// organizationId: '',
 	responsibilities: '',
 	joinDate: '',
 	resignDate: '',
@@ -93,8 +101,8 @@ function ProfessionalExperienceForm({
 		if (initialData) {
 			form.reset({
 				...initialData,
-				positionLevelId: initialData.positionLevel?.id,
-				organizationId: initialData.organization?.id,
+				// positionLevelId: initialData.positionLevel?.id,
+				// organizationId: initialData.organization?.id,
 			});
 		} else {
 			form.reset(defaultValues);
@@ -123,12 +131,19 @@ function ProfessionalExperienceForm({
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 pr-1'>
 						<FormInput
 							control={form.control}
+							name='organizationNameEn'
+							label='Organization/Company Name'
+							placeholder='e.g., ABC Ltd.'
+							required
+						/>
+						<FormInput
+							control={form.control}
 							name='positionTitle'
 							label='Position Title'
 							placeholder='e.g., Software Engineer'
 							required
 						/>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+						{/* <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 							<FormAutocomplete
 								control={form.control}
 								name='organizationId'
@@ -149,7 +164,7 @@ function ProfessionalExperienceForm({
 								getOptionValue={(option) => option.id!.toString()}
 								getOptionLabel={(option) => option.nameEn}
 							/>
-						</div>
+						</div> */}
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
 							<FormDatePicker control={form.control} name='joinDate' label='Join Date' required />
 							<FormDatePicker
@@ -161,18 +176,13 @@ function ProfessionalExperienceForm({
 							/>
 						</div>
 						<FormSwitch control={form.control} name='isCurrent' label='I currently work here' />
-						<FormField
+						<FormTextarea
 							control={form.control}
 							name='responsibilities'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel required>Responsibilities</FormLabel>
-									<FormControl>
-										<Textarea {...field} rows={4} placeholder='Describe your key responsibilities...' />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
+							label='Responsibilities'
+							placeholder='Describe your key responsibilities...'
+							rows={4}
+							maxLength={1000}
 						/>
 						<FormFileUpload
 							control={form.control}
@@ -301,9 +311,6 @@ export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
 			<Card key={item.id} className='p-4 flex justify-between items-start'>
 				<div>
 					<p className='font-semibold'>{item.positionTitle}</p>
-					<p className='text-sm text-muted-foreground'>
-						{item.organization?.nameEn} &middot; {item.positionLevel?.nameEn}
-					</p>
 					<p className='text-xs text-muted-foreground'>
 						{joinDate} - {resignDate}
 					</p>

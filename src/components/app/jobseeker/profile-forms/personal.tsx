@@ -1,4 +1,3 @@
-
 'use client';
 
 import { PersonalInfoMasterData } from '@/app/(auth)/jobseeker/profile-edit/page';
@@ -19,6 +18,7 @@ import { toast, useToast } from '@/hooks/use-toast';
 import { IApiResponse, IFile } from '@/interfaces/common.interface';
 import { PersonalInfo } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { compressImage } from '@/lib/compresser';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
@@ -28,7 +28,6 @@ import { Linkedin, Loader2, Mail, Phone, Save, Upload, Video } from 'lucide-reac
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { compressImage } from '@/lib/compresser';
 
 const profileImageSchema = z.object({
 	avatarFile: z
@@ -394,6 +393,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 									label='Career Objective / Headline'
 									placeholder='e.g. Senior Frontend Developer seeking new challenges...'
 									rows={3}
+									maxLength={500}
 								/>
 								<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
 									<FormDatePicker

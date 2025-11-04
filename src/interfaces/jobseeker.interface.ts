@@ -85,10 +85,12 @@ export type AcademicInfo = {
 export type ProfessionalInfo = {
 	id?: string;
 	positionTitle: string;
-	positionLevel?: ICommonMasterData;
-	positionLevelId: string;
-	organization?: IOrganization;
-	organizationId: string;
+	// positionLevel?: ICommonMasterData;
+	// positionLevelId: string;
+	organizationNameEn: string;
+	organizationNameBn?: string;
+	// organization?: IOrganization;
+	// organizationId: string;
 	responsibilities: string;
 	joinDate: string;
 	resignDate?: string;

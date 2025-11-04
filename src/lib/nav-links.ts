@@ -142,10 +142,10 @@ export const adminNavLinks: NavLink[] = [
 				icon: Building2,
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/company'),
 				submenu: [
-					{ href: '/admin/master-data/company/organizations', label: 'Organizations' },
+					// { href: '/admin/master-data/company/organizations', label: 'Organizations' },
 					{ href: '/admin/master-data/industry-types', label: 'Industry Types' },
 					{ href: '/admin/master-data/organization-types', label: 'Organization Types' },
-					{ href: '/admin/master-data/position-levels', label: 'Position Levels' },
+					// { href: '/admin/master-data/position-levels', label: 'Position Levels' },
 				],
 			},
 			{ href: '/admin/master-data/posts', label: 'Posts', icon: UserCog },
