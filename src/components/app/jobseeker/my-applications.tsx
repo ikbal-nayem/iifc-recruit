@@ -33,13 +33,17 @@ import { JobCircularDetails } from '../public/job-circular-details';
 
 const initMeta: IMeta = { page: 0, limit: 10 };
 
-export function MyApplications() {
+interface MyApplicationsProps {
+	initialStatusFilter?: string;
+}
+
+export function MyApplications({ initialStatusFilter = 'all' }: MyApplicationsProps) {
 	const [data, setData] = React.useState<Application[]>([]);
 	const [meta, setMeta] = React.useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [selectedJobId, setSelectedJobId] = React.useState<string | null>(null);
 	const [statuses, setStatuses] = React.useState<EnumDTO[]>([]);
-	const [statusFilter, setStatusFilter] = React.useState<string>('all');
+	const [statusFilter, setStatusFilter] = React.useState<string>(initialStatusFilter);
 
 	React.useEffect(() => {
 		MasterDataService.getEnum('application-status')
@@ -275,7 +279,7 @@ export function MyApplications() {
 
 			<Dialog open={!!selectedJobId} onOpenChange={(isOpen) => !isOpen && setSelectedJobId(null)}>
 				<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto p-0'>
-					<JobCircularDetails circularId={selectedJobId!} isReadOnly={true} />
+					{selectedJobId && <JobCircularDetails circularId={selectedJobId} isReadOnly={true} />}
 				</DialogContent>
 			</Dialog>
 		</div>

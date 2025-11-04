@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ProfileCompletion } from '@/components/app/jobseeker/profile-completion';
@@ -7,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/contexts/auth-context';
-import { Application } from '@/interfaces/application.interface';
+import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { IProfileCompletionStatus } from '@/interfaces/jobseeker.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { ApplicationService } from '@/services/api/application.service';
@@ -17,26 +18,27 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 type Stats = {
-	totalApplications: number;
+	total: number;
+	applied: number;
 	interviews: number;
-	activeApplications: number;
 };
 
 export default function JobseekerDashboardPage() {
 	const { currectUser } = useAuth();
 	const [recentApplications, setRecentApplications] = useState<Application[]>([]);
 	const [profileCompletion, setProfileCompletion] = useState<IProfileCompletionStatus | null>(null);
-	const [stats, setStats] = useState<Stats>({ totalApplications: 0, interviews: 0, activeApplications: 0 });
+	const [stats, setStats] = useState<Stats>({ total: 0, applied: 0, interviews: 0 });
 	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
+		if (!currectUser?.id) return;
 		async function loadDashboardData() {
 			setIsLoading(true);
 			try {
 				const [completionRes, applicationsRes, statsRes] = await Promise.allSettled([
 					JobseekerProfileService.getProfileCompletion(),
 					ApplicationService.getByApplicant({ meta: { limit: 2 } }),
-					ApplicationService.getByApplicant({ meta: { limit: 1000 } }), // Fetch all for stats for now
+					ApplicationService.getStatistics(currectUser.id!),
 				]);
 
 				if (completionRes.status === 'fulfilled') {
@@ -52,12 +54,11 @@ export default function JobseekerDashboardPage() {
 				}
 
 				if (statsRes.status === 'fulfilled') {
-					const allApps = statsRes.value.body;
+					const s = statsRes.value.body;
 					setStats({
-						totalApplications: allApps.length,
-						interviews: allApps.filter((app) => app.status === 'INTERVIEW').length,
-						activeApplications: allApps.filter((app) => !['HIRED', 'REJECTED', 'CLOSED'].includes(app.status))
-							.length,
+						total: s.total,
+						applied: s.applied,
+						interviews: s.interview,
 					});
 				} else {
 					console.error('Failed to load application stats:', statsRes.reason);
@@ -70,7 +71,7 @@ export default function JobseekerDashboardPage() {
 		}
 
 		loadDashboardData();
-	}, []);
+	}, [currectUser?.id]);
 
 	return (
 		<div className='space-y-8'>
@@ -86,48 +87,56 @@ export default function JobseekerDashboardPage() {
 			)}
 
 			<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
-				<Card className='glassmorphism card-hover'>
-					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium'>Total Applications</CardTitle>
-						<FileText className='h-4 w-4 text-muted-foreground' />
-					</CardHeader>
-					<CardContent>
-						{isLoading ? (
-							<Skeleton className='h-8 w-12' />
-						) : (
-							<div className='text-2xl font-bold'>{stats.totalApplications}</div>
-						)}
-						<p className='text-xs text-muted-foreground'>Across all jobs</p>
-					</CardContent>
-				</Card>
-				<Card className='glassmorphism card-hover'>
-					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium'>Active Applications</CardTitle>
-						<Briefcase className='h-4 w-4 text-muted-foreground' />
-					</CardHeader>
-					<CardContent>
-						{isLoading ? (
-							<Skeleton className='h-8 w-12' />
-						) : (
-							<div className='text-2xl font-bold'>{stats.activeApplications}</div>
-						)}
-						<p className='text-xs text-muted-foreground'>Currently in consideration</p>
-					</CardContent>
-				</Card>
-				<Card className='glassmorphism card-hover'>
-					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium'>Interviews</CardTitle>
-						<Star className='h-4 w-4 text-muted-foreground' />
-					</CardHeader>
-					<CardContent>
-						{isLoading ? (
-							<Skeleton className='h-8 w-12' />
-						) : (
-							<div className='text-2xl font-bold'>{stats.interviews}</div>
-						)}
-						<p className='text-xs text-muted-foreground'>Scheduled or completed</p>
-					</CardContent>
-				</Card>
+				<Link href={ROUTES.JOB_SEEKER.APPLICATIONS}>
+					<Card className='glassmorphism card-hover h-full'>
+						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+							<CardTitle className='text-sm font-medium'>Total Applications</CardTitle>
+							<FileText className='h-4 w-4 text-muted-foreground' />
+						</CardHeader>
+						<CardContent>
+							{isLoading ? (
+								<Skeleton className='h-8 w-12' />
+							) : (
+								<div className='text-2xl font-bold'>{stats.total}</div>
+							)}
+							<p className='text-xs text-muted-foreground'>Across all jobs</p>
+						</CardContent>
+					</Card>
+				</Link>
+
+				<Link href={`${ROUTES.JOB_SEEKER.APPLICATIONS}?status=${APPLICATION_STATUS.APPLIED}`}>
+					<Card className='glassmorphism card-hover h-full'>
+						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+							<CardTitle className='text-sm font-medium'>Applied</CardTitle>
+							<Briefcase className='h-4 w-4 text-muted-foreground' />
+						</CardHeader>
+						<CardContent>
+							{isLoading ? (
+								<Skeleton className='h-8 w-12' />
+							) : (
+								<div className='text-2xl font-bold'>{stats.applied}</div>
+							)}
+							<p className='text-xs text-muted-foreground'>Currently in consideration</p>
+						</CardContent>
+					</Card>
+				</Link>
+
+				<Link href={`${ROUTES.JOB_SEEKER.APPLICATIONS}?status=${APPLICATION_STATUS.INTERVIEW}`}>
+					<Card className='glassmorphism card-hover h-full'>
+						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+							<CardTitle className='text-sm font-medium'>Interviews</CardTitle>
+							<Star className='h-4 w-4 text-muted-foreground' />
+						</CardHeader>
+						<CardContent>
+							{isLoading ? (
+								<Skeleton className='h-8 w-12' />
+							) : (
+								<div className='text-2xl font-bold'>{stats.interviews}</div>
+							)}
+							<p className='text-xs text-muted-foreground'>Scheduled or completed</p>
+						</CardContent>
+					</Card>
+				</Link>
 			</div>
 
 			<Card className='glassmorphism'>

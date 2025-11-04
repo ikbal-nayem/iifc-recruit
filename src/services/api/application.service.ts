@@ -1,3 +1,4 @@
+
 import { axiosIns } from '@/config/api.config';
 import { Application } from '@/interfaces/application.interface';
 import { IApiRequest, IApiResponse, IObject } from '@/interfaces/common.interface';
@@ -23,4 +24,7 @@ export const ApplicationService = {
 
 	apply: async (payload: { applicantId: string; requestedPostId: string }): Promise<IApiResponse<any>> =>
 		await axiosIns.post('/application/apply', payload),
+	
+	getStatistics: async (applicantId: string): Promise<IApiResponse<any>> =>
+		await axiosIns.get(`/application/statistics/${applicantId}`),
 };
