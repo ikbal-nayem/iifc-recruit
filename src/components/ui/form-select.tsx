@@ -1,9 +1,9 @@
-
 'use client';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { Fragment } from 'react';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
 import { Label } from './label';
 
@@ -45,6 +45,7 @@ export function FormSelect<TFieldValues extends FieldValues, TOption>({
 				onValueChange(value);
 			}
 		};
+		const TriggerWrapper = !control ? Fragment : FormControl;
 		return (
 			<Select
 				onValueChange={handleValueChange}
@@ -53,9 +54,11 @@ export function FormSelect<TFieldValues extends FieldValues, TOption>({
 				disabled={disabled}
 				{...props}
 			>
-				<SelectTrigger className={cn(!currentValue && 'text-muted-foreground')}>
-					<SelectValue placeholder={placeholder} />
-				</SelectTrigger>
+				<TriggerWrapper>
+					<SelectTrigger className={cn(!currentValue && 'text-muted-foreground')}>
+						<SelectValue placeholder={placeholder} />
+					</SelectTrigger>
+				</TriggerWrapper>
 				<SelectContent>
 					{options.map((option, index) => (
 						<SelectItem key={index} value={getOptionValue(option)}>
@@ -70,7 +73,12 @@ export function FormSelect<TFieldValues extends FieldValues, TOption>({
 	if (!control) {
 		return (
 			<div className='space-y-2'>
-				{!!label && <Label required={required}>{label}</Label>}
+				{!!label && (
+					<Label>
+						{label}
+						{required && <span className='text-danger font-semibold'> *</span>}
+					</Label>
+				)}
 				{renderSelect()}
 			</div>
 		);

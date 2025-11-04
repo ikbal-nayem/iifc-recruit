@@ -32,7 +32,7 @@ export default function JobseekerProfileResumePage() {
 	const [resumes, setResumes] = React.useState<Resume[]>([]);
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [isUploading, setIsUploading] = React.useState(false);
-	const [isSubmitting, setIsSubmitting] = React.useState<number | null>(null);
+	const [isSubmitting, setIsSubmitting] = React.useState<string | null>(null);
 
 	const form = useForm<ResumeFormValues>({
 		resolver: zodResolver(resumeSchema),
@@ -82,7 +82,7 @@ export default function JobseekerProfileResumePage() {
 		}
 	};
 
-	const handleSetActive = async (id: number) => {
+	const handleSetActive = async (id: string) => {
 		setIsSubmitting(id);
 		try {
 			const response = await JobseekerProfileService.resume.setActive(id);
@@ -102,7 +102,7 @@ export default function JobseekerProfileResumePage() {
 		}
 	};
 
-	const handleDelete = (id: number) => {
+	const handleDelete = (id: string) => {
 		setIsSubmitting(id);
 		JobseekerProfileService.resume
 			.delete(id)

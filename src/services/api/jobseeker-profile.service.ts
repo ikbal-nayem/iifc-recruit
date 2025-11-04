@@ -97,7 +97,7 @@ export const JobseekerProfileService = {
 			return axiosIns.get(`/jobseeker/resume/get-by-user`);
 		},
 		add: async (formData: FormData): Promise<IApiResponse<Resume>> => {
-			return axiosIns.post(`/jobseeker/resume/create`, formData);
+			return axiosIns.post(`/jobseeker/resume/save`, formData);
 		},
 		delete: async (id: string): Promise<IApiResponse<void>> => {
 			return axiosIns.delete(`/jobseeker/resume/delete/${id}`);

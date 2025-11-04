@@ -125,7 +125,7 @@ export function MyApplications() {
 				return (
 					<Button
 						size='icon'
-						variant='lite-success'
+						variant='outline'
 						className='float-end'
 						onClick={() => setSelectedJobId(row.original.requestedPostId)}
 					>

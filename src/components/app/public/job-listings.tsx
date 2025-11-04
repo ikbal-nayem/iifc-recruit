@@ -14,7 +14,7 @@ import { useSearchParams } from 'next/navigation';
 import * as React from 'react';
 import { JobCard } from './job-card';
 
-const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
+const initMeta: IMeta = { page: 0, limit: 12 };
 
 interface JobListingsProps {
 	isPaginated?: boolean;
