@@ -23,6 +23,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const storeAuthInfo = (authInfo: IAuthInfo) => {
+	LocalStorageService.set(AUTH_INFO, authInfo);
+	CookieService.set(ACCESS_TOKEN, authInfo.access_token, 1);
+	CookieService.set(REFRESH_TOKEN, authInfo.refresh_token, 1);
+};
+
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [user, setUser] = useState<IUser | null>(null);
 	const [authInfo, setAuthInfo] = useState<IAuthInfo | null>(null);
@@ -56,7 +63,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 					setUser(userProfileRes.body);
 				} catch (error) {
 					console.error('Failed to fetch user profile on load', error);
-					logout();
+					// The 401 interceptor in axios will handle logout
 				}
 			}
 			setIsLoading(false);
@@ -117,12 +124,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			{children}
 		</AuthContext.Provider>
 	);
-};
-
-const storeAuthInfo = (authInfo: IAuthInfo) => {
-	LocalStorageService.set(AUTH_INFO, authInfo);
-	CookieService.set(ACCESS_TOKEN, authInfo.access_token, 1);
-	CookieService.set(REFRESH_TOKEN, authInfo.refresh_token, 1);
 };
 
 export const useAuth = () => {

@@ -1,9 +1,28 @@
-import { ACCESS_TOKEN } from '@/constants/auth.constant';
+import { ACCESS_TOKEN, AUTH_INFO, REFRESH_TOKEN } from '@/constants/auth.constant';
 import { ENV } from '@/constants/env.constant';
-import { ROUTES } from '@/constants/routes.constant';
-import { clearAuthInfo, isBrowser } from '@/services/storage.service';
+import { clearAuthInfo, CookieService, LocalStorageService } from '@/services/storage.service';
 import axios from 'axios';
-const { cookies } = require('next/headers');
+
+let isRefreshing = false;
+let failedQueue: { resolve: (value: unknown) => void; reject: (reason?: any) => void }[] = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+	failedQueue.forEach((prom) => {
+		if (error) {
+			prom.reject(error);
+		} else {
+			prom.resolve(token);
+		}
+	});
+	failedQueue = [];
+};
+
+const handleLogout = () => {
+	clearAuthInfo();
+	if (typeof window !== 'undefined') {
+		window.location.href = '/login';
+	}
+};
 
 class AxiosInstance {
 	private instance;
@@ -17,31 +36,19 @@ class AxiosInstance {
 				withCredentials: true,
 			},
 		});
-
 		this.setupInterceptors();
-	}
-
-	private async getAuthToken() {
-		try {
-			const cookieStore = await cookies();
-			return cookieStore.get(ACCESS_TOKEN)?.value || null;
-		} catch (e) {
-			return null;
-		}
 	}
 
 	private setupInterceptors() {
 		this.instance.interceptors.request.use(
-			async (config) => {
-				const token = await this.getAuthToken();
+			(config) => {
+				const token = CookieService.get(ACCESS_TOKEN);
 				if (token) {
 					config.headers.Authorization = `Bearer ${token}`;
 				}
 				return config;
 			},
-			(error) => {
-				return Promise.reject(this.handleError(error));
-			}
+			(error) => Promise.reject(error)
 		);
 
 		this.instance.interceptors.response.use(
@@ -54,35 +61,61 @@ class AxiosInstance {
 					error: res.data.error,
 				});
 			},
-			(error) => this.handleResponseError(error)
+			(error) => {
+				const originalRequest = error.config;
+				if (error?.response?.status === 401 && !originalRequest._retry) {
+					if (isRefreshing) {
+						return new Promise(function (resolve, reject) {
+							failedQueue.push({ resolve, reject });
+						})
+							.then((token) => {
+								originalRequest.headers['Authorization'] = 'Bearer ' + token;
+								return axios(originalRequest);
+							})
+							.catch((err) => {
+								return Promise.reject(err);
+							});
+					}
+
+					originalRequest._retry = true;
+					isRefreshing = true;
+
+					const refreshToken = CookieService.get(REFRESH_TOKEN);
+					if (!refreshToken) {
+						handleLogout();
+						return Promise.reject(error);
+					}
+
+					return new Promise((resolve, reject) => {
+						axios
+							.post(`${ENV.API_GATEWAY}/api/auth/refresh`, { refreshToken })
+							.then(({ data }) => {
+								const newAuthInfo = data.body;
+								LocalStorageService.set(AUTH_INFO, newAuthInfo);
+								CookieService.set(ACCESS_TOKEN, newAuthInfo.access_token, 1);
+								this.instance.defaults.headers.common['Authorization'] = 'Bearer ' + newAuthInfo.access_token;
+								originalRequest.headers['Authorization'] = 'Bearer ' + newAuthInfo.access_token;
+								processQueue(null, newAuthInfo.access_token);
+								resolve(this.instance(originalRequest));
+							})
+							.catch((err) => {
+								processQueue(err, null);
+								handleLogout();
+								reject(err);
+							})
+							.finally(() => {
+								isRefreshing = false;
+							});
+					});
+				}
+
+				return Promise.reject({
+					status: error?.response?.status || 500,
+					message: error?.response?.data?.message || 'Server not responding',
+					body: {},
+				});
+			}
 		);
-	}
-
-	private handleError(error: any) {
-		if (error.response) {
-			return {
-				...error.response,
-				status: error.response.status || error.status,
-			};
-		}
-
-		return {
-			body: false,
-			status: 500,
-			message: 'Server not responding',
-		};
-	}
-
-	private handleResponseError(error: any) {		
-		if (error?.response?.status === 401) {
-			console.error("Authentication error: You are not authorized.")
-		}
-
-		return Promise.reject({
-			status: error?.response?.status || 500,
-			message: error?.response?.data?.message || 'Server not responding',
-			body: {},
-		});
 	}
 
 	public getInstance() {
@@ -94,5 +127,7 @@ export const axiosIns = new AxiosInstance().getInstance();
 export const setAuthToken = (token?: string) => {
 	if (token) {
 		axiosIns.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-	} else axiosIns.defaults.headers.common['Authorization'] = ``;
+	} else {
+		delete axiosIns.defaults.headers.common['Authorization'];
+	}
 };
