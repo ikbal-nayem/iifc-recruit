@@ -30,7 +30,6 @@ import { JobCircularDetails } from '../public/job-circular-details';
 import { EnumDTO } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FormLabel } from '@/components/ui/form';
 
 const initMeta: IMeta = { page: 0, limit: 10 };
 
@@ -195,10 +194,10 @@ export function MyApplications() {
 
 	return (
 		<div className='space-y-4'>
-			<div className='w-full max-w-xs'>
-				<FormLabel>Filter by Status</FormLabel>
+			<div className='w-full max-w-xs space-y-2'>
+				<label htmlFor='status-filter' className='text-sm font-medium'>Filter by Status</label>
 				<Select value={statusFilter} onValueChange={setStatusFilter}>
-					<SelectTrigger>
+					<SelectTrigger id='status-filter'>
 						<SelectValue placeholder='Filter by status...' />
 					</SelectTrigger>
 					<SelectContent>
