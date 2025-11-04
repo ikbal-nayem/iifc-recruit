@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ProfileCompletion } from '@/components/app/jobseeker/profile-completion';
@@ -10,6 +9,7 @@ import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/contexts/auth-context';
 import { Application } from '@/interfaces/application.interface';
 import { IProfileCompletionStatus } from '@/interfaces/jobseeker.interface';
+import { getStatusVariant } from '@/lib/color-mapping';
 import { ApplicationService } from '@/services/api/application.service';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { ArrowRight, Briefcase, FileText, Star } from 'lucide-react';
@@ -56,9 +56,8 @@ export default function JobseekerDashboardPage() {
 					setStats({
 						totalApplications: allApps.length,
 						interviews: allApps.filter((app) => app.status === 'INTERVIEW').length,
-						activeApplications: allApps.filter(
-							(app) => !['HIRED', 'REJECTED', 'CLOSED'].includes(app.status)
-						).length,
+						activeApplications: allApps.filter((app) => !['HIRED', 'REJECTED', 'CLOSED'].includes(app.status))
+							.length,
 					});
 				} else {
 					console.error('Failed to load application stats:', statsRes.reason);
@@ -76,7 +75,7 @@ export default function JobseekerDashboardPage() {
 	return (
 		<div className='space-y-8'>
 			<div className='lg:col-span-2 space-y-2'>
-				<h1 className='text-3xl font-headline font-bold'>Welcome, {currectUser?.firstName}!</h1>
+				<h1 className='text-3xl font-headline font-bold'>Welcome, {currectUser?.fullName}!</h1>
 				<p className='text-muted-foreground'>Here's an overview of your job search journey.</p>
 			</div>
 
@@ -156,9 +155,7 @@ export default function JobseekerDashboardPage() {
 										{app.requestedPost?.jobRequest?.clientOrganization?.nameEn}
 									</p>
 								</div>
-								<Badge variant={app.status === 'INTERVIEW' ? 'default' : 'secondary'}>
-									{app.statusDTO.nameEn}
-								</Badge>
+								<Badge variant={getStatusVariant(app.status)}>{app.statusDTO.nameEn}</Badge>
 							</div>
 						))
 					) : (
