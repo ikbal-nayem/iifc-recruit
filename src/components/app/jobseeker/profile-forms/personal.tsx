@@ -1,3 +1,4 @@
+
 'use client';
 
 import { PersonalInfoMasterData } from '@/app/(auth)/jobseeker/profile-edit/page';
@@ -27,6 +28,7 @@ import { Linkedin, Loader2, Mail, Phone, Save, Upload, Video } from 'lucide-reac
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { compressImage } from '@/lib/compresser';
 
 const profileImageSchema = z.object({
 	avatarFile: z
@@ -72,27 +74,27 @@ function ProfileImageCard({
 		}
 	};
 
-	const onImageSubmit = (data: ProfileImageFormValues) => {
+	const onImageSubmit = async (data: ProfileImageFormValues) => {
 		setIsSubmitting(true);
-		const formData = new FormData();
-		formData.append('file', data.avatarFile);
-
-		UserService.saveProfileImage(formData)
-			.then((res) => {
-				toast.success({
-					title: 'Photo Updated',
-					description: res.message || 'Your new profile photo has been saved.',
-				});
-				updateUserInfo({ profileImage: res.body });
-				form.reset();
-			})
-			.catch((err) => {
-				toast.error({
-					title: 'Upload Failed',
-					description: err.message || 'There was a problem uploading your photo.',
-				});
-			})
-			.finally(() => setIsSubmitting(false));
+		try {
+			const compressedFile = await compressImage(data.avatarFile);
+			const formData = new FormData();
+			formData.append('file', compressedFile);
+			const res = await UserService.saveProfileImage(formData);
+			toast.success({
+				title: 'Photo Updated',
+				description: res.message || 'Your new profile photo has been saved.',
+			});
+			updateUserInfo({ profileImage: res.body });
+			form.reset();
+		} catch (err: any) {
+			toast.error({
+				title: 'Upload Failed',
+				description: err.message || 'There was a problem uploading your photo.',
+			});
+		} finally {
+			setIsSubmitting(false);
+		}
 	};
 
 	return (
