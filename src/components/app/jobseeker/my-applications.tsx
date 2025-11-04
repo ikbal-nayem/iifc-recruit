@@ -1,8 +1,8 @@
+
 'use client';
 
 import {
 	ColumnDef,
-	createColumnHelper,
 	flexRender,
 	getCoreRowModel,
 	getPaginationRowModel,
@@ -27,21 +27,40 @@ import { ApplicationService } from '@/services/api/application.service';
 import { format } from 'date-fns';
 import { Eye } from 'lucide-react';
 import { JobCircularDetails } from '../public/job-circular-details';
+import { EnumDTO } from '@/interfaces/master-data.interface';
+import { MasterDataService } from '@/services/api/master-data.service';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FormLabel } from '@/components/ui/form';
 
-const initMeta: IMeta = { page: 0, limit: 20 };
+const initMeta: IMeta = { page: 0, limit: 10 };
 
 export function MyApplications() {
 	const [data, setData] = React.useState<Application[]>([]);
 	const [meta, setMeta] = React.useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [selectedJobId, setSelectedJobId] = React.useState<string | null>(null);
+	const [statuses, setStatuses] = React.useState<EnumDTO[]>([]);
+	const [statusFilter, setStatusFilter] = React.useState<string>('all');
+
+	React.useEffect(() => {
+		MasterDataService.getEnum('application-status')
+			.then((res) => {
+				setStatuses(res.body as EnumDTO[]);
+			})
+			.catch(() => {
+				toast.error({ description: 'Failed to load application statuses.' });
+			});
+	}, []);
 
 	const loadApplications = React.useCallback(
-		async (page: number) => {
+		async (page: number, status: string) => {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
 					meta: { page: page, limit: meta.limit },
+					body: {
+						...(status !== 'all' && { status: status }),
+					},
 				};
 				const response = await ApplicationService.getByApplicant(payload);
 				setData(response.body);
@@ -58,11 +77,11 @@ export function MyApplications() {
 	);
 
 	React.useEffect(() => {
-		loadApplications(0);
-	}, [loadApplications]);
+		loadApplications(0, statusFilter);
+	}, [loadApplications, statusFilter]);
 
 	const handlePageChange = (newPage: number) => {
-		loadApplications(newPage);
+		loadApplications(newPage, statusFilter);
 	};
 
 	const columns: ColumnDef<Application>[] = [
@@ -107,7 +126,7 @@ export function MyApplications() {
 				return (
 					<Button
 						size='icon'
-						variant="lite-success"
+						variant='lite-success'
 						className='float-end'
 						onClick={() => setSelectedJobId(row.original.requestedPostId)}
 					>
@@ -176,6 +195,22 @@ export function MyApplications() {
 
 	return (
 		<div className='space-y-4'>
+			<div className='w-full max-w-xs'>
+				<FormLabel>Filter by Status</FormLabel>
+				<Select value={statusFilter} onValueChange={setStatusFilter}>
+					<SelectTrigger>
+						<SelectValue placeholder='Filter by status...' />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value='all'>All Statuses</SelectItem>
+						{statuses.map((status) => (
+							<SelectItem key={status.value} value={status.value}>
+								{status.nameEn}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+			</div>
 			{/* Mobile View */}
 			<div className='md:hidden'>
 				{isLoading ? (
@@ -209,7 +244,7 @@ export function MyApplications() {
 					</TableHeader>
 					<TableBody>
 						{isLoading ? (
-							[...Array(5)].map((_, i) => (
+							[...Array(initMeta.limit)].map((_, i) => (
 								<TableRow key={i}>
 									<TableCell colSpan={columns.length}>
 										<Skeleton className='h-8 w-full' />
@@ -237,11 +272,11 @@ export function MyApplications() {
 				</Table>
 			</div>
 
-			{meta && meta.totalRecords! > 0 && (
+			{meta && meta.totalRecords && meta.totalRecords > 0 ? (
 				<div className='flex items-center justify-center md:justify-end space-x-2 py-4'>
 					<Pagination meta={meta} isLoading={isLoading} onPageChange={handlePageChange} noun='application' />
 				</div>
-			)}
+			) : null}
 
 			<Dialog open={!!selectedJobId} onOpenChange={(isOpen) => !isOpen && setSelectedJobId(null)}>
 				<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto p-0'>
