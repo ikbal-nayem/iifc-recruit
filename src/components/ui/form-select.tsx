@@ -36,10 +36,19 @@ export function FormSelect<TFieldValues extends FieldValues, TOption>({
 	...props
 }: FormSelectProps<TFieldValues, TOption>) {
 	const renderSelect = (field?: any) => {
+		// Use optional chaining and nullish coalescing to safely get the value.
+		// Ensure it's a string for the Select component, as it expects string values.
 		const currentValue = field?.value?.toString() ?? controlledValue;
+
 		const handleValueChange = (value: string) => {
+			// When updating, we convert back to the original type if necessary
+			const selectedOption = options.find((opt) => getOptionValue(opt) === value);
+			const originalValue = selectedOption ? getOptionValue(selectedOption) : value;
+
 			if (field) {
-				field.onChange(value);
+				// Check if original field value was a number and convert back
+				const isNumberField = typeof field.value === 'number';
+				field.onChange(isNumberField ? Number(originalValue) : originalValue);
 			}
 			if (onValueChange) {
 				onValueChange(value);
@@ -49,7 +58,6 @@ export function FormSelect<TFieldValues extends FieldValues, TOption>({
 		return (
 			<Select
 				onValueChange={handleValueChange}
-				defaultValue={currentValue}
 				value={currentValue}
 				disabled={disabled}
 				{...props}
