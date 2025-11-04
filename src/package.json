@@ -38,6 +38,7 @@
 		"@radix-ui/react-tooltip": "^1.1.8",
 		"@tanstack/react-table": "^8.21.3",
 		"axios": "^1.11.0",
+		"browser-image-compression": "^2.0.2",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"cmdk": "^1.0.0",
@@ -54,6 +55,7 @@
 		"recharts": "^3.2.0",
 		"tailwind-merge": "^3.0.1",
 		"tailwindcss-animate": "^1.0.7",
+		"xlsx": "^0.18.5",
 		"zod": "^3.24.2"
 	},
 	"devDependencies": {
