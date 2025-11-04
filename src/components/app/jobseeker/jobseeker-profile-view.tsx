@@ -1,10 +1,8 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { Jobseeker, JobseekerSkill } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makeDownloadURL, makePreviewURL } from '@/lib/file-oparations';
@@ -49,7 +47,6 @@ export function JobseekerProfileView({
 	jobseeker: initialJobseeker,
 	jobseekerId,
 }: JobseekerProfileViewProps) {
-	const { toast } = useToast();
 	const [jobseeker, setJobseeker] = useState<Jobseeker | null | undefined>(initialJobseeker);
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -59,9 +56,8 @@ export function JobseekerProfileView({
 			JobseekerProfileService.getProfile(jobseekerId)
 				.then((res) => setJobseeker(res.body))
 				.catch((err) => {
-					toast({
+					toast.error({
 						description: err.message || 'Could not fetch jobseeker details.',
-						variant: 'danger',
 					});
 					setJobseeker(null);
 				})
@@ -69,7 +65,7 @@ export function JobseekerProfileView({
 		} else {
 			setJobseeker(initialJobseeker);
 		}
-	}, [initialJobseeker, jobseekerId, toast]);
+	}, [initialJobseeker, jobseekerId]);
 
 	if (isLoading) {
 		return (
@@ -118,13 +114,15 @@ export function JobseekerProfileView({
 			</div>
 		) : null;
 
+	console.log(makePreviewURL(personalInfo.profileImage?.filePath))
+
 	return (
 		<div className='p-2 sm:p-4 md:p-6 space-y-6'>
 			{/* Header */}
 			<div className='flex flex-col sm:flex-row items-start gap-6'>
 				<Avatar className='h-28 w-28 border-4 border-background shadow-md'>
 					<AvatarImage
-						src={makePreviewURL(personalInfo.profileImage?.filePath) || '/user-placeholder.png'}
+						src={makePreviewURL(personalInfo.profileImage?.filePath)}
 						alt={personalInfo.fullName}
 					/>
 					<AvatarFallback>
