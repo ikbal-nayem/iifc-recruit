@@ -1,3 +1,4 @@
+
 'use client';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -36,32 +37,27 @@ export function FormSelect<TFieldValues extends FieldValues, TOption>({
 	...props
 }: FormSelectProps<TFieldValues, TOption>) {
 	const renderSelect = (field?: any) => {
-		// Use optional chaining and nullish coalescing to safely get the value.
-		// Ensure it's a string for the Select component, as it expects string values.
+		// The Radix Select component works with string values.
+		// We ensure the value passed to it is always a string.
 		const currentValue = field?.value?.toString() ?? controlledValue;
 
 		const handleValueChange = (value: string) => {
-			// When updating, we convert back to the original type if necessary
-			const selectedOption = options.find((opt) => getOptionValue(opt) === value);
-			const originalValue = selectedOption ? getOptionValue(selectedOption) : value;
-
-			if (field) {
-				// Check if original field value was a number and convert back
-				const isNumberField = typeof field.value === 'number';
-				field.onChange(isNumberField ? Number(originalValue) : originalValue);
-			}
 			if (onValueChange) {
 				onValueChange(value);
 			}
+
+			if (field) {
+				// When updating the form state, we check the original value's type.
+				// If it was a number, we convert the selected string back to a number.
+				const isNumberField = typeof field.value === 'number';
+				field.onChange(isNumberField ? Number(value) : value);
+			}
 		};
+
 		const TriggerWrapper = !control ? Fragment : FormControl;
+
 		return (
-			<Select
-				onValueChange={handleValueChange}
-				value={currentValue}
-				disabled={disabled}
-				{...props}
-			>
+			<Select onValueChange={handleValueChange} value={currentValue} disabled={disabled} {...props}>
 				<TriggerWrapper>
 					<SelectTrigger className={cn(!currentValue && 'text-muted-foreground')}>
 						<SelectValue placeholder={placeholder} />
@@ -81,12 +77,7 @@ export function FormSelect<TFieldValues extends FieldValues, TOption>({
 	if (!control) {
 		return (
 			<div className='space-y-2'>
-				{!!label && (
-					<Label>
-						{label}
-						{required && <span className='text-danger font-semibold'> *</span>}
-					</Label>
-				)}
+				{!!label && <Label required={required}>{label}</Label>}
 				{renderSelect()}
 			</div>
 		);
