@@ -145,7 +145,7 @@ export function FormAutocomplete<
 		return (
 			<FormItem>
 				<div className='space-y-2'>
-					{label && <FormLabel required={required}>{label}</FormLabel>}
+					{label && <Label required={required}>{label}</Label>}
 					<Popover open={open} onOpenChange={setOpen}>
 						<PopoverTrigger asChild>
 							{renderTrigger(controlledValue, selectedOption ? getOptionLabel(selectedOption) : initialLabel)}
