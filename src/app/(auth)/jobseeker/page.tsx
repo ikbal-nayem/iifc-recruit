@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ProfileCompletion } from '@/components/app/jobseeker/profile-completion';
@@ -17,17 +16,20 @@ import { ArrowRight, Briefcase, FileText, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
-type Stats = {
-	total: number;
-	applied: number;
-	interviews: number;
-};
-
 export default function JobseekerDashboardPage() {
 	const { currectUser } = useAuth();
 	const [recentApplications, setRecentApplications] = useState<Application[]>([]);
 	const [profileCompletion, setProfileCompletion] = useState<IProfileCompletionStatus | null>(null);
-	const [stats, setStats] = useState<Stats>({ total: 0, applied: 0, interviews: 0 });
+	const [stats, setStats] = useState({
+		appliedCount: 0,
+		acceptedCount: 0,
+		interviewCount: 0,
+		shortlistedCount: 0,
+		rejectedCount: 0,
+		hiredCount: 0,
+		terminatedCount: 0,
+		totalCount: 0,
+	});
 	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
@@ -38,7 +40,7 @@ export default function JobseekerDashboardPage() {
 				const [completionRes, applicationsRes, statsRes] = await Promise.allSettled([
 					JobseekerProfileService.getProfileCompletion(),
 					ApplicationService.getByApplicant({ meta: { limit: 2 } }),
-					ApplicationService.getStatistics(currectUser.id!),
+					ApplicationService.getStatistics(currectUser?.id!),
 				]);
 
 				if (completionRes.status === 'fulfilled') {
@@ -55,11 +57,7 @@ export default function JobseekerDashboardPage() {
 
 				if (statsRes.status === 'fulfilled') {
 					const s = statsRes.value.body;
-					setStats({
-						total: s.total,
-						applied: s.applied,
-						interviews: s.interview,
-					});
+					setStats(statsRes.value.body);
 				} else {
 					console.error('Failed to load application stats:', statsRes.reason);
 				}
@@ -86,35 +84,35 @@ export default function JobseekerDashboardPage() {
 				<ProfileCompletion profileCompletion={profileCompletion} />
 			)}
 
-			<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
+			<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
 				<Link href={ROUTES.JOB_SEEKER.APPLICATIONS}>
 					<Card className='glassmorphism card-hover h-full'>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-							<CardTitle className='text-sm font-medium'>Total Applications</CardTitle>
+							<CardTitle className='text-sm font-medium'>Total Applied</CardTitle>
 							<FileText className='h-4 w-4 text-muted-foreground' />
 						</CardHeader>
 						<CardContent>
 							{isLoading ? (
 								<Skeleton className='h-8 w-12' />
 							) : (
-								<div className='text-2xl font-bold'>{stats.total}</div>
+								<div className='text-2xl font-bold'>{stats?.totalCount || 0}</div>
 							)}
 							<p className='text-xs text-muted-foreground'>Across all jobs</p>
 						</CardContent>
 					</Card>
 				</Link>
 
-				<Link href={`${ROUTES.JOB_SEEKER.APPLICATIONS}?status=${APPLICATION_STATUS.APPLIED}`}>
+				<Link href={`${ROUTES.JOB_SEEKER.APPLICATIONS}?status=${APPLICATION_STATUS.ACCEPTED}`}>
 					<Card className='glassmorphism card-hover h-full'>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-							<CardTitle className='text-sm font-medium'>Applied</CardTitle>
+							<CardTitle className='text-sm font-medium'>Accepted</CardTitle>
 							<Briefcase className='h-4 w-4 text-muted-foreground' />
 						</CardHeader>
 						<CardContent>
 							{isLoading ? (
 								<Skeleton className='h-8 w-12' />
 							) : (
-								<div className='text-2xl font-bold'>{stats.applied}</div>
+								<div className='text-2xl font-bold'>{stats.acceptedCount || 0}</div>
 							)}
 							<p className='text-xs text-muted-foreground'>Currently in consideration</p>
 						</CardContent>
@@ -131,9 +129,26 @@ export default function JobseekerDashboardPage() {
 							{isLoading ? (
 								<Skeleton className='h-8 w-12' />
 							) : (
-								<div className='text-2xl font-bold'>{stats.interviews}</div>
+								<div className='text-2xl font-bold'>{stats?.interviewCount || 0}</div>
 							)}
 							<p className='text-xs text-muted-foreground'>Scheduled or completed</p>
+						</CardContent>
+					</Card>
+				</Link>
+
+				<Link href={`${ROUTES.JOB_SEEKER.APPLICATIONS}?status=${APPLICATION_STATUS.SHORTLISTED}`}>
+					<Card className='glassmorphism card-hover h-full'>
+						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+							<CardTitle className='text-sm font-medium'>Shortlisted</CardTitle>
+							<Star className='h-4 w-4 text-muted-foreground' />
+						</CardHeader>
+						<CardContent>
+							{isLoading ? (
+								<Skeleton className='h-8 w-12' />
+							) : (
+								<div className='text-2xl font-bold'>{stats?.shortlistedCount || 0}</div>
+							)}
+							<p className='text-xs text-muted-foreground'>Under final review</p>
 						</CardContent>
 					</Card>
 				</Link>
