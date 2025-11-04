@@ -20,7 +20,7 @@ export default function Home() {
 						<Button
 							size='lg'
 							variant='outline'
-							className='bg-white/20 border-white/30 text-white hover:bg-white/30 hover:text-white backdrop-blur-sm'
+							className='bg-white/20 border-primary/30 text-primary hover:bg-white/30 hover:text-white backdrop-blur-sm'
 							asChild
 						>
 							<Link href='/jobs'>
