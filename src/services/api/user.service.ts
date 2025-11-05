@@ -13,6 +13,10 @@ export const UserService = {
 		return axiosIns.get('/user/get-details');
 	},
 
+	createUser: async (payload: IObject): Promise<IApiResponse<IUser>> => {
+		return axiosIns.post('/user/create', payload);
+	},
+
 	bulkCreateJobseeker: async (payload: IObject[]): Promise<IApiResponse<any[]>> => {
 		return axiosIns.post('/user/jobseeker/bulk-signup', payload);
 	},

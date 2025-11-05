@@ -13,6 +13,7 @@ import { FormSelect } from '@/components/ui/form-select';
 import { useToast } from '@/hooks/use-toast';
 import { IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
+import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
 import { useState } from 'react';
@@ -21,9 +22,11 @@ import { z } from 'zod';
 
 const userSchema = z
 	.object({
-		name: z.string().min(1, 'Name is required.'),
+		firstName: z.string().min(1, 'First name is required.'),
+		lastName: z.string().min(1, 'Last name is required.'),
 		email: z.string().email('Please enter a valid email.'),
-		role: z.string().min(1, 'Role is required'),
+		phone: z.string().optional(),
+		roles: z.array(z.string()).min(1, 'Role is required'),
 		password: z.string().min(8, 'Password must be at least 8 characters.'),
 		confirmPassword: z.string(),
 	})
@@ -45,25 +48,40 @@ interface UserFormProps {
 function UserForm({ isOpen, onClose, organizationId, onUserCreated, roles }: UserFormProps) {
 	const form = useForm<UserFormValues>({
 		resolver: zodResolver(userSchema),
-		defaultValues: { name: '', email: '', role: '', password: '', confirmPassword: '' },
+		defaultValues: {
+			firstName: '',
+			lastName: '',
+			email: '',
+			phone: '',
+			roles: [],
+			password: '',
+			confirmPassword: '',
+		},
 	});
 	const { toast } = useToast();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	const handleSubmit = (data: UserFormValues) => {
+	const handleSubmit = async (data: UserFormValues) => {
 		setIsSubmitting(true);
-		console.log({ ...data, organizationId });
-		// Simulate API call
-		setTimeout(() => {
+		try {
+			const { confirmPassword, ...payload } = data;
+			await UserService.createUser({ ...payload, organizationId });
 			toast({
 				title: 'User Created',
-				description: `User ${data.name} has been created for this organization.`,
+				description: `User ${data.firstName} ${data.lastName} has been created.`,
 				variant: 'success',
 			});
-			setIsSubmitting(false);
 			onUserCreated();
 			onClose();
-		}, 1000);
+		} catch (error: any) {
+			toast({
+				title: 'Error',
+				description: error.message || 'Failed to create user.',
+				variant: 'danger',
+			});
+		} finally {
+			setIsSubmitting(false);
+		}
 	};
 
 	return (
@@ -74,11 +92,15 @@ function UserForm({ isOpen, onClose, organizationId, onUserCreated, roles }: Use
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-2'>
-						<FormInput control={form.control} name='name' label='Full Name' required />
+						<div className='grid grid-cols-2 gap-4'>
+							<FormInput control={form.control} name='firstName' label='First Name' required />
+							<FormInput control={form.control} name='lastName' label='Last Name' required />
+						</div>
 						<FormInput control={form.control} name='email' label='Email Address' type='email' required />
+						<FormInput control={form.control} name='phone' label='Phone Number' />
 						<FormSelect
 							control={form.control}
-							name='role'
+							name='roles[0]'
 							label='Role'
 							required
 							options={roles}
@@ -130,38 +152,42 @@ export function OrganizationUserManagement({ organizationId, roles }: { organiza
 				</CardHeader>
 				<CardContent>
 					<div className='space-y-4'>
-						{users.map((user) => (
-							<Card key={user.id} className='p-4 flex items-center justify-between'>
-								<div className='flex items-center gap-4'>
-									<Avatar>
-										<AvatarImage src={user.avatar} />
-										<AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-									</Avatar>
-									<div>
-										<p className='font-semibold'>{user.name}</p>
-										<p className='text-sm text-muted-foreground'>{user.email}</p>
+						{users.length > 0 ? (
+							users.map((user) => (
+								<Card key={user.id} className='p-4 flex items-center justify-between'>
+									<div className='flex items-center gap-4'>
+										<Avatar>
+											<AvatarImage src={user.avatar} />
+											<AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+										</Avatar>
+										<div>
+											<p className='font-semibold'>{user.name}</p>
+											<p className='text-sm text-muted-foreground'>{user.email}</p>
+										</div>
 									</div>
-								</div>
-								<div className='flex items-center gap-4'>
-									<Badge variant={user.role === 'Admin' ? 'default' : 'secondary'}>{user.role}</Badge>
-									<Badge variant={getStatusVariant(user.status)}>{user.status}</Badge>
-									<div className='flex gap-1'>
-										<Button variant='ghost' size='icon'>
-											<Edit className='h-4 w-4' />
-										</Button>
-										<ConfirmationDialog
-											trigger={
-												<Button variant='ghost' size='icon'>
-													<Trash className='h-4 w-4 text-danger' />
-												</Button>
-											}
-											description={`Are you sure you want to delete user ${user.name}?`}
-											onConfirm={() => alert('Deleting user... (not implemented)')}
-										/>
+									<div className='flex items-center gap-4'>
+										<Badge variant={user.role === 'Admin' ? 'default' : 'secondary'}>{user.role}</Badge>
+										<Badge variant={getStatusVariant(user.status)}>{user.status}</Badge>
+										<div className='flex gap-1'>
+											<Button variant='ghost' size='icon'>
+												<Edit className='h-4 w-4' />
+											</Button>
+											<ConfirmationDialog
+												trigger={
+													<Button variant='ghost' size='icon'>
+														<Trash className='h-4 w-4 text-danger' />
+													</Button>
+												}
+												description={`Are you sure you want to delete user ${user.name}?`}
+												onConfirm={() => alert('Deleting user... (not implemented)')}
+											/>
+										</div>
 									</div>
-								</div>
-							</Card>
-						))}
+								</Card>
+							))
+						) : (
+							<div className='text-center py-8 text-muted-foreground'>No users found for this organization.</div>
+						)}
 					</div>
 				</CardContent>
 			</Card>
