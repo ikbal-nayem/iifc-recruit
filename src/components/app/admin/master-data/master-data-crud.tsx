@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -19,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { IMeta } from '@/interfaces/common.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { isBangla, isEnglish } from '@/lib/utils';
@@ -36,6 +35,7 @@ const formSchema = z.object({
 	nameBn: z.string().min(1, 'Bengali name is required.').refine(isBangla, {
 		message: 'Only Bengali characters, numbers, and some special characters are allowed.',
 	}),
+	serial: z.number().optional(),
 });
 type FormValues = z.infer<typeof formSchema>;
 
@@ -45,15 +45,10 @@ interface MasterDataFormProps {
 	onSubmit: (data: FormValues, id?: string) => Promise<boolean | null>;
 	initialData?: ICommonMasterData;
 	noun: string;
+	hasSerial?: boolean;
 }
 
-function MasterDataForm({
-	isOpen,
-	onClose,
-	onSubmit,
-	initialData,
-	noun,
-}: MasterDataFormProps) {
+function MasterDataForm({ isOpen, onClose, onSubmit, initialData, noun, hasSerial }: MasterDataFormProps) {
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		values: initialData || { nameEn: '', nameBn: '' },
@@ -97,6 +92,16 @@ function MasterDataForm({
 							required
 							disabled={isSubmitting}
 						/>
+						{hasSerial && (
+							<FormInput
+								control={form.control}
+								name='serial'
+								label='Serial'
+								placeholder='e.g., 1'
+								required
+								disabled={isSubmitting}
+							/>
+						)}
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
 								Cancel
@@ -125,6 +130,7 @@ interface MasterDataCrudProps {
 	onDelete: (id: string) => Promise<boolean>;
 	onPageChange?: (page: number) => void;
 	onSearch: (query: string) => void;
+	hasSerial?: boolean;
 }
 
 export function MasterDataCrud({
@@ -139,8 +145,8 @@ export function MasterDataCrud({
 	onDelete,
 	onPageChange,
 	onSearch,
+	hasSerial,
 }: MasterDataCrudProps) {
-	const { toast } = useToast();
 	const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [editingItem, setEditingItem] = useState<ICommonMasterData | undefined>(undefined);
@@ -170,10 +176,9 @@ export function MasterDataCrud({
 		setIsSubmitting(item.id.toString());
 		const success = await onUpdate({ ...item, active: !item.active });
 		if (success) {
-			toast({
+			toast.success({
 				title: 'Success',
 				description: 'Status updated successfully.',
-				variant: 'success',
 			});
 		}
 		setIsSubmitting(null);
@@ -218,9 +223,7 @@ export function MasterDataCrud({
 										className='p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-background/50'
 									>
 										<div className='flex-1 mb-4 sm:mb-0'>
-											<p
-												className={`font-semibold ${!item.active && 'text-muted-foreground line-through'}`}
-											>
+											<p className={`font-semibold ${!item.active && 'text-muted-foreground line-through'}`}>
 												{item.nameEn}
 											</p>
 											<p className='text-sm text-muted-foreground'>{item.nameBn}</p>
@@ -280,6 +283,7 @@ export function MasterDataCrud({
 					onSubmit={handleFormSubmit}
 					initialData={editingItem}
 					noun={noun}
+					hasSerial={hasSerial}
 				/>
 			)}
 			<ConfirmationDialog
