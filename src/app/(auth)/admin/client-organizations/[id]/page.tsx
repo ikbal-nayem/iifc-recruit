@@ -1,9 +1,10 @@
+
 import { OrganizationUserManagement } from '@/components/app/admin/client-organizations/organization-user-management';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AuthService } from '@/services/api/auth.service';
 import { MasterDataService } from '@/services/api/master-data.service';
-import { Building, Globe, Mail, MapPin, Phone } from 'lucide-react';
+import { Building, Globe, Mail, MapPin, Phone, UserCheck } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
 const payload = { body: { system: false } };
@@ -45,10 +46,6 @@ export default async function ClientOrganizationDetailsPage({ params }: { params
 				<div>
 					<h1 className='text-3xl font-headline font-bold'>{organization.nameEn}</h1>
 					<p className='text-muted-foreground'>{organization.nameBn}</p>
-					<div className='flex gap-2 mt-2'>
-						{organization.isClient && <Badge variant='success'>Client</Badge>}
-						{organization.isExaminer && <Badge variant='info'>Examiner</Badge>}
-					</div>
 				</div>
 			</div>
 
@@ -58,6 +55,16 @@ export default async function ClientOrganizationDetailsPage({ params }: { params
 				</CardHeader>
 				<CardContent className='space-y-4'>
 					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-sm'>
+						<div className='flex items-start gap-3'>
+							<UserCheck className='h-4 w-4 mt-1 text-muted-foreground' />
+							<div>
+								<p className='font-medium'>Roles</p>
+								<div className='flex gap-2 mt-1'>
+									{organization.isClient && <Badge variant='success'>Client</Badge>}
+									{organization.isExaminer && <Badge variant='info'>Examiner</Badge>}
+								</div>
+							</div>
+						</div>
 						{organization.organizationType && (
 							<div className='flex items-start gap-3'>
 								<Building className='h-4 w-4 mt-1 text-muted-foreground' />
