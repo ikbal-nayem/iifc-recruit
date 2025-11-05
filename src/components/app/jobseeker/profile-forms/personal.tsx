@@ -160,7 +160,11 @@ const personalInfoSchema = z.object({
 	fatherName: z.string().min(1, "Father's name is required"),
 	motherName: z.string().min(1, "Mother's name is required"),
 	email: z.string().email(),
-	phone: z.string().min(1, 'Phone number is required'),
+	phone: z
+		.string()
+		.min(1, 'Phone number is required')
+		.max(11, 'Phone number too long')
+		.regex(/^01[0-9]{9}$/, 'Invalid phone number'),
 	careerObjective: z.string().max(500, 'Maximum 500 characters allowed').optional(),
 	dateOfBirth: z.string().min(1, 'Date of birth is required'),
 	gender: z.string().min(1, 'Gender is required'),
@@ -463,7 +467,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 										control={form.control}
 										name='phone'
 										label='Phone'
-										placeholder='+8801...'
+										placeholder='01XXXXXXXXX'
 										required
 										startIcon={<Phone className='h-4 w-4 text-muted-foreground' />}
 									/>
