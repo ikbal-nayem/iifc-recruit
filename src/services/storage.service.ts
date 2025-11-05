@@ -86,12 +86,8 @@ export class CookieService {
 }
 
 export const clearAuthInfo = () => {
-	try{
-		CookieService.remove(ACCESS_TOKEN);
-		CookieService.remove(REFRESH_TOKEN);
-		LocalStorageService.delete(AUTH_INFO);
-		SessionStorageService.delete('redirectUrl');
-	} catch(err) {
-		console.info('Failed to clear auth info:', err);
-	}
+	CookieService.remove(ACCESS_TOKEN);
+	CookieService.remove(REFRESH_TOKEN);
+	LocalStorageService.delete(AUTH_INFO);
+	SessionStorageService.delete('redirectUrl');
 };
