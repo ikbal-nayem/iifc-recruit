@@ -75,11 +75,11 @@ export function FormMultiSelect<
 			control={control}
 			name={name}
 			render={({ field }) => {
-				const selectedValues = new Set(field.value || []);
+				const selectedValues = new Set<string>(field.value || []);
 
 				const handleSelect = (option: TOption) => {
 					const value = getOptionValue(option);
-					const newSelectedValues = new Set(selectedValues);
+					const newSelectedValues = new Set<string>(selectedValues);
 					if (newSelectedValues.has(value)) {
 						newSelectedValues.delete(value);
 					} else {
@@ -103,7 +103,7 @@ export function FormMultiSelect<
 					allOptions.forEach((option) => valueMap.set(getOptionValue(option), option));
 
 					return Array.from(selectedValues).map(
-						(value) => valueMap.get(value) || ({ id: value, nameEn: 'Loading...' } as TOption)
+						(value) => valueMap.get(value) || ({ id: value, nameEn: 'Loading...' } as any)
 					);
 				}, [selectedValues, allOptions, getOptionValue]);
 

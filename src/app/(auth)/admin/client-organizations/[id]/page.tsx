@@ -13,17 +13,13 @@ async function getData(id: string) {
 			AuthService.getRoles(),
 		]);
 
-		console.log(rolesRes)
-
 		return {
 			organization: orgRes.body,
-			roles: rolesRes.body?.filter((role) =>
-				orgRes.body?.isClient
-					? role.code?.startsWith('CLIENT_')
-					: orgRes.body?.isExaminer
-					? role.code?.startsWith('EXAMINER_')
-					: false
-			),
+			roles: rolesRes.body?.filter((role) => {
+				if (orgRes.body?.isClient && role.roleCode?.startsWith('CLIENT_')) return true;
+				if (orgRes.body?.isExaminer && role.roleCode?.startsWith('EXAMINER_')) return true;
+				return false;
+			}),
 		};
 	} catch (error) {
 		console.error('Failed to load organization details:', error);
