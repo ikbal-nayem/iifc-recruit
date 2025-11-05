@@ -58,7 +58,7 @@ export function FormMultiSelect<
 	const [isLoading, setIsLoading] = React.useState(false);
 
 	const debouncedSearchQuery = useDebounce(searchQuery, 300);
-	const options = staticOptions || asyncOptions;
+	const allOptions = React.useMemo(() => staticOptions || asyncOptions, [staticOptions, asyncOptions]);
 
 	React.useEffect(() => {
 		if (loadOptions && open) {
@@ -69,12 +69,6 @@ export function FormMultiSelect<
 			});
 		}
 	}, [debouncedSearchQuery, loadOptions, open]);
-
-	const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-		if (e.key === 'Enter') {
-			e.preventDefault();
-		}
-	};
 
 	return (
 		<FormField
@@ -104,27 +98,14 @@ export function FormMultiSelect<
 					field.onChange(Array.from(newSelectedValues));
 				};
 
-				const selectedOptions = options.filter(option => selectedValues.has(getOptionValue(option)));
-				// Add selected options that might not be in the current `options` list (e.g., from initial form values)
-				const displayedSelected = React.useMemo(() => {
-					const displayed = [...selectedOptions];
-					const displayedIds = new Set(displayed.map(getOptionValue));
-					(field.value || []).forEach((val: string) => {
-						if (!displayedIds.has(val)) {
-							// This is a bit of a hack. If we have a value but not the full option object,
-							// we create a placeholder. This is common if initial values are set without
-							// pre-loading the full option objects.
-							const placeholderOption = { id: val, nameEn: 'Loading...' } as TOption;
-							if (staticOptions?.some(opt => getOptionValue(opt) === val)) {
-								displayed.push(staticOptions.find(opt => getOptionValue(opt) === val)!);
-							} else {
-								displayed.push(placeholderOption);
-							}
-						}
-					});
-					return displayed;
-				// eslint-disable-next-line react-hooks/exhaustive-deps
-				}, [field.value, options]);
+				const displayedOptions = React.useMemo(() => {
+					const valueMap = new Map<string, TOption>();
+					allOptions.forEach((option) => valueMap.set(getOptionValue(option), option));
+
+					return Array.from(selectedValues).map(
+						(value) => valueMap.get(value) || ({ id: value, nameEn: 'Loading...' } as TOption)
+					);
+				}, [selectedValues, allOptions, getOptionValue]);
 
 				return (
 					<FormItem>
@@ -136,12 +117,12 @@ export function FormMultiSelect<
 									variant='outline'
 									className={cn(
 										'flex flex-wrap gap-1 p-2 w-full justify-start font-normal h-auto min-h-10',
-										displayedSelected.length === 0 && 'text-muted-foreground'
+										displayedOptions.length === 0 && 'text-muted-foreground'
 									)}
 									onClick={() => setOpen(true)}
 								>
-									{displayedSelected.length > 0 ? (
-										displayedSelected.map((item) => (
+									{displayedOptions.length > 0 ? (
+										displayedOptions.map((item) => (
 											<Badge key={getOptionValue(item)} variant={badgeVariant} className='text-sm py-1 px-2'>
 												{getOptionLabel(item)}
 												<div
@@ -160,11 +141,10 @@ export function FormMultiSelect<
 									) : (
 										<span className='px-1'>{placeholder}</span>
 									)}
-									{displayedSelected.length > 0 && <span className='text-muted-foreground text-sm px-1'>Add more...</span>}
 								</Button>
 							</PopoverTrigger>
 							<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
-								<Command shouldFilter={!loadOptions} onKeyDown={handleKeyDown}>
+								<Command shouldFilter={!loadOptions}>
 									<CommandInput placeholder='Search...' value={searchQuery} onValueChange={setSearchQuery} />
 									<CommandList>
 										{isLoading && (
@@ -172,16 +152,14 @@ export function FormMultiSelect<
 												<Loader2 className='h-6 w-6 animate-spin' />
 											</div>
 										)}
-										{!isLoading && searchQuery && options.length === 0 && (
+										{!isLoading && searchQuery && allOptions.length === 0 && (
 											<CommandEmpty>No results found.</CommandEmpty>
 										)}
-										{!isLoading && !searchQuery && !loadOptions && <CommandEmpty>No results found.</CommandEmpty>}
-										{!isLoading && !searchQuery && loadOptions && <CommandEmpty>Type to search.</CommandEmpty>}
 										<CommandGroup>
-											{options.map((option) => (
+											{allOptions.map((option) => (
 												<CommandItem
 													key={getOptionValue(option)}
-													value={getOptionLabel(option)} // Use label for filtering in cmdk
+													value={getOptionLabel(option)}
 													onSelect={() => handleSelect(option)}
 												>
 													<Check
