@@ -75,7 +75,7 @@ function UserForm({ isOpen, onClose, organizationId, onUserCreated, roles }: Use
 			setIsSubmitting(false);
 		}
 	};
-	
+
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent>
@@ -97,7 +97,7 @@ function UserForm({ isOpen, onClose, organizationId, onUserCreated, roles }: Use
 							required
 							placeholder='Select role(s)'
 							options={roles}
-							getOptionValue={(option) => option.id!}
+							getOptionValue={(option) => option.roleCode}
 							getOptionLabel={(option) => option.nameEn}
 						/>
 						<FormInput control={form.control} name='password' label='Password' type='password' required />
