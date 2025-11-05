@@ -1,7 +1,7 @@
 import { ACCESS_TOKEN, AUTH_INFO, REFRESH_TOKEN } from '@/constants/auth.constant';
 import { ENV } from '@/constants/env.constant';
 import { ROUTES } from '@/constants/routes.constant';
-import { clearAuthInfo, CookieService, LocalStorageService } from '@/services/storage.service';
+import { clearAuthInfo, CookieService, isBrowser, LocalStorageService } from '@/services/storage.service';
 import axios from 'axios';
 const { cookies } = require('next/headers');
 
@@ -17,15 +17,6 @@ const processQueue = (error: any, token: string | null = null) => {
 		}
 	});
 	failedQueue = [];
-};
-
-const handleLogout = () => {
-	clearAuthInfo();
-	failedQueue = [];
-	isRefreshing = false;
-	if (typeof window !== 'undefined') {
-		window.location.href = ROUTES.AUTH.LOGIN;
-	}
 };
 
 class AxiosInstance {
@@ -76,57 +67,58 @@ class AxiosInstance {
 			},
 			async (error) => {
 				const originalRequest = error.config;
-				if(error?.response?.status === 401 && originalRequest.url?.includes('/api/auth/login')) {
+				if (error?.response?.status === 401 && originalRequest.url?.includes('/api/auth/login')) {
 					return Promise.reject(error);
 				}
-				
+
 				if (error?.response?.status === 401 && !originalRequest._retry) {
-					if (isRefreshing) {
-						return new Promise(function (resolve, reject) {
-							failedQueue.push({ resolve, reject });
-						})
-							.then((token) => {
-								originalRequest.headers['Authorization'] = 'Bearer ' + token;
-								return axios(originalRequest);
-							})
-							.catch((err) => Promise.reject(err));
-					}
+					// if (isRefreshing) {
+					// 	return new Promise(function (resolve, reject) {
+					// 		failedQueue.push({ resolve, reject });
+					// 	})
+					// 		.then((token) => {
+					// 			originalRequest.headers['Authorization'] = 'Bearer ' + token;
+					// 			return axios(originalRequest);
+					// 		})
+					// 		.catch((err) => Promise.reject(err));
+					// }
 
-					originalRequest._retry = true;
-					isRefreshing = true;
+					// originalRequest._retry = true;
+					// isRefreshing = true;
 
-					const refreshToken = await this.getAuthToken(REFRESH_TOKEN);
-					if (!refreshToken) {
-						handleLogout();
-						return Promise.reject(error);
-					}
+					// const refreshToken = await this.getAuthToken(REFRESH_TOKEN);
+					// if (!refreshToken) {
+					// 	this.logout();
+					// 	return Promise.reject(error);
+					// }
+					// console.info('Token expired trying to get new token...');
 
-					return new Promise((resolve, reject) => {
-						axios
-							.post(`${ENV.API_GATEWAY}/api/auth/refresh`, { refreshToken })
-							.then(({ data }) => {
-								const newAuthInfo = data.body;
-								try{
-									CookieService.set(ACCESS_TOKEN, newAuthInfo.access_token, 1);
-									CookieService.set(REFRESH_TOKEN, newAuthInfo.refresh_token, 1);
-									LocalStorageService.set(AUTH_INFO, newAuthInfo);
-								} catch(err) {
-									console.info('Failed to store auth info after refresh from server:', err);
-									cookies.set(ACCESS_TOKEN, newAuthInfo.access_token, { httpOnly: true, path: '/' });
-									cookies.set(REFRESH_TOKEN, newAuthInfo.refresh_token, { httpOnly: true, path: '/' });
-								}
-								this.instance.defaults.headers.common['Authorization'] = 'Bearer ' + newAuthInfo.access_token;
-								originalRequest.headers['Authorization'] = 'Bearer ' + newAuthInfo.access_token;
-								processQueue(null, newAuthInfo.access_token);
-								resolve(this.instance(originalRequest));
-							})
-							.catch((err) => {
-								processQueue(err, null);
-								handleLogout();
-								reject(err);
-							})
-							.finally(() => (isRefreshing = false));
-					});
+					// return new Promise((resolve, reject) => {
+					// 	axios
+					// 		.post(`${ENV.API_GATEWAY}/api/auth/refresh`, { refreshToken })
+					// 		.then(({ data }) => {
+					// 			const newAuthInfo = data.body;
+					// 			try {
+					// 				CookieService.set(ACCESS_TOKEN, newAuthInfo.access_token, 1);
+					// 				CookieService.set(REFRESH_TOKEN, newAuthInfo.refresh_token, 1);
+					// 				LocalStorageService.set(AUTH_INFO, newAuthInfo);
+					// 			} catch (err) {
+					// 				console.info('Failed to store auth info after refresh from server:', err);
+					// 				cookies.set(ACCESS_TOKEN, newAuthInfo.access_token, { httpOnly: true, path: '/' });
+					// 				cookies.set(REFRESH_TOKEN, newAuthInfo.refresh_token, { httpOnly: true, path: '/' });
+					// 			}
+					// 			this.instance.defaults.headers.common['Authorization'] = 'Bearer ' + newAuthInfo.access_token;
+					// 			originalRequest.headers['Authorization'] = 'Bearer ' + newAuthInfo.access_token;
+					// 			processQueue(null, newAuthInfo.access_token);
+					// 			resolve(this.instance(originalRequest));
+					// 		})
+					// 		.catch((err) => {
+					// 			processQueue(err, null);
+					// 			this.logout();
+					// 			reject(err);
+					// 		})
+					// 		.finally(() => (isRefreshing = false));
+					// });
 				}
 
 				return Promise.reject({
@@ -136,6 +128,15 @@ class AxiosInstance {
 				});
 			}
 		);
+	}
+
+	private logout() {
+		if (isBrowser) {
+			clearAuthInfo();
+			failedQueue = [];
+			isRefreshing = false;
+			window.location.href = ROUTES.AUTH.LOGIN;
+		}
 	}
 
 	public getInstance() {

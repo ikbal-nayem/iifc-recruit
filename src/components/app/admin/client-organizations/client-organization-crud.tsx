@@ -243,7 +243,7 @@ export function ClientOrganizationCrud({
 		async (page: number, search: string, isClient?: boolean, isExaminer?: boolean) => {
 			setIsLoading(true);
 			try {
-				const body: { name: string; isClient?: boolean; isExaminer?: boolean } = { name: search };
+				const body: { searchKey: string; isClient?: boolean; isExaminer?: boolean } = { searchKey: search };
 				if (isClient) body.isClient = true;
 				if (isExaminer) body.isExaminer = true;
 
