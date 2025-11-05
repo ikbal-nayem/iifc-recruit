@@ -34,7 +34,7 @@ import {
 	getPaginationRowModel,
 	useReactTable,
 } from '@tanstack/react-table';
-import { Edit, Eye, Globe, Loader2, Mail, Phone, PlusCircle, Search, Trash, UserPlus } from 'lucide-react';
+import { Edit, Eye, Globe, Loader2, Mail, Phone, PlusCircle, Search, Trash } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -386,11 +386,6 @@ export function ClientOrganizationCrud({
 								label: 'View Details',
 								icon: <Eye className='mr-2 h-4 w-4' />,
 								href: ROUTES.CLIENT_ORGANIZATION_DETAILS(item.id),
-							},
-							{
-								label: 'Create User',
-								icon: <UserPlus className='mr-2 h-4 w-4' />,
-								onClick: () => toast({ description: 'User creation (not implemented).' }),
 							},
 							{ isSeparator: true },
 							{
