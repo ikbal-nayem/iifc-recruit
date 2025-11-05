@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -9,7 +8,7 @@ import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
-import { FormSelect } from '@/components/ui/form-select';
+import { FormMultiSelect } from '@/components/ui/form-multi-select';
 import { useToast } from '@/hooks/use-toast';
 import { IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
@@ -24,7 +23,7 @@ const userSchema = z.object({
 	firstName: z.string().min(1, 'First name is required.'),
 	lastName: z.string().min(1, 'Last name is required.'),
 	email: z.string().email('Please enter a valid email.'),
-	phone: z.string().optional(),
+	phone: z.string().max(11, 'Invalid phone number').regex(/^\d+$/, 'Invalid phone number').optional(),
 	roles: z.array(z.string()).min(1, 'Role is required'),
 	password: z.string().min(8, 'Password must be at least 8 characters.'),
 });
@@ -89,15 +88,15 @@ function UserForm({ isOpen, onClose, organizationId, onUserCreated, roles }: Use
 							<FormInput control={form.control} name='lastName' label='Last Name' required />
 						</div>
 						<FormInput control={form.control} name='email' label='Email Address' type='email' required />
-						<FormInput control={form.control} name='phone' label='Phone Number' />
-						<FormSelect
+						<FormInput control={form.control} name='phone' label='Phone Number' placeholder='01xxxxxxxxx' />
+						<FormMultiSelect
 							control={form.control}
-							name='roles[0]'
+							name='roles'
 							label='Role'
 							required
 							options={roles}
-							getOptionLabel={(option) => option.nameEn}
-							getOptionValue={(option) => option.id!}
+							// getOptionLabel={(option) => option.nameEn}
+							// getOptionValue={(option) => option.id!}
 						/>
 						<FormInput control={form.control} name='password' label='Password' type='password' required />
 						<DialogFooter className='pt-4'>
@@ -116,7 +115,13 @@ function UserForm({ isOpen, onClose, organizationId, onUserCreated, roles }: Use
 	);
 }
 
-export function OrganizationUserManagement({ organizationId, roles }: { organizationId: string, roles: IRole[] }) {
+export function OrganizationUserManagement({
+	organizationId,
+	roles,
+}: {
+	organizationId: string;
+	roles: IRole[];
+}) {
 	const [users, setUsers] = useState<IOrganizationUser[]>([]);
 	const [isUserFormOpen, setIsUserFormOpen] = useState(false);
 
@@ -171,7 +176,9 @@ export function OrganizationUserManagement({ organizationId, roles }: { organiza
 								</Card>
 							))
 						) : (
-							<div className='text-center py-8 text-muted-foreground'>No users found for this organization.</div>
+							<div className='text-center py-8 text-muted-foreground'>
+								No users found for this organization.
+							</div>
 						)}
 					</div>
 				</CardContent>

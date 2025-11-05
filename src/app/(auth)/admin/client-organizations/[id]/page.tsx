@@ -1,4 +1,3 @@
-
 import { OrganizationUserManagement } from '@/components/app/admin/client-organizations/organization-user-management';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,14 +6,14 @@ import { MasterDataService } from '@/services/api/master-data.service';
 import { Building, Globe, Mail, MapPin, Phone, UserCheck } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
-const payload = { body: { system: false } };
-
 async function getData(id: string) {
 	try {
 		const [orgRes, rolesRes] = await Promise.all([
 			MasterDataService.clientOrganization.getDetails(id),
-			AuthService.getRoleList(payload),
+			AuthService.getRoles(),
 		]);
+
+		console.log(rolesRes)
 
 		return {
 			organization: orgRes.body,

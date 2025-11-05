@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Badge, BadgeProps } from '@/components/ui/badge';
@@ -19,10 +18,7 @@ import { Check, Loader2, X } from 'lucide-react';
 import * as React from 'react';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
 
-interface FormMultiSelectProps<
-	TFieldValues extends FieldValues,
-	TOption = { id: string; nameEn: string },
-> {
+interface FormMultiSelectProps<TFieldValues extends FieldValues, TOption = { id: string; nameEn: string }> {
 	control: Control<TFieldValues> | any;
 	name: FieldPath<TFieldValues>;
 	label?: string;
@@ -39,7 +35,7 @@ interface FormMultiSelectProps<
 
 export function FormMultiSelect<
 	TFieldValues extends FieldValues,
-	TOption extends { id: string; nameEn: string },
+	TOption extends { id: string; nameEn: string }
 >({
 	control,
 	name,
@@ -132,16 +128,14 @@ export function FormMultiSelect<
 							<Loader2 className='h-6 w-6 animate-spin' />
 						</div>
 					)}
-					{!isLoading && searchQuery && options.length === 0 && <CommandEmpty>No results found.</CommandEmpty>}
+					{!isLoading && searchQuery && options.length === 0 && (
+						<CommandEmpty>No results found.</CommandEmpty>
+					)}
 					{!isLoading && !searchQuery && !loadOptions && <CommandEmpty>No results found.</CommandEmpty>}
 					{!isLoading && !searchQuery && loadOptions && <CommandEmpty>Type to search.</CommandEmpty>}
 					<CommandGroup>
 						{options.map((option) => (
-							<CommandItem
-								key={option.id}
-								value={option.nameEn}
-								onSelect={() => handleSelect(option)}
-							>
+							<CommandItem key={option.id} value={option.nameEn} onSelect={() => handleSelect(option)}>
 								<Check
 									className={cn(
 										'mr-2 h-4 w-4',
