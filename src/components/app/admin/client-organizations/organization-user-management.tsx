@@ -20,20 +20,14 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-const userSchema = z
-	.object({
-		firstName: z.string().min(1, 'First name is required.'),
-		lastName: z.string().min(1, 'Last name is required.'),
-		email: z.string().email('Please enter a valid email.'),
-		phone: z.string().optional(),
-		roles: z.array(z.string()).min(1, 'Role is required'),
-		password: z.string().min(8, 'Password must be at least 8 characters.'),
-		confirmPassword: z.string(),
-	})
-	.refine((data) => data.password === data.confirmPassword, {
-		message: "Passwords don't match",
-		path: ['confirmPassword'],
-	});
+const userSchema = z.object({
+	firstName: z.string().min(1, 'First name is required.'),
+	lastName: z.string().min(1, 'Last name is required.'),
+	email: z.string().email('Please enter a valid email.'),
+	phone: z.string().optional(),
+	roles: z.array(z.string()).min(1, 'Role is required'),
+	password: z.string().min(8, 'Password must be at least 8 characters.'),
+});
 
 type UserFormValues = z.infer<typeof userSchema>;
 
@@ -55,7 +49,6 @@ function UserForm({ isOpen, onClose, organizationId, onUserCreated, roles }: Use
 			phone: '',
 			roles: [],
 			password: '',
-			confirmPassword: '',
 		},
 	});
 	const { toast } = useToast();
@@ -64,8 +57,7 @@ function UserForm({ isOpen, onClose, organizationId, onUserCreated, roles }: Use
 	const handleSubmit = async (data: UserFormValues) => {
 		setIsSubmitting(true);
 		try {
-			const { confirmPassword, ...payload } = data;
-			await UserService.createUser({ ...payload, organizationId });
+			await UserService.createUser({ ...data, organizationId });
 			toast({
 				title: 'User Created',
 				description: `User ${data.firstName} ${data.lastName} has been created.`,
@@ -108,13 +100,6 @@ function UserForm({ isOpen, onClose, organizationId, onUserCreated, roles }: Use
 							getOptionValue={(option) => option.id!}
 						/>
 						<FormInput control={form.control} name='password' label='Password' type='password' required />
-						<FormInput
-							control={form.control}
-							name='confirmPassword'
-							label='Confirm Password'
-							type='password'
-							required
-						/>
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
 								Cancel
