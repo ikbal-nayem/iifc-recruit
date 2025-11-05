@@ -1,5 +1,6 @@
 import { ACCESS_TOKEN, AUTH_INFO, REFRESH_TOKEN } from '@/constants/auth.constant';
 import { ENV } from '@/constants/env.constant';
+import { ROUTES } from '@/constants/routes.constant';
 import { clearAuthInfo, CookieService, LocalStorageService } from '@/services/storage.service';
 import axios from 'axios';
 const { cookies } = require('next/headers');
@@ -23,7 +24,7 @@ const handleLogout = () => {
 	failedQueue = [];
 	isRefreshing = false;
 	if (typeof window !== 'undefined') {
-		window.location.href = '/login';
+		window.location.href = ROUTES.AUTH.LOGIN;
 	}
 };
 
@@ -102,12 +103,13 @@ class AxiosInstance {
 							.then(({ data }) => {
 								const newAuthInfo = data.body;
 								try{
-									LocalStorageService.set(AUTH_INFO, newAuthInfo);
 									CookieService.set(ACCESS_TOKEN, newAuthInfo.access_token, 1);
+									CookieService.set(REFRESH_TOKEN, newAuthInfo.refresh_token, 1);
+									LocalStorageService.set(AUTH_INFO, newAuthInfo);
 								} catch(err) {
 									console.info('Failed to store auth info after refresh from server:', err);
-									cookies.set(REFRESH_TOKEN, newAuthInfo.refresh_token, { httpOnly: true, path: '/' });
 									cookies.set(ACCESS_TOKEN, newAuthInfo.access_token, { httpOnly: true, path: '/' });
+									cookies.set(REFRESH_TOKEN, newAuthInfo.refresh_token, { httpOnly: true, path: '/' });
 								}
 								this.instance.defaults.headers.common['Authorization'] = 'Bearer ' + newAuthInfo.access_token;
 								originalRequest.headers['Authorization'] = 'Bearer ' + newAuthInfo.access_token;
