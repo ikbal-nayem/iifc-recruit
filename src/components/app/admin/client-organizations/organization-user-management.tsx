@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -8,7 +9,6 @@ import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
-import { FormMultiSelect } from '@/components/ui/form-multi-select';
 import { useToast } from '@/hooks/use-toast';
 import { IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
@@ -18,13 +18,14 @@ import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { FormMultiSelect } from '@/components/ui/form-multi-select';
 
 const userSchema = z.object({
 	firstName: z.string().min(1, 'First name is required.'),
 	lastName: z.string().min(1, 'Last name is required.'),
 	email: z.string().email('Please enter a valid email.'),
-	phone: z.string().max(11, 'Invalid phone number').regex(/^\d+$/, 'Invalid phone number').optional(),
-	roles: z.array(z.string()).min(1, 'Role is required'),
+	phone: z..string().max(11, 'Invalid phone number').regex(/^\d+$/, 'Invalid phone number').optional(),
+	roles: z.array(z.string()).min(1, 'At least one role is required.'),
 	password: z.string().min(8, 'Password must be at least 8 characters.'),
 });
 
@@ -92,11 +93,12 @@ function UserForm({ isOpen, onClose, organizationId, onUserCreated, roles }: Use
 						<FormMultiSelect
 							control={form.control}
 							name='roles'
-							label='Role'
+							label='Roles'
 							required
+							placeholder='Select role(s)'
 							options={roles}
-							// getOptionLabel={(option) => option.nameEn}
-							// getOptionValue={(option) => option.id!}
+							getOptionValue={(option) => option.id!}
+							getOptionLabel={(option) => option.nameEn}
 						/>
 						<FormInput control={form.control} name='password' label='Password' type='password' required />
 						<DialogFooter className='pt-4'>
