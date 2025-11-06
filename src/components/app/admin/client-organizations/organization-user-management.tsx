@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -9,8 +8,11 @@ import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
-import { useToast } from '@/hooks/use-toast';
-import { IRole, IOrganizationUser } from '@/interfaces/master-data.interface';
+import { FormMultiSelect } from '@/components/ui/form-multi-select';
+import { Skeleton } from '@/components/ui/skeleton';
+import { toast, useToast } from '@/hooks/use-toast';
+import { IApiRequest } from '@/interfaces/common.interface';
+import { IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,9 +20,6 @@ import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { FormMultiSelect } from '@/components/ui/form-multi-select';
-import { IApiRequest } from '@/interfaces/common.interface';
-import { Skeleton } from '@/components/ui/skeleton';
 
 const userSchema = z.object({
 	firstName: z.string().min(1, 'First name is required.'),
@@ -57,7 +56,6 @@ function UserForm({ isOpen, onClose, organizationId, onSuccess, roles, initialDa
 			roles: initialData?.roles || [],
 		},
 	});
-	const { toast } = useToast();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const handleSubmit = async (data: UserFormValues) => {
@@ -68,20 +66,17 @@ function UserForm({ isOpen, onClose, organizationId, onSuccess, roles, initialDa
 				? await UserService.updateUser(payload)
 				: await UserService.createUser(payload);
 
-			toast({
+			toast.success({
 				title: initialData ? 'User Updated' : 'User Created',
 				description: `User ${data.firstName} ${data.lastName} has been ${
 					initialData ? 'updated' : 'created'
 				}.`,
-				variant: 'success',
 			});
 			onSuccess();
 			onClose();
 		} catch (error: any) {
-			toast({
-				title: 'Error',
+			toast.error({
 				description: error.message || 'Failed to save user.',
-				variant: 'danger',
 			});
 		} finally {
 			setIsSubmitting(false);
@@ -217,7 +212,7 @@ export function OrganizationUserManagement({
 									</div>
 									<div className='flex items-center gap-4'>
 										<div className='hidden sm:flex flex-wrap gap-1 justify-end'>
-											{user.roles.map((role) => (
+											{user.roles?.map((role) => (
 												<Badge key={role} variant='secondary'>
 													{roles.find((r) => r.roleCode === role)?.nameEn || role}
 												</Badge>

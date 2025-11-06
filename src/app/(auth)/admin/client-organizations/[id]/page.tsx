@@ -50,14 +50,11 @@ export default async function ClientOrganizationDetailsPage({ params }: { params
 				</CardHeader>
 				<CardContent className='space-y-4'>
 					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-sm'>
-						<div className='flex items-start gap-3'>
+						<div className='flex items-center gap-3'>
 							<UserCheck className='h-4 w-4 mt-1 text-muted-foreground' />
-							<div>
-								<p className='font-medium'>Roles</p>
-								<div className='flex gap-2 mt-1'>
-									{organization.isClient && <Badge variant='success'>Client</Badge>}
-									{organization.isExaminer && <Badge variant='info'>Examiner</Badge>}
-								</div>
+							<div className='flex gap-2 mt-1'>
+								{organization.isClient && <Badge variant='success'>Client</Badge>}
+								{organization.isExaminer && <Badge variant='info'>Examiner</Badge>}
 							</div>
 						</div>
 						{organization.organizationType && (
