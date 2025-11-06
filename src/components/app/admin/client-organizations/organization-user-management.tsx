@@ -10,15 +10,17 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { useToast } from '@/hooks/use-toast';
-import { IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
-import { getStatusVariant } from '@/lib/color-mapping';
+import { IRole, IOrganizationUser } from '@/interfaces/master-data.interface';
+import { makePreviewURL } from '@/lib/file-oparations';
 import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import * as z from 'zod';
 import { FormMultiSelect } from '@/components/ui/form-multi-select';
+import { IApiRequest } from '@/interfaces/common.interface';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const userSchema = z.object({
 	firstName: z.string().min(1, 'First name is required.'),
@@ -26,7 +28,7 @@ const userSchema = z.object({
 	email: z.string().email('Please enter a valid email.'),
 	phone: z.string().max(11, 'Invalid phone number').regex(/^\d+$/, 'Invalid phone number').optional(),
 	roles: z.array(z.string()).min(1, 'At least one role is required.'),
-	password: z.string().min(8, 'Password must be at least 8 characters.'),
+	password: z.string().min(8, 'Password must be at least 8 characters.').optional(),
 });
 
 type UserFormValues = z.infer<typeof userSchema>;
@@ -35,20 +37,24 @@ interface UserFormProps {
 	isOpen: boolean;
 	onClose: () => void;
 	organizationId: string;
-	onUserCreated: () => void;
+	onSuccess: () => void;
 	roles: IRole[];
+	initialData?: IOrganizationUser;
 }
 
-function UserForm({ isOpen, onClose, organizationId, onUserCreated, roles }: UserFormProps) {
+function UserForm({ isOpen, onClose, organizationId, onSuccess, roles, initialData }: UserFormProps) {
 	const form = useForm<UserFormValues>({
-		resolver: zodResolver(userSchema),
+		resolver: zodResolver(
+			initialData
+				? userSchema.omit({ password: true }) // Password not needed for update
+				: userSchema
+		),
 		defaultValues: {
-			firstName: '',
-			lastName: '',
-			email: '',
-			phone: '',
-			roles: [],
-			password: '',
+			firstName: initialData?.fullName.split(' ')[0] || '',
+			lastName: initialData?.fullName.split(' ').slice(1).join(' ') || '',
+			email: initialData?.email || '',
+			phone: initialData?.phone || '',
+			roles: initialData?.roles || [],
 		},
 	});
 	const { toast } = useToast();
@@ -57,18 +63,24 @@ function UserForm({ isOpen, onClose, organizationId, onUserCreated, roles }: Use
 	const handleSubmit = async (data: UserFormValues) => {
 		setIsSubmitting(true);
 		try {
-			await UserService.createUser({ ...data, organizationId });
+			const payload = { ...data, organizationId, id: initialData?.id };
+			const response = initialData
+				? await UserService.updateUser(payload)
+				: await UserService.createUser(payload);
+
 			toast({
-				title: 'User Created',
-				description: `User ${data.firstName} ${data.lastName} has been created.`,
+				title: initialData ? 'User Updated' : 'User Created',
+				description: `User ${data.firstName} ${data.lastName} has been ${
+					initialData ? 'updated' : 'created'
+				}.`,
 				variant: 'success',
 			});
-			onUserCreated();
+			onSuccess();
 			onClose();
 		} catch (error: any) {
 			toast({
 				title: 'Error',
-				description: error.message || 'Failed to create user.',
+				description: error.message || 'Failed to save user.',
 				variant: 'danger',
 			});
 		} finally {
@@ -80,7 +92,7 @@ function UserForm({ isOpen, onClose, organizationId, onUserCreated, roles }: Use
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Create New User</DialogTitle>
+					<DialogTitle>{initialData ? 'Edit User' : 'Create New User'}</DialogTitle>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-2'>
@@ -100,14 +112,16 @@ function UserForm({ isOpen, onClose, organizationId, onUserCreated, roles }: Use
 							getOptionValue={(option) => option.roleCode}
 							getOptionLabel={(option) => option.nameEn}
 						/>
-						<FormInput control={form.control} name='password' label='Password' type='password' required />
+						{!initialData && (
+							<FormInput control={form.control} name='password' label='Password' type='password' required />
+						)}
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
 								Cancel
 							</Button>
 							<Button type='submit' disabled={isSubmitting}>
 								{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-								Create User
+								{initialData ? 'Save Changes' : 'Create User'}
 							</Button>
 						</DialogFooter>
 					</form>
@@ -124,12 +138,54 @@ export function OrganizationUserManagement({
 	organizationId: string;
 	roles: IRole[];
 }) {
+	const { toast } = useToast();
 	const [users, setUsers] = useState<IOrganizationUser[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
 	const [isUserFormOpen, setIsUserFormOpen] = useState(false);
+	const [editingUser, setEditingUser] = useState<IOrganizationUser | undefined>(undefined);
+	const [userToDelete, setUserToDelete] = useState<IOrganizationUser | null>(null);
 
-	const handleUserCreated = () => {
-		// In a real app, you would refetch the user list here
-		console.log('Refetching users for organization', organizationId);
+	const loadUsers = useCallback(async () => {
+		setIsLoading(true);
+		try {
+			const payload: IApiRequest = {
+				body: { organizationId },
+				meta: { page: 0, limit: 100 },
+			};
+			const response = await UserService.searchOrganizationUsers(payload);
+			setUsers(response.body);
+		} catch (error: any) {
+			toast.error({ description: error.message || 'Failed to load organization users.' });
+		} finally {
+			setIsLoading(false);
+		}
+	}, [organizationId, toast]);
+
+	useEffect(() => {
+		loadUsers();
+	}, [loadUsers]);
+
+	const handleOpenForm = (user?: IOrganizationUser) => {
+		setEditingUser(user);
+		setIsUserFormOpen(true);
+	};
+
+	const handleCloseForm = () => {
+		setIsUserFormOpen(false);
+		setEditingUser(undefined);
+	};
+
+	const handleDelete = async () => {
+		if (!userToDelete) return;
+		try {
+			await UserService.deleteUser(userToDelete.id);
+			toast.success({ description: `User ${userToDelete.fullName} has been deleted.` });
+			loadUsers();
+		} catch (error: any) {
+			toast.error({ description: error.message || 'Failed to delete user.' });
+		} finally {
+			setUserToDelete(null);
+		}
 	};
 
 	return (
@@ -137,31 +193,38 @@ export function OrganizationUserManagement({
 			<Card className='glassmorphism'>
 				<CardHeader className='flex-row items-center justify-between'>
 					<CardTitle>Organization Users</CardTitle>
-					<Button onClick={() => setIsUserFormOpen(true)}>
+					<Button onClick={() => handleOpenForm()}>
 						<PlusCircle className='mr-2 h-4 w-4' />
 						Create User
 					</Button>
 				</CardHeader>
 				<CardContent>
 					<div className='space-y-4'>
-						{users.length > 0 ? (
+						{isLoading ? (
+							[...Array(2)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
+						) : users.length > 0 ? (
 							users.map((user) => (
 								<Card key={user.id} className='p-4 flex items-center justify-between'>
 									<div className='flex items-center gap-4'>
 										<Avatar>
-											<AvatarImage src={user.avatar} />
-											<AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+											<AvatarImage src={makePreviewURL(user.profileImage)} />
+											<AvatarFallback>{user.fullName.charAt(0)}</AvatarFallback>
 										</Avatar>
 										<div>
-											<p className='font-semibold'>{user.name}</p>
+											<p className='font-semibold'>{user.fullName}</p>
 											<p className='text-sm text-muted-foreground'>{user.email}</p>
 										</div>
 									</div>
 									<div className='flex items-center gap-4'>
-										<Badge variant={user.role === 'Admin' ? 'default' : 'secondary'}>{user.role}</Badge>
-										<Badge variant={getStatusVariant(user.status)}>{user.status}</Badge>
+										<div className='hidden sm:flex flex-wrap gap-1 justify-end'>
+											{user.roles.map((role) => (
+												<Badge key={role} variant='secondary'>
+													{roles.find((r) => r.roleCode === role)?.nameEn || role}
+												</Badge>
+											))}
+										</div>
 										<div className='flex gap-1'>
-											<Button variant='ghost' size='icon'>
+											<Button variant='ghost' size='icon' onClick={() => handleOpenForm(user)}>
 												<Edit className='h-4 w-4' />
 											</Button>
 											<ConfirmationDialog
@@ -170,8 +233,11 @@ export function OrganizationUserManagement({
 														<Trash className='h-4 w-4 text-danger' />
 													</Button>
 												}
-												description={`Are you sure you want to delete user ${user.name}?`}
-												onConfirm={() => alert('Deleting user... (not implemented)')}
+												title='Are you sure?'
+												description={`This will permanently delete the user ${user.fullName}.`}
+												onConfirm={handleDelete}
+												open={userToDelete?.id === user.id}
+												onOpenChange={(open) => !open && setUserToDelete(null)}
 											/>
 										</div>
 									</div>
@@ -185,13 +251,16 @@ export function OrganizationUserManagement({
 					</div>
 				</CardContent>
 			</Card>
-			<UserForm
-				isOpen={isUserFormOpen}
-				onClose={() => setIsUserFormOpen(false)}
-				organizationId={organizationId}
-				onUserCreated={handleUserCreated}
-				roles={roles}
-			/>
+			{isUserFormOpen && (
+				<UserForm
+					isOpen={isUserFormOpen}
+					onClose={handleCloseForm}
+					organizationId={organizationId}
+					onSuccess={loadUsers}
+					roles={roles}
+					initialData={editingUser}
+				/>
+			)}
 		</>
 	);
 }

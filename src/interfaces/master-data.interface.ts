@@ -1,4 +1,5 @@
-import { IObject } from './common.interface';
+
+import { IFile, IObject } from './common.interface';
 
 export type EnumDTO = {
 	value: string;
@@ -77,9 +78,12 @@ export interface IClientOrganization {
 
 export interface IOrganizationUser {
 	id: string;
-	name: string;
 	email: string;
-	role: 'Admin' | 'Member';
-	status: 'Active' | 'Inactive';
-	avatar: string;
+	phone: string;
+	organizationId: string;
+	organizationNameEn: string;
+	organizationNameBn: string;
+	fullName: string;
+	roles: string[];
+	profileImage?: IFile;
 }
