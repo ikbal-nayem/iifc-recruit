@@ -1,4 +1,3 @@
-
 import { ROUTES } from '@/constants/routes.constant';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -110,6 +109,11 @@ export const adminNavLinks: NavLink[] = [
 	},
 	{ href: '/admin/jobseekers', label: 'Jobseekers', icon: Users },
 	{ href: ROUTES.CLIENT_ORGANIZATIONS, label: 'Client Organizations', icon: Handshake },
+	{
+		href: '/admin/user-management',
+		label: 'User Management',
+		icon: Users,
+	},
 	{
 		href: '/admin/profile',
 		label: 'My Profile',

@@ -1,5 +1,5 @@
 import { IFile } from './common.interface';
-import { EnumDTO } from './master-data.interface';
+import { EnumDTO, IClientOrganization } from './master-data.interface';
 
 export enum UserType {
 	'SYSTEM',
@@ -29,4 +29,6 @@ export interface IUser {
 	dateOfBirth?: string;
 	gender?: string;
 	genderDTO?: EnumDTO;
+	organizationId?: string;
+	organization?: IClientOrganization;
 }
