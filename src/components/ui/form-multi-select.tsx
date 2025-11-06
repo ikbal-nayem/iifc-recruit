@@ -15,7 +15,7 @@ import { FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/for
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { cn } from '@/lib/utils';
-import { Check, Loader2, X } from 'lucide-react';
+import { Check, ChevronsUpDown, Loader2, X } from 'lucide-react';
 import * as React from 'react';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
 
@@ -116,31 +116,34 @@ export function FormMultiSelect<
 									type='button'
 									variant='outline'
 									className={cn(
-										'flex flex-wrap gap-1 p-2 w-full justify-start font-normal h-auto min-h-10',
+										'flex flex-wrap gap-1 p-2 w-full justify-between font-normal h-auto min-h-10',
 										displayedOptions.length === 0 && 'text-muted-foreground'
 									)}
 									onClick={() => setOpen(true)}
 								>
-									{displayedOptions.length > 0 ? (
-										displayedOptions.map((item) => (
-											<Badge key={getOptionValue(item)} variant={badgeVariant} className='text-sm py-1 px-2'>
-												{getOptionLabel(item)}
-												<div
-													role='button'
-													className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
-													onClick={(e) => {
-														e.preventDefault();
-														e.stopPropagation();
-														handleRemove(getOptionValue(item));
-													}}
-												>
-													<X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
-												</div>
-											</Badge>
-										))
-									) : (
-										<span className='px-1'>{placeholder}</span>
-									)}
+									<div className='flex flex-wrap gap-1'>
+										{displayedOptions.length > 0 ? (
+											displayedOptions.map((item) => (
+												<Badge key={getOptionValue(item)} variant={badgeVariant} className='text-sm py-1 px-2'>
+													{getOptionLabel(item)}
+													<div
+														role='button'
+														className='ml-1 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+														onClick={(e) => {
+															e.preventDefault();
+															e.stopPropagation();
+															handleRemove(getOptionValue(item));
+														}}
+													>
+														<X className='h-3 w-3 text-muted-foreground hover:text-foreground' />
+													</div>
+												</Badge>
+											))
+										) : (
+											<span className='px-1'>{placeholder}</span>
+										)}
+									</div>
+									<ChevronsUpDown className='h-4 w-4 shrink-0 opacity-50' />
 								</Button>
 							</PopoverTrigger>
 							<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
