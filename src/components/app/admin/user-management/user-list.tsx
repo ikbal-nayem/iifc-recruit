@@ -7,11 +7,13 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormInput } from '@/components/ui/form-input';
 import { FormMultiSelect } from '@/components/ui/form-multi-select';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useAuth } from '@/contexts/auth-context';
 import { useDebounce } from '@/hooks/use-debounce';
 import useLoader from '@/hooks/use-loader';
@@ -20,8 +22,10 @@ import { UserType } from '@/interfaces/auth.interface';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { IClientOrganization, IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
+import { getOrganizationsAsync } from '@/services/async-api';
 import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -34,6 +38,7 @@ const userSchema = z.object({
 	phone: z.string().optional(),
 	roles: z.array(z.string()).min(1, 'At least one role is required.'),
 	password: z.string().min(8, 'Password must be at least 8 characters.').optional(),
+	organizationId: z.string().optional(),
 });
 
 type UserFormValues = z.infer<typeof userSchema>;
@@ -69,24 +74,31 @@ function UserForm({
 			email: initialData?.email || '',
 			phone: initialData?.phone || '',
 			roles: initialData?.roles || [],
+			organizationId: initialData?.organizationId,
 		},
 	});
 	const [isSubmitting, setIsSubmitting] = useLoader(false);
 
 	const filteredRoles = useMemo(() => {
-		if (currentUserOrganization?.isClient) {
-			return allRoles.filter((role) => role.roleCode?.startsWith('CLIENT_'));
+		if (!isSuperAdmin) {
+			if (currentUserOrganization?.isClient) {
+				return allRoles.filter((role) => role.roleCode?.startsWith('CLIENT_'));
+			}
+			if (currentUserOrganization?.isExaminer) {
+				return allRoles.filter((role) => role.roleCode?.startsWith('EXAMINER_'));
+			}
+			return allRoles.filter((role) => role.roleCode?.startsWith('IIFC_'));
 		}
-		if (currentUserOrganization?.isExaminer) {
-			return allRoles.filter((role) => role.roleCode?.startsWith('EXAMINER_'));
-		}
-		return allRoles.filter((role) => role.roleCode?.startsWith('IIFC_'));
+		return allRoles;
 	}, [allRoles, currentUserOrganization, isSuperAdmin]);
 
 	const handleSubmit = async (data: UserFormValues) => {
 		setIsSubmitting(true);
 		try {
-			const payload = { ...data, id: initialData?.id };
+			const payload: IObject = { ...data, id: initialData?.id };
+			if (!isSuperAdmin && currentUserOrganization?.id) {
+				payload.organizationId = currentUserOrganization.id;
+			}
 			const response = initialData
 				? await UserService.updateUser(payload)
 				: await UserService.createOwnUser(payload);
@@ -116,6 +128,18 @@ function UserForm({
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-2'>
+						{isSuperAdmin && (
+							<FormAutocomplete
+								control={form.control}
+								name='organizationId'
+								label='Organization'
+								placeholder='Search organization...'
+								loadOptions={getOrganizationsAsync}
+								getOptionValue={(option) => option.id!}
+								getOptionLabel={(option) => option.nameEn}
+								initialLabel={initialData?.organizationNameEn}
+							/>
+						)}
 						<div className='grid grid-cols-2 gap-4'>
 							<FormInput control={form.control} name='firstName' label='First Name' required />
 							<FormInput control={form.control} name='lastName' label='Last Name' required />
@@ -136,7 +160,7 @@ function UserForm({
 							<FormInput control={form.control} name='password' label='Password' type='password' required />
 						)}
 						<DialogFooter className='pt-4'>
-							<Button type='button' variant='outline' onClick={onClose} disabled={isSubmitting}>
+							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
 								Cancel
 							</Button>
 							<Button type='submit' disabled={isSubmitting}>
@@ -153,7 +177,13 @@ function UserForm({
 
 const initMeta: IMeta = { page: 0, limit: 20 };
 
-export function UserList({ allRoles }: { allRoles: IRole[] }) {
+export function UserList({
+	allRoles,
+	allOrganizations,
+}: {
+	allRoles: IRole[];
+	allOrganizations: IClientOrganization[];
+}) {
 	const { currectUser } = useAuth();
 	const [users, setUsers] = useState<IOrganizationUser[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
@@ -222,6 +252,124 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 		}
 	};
 
+	const columns: ColumnDef<IOrganizationUser>[] = React.useMemo(() => {
+		const baseColumns: ColumnDef<IOrganizationUser>[] = [
+			{
+				accessorKey: 'fullName',
+				header: 'User',
+				cell: ({ row }) => {
+					const user = row.original;
+					return (
+						<div className='flex items-center gap-4'>
+							<Avatar>
+								<AvatarImage src={makePreviewURL(user.profileImage)} />
+								<AvatarFallback>{user.fullName.charAt(0)}</AvatarFallback>
+							</Avatar>
+							<div>
+								<p className='font-semibold'>{user.fullName}</p>
+								<p className='text-sm text-muted-foreground'>{user.email}</p>
+							</div>
+						</div>
+					);
+				},
+			},
+		];
+
+		if (isSuperAdmin) {
+			baseColumns.push(
+				{
+					accessorKey: 'organizationNameEn',
+					header: 'Organization (EN)',
+				},
+				{
+					accessorKey: 'organizationNameBn',
+					header: 'Organization (BN)',
+				}
+			);
+		}
+
+		baseColumns.push(
+			{
+				accessorKey: 'roles',
+				header: 'Roles',
+				cell: ({ row }) => {
+					const user = row.original;
+					return (
+						<div className='flex flex-wrap gap-1'>
+							{user.roles?.map((role) => (
+								<Badge key={role} variant='secondary'>
+									{allRoles.find((r) => r.roleCode === role)?.nameEn || role}
+								</Badge>
+							))}
+						</div>
+					);
+				},
+			},
+			{
+				id: 'actions',
+				cell: ({ row }) => {
+					const user = row.original;
+					return (
+						<div className='flex gap-1 justify-end'>
+							<Button variant='ghost' size='icon' onClick={() => handleOpenForm(user)}>
+								<Edit className='h-4 w-4' />
+							</Button>
+							<Button variant='ghost' size='icon' onClick={() => setUserToDelete(user)}>
+								<Trash className='h-4 w-4 text-danger' />
+							</Button>
+						</div>
+					);
+				},
+			}
+		);
+
+		return baseColumns;
+	}, [isSuperAdmin, allRoles]);
+
+	const table = useReactTable({
+		data: users,
+		columns,
+		getCoreRowModel: getCoreRowModel(),
+	});
+
+	const renderMobileCard = (user: IOrganizationUser) => (
+		<Card key={user.id} className='p-4'>
+			<div className='flex items-start justify-between'>
+				<div className='flex items-center gap-4'>
+					<Avatar>
+						<AvatarImage src={makePreviewURL(user.profileImage)} />
+						<AvatarFallback>{user.fullName.charAt(0)}</AvatarFallback>
+					</Avatar>
+					<div>
+						<p className='font-semibold'>{user.fullName}</p>
+						<p className='text-sm text-muted-foreground'>{user.email}</p>
+						{isSuperAdmin && (
+							<div className='text-xs text-muted-foreground mt-1'>
+								<p>{user.organizationNameEn}</p>
+								<p>{user.organizationNameBn}</p>
+							</div>
+						)}
+					</div>
+				</div>
+				<div className='flex gap-1'>
+					<Button variant='ghost' size='icon' onClick={() => handleOpenForm(user)}>
+						<Edit className='h-4 w-4' />
+					</Button>
+					<Button variant='ghost' size='icon' onClick={() => setUserToDelete(user)}>
+						<Trash className='h-4 w-4 text-danger' />
+					</Button>
+				</div>
+			</div>
+			<div className='flex flex-wrap gap-1 mt-2'>
+				{user.roles?.map((role) => (
+					<Badge key={role} variant='secondary'>
+						{allRoles.find((r) => r.roleCode === role)?.nameEn || role}
+					</Badge>
+				))}
+			</div>
+		</Card>
+	);
+
 	return (
 		<>
 			<Card className='glassmorphism'>
@@ -241,59 +389,61 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 					</Button>
 				</CardHeader>
 				<CardContent>
-					<div className='space-y-4'>
+					{/* Mobile View */}
+					<div className='md:hidden space-y-4'>
 						{isLoading ? (
-							[...Array(3)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
+							[...Array(3)].map((_, i) => <Skeleton key={i} className='h-24 w-full' />)
 						) : users.length > 0 ? (
-							users.map((user) => (
-								<Card key={user.id} className='p-4 flex items-center justify-between'>
-									<div className='flex items-center gap-4'>
-										<Avatar>
-											<AvatarImage src={makePreviewURL(user.profileImage)} />
-											<AvatarFallback>{user.fullName.charAt(0)}</AvatarFallback>
-										</Avatar>
-										<div>
-											<p className='font-semibold'>{user.fullName}</p>
-											<p className='text-sm text-muted-foreground'>{user.email}</p>
-											{isSuperAdmin && (
-												<p className='text-xs text-muted-foreground'>{user.organizationNameEn}</p>
-											)}
-										</div>
-									</div>
-									<div className='flex items-center gap-4'>
-										<div className='hidden sm:flex flex-wrap gap-1 justify-end'>
-											{user.roles?.map((role) => (
-												<Badge key={role} variant='secondary'>
-													{allRoles.find((r) => r.roleCode === role)?.nameEn || role}
-												</Badge>
-											))}
-										</div>
-										<div className='flex gap-1'>
-											<Button variant='ghost' size='icon' onClick={() => handleOpenForm(user)}>
-												<Edit className='h-4 w-4' />
-											</Button>
-											<ConfirmationDialog
-												trigger={
-													<Button variant='ghost' size='icon' onClick={() => setUserToDelete(user)}>
-														<Trash className='h-4 w-4 text-danger' />
-													</Button>
-												}
-												title='Are you sure?'
-												description={`This will permanently delete the user ${user.fullName}.`}
-												onConfirm={handleDelete}
-												open={userToDelete?.id === user.id}
-												onOpenChange={(open) => !open && setUserToDelete(null)}
-											/>
-										</div>
-									</div>
-								</Card>
-							))
+							users.map(renderMobileCard)
 						) : (
-							<div className='text-center py-8 text-muted-foreground'>
-								No users found for this organization.
-							</div>
+							<div className='text-center py-8 text-muted-foreground'>No users found.</div>
 						)}
 					</div>
+
+					{/* Desktop View */}
+					<div className='hidden md:block rounded-md border'>
+						<Table>
+							<TableHeader>
+								{table.getHeaderGroups().map((headerGroup) => (
+									<TableRow key={headerGroup.id}>
+										{headerGroup.headers.map((header) => (
+											<TableHead key={header.id}>
+												{flexRender(header.column.columnDef.header, header.getContext())}
+											</TableHead>
+										))}
+									</TableRow>
+								))}
+							</TableHeader>
+							<TableBody>
+								{isLoading ? (
+									[...Array(5)].map((_, i) => (
+										<TableRow key={i}>
+											<TableCell colSpan={columns.length}>
+												<Skeleton className='h-12 w-full' />
+											</TableCell>
+										</TableRow>
+									))
+								) : users.length > 0 ? (
+									table.getRowModel().rows.map((row) => (
+										<TableRow key={row.id}>
+											{row.getVisibleCells().map((cell) => (
+												<TableCell key={cell.id}>
+													{flexRender(cell.column.columnDef.cell, cell.getContext())}
+												</TableCell>
+											))}
+										</TableRow>
+									))
+								) : (
+									<TableRow>
+										<TableCell colSpan={columns.length} className='h-24 text-center'>
+											No users found.
+										</TableCell>
+									</TableRow>
+								)}
+							</TableBody>
+						</Table>
+					</div>
+
 					{meta && meta.totalRecords && meta.totalRecords > 0 ? (
 						<div className='mt-4'>
 							<Pagination meta={meta} isLoading={isLoading} onPageChange={handlePageChange} noun='user' />
@@ -310,6 +460,16 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 					initialData={editingUser}
 					isSuperAdmin={isSuperAdmin}
 					currentUserOrganization={currectUser?.organization}
+				/>
+			)}
+			{userToDelete && (
+				<ConfirmationDialog
+					open={!!userToDelete}
+					onOpenChange={(open) => !open && setUserToDelete(null)}
+					title='Are you sure?'
+					description={`This will permanently delete the user ${userToDelete.fullName}.`}
+					onConfirm={handleDelete}
+					confirmText='Delete'
 				/>
 			)}
 		</>
