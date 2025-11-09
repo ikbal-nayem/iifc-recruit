@@ -15,6 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/auth-context';
 import { useDebounce } from '@/hooks/use-debounce';
 import { toast } from '@/hooks/use-toast';
+import { UserType } from '@/interfaces/auth.interface';
 import { IApiRequest } from '@/interfaces/common.interface';
 import { IClientOrganization, IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
@@ -58,7 +59,9 @@ function UserForm({
 	allOrganizations = [],
 	defaultOrganizationId,
 }: UserFormProps) {
-	const baseSchema = isSuperAdmin ? userSchema.extend({ organizationId: z.string().min(1, 'Organization is required.') }) : userSchema;
+	const baseSchema = isSuperAdmin
+		? userSchema.extend({ organizationId: z.string().min(1, 'Organization is required.') })
+		: userSchema;
 
 	const form = useForm<UserFormValues>({
 		resolver: zodResolver(
@@ -175,7 +178,7 @@ export function UserList({
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
 
-	const isSuperAdmin = currectUser?.userType === 'SYSTEM';
+	const isSuperAdmin = currectUser?.userType === UserType.SYSTEM;
 	const organizationId = isSuperAdmin ? undefined : currectUser?.organizationId;
 
 	const loadUsers = useCallback(async () => {
@@ -257,9 +260,7 @@ export function UserList({
 										<div>
 											<p className='font-semibold'>{user.fullName}</p>
 											<p className='text-sm text-muted-foreground'>{user.email}</p>
-											{isSuperAdmin && (
-												<p className='text-xs text-muted-foreground'>{user.organizationNameEn}</p>
-											)}
+											<p className='text-xs text-muted-foreground'>{user.organizationNameEn}</p>
 										</div>
 									</div>
 									<div className='flex items-center gap-4'>

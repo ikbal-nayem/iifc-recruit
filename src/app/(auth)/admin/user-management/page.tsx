@@ -3,7 +3,7 @@ import { AuthService } from '@/services/api/auth.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { UserService } from '@/services/api/user.service';
 import { IClientOrganization, IRole } from '@/interfaces/master-data.interface';
-import { IUser } from '@/interfaces/auth.interface';
+import { IUser, UserType } from '@/interfaces/auth.interface';
 
 async function getData(): Promise<{
 	roles: IRole[];
@@ -35,7 +35,7 @@ async function getData(): Promise<{
 					filteredRoles = allRoles.filter((role) => role.roleCode?.startsWith('IIFC_'));
 				}
 			}
-		} else if (currentUser?.userType !== 'SYSTEM') {
+		} else if (currentUser?.userType !== UserType.SYSTEM) {
 			// If not super admin and no organization, maybe show nothing or default roles
 			filteredRoles = allRoles.filter((role) => role.roleCode?.startsWith('IIFC_'));
 		}
