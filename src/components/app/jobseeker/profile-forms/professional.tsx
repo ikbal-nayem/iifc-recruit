@@ -183,8 +183,8 @@ function ProfessionalExperienceForm({
 							<FormInput control={form.control} name='referenceEmail' label='Reference Email' type='email' />
 							<FormInput control={form.control} name='referencePhone' label='Reference Phone' />
 						</div>
-						<DialogFooter className='pt-4 sticky bottom-0 bg-background pb-2'>
-							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
+						<DialogFooter className='pt-4 pb-2'>
+							<Button type='button' variant='outline' onClick={onClose} disabled={isSubmitting}>
 								Cancel
 							</Button>
 							<Button type='submit' disabled={isSubmitting}>
