@@ -1,35 +1,31 @@
 import { UserList } from '@/components/app/admin/user-management/user-list';
 import { IUser } from '@/interfaces/auth.interface';
-import { IClientOrganization, IRole } from '@/interfaces/master-data.interface';
+import { IRole } from '@/interfaces/master-data.interface';
 import { AuthService } from '@/services/api/auth.service';
-import { MasterDataService } from '@/services/api/master-data.service';
 import { UserService } from '@/services/api/user.service';
 
 async function getData(): Promise<{
 	roles: IRole[];
-	organizations: IClientOrganization[];
 	currentUser: IUser | null;
 }> {
 	try {
-		const [rolesRes, userRes, orgsRes] = await Promise.allSettled([
+		const [rolesRes, userRes] = await Promise.allSettled([
 			AuthService.getRoles(),
 			UserService.getUserDetails(),
-			MasterDataService.clientOrganization.getList({}),
 		]);
 
 		const allRoles = rolesRes.status === 'fulfilled' ? rolesRes.value.body || [] : [];
 		const currentUser = userRes.status === 'fulfilled' ? userRes.value.body : null;
-		const allOrganizations = orgsRes.status === 'fulfilled' ? orgsRes.value.body : [];
 
-		return { roles: allRoles, currentUser, organizations: allOrganizations };
+		return { roles: allRoles, currentUser };
 	} catch (error) {
 		console.error('Failed to fetch data for user management:', error);
-		return { roles: [], currentUser: null, organizations: [] };
+		return { roles: [], currentUser: null };
 	}
 }
 
 export default async function UserManagementPage() {
-	const { roles, currentUser, organizations } = await getData();
+	const { roles, currentUser } = await getData();
 
 	return (
 		<div className='space-y-8'>
@@ -43,7 +39,7 @@ export default async function UserManagementPage() {
 					</p>
 				</div>
 			</div>
-			<UserList allRoles={roles} allOrganizations={organizations} />
+			<UserList allRoles={roles} />
 		</div>
 	);
 }

@@ -18,6 +18,10 @@ export const UserService = {
 	createUser: async (payload: IObject): Promise<IApiResponse<IUser>> => {
 		return axiosIns.post('/user/create', payload);
 	},
+
+	createOwnUser: async (payload: IObject): Promise<IApiResponse<IUser>> => {
+		return axiosIns.post('/user/create-own', payload);
+	},
 	
 	updateUser: async (payload: IObject): Promise<IApiResponse<IUser>> => {
 		return axiosIns.put('/user/update', payload);

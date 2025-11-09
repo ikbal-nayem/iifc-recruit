@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -8,7 +7,6 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
-import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormInput } from '@/components/ui/form-input';
 import { FormMultiSelect } from '@/components/ui/form-multi-select';
 import { Input } from '@/components/ui/input';
@@ -16,13 +14,13 @@ import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/auth-context';
 import { useDebounce } from '@/hooks/use-debounce';
+import useLoader from '@/hooks/use-loader';
 import { toast } from '@/hooks/use-toast';
-import { IUser, UserType } from '@/interfaces/auth.interface';
+import { UserType } from '@/interfaces/auth.interface';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { IClientOrganization, IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { UserService } from '@/services/api/user.service';
-import { getOrganizationsAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -36,7 +34,6 @@ const userSchema = z.object({
 	phone: z.string().optional(),
 	roles: z.array(z.string()).min(1, 'At least one role is required.'),
 	password: z.string().min(8, 'Password must be at least 8 characters.').optional(),
-	organizationId: z.string().optional(),
 });
 
 type UserFormValues = z.infer<typeof userSchema>;
@@ -60,15 +57,11 @@ function UserForm({
 	isSuperAdmin,
 	currentUserOrganization,
 }: UserFormProps) {
-	const baseSchema = isSuperAdmin
-		? userSchema.extend({ organizationId: z.string().min(1, 'Organization is required.') })
-		: userSchema;
-
 	const form = useForm<UserFormValues>({
 		resolver: zodResolver(
 			initialData
-				? baseSchema.omit({ password: true }) // Password not needed for update
-				: baseSchema
+				? userSchema.omit({ password: true }) // Password not needed for update
+				: userSchema
 		),
 		defaultValues: {
 			firstName: initialData?.firstName || '',
@@ -76,15 +69,11 @@ function UserForm({
 			email: initialData?.email || '',
 			phone: initialData?.phone || '',
 			roles: initialData?.roles || [],
-			organizationId: initialData?.organizationId || currentUserOrganization?.id,
 		},
 	});
-	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useLoader(false);
 
 	const filteredRoles = useMemo(() => {
-		if (isSuperAdmin) {
-			return allRoles;
-		}
 		if (currentUserOrganization?.isClient) {
 			return allRoles.filter((role) => role.roleCode?.startsWith('CLIENT_'));
 		}
@@ -100,7 +89,7 @@ function UserForm({
 			const payload = { ...data, id: initialData?.id };
 			const response = initialData
 				? await UserService.updateUser(payload)
-				: await UserService.createUser(payload);
+				: await UserService.createOwnUser(payload);
 
 			toast.success({
 				title: initialData ? 'User Updated' : 'User Created',
@@ -127,19 +116,6 @@ function UserForm({
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-2'>
-						{isSuperAdmin && (
-							<FormAutocomplete
-								control={form.control}
-								name='organizationId'
-								label='Organization'
-								required
-								placeholder='Search for an organization...'
-								loadOptions={getOrganizationsAsync}
-								initialLabel={initialData?.organizationNameEn}
-								getOptionLabel={(opt) => opt.nameEn}
-								getOptionValue={(opt) => opt.id!}
-							/>
-						)}
 						<div className='grid grid-cols-2 gap-4'>
 							<FormInput control={form.control} name='firstName' label='First Name' required />
 							<FormInput control={form.control} name='lastName' label='Last Name' required />
@@ -160,7 +136,7 @@ function UserForm({
 							<FormInput control={form.control} name='password' label='Password' type='password' required />
 						)}
 						<DialogFooter className='pt-4'>
-							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
+							<Button type='button' variant='outline' onClick={onClose} disabled={isSubmitting}>
 								Cancel
 							</Button>
 							<Button type='submit' disabled={isSubmitting}>
@@ -177,13 +153,7 @@ function UserForm({
 
 const initMeta: IMeta = { page: 0, limit: 20 };
 
-export function UserList({
-	allRoles,
-	allOrganizations,
-}: {
-	allRoles: IRole[];
-	allOrganizations: IClientOrganization[];
-}) {
+export function UserList({ allRoles }: { allRoles: IRole[] }) {
 	const { currectUser } = useAuth();
 	const [users, setUsers] = useState<IOrganizationUser[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
@@ -324,10 +294,12 @@ export function UserList({
 							</div>
 						)}
 					</div>
+					{meta && meta.totalRecords && meta.totalRecords > 0 ? (
+						<div className='mt-4'>
+							<Pagination meta={meta} isLoading={isLoading} onPageChange={handlePageChange} noun='user' />
+						</div>
+					) : null}
 				</CardContent>
-				{meta && meta.totalRecords && meta.totalRecords > 0 ? (
-					<Pagination meta={meta} isLoading={isLoading} onPageChange={handlePageChange} noun='user' />
-				) : null}
 			</Card>
 			{isUserFormOpen && (
 				<UserForm
