@@ -4,13 +4,7 @@
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import * as React from 'react';
 
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
@@ -178,50 +172,35 @@ export function JobseekerManagement({
 		</Card>
 	);
 
-	const renderSkeletonCard = (key: number) => (
-		<Card key={key} className='mb-4 glassmorphism p-4 space-y-3'>
-			<Skeleton className='h-6 w-3/4' />
-			<Skeleton className='h-4 w-1/2' />
-			<div className='flex justify-between items-center pt-2'>
-				<div className='space-y-2'>
-					<Skeleton className='h-3 w-16' />
-					<Skeleton className='h-4 w-24' />
-				</div>
-				<Skeleton className='h-6 w-20 rounded-full' />
-			</div>
-		</Card>
-	);
-
 	return (
 		<div className='space-y-4'>
-			<div className='flex flex-col md:flex-row gap-4'>
-				<div className='relative w-full md:max-w-sm'>
-					<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-					<Input
-						placeholder='Search by name, email, or phone...'
-						value={searchQuery}
-						onChange={(event) => setSearchQuery(event.target.value)}
-						className='pl-10 h-10'
-					/>
-				</div>
-				<div className='w-full md:max-w-sm'>
-					<FormAutocomplete
-						name='organizationFilter'
-						placeholder='Filter by organization...'
-						options={[{ id: 'all', nameEn: 'All Organizations' }, ...organizations]}
-						getOptionValue={(option) => option.id!}
-						getOptionLabel={(option) => option.nameEn}
-						value={organizationFilter}
-						onValueChange={(value) => setOrganizationFilter(value || 'all')}
-					/>
-				</div>
-			</div>
-
 			<Card className='glassmorphism'>
 				<CardHeader>
 					<CardTitle>Jobseeker List</CardTitle>
+					<div className='flex flex-col md:flex-row gap-4 pt-4'>
+						<div className='relative w-full md:max-w-sm'>
+							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+							<Input
+								placeholder='Search by name, email, or phone...'
+								value={searchQuery}
+								onChange={(event) => setSearchQuery(event.target.value)}
+								className='pl-10 h-10'
+							/>
+						</div>
+						<div className='w-full md:max-w-sm'>
+							<FormAutocomplete
+								name='organizationFilter'
+								placeholder='Filter by organization...'
+								options={[{ id: 'all', nameEn: 'All Organizations' }, ...organizations]}
+								getOptionValue={(option) => option.id!}
+								getOptionLabel={(option) => option.nameEn}
+								value={organizationFilter}
+								onValueChange={(value) => setOrganizationFilter(value || 'all')}
+							/>
+						</div>
+					</div>
 				</CardHeader>
-				<CardContent className='pt-6'>
+				<CardContent>
 					{/* Mobile View */}
 					<div className='md:hidden space-y-4'>
 						{isLoading ? (
