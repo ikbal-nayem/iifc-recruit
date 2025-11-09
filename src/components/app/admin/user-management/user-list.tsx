@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormInput } from '@/components/ui/form-input';
 import { FormMultiSelect } from '@/components/ui/form-multi-select';
 import { Input } from '@/components/ui/input';
@@ -15,7 +16,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useDebounce } from '@/hooks/use-debounce';
 import { toast } from '@/hooks/use-toast';
 import { IApiRequest } from '@/interfaces/common.interface';
-import { IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
+import { IClientOrganization, IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,6 +32,7 @@ const userSchema = z.object({
 	phone: z.string().optional(),
 	roles: z.array(z.string()).min(1, 'At least one role is required.'),
 	password: z.string().min(8, 'Password must be at least 8 characters.').optional(),
+	organizationId: z.string().optional(),
 });
 
 type UserFormValues = z.infer<typeof userSchema>;
@@ -38,18 +40,31 @@ type UserFormValues = z.infer<typeof userSchema>;
 interface UserFormProps {
 	isOpen: boolean;
 	onClose: () => void;
-	organizationId?: string;
 	onSuccess: () => void;
 	roles: IRole[];
 	initialData?: IOrganizationUser;
+	isSuperAdmin: boolean;
+	allOrganizations?: IClientOrganization[];
+	defaultOrganizationId?: string;
 }
 
-function UserForm({ isOpen, onClose, organizationId, onSuccess, roles, initialData }: UserFormProps) {
+function UserForm({
+	isOpen,
+	onClose,
+	onSuccess,
+	roles,
+	initialData,
+	isSuperAdmin,
+	allOrganizations = [],
+	defaultOrganizationId,
+}: UserFormProps) {
+	const baseSchema = isSuperAdmin ? userSchema.extend({ organizationId: z.string().min(1, 'Organization is required.') }) : userSchema;
+
 	const form = useForm<UserFormValues>({
 		resolver: zodResolver(
 			initialData
-				? userSchema.omit({ password: true }) // Password not needed for update
-				: userSchema
+				? baseSchema.omit({ password: true }) // Password not needed for update
+				: baseSchema
 		),
 		defaultValues: {
 			firstName: initialData?.firstName || '',
@@ -57,6 +72,7 @@ function UserForm({ isOpen, onClose, organizationId, onSuccess, roles, initialDa
 			email: initialData?.email || '',
 			phone: initialData?.phone || '',
 			roles: initialData?.roles || [],
+			organizationId: initialData?.organizationId || defaultOrganizationId,
 		},
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -64,7 +80,7 @@ function UserForm({ isOpen, onClose, organizationId, onSuccess, roles, initialDa
 	const handleSubmit = async (data: UserFormValues) => {
 		setIsSubmitting(true);
 		try {
-			const payload = { ...data, organizationId, id: initialData?.id };
+			const payload = { ...data, id: initialData?.id };
 			const response = initialData
 				? await UserService.updateUser(payload)
 				: await UserService.createUser(payload);
@@ -94,6 +110,18 @@ function UserForm({ isOpen, onClose, organizationId, onSuccess, roles, initialDa
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-2'>
+						{isSuperAdmin && !initialData && (
+							<FormAutocomplete
+								control={form.control}
+								name='organizationId'
+								label='Organization'
+								required
+								placeholder='Select an organization'
+								options={allOrganizations}
+								getOptionLabel={(opt) => opt.nameEn}
+								getOptionValue={(opt) => opt.id!}
+							/>
+						)}
 						<div className='grid grid-cols-2 gap-4'>
 							<FormInput control={form.control} name='firstName' label='First Name' required />
 							<FormInput control={form.control} name='lastName' label='Last Name' required />
@@ -131,7 +159,13 @@ function UserForm({ isOpen, onClose, organizationId, onSuccess, roles, initialDa
 
 const initMeta = { page: 0, limit: 20 };
 
-export function UserList({ roles }: { roles: IRole[] }) {
+export function UserList({
+	roles,
+	allOrganizations,
+}: {
+	roles: IRole[];
+	allOrganizations: IClientOrganization[];
+}) {
 	const { currectUser } = useAuth();
 	const [users, setUsers] = useState<IOrganizationUser[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -141,17 +175,17 @@ export function UserList({ roles }: { roles: IRole[] }) {
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
 
-	const organizationId = currectUser?.organizationId;
+	const isSuperAdmin = currectUser?.userType === 'SYSTEM';
+	const organizationId = isSuperAdmin ? undefined : currectUser?.organizationId;
 
 	const loadUsers = useCallback(async () => {
-		// if (!organizationId) {
-		// 	setIsLoading(false);
-		// 	return;
-		// }
 		setIsLoading(true);
 		try {
 			const payload: IApiRequest = {
-				body: { organizationId, searchKey: debouncedSearch },
+				body: {
+					...(organizationId && { organizationId }),
+					searchKey: debouncedSearch,
+				},
 				meta: initMeta,
 			};
 			const response = await UserService.searchOrganizationUsers(payload);
@@ -190,16 +224,6 @@ export function UserList({ roles }: { roles: IRole[] }) {
 		}
 	};
 
-	// if (!organizationId) {
-	// 	return (
-	// 		<Card className='glassmorphism'>
-	// 			<CardContent className='pt-6 text-center text-muted-foreground'>
-	// 				Your user is not associated with an organization.
-	// 			</CardContent>
-	// 		</Card>
-	// 	);
-	// }
-
 	return (
 		<>
 			<Card className='glassmorphism'>
@@ -233,6 +257,9 @@ export function UserList({ roles }: { roles: IRole[] }) {
 										<div>
 											<p className='font-semibold'>{user.fullName}</p>
 											<p className='text-sm text-muted-foreground'>{user.email}</p>
+											{isSuperAdmin && (
+												<p className='text-xs text-muted-foreground'>{user.organizationNameEn}</p>
+											)}
 										</div>
 									</div>
 									<div className='flex items-center gap-4'>
@@ -275,10 +302,12 @@ export function UserList({ roles }: { roles: IRole[] }) {
 				<UserForm
 					isOpen={isUserFormOpen}
 					onClose={handleCloseForm}
-					organizationId={organizationId}
 					onSuccess={loadUsers}
 					roles={roles}
 					initialData={editingUser}
+					isSuperAdmin={isSuperAdmin}
+					allOrganizations={allOrganizations}
+					defaultOrganizationId={currectUser?.organizationId}
 				/>
 			)}
 		</>
