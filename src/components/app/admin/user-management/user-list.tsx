@@ -19,11 +19,11 @@ import { useDebounce } from '@/hooks/use-debounce';
 import useLoader from '@/hooks/use-loader';
 import { toast } from '@/hooks/use-toast';
 import { UserType } from '@/interfaces/auth.interface';
-import { IApiRequest, IMeta } from '@/interfaces/common.interface';
+import { IApiRequest, IMeta, IObject } from '@/interfaces/common.interface';
 import { IClientOrganization, IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
-import { getOrganizationsAsync } from '@/services/async-api';
 import { UserService } from '@/services/api/user.service';
+import { getOrganizationsAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
@@ -252,7 +252,7 @@ export function UserList({
 		}
 	};
 
-	const columns: ColumnDef<IOrganizationUser>[] = React.useMemo(() => {
+	const columns: ColumnDef<IOrganizationUser>[] = useMemo(() => {
 		const baseColumns: ColumnDef<IOrganizationUser>[] = [
 			{
 				accessorKey: 'fullName',
@@ -276,16 +276,16 @@ export function UserList({
 		];
 
 		if (isSuperAdmin) {
-			baseColumns.push(
-				{
-					accessorKey: 'organizationNameEn',
-					header: 'Organization (EN)',
-				},
-				{
-					accessorKey: 'organizationNameBn',
-					header: 'Organization (BN)',
-				}
-			);
+			baseColumns.push({
+				accessorKey: 'organizationNameEn',
+				header: 'Organization (EN)',
+				cell: ({ row }) => (
+					<div className='flex flex-col gap-4'>
+						<span>{row.original.organizationNameEn}</span>
+						<small>{row.original.organizationNameBn}</small>
+					</div>
+				),
+			});
 		}
 
 		baseColumns.push(
