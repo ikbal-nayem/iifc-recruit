@@ -24,7 +24,7 @@ interface FormAutocompleteProps<
 > {
 	control?: Control<TFieldValues> | any;
 	name: FieldPath<TFieldValues>;
-	label: string;
+	label?: string;
 	placeholder?: string;
 	required?: boolean;
 	options?: TOption[];
@@ -33,7 +33,7 @@ interface FormAutocompleteProps<
 	getOptionLabel: (option: TOption) => string;
 	renderOption?: (option: TOption) => React.ReactNode;
 	disabled?: boolean;
-	onValueChange?: (value: string) => void;
+	onValueChange?: (value: string | undefined) => void;
 	value?: string;
 	initialLabel?: string;
 	onInputChange?: (value: string) => void;
@@ -80,10 +80,10 @@ export function FormAutocomplete<
 		<Button
 			variant='outline'
 			role='combobox'
-			className={cn('w-full justify-between min-h-11', !value && 'text-muted-foreground')}
+			className={cn('w-full justify-between h-10', !value && 'text-muted-foreground')}
 			disabled={disabled}
 		>
-			{displayLabel || placeholder || 'Select...'}
+			<span className='truncate'>{displayLabel || placeholder || 'Select...'}</span>
 			<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
 		</Button>
 	);
@@ -166,7 +166,7 @@ export function FormAutocomplete<
 				return (
 					<FormItem>
 						<div className='space-y-2'>
-							<FormLabel required={required}>{label}</FormLabel>
+							{label && <FormLabel required={required}>{label}</FormLabel>}
 							<Popover open={open} onOpenChange={setOpen}>
 								<PopoverTrigger asChild>
 									<FormControl>
