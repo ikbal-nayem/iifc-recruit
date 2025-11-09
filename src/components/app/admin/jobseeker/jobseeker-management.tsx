@@ -178,6 +178,20 @@ export function JobseekerManagement({
 		</Card>
 	);
 
+	const renderSkeletonCard = (key: number) => (
+		<Card key={key} className='mb-4 glassmorphism p-4 space-y-3'>
+			<Skeleton className='h-6 w-3/4' />
+			<Skeleton className='h-4 w-1/2' />
+			<div className='flex justify-between items-center pt-2'>
+				<div className='space-y-2'>
+					<Skeleton className='h-3 w-16' />
+					<Skeleton className='h-4 w-24' />
+				</div>
+				<Skeleton className='h-6 w-20 rounded-full' />
+			</div>
+		</Card>
+	);
+
 	return (
 		<div className='space-y-4'>
 			<div className='flex flex-col md:flex-row gap-4'>
@@ -292,7 +306,7 @@ export function JobseekerManagement({
 			<JobseekerForm
 				isOpen={isFormOpen}
 				onClose={() => setIsFormOpen(false)}
-				onSuccess={() => loadJobseekers(0, '')}
+				onSuccess={() => loadJobseekers(0, '', 'all')}
 				organizations={organizations}
 			/>
 		</div>
