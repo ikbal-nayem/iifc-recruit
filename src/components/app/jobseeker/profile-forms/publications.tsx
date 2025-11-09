@@ -23,7 +23,7 @@ const publicationSchema = z.object({
 	title: z.string().min(1, 'Title is required.').max(100, 'Title is too long.'),
 	publisher: z.string().min(1, 'Publisher is required.').max(100, 'Publisher is too long.'),
 	publicationDate: z.string().min(1, 'Publication date is required.'),
-	url: z.string().url('Please enter a valid URL.').max(255, 'URL is too long.')
+	url: z.string().url('Please enter a valid URL.').max(150, 'URL is too long.')
 });
 
 type PublicationFormValues = z.infer<typeof publicationSchema>;

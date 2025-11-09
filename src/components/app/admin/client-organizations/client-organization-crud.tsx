@@ -41,18 +41,18 @@ import { z } from 'zod';
 
 const formSchema = z
 	.object({
-		nameEn: z.string().min(1, 'English name is required.').refine(isEnglish, {
+		nameEn: z.string().min(1, 'English name is required.').max(100, 'English name is too long.').refine(isEnglish, {
 			message: 'Only English characters, numbers, and some special characters are allowed.',
 		}),
-		nameBn: z.string().min(1, 'Bengali name is required.').refine(isBangla, {
+		nameBn: z.string().min(1, 'Bengali name is required.').max(120, 'Bengali name is too long.').refine(isBangla, {
 			message: 'Only Bengali characters, numbers, and some special characters are allowed.',
 		}),
 		organizationTypeId: z.coerce.string().min(1, 'Organization Type is required.'),
-		address: z.string().optional(),
+		address: z.string().max(200, 'Address is too long.').optional(),
 		contactPersonName: z.string().optional(),
-		contactNumber: z.string().optional(),
+		contactNumber: z.string().max(11, 'Contact number is too long.').regex(/^01[0-9]{9}$/, 'Invalid phone number').optional(),
 		email: z.string().email('Please enter a valid email.').optional().or(z.literal('')),
-		website: z.string().url('Please enter a valid URL.').optional().or(z.literal('')),
+		website: z.string().url('Please enter a valid URL.').max(150, 'Website is too long.').optional().or(z.literal('')),
 		isClient: z.boolean().default(false),
 		isExaminer: z.boolean().default(false),
 	})
