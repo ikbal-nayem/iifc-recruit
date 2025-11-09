@@ -29,6 +29,7 @@ import { JobseekerProfileService } from '@/services/api/jobseeker-profile.servic
 import { Building, FileText, Search, Send, UserX } from 'lucide-react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 import { JobseekerForm } from './jobseeker-form';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 
 const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
 
@@ -48,13 +49,17 @@ export function JobseekerManagement({
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [searchQuery, setSearchQuery] = React.useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
+	const [organizationFilter, setOrganizationFilter] = React.useState('all');
 
 	const loadJobseekers = React.useCallback(
-		async (page: number, search: string) => {
+		async (page: number, search: string, orgId: string) => {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { searchKey: search },
+					body: {
+						searchKey: search,
+						...(orgId !== 'all' && { organizationId: orgId }),
+					},
 					meta: { page, limit: initMeta.limit },
 				};
 				const response = await JobseekerProfileService.search(payload);
@@ -74,11 +79,11 @@ export function JobseekerManagement({
 	);
 
 	React.useEffect(() => {
-		loadJobseekers(0, debouncedSearch);
-	}, [debouncedSearch, loadJobseekers]);
+		loadJobseekers(0, debouncedSearch, organizationFilter);
+	}, [debouncedSearch, loadJobseekers, organizationFilter]);
 
 	const handlePageChange = (newPage: number) => {
-		loadJobseekers(newPage, debouncedSearch);
+		loadJobseekers(newPage, debouncedSearch, organizationFilter);
 	};
 
 	const getActionItems = (jobseeker: JobseekerSearch): ActionItem[] => [
@@ -175,14 +180,27 @@ export function JobseekerManagement({
 
 	return (
 		<div className='space-y-4'>
-			<div className='relative w-full md:max-w-sm'>
-				<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-				<Input
-					placeholder='Search by name, email, or phone...'
-					value={searchQuery}
-					onChange={(event) => setSearchQuery(event.target.value)}
-					className='pl-10 h-11'
-				/>
+			<div className='flex flex-col md:flex-row gap-4'>
+				<div className='relative w-full md:max-w-sm'>
+					<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+					<Input
+						placeholder='Search by name, email, or phone...'
+						value={searchQuery}
+						onChange={(event) => setSearchQuery(event.target.value)}
+						className='pl-10 h-10'
+					/>
+				</div>
+				<div className='w-full md:max-w-sm'>
+					<FormAutocomplete
+						name='organizationFilter'
+						placeholder='Filter by organization...'
+						options={[{ id: 'all', nameEn: 'All Organizations' }, ...organizations]}
+						getOptionValue={(option) => option.id!}
+						getOptionLabel={(option) => option.nameEn}
+						value={organizationFilter}
+						onValueChange={(value) => setOrganizationFilter(value || 'all')}
+					/>
+				</div>
 			</div>
 
 			<Card className='glassmorphism'>
@@ -193,7 +211,11 @@ export function JobseekerManagement({
 					{/* Mobile View */}
 					<div className='md:hidden space-y-4'>
 						{isLoading ? (
-							[...Array(5)].map((_, i) => <Skeleton key={i} className='h-24 w-full' />)
+							[...Array(5)].map((_, i) => (
+								<Card key={i} className='p-4'>
+									<Skeleton className='h-24 w-full' />
+								</Card>
+							))
 						) : data.length > 0 ? (
 							data.map(renderMobileCard)
 						) : (
