@@ -21,9 +21,9 @@ import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { Building, FileText, Search, Send, UserX } from 'lucide-react';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 import { JobseekerForm } from './jobseeker-form';
-import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 
 const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
 
@@ -105,7 +105,7 @@ export function JobseekerManagement({
 			accessorKey: 'fullName',
 			header: 'Applicant',
 			cell: ({ row }) => {
-				const { fullName, email, profileImage, firstName, lastName, phone, organizationNameEn } = row.original;
+				const { fullName, email, profileImage, firstName, lastName, phone } = row.original;
 				return (
 					<div className='flex items-center gap-3'>
 						<Avatar>
@@ -117,17 +117,22 @@ export function JobseekerManagement({
 						</Avatar>
 						<div>
 							<p className='font-semibold'>{fullName}</p>
-							<p className='text-xs text-muted-foreground'>{email}</p>
-							<p className='text-xs text-muted-foreground'>{phone}</p>
-							{organizationNameEn && (
-								<p className='text-xs text-muted-foreground flex items-center gap-1.5 pt-1'>
-									<Building className='h-3 w-3' /> {organizationNameEn}
-								</p>
-							)}
+							<p className='text-sm text-muted-foreground'>{email}</p>
+							<p className='text-sm text-muted-foreground'>{phone}</p>
 						</div>
 					</div>
 				);
 			},
+		},
+		{
+			accessorKey: 'organizationNameEn',
+			header: 'Organization',
+			cell: ({ row }) => (
+				<div>
+					<p>{row.original.organizationNameEn}</p>
+					<p className='text-sm text-muted-foreground'>{row.original.organizationNameBn}</p>
+				</div>
+			),
 		},
 		{
 			id: 'actions',
