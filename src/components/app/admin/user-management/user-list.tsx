@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -42,22 +43,22 @@ interface UserFormProps {
 	isOpen: boolean;
 	onClose: () => void;
 	onSuccess: () => void;
-	roles: IRole[];
+	allRoles: IRole[];
 	initialData?: IOrganizationUser;
 	isSuperAdmin: boolean;
 	allOrganizations?: IClientOrganization[];
-	defaultOrganizationId?: string;
+	currentUserOrganization?: IClientOrganization;
 }
 
 function UserForm({
 	isOpen,
 	onClose,
 	onSuccess,
-	roles,
+	allRoles,
 	initialData,
 	isSuperAdmin,
 	allOrganizations = [],
-	defaultOrganizationId,
+	currentUserOrganization,
 }: UserFormProps) {
 	const baseSchema = isSuperAdmin
 		? userSchema.extend({ organizationId: z.string().min(1, 'Organization is required.') })
@@ -75,10 +76,24 @@ function UserForm({
 			email: initialData?.email || '',
 			phone: initialData?.phone || '',
 			roles: initialData?.roles || [],
-			organizationId: initialData?.organizationId || defaultOrganizationId,
+			organizationId: initialData?.organizationId || currentUserOrganization?.id,
 		},
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	const filteredRoles = React.useMemo(() => {
+		if (isSuperAdmin) {
+			return allRoles; // Super admin can see all roles initially
+		}
+		if (currentUserOrganization?.isClient) {
+			return allRoles.filter((role) => role.roleCode?.startsWith('CLIENT_'));
+		}
+		if (currentUserOrganization?.isExaminer) {
+			return allRoles.filter((role) => role.roleCode?.startsWith('EXAMINER_'));
+		}
+		// Default for non-client/examiner org admins (or if org type is not set)
+		return allRoles.filter((role) => role.roleCode?.startsWith('IIFC_'));
+	}, [allRoles, currentUserOrganization, isSuperAdmin]);
 
 	const handleSubmit = async (data: UserFormValues) => {
 		setIsSubmitting(true);
@@ -113,7 +128,7 @@ function UserForm({
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-2'>
-						{isSuperAdmin && !initialData && (
+						{isSuperAdmin && (
 							<FormAutocomplete
 								control={form.control}
 								name='organizationId'
@@ -137,7 +152,7 @@ function UserForm({
 							label='Roles'
 							required
 							placeholder='Select role(s)'
-							options={roles}
+							options={filteredRoles}
 							getOptionValue={(option) => option.roleCode}
 							getOptionLabel={(option) => option.nameEn}
 						/>
@@ -163,10 +178,10 @@ function UserForm({
 const initMeta = { page: 0, limit: 20 };
 
 export function UserList({
-	roles,
+	allRoles,
 	allOrganizations,
 }: {
-	roles: IRole[];
+	allRoles: IRole[];
 	allOrganizations: IClientOrganization[];
 }) {
 	const { currectUser } = useAuth();
@@ -267,7 +282,7 @@ export function UserList({
 										<div className='hidden sm:flex flex-wrap gap-1 justify-end'>
 											{user.roles?.map((role) => (
 												<Badge key={role} variant='secondary'>
-													{roles.find((r) => r.roleCode === role)?.nameEn || role}
+													{allRoles.find((r) => r.roleCode === role)?.nameEn || role}
 												</Badge>
 											))}
 										</div>
@@ -277,7 +292,7 @@ export function UserList({
 											</Button>
 											<ConfirmationDialog
 												trigger={
-													<Button variant='ghost' size='icon'>
+													<Button variant='ghost' size='icon' onClick={() => setUserToDelete(user)}>
 														<Trash className='h-4 w-4 text-danger' />
 													</Button>
 												}
@@ -304,11 +319,11 @@ export function UserList({
 					isOpen={isUserFormOpen}
 					onClose={handleCloseForm}
 					onSuccess={loadUsers}
-					roles={roles}
+					allRoles={allRoles}
 					initialData={editingUser}
 					isSuperAdmin={isSuperAdmin}
 					allOrganizations={allOrganizations}
-					defaultOrganizationId={currectUser?.organizationId}
+					currentUserOrganization={currectUser?.organization}
 				/>
 			)}
 		</>
