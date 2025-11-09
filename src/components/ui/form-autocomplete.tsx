@@ -92,7 +92,7 @@ export function FormAutocomplete<
 		<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
 			<Command shouldFilter={!loadOptions}>
 				<CommandInput
-					placeholder={`Search ${label.toLowerCase()}...`}
+					placeholder={`Search ${label?.toLowerCase()}...`}
 					onValueChange={setSearchQuery}
 					value={searchQuery}
 				/>
@@ -145,7 +145,7 @@ export function FormAutocomplete<
 		return (
 			<FormItem>
 				<div className='space-y-2'>
-					{label && <Label required={required}>{label}</Label>}
+					{label && <FormLabel required={required}>{label}</FormLabel>}
 					<Popover open={open} onOpenChange={setOpen}>
 						<PopoverTrigger asChild>
 							{renderTrigger(controlledValue, selectedOption ? getOptionLabel(selectedOption) : initialLabel)}
