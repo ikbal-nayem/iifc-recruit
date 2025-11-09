@@ -84,6 +84,8 @@ export interface IOrganizationUser {
 	organizationNameEn: string;
 	organizationNameBn: string;
 	fullName: string;
+	firstName: string;
+	lastName: string;
 	roles: string[];
 	profileImage?: IFile;
 }

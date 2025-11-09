@@ -1,10 +1,9 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
@@ -12,7 +11,9 @@ import { FormInput } from '@/components/ui/form-input';
 import { FormMultiSelect } from '@/components/ui/form-multi-select';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { toast, useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/auth-context';
+import { useDebounce } from '@/hooks/use-debounce';
+import { toast } from '@/hooks/use-toast';
 import { IApiRequest } from '@/interfaces/common.interface';
 import { IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
@@ -22,8 +23,6 @@ import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { useAuth } from '@/contexts/auth-context';
-import { useDebounce } from '@/hooks/use-debounce';
 
 const userSchema = z.object({
 	firstName: z.string().min(1, 'First name is required.'),
@@ -39,7 +38,7 @@ type UserFormValues = z.infer<typeof userSchema>;
 interface UserFormProps {
 	isOpen: boolean;
 	onClose: () => void;
-	organizationId: string;
+	organizationId?: string;
 	onSuccess: () => void;
 	roles: IRole[];
 	initialData?: IOrganizationUser;
@@ -53,8 +52,8 @@ function UserForm({ isOpen, onClose, organizationId, onSuccess, roles, initialDa
 				: userSchema
 		),
 		defaultValues: {
-			firstName: initialData?.fullName.split(' ')[0] || '',
-			lastName: initialData?.fullName.split(' ').slice(1).join(' ') || '',
+			firstName: initialData?.firstName || '',
+			lastName: initialData?.lastName || '',
 			email: initialData?.email || '',
 			phone: initialData?.phone || '',
 			roles: initialData?.roles || [],
@@ -130,9 +129,10 @@ function UserForm({ isOpen, onClose, organizationId, onSuccess, roles, initialDa
 	);
 }
 
+const initMeta = { page: 0, limit: 20 };
+
 export function UserList({ roles }: { roles: IRole[] }) {
 	const { currectUser } = useAuth();
-	const { toast } = useToast();
 	const [users, setUsers] = useState<IOrganizationUser[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isUserFormOpen, setIsUserFormOpen] = useState(false);
@@ -144,15 +144,15 @@ export function UserList({ roles }: { roles: IRole[] }) {
 	const organizationId = currectUser?.organizationId;
 
 	const loadUsers = useCallback(async () => {
-		if (!organizationId) {
-			setIsLoading(false);
-			return;
-		}
+		// if (!organizationId) {
+		// 	setIsLoading(false);
+		// 	return;
+		// }
 		setIsLoading(true);
 		try {
 			const payload: IApiRequest = {
 				body: { organizationId, searchKey: debouncedSearch },
-				meta: { page: 0, limit: 100 },
+				meta: initMeta,
 			};
 			const response = await UserService.searchOrganizationUsers(payload);
 			setUsers(response.body);
@@ -161,7 +161,7 @@ export function UserList({ roles }: { roles: IRole[] }) {
 		} finally {
 			setIsLoading(false);
 		}
-	}, [organizationId, toast, debouncedSearch]);
+	}, [organizationId, debouncedSearch]);
 
 	useEffect(() => {
 		loadUsers();
@@ -190,15 +190,15 @@ export function UserList({ roles }: { roles: IRole[] }) {
 		}
 	};
 
-	if (!organizationId) {
-		return (
-			<Card className='glassmorphism'>
-				<CardContent className='pt-6 text-center text-muted-foreground'>
-					Your user is not associated with an organization.
-				</CardContent>
-			</Card>
-		);
-	}
+	// if (!organizationId) {
+	// 	return (
+	// 		<Card className='glassmorphism'>
+	// 			<CardContent className='pt-6 text-center text-muted-foreground'>
+	// 				Your user is not associated with an organization.
+	// 			</CardContent>
+	// 		</Card>
+	// 	);
+	// }
 
 	return (
 		<>
@@ -264,7 +264,9 @@ export function UserList({ roles }: { roles: IRole[] }) {
 								</Card>
 							))
 						) : (
-							<div className='text-center py-8 text-muted-foreground'>No users found for this organization.</div>
+							<div className='text-center py-8 text-muted-foreground'>
+								No users found for this organization.
+							</div>
 						)}
 					</div>
 				</CardContent>
