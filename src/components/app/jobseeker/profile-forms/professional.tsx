@@ -1,6 +1,5 @@
 'use client';
 
-import { ProfessionalExperienceMasterData } from '@/app/(auth)/jobseeker/profile-edit/professional/page';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
@@ -28,12 +27,10 @@ import * as z from 'zod';
 const professionalInfoSchema = z
 	.object({
 		positionTitle: z.string().min(1, 'Position Title is required.').max(100, 'Position Title is too long.'),
-		// positionLevelId: z.coerce.string().min(1, 'Position Level is required.'),
 		organizationNameEn: z.coerce
 			.string()
 			.min(1, 'Organization is required.')
 			.max(100, 'Organization name is too long.'),
-		// organizationId: z.coerce.string().min(1, 'Organization is required.'),
 		responsibilities: z
 			.string()
 			.min(1, 'Please list at least one responsibility.')
@@ -62,14 +59,11 @@ interface ProfessionalExperienceFormProps {
 	onClose: () => void;
 	onSubmit: (data: ProfessionalFormValues) => Promise<boolean>;
 	initialData?: ProfessionalInfo;
-	masterData: ProfessionalExperienceMasterData;
 }
 
 const defaultValues: ProfessionalInfo = {
 	positionTitle: '',
-	// positionLevelId: '',
 	organizationNameEn: '',
-	// organizationId: '',
 	responsibilities: '',
 	joinDate: '',
 	resignDate: '',
@@ -88,7 +82,6 @@ function ProfessionalExperienceForm({
 	onClose,
 	onSubmit,
 	initialData,
-	masterData,
 }: ProfessionalExperienceFormProps) {
 	const form = useForm<ProfessionalFormValues>({
 		resolver: zodResolver(professionalInfoSchema),
@@ -101,8 +94,6 @@ function ProfessionalExperienceForm({
 		if (initialData) {
 			form.reset({
 				...initialData,
-				// positionLevelId: initialData.positionLevel?.id,
-				// organizationId: initialData.organization?.id,
 			});
 		} else {
 			form.reset(defaultValues);
@@ -143,28 +134,6 @@ function ProfessionalExperienceForm({
 							placeholder='e.g., Software Engineer'
 							required
 						/>
-						{/* <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-							<FormAutocomplete
-								control={form.control}
-								name='organizationId'
-								label='Organization'
-								placeholder='Select an organization'
-								required
-								options={masterData.organizations}
-								getOptionValue={(option) => option.id!.toString()}
-								getOptionLabel={(option) => option.nameEn}
-							/>
-							<FormAutocomplete
-								control={form.control}
-								name='positionLevelId'
-								label='Position Level'
-								placeholder='Select a level'
-								required
-								options={masterData.positionLevels}
-								getOptionValue={(option) => option.id!.toString()}
-								getOptionLabel={(option) => option.nameEn}
-							/>
-						</div> */}
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
 							<FormDatePicker control={form.control} name='joinDate' label='Join Date' required />
 							<FormDatePicker
@@ -230,11 +199,7 @@ function ProfessionalExperienceForm({
 	);
 }
 
-interface ProfileFormProps {
-	masterData: ProfessionalExperienceMasterData;
-}
-
-export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
+export function ProfileFormProfessional() {
 	const [history, setHistory] = React.useState<ProfessionalInfo[]>([]);
 	const [editingItem, setEditingItem] = React.useState<ProfessionalInfo | undefined>(undefined);
 	const [isFormOpen, setIsFormOpen] = React.useState(false);
@@ -311,6 +276,7 @@ export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
 			<Card key={item.id} className='p-4 flex justify-between items-start'>
 				<div>
 					<p className='font-semibold'>{item.positionTitle}</p>
+					<p className='text-sm text-muted-foreground'>{item.organizationNameEn}</p>
 					<p className='text-xs text-muted-foreground'>
 						{joinDate} - {resignDate}
 					</p>
@@ -373,7 +339,6 @@ export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
 					onClose={handleCloseForm}
 					onSubmit={handleFormSubmit}
 					initialData={editingItem}
-					masterData={masterData}
 				/>
 			)}
 		</div>
