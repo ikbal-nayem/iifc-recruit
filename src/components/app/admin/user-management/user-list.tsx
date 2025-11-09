@@ -16,8 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/auth-context';
 import { useDebounce } from '@/hooks/use-debounce';
 import { toast } from '@/hooks/use-toast';
-import { UserType } from '@/interfaces/auth.interface';
-import { IApiRequest } from '@/interfaces/common.interface';
+import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { IClientOrganization, IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { UserService } from '@/services/api/user.service';
@@ -26,6 +25,9 @@ import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { FormSelect } from '@/components/ui/form-select';
+import { UserType } from '@/interfaces/auth.interface';
+import { Pagination } from '@/components/ui/pagination';
 
 const userSchema = z.object({
 	firstName: z.string().min(1, 'First name is required.'),
@@ -175,7 +177,7 @@ function UserForm({
 	);
 }
 
-const initMeta = { page: 0, limit: 20 };
+const initMeta: IMeta = { page: 0, limit: 20 };
 
 export function UserList({
 	allRoles,
@@ -186,38 +188,50 @@ export function UserList({
 }) {
 	const { currectUser } = useAuth();
 	const [users, setUsers] = useState<IOrganizationUser[]>([]);
+	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isUserFormOpen, setIsUserFormOpen] = useState(false);
 	const [editingUser, setEditingUser] = useState<IOrganizationUser | undefined>(undefined);
 	const [userToDelete, setUserToDelete] = useState<IOrganizationUser | null>(null);
 	const [searchQuery, setSearchQuery] = useState('');
+	const [userTypeFilter, setUserTypeFilter] = useState('all');
+
 	const debouncedSearch = useDebounce(searchQuery, 500);
 
 	const isSuperAdmin = currectUser?.userType === UserType.SYSTEM;
 	const organizationId = isSuperAdmin ? undefined : currectUser?.organizationId;
 
-	const loadUsers = useCallback(async () => {
-		setIsLoading(true);
-		try {
-			const payload: IApiRequest = {
-				body: {
-					...(organizationId && { organizationId }),
-					searchKey: debouncedSearch,
-				},
-				meta: initMeta,
-			};
-			const response = await UserService.searchOrganizationUsers(payload);
-			setUsers(response.body);
-		} catch (error: any) {
-			toast.error({ description: error.message || 'Failed to load organization users.' });
-		} finally {
-			setIsLoading(false);
-		}
-	}, [organizationId, debouncedSearch]);
+	const loadUsers = useCallback(
+		async (page: number, search: string, userType: string) => {
+			setIsLoading(true);
+			try {
+				const payload: IApiRequest = {
+					body: {
+						...(organizationId && { organizationId }),
+						searchKey: search,
+						...(userType !== 'all' && { userType }),
+					},
+					meta: { ...initMeta, page },
+				};
+				const response = await UserService.searchOrganizationUsers(payload);
+				setUsers(response.body);
+				setMeta(response.meta);
+			} catch (error: any) {
+				toast.error({ description: error.message || 'Failed to load organization users.' });
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[organizationId]
+	);
 
 	useEffect(() => {
-		loadUsers();
-	}, [loadUsers]);
+		loadUsers(0, debouncedSearch, userTypeFilter);
+	}, [loadUsers, debouncedSearch, userTypeFilter]);
+
+	const handlePageChange = (newPage: number) => {
+		loadUsers(newPage, debouncedSearch, userTypeFilter);
+	};
 
 	const handleOpenForm = (user?: IOrganizationUser) => {
 		setEditingUser(user);
@@ -234,7 +248,7 @@ export function UserList({
 		try {
 			await UserService.deleteUser(userToDelete.id);
 			toast.success({ description: `User ${userToDelete.fullName} has been deleted.` });
-			loadUsers();
+			loadUsers(meta.page, debouncedSearch, userTypeFilter);
 		} catch (error: any) {
 			toast.error({ description: error.message || 'Failed to delete user.' });
 		} finally {
@@ -242,20 +256,40 @@ export function UserList({
 		}
 	};
 
+	const userTypeOptions = [
+		{ value: 'all', nameEn: 'All User Types' },
+		{ value: UserType.SYSTEM, nameEn: 'System' },
+		{ value: UserType.IIFC_ADMIN, nameEn: 'IIFC Admin' },
+		{ value: UserType.ORG_ADMIN, nameEn: 'Organization Admin' },
+	];
+
 	return (
 		<>
 			<Card className='glassmorphism'>
-				<CardHeader className='flex-row items-center justify-between'>
-					<div className='relative w-full max-w-sm'>
-						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-						<Input
-							placeholder='Search by name, email, or phone...'
-							value={searchQuery}
-							onChange={(e) => setSearchQuery(e.target.value)}
-							className='pl-10 h-10'
-						/>
+				<CardHeader className='flex-col md:flex-row items-center justify-between gap-4'>
+					<div className='flex flex-col md:flex-row w-full md:w-auto gap-4'>
+						<div className='relative w-full md:max-w-sm'>
+							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+							<Input
+								placeholder='Search by name, email, or phone...'
+								value={searchQuery}
+								onChange={(e) => setSearchQuery(e.target.value)}
+								className='pl-10 h-10'
+							/>
+						</div>
+						{isSuperAdmin && (
+							<FormSelect
+								name='userTypeFilter'
+								placeholder='Filter by user type'
+								options={userTypeOptions}
+								getOptionLabel={(o) => o.nameEn}
+								getOptionValue={(o) => o.value}
+								value={userTypeFilter}
+								onValueChange={(val) => setUserTypeFilter(val || 'all')}
+							/>
+						)}
 					</div>
-					<Button onClick={() => handleOpenForm()}>
+					<Button onClick={() => handleOpenForm()} className='w-full md:w-auto'>
 						<PlusCircle className='mr-2 h-4 w-4' />
 						Create User
 					</Button>
@@ -275,7 +309,9 @@ export function UserList({
 										<div>
 											<p className='font-semibold'>{user.fullName}</p>
 											<p className='text-sm text-muted-foreground'>{user.email}</p>
-											<p className='text-xs text-muted-foreground'>{user.organizationNameEn}</p>
+											{isSuperAdmin && (
+												<p className='text-xs text-muted-foreground'>{user.organizationNameEn}</p>
+											)}
 										</div>
 									</div>
 									<div className='flex items-center gap-4'>
@@ -313,12 +349,15 @@ export function UserList({
 						)}
 					</div>
 				</CardContent>
+				{meta && meta.totalRecords && meta.totalRecords > 0 ? (
+					<Pagination meta={meta} isLoading={isLoading} onPageChange={handlePageChange} noun='user' />
+				) : null}
 			</Card>
 			{isUserFormOpen && (
 				<UserForm
 					isOpen={isUserFormOpen}
 					onClose={handleCloseForm}
-					onSuccess={loadUsers}
+					onSuccess={() => loadUsers(meta.page, debouncedSearch, userTypeFilter)}
 					allRoles={allRoles}
 					initialData={editingUser}
 					isSuperAdmin={isSuperAdmin}
