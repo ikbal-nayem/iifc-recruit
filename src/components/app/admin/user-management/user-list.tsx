@@ -23,7 +23,7 @@ import { makePreviewURL } from '@/lib/file-oparations';
 import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -81,7 +81,7 @@ function UserForm({
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	const filteredRoles = React.useMemo(() => {
+	const filteredRoles = useMemo(() => {
 		if (isSuperAdmin) {
 			return allRoles; // Super admin can see all roles initially
 		}

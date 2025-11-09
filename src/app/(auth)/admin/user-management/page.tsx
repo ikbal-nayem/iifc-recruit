@@ -1,10 +1,9 @@
-
 import { UserList } from '@/components/app/admin/user-management/user-list';
+import { IUser } from '@/interfaces/auth.interface';
+import { IClientOrganization, IRole } from '@/interfaces/master-data.interface';
 import { AuthService } from '@/services/api/auth.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { UserService } from '@/services/api/user.service';
-import { IClientOrganization, IRole } from '@/interfaces/master-data.interface';
-import { IUser, UserType } from '@/interfaces/auth.interface';
 
 async function getData(): Promise<{
 	roles: IRole[];

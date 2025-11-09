@@ -2,10 +2,10 @@ import { IFile } from './common.interface';
 import { EnumDTO, IClientOrganization } from './master-data.interface';
 
 export enum UserType {
-	'SYSTEM',
-	'IIFC_ADMIN',
-	'JOB_SEEKER',
-	'ORG_ADMIN',
+	SYSTEM = 'SYSTEM',
+	IIFC_ADMIN = 'IIFC_ADMIN',
+	JOB_SEEKER = 'JOB_SEEKER',
+	ORG_ADMIN = 'ORG_ADMIN',
 }
 
 export interface IAuthInfo {
