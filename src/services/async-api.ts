@@ -13,6 +13,12 @@ export const getExaminerAsync = (searchKey: string, callback: (data: IClientOrga
 	MasterDataService.clientOrganization.getList(initPayload).then((resp) => callback(resp?.body || []));
 };
 
+export const getOrganizationsAsync = (searchKey: string, callback: (data: IClientOrganization[]) => void) => {
+	initPayload.body.searchKey = searchKey;
+	delete initPayload.body.isExaminer;
+	MasterDataService.clientOrganization.getList(initPayload).then((resp) => callback(resp?.body || []));
+};
+
 export const getSkillsAsync = (searchKey: string, callback: (data: ICommonMasterData[]) => void) => {
 	initPayload.body.searchKey = searchKey;
 	MasterDataService.skill.getList(initPayload).then((resp) => callback(resp?.body || []));

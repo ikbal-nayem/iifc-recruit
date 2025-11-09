@@ -12,22 +12,22 @@ import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormInput } from '@/components/ui/form-input';
 import { FormMultiSelect } from '@/components/ui/form-multi-select';
 import { Input } from '@/components/ui/input';
+import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/auth-context';
 import { useDebounce } from '@/hooks/use-debounce';
 import { toast } from '@/hooks/use-toast';
+import { IUser, UserType } from '@/interfaces/auth.interface';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { IClientOrganization, IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { UserService } from '@/services/api/user.service';
+import { getOrganizationsAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { FormSelect } from '@/components/ui/form-select';
-import { UserType } from '@/interfaces/auth.interface';
-import { Pagination } from '@/components/ui/pagination';
 
 const userSchema = z.object({
 	firstName: z.string().min(1, 'First name is required.'),
@@ -48,7 +48,6 @@ interface UserFormProps {
 	allRoles: IRole[];
 	initialData?: IOrganizationUser;
 	isSuperAdmin: boolean;
-	allOrganizations?: IClientOrganization[];
 	currentUserOrganization?: IClientOrganization;
 }
 
@@ -59,7 +58,6 @@ function UserForm({
 	allRoles,
 	initialData,
 	isSuperAdmin,
-	allOrganizations = [],
 	currentUserOrganization,
 }: UserFormProps) {
 	const baseSchema = isSuperAdmin
@@ -85,7 +83,7 @@ function UserForm({
 
 	const filteredRoles = useMemo(() => {
 		if (isSuperAdmin) {
-			return allRoles; // Super admin can see all roles initially
+			return allRoles;
 		}
 		if (currentUserOrganization?.isClient) {
 			return allRoles.filter((role) => role.roleCode?.startsWith('CLIENT_'));
@@ -93,7 +91,6 @@ function UserForm({
 		if (currentUserOrganization?.isExaminer) {
 			return allRoles.filter((role) => role.roleCode?.startsWith('EXAMINER_'));
 		}
-		// Default for non-client/examiner org admins (or if org type is not set)
 		return allRoles.filter((role) => role.roleCode?.startsWith('IIFC_'));
 	}, [allRoles, currentUserOrganization, isSuperAdmin]);
 
@@ -136,8 +133,9 @@ function UserForm({
 								name='organizationId'
 								label='Organization'
 								required
-								placeholder='Select an organization'
-								options={allOrganizations}
+								placeholder='Search for an organization...'
+								loadOptions={getOrganizationsAsync}
+								initialLabel={initialData?.organizationNameEn}
 								getOptionLabel={(opt) => opt.nameEn}
 								getOptionValue={(opt) => opt.id!}
 							/>
@@ -194,7 +192,6 @@ export function UserList({
 	const [editingUser, setEditingUser] = useState<IOrganizationUser | undefined>(undefined);
 	const [userToDelete, setUserToDelete] = useState<IOrganizationUser | null>(null);
 	const [searchQuery, setSearchQuery] = useState('');
-	const [userTypeFilter, setUserTypeFilter] = useState('all');
 
 	const debouncedSearch = useDebounce(searchQuery, 500);
 
@@ -202,14 +199,13 @@ export function UserList({
 	const organizationId = isSuperAdmin ? undefined : currectUser?.organizationId;
 
 	const loadUsers = useCallback(
-		async (page: number, search: string, userType: string) => {
+		async (page: number, search: string) => {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
 					body: {
 						...(organizationId && { organizationId }),
 						searchKey: search,
-						...(userType !== 'all' && { userType }),
 					},
 					meta: { ...initMeta, page },
 				};
@@ -226,11 +222,11 @@ export function UserList({
 	);
 
 	useEffect(() => {
-		loadUsers(0, debouncedSearch, userTypeFilter);
-	}, [loadUsers, debouncedSearch, userTypeFilter]);
+		loadUsers(0, debouncedSearch);
+	}, [loadUsers, debouncedSearch]);
 
 	const handlePageChange = (newPage: number) => {
-		loadUsers(newPage, debouncedSearch, userTypeFilter);
+		loadUsers(newPage, debouncedSearch);
 	};
 
 	const handleOpenForm = (user?: IOrganizationUser) => {
@@ -248,7 +244,7 @@ export function UserList({
 		try {
 			await UserService.deleteUser(userToDelete.id);
 			toast.success({ description: `User ${userToDelete.fullName} has been deleted.` });
-			loadUsers(meta.page, debouncedSearch, userTypeFilter);
+			loadUsers(meta.page, debouncedSearch);
 		} catch (error: any) {
 			toast.error({ description: error.message || 'Failed to delete user.' });
 		} finally {
@@ -256,38 +252,18 @@ export function UserList({
 		}
 	};
 
-	const userTypeOptions = [
-		{ value: 'all', nameEn: 'All User Types' },
-		{ value: UserType.SYSTEM, nameEn: 'System' },
-		{ value: UserType.IIFC_ADMIN, nameEn: 'IIFC Admin' },
-		{ value: UserType.ORG_ADMIN, nameEn: 'Organization Admin' },
-	];
-
 	return (
 		<>
 			<Card className='glassmorphism'>
 				<CardHeader className='flex-col md:flex-row items-center justify-between gap-4'>
-					<div className='flex flex-col md:flex-row w-full md:w-auto gap-4'>
-						<div className='relative w-full md:max-w-sm'>
-							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-							<Input
-								placeholder='Search by name, email, or phone...'
-								value={searchQuery}
-								onChange={(e) => setSearchQuery(e.target.value)}
-								className='pl-10 h-10'
-							/>
-						</div>
-						{isSuperAdmin && (
-							<FormSelect
-								name='userTypeFilter'
-								placeholder='Filter by user type'
-								options={userTypeOptions}
-								getOptionLabel={(o) => o.nameEn}
-								getOptionValue={(o) => o.value}
-								value={userTypeFilter}
-								onValueChange={(val) => setUserTypeFilter(val || 'all')}
-							/>
-						)}
+					<div className='relative w-full md:max-w-sm'>
+						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+						<Input
+							placeholder='Search by name, email, or phone...'
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+							className='pl-10 h-10'
+						/>
 					</div>
 					<Button onClick={() => handleOpenForm()} className='w-full md:w-auto'>
 						<PlusCircle className='mr-2 h-4 w-4' />
@@ -357,11 +333,10 @@ export function UserList({
 				<UserForm
 					isOpen={isUserFormOpen}
 					onClose={handleCloseForm}
-					onSuccess={() => loadUsers(meta.page, debouncedSearch, userTypeFilter)}
+					onSuccess={() => loadUsers(meta.page, debouncedSearch)}
 					allRoles={allRoles}
 					initialData={editingUser}
 					isSuperAdmin={isSuperAdmin}
-					allOrganizations={allOrganizations}
 					currentUserOrganization={currectUser?.organization}
 				/>
 			)}
