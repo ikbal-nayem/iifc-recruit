@@ -32,7 +32,7 @@ const academicInfoSchema = z.object({
 	degreeTitle: z
 		.string()
 		.min(1, 'Degree title is required')
-		.max(100, 'Degree title must be at most 100 characters'),
+		.max(100, 'Degree title must be at most 100 characters').optional(),
 	resultSystem: z.nativeEnum(ResultSystem).default(ResultSystem.GRADE),
 	resultAchieved: z.string().optional(),
 	cgpa: z.coerce.number().optional(),
@@ -156,7 +156,7 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 							control={form.control}
 							name='degreeTitle'
 							label='Degree Title'
-							required
+							// required
 							placeholder='e.g., Bachelor of Science in CSE'
 						/>
 						<FormRadioGroup
