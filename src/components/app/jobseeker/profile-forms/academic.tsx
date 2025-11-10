@@ -27,12 +27,16 @@ import * as z from 'zod';
 const academicInfoSchema = z.object({
 	degreeLevelId: z.string().min(1, 'Degree level is required'),
 	// domainId: z.string().min(1, 'Domain is required'),
-	domainNameEn: z.string().min(1, 'Domain is required').max(100, 'Domain must be at most 100 characters'),
+	domainNameEn: z
+		.string()
+		.min(1, 'Domain is required')
+		.max(100, 'Domain must be at most 100 characters')
+		.optional(),
 	institutionId: z.string().min(1, 'Institution is required'),
 	degreeTitle: z
 		.string()
 		.min(1, 'Degree title is required')
-		.max(100, 'Degree title must be at most 100 characters').optional(),
+		.max(100, 'Degree title must be at most 100 characters'),
 	resultSystem: z.nativeEnum(ResultSystem).default(ResultSystem.GRADE),
 	resultAchieved: z.string().optional(),
 	cgpa: z.coerce.number().optional(),
@@ -138,8 +142,7 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 							<FormInput
 								control={form.control}
 								name='domainNameEn'
-								label='Domain / Subject'
-								required
+								label='Domain / Major Subject'
 								placeholder='e.g., Science, Arts'
 							/>
 						</div>
@@ -155,8 +158,8 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 						<FormInput
 							control={form.control}
 							name='degreeTitle'
-							label='Degree Title'
-							// required
+							label='Degree Name'
+							required
 							placeholder='e.g., Bachelor of Science in CSE'
 						/>
 						<FormRadioGroup
