@@ -1,9 +1,24 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from '@/components/ui/command';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormInput } from '@/components/ui/form-input';
@@ -13,7 +28,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { IMeta } from '@/interfaces/common.interface';
 import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
 import { cn } from '@/lib/utils';
@@ -22,13 +37,11 @@ import { Check, ChevronsUpDown, Edit, Loader2, PlusCircle, Search, Trash } from 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 const formSchema = z.object({
 	nameEn: z.string().min(1, 'Name is required.'),
 	nameBn: z.string().min(1, 'Name is required.'),
-	fkCountry: z.string().min(1, 'Country is required.'),
+	countryId: z.string().min(1, 'Country is required.'),
 });
 type FormValues = z.infer<typeof formSchema>;
 
@@ -52,7 +65,7 @@ function EducationInstitutionForm({
 	const defaultValues = {
 		nameEn: initialData?.nameEn || '',
 		nameBn: initialData?.nameBn || '',
-		fkCountry: initialData?.fkCountry || '',
+		countryId: initialData?.countryId || '',
 	};
 
 	const form = useForm<any>({
@@ -101,7 +114,7 @@ function EducationInstitutionForm({
 							required
 							disabled={isSubmitting}
 						/>
-            <FormInput
+						<FormInput
 							control={form.control}
 							name='nameBn'
 							label='Name (Bangla)'
@@ -111,12 +124,12 @@ function EducationInstitutionForm({
 						/>
 						<FormAutocomplete
 							control={form.control}
-							name='fkCountry'
+							name='countryId'
 							label='Country'
 							placeholder='Select Country'
 							required
 							options={countries}
-							getOptionValue={(option) => option.id!.toString()}
+							getOptionValue={(option) => option.id}
 							getOptionLabel={(option) => option.nameEn}
 							disabled={isSubmitting}
 						/>
@@ -169,7 +182,6 @@ export function EducationInstitutionCrud({
 	countryFilter,
 	onCountryChange,
 }: EducationInstitutionCrudProps) {
-	const { toast } = useToast();
 	const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
 	const [countryFilterPopoverOpen, setCountryFilterPopoverOpen] = useState(false);
 
@@ -199,10 +211,8 @@ export function EducationInstitutionCrud({
 		setIsSubmitting(item.id.toString());
 		const success = await onUpdate({ ...item, active: !item.active });
 		if (success) {
-			toast({
-				title: 'Success',
+			toast.success({
 				description: 'Status updated successfully.',
-				variant: 'success',
 			});
 		}
 		setIsSubmitting(null);
@@ -215,7 +225,7 @@ export function EducationInstitutionCrud({
 	};
 
 	return (
-		<div className="space-y-8">
+		<div className='space-y-8'>
 			<div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
 				<div className='space-y-2'>
 					<h1 className='text-3xl font-headline font-bold'>{title}</h1>
@@ -307,13 +317,11 @@ export function EducationInstitutionCrud({
 										className='p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-background/50'
 									>
 										<div className='flex-1 mb-4 sm:mb-0'>
-											<p
-												className={`font-semibold ${!item.active && 'text-muted-foreground line-through'}`}
-											>
+											<p className={`font-semibold ${!item.active && 'text-muted-foreground line-through'}`}>
 												{item.nameEn}
 											</p>
 											<p className='text-sm text-muted-foreground'>
-												{countries.find((c) => c.id?.toString() === item.fkCountry)?.nameEn || 'Unknown Country'}
+												{countries.find((c) => c.id?.toString() === item.countryId)?.nameEn}
 											</p>
 										</div>
 										<div className='flex items-center gap-2 w-full sm:w-auto justify-between'>
