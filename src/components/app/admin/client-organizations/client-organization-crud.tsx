@@ -1,3 +1,4 @@
+
 'use client';
 
 import { FormMasterData } from '@/app/(auth)/admin/client-organizations/page';
@@ -17,7 +18,6 @@ import { Label } from '@/components/ui/label';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ROUTES } from '@/constants/routes.constant';
 import { useDebounce } from '@/hooks/use-debounce';
 import useLoader from '@/hooks/use-loader';
@@ -35,6 +35,7 @@ import {
 	useReactTable,
 } from '@tanstack/react-table';
 import { Edit, Eye, Globe, Loader2, Mail, Phone, PlusCircle, Search, Trash } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -251,14 +252,15 @@ export function ClientOrganizationCrud({
 	masterData,
 }: ClientOrganizationCrudProps) {
 	const { toast } = useToast();
+	const searchParams = useSearchParams();
 	const [items, setItems] = useState<IClientOrganization[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
 
-	const [isClientFilter, setIsClientFilter] = useState(false);
-	const [isExaminerFilter, setIsExaminerFilter] = useState(false);
+	const [isClientFilter, setIsClientFilter] = useState(searchParams.get('isClient') === 'true');
+	const [isExaminerFilter, setIsExaminerFilter] = useState(searchParams.get('isExaminer') === 'true');
 
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [editingItem, setEditingItem] = useState<IClientOrganization | undefined>(undefined);

@@ -1,4 +1,6 @@
 
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTES } from '@/constants/routes.constant';
@@ -47,14 +49,14 @@ export function AdminDashboardCards({ data }: AdminDashboardCardsProps) {
 			icon: <Users className='h-4 w-4 text-muted-foreground' />,
 		},
 		{
-			href: ROUTES.CLIENT_ORGANIZATIONS,
+			href: `${ROUTES.CLIENT_ORGANIZATIONS}?isClient=true`,
 			title: 'Client Organizations',
 			value: clientOrganizations,
 			description: 'Partners you are hiring for',
 			icon: <Handshake className='h-4 w-4 text-muted-foreground' />,
 		},
 		{
-			href: ROUTES.CLIENT_ORGANIZATIONS,
+			href: `${ROUTES.CLIENT_ORGANIZATIONS}?isExaminer=true`,
 			title: 'Examiner Organizations',
 			value: examinerOrganizations,
 			description: 'Organizations conducting exams',
