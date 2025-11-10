@@ -17,6 +17,7 @@ import { Certification } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makeFormData } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
+import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO } from 'date-fns';
 import { Edit, FileText, Loader2, PlusCircle, Trash } from 'lucide-react';
@@ -90,6 +91,7 @@ function CertificationForm({
 	noun,
 	certificationTypes,
 }: CertificationFormProps) {
+	const { toast } = useToast();
 	const form = useForm<CertificationFormValues>({
 		resolver: zodResolver(certificationSchema),
 		defaultValues: defaultData,
@@ -118,6 +120,27 @@ function CertificationForm({
 			.finally(() => setIsSubmitting(false));
 	};
 
+	const handleCreateCertification = async (name: string): Promise<ICommonMasterData | null> => {
+		try {
+			const response = await MasterDataService.certification.add({
+				nameEn: name,
+				nameBn: name,
+				active: true,
+			});
+			toast({
+				description: `Certification "${name}" created.`,
+				variant: 'success',
+			});
+			return response.body;
+		} catch (error: any) {
+			toast({
+				description: error.message || 'Failed to create certification.',
+				variant: 'danger',
+			});
+			return null;
+		}
+	};
+
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent>
@@ -134,6 +157,7 @@ function CertificationForm({
 							options={certificationTypes}
 							getOptionValue={(option) => option.id!.toString()}
 							getOptionLabel={(option) => option.nameEn}
+							onCreate={handleCreateCertification}
 							disabled={isSubmitting}
 						/>
 						<FormInput

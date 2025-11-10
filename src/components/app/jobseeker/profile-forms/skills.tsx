@@ -12,8 +12,9 @@ import { FormSelect } from '@/components/ui/form-select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { JobseekerSkill } from '@/interfaces/jobseeker.interface';
-import { EnumDTO } from '@/interfaces/master-data.interface';
+import { EnumDTO, ICommonMasterData } from '@/interfaces/master-data.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
+import { MasterDataService } from '@/services/api/master-data.service';
 import { getSkillsAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
@@ -41,6 +42,7 @@ interface SkillFormProps {
 }
 
 function SkillForm({ isOpen, onClose, onSubmit, initialData, noun, proficiencyOptions }: SkillFormProps) {
+	const { toast } = useToast();
 	const form = useForm<SkillFormValues>({
 		resolver: zodResolver(skillSchema),
 		defaultValues: initialData || defaultValues,
@@ -60,6 +62,27 @@ function SkillForm({ isOpen, onClose, onSubmit, initialData, noun, proficiencyOp
 		setIsSubmitting(false);
 	};
 
+	const handleCreateSkill = async (name: string): Promise<ICommonMasterData | null> => {
+		try {
+			const response = await MasterDataService.skill.add({
+				nameEn: name,
+				nameBn: name,
+				active: true,
+			});
+			toast({
+				description: `Skill "${name}" created.`,
+				variant: 'success',
+			});
+			return response.body;
+		} catch (error: any) {
+			toast({
+				description: error.message || 'Failed to create skill.',
+				variant: 'danger',
+			});
+			return null;
+		}
+	};
+
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent>
@@ -75,6 +98,7 @@ function SkillForm({ isOpen, onClose, onSubmit, initialData, noun, proficiencyOp
 							placeholder='Search for a skill'
 							required
 							loadOptions={getSkillsAsync}
+							onCreate={handleCreateSkill}
 							getOptionValue={(option) => option.id}
 							getOptionLabel={(option) => option.nameEn}
 							initialLabel={initialData?.skill?.nameEn}
