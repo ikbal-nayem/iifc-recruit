@@ -14,7 +14,7 @@ export type JobseekerSkill = {
 	skillId: string;
 	skill?: ICommonMasterData;
 	yearsOfExperience: number;
-	proficiency: ProficiencyLevel;
+	proficiency: string;
 	proficiencyDTO?: EnumDTO;
 };
 
