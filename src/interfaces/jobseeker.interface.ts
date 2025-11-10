@@ -68,17 +68,17 @@ export type Certification = {
 export type AcademicInfo = {
 	id?: string;
 	degreeLevel: ICommonMasterData;
-	domain: ICommonMasterData;
+	// domain: ICommonMasterData;
+	domainNameEn: string;
+	domainNameBn: string;
 	institution: IEducationInstitution;
 	degreeTitle: string;
-	specializationArea?: string;
 	resultSystem: ResultSystem;
 	resultAchieved?: string;
 	cgpa?: number;
 	outOfCgpa?: number;
 	passingYear: string;
 	duration?: number;
-	achievement?: string;
 	certificateFile?: IFile | File;
 };
 
