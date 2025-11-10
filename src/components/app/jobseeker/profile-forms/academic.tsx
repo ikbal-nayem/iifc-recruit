@@ -12,8 +12,8 @@ import { FormInput } from '@/components/ui/form-input';
 import { FormRadioGroup } from '@/components/ui/form-radio-group';
 import { FormSelect } from '@/components/ui/form-select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
-import { IApiResponse, ResultSystem } from '@/interfaces/common.interface';
+import { toast, useToast } from '@/hooks/use-toast';
+import { ResultSystem } from '@/interfaces/common.interface';
 import { AcademicInfo } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
 import { makeFormData } from '@/lib/utils';
@@ -73,7 +73,6 @@ const defaultValues = {
 };
 
 function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData }: AcademicFormProps) {
-	const { toast } = useToast();
 	const form = useForm<AcademicFormValues>({
 		resolver: zodResolver(academicInfoSchema),
 		defaultValues: defaultValues,
@@ -102,11 +101,9 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 
 	const handleCreateInstitution = async (name: string): Promise<IEducationInstitution | null> => {
 		try {
-			// Assuming '1' is the ID for Bangladesh. This should be made more robust in a real app.
 			const response = await MasterDataService.educationInstitution.add({
 				nameEn: name,
-				nameBn: name, // Defaulting Bn name to En name for simplicity
-				countryId: '1',
+				nameBn: name,
 				active: true,
 			});
 			toast.success({ description: `Institution "${name}" created.` });
@@ -310,7 +307,7 @@ export function ProfileFormAcademic({ masterData }: ProfileFormAcademicProps) {
 				<div>
 					<p className='font-semibold'>{item.degreeTitle}</p>
 					<p className='text-sm text-muted-foreground'>
-						{item.institution.nameEn} | {item.degreeLevel.nameEn} in {item.domainNameEn}
+						{item.institution.nameEn} | {item.degreeLevel.nameEn} in {item.degreeTitle}
 					</p>
 					<p className='text-xs text-muted-foreground'>
 						{item.passingYear} | {resultText}
