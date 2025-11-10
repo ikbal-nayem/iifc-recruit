@@ -29,10 +29,10 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 const formSchema = z.object({
-	nameEn: z.string().min(1, 'English name is required.').refine(isEnglish, {
+	nameEn: z.string().min(1, 'English name is required.').max(100, 'Name must be at most 100 characters').refine(isEnglish, {
 		message: 'Only English characters, numbers, and some special characters are allowed.',
 	}),
-	nameBn: z.string().min(1, 'Bengali name is required.').refine(isBangla, {
+	nameBn: z.string().min(1, 'Bengali name is required.').max(100, 'Name must be at most 100 characters').refine(isBangla, {
 		message: 'Only Bengali characters, numbers, and some special characters are allowed.',
 	}),
 	serial: z.number().optional(),

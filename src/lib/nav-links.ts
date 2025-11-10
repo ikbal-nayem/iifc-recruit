@@ -162,7 +162,7 @@ export const adminNavLinks: NavLink[] = [
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/education'),
 				submenu: [
 					{ href: '/admin/master-data/education/degree-levels', label: 'Degree Levels' },
-					{ href: '/admin/master-data/education/domains', label: 'Domains' },
+					// { href: '/admin/master-data/education/domains', label: 'Domains' },
 					{ href: '/admin/master-data/education/institutions', label: 'Institutions' },
 				],
 			},
