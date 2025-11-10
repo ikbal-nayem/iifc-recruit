@@ -29,7 +29,6 @@ const academicInfoSchema = z.object({
 	// domainId: z.string().min(1, 'Domain is required'),
 	domainNameEn: z
 		.string()
-		.min(1, 'Domain is required')
 		.max(100, 'Domain must be at most 100 characters')
 		.optional(),
 	institutionId: z.string().min(1, 'Institution is required'),
@@ -304,7 +303,7 @@ export function ProfileFormAcademic({ masterData }: ProfileFormAcademicProps) {
 				<div>
 					<p className='font-semibold'>{item.degreeTitle}</p>
 					<p className='text-sm text-muted-foreground'>
-						{item.institution.nameEn} | {item.degreeLevel.nameEn} in {item.domainNameEn}
+						{item.institution.nameEn} | {item.degreeLevel.nameEn} in {item.degreeTitle}
 					</p>
 					<p className='text-xs text-muted-foreground'>
 						{item.passingYear} | {resultText}

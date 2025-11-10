@@ -119,7 +119,7 @@ function ClientOrganizationForm({
 
 	const handleFormSubmit = async (data: any) => {
 		setIsSubmitting(true);
-		data.isClient === false && (data.clientId = null);
+		data.isClient === false && (data.clientId = '');
 		await onSubmit(data);
 		setIsSubmitting(false);
 		onClose();
