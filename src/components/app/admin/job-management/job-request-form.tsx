@@ -7,9 +7,8 @@ import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormCheckbox } from '@/components/ui/form-checkbox';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
-import { FormRadioGroup } from '@/components/ui/form-radio-group';
 import { useDebounce } from '@/hooks/use-debounce';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { JobRequest, JobRequestType } from '@/interfaces/job.interface';
 import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from '@/interfaces/master-data.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
@@ -41,7 +40,7 @@ const jobRequestSchema = z.object({
 	description: z.string().optional(),
 	requestDate: z.string().min(1, 'Request date is required.'),
 	deadline: z.string().min(1, 'Deadline is required.'),
-	type: z.string().min(1, 'Request type is required.'),
+	type: z.nativeEnum(JobRequestType),
 	requestedPosts: z.array(requestedPostSchema).min(1, 'At least one post is required.'),
 });
 
@@ -72,7 +71,6 @@ export function JobRequestForm({
 	requestTypes,
 	initialData,
 }: JobRequestFormProps) {
-	const { toast } = useToast();
 	const router = useRouter();
 
 	const [filteredPosts, setFilteredPosts] = useState<IPost[]>(initialPosts);
@@ -120,9 +118,8 @@ export function JobRequestForm({
 				});
 				setFilteredPosts(response.body);
 			} catch (error) {
-				toast({
+				toast.error({
 					description: 'Could not load posts for the selected request type.',
-					variant: 'danger',
 				});
 				setFilteredPosts([]);
 			} finally {
@@ -158,17 +155,15 @@ export function JobRequestForm({
 			} else {
 				await JobRequestService.create({ ...cleanedData, active: true });
 			}
-			toast({
+			toast.success({
 				title: initialData ? 'Job Request Updated!' : 'Job Request Submitted!',
 				description: `The request has been successfully ${initialData ? 'updated' : 'submitted'}.`,
-				variant: 'success',
 			});
 			router.push('/admin/job-management/request');
 		} catch (error: any) {
-			toast({
+			toast.error({
 				title: 'Submission Failed',
 				description: error.message || 'There was a problem with your request.',
-				variant: 'danger',
 			});
 		}
 	}
@@ -182,13 +177,13 @@ export function JobRequestForm({
 						<CardDescription>Fill in the main details for the job request.</CardDescription>
 					</CardHeader>
 					<CardContent className='space-y-6'>
-						<FormRadioGroup
+						{/* <FormRadioGroup
 							control={form.control}
 							name='type'
 							label='Request Type'
 							required
 							options={requestTypes.map((rt) => ({ label: rt.nameEn, value: rt.value }))}
-						/>
+						/> */}
 
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-6 items-start'>
 							<FormAutocomplete

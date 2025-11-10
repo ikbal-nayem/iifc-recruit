@@ -6,7 +6,6 @@ import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FilePreviewer } from '@/components/ui/file-previewer';
 import { Form } from '@/components/ui/form';
-import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormFileUpload } from '@/components/ui/form-file-upload';
 import { FormInput } from '@/components/ui/form-input';
@@ -111,7 +110,7 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 							required
 							disabled={isSubmitting}
 						/>
-						<FormAutocomplete
+						{/* <FormAutocomplete
 							control={form.control}
 							name='trainingTypeId'
 							label='Training Type'
@@ -120,7 +119,7 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 							getOptionValue={(option) => option.id!.toString()}
 							getOptionLabel={(option) => option.nameEn}
 							disabled={isSubmitting}
-						/>
+						/> */}
 
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 							<FormDatePicker

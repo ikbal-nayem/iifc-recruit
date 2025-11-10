@@ -62,11 +62,11 @@ export const adminNavLinks: NavLink[] = [
 				label: 'New Request',
 				icon: PlusCircle,
 			},
-			{
-				href: ROUTES.JOB_REQUEST_PENDING,
-				label: 'Pending',
-				icon: History,
-			},
+			// {
+			// 	href: ROUTES.JOB_REQUEST_PENDING,
+			// 	label: 'Pending',
+			// 	icon: History,
+			// },
 			{
 				href: ROUTES.JOB_REQUEST_PROCESSING,
 				label: 'Processing',
@@ -172,7 +172,7 @@ export const adminNavLinks: NavLink[] = [
 				icon: BookMarked,
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/training'),
 				submenu: [
-					{ href: '/admin/master-data/training/training-types', label: 'Training Types' },
+					// { href: '/admin/master-data/training/training-types', label: 'Training Types' },
 					{ href: '/admin/master-data/training/certifications', label: 'Certifications' },
 				],
 			},
