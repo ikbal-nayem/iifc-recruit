@@ -7,6 +7,9 @@ import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormCheckbox } from '@/components/ui/form-checkbox';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
+import { FormTextarea } from '@/components/ui/form-textarea';
+import { ROUTES } from '@/constants/routes.constant';
+import { useAuth } from '@/contexts/auth-context';
 import { useDebounce } from '@/hooks/use-debounce';
 import { toast } from '@/hooks/use-toast';
 import { JobRequest, JobRequestType } from '@/interfaces/job.interface';
@@ -34,13 +37,13 @@ const requestedPostSchema = z.object({
 });
 
 const jobRequestSchema = z.object({
-	memoNo: z.string().min(1, 'Memo No. is required.'),
-	clientOrganizationId: z.coerce.string().min(1, 'Client Organization is required.'),
-	subject: z.string().min(1, 'Subject is required.'),
-	description: z.string().optional(),
+	type: z.nativeEnum(JobRequestType),
+	memoNo: z.string().min(1, 'Memo No. is required.').max(50, 'Memo No. cannot exceed 50 characters.'),
+	clientOrganizationId: z.string().min(1, 'Client Organization is required.'),
+	subject: z.string().min(1, 'Subject is required.').max(255, 'Subject cannot exceed 255 characters.'),
+	description: z.string().max(1000, 'Description cannot exceed 1000 characters.').optional(),
 	requestDate: z.string().min(1, 'Request date is required.'),
 	deadline: z.string().min(1, 'Deadline is required.'),
-	type: z.nativeEnum(JobRequestType),
 	requestedPosts: z.array(requestedPostSchema).min(1, 'At least one post is required.'),
 });
 
@@ -72,6 +75,7 @@ export function JobRequestForm({
 	initialData,
 }: JobRequestFormProps) {
 	const router = useRouter();
+	const { currectUser } = useAuth();
 
 	const [filteredPosts, setFilteredPosts] = useState<IPost[]>(initialPosts);
 	const [isLoadingPosts, setIsLoadingPosts] = useState(false);
@@ -159,7 +163,9 @@ export function JobRequestForm({
 				title: initialData ? 'Job Request Updated!' : 'Job Request Submitted!',
 				description: `The request has been successfully ${initialData ? 'updated' : 'submitted'}.`,
 			});
-			router.push('/admin/job-management/request');
+			router.push(
+				currectUser?.userType !== 'ORG_ADMIN' ? ROUTES.JOB_REQUEST_PROCESSING : ROUTES.JOB_REQUEST_PENDING
+			);
 		} catch (error: any) {
 			toast.error({
 				title: 'Submission Failed',
@@ -213,11 +219,13 @@ export function JobRequestForm({
 							required
 						/>
 
-						<FormInput
+						<FormTextarea
 							control={form.control}
 							name='description'
 							label='Description'
 							placeholder='Enter a brief description for the request'
+							maxLength={1000}
+							rows={4}
 						/>
 
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-6 items-start'>
