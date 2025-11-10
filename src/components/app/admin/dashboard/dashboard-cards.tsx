@@ -42,7 +42,7 @@ export function AdminDashboardCards({ data }: AdminDashboardCardsProps) {
 			icon: <Briefcase className='h-4 w-4 text-muted-foreground' />,
 		},
 		{
-			href: '/admin/jobseekers',
+			href: ROUTES.JOB_SEEKERS,
 			title: 'Total Jobseekers',
 			value: totalJobseekers,
 			description: 'In the talent pool',
@@ -50,14 +50,14 @@ export function AdminDashboardCards({ data }: AdminDashboardCardsProps) {
 		},
 		{
 			href: `${ROUTES.CLIENT_ORGANIZATIONS}?isClient=true`,
-			title: 'Client Organizations',
+			title: 'Client',
 			value: clientOrganizations,
 			description: 'Partners you are hiring for',
 			icon: <Handshake className='h-4 w-4 text-muted-foreground' />,
 		},
 		{
 			href: `${ROUTES.CLIENT_ORGANIZATIONS}?isExaminer=true`,
-			title: 'Examiner Organizations',
+			title: 'Examiner',
 			value: examinerOrganizations,
 			description: 'Organizations conducting exams',
 			icon: <Building className='h-4 w-4 text-muted-foreground' />,

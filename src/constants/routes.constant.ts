@@ -39,4 +39,6 @@ export const ROUTES = {
 
 	CLIENT_ORGANIZATIONS: '/admin/client-organizations',
 	CLIENT_ORGANIZATION_DETAILS: (id?: string | string) => `/admin/client-organizations/${id}`,
+
+	JOB_SEEKERS: '/admin/jobseekers',
 };

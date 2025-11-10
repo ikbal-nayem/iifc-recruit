@@ -1,4 +1,3 @@
-
 'use client';
 
 import { FormMasterData } from '@/app/(auth)/admin/client-organizations/page';
@@ -18,6 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ROUTES } from '@/constants/routes.constant';
 import { useDebounce } from '@/hooks/use-debounce';
 import useLoader from '@/hooks/use-loader';
