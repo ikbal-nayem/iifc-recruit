@@ -65,20 +65,14 @@ async function getDashboardData() {
 							{ name: 'Processing', value: processingApplications, fill: 'hsl(var(--info))' },
 							{ name: 'Completed', value: completedJobRequests, fill: 'hsl(var(--success))' },
 					  ],
-				applicationStatusData: useMockData
+				organizationTypeData: useMockData
 					? [
-							{ name: 'Applied', value: 250 },
-							{ name: 'Accepted', value: 150 },
-							{ name: 'Shortlisted', value: 90 },
-							{ name: 'Interview', value: 45 },
-							{ name: 'Hired', value: 15 },
+							{ name: 'Clients', value: 25 },
+							{ name: 'Examiners', value: 10 },
 					  ]
 					: [
-							{ name: 'Applied', value: 0 },
-							{ name: 'Accepted', value: 0 },
-							{ name: 'Shortlisted', value: 0 },
-							{ name: 'Interview', value: 0 },
-							{ name: 'Hired', value: 0 },
+							{ name: 'Clients', value: clientOrganizations },
+							{ name: 'Examiners', value: examinerOrganizations },
 					  ],
 			},
 		};
@@ -99,12 +93,9 @@ async function getDashboardData() {
 					{ name: 'Processing', value: 8, fill: 'hsl(var(--info))' },
 					{ name: 'Completed', value: 34, fill: 'hsl(var(--success))' },
 				],
-				applicationStatusData: [
-					{ name: 'Applied', value: 250 },
-					{ name: 'Accepted', value: 150 },
-					{ name: 'Shortlisted', value: 90 },
-					{ name: 'Interview', value: 45 },
-					{ name: 'Hired', value: 15 },
+				organizationTypeData: [
+					{ name: 'Clients', value: 25 },
+					{ name: 'Examiners', value: 10 },
 				],
 			},
 		};

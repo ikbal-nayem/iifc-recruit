@@ -25,17 +25,24 @@ const requestChartConfig = {
 	},
 } satisfies ChartConfig;
 
-const applicationChartConfig = {
+const organizationChartConfig = {
 	value: {
-		label: 'Candidates',
+		label: 'Organizations',
+	},
+	Clients: {
+		label: 'Clients',
+		color: 'hsl(var(--chart-1))',
+	},
+	Examiners: {
+		label: 'Examiners',
+		color: 'hsl(var(--chart-2))',
 	},
 } satisfies ChartConfig;
-
 
 interface AdminDashboardChartsProps {
 	data: {
 		requestStatusData: any[];
-		applicationStatusData: any[];
+		organizationTypeData: any[];
 	};
 }
 
@@ -72,14 +79,14 @@ export function AdminDashboardCharts({ data }: AdminDashboardChartsProps) {
 
 			<Card className='col-span-full lg:col-span-3 glassmorphism'>
 				<CardHeader>
-					<CardTitle>Application Funnel</CardTitle>
-					<CardDescription>Overview of candidates at each stage of the hiring process.</CardDescription>
+					<CardTitle>Organization Types</CardTitle>
+					<CardDescription>Breakdown of client and examiner organizations.</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<ChartContainer config={applicationChartConfig} className='h-[250px] w-full'>
+					<ChartContainer config={organizationChartConfig} className='h-[250px] w-full'>
 						<BarChart
 							accessibilityLayer
-							data={data.applicationStatusData}
+							data={data.organizationTypeData}
 							layout='vertical'
 							margin={{
 								left: 10,
@@ -92,15 +99,15 @@ export function AdminDashboardCharts({ data }: AdminDashboardChartsProps) {
 								tickLine={false}
 								tickMargin={10}
 								axisLine={false}
-								tickFormatter={(value) => value}
+								tickFormatter={(value) => organizationChartConfig[value as keyof typeof organizationChartConfig]?.label || value}
 							/>
 							<XAxis dataKey='value' type='number' hide />
 							<Tooltip cursor={false} content={<ChartTooltipContent indicator='line' />} />
 							<Bar dataKey='value' layout='vertical' radius={5} barSize={30}>
-								{data.applicationStatusData.map((entry, index) => (
+								{data.organizationTypeData.map((entry) => (
 									<Cell
-										key={`cell-${index}`}
-										fill={`hsl(var(--chart-${index + 1}))`}
+										key={entry.name}
+										fill={organizationChartConfig[entry.name as keyof typeof organizationChartConfig]?.color}
 									/>
 								))}
 							</Bar>
