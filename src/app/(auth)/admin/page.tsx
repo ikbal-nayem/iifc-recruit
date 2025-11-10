@@ -2,8 +2,7 @@
 import { AdminDashboardCards, AdminDashboardCardsSkeleton } from '@/components/app/admin/dashboard/dashboard-cards';
 import { AdminDashboardCharts, AdminDashboardChartsSkeleton } from '@/components/app/admin/dashboard/dashboard-charts';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
-import { MasterDataService } from '@/services/api/master-data.service';
+import { StatisticsService } from '@/services/api/statistics.service';
 import { Suspense } from 'react';
 
 async function getDashboardData() {
@@ -11,29 +10,33 @@ async function getDashboardData() {
 		const [
 			pendingRequestsRes,
 			processingPostsRes,
-			jobseekersRes,
-			clientsRes,
-			examinersRes,
+			orgStatsRes,
+			jobseekerCountRes,
 			completedRequestsRes,
 		] = await Promise.allSettled([
 			JobRequestService.getList({ body: { status: 'PENDING' }, meta: { limit: 1 } }),
 			JobRequestService.getRequestedPosts({ body: { status: 'PROCESSING' }, meta: { limit: 1 } }),
-			JobseekerProfileService.search({ meta: { limit: 1 } }),
-			MasterDataService.clientOrganization.getList({ body: { isClient: true }, meta: { limit: 1 } }),
-			MasterDataService.clientOrganization.getList({ body: { isExaminer: true }, meta: { limit: 1 } }),
+			StatisticsService.getClientOrganizationStats(),
+			StatisticsService.getJobseekerStats(),
 			JobRequestService.getList({ body: { status: 'COMPLETED' }, meta: { limit: 1 } }),
 		]);
 
-		const getValue = (res: PromiseSettledResult<any>) =>
-			res.status === 'fulfilled' ? res.value.meta?.totalRecords || 0 : 0;
+		const getCount = (res: PromiseSettledResult<any>, key?: string) => {
+			if (res.status === 'fulfilled') {
+				if (key && res.value.body) return res.value.body[key] || 0;
+				if (!key && typeof res.value.body === 'number') return res.value.body;
+				if (res.value.meta) return res.value.meta.totalRecords || 0;
+			}
+			return 0;
+		};
 
-		const pendingJobRequests = getValue(pendingRequestsRes);
-		const processingApplications = getValue(processingPostsRes);
-		const totalJobseekers = getValue(jobseekersRes);
-		const clientOrganizations = getValue(clientsRes);
-		const examinerOrganizations = getValue(examinersRes);
-		const completedJobRequests = getValue(completedRequestsRes);
-		
+		const pendingJobRequests = getCount(pendingRequestsRes);
+		const processingApplications = getCount(processingPostsRes);
+		const totalJobseekers = getCount(jobseekerCountRes);
+		const clientOrganizations = getCount(orgStatsRes, 'clientCount');
+		const examinerOrganizations = getCount(orgStatsRes, 'examinerCount');
+		const completedJobRequests = getCount(completedRequestsRes);
+
 		const useMockData =
 			pendingJobRequests === 0 &&
 			processingApplications === 0 &&
