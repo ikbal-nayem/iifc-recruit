@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
-import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormInput } from '@/components/ui/form-input';
 import { FormMultiSelect } from '@/components/ui/form-multi-select';
 import { Input } from '@/components/ui/input';
@@ -23,7 +22,6 @@ import { IApiRequest, IMeta, IObject } from '@/interfaces/common.interface';
 import { IClientOrganization, IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { UserService } from '@/services/api/user.service';
-import { getOrganizationsAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
@@ -80,25 +78,20 @@ function UserForm({
 	const [isSubmitting, setIsSubmitting] = useLoader(false);
 
 	const filteredRoles = useMemo(() => {
-		if (!isSuperAdmin) {
-			if (currentUserOrganization?.isClient) {
-				return allRoles.filter((role) => role.roleCode?.startsWith('CLIENT_'));
-			}
-			if (currentUserOrganization?.isExaminer) {
-				return allRoles.filter((role) => role.roleCode?.startsWith('EXAMINER_'));
-			}
+		if (isSuperAdmin || currentUserOrganization?.systemOwner) {
 			return allRoles.filter((role) => role.roleCode?.startsWith('IIFC_'));
 		}
-		return allRoles;
+		return allRoles.filter(
+			(role) =>
+				(currentUserOrganization?.isClient && role.roleCode?.startsWith('CLIENT_')) ||
+				(currentUserOrganization?.isExaminer && role.roleCode?.startsWith('EXAMINER_'))
+		);
 	}, [allRoles, currentUserOrganization, isSuperAdmin]);
 
 	const handleSubmit = async (data: UserFormValues) => {
 		setIsSubmitting(true);
 		try {
-			const payload: IObject = { ...data, id: initialData?.id };
-			if (!isSuperAdmin && currentUserOrganization?.id) {
-				payload.organizationId = currentUserOrganization.id;
-			}
+			const payload: IObject = { ...data, id: initialData?.id, organizationId: currentUserOrganization?.id };
 			const response = initialData
 				? await UserService.updateUser(payload)
 				: await UserService.createOwnUser(payload);
@@ -128,18 +121,6 @@ function UserForm({
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-2'>
-						{isSuperAdmin && (
-							<FormAutocomplete
-								control={form.control}
-								name='organizationId'
-								label='Organization'
-								placeholder='Search organization...'
-								loadOptions={getOrganizationsAsync}
-								getOptionValue={(option) => option.id!}
-								getOptionLabel={(option) => option.nameEn}
-								initialLabel={initialData?.organizationNameEn}
-							/>
-						)}
 						<div className='grid grid-cols-2 gap-4'>
 							<FormInput control={form.control} name='firstName' label='First Name' required />
 							<FormInput control={form.control} name='lastName' label='Last Name' required />
@@ -177,13 +158,7 @@ function UserForm({
 
 const initMeta: IMeta = { page: 0, limit: 20 };
 
-export function UserList({
-	allRoles,
-	allOrganizations,
-}: {
-	allRoles: IRole[];
-	allOrganizations: IClientOrganization[];
-}) {
+export function UserList({ allRoles }: { allRoles: IRole[] }) {
 	const { currectUser } = useAuth();
 	const [users, setUsers] = useState<IOrganizationUser[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
@@ -278,9 +253,9 @@ export function UserList({
 		if (isSuperAdmin) {
 			baseColumns.push({
 				accessorKey: 'organizationNameEn',
-				header: 'Organization (EN)',
+				header: 'Organization',
 				cell: ({ row }) => (
-					<div className='flex flex-col gap-4'>
+					<div className='flex flex-col'>
 						<span>{row.original.organizationNameEn}</span>
 						<small>{row.original.organizationNameBn}</small>
 					</div>

@@ -74,6 +74,7 @@ export interface IClientOrganization {
 	active: boolean;
 	isClient?: boolean;
 	isExaminer?: boolean;
+	systemOwner?: boolean;
 }
 
 export interface IOrganizationUser {
