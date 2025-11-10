@@ -32,6 +32,7 @@ import { toast } from '@/hooks/use-toast';
 import { IMeta } from '@/interfaces/common.interface';
 import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
 import { cn } from '@/lib/utils';
+import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, ChevronsUpDown, Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useState } from 'react';
@@ -204,6 +205,23 @@ export function EducationInstitutionCrud({
 			return onUpdate(data as IEducationInstitution);
 		}
 		return onAdd(data as Omit<IEducationInstitution, 'id'>);
+	};
+
+	const handleCreateInstitution = async (name: string): Promise<IEducationInstitution | null> => {
+		try {
+			// Assuming '1' is the ID for Bangladesh. This should be made more robust in a real app.
+			const response = await MasterDataService.educationInstitution.add({
+				nameEn: name,
+				nameBn: name, // Defaulting Bn name to En name for simplicity
+				countryId: '1',
+				active: true,
+			});
+			toast.success({ description: `Institution "${name}" created.` });
+			return response.body;
+		} catch (error: any) {
+			toast.error({ description: error.message || 'Failed to create institution.' });
+			return null;
+		}
 	};
 
 	const handleToggleActive = async (item: IEducationInstitution) => {

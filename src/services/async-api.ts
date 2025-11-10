@@ -1,8 +1,8 @@
-import { IClientOrganization, ICommonMasterData } from '@/interfaces/master-data.interface';
+import { IClientOrganization, ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
 import { MasterDataService } from './api/master-data.service';
-import { IObject } from '@/interfaces/common.interface';
+import { IApiRequest, IObject } from '@/interfaces/common.interface';
 
-const initPayload: IObject = {
+const initPayload: IApiRequest = {
 	body: { searchKey: '' },
 	meta: { limit: 30, page: 0 },
 };
@@ -22,4 +22,12 @@ export const getOrganizationsAsync = (searchKey: string, callback: (data: IClien
 export const getSkillsAsync = (searchKey: string, callback: (data: ICommonMasterData[]) => void) => {
 	initPayload.body.searchKey = searchKey;
 	MasterDataService.skill.getList(initPayload).then((resp) => callback(resp?.body || []));
+};
+
+export const getInstitutionsAsync = (
+	searchKey: string,
+	callback: (data: IEducationInstitution[]) => void
+) => {
+	initPayload.body = { name: searchKey };
+	MasterDataService.educationInstitution.getList(initPayload).then((resp) => callback(resp?.body || []));
 };

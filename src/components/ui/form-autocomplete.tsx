@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -14,7 +13,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { cn } from '@/lib/utils';
-import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
+import { Check, ChevronsUpDown, Loader2, PlusCircle } from 'lucide-react';
 import * as React from 'react';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
 
@@ -29,6 +28,7 @@ interface FormAutocompleteProps<
 	required?: boolean;
 	options?: TOption[];
 	loadOptions?: (searchKey: string, callback: (options: TOption[]) => void) => void;
+	onCreate?: (value: string) => Promise<TOption | null>;
 	getOptionValue: (option: TOption) => string;
 	getOptionLabel: (option: TOption) => string;
 	renderOption?: (option: TOption) => React.ReactNode;
@@ -50,6 +50,7 @@ export function FormAutocomplete<
 	required = false,
 	options: staticOptions,
 	loadOptions,
+	onCreate,
 	getOptionValue,
 	getOptionLabel,
 	renderOption,
@@ -75,6 +76,24 @@ export function FormAutocomplete<
 			});
 		}
 	}, [debouncedSearchQuery, loadOptions, open]);
+
+	const handleCreate = async (field?: any) => {
+		if (!onCreate || !searchQuery) return;
+		setIsLoading(true);
+		const newOption = await onCreate(searchQuery);
+		if (newOption) {
+			setAsyncOptions((prev) => [newOption, ...prev]);
+			if (field) {
+				field.onChange(getOptionValue(newOption));
+			}
+			if (onValueChange) {
+				onValueChange(getOptionValue(newOption));
+			}
+			setOpen(false);
+		}
+		setIsLoading(false);
+		setSearchQuery('');
+	};
 
 	const renderTrigger = (value: any, displayLabel?: string) => (
 		<Button
@@ -103,6 +122,15 @@ export function FormAutocomplete<
 						</div>
 					) : (
 						<>
+							{onCreate && searchQuery && options.length === 0 && (
+								<CommandItem
+									onSelect={() => handleCreate(field)}
+									className='flex items-center gap-2'
+								>
+									<PlusCircle className='h-4 w-4' />
+									Create &quot;{searchQuery}&quot;
+								</CommandItem>
+							)}
 							<CommandEmpty>No options found.</CommandEmpty>
 							<CommandGroup>
 								{options.map((option) => (

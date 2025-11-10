@@ -13,11 +13,13 @@ import { FormRadioGroup } from '@/components/ui/form-radio-group';
 import { FormSelect } from '@/components/ui/form-select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { ResultSystem } from '@/interfaces/common.interface';
+import { IApiResponse, ResultSystem } from '@/interfaces/common.interface';
 import { AcademicInfo } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
 import { makeFormData } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
+import { MasterDataService } from '@/services/api/master-data.service';
+import { getInstitutionsAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, FileText, Loader2, PlusCircle, Trash } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
@@ -26,11 +28,7 @@ import * as z from 'zod';
 
 const academicInfoSchema = z.object({
 	degreeLevelId: z.string().min(1, 'Degree level is required'),
-	// domainId: z.string().min(1, 'Domain is required'),
-	domainNameEn: z
-		.string()
-		.max(100, 'Domain must be at most 100 characters')
-		.optional(),
+	domainNameEn: z.string().max(100, 'Domain must be at most 100 characters').optional(),
 	institutionId: z.string().min(1, 'Institution is required'),
 	degreeTitle: z
 		.string()
@@ -62,7 +60,6 @@ interface AcademicFormProps {
 
 const defaultValues = {
 	degreeLevelId: undefined,
-	// domainId: undefined,
 	domainNameEn: '',
 	institutionId: undefined,
 	degreeTitle: '',
@@ -76,6 +73,7 @@ const defaultValues = {
 };
 
 function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData }: AcademicFormProps) {
+	const { toast } = useToast();
 	const form = useForm<AcademicFormValues>({
 		resolver: zodResolver(academicInfoSchema),
 		defaultValues: defaultValues,
@@ -88,7 +86,6 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 			form.reset({
 				...initialData,
 				degreeLevelId: initialData.degreeLevel?.id,
-				// domainId: initialData.domain?.id,
 				institutionId: initialData.institution?.id,
 			});
 		} else {
@@ -101,6 +98,23 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 		const success = await onSubmit(data, initialData?.id);
 		if (success) onClose();
 		setIsSubmitting(false);
+	};
+
+	const handleCreateInstitution = async (name: string): Promise<IEducationInstitution | null> => {
+		try {
+			// Assuming '1' is the ID for Bangladesh. This should be made more robust in a real app.
+			const response = await MasterDataService.educationInstitution.add({
+				nameEn: name,
+				nameBn: name, // Defaulting Bn name to En name for simplicity
+				countryId: '1',
+				active: true,
+			});
+			toast.success({ description: `Institution "${name}" created.` });
+			return response.body;
+		} catch (error: any) {
+			toast.error({ description: error.message || 'Failed to create institution.' });
+			return null;
+		}
 	};
 
 	const watchResultSystem = form.watch('resultSystem');
@@ -129,15 +143,6 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 								getOptionValue={(option) => option.id}
 								getOptionLabel={(option) => option.nameEn}
 							/>
-							{/* <FormAutocomplete
-								control={form.control}
-								name='domainId'
-								label='Domain / Subject'
-								required
-								options={masterData.domains}
-								getOptionValue={(option) => option.id}
-								getOptionLabel={(option) => option.nameEn}
-							/> */}
 							<FormInput
 								control={form.control}
 								name='domainNameEn'
@@ -150,9 +155,11 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 							name='institutionId'
 							label='Institution'
 							required
-							options={masterData.institutions}
+							loadOptions={getInstitutionsAsync}
+							onCreate={handleCreateInstitution}
 							getOptionValue={(option) => option.id}
 							getOptionLabel={(option) => option.nameEn}
+							initialLabel={initialData?.institution?.nameEn}
 						/>
 						<FormInput
 							control={form.control}
@@ -303,7 +310,7 @@ export function ProfileFormAcademic({ masterData }: ProfileFormAcademicProps) {
 				<div>
 					<p className='font-semibold'>{item.degreeTitle}</p>
 					<p className='text-sm text-muted-foreground'>
-						{item.institution.nameEn} | {item.degreeLevel.nameEn} in {item.degreeTitle}
+						{item.institution.nameEn} | {item.degreeLevel.nameEn} in {item.domainNameEn}
 					</p>
 					<p className='text-xs text-muted-foreground'>
 						{item.passingYear} | {resultText}
