@@ -1,4 +1,3 @@
-
 'use client';
 
 import { FormMasterData } from '@/app/(auth)/admin/client-organizations/page';
@@ -21,6 +20,7 @@ import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ROUTES } from '@/constants/routes.constant';
 import { useDebounce } from '@/hooks/use-debounce';
+import useLoader from '@/hooks/use-loader';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { IClientOrganization } from '@/interfaces/master-data.interface';
@@ -41,20 +41,38 @@ import { z } from 'zod';
 
 const formSchema = z
 	.object({
-		nameEn: z.string().min(1, 'English name is required.').max(100, 'English name is too long.').refine(isEnglish, {
-			message: 'Only English characters, numbers, and some special characters are allowed.',
-		}),
-		nameBn: z.string().min(1, 'Bengali name is required.').max(120, 'Bengali name is too long.').refine(isBangla, {
-			message: 'Only Bengali characters, numbers, and some special characters are allowed.',
-		}),
+		nameEn: z
+			.string()
+			.min(1, 'English name is required.')
+			.max(100, 'English name is too long.')
+			.refine(isEnglish, {
+				message: 'Only English characters, numbers, and some special characters are allowed.',
+			}),
+		nameBn: z
+			.string()
+			.min(1, 'Bengali name is required.')
+			.max(120, 'Bengali name is too long.')
+			.refine(isBangla, {
+				message: 'Only Bengali characters, numbers, and some special characters are allowed.',
+			}),
 		organizationTypeId: z.coerce.string().min(1, 'Organization Type is required.'),
 		address: z.string().max(200, 'Address is too long.').optional(),
 		contactPersonName: z.string().optional(),
-		contactNumber: z.string().max(11, 'Contact number is too long.').regex(/^01[0-9]{9}$/, 'Invalid phone number').optional(),
+		contactNumber: z
+			.string()
+			.max(11, 'Contact number is too long.')
+			.regex(/^01[0-9]{9}$/, 'Invalid phone number')
+			.optional(),
 		email: z.string().email('Please enter a valid email.').optional().or(z.literal('')),
-		website: z.string().url('Please enter a valid URL.').max(150, 'Website is too long.').optional().or(z.literal('')),
+		website: z
+			.string()
+			.url('Please enter a valid URL.')
+			.max(150, 'Website is too long.')
+			.optional()
+			.or(z.literal('')),
 		isClient: z.boolean().default(false),
 		isExaminer: z.boolean().default(false),
+		clientId: z.string().regex(/^\d+$/, 'Only numbers are allowed.').optional(),
 	})
 	.refine((data) => data.isClient || data.isExaminer, {
 		message: 'At least one role (Client or Examiner) must be selected.',
@@ -96,14 +114,12 @@ function ClientOrganizationForm({
 		},
 	});
 
-	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useLoader(false);
 
 	const handleFormSubmit = async (data: any) => {
 		setIsSubmitting(true);
+		data.isClient === false && (data.clientId = null);
 		await onSubmit(data);
-		// Assuming onSubmit will handle success and error, we might not need to check for success here to close.
-		// If onSubmit returns a promise that resolves on success, you can await it.
-		// For now, we assume the parent handles closing on success.
 		setIsSubmitting(false);
 		onClose();
 	};
@@ -149,6 +165,15 @@ function ClientOrganizationForm({
 							<FormCheckbox control={form.control} name='isClient' label='Is Client' />
 							<FormCheckbox control={form.control} name='isExaminer' label='Is Examiner' />
 						</div>
+						{form.watch('isClient') && (
+							<FormInput
+								control={form.control}
+								name='clientId'
+								label='Client ID'
+								placeholder='e.g., 500X'
+								disabled={isSubmitting}
+							/>
+						)}
 						<FormInput
 							control={form.control}
 							name='address'
@@ -444,7 +469,11 @@ export function ClientOrganizationCrud({
 								<Label htmlFor='client-filter'>Is Client</Label>
 							</div>
 							<div className='flex items-center space-x-2'>
-								<Switch id='examiner-filter' checked={isExaminerFilter} onCheckedChange={setIsExaminerFilter} />
+								<Switch
+									id='examiner-filter'
+									checked={isExaminerFilter}
+									onCheckedChange={setIsExaminerFilter}
+								/>
 								<Label htmlFor='examiner-filter'>Is Examiner</Label>
 							</div>
 						</div>
