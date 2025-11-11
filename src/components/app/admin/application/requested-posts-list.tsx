@@ -20,7 +20,7 @@ import { useCallback, useEffect, useState } from 'react';
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
 
 interface RequestedPostsListProps {
-	status: JobRequestStatus;
+	status: JobRequestedPostStatus;
 }
 
 export function RequestedPostsList({ status }: RequestedPostsListProps) {
@@ -36,7 +36,7 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { nameEn: search, status: status },
+					body: { searchKey: search, status: status },
 					meta: { page, limit: meta.limit },
 				};
 				const response = await JobRequestService.getRequestedPosts(payload);

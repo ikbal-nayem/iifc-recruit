@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
@@ -40,7 +39,7 @@ export function JobRequestList({ status }: JobRequestListProps) {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { subject: search, ...(status && { status }) },
+					body: { searchKey: search, ...(status && { status }) },
 					meta: { page, limit: meta.limit },
 				};
 				const response = await JobRequestService.getList(payload);
@@ -68,16 +67,14 @@ export function JobRequestList({ status }: JobRequestListProps) {
 	const handleStatusChange = async (requestId: string, newStatus: JobRequest['status']) => {
 		try {
 			await JobRequestService.updateStatus(requestId, newStatus!);
-			toast({
+			toast.success({
 				title: 'Request Updated',
 				description: `The job request has been accepted.`,
-				variant: 'success',
 			});
 			loadItems(meta.page, debouncedSearch);
 		} catch (error: any) {
-			toast({
+			toast.error({
 				description: error.message || 'Failed to update job request status.',
-				variant: 'danger',
 			});
 		}
 	};
@@ -120,16 +117,16 @@ export function JobRequestList({ status }: JobRequestListProps) {
 			);
 		}
 
-		if (request.status === JobRequestStatus.PROCESSING) {
-			items.push(
-				{ isSeparator: true },
-				{
-					label: 'Mark as Completed',
-					icon: <CheckCircle className='mr-2 h-4 w-4' />,
-					onClick: () => handleStatusChange(request.id!, JobRequestStatus.COMPLETED),
-				}
-			);
-		}
+		// if (request.status === JobRequestStatus.PROCESSING) {
+		// 	items.push(
+		// 		{ isSeparator: true },
+		// 		{
+		// 			label: 'Mark as Completed',
+		// 			icon: <CheckCircle className='mr-2 h-4 w-4' />,
+		// 			onClick: () => handleStatusChange(request.id!, JobRequestStatus.COMPLETED),
+		// 		}
+		// 	);
+		// }
 
 		items.push(
 			{ isSeparator: true },

@@ -25,7 +25,7 @@ async function getJobRequest(id: string): Promise<JobRequest> {
 async function getMasterData(): Promise<MasterData> {
 	try {
 		const [clientOrgsRes, postsRes, zonesRes, requestTypesRes] = await Promise.allSettled([
-			MasterDataService.clientOrganization.getList({body: { isClient: true }}),
+			MasterDataService.clientOrganization.getList({ body: { isClient: true } }),
 			MasterDataService.post.getList({}),
 			MasterDataService.outsourcingZone.get(),
 			MasterDataService.getEnum('job-request-type'),
@@ -45,7 +45,7 @@ async function getMasterData(): Promise<MasterData> {
 }
 
 export default async function EditJobRequestPage({ params }: { params: { id: string } }) {
-    const resolvedParams = await params;
+	const resolvedParams = await params;
 	const [jobRequest, masterData] = await Promise.all([getJobRequest(resolvedParams.id), getMasterData()]);
 
 	return (

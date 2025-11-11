@@ -15,7 +15,7 @@ import { ROLES } from '@/constants/auth.constant';
 import { useAuth } from '@/contexts/auth-context';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { adminNavLinks, jobseekerNavLinks } from '@/lib/nav-links';
-import { LogOut } from 'lucide-react';
+import { ArrowLeft, LogOut } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import React from 'react';
 
@@ -53,6 +53,10 @@ export default function Header() {
 			<div className='flex items-center gap-2'>
 				<SidebarTrigger className='md:hidden' />
 				<nav className='hidden md:flex items-center text-sm font-medium text-muted-foreground'>
+					<ArrowLeft
+						className='h-4 w-4 hover:text-foreground transition-colors cursor-pointer mr-2'
+						onClick={() => router.back()}
+					/>
 					{breadcrumbs.map((crumb, index) => (
 						<React.Fragment key={crumb.href}>
 							{index > 0 && <span className='mx-2'>/</span>}

@@ -1,15 +1,13 @@
-
 'use client';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/auth-context';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { ICircular } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { CircularService } from '@/services/api/circular.service';
-import { cn } from '@/lib/utils';
 import { format, isPast, parseISO } from 'date-fns';
 import { ArrowLeft, Briefcase, CheckCheck, DollarSign, Loader2, MapPin } from 'lucide-react';
 import Link from 'next/link';
@@ -27,7 +25,6 @@ export function JobCircularDetails({ circularId, isReadOnly = false }: JobCircul
 	const { isAuthenticated } = useAuth();
 	const [job, setJob] = useState<ICircular | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
-	const { toast } = useToast();
 	const searchParams = useSearchParams();
 
 	useEffect(() => {
@@ -38,10 +35,8 @@ export function JobCircularDetails({ circularId, isReadOnly = false }: JobCircul
 				setJob(res.body);
 			} catch (error) {
 				console.error('Failed to load job details:', error);
-				toast({
-					title: 'Error',
+				toast.error({
 					description: 'Failed to load job details.',
-					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
@@ -51,7 +46,7 @@ export function JobCircularDetails({ circularId, isReadOnly = false }: JobCircul
 		if (circularId) {
 			getJobDetails(circularId);
 		}
-	}, [circularId, toast]);
+	}, [circularId]);
 
 	if (isLoading) {
 		return (
@@ -70,7 +65,6 @@ export function JobCircularDetails({ circularId, isReadOnly = false }: JobCircul
 
 	const deadline = parseISO(job.circularEndDate);
 	const isDeadlinePast = isPast(deadline);
-	const daysUntilDeadline = Math.ceil((deadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
 
 	const renderApplyButton = () => {
 		if (isReadOnly || isDeadlinePast) return null;

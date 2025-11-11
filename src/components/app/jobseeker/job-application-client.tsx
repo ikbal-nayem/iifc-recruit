@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from '@/hooks/use-toast';
 import { ApplicationService } from '@/services/api/application.service';
-import { Check, CheckCheck, Loader2, Send } from 'lucide-react';
+import { CheckCheck, Loader2, Send } from 'lucide-react';
 import * as React from 'react';
 
 export function JobApplicationClient({

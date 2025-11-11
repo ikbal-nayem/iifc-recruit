@@ -64,7 +64,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 				</Button>
 				<div className='flex gap-2'>
 					{request.status === JobRequestStatus.PROCESSING && (
-						<Button variant="lite-success" onClick={handleMarkAsComplete} disabled={isCompleting}>
+						<Button variant='lite-success' onClick={handleMarkAsComplete} disabled={isCompleting}>
 							{isCompleting ? (
 								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
 							) : (
@@ -160,8 +160,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 												</p>
 											)}
 										</div>
-										{(request.status === JobRequestStatus.PENDING ||
-											request.status === JobRequestStatus.PROCESSING) &&
+										{request.status === JobRequestStatus.PROCESSING &&
 											post.status === JobRequestedPostStatus.PENDING &&
 											!isCircularPublished && (
 												<Button size='sm' onClick={() => setSelectedPost(post)} title='Publish as circular'>

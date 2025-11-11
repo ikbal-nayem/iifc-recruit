@@ -46,10 +46,10 @@ export interface NavLink {
 
 export const adminNavLinks: NavLink[] = [
 	{
-		href: '/admin',
+		href: ROUTES.DASHBOARD.ADMIN,
 		label: 'Dashboard',
 		icon: LayoutDashboard,
-		isActive: (pathname) => pathname === '/admin',
+		isActive: (pathname) => pathname === ROUTES.DASHBOARD.ADMIN,
 	},
 	{
 		href: ROUTES.JOB_REQUESTS,
@@ -62,11 +62,11 @@ export const adminNavLinks: NavLink[] = [
 				label: 'New Request',
 				icon: PlusCircle,
 			},
-			// {
-			// 	href: ROUTES.JOB_REQUEST_PENDING,
-			// 	label: 'Pending',
-			// 	icon: History,
-			// },
+			{
+				href: ROUTES.JOB_REQUEST_PENDING,
+				label: 'Pending',
+				icon: History,
+			},
 			{
 				href: ROUTES.JOB_REQUEST_PROCESSING,
 				label: 'Processing',
@@ -193,10 +193,10 @@ export const adminNavLinks: NavLink[] = [
 
 export const jobseekerNavLinks: NavLink[] = [
 	{
-		href: '/jobseeker',
+		href: ROUTES.DASHBOARD.JOB_SEEKER,
 		label: 'Dashboard',
 		icon: LayoutDashboard,
-		isActive: (pathname) => pathname === '/jobseeker',
+		isActive: (pathname) => pathname === ROUTES.DASHBOARD.JOB_SEEKER,
 	},
 	{
 		href: '/jobseeker/profile-view',
