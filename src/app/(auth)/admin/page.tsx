@@ -1,17 +1,19 @@
 
 import { AdminDashboardCards, AdminDashboardCardsSkeleton } from '@/components/app/admin/dashboard/dashboard-cards';
 import { AdminDashboardCharts, AdminDashboardChartsSkeleton } from '@/components/app/admin/dashboard/dashboard-charts';
-import { JobRequestedPostStatus, JobRequestStatus } from '@/interfaces/job.interface';
+import { JobRequestStatus } from '@/interfaces/job.interface';
 import { StatisticsService } from '@/services/api/statistics.service';
 import { Suspense } from 'react';
 
 async function getDashboardData() {
 	try {
-		const [jobseekerCountRes, jobRequestStatsRes, jobRequestPostStatsRes] = await Promise.allSettled([
-			StatisticsService.getJobseekerStats(),
-			StatisticsService.getJobRequestStats(),
-			StatisticsService.getJobRequestPostStats(),
-		]);
+		const [jobseekerCountRes, jobRequestStatsRes, jobRequestPostStatsRes, clientOrgStatsRes] =
+			await Promise.allSettled([
+				StatisticsService.getJobseekerStats(),
+				StatisticsService.getJobRequestStats(),
+				StatisticsService.getJobRequestPostStats(),
+				StatisticsService.getClientOrganizationStats(),
+			]);
 
 		const getCountFromStats = (res: PromiseSettledResult<any>, key: string) => {
 			if (res.status === 'fulfilled' && Array.isArray(res.value.body)) {
@@ -29,38 +31,35 @@ async function getDashboardData() {
 
 		const jobRequestStats = jobRequestStatsRes.status === 'fulfilled' ? jobRequestStatsRes.value.body : [];
 
-		const totalJobRequests = jobRequestStats.reduce((acc: number, stat: any) => acc + stat.count, 0);
-		const completedJobRequests = getCountFromStats(jobRequestStatsRes, JobRequestStatus.COMPLETED);
-		const processingApplications = getCountFromStats(jobRequestPostStatsRes, JobRequestedPostStatus.PROCESSING);
+		const processingJobRequests = getCountFromStats(jobRequestStatsRes, JobRequestStatus.PROCESSING);
+		const totalJobseekers = getSingleCount(jobseekerCountRes);
+
+		const clientOrgStats = clientOrgStatsRes.status === 'fulfilled' ? clientOrgStatsRes.value.body : null;
 
 		const jobRequestStatusChartData =
 			jobRequestStatsRes.status === 'fulfilled'
-				? jobRequestStatsRes.value.body.map((stat: any) => ({
+				? jobRequestStatsRes.value.body.map((stat: any, index: number) => ({
 						name: stat.statusDTO.nameEn,
 						value: stat.count,
-						fill: `hsl(var(--chart-${
-							Object.keys(jobRequestStatsRes.value.body).indexOf(stat.statusKey) + 1
-						}))`,
+						fill: `hsl(var(--chart-${(index % 5) + 1}))`,
 				  }))
 				: [];
 
 		const postStatusChartData =
 			jobRequestPostStatsRes.status === 'fulfilled'
-				? jobRequestPostStatsRes.value.body.map((stat: any) => ({
+				? jobRequestPostStatsRes.value.body.map((stat: any, index: number) => ({
 						name: stat.statusDTO.nameEn,
 						value: stat.count,
-						fill: `hsl(var(--chart-${
-							Object.keys(jobRequestPostStatsRes.value.body).indexOf(stat.statusKey) + 1
-						}))`,
+						fill: `hsl(var(--chart-${(index % 5) + 1}))`,
 				  }))
 				: [];
 
 		return {
 			cards: {
-				totalJobRequests,
-				completedJobRequests,
-				processingApplications,
-				totalJobseekers: getSingleCount(jobseekerCountRes),
+				processingJobRequests,
+				totalJobseekers,
+				clientCount: clientOrgStats?.clientCount || 0,
+				examinerCount: clientOrgStats?.examinerCount || 0,
 			},
 			charts: {
 				jobRequestStatusData: jobRequestStatusChartData,
@@ -72,10 +71,10 @@ async function getDashboardData() {
 		// Return zeroed-out data on error
 		return {
 			cards: {
-				totalJobRequests: 0,
-				completedJobRequests: 0,
-				processingApplications: 0,
+				processingJobRequests: 0,
 				totalJobseekers: 0,
+				clientCount: 0,
+				examinerCount: 0,
 			},
 			charts: {
 				jobRequestStatusData: [],

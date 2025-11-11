@@ -4,41 +4,27 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTES } from '@/constants/routes.constant';
-import { Briefcase, CheckCircle, FileText, Users } from 'lucide-react';
+import { Briefcase, Building, FileText, Users } from 'lucide-react';
 import Link from 'next/link';
 
 interface AdminDashboardCardsProps {
 	data: {
-		totalJobRequests: number;
-		completedJobRequests: number;
-		processingApplications: number;
+		processingJobRequests: number;
 		totalJobseekers: number;
+		clientCount: number;
+		examinerCount: number;
 	};
 }
 
 export function AdminDashboardCards({ data }: AdminDashboardCardsProps) {
-	const { totalJobRequests, completedJobRequests, processingApplications, totalJobseekers } = data;
+	const { processingJobRequests, totalJobseekers, clientCount, examinerCount } = data;
 
 	const cardItems = [
 		{
-			href: ROUTES.JOB_REQUESTS,
-			title: 'Total Job Requests',
-			value: totalJobRequests,
-			description: 'All requests received',
-			icon: <FileText className='h-4 w-4 text-muted-foreground' />,
-		},
-		{
-			href: ROUTES.JOB_REQUEST_COMPLETED,
-			title: 'Completed Requests',
-			value: completedJobRequests,
-			description: 'Successfully fulfilled',
-			icon: <CheckCircle className='h-4 w-4 text-muted-foreground' />,
-		},
-		{
-			href: ROUTES.APPLICATION_PROCESSING,
-			title: 'Processing Applications',
-			value: processingApplications,
-			description: 'Active application processes',
+			href: ROUTES.JOB_REQUEST_PROCESSING,
+			title: 'Processing Requests',
+			value: processingJobRequests,
+			description: 'Active job requests',
 			icon: <Briefcase className='h-4 w-4 text-muted-foreground' />,
 		},
 		{
@@ -47,6 +33,20 @@ export function AdminDashboardCards({ data }: AdminDashboardCardsProps) {
 			value: totalJobseekers,
 			description: 'In the talent pool',
 			icon: <Users className='h-4 w-4 text-muted-foreground' />,
+		},
+		{
+			href: `${ROUTES.CLIENT_ORGANIZATIONS}?isClient=true`,
+			title: 'Clients',
+			value: clientCount,
+			description: 'Partners you are hiring for',
+			icon: <Building className='h-4 w-4 text-muted-foreground' />,
+		},
+		{
+			href: `${ROUTES.CLIENT_ORGANIZATIONS}?isExaminer=true`,
+			title: 'Examiners',
+			value: examinerCount,
+			description: 'Organizations conducting exams',
+			icon: <FileText className='h-4 w-4 text-muted-foreground' />,
 		},
 	];
 
