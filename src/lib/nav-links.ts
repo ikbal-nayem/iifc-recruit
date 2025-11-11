@@ -55,7 +55,6 @@ export const adminNavLinks: NavLink[] = [
 		href: ROUTES.JOB_REQUESTS,
 		label: 'Requests',
 		icon: FolderKanban,
-		isActive: (pathname) => pathname.startsWith('/admin/job-management'),
 		submenu: [
 			{
 				href: ROUTES.JOB_REQUEST_CREATE,
