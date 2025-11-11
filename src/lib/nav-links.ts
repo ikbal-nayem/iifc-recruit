@@ -1,3 +1,4 @@
+
 import { ROUTES } from '@/constants/routes.constant';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -111,7 +112,7 @@ export const adminNavLinks: NavLink[] = [
 	{
 		href: '/admin/user-management',
 		label: 'User Management',
-		icon: Users,
+		icon: UserCog,
 	},
 	{
 		href: '/admin/profile',
