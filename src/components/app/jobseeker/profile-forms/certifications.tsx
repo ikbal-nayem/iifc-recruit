@@ -17,6 +17,8 @@ import { Certification } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makeFormData } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
+import { MasterDataService } from '@/services/api/master-data.service';
+import { getCertificationsAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO } from 'date-fns';
 import { Edit, FileText, Loader2, PlusCircle, Trash } from 'lucide-react';
@@ -27,7 +29,7 @@ import * as z from 'zod';
 const certificationSchema = z
 	.object({
 		issuingAuthority: z.string().min(1, 'Issuing organization is required.'),
-		certificationId: z.coerce.number().optional(),
+		certificationId: z.coerce.string().optional(),
 		examDate: z.string().optional(),
 		issueDate: z.string().optional(),
 		expireDate: z.string().optional(),
@@ -79,17 +81,10 @@ interface CertificationFormProps {
 	onSubmit: (data: Certification) => Promise<boolean>;
 	initialData?: Certification;
 	noun: string;
-	certificationTypes: ICommonMasterData[];
 }
 
-function CertificationForm({
-	isOpen,
-	onClose,
-	onSubmit,
-	initialData,
-	noun,
-	certificationTypes,
-}: CertificationFormProps) {
+function CertificationForm({ isOpen, onClose, onSubmit, initialData, noun }: CertificationFormProps) {
+	const { toast } = useToast();
 	const form = useForm<CertificationFormValues>({
 		resolver: zodResolver(certificationSchema),
 		defaultValues: defaultData,
@@ -118,11 +113,32 @@ function CertificationForm({
 			.finally(() => setIsSubmitting(false));
 	};
 
+	const handleCreateCertification = async (name: string): Promise<ICommonMasterData | null> => {
+		try {
+			const response = await MasterDataService.certification.add({
+				nameEn: name,
+				nameBn: name,
+				active: true,
+			});
+			toast({
+				description: `Certification "${name}" created.`,
+				variant: 'success',
+			});
+			return response.body;
+		} catch (error: any) {
+			toast({
+				description: error.message || 'Failed to create certification.',
+				variant: 'danger',
+			});
+			return null;
+		}
+	};
+
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
+					<DialogTitle>{initialData ? `Edit ${noun}` : `Add ${noun} Info`}</DialogTitle>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 py-4'>
@@ -130,17 +146,19 @@ function CertificationForm({
 							control={form.control}
 							name='certificationId'
 							label='Certification'
-							placeholder='Select Certification'
-							options={certificationTypes}
-							getOptionValue={(option) => option.id!.toString()}
+							placeholder='Search for a certification'
+							loadOptions={getCertificationsAsync}
+							onCreate={handleCreateCertification}
+							getOptionValue={(option) => option.id!}
 							getOptionLabel={(option) => option.nameEn}
+							initialLabel={initialData?.certification?.nameEn}
 							disabled={isSubmitting}
 						/>
 						<FormInput
 							control={form.control}
 							name='issuingAuthority'
 							label='Issuing Authority'
-							placeholder='e.g., Vercel'
+							placeholder='e.g., Google'
 							required
 							disabled={isSubmitting}
 						/>
@@ -192,7 +210,7 @@ function CertificationForm({
 	);
 }
 
-export default function ProfileFormCertifications({ certification }: { certification: ICommonMasterData[] }) {
+export default function ProfileFormCertifications() {
 	const { toast } = useToast();
 	const [history, setHistory] = useState<Certification[]>([]);
 	const [editingItem, setEditingItem] = useState<Certification | undefined>(undefined);
@@ -328,7 +346,6 @@ export default function ProfileFormCertifications({ certification }: { certifica
 					onSubmit={handleFormSubmit}
 					initialData={editingItem}
 					noun='Certification'
-					certificationTypes={certification}
 				/>
 			)}
 			<ConfirmationDialog

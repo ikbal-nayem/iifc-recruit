@@ -1,108 +1,82 @@
 
 import { AdminDashboardCards, AdminDashboardCardsSkeleton } from '@/components/app/admin/dashboard/dashboard-cards';
 import { AdminDashboardCharts, AdminDashboardChartsSkeleton } from '@/components/app/admin/dashboard/dashboard-charts';
-import { JobRequestService } from '@/services/api/job-request.service';
-import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
-import { MasterDataService } from '@/services/api/master-data.service';
+import { JobRequestStatus } from '@/interfaces/job.interface';
+import { StatisticsService } from '@/services/api/statistics.service';
 import { Suspense } from 'react';
 
 async function getDashboardData() {
 	try {
-		const [
-			pendingRequestsRes,
-			processingPostsRes,
-			jobseekersRes,
-			clientsRes,
-			examinersRes,
-			completedRequestsRes,
-		] = await Promise.allSettled([
-			JobRequestService.getList({ body: { status: 'PENDING' }, meta: { limit: 1 } }),
-			JobRequestService.getRequestedPosts({ body: { status: 'PROCESSING' }, meta: { limit: 1 } }),
-			JobseekerProfileService.search({ meta: { limit: 1 } }),
-			MasterDataService.clientOrganization.getList({ body: { isClient: true }, meta: { limit: 1 } }),
-			MasterDataService.clientOrganization.getList({ body: { isExaminer: true }, meta: { limit: 1 } }),
-			JobRequestService.getList({ body: { status: 'COMPLETED' }, meta: { limit: 1 } }),
-		]);
+		const [jobseekerCountRes, jobRequestStatsRes, jobRequestPostStatsRes, clientOrgStatsRes] =
+			await Promise.allSettled([
+				StatisticsService.getJobseekerStats(),
+				StatisticsService.getJobRequestStats(),
+				StatisticsService.getJobRequestPostStats(),
+				StatisticsService.getClientOrganizationStats(),
+			]);
 
-		const getValue = (res: PromiseSettledResult<any>) =>
-			res.status === 'fulfilled' ? res.value.meta?.totalRecords || 0 : 0;
+		const getCountFromStats = (res: PromiseSettledResult<any>, key: string) => {
+			if (res.status === 'fulfilled' && Array.isArray(res.value.body)) {
+				return res.value.body.find((stat) => stat.statusKey === key)?.count || 0;
+			}
+			return 0;
+		};
 
-		const pendingJobRequests = getValue(pendingRequestsRes);
-		const processingApplications = getValue(processingPostsRes);
-		const totalJobseekers = getValue(jobseekersRes);
-		const clientOrganizations = getValue(clientsRes);
-		const examinerOrganizations = getValue(examinersRes);
-		const completedJobRequests = getValue(completedRequestsRes);
-		
-		const useMockData =
-			pendingJobRequests === 0 &&
-			processingApplications === 0 &&
-			totalJobseekers === 0 &&
-			clientOrganizations === 0 &&
-			examinerOrganizations === 0 &&
-			completedJobRequests === 0;
+		const getSingleCount = (res: PromiseSettledResult<any>) => {
+			if (res.status === 'fulfilled' && typeof res.value.body === 'number') {
+				return res.value.body;
+			}
+			return 0;
+		};
+
+		const processingJobRequests = getCountFromStats(jobRequestStatsRes, JobRequestStatus.PROCESSING);
+		const totalJobseekers = getSingleCount(jobseekerCountRes);
+
+		const clientOrgStats = clientOrgStatsRes.status === 'fulfilled' ? clientOrgStatsRes.value.body : null;
+
+		const jobRequestStatusChartData =
+			jobRequestStatsRes.status === 'fulfilled'
+				? jobRequestStatsRes.value.body.map((stat: any, index: number) => ({
+						name: stat.statusDTO.nameEn,
+						value: stat.count,
+						fill: `hsl(var(--chart-${(index % 5) + 1}))`,
+				  }))
+				: [];
+
+		const postStatusChartData =
+			jobRequestPostStatsRes.status === 'fulfilled'
+				? jobRequestPostStatsRes.value.body.map((stat: any, index: number) => ({
+						name: stat.statusDTO.nameEn,
+						value: stat.count,
+						fill: `hsl(var(--chart-${(index % 5) + 1}))`,
+				  }))
+				: [];
 
 		return {
 			cards: {
-				pendingJobRequests: useMockData ? 12 : pendingJobRequests,
-				processingApplications: useMockData ? 8 : processingApplications,
-				totalJobseekers: useMockData ? 150 : totalJobseekers,
-				clientOrganizations: useMockData ? 25 : clientOrganizations,
-				examinerOrganizations: useMockData ? 10 : examinerOrganizations,
+				processingJobRequests,
+				totalJobseekers,
+				clientCount: clientOrgStats?.clientCount || 0,
+				examinerCount: clientOrgStats?.examinerCount || 0,
 			},
 			charts: {
-				requestStatusData: useMockData
-					? [
-							{ name: 'Pending', value: 12, fill: 'hsl(var(--warning))' },
-							{ name: 'Processing', value: 8, fill: 'hsl(var(--info))' },
-							{ name: 'Completed', value: 34, fill: 'hsl(var(--success))' },
-					  ]
-					: [
-							{ name: 'Pending', value: pendingJobRequests, fill: 'hsl(var(--warning))' },
-							{ name: 'Processing', value: processingApplications, fill: 'hsl(var(--info))' },
-							{ name: 'Completed', value: completedJobRequests, fill: 'hsl(var(--success))' },
-					  ],
-				applicationStatusData: useMockData
-					? [
-							{ name: 'Applied', value: 250 },
-							{ name: 'Accepted', value: 150 },
-							{ name: 'Shortlisted', value: 90 },
-							{ name: 'Interview', value: 45 },
-							{ name: 'Hired', value: 15 },
-					  ]
-					: [
-							{ name: 'Applied', value: 0 },
-							{ name: 'Accepted', value: 0 },
-							{ name: 'Shortlisted', value: 0 },
-							{ name: 'Interview', value: 0 },
-							{ name: 'Hired', value: 0 },
-					  ],
+				jobRequestStatusData: jobRequestStatusChartData,
+				postStatusData: postStatusChartData,
 			},
 		};
 	} catch (error) {
 		console.error('Failed to load dashboard data:', error);
-		// Return mock data on error as well
+		// Return zeroed-out data on error
 		return {
 			cards: {
-				pendingJobRequests: 12,
-				processingApplications: 8,
-				totalJobseekers: 150,
-				clientOrganizations: 25,
-				examinerOrganizations: 10,
+				processingJobRequests: 0,
+				totalJobseekers: 0,
+				clientCount: 0,
+				examinerCount: 0,
 			},
 			charts: {
-				requestStatusData: [
-					{ name: 'Pending', value: 12, fill: 'hsl(var(--warning))' },
-					{ name: 'Processing', value: 8, fill: 'hsl(var(--info))' },
-					{ name: 'Completed', value: 34, fill: 'hsl(var(--success))' },
-				],
-				applicationStatusData: [
-					{ name: 'Applied', value: 250 },
-					{ name: 'Accepted', value: 150 },
-					{ name: 'Shortlisted', value: 90 },
-					{ name: 'Interview', value: 45 },
-					{ name: 'Hired', value: 15 },
-				],
+				jobRequestStatusData: [],
+				postStatusData: [],
 			},
 		};
 	}

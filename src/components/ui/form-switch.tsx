@@ -7,7 +7,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormDescription } from '@/
 import { Switch } from '@/components/ui/switch';
 
 interface FormSwitchProps<TFieldValues extends FieldValues> {
-	control: Control<TFieldValues>;
+	control: Control<TFieldValues | any>;
 	name: FieldPath<TFieldValues>;
 	label: string;
     description?: string;

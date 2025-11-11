@@ -1,10 +1,9 @@
-
-'use client';
-
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { Fragment } from 'react';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
+import { Label } from './label';
 
 interface FormSelectProps<TFieldValues extends FieldValues, TOption> {
 	control?: Control<TFieldValues | any>;
@@ -35,28 +34,28 @@ export function FormSelect<TFieldValues extends FieldValues, TOption>({
 	...props
 }: FormSelectProps<TFieldValues, TOption>) {
 	const renderSelect = (field?: any) => {
-		const currentValue = field?.value?.toString() ?? controlledValue;
+		const currentValue = field?.value ?? controlledValue;
+
 		const handleValueChange = (value: string) => {
-			if (field) {
-				field.onChange(value);
-			}
 			if (onValueChange) {
 				onValueChange(value);
 			}
+
+			if (field) {
+				const isNumberField = typeof field.value === 'number';
+				field.onChange(isNumberField ? Number(value) : value);
+			}
 		};
+
+		const TriggerWrapper = !control ? Fragment : FormControl;
+
 		return (
-			<Select
-				onValueChange={handleValueChange}
-				defaultValue={currentValue}
-				value={currentValue}
-				disabled={disabled}
-				{...props}
-			>
-				<FormControl>
+			<Select onValueChange={handleValueChange} value={currentValue} disabled={disabled} {...props}>
+				<TriggerWrapper>
 					<SelectTrigger className={cn(!currentValue && 'text-muted-foreground')}>
 						<SelectValue placeholder={placeholder} />
 					</SelectTrigger>
-				</FormControl>
+				</TriggerWrapper>
 				<SelectContent>
 					{options.map((option, index) => (
 						<SelectItem key={index} value={getOptionValue(option)}>
@@ -70,10 +69,13 @@ export function FormSelect<TFieldValues extends FieldValues, TOption>({
 
 	if (!control) {
 		return (
-			<FormItem>
-				{!!label && <FormLabel required={required}>{label}</FormLabel>}
+			<div className='space-y-2'>
+				<Label>
+					{label}
+					{required && <span className='text-danger font-semibold'> *</span>}
+				</Label>
 				{renderSelect()}
-			</FormItem>
+			</div>
 		);
 	}
 

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Toaster } from '@/components/ui/toaster';
@@ -14,22 +15,31 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
 	useEffect(() => {
 		setIsClient(true);
-		if (SessionStorageService.get(SPLASH_SHOWN_KEY)) {
-			setShowSplash(false);
-		} else {
-			SessionStorageService.set(SPLASH_SHOWN_KEY, 'true');
-		}
 	}, []);
 
-	if (!isClient) {
-		return null;
+	useEffect(() => {
+		if (isClient) {
+			if (SessionStorageService.get(SPLASH_SHOWN_KEY)) {
+				setShowSplash(false);
+			} else {
+				const timer = setTimeout(() => {
+					setShowSplash(false);
+					SessionStorageService.set(SPLASH_SHOWN_KEY, 'true');
+				}, 2000); // Same duration as splash animation
+				return () => clearTimeout(timer);
+			}
+		}
+	}, [isClient]);
+
+	if (!isClient || showSplash) {
+		return <SplashScreen onFinish={() => setShowSplash(false)} />;
 	}
 
 	return (
 		<>
 			<TopLoader />
 			<Toaster />
-			{showSplash ? <SplashScreen onFinish={() => setShowSplash(false)} /> : children}
+			{children}
 		</>
 	);
 }

@@ -45,7 +45,7 @@ const FilePreview = ({ file, onRemove }: FilePreviewProps) => {
 };
 
 interface FormFileUploadProps<TFieldValues extends FieldValues> {
-	control: Control<TFieldValues>;
+	control: Control<TFieldValues | any>;
 	name: FieldPath<TFieldValues>;
 	label: string;
 	required?: boolean;

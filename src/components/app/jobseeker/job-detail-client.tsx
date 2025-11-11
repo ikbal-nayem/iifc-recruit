@@ -14,7 +14,7 @@ export function JobDetailClient({ jobTitle, jobId }: { jobTitle: string; jobId: 
 			title: 'Login Required',
 			description: `Please log in to apply for the ${jobTitle} position.`,
 		});
-		const redirectUrl = `/jobseeker/jobs/${jobId}`;
+		const redirectUrl = ROUTES.JOB_SEEKER.JOB_DETAILS(jobId);
 		router.push(`${ROUTES.AUTH.LOGIN}?redirectUrl=${encodeURIComponent(redirectUrl)}`);
 	};
 

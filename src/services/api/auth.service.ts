@@ -1,6 +1,6 @@
 import { axiosIns } from '@/config/api.config';
 import { IAuthInfo } from '@/interfaces/auth.interface';
-import { IApiRequest, IApiResponse, IObject } from '@/interfaces/common.interface';
+import { IApiResponse, IObject } from '@/interfaces/common.interface';
 import { IRole } from '@/interfaces/master-data.interface';
 
 export const AuthService = {
@@ -29,7 +29,7 @@ export const AuthService = {
 		return axiosIns.post('/api/auth/reset-password', payload);
 	},
 
-	getRoleList: async (payload: IApiRequest): Promise<IApiResponse<IRole[]>> => {
-		return axiosIns.post('/role/get-list', payload);
+	getRoles: async (): Promise<IApiResponse<IRole[]>> => {
+		return axiosIns.get('/role/get');
 	},
 };

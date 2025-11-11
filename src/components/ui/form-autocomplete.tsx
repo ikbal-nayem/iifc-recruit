@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -14,7 +13,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { cn } from '@/lib/utils';
-import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
+import { Check, ChevronsUpDown, Loader2, PlusCircle } from 'lucide-react';
 import * as React from 'react';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
 
@@ -24,16 +23,17 @@ interface FormAutocompleteProps<
 > {
 	control?: Control<TFieldValues> | any;
 	name: FieldPath<TFieldValues>;
-	label: string;
+	label?: string;
 	placeholder?: string;
 	required?: boolean;
 	options?: TOption[];
 	loadOptions?: (searchKey: string, callback: (options: TOption[]) => void) => void;
+	onCreate?: (value: string) => Promise<TOption | null>;
 	getOptionValue: (option: TOption) => string;
 	getOptionLabel: (option: TOption) => string;
 	renderOption?: (option: TOption) => React.ReactNode;
 	disabled?: boolean;
-	onValueChange?: (value: string) => void;
+	onValueChange?: (value: string | undefined) => void;
 	value?: string;
 	initialLabel?: string;
 	onInputChange?: (value: string) => void;
@@ -50,6 +50,7 @@ export function FormAutocomplete<
 	required = false,
 	options: staticOptions,
 	loadOptions,
+	onCreate,
 	getOptionValue,
 	getOptionLabel,
 	renderOption,
@@ -76,14 +77,32 @@ export function FormAutocomplete<
 		}
 	}, [debouncedSearchQuery, loadOptions, open]);
 
+	const handleCreate = async (field?: any) => {
+		if (!onCreate || !searchQuery) return;
+		setIsLoading(true);
+		const newOption = await onCreate(searchQuery);
+		if (newOption) {
+			setAsyncOptions((prev) => [newOption, ...prev]);
+			if (field) {
+				field.onChange(getOptionValue(newOption));
+			}
+			if (onValueChange) {
+				onValueChange(getOptionValue(newOption));
+			}
+			setOpen(false);
+		}
+		setIsLoading(false);
+		setSearchQuery('');
+	};
+
 	const renderTrigger = (value: any, displayLabel?: string) => (
 		<Button
 			variant='outline'
 			role='combobox'
-			className={cn('w-full justify-between min-h-11', !value && 'text-muted-foreground')}
+			className={cn('w-full justify-between h-10', !value && 'text-muted-foreground')}
 			disabled={disabled}
 		>
-			{displayLabel || placeholder || 'Select...'}
+			<span className='truncate'>{displayLabel || placeholder || 'Select...'}</span>
 			<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
 		</Button>
 	);
@@ -92,7 +111,7 @@ export function FormAutocomplete<
 		<PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
 			<Command shouldFilter={!loadOptions}>
 				<CommandInput
-					placeholder={`Search ${label.toLowerCase()}...`}
+					placeholder={`Search ${label?.toLowerCase()}...`}
 					onValueChange={setSearchQuery}
 					value={searchQuery}
 				/>
@@ -103,6 +122,15 @@ export function FormAutocomplete<
 						</div>
 					) : (
 						<>
+							{onCreate && searchQuery && options.length === 0 && (
+								<CommandItem
+									onSelect={() => handleCreate(field)}
+									className='flex items-center gap-2'
+								>
+									<PlusCircle className='h-4 w-4' />
+									Create &quot;{searchQuery}&quot;
+								</CommandItem>
+							)}
 							<CommandEmpty>No options found.</CommandEmpty>
 							<CommandGroup>
 								{options.map((option) => (
@@ -166,7 +194,7 @@ export function FormAutocomplete<
 				return (
 					<FormItem>
 						<div className='space-y-2'>
-							<FormLabel required={required}>{label}</FormLabel>
+							{label && <FormLabel required={required}>{label}</FormLabel>}
 							<Popover open={open} onOpenChange={setOpen}>
 								<PopoverTrigger asChild>
 									<FormControl>

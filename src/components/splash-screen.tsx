@@ -1,5 +1,6 @@
 'use client';
 
+import { COMMON_URL } from '@/constants/common.constant';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
@@ -34,7 +35,7 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
 		>
 			<div className='flex flex-col items-center gap-4'>
 				<Image
-					src='/iifc-logo.png'
+					src={COMMON_URL.SITE_LOGO}
 					alt='IIFC Logo'
 					width={80}
 					height={80}

@@ -1,22 +1,23 @@
-
 'use client';
 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/contexts/auth-context';
+import useLoader from '@/hooks/use-loader';
 import { useToast } from '@/hooks/use-toast';
 import { IFile } from '@/interfaces/common.interface';
+import { compressImage } from '@/lib/compresser';
+import { makePreviewURL } from '@/lib/file-oparations';
 import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, Mail, Phone, Save, Upload } from 'lucide-react';
-import Image from 'next/image';
+import { Loader2, Mail, Phone, Save } from 'lucide-react';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { makePreviewURL } from '@/lib/file-oparations';
 
 const profileImageSchema = z.object({
 	avatarFile: z
@@ -42,7 +43,8 @@ function ProfileImageCard({
 }) {
 	const { toast } = useToast();
 	const [avatarPreview, setAvatarPreview] = React.useState<string | null>(null);
-	const [isSubmitting, setIsSubmitting] = React.useState(false);
+	const [isSubmitting, setIsSubmitting] = useLoader(false);
+	const { updateUserInfo } = useAuth();
 
 	const form = useForm<ProfileImageFormValues>({
 		resolver: zodResolver(profileImageSchema),
@@ -62,30 +64,30 @@ function ProfileImageCard({
 		}
 	};
 
-	const onImageSubmit = (data: ProfileImageFormValues) => {
+	const onImageSubmit = async (data: ProfileImageFormValues) => {
 		setIsSubmitting(true);
-		const formData = new FormData();
-		formData.append('file', data.avatarFile);
+		try {
+			const compressedFile = await compressImage(data.avatarFile);
+			const formData = new FormData();
+			formData.append('file', compressedFile);
 
-		UserService.saveProfileImage(formData)
-			.then((res) => {
-				toast({
-					title: 'Photo Updated',
-					description: res.message || 'Your new profile photo has been saved.',
-					variant: 'success',
-				});
-				form.reset();
-			})
-			.catch((err) => {
-				toast({
-					title: 'Upload Failed',
-					description: err.message || 'There was a problem uploading your photo.',
-					variant: 'danger',
-				});
-			})
-			.finally(() => {
-				setIsSubmitting(false);
+			const res = await UserService.saveProfileImage(formData);
+			toast({
+				title: 'Photo Updated',
+				description: res.message || 'Your new profile photo has been saved.',
+				variant: 'success',
 			});
+			updateUserInfo({ profileImage: res.body });
+			form.reset();
+		} catch (err: any) {
+			toast({
+				title: 'Upload Failed',
+				description: err.message || 'There was a problem uploading your photo.',
+				variant: 'danger',
+			});
+		} finally {
+			setIsSubmitting(false);
+		}
 	};
 
 	return (
@@ -113,10 +115,7 @@ function ProfileImageCard({
 								name='avatarFile'
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel
-											htmlFor='avatar-upload'
-											className='font-normal text-sm text-muted-foreground'
-										>
+										<FormLabel htmlFor='avatar-upload' className='font-normal text-sm text-muted-foreground'>
 											<Button asChild variant='outline'>
 												<span>Choose Photo</span>
 											</Button>

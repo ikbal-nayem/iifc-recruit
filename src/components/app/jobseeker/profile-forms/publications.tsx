@@ -15,15 +15,15 @@ import { JobseekerProfileService } from '@/services/api/jobseeker-profile.servic
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
 import { Edit, Link2, Loader2, PlusCircle, Trash } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 const publicationSchema = z.object({
-	title: z.string().min(1, 'Title is required.'),
-	publisher: z.string().min(1, 'Publisher is required.'),
+	title: z.string().min(1, 'Title is required.').max(100, 'Title is too long.'),
+	publisher: z.string().min(1, 'Publisher is required.').max(100, 'Publisher is too long.'),
 	publicationDate: z.string().min(1, 'Publication date is required.'),
-	url: z.string().url('Please enter a valid URL.'),
+	url: z.string().url('Please enter a valid URL.').max(150, 'URL is too long.')
 });
 
 type PublicationFormValues = z.infer<typeof publicationSchema>;

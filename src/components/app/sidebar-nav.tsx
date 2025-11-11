@@ -10,6 +10,7 @@ import {
 	SidebarSeparator,
 	useSidebar,
 } from '@/components/ui/sidebar';
+import { COMMON_URL } from '@/constants/common.constant';
 import { NavLink, adminNavLinks, jobseekerNavLinks } from '@/lib/nav-links';
 import { cn } from '@/lib/utils';
 import * as Collapsible from '@radix-ui/react-collapsible';
@@ -113,7 +114,7 @@ export default function SidebarNav() {
 		<>
 			<SidebarHeader>
 				<Link href='/' className='flex items-center gap-3'>
-					<Image src='/iifc-logo.png' alt='IIFC Logo' width={32} height={32} className='h-8 w-auto' />
+					<Image src={COMMON_URL.SITE_LOGO} alt='IIFC Logo' width={32} height={32} className='h-8 w-auto' />
 					<span className='font-headline text-xl font-bold'>IIFC Jobs</span>
 				</Link>
 			</SidebarHeader>

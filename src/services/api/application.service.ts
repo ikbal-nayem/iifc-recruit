@@ -1,3 +1,4 @@
+
 import { axiosIns } from '@/config/api.config';
 import { Application } from '@/interfaces/application.interface';
 import { IApiRequest, IApiResponse, IObject } from '@/interfaces/common.interface';
@@ -5,6 +6,9 @@ import { IApiRequest, IApiResponse, IObject } from '@/interfaces/common.interfac
 export const ApplicationService = {
 	getList: async (payload: IApiRequest): Promise<IApiResponse<Application[]>> =>
 		await axiosIns.post('/application/get-list', payload),
+
+	getByApplicant: async (payload: IApiRequest): Promise<IApiResponse<Application[]>> =>
+		await axiosIns.post('/application/get-by-applicant', payload),
 
 	getProcessingList: async (payload: IApiRequest): Promise<IApiResponse<Application[]>> =>
 		await axiosIns.post('/application/get-processing-list', payload),
@@ -17,4 +21,10 @@ export const ApplicationService = {
 
 	updateAll: async (payload: IObject[]): Promise<IApiResponse<Application[]>> =>
 		await axiosIns.put('/application/update-all', payload),
+
+	apply: async (payload: { applicantId: string; requestedPostId: string }): Promise<IApiResponse<any>> =>
+		await axiosIns.post('/application/apply', payload),
+	
+	getStatistics: async (applicantId: string): Promise<IApiResponse<any>> =>
+		await axiosIns.get(`/application/statistics/${applicantId}`),
 };

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { CardContent, CardFooter } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
+import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from '@/hooks/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -46,9 +47,9 @@ export default function LoginForm() {
 			const user = await login(data.username, data.password);
 			toast.success({ description: 'Logged in successfully.' });
 			if (user?.userType === 'SYSTEM' || user?.userType === 'IIFC_ADMIN') {
-				router.push('/admin');
+				router.push(ROUTES.DASHBOARD.ADMIN);
 			} else if (redirectUrl) router.push(redirectUrl);
-			else router.push('/jobseeker');
+			else router.push(ROUTES.DASHBOARD.JOB_SEEKER);
 		} catch (err: any) {
 			setError(err.message || 'An unexpected error occurred. Please try again.');
 		} finally {

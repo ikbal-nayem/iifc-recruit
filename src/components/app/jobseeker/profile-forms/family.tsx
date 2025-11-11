@@ -26,8 +26,8 @@ import * as z from 'zod';
 
 // Zod schema for a single child
 const childSchema = z.object({
-	id: z.number().optional(),
-	name: z.string().min(1, 'Child name is required.'),
+	id: z.string().optional(),
+	name: z.string().min(1, 'Child name is required.').max(80, 'Child name must be at most 100 characters.'),
 	gender: z.string().min(1, 'Gender is required.'),
 	dob: z.string().min(1, 'Date of birth is required.'),
 	serialNo: z.coerce.number().min(1, 'Serial number is required.'),
@@ -118,11 +118,11 @@ function ChildForm({ isOpen, onClose, onSubmit, initialData, genders }: ChildFor
 
 // Main Family Form Component
 const familySchema = z.object({
-	id: z.number().optional(),
-	name: z.string().min(1, "Spouse's name is required."),
-	profession: z.string().min(1, "Spouse's profession is required."),
+	id: z.string().optional(),
+	name: z.string().min(1, "Spouse's name is required.").max(80, "Spouse's name must be at most 100 characters."),
+	profession: z.string().min(1, "Spouse's profession is required.").max(100, "Spouse's profession must be at most 100 characters."),
 	status: z.string().optional(),
-	ownDistrictId: z.coerce.number().optional(),
+	ownDistrictId: z.coerce.string().optional(),
 });
 
 type FamilyFormValues = z.infer<typeof familySchema>;
@@ -227,7 +227,7 @@ export function ProfileFormFamily({
 		}
 	};
 
-	const handleChildDelete = async (id: number) => {
+	const handleChildDelete = async (id: string) => {
 		try {
 			await JobseekerProfileService.children.delete(id);
 			toast({ description: 'Child successfully deleted.', variant: 'success' });
@@ -279,7 +279,7 @@ export function ProfileFormFamily({
 									placeholder='Select a district'
 									options={districts}
 									getOptionValue={(option) => option.id!.toString()}
-									getOptionLabel={(option) => option.name}
+									getOptionLabel={(option) => option.nameEn}
 								/>
 							</div>
 						</CardContent>

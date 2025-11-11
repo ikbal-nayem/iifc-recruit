@@ -17,7 +17,12 @@ export default function Home() {
 						</p>
 					</div>
 					<div className='max-w-2xl mx-auto mt-8'>
-						<Button size='lg' variant='outline' asChild>
+						<Button
+							size='lg'
+							variant='outline'
+							className='bg-white/20 border-primary/30 text-primary hover:bg-white/30 hover:text-white backdrop-blur-sm'
+							asChild
+						>
 							<Link href='/jobs'>
 								Browse All Jobs <MoveRight className='ml-2 h-4 w-4' />
 							</Link>
@@ -30,10 +35,15 @@ export default function Home() {
 				<h2 className='text-3xl font-bold text-center mb-8 font-headline'>Featured Jobs</h2>
 				<JobListings isPaginated={false} showFilters={false} itemLimit={6} />
 				<div className='text-center mt-12'>
-					<Button size='lg' asChild>
+					<Button
+						size='lg'
+						variant='outline'
+						className='bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 backdrop-blur-sm'
+						asChild
+					>
 						<Link href='/jobs'>
 							<Search className='mr-2 h-4 w-4' />
-							Search Mone Jobs
+							Search More Jobs
 						</Link>
 					</Button>
 				</div>

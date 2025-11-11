@@ -1,5 +1,5 @@
 import { RequestedPostsList } from '@/components/app/admin/application/requested-posts-list';
-import { JobRequestStatus } from '@/interfaces/job.interface';
+import { JobRequestedPostStatus } from '@/interfaces/job.interface';
 
 export default function CompletedApplicationsPage() {
 	return (
@@ -10,7 +10,7 @@ export default function CompletedApplicationsPage() {
 					<p className='text-muted-foreground'>Browse all successfully completed application processes.</p>
 				</div>
 			</div>
-			<RequestedPostsList status={JobRequestStatus.COMPLETED} />
+			<RequestedPostsList status={JobRequestedPostStatus.COMPLETED} />
 		</div>
 	);
 }

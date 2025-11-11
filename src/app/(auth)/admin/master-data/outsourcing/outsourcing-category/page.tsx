@@ -103,6 +103,7 @@ export default function MasterOutsourcingCategoryPage() {
 			onDelete={handleDelete}
 			onPageChange={handlePageChange}
 			onSearch={setSearchQuery}
+			hasSerial
 		/>
 	);
 }

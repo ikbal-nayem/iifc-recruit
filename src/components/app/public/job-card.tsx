@@ -2,10 +2,12 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ROUTES } from '@/constants/routes.constant';
+import { useAuth } from '@/contexts/auth-context';
 import { ICircular } from '@/interfaces/job.interface';
 import { cn } from '@/lib/utils';
 import { differenceInDays, format, isPast, parseISO } from 'date-fns';
-import { Briefcase, Clock, MapPin, Users } from 'lucide-react';
+import { Briefcase, MapPin, Users } from 'lucide-react';
 import Link from 'next/link';
 
 interface JobCardProps {
@@ -18,6 +20,7 @@ export function JobCard({ job, view = 'grid', searchParams }: JobCardProps) {
 	const deadline = parseISO(job.circularEndDate);
 	const isDeadlinePast = isPast(deadline);
 	const daysLeft = differenceInDays(deadline, new Date());
+	const { isAuthenticated } = useAuth();
 
 	let deadlineText: string;
 	let deadlineColorClass = 'text-muted-foreground';
@@ -34,7 +37,9 @@ export function JobCard({ job, view = 'grid', searchParams }: JobCardProps) {
 	}
 
 	const queryParams = new URLSearchParams(searchParams);
-	const cardUrl = `/jobs/${job.id}?${queryParams.toString()}`;
+	const cardUrl = isAuthenticated
+		? `${ROUTES.JOB_SEEKER.JOB_DETAILS(job.id)}?${queryParams.toString()}`
+		: `/jobs/${job.id}?${queryParams.toString()}`;
 
 	return (
 		<Link href={cardUrl} className='block h-full'>

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -12,26 +11,21 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { ROLES } from '@/constants/auth.constant';
 import { useAuth } from '@/contexts/auth-context';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { adminNavLinks, jobseekerNavLinks } from '@/lib/nav-links';
-import { LogOut } from 'lucide-react';
-import Link from 'next/link';
+import { ArrowLeft, LogOut } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import React from 'react';
 
 const getBreadcrumbs = (pathname: string) => {
 	const parts = pathname.split('/').filter(Boolean);
-	const breadcrumbs = parts.map((part, index) => {
+	return parts.map((part, index) => {
 		const href = '/' + parts.slice(0, index + 1).join('/');
 		let label = part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, ' ');
-
-		if (label === 'Jobseeker' || label === 'Admin') {
-			label = 'Dashboard';
-		}
 		return { href, label };
 	});
-	return breadcrumbs;
 };
 
 export default function Header() {
@@ -42,7 +36,7 @@ export default function Header() {
 	const breadcrumbs = getBreadcrumbs(pathname);
 
 	const getNavLinks = () => {
-		if (currectUser?.userType === 'SYSTEM' || currectUser?.userType === 'IIFC_ADMIN') {
+		if (!currectUser?.roles.includes(ROLES.JOB_SEEKER)) {
 			return adminNavLinks;
 		}
 		if (currectUser?.userType === 'JOB_SEEKER') {
@@ -59,12 +53,16 @@ export default function Header() {
 			<div className='flex items-center gap-2'>
 				<SidebarTrigger className='md:hidden' />
 				<nav className='hidden md:flex items-center text-sm font-medium text-muted-foreground'>
+					<ArrowLeft
+						className='h-4 w-4 hover:text-foreground transition-colors cursor-pointer mr-2'
+						onClick={() => router.back()}
+					/>
 					{breadcrumbs.map((crumb, index) => (
 						<React.Fragment key={crumb.href}>
 							{index > 0 && <span className='mx-2'>/</span>}
-							<Link href={crumb.href} className='hover:text-foreground transition-colors'>
-								{crumb.label}
-							</Link>
+							{/* <Link href={crumb.href} className='hover:text-foreground transition-colors'> */}
+							{crumb.label}
+							{/* </Link> */}
 						</React.Fragment>
 					))}
 				</nav>

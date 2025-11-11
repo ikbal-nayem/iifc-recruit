@@ -4,13 +4,7 @@
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import * as React from 'react';
 
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
@@ -27,6 +21,7 @@ import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { Building, FileText, Search, Send, UserX } from 'lucide-react';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 import { JobseekerForm } from './jobseeker-form';
 
@@ -48,13 +43,17 @@ export function JobseekerManagement({
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [searchQuery, setSearchQuery] = React.useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
+	const [organizationFilter, setOrganizationFilter] = React.useState('all');
 
 	const loadJobseekers = React.useCallback(
-		async (page: number, search: string) => {
+		async (page: number, search: string, orgId: string) => {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { searchKey: search },
+					body: {
+						searchKey: search,
+						...(orgId !== 'all' && { organizationId: orgId }),
+					},
 					meta: { page, limit: initMeta.limit },
 				};
 				const response = await JobseekerProfileService.search(payload);
@@ -74,11 +73,11 @@ export function JobseekerManagement({
 	);
 
 	React.useEffect(() => {
-		loadJobseekers(0, debouncedSearch);
-	}, [debouncedSearch, loadJobseekers]);
+		loadJobseekers(0, debouncedSearch, organizationFilter);
+	}, [debouncedSearch, loadJobseekers, organizationFilter]);
 
 	const handlePageChange = (newPage: number) => {
-		loadJobseekers(newPage, debouncedSearch);
+		loadJobseekers(newPage, debouncedSearch, organizationFilter);
 	};
 
 	const getActionItems = (jobseeker: JobseekerSearch): ActionItem[] => [
@@ -106,7 +105,7 @@ export function JobseekerManagement({
 			accessorKey: 'fullName',
 			header: 'Applicant',
 			cell: ({ row }) => {
-				const { fullName, email, profileImage, firstName, lastName, phone, organizationNameEn } = row.original;
+				const { fullName, email, profileImage, firstName, lastName, phone } = row.original;
 				return (
 					<div className='flex items-center gap-3'>
 						<Avatar>
@@ -118,17 +117,22 @@ export function JobseekerManagement({
 						</Avatar>
 						<div>
 							<p className='font-semibold'>{fullName}</p>
-							<p className='text-xs text-muted-foreground'>{email}</p>
-							<p className='text-xs text-muted-foreground'>{phone}</p>
-							{organizationNameEn && (
-								<p className='text-xs text-muted-foreground flex items-center gap-1.5 pt-1'>
-									<Building className='h-3 w-3' /> {organizationNameEn}
-								</p>
-							)}
+							<p className='text-sm text-muted-foreground'>{email}</p>
+							<p className='text-sm text-muted-foreground'>{phone}</p>
 						</div>
 					</div>
 				);
 			},
+		},
+		{
+			accessorKey: 'organizationNameEn',
+			header: 'Organization',
+			cell: ({ row }) => (
+				<div>
+					<p>{row.original.organizationNameEn}</p>
+					<p className='text-sm text-muted-foreground'>{row.original.organizationNameBn}</p>
+				</div>
+			),
 		},
 		{
 			id: 'actions',
@@ -175,25 +179,41 @@ export function JobseekerManagement({
 
 	return (
 		<div className='space-y-4'>
-			<div className='relative w-full md:max-w-sm'>
-				<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-				<Input
-					placeholder='Search by name, email, or phone...'
-					value={searchQuery}
-					onChange={(event) => setSearchQuery(event.target.value)}
-					className='pl-10 h-11'
-				/>
-			</div>
-
 			<Card className='glassmorphism'>
 				<CardHeader>
 					<CardTitle>Jobseeker List</CardTitle>
+					<div className='flex flex-col md:flex-row gap-4 pt-4'>
+						<div className='relative w-full md:max-w-sm'>
+							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+							<Input
+								placeholder='Search by name, email, or phone...'
+								value={searchQuery}
+								onChange={(event) => setSearchQuery(event.target.value)}
+								className='pl-10 h-10'
+							/>
+						</div>
+						<div className='w-full md:max-w-sm'>
+							<FormAutocomplete
+								name='organizationFilter'
+								placeholder='Filter by organization...'
+								options={[{ id: 'all', nameEn: 'All Organizations' }, ...organizations]}
+								getOptionValue={(option) => option.id!}
+								getOptionLabel={(option) => option.nameEn}
+								value={organizationFilter}
+								onValueChange={(value) => setOrganizationFilter(value || 'all')}
+							/>
+						</div>
+					</div>
 				</CardHeader>
-				<CardContent className='pt-6'>
+				<CardContent>
 					{/* Mobile View */}
 					<div className='md:hidden space-y-4'>
 						{isLoading ? (
-							[...Array(5)].map((_, i) => <Skeleton key={i} className='h-24 w-full' />)
+							[...Array(5)].map((_, i) => (
+								<Card key={i} className='p-4'>
+									<Skeleton className='h-24 w-full' />
+								</Card>
+							))
 						) : data.length > 0 ? (
 							data.map(renderMobileCard)
 						) : (
@@ -270,7 +290,7 @@ export function JobseekerManagement({
 			<JobseekerForm
 				isOpen={isFormOpen}
 				onClose={() => setIsFormOpen(false)}
-				onSuccess={() => loadJobseekers(0, '')}
+				onSuccess={() => loadJobseekers(0, '', 'all')}
 				organizations={organizations}
 			/>
 		</div>

@@ -2,7 +2,7 @@
 
 import { EducationInstitutionCrud } from '@/components/app/admin/master-data/education-institution-crud';
 import { useDebounce } from '@/hooks/use-debounce';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
@@ -11,7 +11,6 @@ import { useCallback, useEffect, useState } from 'react';
 const initMeta: IMeta = { page: 0, limit: 10 };
 
 export default function MasterInstitutionsPage() {
-	const { toast } = useToast();
 	const [items, setItems] = useState<IEducationInstitution[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = useState(true);
@@ -26,15 +25,13 @@ export default function MasterInstitutionsPage() {
 				const response = await MasterDataService.country.get();
 				setCountries(response.body);
 			} catch (error) {
-				toast({
-					title: 'Error',
+				toast.error({
 					description: 'Failed to load countries.',
-					variant: 'danger',
 				});
 			}
 		};
 		fetchCountries();
-	}, [toast]);
+	}, []);
 
 	const loadItems = useCallback(
 		async (page: number, search: string, countryId: string) => {
@@ -52,16 +49,14 @@ export default function MasterInstitutionsPage() {
 				setMeta(response.meta);
 			} catch (error) {
 				console.error('Failed to load items', error);
-				toast({
-					title: 'Error',
+				toast.error({
 					description: 'Failed to load institutions.',
-					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit, toast]
+		[meta.limit]
 	);
 
 	useEffect(() => {
@@ -75,12 +70,12 @@ export default function MasterInstitutionsPage() {
 	const handleAdd = async (item: Omit<IEducationInstitution, 'id'>): Promise<boolean> => {
 		try {
 			const resp = await MasterDataService.educationInstitution.add(item);
-			toast({ description: resp.message, variant: 'success' });
+			toast.success({ description: resp.message });
 			loadItems(meta.page, debouncedSearch, countryFilter);
 			return true;
 		} catch (error) {
 			console.error('Failed to add item', error);
-			toast({ title: 'Error', description: 'Failed to add institution.', variant: 'danger' });
+			toast.error({ description: 'Failed to add institution.' });
 			return false;
 		}
 	};
@@ -88,12 +83,12 @@ export default function MasterInstitutionsPage() {
 	const handleUpdate = async (item: IEducationInstitution): Promise<boolean> => {
 		try {
 			const resp = await MasterDataService.educationInstitution.update(item);
-			toast({ description: resp.message, variant: 'success' });
+			toast.success({ description: resp.message });
 			loadItems(meta.page, debouncedSearch, countryFilter);
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update institution.', variant: 'danger' });
+			toast.error({ title: 'Error', description: 'Failed to update institution.' });
 			return false;
 		}
 	};
@@ -101,12 +96,12 @@ export default function MasterInstitutionsPage() {
 	const handleDelete = async (id: string): Promise<boolean> => {
 		try {
 			await MasterDataService.educationInstitution.delete(id);
-			toast({ title: 'Success', description: 'Institution deleted successfully.', variant: 'success' });
+			toast.success({ title: 'Success', description: 'Institution deleted successfully.' });
 			loadItems(meta.page, debouncedSearch, countryFilter);
 			return true;
 		} catch (error) {
 			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: 'Failed to delete institution.', variant: 'danger' });
+			toast.error({ description: 'Failed to delete institution.' });
 			return false;
 		}
 	};

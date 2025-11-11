@@ -1,6 +1,5 @@
-
 import { RequestedPostsList } from '@/components/app/admin/application/requested-posts-list';
-import { JobRequestStatus } from '@/interfaces/job.interface';
+import { JobRequestedPostStatus } from '@/interfaces/job.interface';
 
 export default function ShortlistedApplicationsPage() {
 	return (
@@ -11,7 +10,7 @@ export default function ShortlistedApplicationsPage() {
 					<p className='text-muted-foreground'>Manage all shortlisted application processes.</p>
 				</div>
 			</div>
-			<RequestedPostsList status={JobRequestStatus.SHORTLISTED} />
+			<RequestedPostsList status={JobRequestedPostStatus.SHORTLISTED} />
 		</div>
 	);
 }

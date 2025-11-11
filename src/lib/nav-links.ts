@@ -47,16 +47,15 @@ export interface NavLink {
 
 export const adminNavLinks: NavLink[] = [
 	{
-		href: '/admin',
+		href: ROUTES.DASHBOARD.ADMIN,
 		label: 'Dashboard',
 		icon: LayoutDashboard,
-		isActive: (pathname) => pathname === '/admin',
+		isActive: (pathname) => pathname === ROUTES.DASHBOARD.ADMIN,
 	},
 	{
 		href: ROUTES.JOB_REQUESTS,
 		label: 'Requests',
 		icon: FolderKanban,
-		isActive: (pathname) => pathname.startsWith('/admin/job-management'),
 		submenu: [
 			{
 				href: ROUTES.JOB_REQUEST_CREATE,
@@ -111,6 +110,11 @@ export const adminNavLinks: NavLink[] = [
 	{ href: '/admin/jobseekers', label: 'Jobseekers', icon: Users },
 	{ href: ROUTES.CLIENT_ORGANIZATIONS, label: 'Client Organizations', icon: Handshake },
 	{
+		href: '/admin/user-management',
+		label: 'User Management',
+		icon: UserCog,
+	},
+	{
 		href: '/admin/profile',
 		label: 'My Profile',
 		icon: UserCircle,
@@ -127,7 +131,7 @@ export const adminNavLinks: NavLink[] = [
 	{
 		href: '#',
 		label: 'Separator',
-		icon: Users, // Icon is not used, but required by type
+		icon: Users,
 		separator: true,
 	},
 	{
@@ -142,10 +146,10 @@ export const adminNavLinks: NavLink[] = [
 				icon: Building2,
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/company'),
 				submenu: [
-					{ href: '/admin/master-data/company/organizations', label: 'Organizations' },
+					// { href: '/admin/master-data/company/organizations', label: 'Organizations' },
 					{ href: '/admin/master-data/industry-types', label: 'Industry Types' },
 					{ href: '/admin/master-data/organization-types', label: 'Organization Types' },
-					{ href: '/admin/master-data/position-levels', label: 'Position Levels' },
+					// { href: '/admin/master-data/position-levels', label: 'Position Levels' },
 				],
 			},
 			{ href: '/admin/master-data/posts', label: 'Posts', icon: UserCog },
@@ -158,7 +162,7 @@ export const adminNavLinks: NavLink[] = [
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/education'),
 				submenu: [
 					{ href: '/admin/master-data/education/degree-levels', label: 'Degree Levels' },
-					{ href: '/admin/master-data/education/domains', label: 'Domains' },
+					// { href: '/admin/master-data/education/domains', label: 'Domains' },
 					{ href: '/admin/master-data/education/institutions', label: 'Institutions' },
 				],
 			},
@@ -168,7 +172,7 @@ export const adminNavLinks: NavLink[] = [
 				icon: BookMarked,
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/training'),
 				submenu: [
-					{ href: '/admin/master-data/training/training-types', label: 'Training Types' },
+					// { href: '/admin/master-data/training/training-types', label: 'Training Types' },
 					{ href: '/admin/master-data/training/certifications', label: 'Certifications' },
 				],
 			},
@@ -189,10 +193,10 @@ export const adminNavLinks: NavLink[] = [
 
 export const jobseekerNavLinks: NavLink[] = [
 	{
-		href: '/jobseeker',
+		href: ROUTES.DASHBOARD.JOB_SEEKER,
 		label: 'Dashboard',
 		icon: LayoutDashboard,
-		isActive: (pathname) => pathname === '/jobseeker',
+		isActive: (pathname) => pathname === ROUTES.DASHBOARD.JOB_SEEKER,
 	},
 	{
 		href: '/jobseeker/profile-view',

@@ -15,6 +15,8 @@ export const ROUTES = {
 	JOB_SEEKER: {
 		APPLICATIONS: '/jobseeker/applications',
 		PROFILE: '/jobseeker/profile',
+		FIND_JOBS: '/jobseeker/find-job',
+		JOB_DETAILS: (id?: string) => `/jobseeker/find-job/${id}`,
 	},
 	
 	HOME: '/',
@@ -37,4 +39,6 @@ export const ROUTES = {
 
 	CLIENT_ORGANIZATIONS: '/admin/client-organizations',
 	CLIENT_ORGANIZATION_DETAILS: (id?: string | string) => `/admin/client-organizations/${id}`,
+
+	JOB_SEEKERS: '/admin/jobseekers',
 };

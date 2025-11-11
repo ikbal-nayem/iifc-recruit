@@ -115,7 +115,7 @@ export default function SignupForm() {
 						name='password'
 						label='Password'
 						type='password'
-						placeholder='●●●●●●'
+						placeholder='Enter your password'
 						required
 						disabled={isLoading}
 					/>
@@ -124,7 +124,7 @@ export default function SignupForm() {
 						name='confirmPassword'
 						label='Confirm Password'
 						type='password'
-						placeholder='●●●●●●'
+						placeholder='Re-enter your password'
 						required
 						disabled={isLoading}
 					/>

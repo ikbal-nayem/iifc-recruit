@@ -11,8 +11,10 @@ import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { JobseekerSkill, ProficiencyLevel } from '@/interfaces/jobseeker.interface';
+import { JobseekerSkill } from '@/interfaces/jobseeker.interface';
+import { EnumDTO, ICommonMasterData } from '@/interfaces/master-data.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
+import { MasterDataService } from '@/services/api/master-data.service';
 import { getSkillsAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
@@ -23,12 +25,12 @@ import * as z from 'zod';
 const skillSchema = z.object({
 	skillId: z.coerce.string().min(1, 'Skill is required.'),
 	yearsOfExperience: z.coerce.number().min(0, 'Years of experience must be 0 or more.'),
-	proficiency: z.nativeEnum(ProficiencyLevel),
+	proficiency: z.string().min(1, 'Proficiency level is required.'),
 });
 
 type SkillFormValues = z.infer<typeof skillSchema>;
 
-const defaultValues = { skillId: '', yearsOfExperience: 0, proficiency: ProficiencyLevel.INTERMEDIATE };
+const defaultValues = { skillId: '', yearsOfExperience: 0, proficiency: '' };
 
 interface SkillFormProps {
 	isOpen: boolean;
@@ -36,9 +38,11 @@ interface SkillFormProps {
 	onSubmit: (data: SkillFormValues, id?: string) => Promise<boolean>;
 	initialData?: JobseekerSkill;
 	noun: string;
+	proficiencyOptions: EnumDTO[];
 }
 
-function SkillForm({ isOpen, onClose, onSubmit, initialData, noun }: SkillFormProps) {
+function SkillForm({ isOpen, onClose, onSubmit, initialData, noun, proficiencyOptions }: SkillFormProps) {
+	const { toast } = useToast();
 	const form = useForm<SkillFormValues>({
 		resolver: zodResolver(skillSchema),
 		defaultValues: initialData || defaultValues,
@@ -58,10 +62,26 @@ function SkillForm({ isOpen, onClose, onSubmit, initialData, noun }: SkillFormPr
 		setIsSubmitting(false);
 	};
 
-	const proficiencyLevels = Object.values(ProficiencyLevel).map((level) => ({
-		value: level,
-		label: level.charAt(0) + level.slice(1).toLowerCase(),
-	}));
+	const handleCreateSkill = async (name: string): Promise<ICommonMasterData | null> => {
+		try {
+			const response = await MasterDataService.skill.add({
+				nameEn: name,
+				nameBn: name,
+				active: true,
+			});
+			toast({
+				description: `Skill "${name}" created.`,
+				variant: 'success',
+			});
+			return response.body;
+		} catch (error: any) {
+			toast({
+				description: error.message || 'Failed to create skill.',
+				variant: 'danger',
+			});
+			return null;
+		}
+	};
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
@@ -78,6 +98,7 @@ function SkillForm({ isOpen, onClose, onSubmit, initialData, noun }: SkillFormPr
 							placeholder='Search for a skill'
 							required
 							loadOptions={getSkillsAsync}
+							onCreate={handleCreateSkill}
 							getOptionValue={(option) => option.id}
 							getOptionLabel={(option) => option.nameEn}
 							initialLabel={initialData?.skill?.nameEn}
@@ -94,8 +115,9 @@ function SkillForm({ isOpen, onClose, onSubmit, initialData, noun }: SkillFormPr
 							name='proficiency'
 							label='Proficiency'
 							required
-							options={proficiencyLevels}
-							getOptionLabel={(option) => option.label}
+							placeholder='Select proficiency'
+							options={proficiencyOptions}
+							getOptionLabel={(option) => option.nameEn}
 							getOptionValue={(option) => option.value}
 						/>
 						<DialogFooter className='pt-4'>
@@ -114,7 +136,11 @@ function SkillForm({ isOpen, onClose, onSubmit, initialData, noun }: SkillFormPr
 	);
 }
 
-export function ProfileFormSkills() {
+interface ProfileFormSkillsProps {
+	proficiencyOptions: EnumDTO[];
+}
+
+export function ProfileFormSkills({ proficiencyOptions }: ProfileFormSkillsProps) {
 	const { toast } = useToast();
 	const [skills, setSkills] = React.useState<JobseekerSkill[]>([]);
 	const [isLoading, setIsLoading] = React.useState(true);
@@ -227,6 +253,7 @@ export function ProfileFormSkills() {
 					onSubmit={handleFormSubmit}
 					initialData={editingItem}
 					noun='Skill'
+					proficiencyOptions={proficiencyOptions}
 				/>
 			)}
 			<ConfirmationDialog

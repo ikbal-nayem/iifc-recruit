@@ -14,7 +14,7 @@ export type JobseekerSkill = {
 	skillId: string;
 	skill?: ICommonMasterData;
 	yearsOfExperience: number;
-	proficiency: ProficiencyLevel;
+	proficiency: string;
 	proficiencyDTO?: EnumDTO;
 };
 
@@ -68,27 +68,25 @@ export type Certification = {
 export type AcademicInfo = {
 	id?: string;
 	degreeLevel: ICommonMasterData;
-	domain: ICommonMasterData;
+	// domain: ICommonMasterData;
+	domainNameEn: string;
+	domainNameBn: string;
 	institution: IEducationInstitution;
 	degreeTitle: string;
-	specializationArea?: string;
 	resultSystem: ResultSystem;
 	resultAchieved?: string;
 	cgpa?: number;
 	outOfCgpa?: number;
 	passingYear: string;
 	duration?: number;
-	achievement?: string;
 	certificateFile?: IFile | File;
 };
 
 export type ProfessionalInfo = {
 	id?: string;
 	positionTitle: string;
-	positionLevel?: ICommonMasterData;
-	positionLevelId: string;
-	organization?: IOrganization;
-	organizationId: string;
+	organizationNameEn: string;
+	organizationNameBn?: string;
 	responsibilities: string;
 	joinDate: string;
 	resignDate?: string;

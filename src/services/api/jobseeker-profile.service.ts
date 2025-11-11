@@ -37,7 +37,7 @@ const createProfileCrud = <T extends { id?: string }>(entity: string) => ({
 });
 
 const createProfileCrudWithFormData = <T extends { id?: string }>(entity: string) => ({
-	get: async (): Promise<IApiResponse<T[] | T>> => {
+	get: async (): Promise<IApiResponse<T[]>> => {
 		return axiosIns.get(`/jobseeker/${entity}/get-by-user`);
 	},
 
@@ -97,7 +97,7 @@ export const JobseekerProfileService = {
 			return axiosIns.get(`/jobseeker/resume/get-by-user`);
 		},
 		add: async (formData: FormData): Promise<IApiResponse<Resume>> => {
-			return axiosIns.post(`/jobseeker/resume/create`, formData);
+			return axiosIns.post(`/jobseeker/resume/save`, formData);
 		},
 		delete: async (id: string): Promise<IApiResponse<void>> => {
 			return axiosIns.delete(`/jobseeker/resume/delete/${id}`);

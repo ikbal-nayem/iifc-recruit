@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { useDebounce } from '@/hooks/use-debounce';
-import { IApiRequest, IMeta, IObject } from '@/interfaces/common.interface';
+import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { ICircular } from '@/interfaces/job.interface';
 import { cn } from '@/lib/utils';
 import { CircularService } from '@/services/api/circular.service';
@@ -14,7 +14,7 @@ import { useSearchParams } from 'next/navigation';
 import * as React from 'react';
 import { JobCard } from './job-card';
 
-const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
+const initMeta: IMeta = { page: 0, limit: 12 };
 
 interface JobListingsProps {
 	isPaginated?: boolean;
@@ -37,11 +37,8 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 		async (page: number, search: string) => {
 			setIsLoading(true);
 			try {
-				const body: IObject = {
-					nameEn: search,
-				};
 				const payload: IApiRequest = {
-					body,
+					body: { searchKey: search },
 					meta: { page: page, limit: itemLimit },
 				};
 				const response = await CircularService.search(payload);
@@ -95,7 +92,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 					</div>
 					<div className='flex items-center justify-between mt-3'>
 						<strong className='text-sm text-muted-foreground'>
-							Total {meta?.totalRecords || 0} job's found
+							Job found: <strong>{(meta?.totalRecords || 0).toLocaleString()}</strong>
 						</strong>
 						<div className='flex items-center justify-end gap-2'>
 							<Button

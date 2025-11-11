@@ -1,10 +1,16 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormInput } from '@/components/ui/form-input';
@@ -15,7 +21,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { IMeta } from '@/interfaces/common.interface';
-import { IOutsourcingCategory, IOutsourcingCharge, IOutsourcingZone } from '@/interfaces/master-data.interface';
+import {
+	IOutsourcingCategory,
+	IOutsourcingCharge,
+	IOutsourcingZone,
+} from '@/interfaces/master-data.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useState } from 'react';
@@ -53,12 +63,11 @@ function OutsourcingChargeForm({
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		values: {
-			categoryId: initialData?.categoryId,
-			zoneId: initialData?.zoneId,
-			monthlyServiceCharge: initialData?.monthlyServiceCharge,
+			categoryId: initialData?.categoryId!,
+			zoneId: initialData?.zoneId!,
+			monthlyServiceCharge: initialData?.monthlyServiceCharge!,
 		},
 	});
-
 
 	const handleSubmit = async (data: FormValues) => {
 		setIsSubmitting(true);
@@ -178,7 +187,6 @@ export function OutsourcingChargeCrud({
 	const [editingItem, setEditingItem] = useState<IOutsourcingCharge | undefined>(undefined);
 	const [itemToDelete, setItemToDelete] = useState<IOutsourcingCharge | null>(null);
 
-
 	const handleOpenForm = (item?: IOutsourcingCharge) => {
 		setEditingItem(item);
 		setIsFormOpen(true);
@@ -274,7 +282,7 @@ export function OutsourcingChargeCrud({
 										<div className='flex-1 mb-4 sm:mb-0'>
 											<p className='font-semibold'>{item.category?.nameEn}</p>
 											<p className='text-sm text-muted-foreground'>
-												Zone: {item.zone?.nameEn} | Charge: {item.monthlyServiceCharge}
+												Zone: {item.zone?.nameEn} | Charge: {item.monthlyServiceCharge?.toLocaleString()}
 											</p>
 										</div>
 										<div className='flex items-center gap-2 w-full sm:w-auto justify-between'>

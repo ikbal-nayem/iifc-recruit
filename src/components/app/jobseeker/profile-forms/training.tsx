@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -7,12 +6,11 @@ import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FilePreviewer } from '@/components/ui/file-previewer';
 import { Form } from '@/components/ui/form';
-import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormFileUpload } from '@/components/ui/form-file-upload';
 import { FormInput } from '@/components/ui/form-input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { Training } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makeFormData } from '@/lib/utils';
@@ -80,7 +78,7 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 		const payload: Training = {
 			...data,
 			id: initialData?.id,
-			trainingTypeId: data.trainingTypeId ? parseInt(data.trainingTypeId) : undefined,
+			trainingTypeId: data.trainingTypeId,
 		};
 
 		onSubmit(payload)
@@ -112,7 +110,7 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 							required
 							disabled={isSubmitting}
 						/>
-						<FormAutocomplete
+						{/* <FormAutocomplete
 							control={form.control}
 							name='trainingTypeId'
 							label='Training Type'
@@ -121,7 +119,7 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 							getOptionValue={(option) => option.id!.toString()}
 							getOptionLabel={(option) => option.nameEn}
 							disabled={isSubmitting}
-						/>
+						/> */}
 
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 							<FormDatePicker
@@ -162,7 +160,6 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 }
 
 export function ProfileFormTraining({ trainingTypes }: { trainingTypes: ICommonMasterData[] }) {
-	const { toast } = useToast();
 	const [history, setHistory] = useState<Training[]>([]);
 	const [editingItem, setEditingItem] = useState<Training | undefined>(undefined);
 	const [isFormOpen, setIsFormOpen] = useState(false);
@@ -174,11 +171,11 @@ export function ProfileFormTraining({ trainingTypes }: { trainingTypes: ICommonM
 			const [trainingsRes] = await Promise.all([JobseekerProfileService.training.get()]);
 			setHistory(trainingsRes.body);
 		} catch (error) {
-			toast({ description: 'Failed to load trainings.', variant: 'danger' });
+			toast.error({ description: 'Failed to load trainings.' });
 		} finally {
 			setIsLoading(false);
 		}
-	}, [toast]);
+	}, []);
 
 	useEffect(() => {
 		loadTrainings();
@@ -197,24 +194,23 @@ export function ProfileFormTraining({ trainingTypes }: { trainingTypes: ICommonM
 	const handleFormSubmit = async (formData: Training) => {
 		try {
 			const response = await JobseekerProfileService.training.save(makeFormData(formData));
-			toast({ description: response.message, variant: 'success' });
+			toast.success({ description: response.message });
 			loadTrainings();
 			return true;
 		} catch (error: any) {
-			toast({ title: 'Error', description: error.message || 'An error occurred.', variant: 'danger' });
+			toast.error({ title: 'Error', description: error.message || 'An error occurred.' });
 			return false;
 		}
 	};
 
-	const handleRemove = async (id: number) => {
+	const handleRemove = async (id: string) => {
 		try {
 			const response = await JobseekerProfileService.training.delete(id);
-			toast({ description: response.message || 'Training deleted successfully.', variant: 'success' });
+			toast.success({ description: response.message || 'Training deleted successfully.' });
 			loadTrainings();
 		} catch (error: any) {
-			toast({
+			toast.error({
 				description: error.message || 'Failed to delete training.',
-				variant: 'danger',
 			});
 		}
 	};

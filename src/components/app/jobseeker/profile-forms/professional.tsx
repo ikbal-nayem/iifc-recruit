@@ -1,22 +1,19 @@
-
 'use client';
 
-import { ProfessionalExperienceMasterData } from '@/app/(auth)/jobseeker/profile-edit/professional/page';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FilePreviewer } from '@/components/ui/file-previewer';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { FormAutocomplete } from '@/components/ui/form-autocomplete';
+import { Form } from '@/components/ui/form';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormFileUpload } from '@/components/ui/form-file-upload';
 import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
 import { FormSwitch } from '@/components/ui/form-switch';
+import { FormTextarea } from '@/components/ui/form-textarea';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { ProfessionalInfo } from '@/interfaces/jobseeker.interface';
 import { makeFormData } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
@@ -29,10 +26,16 @@ import * as z from 'zod';
 
 const professionalInfoSchema = z
 	.object({
-		positionTitle: z.string().min(1, 'Position Title is required.'),
-		positionLevelId: z.coerce.number().min(1, 'Position Level is required.'),
-		organizationId: z.coerce.number().min(1, 'Organization is required.'),
-		responsibilities: z.string().min(1, 'Please list at least one responsibility.'),
+		positionTitle: z.string().min(1, 'Position Title is required.').max(100, 'Position Title is too long.'),
+		organizationNameEn: z.coerce
+			.string()
+			.min(1, 'Organization is required.')
+			.max(100, 'Organization name is too long.'),
+		responsibilities: z
+			.string()
+			.min(1, 'Please list at least one responsibility.')
+			.max(1000, 'Responsibilities description is too long.')
+			.optional(),
 		joinDate: z.string().min(1, 'Join date is required.'),
 		resignDate: z.string().optional(),
 		isCurrent: z.boolean().default(false),
@@ -56,13 +59,11 @@ interface ProfessionalExperienceFormProps {
 	onClose: () => void;
 	onSubmit: (data: ProfessionalFormValues) => Promise<boolean>;
 	initialData?: ProfessionalInfo;
-	masterData: ProfessionalExperienceMasterData;
 }
 
 const defaultValues: ProfessionalInfo = {
 	positionTitle: '',
-	positionLevelId: 0,
-	organizationId: 0,
+	organizationNameEn: '',
 	responsibilities: '',
 	joinDate: '',
 	resignDate: '',
@@ -81,7 +82,6 @@ function ProfessionalExperienceForm({
 	onClose,
 	onSubmit,
 	initialData,
-	masterData,
 }: ProfessionalExperienceFormProps) {
 	const form = useForm<ProfessionalFormValues>({
 		resolver: zodResolver(professionalInfoSchema),
@@ -94,8 +94,6 @@ function ProfessionalExperienceForm({
 		if (initialData) {
 			form.reset({
 				...initialData,
-				positionLevelId: initialData.positionLevel?.id,
-				organizationId: initialData.organization?.id,
 			});
 		} else {
 			form.reset(defaultValues);
@@ -117,11 +115,18 @@ function ProfessionalExperienceForm({
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent className='max-w-2xl' closeOnOutsideClick={false}>
 				<DialogHeader>
-					<DialogTitle>{initialData ? 'Edit Experience' : 'Add New Experience'}</DialogTitle>
+					<DialogTitle>{initialData ? 'Edit Experience' : 'Add Experience Info'}</DialogTitle>
 				</DialogHeader>
 
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4 pr-1'>
+						<FormInput
+							control={form.control}
+							name='organizationNameEn'
+							label='Organization/Company Name'
+							placeholder='e.g., ABC Ltd.'
+							required
+						/>
 						<FormInput
 							control={form.control}
 							name='positionTitle'
@@ -129,28 +134,6 @@ function ProfessionalExperienceForm({
 							placeholder='e.g., Software Engineer'
 							required
 						/>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-							<FormAutocomplete
-								control={form.control}
-								name='organizationId'
-								label='Organization'
-								placeholder='Select an organization'
-								required
-								options={masterData.organizations}
-								getOptionValue={(option) => option.id!.toString()}
-								getOptionLabel={(option) => option.nameEn}
-							/>
-							<FormAutocomplete
-								control={form.control}
-								name='positionLevelId'
-								label='Position Level'
-								placeholder='Select a level'
-								required
-								options={masterData.positionLevels}
-								getOptionValue={(option) => option.id!.toString()}
-								getOptionLabel={(option) => option.nameEn}
-							/>
-						</div>
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
 							<FormDatePicker control={form.control} name='joinDate' label='Join Date' required />
 							<FormDatePicker
@@ -162,18 +145,13 @@ function ProfessionalExperienceForm({
 							/>
 						</div>
 						<FormSwitch control={form.control} name='isCurrent' label='I currently work here' />
-						<FormField
+						<FormTextarea
 							control={form.control}
 							name='responsibilities'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel required>Responsibilities</FormLabel>
-									<FormControl>
-										<Textarea {...field} rows={4} placeholder='Describe your key responsibilities...' />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
+							label='Responsibilities'
+							placeholder='Describe your key responsibilities...'
+							rows={4}
+							maxLength={1000}
 						/>
 						<FormFileUpload
 							control={form.control}
@@ -205,8 +183,8 @@ function ProfessionalExperienceForm({
 							<FormInput control={form.control} name='referenceEmail' label='Reference Email' type='email' />
 							<FormInput control={form.control} name='referencePhone' label='Reference Phone' />
 						</div>
-						<DialogFooter className='pt-4 sticky bottom-0 bg-background pb-2'>
-							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
+						<DialogFooter className='pt-4 pb-2'>
+							<Button type='button' variant='outline' onClick={onClose} disabled={isSubmitting}>
 								Cancel
 							</Button>
 							<Button type='submit' disabled={isSubmitting}>
@@ -221,12 +199,7 @@ function ProfessionalExperienceForm({
 	);
 }
 
-interface ProfileFormProps {
-	masterData: ProfessionalExperienceMasterData;
-}
-
-export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
-	const { toast } = useToast();
+export function ProfileFormProfessional() {
 	const [history, setHistory] = React.useState<ProfessionalInfo[]>([]);
 	const [editingItem, setEditingItem] = React.useState<ProfessionalInfo | undefined>(undefined);
 	const [isFormOpen, setIsFormOpen] = React.useState(false);
@@ -238,15 +211,13 @@ export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
 			const response = await JobseekerProfileService.experience.get();
 			setHistory(response.body);
 		} catch (error) {
-			toast({
-				title: 'Error',
+			toast.error({
 				description: 'Failed to load professional experience.',
-				variant: 'danger',
 			});
 		} finally {
 			setIsLoading(false);
 		}
-	}, [toast]);
+	}, []);
 
 	React.useEffect(() => {
 		loadExperience();
@@ -257,33 +228,28 @@ export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
 			const payload: any = { ...data, id: editingItem?.id };
 			const formData = makeFormData(payload);
 			const response = await JobseekerProfileService.experience.save(formData);
-			toast({ description: response.message, variant: 'success' });
+			toast.success({ description: response.message });
 			loadExperience();
 			return true;
 		} catch (error: any) {
-			toast({
-				title: 'Error',
+			toast.error({
 				description: error?.message || 'Failed to save experience.',
-				variant: 'danger',
 			});
 			return false;
 		}
 	};
 
-	const handleRemove = async (id: string | number) => {
+	const handleRemove = async (id: string) => {
 		try {
 			await JobseekerProfileService.experience.delete(id);
-			toast({
+			toast.success({
 				title: 'Entry Deleted',
 				description: 'The professional record has been removed.',
-				variant: 'success',
 			});
 			loadExperience();
 		} catch (error: any) {
-			toast({
-				title: 'Error',
+			toast.error({
 				description: error.message || 'Failed to delete experience.',
-				variant: 'danger',
 			});
 		}
 	};
@@ -310,9 +276,7 @@ export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
 			<Card key={item.id} className='p-4 flex justify-between items-start'>
 				<div>
 					<p className='font-semibold'>{item.positionTitle}</p>
-					<p className='text-sm text-muted-foreground'>
-						{item.organization?.nameEn} &middot; {item.positionLevel?.nameEn}
-					</p>
+					<p className='text-sm text-muted-foreground'>{item.organizationNameEn}</p>
 					<p className='text-xs text-muted-foreground'>
 						{joinDate} - {resignDate}
 					</p>
@@ -375,7 +339,6 @@ export function ProfileFormProfessional({ masterData }: ProfileFormProps) {
 					onClose={handleCloseForm}
 					onSubmit={handleFormSubmit}
 					initialData={editingItem}
-					masterData={masterData}
 				/>
 			)}
 		</div>

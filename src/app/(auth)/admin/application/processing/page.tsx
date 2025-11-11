@@ -1,5 +1,5 @@
 import { RequestedPostsList } from '@/components/app/admin/application/requested-posts-list';
-import { JobRequestStatus } from '@/interfaces/job.interface';
+import { JobRequestedPostStatus } from '@/interfaces/job.interface';
 
 export default function ProcessingApplicationsPage() {
 	return (
@@ -10,7 +10,7 @@ export default function ProcessingApplicationsPage() {
 					<p className='text-muted-foreground'>Manage all application processes that are in progress.</p>
 				</div>
 			</div>
-			<RequestedPostsList status={JobRequestStatus.PROCESSING} />
+			<RequestedPostsList status={JobRequestedPostStatus.PROCESSING} />
 		</div>
 	);
 }
