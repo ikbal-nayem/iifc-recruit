@@ -1,6 +1,7 @@
 
 import { AdminDashboardCards, AdminDashboardCardsSkeleton } from '@/components/app/admin/dashboard/dashboard-cards';
 import { AdminDashboardCharts, AdminDashboardChartsSkeleton } from '@/components/app/admin/dashboard/dashboard-charts';
+import { JobRequestedPostStatus, JobRequestStatus } from '@/interfaces/job.interface';
 import { StatisticsService } from '@/services/api/statistics.service';
 import { Suspense } from 'react';
 
@@ -29,9 +30,8 @@ async function getDashboardData() {
 		const jobRequestStats = jobRequestStatsRes.status === 'fulfilled' ? jobRequestStatsRes.value.body : [];
 
 		const totalJobRequests = jobRequestStats.reduce((acc: number, stat: any) => acc + stat.count, 0);
-		const completedJobRequests = getCountFromStats(jobRequestStatsRes, 'COMPLETED');
-		const processingApplications = getCountFromStats(jobRequestPostStatsRes, 'PROCESSING');
-		const totalJobseekers = getSingleCount(jobseekerCountRes);
+		const completedJobRequests = getCountFromStats(jobRequestStatsRes, JobRequestStatus.COMPLETED);
+		const processingApplications = getCountFromStats(jobRequestPostStatsRes, JobRequestedPostStatus.PROCESSING);
 
 		const jobRequestStatusChartData =
 			jobRequestStatsRes.status === 'fulfilled'
@@ -60,7 +60,7 @@ async function getDashboardData() {
 				totalJobRequests,
 				completedJobRequests,
 				processingApplications,
-				totalJobseekers,
+				totalJobseekers: getSingleCount(jobseekerCountRes),
 			},
 			charts: {
 				jobRequestStatusData: jobRequestStatusChartData,
