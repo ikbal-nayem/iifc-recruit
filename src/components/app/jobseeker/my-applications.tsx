@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -20,6 +19,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { FormSelect } from '@/components/ui/form-select';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ROUTES } from '@/constants/routes.constant';
 import { toast } from '@/hooks/use-toast';
 import { Application } from '@/interfaces/application.interface';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
@@ -95,7 +95,7 @@ export function MyApplications({ initialStatusFilter = 'all' }: MyApplicationsPr
 				const application = row.original;
 				return (
 					<Link
-						href={`/jobseeker/jobs/${application.requestedPostId}`}
+						href={ROUTES.JOB_SEEKER.JOB_DETAILS(application.requestedPostId)}
 						className='font-medium text-primary hover:underline'
 					>
 						{application.requestedPost?.post?.nameEn}
@@ -153,7 +153,7 @@ export function MyApplications({ initialStatusFilter = 'all' }: MyApplicationsPr
 		<Card key={application.id} className='mb-4 glassmorphism'>
 			<div className='p-4 space-y-2'>
 				<Link
-					href={`/jobseeker/jobs/${application.requestedPostId}`}
+					href={ROUTES.JOB_SEEKER.JOB_DETAILS(application.requestedPostId)}
 					className='font-semibold text-lg text-primary hover:underline'
 				>
 					{application.requestedPost?.post?.nameEn}
