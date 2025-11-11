@@ -6,8 +6,7 @@ import { Suspense } from 'react';
 
 async function getDashboardData() {
 	try {
-		const [orgStatsRes, jobseekerCountRes, jobRequestStatsRes, jobRequestPostStatsRes] = await Promise.allSettled([
-			StatisticsService.getClientOrganizationStats(),
+		const [jobseekerCountRes, jobRequestStatsRes, jobRequestPostStatsRes] = await Promise.allSettled([
 			StatisticsService.getJobseekerStats(),
 			StatisticsService.getJobRequestStats(),
 			StatisticsService.getJobRequestPostStats(),
@@ -27,18 +26,12 @@ async function getDashboardData() {
 			return 0;
 		};
 
-		const getOrgCount = (res: PromiseSettledResult<any>, key: string) => {
-			if (res.status === 'fulfilled' && res.value.body) {
-				return res.value.body[key] || 0;
-			}
-			return 0;
-		};
+		const jobRequestStats = jobRequestStatsRes.status === 'fulfilled' ? jobRequestStatsRes.value.body : [];
 
-		const pendingJobRequests = getCountFromStats(jobRequestStatsRes, 'PENDING');
+		const totalJobRequests = jobRequestStats.reduce((acc: number, stat: any) => acc + stat.count, 0);
+		const completedJobRequests = getCountFromStats(jobRequestStatsRes, 'COMPLETED');
 		const processingApplications = getCountFromStats(jobRequestPostStatsRes, 'PROCESSING');
 		const totalJobseekers = getSingleCount(jobseekerCountRes);
-		const clientOrganizations = getOrgCount(orgStatsRes, 'clientCount');
-		const examinerOrganizations = getOrgCount(orgStatsRes, 'examinerCount');
 
 		const jobRequestStatusChartData =
 			jobRequestStatsRes.status === 'fulfilled'
@@ -64,11 +57,10 @@ async function getDashboardData() {
 
 		return {
 			cards: {
-				pendingJobRequests,
+				totalJobRequests,
+				completedJobRequests,
 				processingApplications,
 				totalJobseekers,
-				clientOrganizations,
-				examinerOrganizations,
 			},
 			charts: {
 				jobRequestStatusData: jobRequestStatusChartData,
@@ -80,11 +72,10 @@ async function getDashboardData() {
 		// Return zeroed-out data on error
 		return {
 			cards: {
-				pendingJobRequests: 0,
+				totalJobRequests: 0,
+				completedJobRequests: 0,
 				processingApplications: 0,
 				totalJobseekers: 0,
-				clientOrganizations: 0,
-				examinerOrganizations: 0,
 			},
 			charts: {
 				jobRequestStatusData: [],

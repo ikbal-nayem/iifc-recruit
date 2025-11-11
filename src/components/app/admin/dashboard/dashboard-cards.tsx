@@ -4,35 +4,35 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTES } from '@/constants/routes.constant';
-import { Briefcase, Building, FileText, Handshake, Users } from 'lucide-react';
+import { Briefcase, CheckCircle, FileText, Users } from 'lucide-react';
 import Link from 'next/link';
 
 interface AdminDashboardCardsProps {
 	data: {
-		pendingJobRequests: number;
+		totalJobRequests: number;
+		completedJobRequests: number;
 		processingApplications: number;
 		totalJobseekers: number;
-		clientOrganizations: number;
-		examinerOrganizations: number;
 	};
 }
 
 export function AdminDashboardCards({ data }: AdminDashboardCardsProps) {
-	const {
-		pendingJobRequests,
-		processingApplications,
-		totalJobseekers,
-		clientOrganizations,
-		examinerOrganizations,
-	} = data;
+	const { totalJobRequests, completedJobRequests, processingApplications, totalJobseekers } = data;
 
 	const cardItems = [
 		{
-			href: ROUTES.JOB_REQUEST_PENDING,
-			title: 'Pending Job Requests',
-			value: pendingJobRequests,
-			description: 'Awaiting your review',
+			href: ROUTES.JOB_REQUESTS,
+			title: 'Total Job Requests',
+			value: totalJobRequests,
+			description: 'All requests received',
 			icon: <FileText className='h-4 w-4 text-muted-foreground' />,
+		},
+		{
+			href: ROUTES.JOB_REQUEST_COMPLETED,
+			title: 'Completed Requests',
+			value: completedJobRequests,
+			description: 'Successfully fulfilled',
+			icon: <CheckCircle className='h-4 w-4 text-muted-foreground' />,
 		},
 		{
 			href: ROUTES.APPLICATION_PROCESSING,
@@ -48,24 +48,10 @@ export function AdminDashboardCards({ data }: AdminDashboardCardsProps) {
 			description: 'In the talent pool',
 			icon: <Users className='h-4 w-4 text-muted-foreground' />,
 		},
-		{
-			href: `${ROUTES.CLIENT_ORGANIZATIONS}?isClient=true`,
-			title: 'Client',
-			value: clientOrganizations,
-			description: 'Partners you are hiring for',
-			icon: <Handshake className='h-4 w-4 text-muted-foreground' />,
-		},
-		{
-			href: `${ROUTES.CLIENT_ORGANIZATIONS}?isExaminer=true`,
-			title: 'Examiner',
-			value: examinerOrganizations,
-			description: 'Organizations conducting exams',
-			icon: <Building className='h-4 w-4 text-muted-foreground' />,
-		},
 	];
 
 	return (
-		<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5'>
+		<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
 			{cardItems.map((item) => (
 				<Link key={item.title} href={item.href}>
 					<Card className='glassmorphism card-hover'>
@@ -86,8 +72,8 @@ export function AdminDashboardCards({ data }: AdminDashboardCardsProps) {
 
 export function AdminDashboardCardsSkeleton() {
 	return (
-		<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5'>
-			{[...Array(5)].map((_, i) => (
+		<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
+			{[...Array(4)].map((_, i) => (
 				<Card key={i}>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 						<Skeleton className='h-4 w-24' />
