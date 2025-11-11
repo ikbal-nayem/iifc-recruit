@@ -29,8 +29,6 @@ async function getDashboardData() {
 			return 0;
 		};
 
-		const jobRequestStats = jobRequestStatsRes.status === 'fulfilled' ? jobRequestStatsRes.value.body : [];
-
 		const processingJobRequests = getCountFromStats(jobRequestStatsRes, JobRequestStatus.PROCESSING);
 		const totalJobseekers = getSingleCount(jobseekerCountRes);
 

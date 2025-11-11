@@ -131,7 +131,7 @@ export const adminNavLinks: NavLink[] = [
 	{
 		href: '#',
 		label: 'Separator',
-		icon: Users, // Icon is not used, but required by type
+		icon: Users,
 		separator: true,
 	},
 	{
