@@ -346,7 +346,6 @@ export default function ProfileFormCertifications() {
 					onSubmit={handleFormSubmit}
 					initialData={editingItem}
 					noun='Certification'
-					certificationTypes={[]}
 				/>
 			)}
 			<ConfirmationDialog
