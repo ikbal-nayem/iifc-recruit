@@ -23,10 +23,6 @@ export default function AuthFormsLayout({ children }: { children: React.ReactNod
 		}
 	}, [isLoading, isAuthenticated, currectUser, router]);
 
-	if (isLoading || isAuthenticated) {
-		return <PageLoader />;
-	}
-
 	return (
 		<div className='w-full min-h-[calc(100vh-5rem)] grid grid-cols-1 lg:grid-cols-2'>
 			<div className='hidden lg:flex flex-col items-center justify-center p-12 bg-muted/50 relative overflow-hidden'>
@@ -48,7 +44,7 @@ export default function AuthFormsLayout({ children }: { children: React.ReactNod
 				</div>
 			</div>
 			<main className='flex flex-col items-center justify-center p-4 bg-background'>
-				<div className='w-full max-w-sm'>{children}</div>
+				{isLoading || isAuthenticated ? <PageLoader /> : <div className='w-full max-w-sm'>{children}</div>}
 			</main>
 		</div>
 	);

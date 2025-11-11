@@ -2,6 +2,7 @@ import { JobApplicationClient } from '@/components/app/jobseeker/job-application
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ROUTES } from '@/constants/routes.constant';
 import { IObject } from '@/interfaces/common.interface';
 import { ICircular } from '@/interfaces/job.interface';
 import { CircularService } from '@/services/api/circular.service';
@@ -33,11 +34,12 @@ export default async function JobDetailsPage({
 	const job = await getJobDetails(aParams.id);
 
 	if (!job) {
+		console.log('No job found with the id', aParams?.id)
 		notFound();
 	}
 
 	const queryParams = new URLSearchParams(aSearchParams);
-	const backUrl = `/jobseeker/find-job?${queryParams.toString()}`;
+	const backUrl = ROUTES.JOB_SEEKER.FIND_JOBS + `?${queryParams.toString()}`;
 
 	const deadline = parseISO(job.circularEndDate);
 	const today = new Date();

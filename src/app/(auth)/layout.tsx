@@ -4,6 +4,7 @@ import Header from '@/components/app/header';
 import SidebarNav from '@/components/app/sidebar-nav';
 import { Sidebar, SidebarInset } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ROLES } from '@/constants/auth.constant';
 import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/contexts/auth-context';
 import { usePathname, useRouter } from 'next/navigation';
@@ -22,7 +23,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 				return;
 			}
 
-			const isJobseeker = currectUser.userType === 'JOB_SEEKER';
+			const isJobseeker = currectUser.roles.includes(ROLES.JOB_SEEKER);
 			const isAdminPath = pathname.startsWith('/admin');
 			const isJobseekerPath = pathname.startsWith('/jobseeker');
 
