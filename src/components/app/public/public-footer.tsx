@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { COMMON_URL } from '@/constants/common.constant';
 import { Facebook, Linkedin } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -10,7 +11,7 @@ export default function PublicFooter() {
 				<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
 					<div className='lg:col-span-1'>
 						<Link href='/' className='flex items-center gap-3 font-headline text-2xl font-bold mb-4'>
-							<Image src='/iifc-logo.png' alt='IIFC Logo' width={40} height={40} className='h-10 w-auto' />
+							<Image src={COMMON_URL.SITE_LOGO} alt='IIFC Logo' width={40} height={40} className='h-10 w-auto' />
 							<span>IIFC Jobs</span>
 						</Link>
 						<p className='text-muted-foreground text-sm mb-4'>

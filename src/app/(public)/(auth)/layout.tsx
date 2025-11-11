@@ -1,9 +1,10 @@
 'use client';
 
 import { PageLoader } from '@/components/ui/page-loader';
+import { ROLES } from '@/constants/auth.constant';
+import { COMMON_URL } from '@/constants/common.constant';
 import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/contexts/auth-context';
-import { UserType } from '@/interfaces/auth.interface';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
@@ -14,7 +15,7 @@ export default function AuthFormsLayout({ children }: { children: React.ReactNod
 
 	React.useEffect(() => {
 		if (!isLoading && isAuthenticated) {
-			if (currectUser?.userType === UserType.JOB_SEEKER) {
+			if (currectUser?.roles?.includes(ROLES.JOB_SEEKER)) {
 				router.replace(ROUTES.DASHBOARD.JOB_SEEKER);
 			} else {
 				router.replace(ROUTES.DASHBOARD.ADMIN);
@@ -37,7 +38,7 @@ export default function AuthFormsLayout({ children }: { children: React.ReactNod
 				</div>
 				<div className='relative text-center p-10 rounded-lg bg-white/30 backdrop-blur-sm'>
 					<Image
-						src='/iifc-logo.png'
+						src={COMMON_URL.SITE_LOGO}
 						alt='IIFC Logo'
 						width={80}
 						height={80}
