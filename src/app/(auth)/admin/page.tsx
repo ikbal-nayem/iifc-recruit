@@ -53,62 +53,36 @@ async function getDashboardData() {
 			}))
 			: [];
 		
-		const useMockData =
-			pendingJobRequests === 0 &&
-			processingApplications === 0 &&
-			totalJobseekers === 0 &&
-			clientOrganizations === 0 &&
-			examinerOrganizations === 0 &&
-			requestStatusData.length === 0;
-
 		return {
 			cards: {
-				pendingJobRequests: useMockData ? 12 : pendingJobRequests,
-				processingApplications: useMockData ? 8 : processingApplications,
-				totalJobseekers: useMockData ? 150 : totalJobseekers,
-				clientOrganizations: useMockData ? 25 : clientOrganizations,
-				examinerOrganizations: useMockData ? 10 : examinerOrganizations,
+				pendingJobRequests,
+				processingApplications,
+				totalJobseekers,
+				clientOrganizations,
+				examinerOrganizations,
 			},
 			charts: {
-				requestStatusData: useMockData
-					? [
-							{ name: 'Pending', value: 12, fill: 'hsl(var(--chart-1))' },
-							{ name: 'Processing', value: 8, fill: 'hsl(var(--chart-2))' },
-							{ name: 'Completed', value: 34, fill: 'hsl(var(--chart-3))' },
-					  ]
-					: requestStatusData,
-				organizationTypeData: useMockData
-					? [
-							{ name: 'Clients', value: 25 },
-							{ name: 'Examiners', value: 10 },
-					  ]
-					: [
-							{ name: 'Clients', value: clientOrganizations },
-							{ name: 'Examiners', value: examinerOrganizations },
+				requestStatusData,
+				organizationTypeData: [
+						{ name: 'Clients', value: clientOrganizations },
+						{ name: 'Examiners', value: examinerOrganizations },
 					  ],
 			},
 		};
 	} catch (error) {
 		console.error('Failed to load dashboard data:', error);
-		// Return mock data on error as well
+		// Return zeroed-out data on error
 		return {
 			cards: {
-				pendingJobRequests: 12,
-				processingApplications: 8,
-				totalJobseekers: 150,
-				clientOrganizations: 25,
-				examinerOrganizations: 10,
+				pendingJobRequests: 0,
+				processingApplications: 0,
+				totalJobseekers: 0,
+				clientOrganizations: 0,
+				examinerOrganizations: 0,
 			},
 			charts: {
-				requestStatusData: [
-					{ name: 'Pending', value: 12, fill: 'hsl(var(--chart-1))' },
-					{ name: 'Processing', value: 8, fill: 'hsl(var(--chart-2))' },
-					{ name: 'Completed', value: 34, fill: 'hsl(var(--chart-3))' },
-				],
-				organizationTypeData: [
-					{ name: 'Clients', value: 25 },
-					{ name: 'Examiners', value: 10 },
-				],
+				requestStatusData: [],
+				organizationTypeData: [],
 			},
 		};
 	}
