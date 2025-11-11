@@ -1,49 +1,65 @@
 
 import { AdminDashboardCards, AdminDashboardCardsSkeleton } from '@/components/app/admin/dashboard/dashboard-cards';
 import { AdminDashboardCharts, AdminDashboardChartsSkeleton } from '@/components/app/admin/dashboard/dashboard-charts';
-import { JobRequestService } from '@/services/api/job-request.service';
 import { StatisticsService } from '@/services/api/statistics.service';
 import { Suspense } from 'react';
 
 async function getDashboardData() {
 	try {
 		const [
-			pendingRequestsRes,
-			processingPostsRes,
 			orgStatsRes,
 			jobseekerCountRes,
-			completedRequestsRes,
+			jobRequestStatsRes,
+			jobRequestPostStatsRes,
 		] = await Promise.allSettled([
-			JobRequestService.getList({ body: { status: 'PENDING' }, meta: { limit: 1 } }),
-			JobRequestService.getRequestedPosts({ body: { status: 'PROCESSING' }, meta: { limit: 1 } }),
 			StatisticsService.getClientOrganizationStats(),
 			StatisticsService.getJobseekerStats(),
-			JobRequestService.getList({ body: { status: 'COMPLETED' }, meta: { limit: 1 } }),
+			StatisticsService.getJobRequestStats(),
+			StatisticsService.getJobRequestPostStats(),
 		]);
 
-		const getCount = (res: PromiseSettledResult<any>, key?: string) => {
-			if (res.status === 'fulfilled') {
-				if (key && res.value.body) return res.value.body[key] || 0;
-				if (!key && typeof res.value.body === 'number') return res.value.body;
-				if (res.value.meta) return res.value.meta.totalRecords || 0;
+		const getCountFromStats = (res: PromiseSettledResult<any>, key: string) => {
+			if (res.status === 'fulfilled' && Array.isArray(res.value.body)) {
+				return res.value.body.find(stat => stat.statusKey === key)?.count || 0;
 			}
 			return 0;
 		};
 
-		const pendingJobRequests = getCount(pendingRequestsRes);
-		const processingApplications = getCount(processingPostsRes);
-		const totalJobseekers = getCount(jobseekerCountRes);
-		const clientOrganizations = getCount(orgStatsRes, 'clientCount');
-		const examinerOrganizations = getCount(orgStatsRes, 'examinerCount');
-		const completedJobRequests = getCount(completedRequestsRes);
+		const getSingleCount = (res: PromiseSettledResult<any>) => {
+			if (res.status === 'fulfilled' && typeof res.value.body === 'number') {
+				return res.value.body;
+			}
+			return 0;
+		};
 
+		const getOrgCount = (res: PromiseSettledResult<any>, key: string) => {
+			if (res.status === 'fulfilled' && res.value.body) {
+				return res.value.body[key] || 0;
+			}
+			return 0;
+		}
+
+		const pendingJobRequests = getCountFromStats(jobRequestStatsRes, 'PENDING');
+		const processingApplications = getCountFromStats(jobRequestPostStatsRes, 'PROCESSING');
+		const totalJobseekers = getSingleCount(jobseekerCountRes);
+		const clientOrganizations = getOrgCount(orgStatsRes, 'clientCount');
+		const examinerOrganizations = getOrgCount(orgStatsRes, 'examinerCount');
+		
+		const requestStatusData = jobRequestPostStatsRes.status === 'fulfilled' 
+			? jobRequestPostStatsRes.value.body.map((stat: any) => ({
+				name: stat.statusDTO.nameEn,
+				value: stat.count,
+				fill: `hsl(var(--chart-${Object.keys(jobRequestPostStatsRes.value.body).indexOf(stat.statusKey) + 1}))` // Example fill
+			}))
+			: [];
+		
 		const useMockData =
 			pendingJobRequests === 0 &&
 			processingApplications === 0 &&
 			totalJobseekers === 0 &&
 			clientOrganizations === 0 &&
 			examinerOrganizations === 0 &&
-			completedJobRequests === 0;
+			requestStatusData.length === 0;
 
 		return {
 			cards: {
@@ -56,15 +72,11 @@ async function getDashboardData() {
 			charts: {
 				requestStatusData: useMockData
 					? [
-							{ name: 'Pending', value: 12, fill: 'hsl(var(--warning))' },
-							{ name: 'Processing', value: 8, fill: 'hsl(var(--info))' },
-							{ name: 'Completed', value: 34, fill: 'hsl(var(--success))' },
+							{ name: 'Pending', value: 12, fill: 'hsl(var(--chart-1))' },
+							{ name: 'Processing', value: 8, fill: 'hsl(var(--chart-2))' },
+							{ name: 'Completed', value: 34, fill: 'hsl(var(--chart-3))' },
 					  ]
-					: [
-							{ name: 'Pending', value: pendingJobRequests, fill: 'hsl(var(--warning))' },
-							{ name: 'Processing', value: processingApplications, fill: 'hsl(var(--info))' },
-							{ name: 'Completed', value: completedJobRequests, fill: 'hsl(var(--success))' },
-					  ],
+					: requestStatusData,
 				organizationTypeData: useMockData
 					? [
 							{ name: 'Clients', value: 25 },
@@ -89,9 +101,9 @@ async function getDashboardData() {
 			},
 			charts: {
 				requestStatusData: [
-					{ name: 'Pending', value: 12, fill: 'hsl(var(--warning))' },
-					{ name: 'Processing', value: 8, fill: 'hsl(var(--info))' },
-					{ name: 'Completed', value: 34, fill: 'hsl(var(--success))' },
+					{ name: 'Pending', value: 12, fill: 'hsl(var(--chart-1))' },
+					{ name: 'Processing', value: 8, fill: 'hsl(var(--chart-2))' },
+					{ name: 'Completed', value: 34, fill: 'hsl(var(--chart-3))' },
 				],
 				organizationTypeData: [
 					{ name: 'Clients', value: 25 },

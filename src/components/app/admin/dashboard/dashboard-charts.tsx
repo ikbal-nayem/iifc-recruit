@@ -9,19 +9,27 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const requestChartConfig = {
 	value: {
-		label: 'Requests',
+		label: 'Posts',
 	},
 	Pending: {
 		label: 'Pending',
-		color: 'hsl(var(--warning))',
+		color: 'hsl(var(--chart-1))',
+	},
+	'Circular Published': {
+		label: 'Published',
+		color: 'hsl(var(--chart-2))',
 	},
 	Processing: {
 		label: 'Processing',
-		color: 'hsl(var(--info))',
+		color: 'hsl(var(--chart-3))',
+	},
+	Shortlisted: {
+		label: 'Shortlisted',
+		color: 'hsl(var(--chart-4))',
 	},
 	Completed: {
 		label: 'Completed',
-		color: 'hsl(var(--success))',
+		color: 'hsl(var(--chart-5))',
 	},
 } satisfies ChartConfig;
 
@@ -47,12 +55,14 @@ interface AdminDashboardChartsProps {
 }
 
 export function AdminDashboardCharts({ data }: AdminDashboardChartsProps) {
+	const chartData = data.requestStatusData;
+
 	return (
 		<div className='grid grid-cols-1 lg:grid-cols-5 gap-6'>
 			<Card className='lg:col-span-2 glassmorphism'>
 				<CardHeader>
-					<CardTitle>Job Request Ratio</CardTitle>
-					<CardDescription>Distribution of job requests by their current status.</CardDescription>
+					<CardTitle>Requested Post Status Ratio</CardTitle>
+					<CardDescription>Distribution of requested posts by their current status.</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<ChartContainer
@@ -62,14 +72,14 @@ export function AdminDashboardCharts({ data }: AdminDashboardChartsProps) {
 						<PieChart>
 							<Tooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
 							<Pie
-								data={data.requestStatusData}
+								data={chartData}
 								dataKey='value'
 								nameKey='name'
 								innerRadius={60}
 								strokeWidth={5}
 							>
-								{data.requestStatusData.map((entry) => (
-									<Cell key={entry.name} fill={entry.fill} />
+								{chartData.map((entry) => (
+									<Cell key={`cell-${entry.name}`} fill={entry.fill} />
 								))}
 							</Pie>
 						</PieChart>
