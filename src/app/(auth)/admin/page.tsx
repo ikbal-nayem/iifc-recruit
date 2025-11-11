@@ -6,12 +6,7 @@ import { Suspense } from 'react';
 
 async function getDashboardData() {
 	try {
-		const [
-			orgStatsRes,
-			jobseekerCountRes,
-			jobRequestStatsRes,
-			jobRequestPostStatsRes,
-		] = await Promise.allSettled([
+		const [orgStatsRes, jobseekerCountRes, jobRequestStatsRes, jobRequestPostStatsRes] = await Promise.allSettled([
 			StatisticsService.getClientOrganizationStats(),
 			StatisticsService.getJobseekerStats(),
 			StatisticsService.getJobRequestStats(),
@@ -20,7 +15,7 @@ async function getDashboardData() {
 
 		const getCountFromStats = (res: PromiseSettledResult<any>, key: string) => {
 			if (res.status === 'fulfilled' && Array.isArray(res.value.body)) {
-				return res.value.body.find(stat => stat.statusKey === key)?.count || 0;
+				return res.value.body.find((stat) => stat.statusKey === key)?.count || 0;
 			}
 			return 0;
 		};
@@ -37,22 +32,36 @@ async function getDashboardData() {
 				return res.value.body[key] || 0;
 			}
 			return 0;
-		}
+		};
 
 		const pendingJobRequests = getCountFromStats(jobRequestStatsRes, 'PENDING');
 		const processingApplications = getCountFromStats(jobRequestPostStatsRes, 'PROCESSING');
 		const totalJobseekers = getSingleCount(jobseekerCountRes);
 		const clientOrganizations = getOrgCount(orgStatsRes, 'clientCount');
 		const examinerOrganizations = getOrgCount(orgStatsRes, 'examinerCount');
-		
-		const requestStatusData = jobRequestPostStatsRes.status === 'fulfilled' 
-			? jobRequestPostStatsRes.value.body.map((stat: any) => ({
-				name: stat.statusDTO.nameEn,
-				value: stat.count,
-				fill: `hsl(var(--chart-${Object.keys(jobRequestPostStatsRes.value.body).indexOf(stat.statusKey) + 1}))` // Example fill
-			}))
-			: [];
-		
+
+		const jobRequestStatusChartData =
+			jobRequestStatsRes.status === 'fulfilled'
+				? jobRequestStatsRes.value.body.map((stat: any) => ({
+						name: stat.statusDTO.nameEn,
+						value: stat.count,
+						fill: `hsl(var(--chart-${
+							Object.keys(jobRequestStatsRes.value.body).indexOf(stat.statusKey) + 1
+						}))`,
+				  }))
+				: [];
+
+		const postStatusChartData =
+			jobRequestPostStatsRes.status === 'fulfilled'
+				? jobRequestPostStatsRes.value.body.map((stat: any) => ({
+						name: stat.statusDTO.nameEn,
+						value: stat.count,
+						fill: `hsl(var(--chart-${
+							Object.keys(jobRequestPostStatsRes.value.body).indexOf(stat.statusKey) + 1
+						}))`,
+				  }))
+				: [];
+
 		return {
 			cards: {
 				pendingJobRequests,
@@ -62,11 +71,8 @@ async function getDashboardData() {
 				examinerOrganizations,
 			},
 			charts: {
-				requestStatusData,
-				organizationTypeData: [
-						{ name: 'Clients', value: clientOrganizations },
-						{ name: 'Examiners', value: examinerOrganizations },
-					  ],
+				jobRequestStatusData: jobRequestStatusChartData,
+				postStatusData: postStatusChartData,
 			},
 		};
 	} catch (error) {
@@ -81,8 +87,8 @@ async function getDashboardData() {
 				examinerOrganizations: 0,
 			},
 			charts: {
-				requestStatusData: [],
-				organizationTypeData: [],
+				jobRequestStatusData: [],
+				postStatusData: [],
 			},
 		};
 	}

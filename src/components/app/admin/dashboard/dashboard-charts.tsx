@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ChartConfig, ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const requestChartConfig = {
+const postStatusChartConfig = {
 	value: {
 		label: 'Posts',
 	},
@@ -33,30 +33,32 @@ const requestChartConfig = {
 	},
 } satisfies ChartConfig;
 
-const organizationChartConfig = {
+const jobRequestChartConfig = {
 	value: {
-		label: 'Organizations',
+		label: 'Requests',
 	},
-	Clients: {
-		label: 'Clients',
+	Pending: {
+		label: 'Pending',
 		color: 'hsl(var(--chart-1))',
 	},
-	Examiners: {
-		label: 'Examiners',
+	Processing: {
+		label: 'Processing',
 		color: 'hsl(var(--chart-2))',
+	},
+	Completed: {
+		label: 'Completed',
+		color: 'hsl(var(--chart-3))',
 	},
 } satisfies ChartConfig;
 
 interface AdminDashboardChartsProps {
 	data: {
-		requestStatusData: any[];
-		organizationTypeData: any[];
+		postStatusData: any[];
+		jobRequestStatusData: any[];
 	};
 }
 
 export function AdminDashboardCharts({ data }: AdminDashboardChartsProps) {
-	const chartData = data.requestStatusData;
-
 	return (
 		<div className='grid grid-cols-1 lg:grid-cols-5 gap-6'>
 			<Card className='lg:col-span-2 glassmorphism'>
@@ -66,19 +68,19 @@ export function AdminDashboardCharts({ data }: AdminDashboardChartsProps) {
 				</CardHeader>
 				<CardContent>
 					<ChartContainer
-						config={requestChartConfig}
+						config={postStatusChartConfig}
 						className='mx-auto aspect-square h-[250px]'
 					>
 						<PieChart>
 							<Tooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
 							<Pie
-								data={chartData}
+								data={data.postStatusData}
 								dataKey='value'
 								nameKey='name'
 								innerRadius={60}
 								strokeWidth={5}
 							>
-								{chartData.map((entry) => (
+								{data.postStatusData.map((entry) => (
 									<Cell key={`cell-${entry.name}`} fill={entry.fill} />
 								))}
 							</Pie>
@@ -89,14 +91,14 @@ export function AdminDashboardCharts({ data }: AdminDashboardChartsProps) {
 
 			<Card className='col-span-full lg:col-span-3 glassmorphism'>
 				<CardHeader>
-					<CardTitle>Organization Types</CardTitle>
-					<CardDescription>Breakdown of client and examiner organizations.</CardDescription>
+					<CardTitle>Job Requests by Status</CardTitle>
+					<CardDescription>Breakdown of all job requests.</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<ChartContainer config={organizationChartConfig} className='h-[250px] w-full'>
+					<ChartContainer config={jobRequestChartConfig} className='h-[250px] w-full'>
 						<BarChart
 							accessibilityLayer
-							data={data.organizationTypeData}
+							data={data.jobRequestStatusData}
 							layout='vertical'
 							margin={{
 								left: 10,
@@ -109,15 +111,15 @@ export function AdminDashboardCharts({ data }: AdminDashboardChartsProps) {
 								tickLine={false}
 								tickMargin={10}
 								axisLine={false}
-								tickFormatter={(value) => organizationChartConfig[value as keyof typeof organizationChartConfig]?.label || value}
+								tickFormatter={(value) => jobRequestChartConfig[value as keyof typeof jobRequestChartConfig]?.label || value}
 							/>
 							<XAxis dataKey='value' type='number' hide />
 							<Tooltip cursor={false} content={<ChartTooltipContent indicator='line' />} />
 							<Bar dataKey='value' layout='vertical' radius={5} barSize={30}>
-								{data.organizationTypeData.map((entry) => (
+								{data.jobRequestStatusData.map((entry) => (
 									<Cell
 										key={entry.name}
-										fill={organizationChartConfig[entry.name as keyof typeof organizationChartConfig]?.color}
+										fill={entry.fill}
 									/>
 								))}
 							</Bar>
