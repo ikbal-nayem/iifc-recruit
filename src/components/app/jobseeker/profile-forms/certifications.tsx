@@ -18,6 +18,7 @@ import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makeFormData } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
+import { getCertificationsAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO } from 'date-fns';
 import { Edit, FileText, Loader2, PlusCircle, Trash } from 'lucide-react';
@@ -80,17 +81,9 @@ interface CertificationFormProps {
 	onSubmit: (data: Certification) => Promise<boolean>;
 	initialData?: Certification;
 	noun: string;
-	certificationTypes: ICommonMasterData[];
 }
 
-function CertificationForm({
-	isOpen,
-	onClose,
-	onSubmit,
-	initialData,
-	noun,
-	certificationTypes,
-}: CertificationFormProps) {
+function CertificationForm({ isOpen, onClose, onSubmit, initialData, noun }: CertificationFormProps) {
 	const { toast } = useToast();
 	const form = useForm<CertificationFormValues>({
 		resolver: zodResolver(certificationSchema),
@@ -153,11 +146,12 @@ function CertificationForm({
 							control={form.control}
 							name='certificationId'
 							label='Certification'
-							placeholder='Select Certification'
-							options={certificationTypes}
-							getOptionValue={(option) => option.id!.toString()}
-							getOptionLabel={(option) => option.nameEn}
+							placeholder='Search for a certification'
+							loadOptions={getCertificationsAsync}
 							onCreate={handleCreateCertification}
+							getOptionValue={(option) => option.id!}
+							getOptionLabel={(option) => option.nameEn}
+							initialLabel={initialData?.certification?.nameEn}
 							disabled={isSubmitting}
 						/>
 						<FormInput
@@ -216,7 +210,7 @@ function CertificationForm({
 	);
 }
 
-export default function ProfileFormCertifications({ certification }: { certification: ICommonMasterData[] }) {
+export default function ProfileFormCertifications() {
 	const { toast } = useToast();
 	const [history, setHistory] = useState<Certification[]>([]);
 	const [editingItem, setEditingItem] = useState<Certification | undefined>(undefined);
@@ -352,7 +346,7 @@ export default function ProfileFormCertifications({ certification }: { certifica
 					onSubmit={handleFormSubmit}
 					initialData={editingItem}
 					noun='Certification'
-					certificationTypes={certification}
+					certificationTypes={[]}
 				/>
 			)}
 			<ConfirmationDialog

@@ -33,3 +33,8 @@ export const getInstitutionsAsync = (
 	initPayload.body = { nameEn: searchKey };
 	MasterDataService.educationInstitution.getList(initPayload).then((resp) => callback(resp?.body || []));
 };
+
+export const getCertificationsAsync = (searchKey: string, callback: (data: ICommonMasterData[]) => void) => {
+	initPayload.body = { nameEn: searchKey };
+	MasterDataService.certification.getList(initPayload).then((resp) => callback(resp?.body || []));
+};
