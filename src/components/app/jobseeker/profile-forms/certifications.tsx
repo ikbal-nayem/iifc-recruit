@@ -164,7 +164,7 @@ function CertificationForm({
 							control={form.control}
 							name='issuingAuthority'
 							label='Issuing Authority'
-							placeholder='e.g., Vercel'
+							placeholder='e.g., Google'
 							required
 							disabled={isSubmitting}
 						/>
