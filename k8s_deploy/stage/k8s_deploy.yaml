@@ -7,7 +7,7 @@ spec:
   selector:
     matchLabels:
       app: $K8S_SERVICE_NAME
-  replicas: 1
+  replicas: 2
   template:
     metadata:
       annotations:
