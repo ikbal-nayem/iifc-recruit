@@ -34,7 +34,6 @@ export default async function JobDetailsPage({
 	const job = await getJobDetails(aParams.id);
 
 	if (!job) {
-		console.log('No job found with the id', aParams?.id)
 		notFound();
 	}
 
