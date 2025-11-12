@@ -19,7 +19,7 @@ import { JobRequestedPostStatus, RequestedPost } from '@/interfaces/job.interfac
 import { getStatusVariant } from '@/lib/color-mapping';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { getExaminerAsync } from '@/services/async-api';
-import { format, isFuture, parseISO } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { Building, Calendar, Edit, Loader2, Pencil, Send, Users } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -134,9 +134,11 @@ export function ApplicationManagementHeader({
 				<Alert variant='info' className='' showIcon={false}>
 					<AlertTitle className='font-bold flex items-center justify-between'>
 						<span className='text-lg'>Circular Information</span>
-						<Button variant='outline-info' size='sm' onClick={() => setShowCircularForm(true)}>
-							<Pencil className='mr-2 h-3 w-3' /> Edit Circular
-						</Button>
+						{!isProcessing && (
+							<Button variant='outline-info' size='sm' onClick={() => setShowCircularForm(true)}>
+								<Pencil className='mr-2 h-3 w-3' /> Edit Circular
+							</Button>
+						)}
 					</AlertTitle>
 					<AlertDescription className='mt-2 grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1'>
 						<div className='flex items-center gap-2'>

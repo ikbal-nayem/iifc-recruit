@@ -14,18 +14,8 @@ import {
 import { getStatusVariant } from '@/lib/color-mapping';
 import { cn } from '@/lib/utils';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { differenceInDays, format, isFuture, parseISO } from 'date-fns';
-import {
-	ArrowLeft,
-	Building,
-	Check,
-	CheckCircle,
-	Edit,
-	FileText,
-	Loader2,
-	Pencil,
-	Users,
-} from 'lucide-react';
+import { differenceInDays, format, parseISO } from 'date-fns';
+import { ArrowLeft, Building, Check, CheckCircle, Edit, FileText, Loader2, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
@@ -82,11 +72,13 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					Back to Requests
 				</Button>
 				<div className='flex gap-2'>
-					<Button asChild variant='outline'>
-						<Link href={ROUTES.JOB_REQUEST.EDIT(request.id)}>
-							<Edit className='mr-2 h-4 w-4' /> Edit Request
-						</Link>
-					</Button>
+					{request.status === JobRequestStatus.PENDING && (
+						<Button asChild variant='outline'>
+							<Link href={ROUTES.JOB_REQUEST.EDIT(request.id)}>
+								<Edit className='mr-2 h-4 w-4' /> Edit Request
+							</Link>
+						</Button>
+					)}
 					{request.status === JobRequestStatus.PROCESSING && (
 						<Button variant='lite-success' onClick={handleMarkAsComplete} disabled={isCompleting}>
 							{isCompleting ? (
@@ -162,9 +154,6 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 				</CardHeader>
 				<CardContent className='space-y-4'>
 					{request.requestedPosts?.map((post, index) => {
-						const isCircularPublished = post.status === JobRequestedPostStatus.CIRCULAR_PUBLISHED;
-						const isCircularEditable =
-							isCircularPublished && post.circularEndDate && isFuture(parseISO(post.circularEndDate));
 						return (
 							<Card key={index} className='p-4 border rounded-lg bg-muted/30 space-y-4'>
 								<div className='flex items-start justify-between'>
@@ -173,17 +162,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 									</div>
 									<div className='flex items-center gap-2 text-right'>
 										<div className='flex flex-col items-end gap-1'>
-											<Badge variant={getStatusVariant(post.status)}>
-												{post.statusDTO?.nameEn}
-												{isCircularEditable && request.status !== JobRequestStatus.PROCESSING && (
-													<Pencil className='ms-1 h-3 w-3 hover:scale-x-110' role='button' />
-												)}
-											</Badge>
-											{isCircularPublished && post.circularEndDate && (
-												<p className='text-xs text-muted-foreground'>
-													Ends: {format(parseISO(post.circularEndDate), 'PPP')}
-												</p>
-											)}
+											<Badge variant={getStatusVariant(post.status)}>{post.statusDTO?.nameEn}</Badge>
 										</div>
 									</div>
 								</div>
