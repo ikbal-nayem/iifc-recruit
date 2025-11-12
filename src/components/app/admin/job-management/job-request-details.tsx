@@ -1,4 +1,3 @@
-
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,13 +10,22 @@ import {
 	JobRequestedPostStatus,
 	JobRequestStatus,
 	JobRequestType,
-	RequestedPost,
 } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { cn } from '@/lib/utils';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { differenceInDays, format, isFuture, parseISO } from 'date-fns';
-import { ArrowLeft, Building, Check, CheckCircle, Edit, FileText, Loader2, Pencil, Users } from 'lucide-react';
+import {
+	ArrowLeft,
+	Building,
+	Check,
+	CheckCircle,
+	Edit,
+	FileText,
+	Loader2,
+	Pencil,
+	Users,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
@@ -84,7 +92,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 							Mark as Complete
 						</Button>
 					)}
-					<Button asChild variant="outline">
+					<Button asChild variant='outline'>
 						<Link href={ROUTES.JOB_REQUEST.EDIT(request.id)}>
 							<Edit className='mr-2 h-4 w-4' /> Edit Request
 						</Link>
@@ -168,10 +176,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 											<Badge variant={getStatusVariant(post.status)}>
 												{post.statusDTO?.nameEn}
 												{isCircularEditable && request.status !== JobRequestStatus.PROCESSING && (
-													<Pencil
-														className='ms-1 h-3 w-3 hover:scale-x-110'
-														role='button'
-													/>
+													<Pencil className='ms-1 h-3 w-3 hover:scale-x-110' role='button' />
 												)}
 											</Badge>
 											{isCircularPublished && post.circularEndDate && (

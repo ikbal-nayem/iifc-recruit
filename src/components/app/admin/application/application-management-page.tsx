@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -14,10 +13,10 @@ import {
 	DialogTrigger,
 } from '@/components/ui/dialog';
 import { ROUTES } from '@/constants/routes.constant';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
-import { JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
+import { RequestedPost } from '@/interfaces/job.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO } from '@/interfaces/master-data.interface';
 import { ApplicationService } from '@/services/api/application.service';
@@ -45,7 +44,6 @@ export function ApplicationManagementPage({
 	isProcessing = false,
 	isShortlisted = false,
 }: ApplicationManagementPageProps) {
-	const { toast } = useToast();
 	const router = useRouter();
 	const [requestedPost, setRequestedPost] = useState<RequestedPost>(initialPost);
 	const [isProceeding, setIsProceeding] = useState(false);
@@ -77,17 +75,15 @@ export function ApplicationManagementPage({
 				setApplicants(response.body);
 				setApplicantsMeta(response.meta);
 			} catch (error: any) {
-				toast({
+				toast.error({
 					description: error.message || 'Failed to load applicants.',
-					variant: 'danger',
 				});
 			} finally {
 				setIsLoadingApplicants(false);
 			}
 		},
-		[requestedPost.id, toast, applicantsMeta.limit, isProcessing, isShortlisted]
+		[requestedPost.id, applicantsMeta.limit, isProcessing, isShortlisted]
 	);
-
 
 	useEffect(() => {
 		loadApplicants(0, statusFilter);
@@ -102,18 +98,16 @@ export function ApplicationManagementPage({
 
 		ApplicationService.createAll(payload)
 			.then((res) => {
-				toast({
+				toast.success({
 					title: 'Candidates Applied',
 					description: `${newApplicants.length} candidate(s) have been added to the application list.`,
-					variant: 'success',
 				});
 				onSuccess && onSuccess();
 				loadApplicants(0);
 			})
 			.catch((err) => {
-				toast({
+				toast.error({
 					description: err.message,
-					variant: 'danger',
 				});
 			});
 	};
@@ -121,17 +115,15 @@ export function ApplicationManagementPage({
 	const handleUpdateApplication = async (updatedApplicants: Application[]) => {
 		try {
 			const resp = await ApplicationService.updateAll(updatedApplicants);
-			toast({
+			toast.success({
 				title: 'Application Updated',
 				description: resp?.message,
-				variant: 'success',
 			});
 			loadApplicants(applicantsMeta.page);
 			return resp;
 		} catch (error: any) {
-			toast({
+			toast.error({
 				description: error.message || 'Failed to update application.',
-				variant: 'danger',
 			});
 		}
 	};
@@ -141,16 +133,6 @@ export function ApplicationManagementPage({
 	};
 
 	const handleProceed = async () => {
-		if (!isProcessing && !isShortlisted && !requestedPost.examinerId) {
-			toast({
-				title: 'Examiner Required',
-				description: 'Please assign an examiner before proceeding.',
-				variant: 'warning',
-			});
-			setIsProceedConfirmationOpen(false);
-			return;
-		}
-
 		setIsProceeding(true);
 		try {
 			let redirectRoute = ROUTES.APPLICATION_PROCESSING;
@@ -160,17 +142,14 @@ export function ApplicationManagementPage({
 			} else {
 				await JobRequestService.proceedToProcess(requestedPost.id!);
 			}
-			toast({
+			toast.success({
 				title: 'Request Processing',
 				description: `The request has been moved to the next stage.`,
-				variant: 'success',
 			});
 			router.push(redirectRoute);
 		} catch (error: any) {
-			toast({
-				title: 'Error',
+			toast.error({
 				description: error.message || 'Failed to proceed to the next stage.',
-				variant: 'danger',
 			});
 		} finally {
 			setIsProceeding(false);
@@ -194,7 +173,9 @@ export function ApplicationManagementPage({
 		if (isProcessing) {
 			return (
 				<>
-					This will finalize the list with <strong>{shortlistedApplicantsCount} shortlisted applicant(s)</strong>. Are you sure you want to proceed?
+					This will finalize the list with{' '}
+					<strong>{shortlistedApplicantsCount} shortlisted applicant(s)</strong>. Are you sure you want to
+					proceed?
 				</>
 			);
 		}
@@ -205,8 +186,8 @@ export function ApplicationManagementPage({
 
 		return (
 			<>
-				You are about to move <strong>{acceptedApplicantsCount} accepted applicant(s)</strong> to the shortlisting stage.
-				Please confirm to proceed.
+				You are about to move <strong>{acceptedApplicantsCount} accepted applicant(s)</strong> to the
+				shortlisting stage. Please confirm to proceed.
 			</>
 		);
 	};
@@ -229,7 +210,7 @@ export function ApplicationManagementPage({
 			description: 'These candidates have applied for the circular post.',
 		};
 	};
-	
+
 	const cardTexts = getCardTexts();
 
 	return (
@@ -314,9 +295,7 @@ export function ApplicationManagementPage({
 			<Dialog open={isProceedConfirmationOpen} onOpenChange={setIsProceedConfirmationOpen}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>
-							{isProcessing ? 'Proceed to Shortlist?' : 'Proceed to Next Stage?'}
-						</DialogTitle>
+						<DialogTitle>{isProcessing ? 'Proceed to Shortlist?' : 'Proceed to Next Stage?'}</DialogTitle>
 						<DialogDescription>{getDialogDescription()}</DialogDescription>
 					</DialogHeader>
 					<div className='space-y-4 py-4'>
@@ -329,8 +308,8 @@ export function ApplicationManagementPage({
 								<Alert variant='warning'>
 									<AlertTitle>Important</AlertTitle>
 									<AlertDescription>
-										Only applicants with the &quot;Accepted&quot; status will be moved to the next stage. Ensure
-										all desired candidates are marked as accepted before proceeding.
+										Only applicants with the &quot;Accepted&quot; status will be moved to the next stage.
+										Ensure all desired candidates are marked as accepted before proceeding.
 									</AlertDescription>
 								</Alert>
 							</>
