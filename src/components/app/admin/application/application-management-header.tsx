@@ -18,8 +18,8 @@ import { JobRequestedPostStatus, RequestedPost } from '@/interfaces/job.interfac
 import { getStatusVariant } from '@/lib/color-mapping';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { getExaminerAsync } from '@/services/async-api';
-import { isFuture, parseISO } from 'date-fns';
-import { Building, Edit, Loader2, Pencil, Send, Users } from 'lucide-react';
+import { format, isFuture, parseISO } from 'date-fns';
+import { Building, Calendar, Edit, Loader2, Pencil, Send, Users } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { CircularPublishForm } from '../job-management/circular-publish-form';
@@ -115,6 +115,13 @@ export function ApplicationManagementHeader({
 								<Users className='h-4 w-4' />
 								{requestedPost.vacancy} Vacancies
 							</span>
+							{isCircularPublished && requestedPost.circularPublishDate && (
+								<span className='flex items-center gap-1.5'>
+									<Calendar className='h-4 w-4' />
+									{format(parseISO(requestedPost.circularPublishDate), 'dd MMM, yy')} -{' '}
+									{format(parseISO(requestedPost.circularEndDate!), 'dd MMM, yy')}
+								</span>
+							)}
 						</CardDescription>
 						<div className='flex items-center gap-2 text-sm'>
 							<span className='text-muted-foreground'>Examiner:</span>
