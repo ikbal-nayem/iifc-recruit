@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -26,9 +27,9 @@ import { IOutsourcingCategory, IPost } from '@/interfaces/master-data.interface'
 import { isBangla, isEnglish } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import * as z from 'zod';
 
 const formSchema = z
 	.object({
@@ -64,13 +65,31 @@ function PostForm({ isOpen, onClose, onSubmit, initialData, categories, noun }: 
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
-		values: {
-			nameEn: initialData?.nameEn || '',
-			nameBn: initialData?.nameBn || '',
-			outsourcing: initialData?.outsourcing || false,
-			outsourcingCategoryId: initialData?.outsourcingCategoryId,
+		defaultValues: {
+			nameEn: '',
+			nameBn: '',
+			outsourcing: false,
+			outsourcingCategoryId: undefined,
 		},
 	});
+
+	useEffect(() => {
+		if (initialData) {
+			form.reset({
+				nameEn: initialData.nameEn,
+				nameBn: initialData.nameBn,
+				outsourcing: initialData.outsourcing,
+				outsourcingCategoryId: initialData.outsourcingCategoryId,
+			});
+		} else {
+			form.reset({
+				nameEn: '',
+				nameBn: '',
+				outsourcing: false,
+				outsourcingCategoryId: undefined,
+			});
+		}
+	}, [initialData, form]);
 
 	const watchOutsourcing = form.watch('outsourcing');
 
@@ -129,6 +148,7 @@ function PostForm({ isOpen, onClose, onSubmit, initialData, categories, noun }: 
 								getOptionValue={(option) => option.id!}
 								getOptionLabel={(option) => option?.nameEn}
 								disabled={isSubmitting}
+								initialLabel={initialData?.outsourcingCategory?.nameEn}
 							/>
 						)}
 						<DialogFooter className='pt-4'>

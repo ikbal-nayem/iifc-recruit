@@ -28,9 +28,9 @@ import {
 } from '@/interfaces/master-data.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import * as z from 'zod';
 
 const formSchema = z.object({
 	categoryId: z.coerce.string().min(1, 'Category is required.'),
@@ -62,12 +62,28 @@ function OutsourcingChargeForm({
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
-		values: {
-			categoryId: initialData?.categoryId!,
-			zoneId: initialData?.zoneId!,
-			monthlyServiceCharge: initialData?.monthlyServiceCharge!,
+		defaultValues: {
+			categoryId: '',
+			zoneId: '',
+			monthlyServiceCharge: undefined,
 		},
 	});
+
+	useEffect(() => {
+		if (initialData) {
+			form.reset({
+				categoryId: initialData.categoryId,
+				zoneId: initialData.zoneId,
+				monthlyServiceCharge: initialData.monthlyServiceCharge,
+			});
+		} else {
+			form.reset({
+				categoryId: '',
+				zoneId: '',
+				monthlyServiceCharge: undefined,
+			});
+		}
+	}, [initialData, form]);
 
 	const handleSubmit = async (data: FormValues) => {
 		setIsSubmitting(true);
@@ -104,6 +120,7 @@ function OutsourcingChargeForm({
 							getOptionValue={(option) => option.id!}
 							getOptionLabel={(option) => option.nameEn}
 							disabled={isSubmitting}
+							initialLabel={initialData?.category?.nameEn}
 						/>
 						<FormAutocomplete
 							control={form.control}
@@ -115,6 +132,7 @@ function OutsourcingChargeForm({
 							getOptionValue={(option) => option.id!}
 							getOptionLabel={(option) => option.nameEn}
 							disabled={isSubmitting}
+							initialLabel={initialData?.zone?.nameEn}
 						/>
 						<FormInput
 							control={form.control}
