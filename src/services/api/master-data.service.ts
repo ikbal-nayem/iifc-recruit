@@ -5,7 +5,6 @@ import {
 	IClientOrganization,
 	ICommonMasterData,
 	IEducationInstitution,
-	IOrganization,
 	IOutsourcingCategory,
 	IOutsourcingCharge,
 	IOutsourcingZone,
@@ -48,15 +47,11 @@ export const MasterDataService = {
 	},
 
 	skill: createMasterDataCrud<ICommonMasterData>('skill'),
-	department: createMasterDataCrud<ICommonMasterData>('department'),
 	language: createMasterDataCrud<ICommonMasterData>('language'),
 	degreeLevel: createMasterDataCrud<ICommonMasterData>('education-degree-level'),
 	educationDomain: createMasterDataCrud<ICommonMasterData>('education-domain'),
-	industryType: createMasterDataCrud<ICommonMasterData>('industry-type'),
 	organizationType: createMasterDataCrud<ICommonMasterData>('organization-type'),
-	positionLevel: createMasterDataCrud<ICommonMasterData>('position-level'),
 	certification: createMasterDataCrud<ICommonMasterData>('certification-type'),
-	trainingType: createMasterDataCrud<ICommonMasterData>('training-type'),
 	country: {
 		get: async (): Promise<IApiResponse<ICommonMasterData[]>> => {
 			return axiosIns.get(`/master-data/country/get?deleted=false`);
@@ -81,7 +76,6 @@ export const MasterDataService = {
 		},
 	},
 	educationInstitution: createMasterDataCrud<IEducationInstitution>('education-institution'),
-	organization: createMasterDataCrud<IOrganization>('organization'),
 	clientOrganization: createMasterDataCrud<IClientOrganization>('client-organization'),
 	outsourcingCategory: createMasterDataCrud<IOutsourcingCategory>('outsourcing-category'),
 	outsourcingZone: createMasterDataCrud<IOutsourcingZone>('outsourcing-zone'),

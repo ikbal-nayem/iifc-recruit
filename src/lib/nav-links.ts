@@ -135,23 +135,12 @@ export const adminNavLinks: NavLink[] = [
 		icon: Settings,
 		isActive: (pathname) => pathname.startsWith('/admin/master-data'),
 		submenu: [
-			{
-				href: '/admin/master-data/company/organizations',
-				label: 'Company',
-				icon: Building2,
-				isActive: (pathname) => pathname.startsWith('/admin/master-data/company'),
-				submenu: [
-					// { href: '/admin/master-data/company/organizations', label: 'Organizations' },
-					{ href: '/admin/master-data/industry-types', label: 'Industry Types' },
-					{ href: '/admin/master-data/organization-types', label: 'Organization Types' },
-					// { href: '/admin/master-data/position-levels', label: 'Position Levels' },
-				],
-			},
+			{ href: '/admin/master-data/organization-types', label: 'Organization Types', icon: Building2},
 			{ href: '/admin/master-data/posts', label: 'Posts', icon: UserCog },
 			{ href: '/admin/master-data/skills', label: 'Skills', icon: Award },
 			{ href: '/admin/master-data/languages', label: 'Languages', icon: Globe },
 			{
-				href: '/admin/master-data/education/degree-levels',
+				href: '/admin/master-data/education',
 				label: 'Education',
 				icon: GraduationCap,
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/education'),
@@ -167,7 +156,6 @@ export const adminNavLinks: NavLink[] = [
 				icon: BookMarked,
 				isActive: (pathname) => pathname.startsWith('/admin/master-data/training'),
 				submenu: [
-					// { href: '/admin/master-data/training/training-types', label: 'Training Types' },
 					{ href: '/admin/master-data/training/certifications', label: 'Certifications' },
 				],
 			},
