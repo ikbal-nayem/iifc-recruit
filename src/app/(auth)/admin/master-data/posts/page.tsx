@@ -39,7 +39,7 @@ export default function MasterPostsPage() {
 			try {
 				const payload: IApiRequest = {
 					body: {
-						nameEn: search,
+						searchKey: search,
 						...(categoryId !== 'all' && { outsourcingCategoryId: categoryId }),
 					},
 					meta: { page: page, limit: meta.limit },
