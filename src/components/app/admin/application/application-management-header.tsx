@@ -135,11 +135,11 @@ export function ApplicationManagementHeader({
 			</Card>
 
 			{isCircularPublished && (
-				<Alert variant='info' className='glassmorphism'>
+				<Alert variant='info' className='' showIcon={false}>
 					<AlertTitle className='font-bold flex items-center justify-between'>
-						<span>Circular Information</span>
+						<span className='text-lg'>Circular Information</span>
 						{isCircularEditable && (
-							<Button variant='outline' size='sm' onClick={() => setShowCircularForm(true)}>
+							<Button variant='outline-info' size='sm' onClick={() => setShowCircularForm(true)}>
 								<Pencil className='mr-2 h-3 w-3' /> Edit Circular
 							</Button>
 						)}
@@ -149,7 +149,7 @@ export function ApplicationManagementHeader({
 							<Calendar className='h-4 w-4' />
 							<span>
 								Published From:{' '}
-								<strong className='text-foreground'>
+								<strong>
 									{format(parseISO(requestedPost.circularPublishDate!), 'dd MMM, yyyy')}
 								</strong>
 							</span>
@@ -158,7 +158,7 @@ export function ApplicationManagementHeader({
 							<Calendar className='h-4 w-4' />
 							<span>
 								Expires On:{' '}
-								<strong className='text-foreground'>
+								<strong>
 									{format(parseISO(requestedPost.circularEndDate!), 'dd MMM, yyyy')}
 								</strong>
 							</span>

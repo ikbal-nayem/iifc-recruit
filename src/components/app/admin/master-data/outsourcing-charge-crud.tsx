@@ -87,7 +87,7 @@ function OutsourcingChargeForm({
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
+					<DialogTitle>{initialData ? `Edit ${noun}` : `Add ${noun}`}</DialogTitle>
 					<DialogDescription>
 						{initialData ? 'Update the details.' : `Enter the details for the new ${noun.toLowerCase()}.`}
 					</DialogDescription>
@@ -256,7 +256,7 @@ export function OutsourcingChargeCrud({
 							options={[{ id: 'all', nameEn: 'All Categories' }, ...categories]}
 							getOptionValue={(option) => option.id!}
 							getOptionLabel={(option) => option.nameEn}
-							onValueChange={(val) => onCategoryChange(val.toString())}
+							onValueChange={(val) => onCategoryChange(val!)}
 							value={categoryFilter}
 						/>
 						<FormAutocomplete
@@ -267,7 +267,7 @@ export function OutsourcingChargeCrud({
 							options={[{ id: 'all', nameEn: 'All Zones' }, ...zones]}
 							getOptionValue={(option) => option.id!}
 							getOptionLabel={(option) => option.nameEn}
-							onValueChange={(val) => onZoneChange(val.toString())}
+							onValueChange={(val) => onZoneChange(val!)}
 							value={zoneFilter}
 						/>
 					</div>
