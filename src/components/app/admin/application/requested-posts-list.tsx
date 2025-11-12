@@ -68,6 +68,7 @@ export function RequestedPostsList({ statusIn }: RequestedPostsListProps) {
 
 		switch (item.status) {
 			case JobRequestedPostStatus.PENDING:
+			case JobRequestedPostStatus.CIRCULAR_PUBLISHED:
 				manageHref = ROUTES.MANAGE_PENDING_APPLICATION(item.id);
 				break;
 			case JobRequestedPostStatus.PROCESSING:
