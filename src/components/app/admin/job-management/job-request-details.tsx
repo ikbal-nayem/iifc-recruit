@@ -1,4 +1,3 @@
-
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -138,7 +137,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 										<div className='flex flex-col items-end gap-1'>
 											<Badge variant={getStatusVariant(post.status)}>
 												{post.statusDTO?.nameEn}
-												{isCircularEditable && (
+												{isCircularEditable && request.status !== JobRequestStatus.PROCESSING && (
 													<Pencil
 														className='ms-1 h-3 w-3 hover:scale-x-110'
 														role='button'

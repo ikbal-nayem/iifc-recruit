@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Badge } from '@/components/ui/badge';
@@ -103,13 +102,11 @@ export function ApplicationManagementHeader({
 								</Badge>
 							)}
 						</div>
-						{!isProcessing &&
-							requestedPost.status === JobRequestedPostStatus.PENDING &&
-							!isCircularPublished && (
-								<Button size='sm' onClick={() => setShowCircularForm(true)} title='Publish as circular'>
-									<Send className='mr-2 h-4 w-4' /> Publish Circular
-								</Button>
-							)}
+						{requestedPost.status === JobRequestedPostStatus.PENDING && !isCircularPublished && (
+							<Button size='sm' onClick={() => setShowCircularForm(true)} title='Publish as circular'>
+								<Send className='mr-2 h-4 w-4' /> Publish Circular
+							</Button>
+						)}
 					</div>
 					<div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
 						<CardDescription className='flex flex-wrap items-center gap-x-4'>
