@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -21,7 +20,7 @@ import { Label } from '@/components/ui/label';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { IMeta } from '@/interfaces/common.interface';
 import { IOutsourcingCategory, IPost } from '@/interfaces/master-data.interface';
 import { isBangla, isEnglish } from '@/lib/utils';
@@ -57,10 +56,9 @@ interface PostFormProps {
 	onSubmit: (data: IPost | Omit<IPost, 'id'>) => Promise<boolean>;
 	initialData?: IPost;
 	categories: IOutsourcingCategory[];
-	noun: string;
 }
 
-function PostForm({ isOpen, onClose, onSubmit, initialData, categories, noun }: PostFormProps) {
+function PostForm({ isOpen, onClose, onSubmit, initialData, categories }: PostFormProps) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const form = useForm<FormValues>({
@@ -111,11 +109,9 @@ function PostForm({ isOpen, onClose, onSubmit, initialData, categories, noun }: 
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
+					<DialogTitle>{initialData ? `Edit Post` : `Add New Post`}</DialogTitle>
 					<DialogDescription>
-						{initialData
-							? 'Update the details of the post.'
-							: `Enter the details for the new ${noun.toLowerCase()}.`}
+						{initialData ? 'Update the details of the post.' : `Enter the details for the new post.`}
 					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
@@ -170,7 +166,6 @@ function PostForm({ isOpen, onClose, onSubmit, initialData, categories, noun }: 
 interface PostCrudProps {
 	title: string;
 	description: string;
-	noun: string;
 	items: IPost[];
 	meta: IMeta;
 	isLoading: boolean;
@@ -187,7 +182,6 @@ interface PostCrudProps {
 export function PostCrud({
 	title,
 	description,
-	noun,
 	items,
 	meta,
 	isLoading,
@@ -200,7 +194,6 @@ export function PostCrud({
 	categoryFilter,
 	onCategoryChange,
 }: PostCrudProps) {
-	const { toast } = useToast();
 	const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
 
 	const [isFormOpen, setIsFormOpen] = useState(false);
@@ -229,10 +222,8 @@ export function PostCrud({
 		setIsSubmitting(item.id.toString());
 		const success = await onUpdate({ ...item, active: !item.active });
 		if (success) {
-			toast({
-				title: 'Success',
+			toast.success({
 				description: 'Status updated successfully.',
-				variant: 'success',
 			});
 		}
 		setIsSubmitting(null);
@@ -253,7 +244,7 @@ export function PostCrud({
 				</div>
 				<Button className='w-full sm:w-auto' onClick={() => handleOpenForm()}>
 					<PlusCircle className='mr-2 h-4 w-4' />
-					Add New {noun}
+					Add Post
 				</Button>
 			</div>
 			<Card className='glassmorphism'>
@@ -263,20 +254,18 @@ export function PostCrud({
 							<div className='relative w-full'>
 								<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 								<Input
-									placeholder={`Search ${noun.toLowerCase()}s...`}
+									placeholder={`Search posts...`}
 									onChange={(e) => onSearch(e.target.value)}
 									className='pl-10'
 								/>
 							</div>
 							<FormAutocomplete
-								control={undefined as any}
 								name='categoryFilter'
-								label=''
 								placeholder='Filter by Category...'
 								options={[{ id: 'all', nameEn: 'All Categories' }, ...categories]}
 								getOptionValue={(option) => option.id!}
 								getOptionLabel={(option) => option.nameEn}
-								onValueChange={(val) => onCategoryChange(val.toString())}
+								onValueChange={(val) => onCategoryChange(val!)}
 								value={categoryFilter}
 							/>
 						</div>
@@ -321,9 +310,7 @@ export function PostCrud({
 												<ConfirmationDialog
 													open={itemToDelete?.id === item.id}
 													onOpenChange={(open) => !open && setItemToDelete(null)}
-													description={`This will permanently delete the ${noun.toLowerCase()} "${
-														item.nameEn
-													}".`}
+													description={`This will permanently delete the post "${item.nameEn}".`}
 													onConfirm={handleRemove}
 												/>
 												<Button
@@ -340,15 +327,13 @@ export function PostCrud({
 									</Card>
 							  ))}
 						{!isLoading && items.length === 0 && (
-							<p className='text-center text-sm text-muted-foreground py-4'>
-								No {noun.toLowerCase()}s found.
-							</p>
+							<p className='text-center text-sm text-muted-foreground py-4'>No posts found.</p>
 						)}
 					</div>
 				</CardContent>
 				{meta && meta.totalRecords && meta.totalRecords > 0 ? (
 					<CardFooter>
-						<Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} noun={noun} />
+						<Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} noun={'Post'} />
 					</CardFooter>
 				) : null}
 			</Card>
@@ -360,7 +345,6 @@ export function PostCrud({
 					onSubmit={handleFormSubmit}
 					initialData={editingItem}
 					categories={categories}
-					noun={noun}
 				/>
 			)}
 		</div>
