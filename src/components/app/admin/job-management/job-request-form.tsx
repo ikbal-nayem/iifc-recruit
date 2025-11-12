@@ -253,7 +253,12 @@ export function JobRequestForm({
 											placeholder={isLoadingPosts ? 'Loading posts...' : 'Select Post'}
 											options={filteredPosts}
 											getOptionValue={(opt) => opt?.id!}
-											getOptionLabel={(opt) => opt?.nameEn}
+											getOptionLabel={(opt) => (
+												<div className='flex flex-col items-start'>
+													{opt.nameEn}
+													<small>{opt.nameBn}</small>
+												</div>
+											)}
 											disabled={isLoadingPosts}
 											onInputChange={setPostSearchQuery}
 										/>
@@ -284,7 +289,12 @@ export function JobRequestForm({
 												placeholder='Select Zone'
 												options={outsourcingZones}
 												getOptionValue={(opt) => opt.id}
-												getOptionLabel={(opt) => opt?.nameEn}
+												getOptionLabel={(opt) => (
+													<div className='flex flex-col items-start'>
+														{opt.nameEn}
+														<small>{opt.nameBn}</small>
+													</div>
+												)}
 											/>
 											<FormInput
 												control={form.control}
