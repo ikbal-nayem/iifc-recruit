@@ -1,14 +1,24 @@
+
 'use client';
 
-import { Alert } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 import { Form, FormMessage } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormCheckbox } from '@/components/ui/form-checkbox';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
 import { FormTextarea } from '@/components/ui/form-textarea';
+import { Separator } from '@/components/ui/separator';
 import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/contexts/auth-context';
 import { useDebounce } from '@/hooks/use-debounce';
@@ -19,7 +29,7 @@ import { JobRequestService } from '@/services/api/job-request.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
-import { PlusCircle, Save, Trash } from 'lucide-react';
+import { Loader2, PlusCircle, Save } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
@@ -28,13 +38,13 @@ import * as z from 'zod';
 const requestedPostSchema = z.object({
 	id: z.string().optional(),
 	postId: z.string().min(1, 'Post is required.'),
-	vacancy: z.number().min(1, 'Vacancy must be at least 1.'),
-	experienceRequired: z.number().optional(),
+	vacancy: z.coerce.number().min(1, 'Vacancy must be at least 1.'),
+	experienceRequired: z.coerce.number().optional(),
 	negotiable: z.boolean().default(false),
 	outsourcingZoneId: z.string().min(1, 'Zone is required.'),
-	salaryFrom: z.number().optional(),
-	salaryTo: z.number().optional(),
-	yearsOfContract: z.number().optional().nullable(),
+	salaryFrom: z.coerce.number().optional(),
+	salaryTo: z.coerce.number().optional(),
+	yearsOfContract: z.coerce.number().optional().nullable(),
 });
 
 const jobRequestSchema = z
@@ -94,6 +104,8 @@ export function JobRequestForm({
 }: JobRequestFormProps) {
 	const router = useRouter();
 	const { currectUser } = useAuth();
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [confirmationData, setConfirmationData] = useState<JobRequestFormValues | null>(null);
 
 	const [filteredPosts, setFilteredPosts] = useState<IPost[]>(initialPosts);
 	const [isLoadingPosts, setIsLoadingPosts] = useState(false);
@@ -119,8 +131,6 @@ export function JobRequestForm({
 					requestedPosts: [defaultRequestedPost],
 			  },
 	});
-
-	console.log(form.formState.errors);
 
 	const { fields, append, remove } = useFieldArray({
 		control: form.control,
@@ -155,8 +165,15 @@ export function JobRequestForm({
 		}
 	}, [type, debouncedPostSearch]);
 
-	async function onSubmit(data: JobRequestFormValues) {
-		const cleanedData = { ...data };
+	function onFormSubmit(data: JobRequestFormValues) {
+		setConfirmationData(data);
+	}
+
+	async function handleConfirmSubmit() {
+		if (!confirmationData) return;
+		setIsSubmitting(true);
+
+		const cleanedData = { ...confirmationData };
 
 		cleanedData.requestedPosts = cleanedData.requestedPosts.map((post) => {
 			const newPost: any = { ...post };
@@ -190,19 +207,27 @@ export function JobRequestForm({
 				title: 'Submission Failed',
 				description: error.message || 'There was a problem with your request.',
 			});
+		} finally {
+			setIsSubmitting(false);
+			setConfirmationData(null);
 		}
 	}
 
+	const getPostLabel = (postId: string) => {
+		return initialPosts.find((p) => p.id === postId)?.nameEn || '...';
+	};
+
 	return (
-		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-				<Card className='glassmorphism'>
-					<CardHeader>
-						<CardTitle>Request Details</CardTitle>
-						<CardDescription>Fill in the main details for the job request.</CardDescription>
-					</CardHeader>
-					<CardContent className='space-y-6'>
-						{/* <FormRadioGroup
+		<>
+			<Form {...form}>
+				<form onSubmit={form.handleSubmit(onFormSubmit)} className='space-y-8'>
+					<Card className='glassmorphism'>
+						<CardHeader>
+							<CardTitle>Request Details</CardTitle>
+							<CardDescription>Fill in the main details for the job request.</CardDescription>
+						</CardHeader>
+						<CardContent className='space-y-6'>
+							{/* <FormRadioGroup
 							control={form.control}
 							name='type'
 							label='Request Type'
@@ -210,175 +235,221 @@ export function JobRequestForm({
 							options={requestTypes.map((rt) => ({ label: rt.nameEn, value: rt.value }))}
 						/> */}
 
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-6 items-start'>
-							<FormAutocomplete
-								control={form.control}
-								name='clientOrganizationId'
-								label='Client Organization'
-								placeholder='Select a client'
-								required
-								options={clientOrganizations}
-								getOptionValue={(option) => option?.id!}
-								getOptionLabel={(option) => option?.nameEn}
-							/>
+							<div className='grid grid-cols-1 md:grid-cols-2 gap-6 items-start'>
+								<FormAutocomplete
+									control={form.control}
+									name='clientOrganizationId'
+									label='Client Organization'
+									placeholder='Select a client'
+									required
+									options={clientOrganizations}
+									getOptionValue={(option) => option?.id!}
+									getOptionLabel={(option) => option?.nameEn}
+								/>
+								<FormInput
+									control={form.control}
+									name='memoNo'
+									label='Memo No.'
+									placeholder='Enter memo number'
+									required
+								/>
+							</div>
+
 							<FormInput
 								control={form.control}
-								name='memoNo'
-								label='Memo No.'
-								placeholder='Enter memo number'
+								name='subject'
+								label='Subject'
+								placeholder='Enter request subject'
 								required
 							/>
-						</div>
 
-						<FormInput
-							control={form.control}
-							name='subject'
-							label='Subject'
-							placeholder='Enter request subject'
-							required
-						/>
+							<FormTextarea
+								control={form.control}
+								name='description'
+								label='Description'
+								placeholder='Enter a brief description for the request'
+								maxLength={1000}
+								rows={4}
+							/>
 
-						<FormTextarea
-							control={form.control}
-							name='description'
-							label='Description'
-							placeholder='Enter a brief description for the request'
-							maxLength={1000}
-							rows={4}
-						/>
+							<div className='grid grid-cols-1 md:grid-cols-2 gap-6 items-start'>
+								<FormDatePicker control={form.control} name='requestDate' label='Request Date' required />
+								<FormDatePicker control={form.control} name='deadline' label='Deadline' required />
+							</div>
+						</CardContent>
+					</Card>
 
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-6 items-start'>
-							<FormDatePicker control={form.control} name='requestDate' label='Request Date' required />
-							<FormDatePicker control={form.control} name='deadline' label='Deadline' required />
-						</div>
-					</CardContent>
-				</Card>
-
-				<Card className='glassmorphism'>
-					<CardHeader>
-						<CardTitle>Request Posts</CardTitle>
-						<CardDescription>Add the details for each requested post.</CardDescription>
-					</CardHeader>
-					<CardContent className='space-y-4'>
-						{fields.map((field, index) => (
-							<Card key={field.id} className='p-4 relative bg-muted/50'>
-								<CardContent className='p-0 space-y-4'>
-									<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-										<FormAutocomplete
-											control={form.control}
-											name={`requestedPosts.${index}.postId`}
-											label='Post'
-											required
-											placeholder={isLoadingPosts ? 'Loading posts...' : 'Select Post'}
-											options={filteredPosts}
-											getOptionValue={(opt) => opt?.id!}
-											getOptionLabel={(opt) => (
-												<div className='flex flex-col items-start'>
-													{opt.nameEn}
-													<small>{opt.nameBn}</small>
-												</div>
-											)}
-											disabled={isLoadingPosts}
-											onInputChange={setPostSearchQuery}
-										/>
-										<FormInput
-											control={form.control}
-											name={`requestedPosts.${index}.vacancy`}
-											label='Vacancies'
-											required
-											type='number'
-											placeholder='e.g., 10'
-										/>
-										<FormInput
-											control={form.control}
-											name={`requestedPosts.${index}.experienceRequired`}
-											label='Experience Required (Yrs)'
-											type='number'
-											placeholder='e.g., 5'
-										/>
-									</div>
-
-									{type === JobRequestType.OUTSOURCING ? (
-										<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+					<Card className='glassmorphism'>
+						<CardHeader>
+							<CardTitle>Request Posts</CardTitle>
+							<CardDescription>Add the details for each requested post.</CardDescription>
+						</CardHeader>
+						<CardContent className='space-y-4'>
+							{fields.map((field, index) => (
+								<Card key={field.id} className='p-4 relative bg-muted/50'>
+									<CardContent className='p-0 space-y-4'>
+										<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
 											<FormAutocomplete
 												control={form.control}
-												name={`requestedPosts.${index}.outsourcingZoneId`}
-												label='Zone'
+												name={`requestedPosts.${index}.postId`}
+												label='Post'
 												required
-												placeholder='Select Zone'
-												options={outsourcingZones}
-												getOptionValue={(opt) => opt.id}
+												placeholder={isLoadingPosts ? 'Loading posts...' : 'Select Post'}
+												options={filteredPosts}
+												getOptionValue={(opt) => opt?.id!}
 												getOptionLabel={(opt) => (
 													<div className='flex flex-col items-start'>
 														{opt.nameEn}
 														<small>{opt.nameBn}</small>
 													</div>
 												)}
+												disabled={isLoadingPosts}
+												onInputChange={setPostSearchQuery}
 											/>
 											<FormInput
 												control={form.control}
-												name={`requestedPosts.${index}.yearsOfContract`}
-												label='Years of Contract'
+												name={`requestedPosts.${index}.vacancy`}
+												label='Vacancies'
+												required
 												type='number'
-												placeholder='e.g., 3'
+												placeholder='e.g., 10'
+											/>
+											<FormInput
+												control={form.control}
+												name={`requestedPosts.${index}.experienceRequired`}
+												label='Experience Required (Yrs)'
+												type='number'
+												placeholder='e.g., 5'
 											/>
 										</div>
-									) : (
-										<div className='grid grid-cols-1 md:grid-cols-3 gap-4 items-center'>
-											<FormInput
-												control={form.control}
-												name={`requestedPosts.${index}.salaryFrom`}
-												label='Salary From'
-												type='number'
-											/>
-											<FormInput
-												control={form.control}
-												name={`requestedPosts.${index}.salaryTo`}
-												label='Salary To'
-												type='number'
-											/>
-											<div className='pt-8'>
-												<FormCheckbox
+
+										{type === JobRequestType.OUTSOURCING ? (
+											<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+												<FormAutocomplete
 													control={form.control}
-													name={`requestedPosts.${index}.negotiable`}
-													label='Negotiable'
+													name={`requestedPosts.${index}.outsourcingZoneId`}
+													label='Zone'
+													required
+													placeholder='Select Zone'
+													options={outsourcingZones}
+													getOptionValue={(opt) => opt.id}
+													getOptionLabel={(opt) => (
+														<div className='flex flex-col items-start'>
+															{opt.nameEn}
+															<small>{opt.nameBn}</small>
+														</div>
+													)}
+												/>
+												<FormInput
+													control={form.control}
+													name={`requestedPosts.${index}.yearsOfContract`}
+													label='Years of Contract'
+													type='number'
+													placeholder='e.g., 3'
 												/>
 											</div>
-										</div>
+										) : (
+											<div className='grid grid-cols-1 md:grid-cols-3 gap-4 items-center'>
+												<FormInput
+													control={form.control}
+													name={`requestedPosts.${index}.salaryFrom`}
+													label='Salary From'
+													type='number'
+												/>
+												<FormInput
+													control={form.control}
+													name={`requestedPosts.${index}.salaryTo`}
+													label='Salary To'
+													type='number'
+												/>
+												<div className='pt-8'>
+													<FormCheckbox
+														control={form.control}
+														name={`requestedPosts.${index}.negotiable`}
+														label='Negotiable'
+													/>
+												</div>
+											</div>
+										)}
+									</CardContent>
+									{fields.length > 1 && (
+										<Button
+											type='button'
+											variant='ghost'
+											size='icon'
+											className='absolute top-1 right-1 h-7 w-7'
+											onClick={() => remove(index)}
+										>
+											<Trash className='h-4 w-4 text-danger' />
+										</Button>
 									)}
-								</CardContent>
-								{fields.length > 1 && (
-									<Button
-										type='button'
-										variant='ghost'
-										size='icon'
-										className='absolute top-1 right-1 h-7 w-7'
-										onClick={() => remove(index)}
-									>
-										<Trash className='h-4 w-4 text-danger' />
-									</Button>
-								)}
-							</Card>
-						))}
+								</Card>
+							))}
 
-						{!!form.formState.errors.requestedPosts?.root?.message && (
-							<Alert variant='danger'>
-								<FormMessage>{form.formState.errors.requestedPosts?.root?.message}</FormMessage>
-							</Alert>
-						)}
+							{!!form.formState.errors.requestedPosts?.root?.message && (
+								<Alert variant='danger'>
+									<AlertDescription>{form.formState.errors.requestedPosts?.root?.message}</AlertDescription>
+								</Alert>
+							)}
 
-						<Button type='button' variant='outline' onClick={() => append(defaultRequestedPost)}>
-							<PlusCircle className='mr-2 h-4 w-4' /> Add Another Post
+							<Button type='button' variant='outline' onClick={() => append(defaultRequestedPost)}>
+								<PlusCircle className='mr-2 h-4 w-4' /> Add Another Post
+							</Button>
+						</CardContent>
+					</Card>
+					<div className='flex justify-center'>
+						<Button type='submit'>
+							<Save className='mr-2 h-4 w-4' />
+							{initialData ? 'Save Changes' : 'Submit Request'}
 						</Button>
-					</CardContent>
-				</Card>
-				<div className='flex justify-center'>
-					<Button type='submit'>
-						<Save className='mr-2 h-4 w-4' />
-						{initialData ? 'Save Changes' : 'Submit Request'}
-					</Button>
-				</div>
-			</form>
-		</Form>
+					</div>
+				</form>
+			</Form>
+
+			<Dialog open={!!confirmationData} onOpenChange={(open) => !open && setConfirmationData(null)}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Confirm Job Request</DialogTitle>
+						<DialogDescription>Please review the details below before submitting.</DialogDescription>
+					</DialogHeader>
+					{confirmationData && (
+						<div className='space-y-4 max-h-[60vh] overflow-y-auto p-1'>
+							<div className='text-sm'>
+								<p className='text-muted-foreground'>Client</p>
+								<p className='font-semibold'>
+									{
+										clientOrganizations.find((c) => c.id === confirmationData.clientOrganizationId)
+											?.nameEn
+									}
+								</p>
+							</div>
+							<div className='text-sm'>
+								<p className='text-muted-foreground'>Subject</p>
+								<p className='font-semibold'>{confirmationData.subject}</p>
+							</div>
+							<Separator />
+							<h4 className='font-semibold'>Requested Posts</h4>
+							<div className='space-y-2'>
+								{confirmationData.requestedPosts.map((post, index) => (
+									<div key={index} className='text-sm p-2 rounded-md bg-muted/50'>
+										<span className='font-semibold'>{getPostLabel(post.postId)}:</span> {post.vacancy}{' '}
+										vacancies
+									</div>
+								))}
+							</div>
+						</div>
+					)}
+					<DialogFooter>
+						<Button variant='ghost' onClick={() => setConfirmationData(null)} disabled={isSubmitting}>
+							Cancel
+						</Button>
+						<Button onClick={handleConfirmSubmit} disabled={isSubmitting}>
+							{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+							Confirm & Submit
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+		</>
 	);
 }
