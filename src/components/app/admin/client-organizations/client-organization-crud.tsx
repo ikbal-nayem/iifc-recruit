@@ -61,9 +61,10 @@ const formSchema = z
 		contactPersonName: z.string().optional(),
 		contactNumber: z
 			.string()
-			.max(11, 'Contact number is too long.')
+			.max(11, 'Contact number must be 11 digits.')
 			.regex(/^01[0-9]{9}$/, 'Invalid phone number')
-			.optional(),
+			.optional()
+			.or(z.literal('')),
 		email: z.string().email('Please enter a valid email.').optional().or(z.literal('')),
 		website: z
 			.string()
@@ -194,7 +195,7 @@ function ClientOrganizationForm({
 								control={form.control}
 								name='contactNumber'
 								label='Contact Number'
-								placeholder='Phone number'
+								placeholder='01xxxxxxxxx'
 								disabled={isSubmitting}
 								startIcon={<Phone className='h-4 w-4 text-muted-foreground' />}
 							/>
