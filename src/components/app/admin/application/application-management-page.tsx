@@ -37,7 +37,7 @@ interface ApplicationManagementPageProps {
 	isShortlisted?: boolean;
 }
 
-const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
+const initMeta: IMeta = { page: 0, limit: 30, totalRecords: 0 };
 
 export function ApplicationManagementPage({
 	requestedPost: initialPost,
@@ -92,7 +92,7 @@ export function ApplicationManagementPage({
 
 	const handleApplyApplicants = (newApplicants: JobseekerSearch[], onSuccess?: () => void) => {
 		const payload = newApplicants.map((js) => ({
-			applicantId: js.userId,
+			applicantId: js.id,
 			requestedPostId: requestedPost.id,
 			status: APPLICATION_STATUS.ACCEPTED,
 		}));
