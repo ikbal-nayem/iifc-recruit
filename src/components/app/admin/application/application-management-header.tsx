@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { JobRequestedPostStatus, RequestedPost } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { JobRequestService } from '@/services/api/job-request.service';
@@ -35,7 +35,6 @@ export function ApplicationManagementHeader({
 	setRequestedPost,
 	isProcessing = false,
 }: ApplicationManagementHeaderProps) {
-	const { toast } = useToast();
 	const [isExaminerDialogOpen, setIsExaminerDialogOpen] = useState(false);
 	const [isSavingExaminer, setIsSavingExaminer] = useState(false);
 	const [selectedExaminerId, setSelectedExaminerId] = useState<string | undefined>(
@@ -47,7 +46,7 @@ export function ApplicationManagementHeader({
 
 	const handleSaveExaminer = async () => {
 		if (!selectedExaminerId) {
-			toast({ title: 'Error', description: 'No examiner selected.', variant: 'danger' });
+			toast.error({ description: 'No examiner selected.' });
 			return;
 		}
 		setIsSavingExaminer(true);
@@ -58,16 +57,14 @@ export function ApplicationManagementHeader({
 			});
 			const updatedPost = response.body;
 			setRequestedPost(updatedPost);
-			toast({
+			toast.success({
 				title: 'Examiner Assigned',
 				description: 'The examining organization has been assigned to this post.',
-				variant: 'success',
 			});
 			setIsExaminerDialogOpen(false);
 		} catch (error: any) {
-			toast({
+			toast.error({
 				description: error.message || 'Failed to assign examiner.',
-				variant: 'danger',
 			});
 		} finally {
 			setIsSavingExaminer(false);
@@ -153,8 +150,13 @@ export function ApplicationManagementHeader({
 								placeholder='Search for an examining organization...'
 								required
 								loadOptions={getExaminerAsync}
-								getOptionValue={(option) => option.id!.toString()}
-								getOptionLabel={(option) => option.nameEn}
+								getOptionValue={(option) => option.id!}
+								getOptionLabel={(option) => (
+									<div className='flex flex-col items-start'>
+										{option.nameEn}
+										<small>{option.nameBn}</small>
+									</div>
+								)}
 								value={selectedExaminerId}
 								initialLabel={requestedPost.examiner?.nameEn}
 								onValueChange={setSelectedExaminerId}

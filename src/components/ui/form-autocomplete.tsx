@@ -30,7 +30,7 @@ interface FormAutocompleteProps<
 	loadOptions?: (searchKey: string, callback: (options: TOption[]) => void) => void;
 	onCreate?: (value: string) => Promise<TOption | null>;
 	getOptionValue: (option: TOption) => string;
-	getOptionLabel: (option: TOption) => string;
+	getOptionLabel: (option: TOption) => string | React.ReactNode;
 	renderOption?: (option: TOption) => React.ReactNode;
 	disabled?: boolean;
 	onValueChange?: (value: string | undefined) => void;
@@ -95,7 +95,7 @@ export function FormAutocomplete<
 		setSearchQuery('');
 	};
 
-	const renderTrigger = (value: any, displayLabel?: string) => (
+	const renderTrigger = (value: any, displayLabel?: string | React.ReactNode) => (
 		<Button
 			variant='outline'
 			role='combobox'
