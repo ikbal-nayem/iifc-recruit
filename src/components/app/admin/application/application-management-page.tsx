@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -211,6 +212,9 @@ export function ApplicationManagementPage({
 		};
 	};
 
+	const isProceedDisabled =
+		(!isProcessing && acceptedApplicantsCount === 0) || (isProcessing && shortlistedApplicantsCount === 0);
+
 	const cardTexts = getCardTexts();
 
 	return (
@@ -221,7 +225,7 @@ export function ApplicationManagementPage({
 					Back
 				</Button>
 				{!isShortlisted && (
-					<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg'>
+					<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg' disabled={isProceedDisabled}>
 						<ChevronsRight className='mr-2 h-4 w-4' />
 						{getProceedButtonText()}
 					</Button>
@@ -285,7 +289,7 @@ export function ApplicationManagementPage({
 
 			{!isShortlisted && (
 				<div className='flex justify-center mt-6'>
-					<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg'>
+					<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg' disabled={isProceedDisabled}>
 						<ChevronsRight className='mr-2 h-4 w-4' />
 						{getProceedButtonText()}
 					</Button>
