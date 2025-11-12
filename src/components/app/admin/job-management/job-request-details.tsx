@@ -52,7 +52,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 		setIsAccepting(true);
 		try {
 			const response = await JobRequestService.updateStatus(request.id!, JobRequestStatus.PROCESSING);
-			setRequest(response.body);
+			router.push(ROUTES.JOB_REQUEST_PROCESSING);
 			toast.success({
 				title: 'Request Accepted',
 				description: 'The job request is now being processed.',
@@ -74,16 +74,6 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					Back to Requests
 				</Button>
 				<div className='flex gap-2'>
-					{request.status === JobRequestStatus.PENDING && (
-						<Button variant='outline' onClick={handleAcceptRequest} disabled={isAccepting}>
-							{isAccepting ? (
-								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-							) : (
-								<Check className='mr-2 h-4 w-4' />
-							)}
-							Accept Request
-						</Button>
-					)}
 					{request.status === JobRequestStatus.PROCESSING && (
 						<Button variant='lite-success' onClick={handleMarkAsComplete} disabled={isCompleting}>
 							{isCompleting ? (
@@ -94,11 +84,21 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 							Mark as Complete
 						</Button>
 					)}
-					<Button asChild>
+					<Button asChild variant="outline">
 						<Link href={ROUTES.JOB_REQUEST_EDIT(request.id)}>
 							<Edit className='mr-2 h-4 w-4' /> Edit Request
 						</Link>
 					</Button>
+					{request.status === JobRequestStatus.PENDING && (
+						<Button variant='success' onClick={handleAcceptRequest} disabled={isAccepting}>
+							{isAccepting ? (
+								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+							) : (
+								<Check className='mr-2 h-4 w-4' />
+							)}
+							Accept Request
+						</Button>
+					)}
 				</div>
 			</div>
 

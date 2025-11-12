@@ -170,7 +170,7 @@ export function JobRequestList({ status }: JobRequestListProps) {
 					</div>
 					<div className='flex items-center gap-2'>
 						{item.status === JobRequestStatus.PENDING && (
-							<Button size='sm' onClick={() => handleStatusChange(item.id!, JobRequestStatus.PROCESSING)}>
+							<Button size='sm' variant="success" onClick={() => handleStatusChange(item.id!, JobRequestStatus.PROCESSING)}>
 								<Check className='mr-2 h-4 w-4' /> Accept
 							</Button>
 						)}
