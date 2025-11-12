@@ -53,27 +53,27 @@ export const adminNavLinks: NavLink[] = [
 		isActive: (pathname) => pathname === ROUTES.DASHBOARD.ADMIN,
 	},
 	{
-		href: ROUTES.JOB_REQUESTS,
+		href: ROUTES.JOB_REQUEST.LIST,
 		label: 'Requests',
 		icon: FolderKanban,
 		submenu: [
 			{
-				href: ROUTES.JOB_REQUEST_CREATE,
+				href: ROUTES.JOB_REQUEST.CREATE,
 				label: 'New Request',
 				icon: PlusCircle,
 			},
 			{
-				href: ROUTES.JOB_REQUEST_PENDING,
+				href: ROUTES.JOB_REQUEST.PENDING,
 				label: 'Pending',
 				icon: History,
 			},
 			{
-				href: ROUTES.JOB_REQUEST_PROCESSING,
+				href: ROUTES.JOB_REQUEST.PROCESSING,
 				label: 'Processing',
 				icon: Briefcase,
 			},
 			{
-				href: ROUTES.JOB_REQUEST_COMPLETED,
+				href: ROUTES.JOB_REQUEST.COMPLETED,
 				label: 'Completed',
 				icon: CheckCircle,
 			},

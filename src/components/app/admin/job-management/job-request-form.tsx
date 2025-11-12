@@ -164,7 +164,7 @@ export function JobRequestForm({
 				description: `The request has been successfully ${initialData ? 'updated' : 'submitted'}.`,
 			});
 			router.push(
-				currectUser?.userType !== 'ORG_ADMIN' ? ROUTES.JOB_REQUEST_PROCESSING : ROUTES.JOB_REQUEST_PENDING
+				currectUser?.userType !== 'ORG_ADMIN' ? ROUTES.JOB_REQUEST.PROCESSING : ROUTES.JOB_REQUEST.PENDING
 			);
 		} catch (error: any) {
 			toast.error({

@@ -38,7 +38,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 				title: 'Request Completed',
 				description: 'The job request has been marked as completed.',
 			});
-			router.push(ROUTES.JOB_REQUEST_COMPLETED);
+			router.push(ROUTES.JOB_REQUEST.COMPLETED);
 		} catch (error: any) {
 			toast.error({
 				description: error.message || 'Failed to complete the job request.',
@@ -52,7 +52,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 		setIsAccepting(true);
 		try {
 			const response = await JobRequestService.updateStatus(request.id!, JobRequestStatus.PROCESSING);
-			router.push(ROUTES.JOB_REQUEST_PROCESSING);
+			router.push(ROUTES.JOB_REQUEST.PROCESSING);
 			toast.success({
 				title: 'Request Accepted',
 				description: 'The job request is now being processed.',
@@ -85,7 +85,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 						</Button>
 					)}
 					<Button asChild variant="outline">
-						<Link href={ROUTES.JOB_REQUEST_EDIT(request.id)}>
+						<Link href={ROUTES.JOB_REQUEST.EDIT(request.id)}>
 							<Edit className='mr-2 h-4 w-4' /> Edit Request
 						</Link>
 					</Button>
