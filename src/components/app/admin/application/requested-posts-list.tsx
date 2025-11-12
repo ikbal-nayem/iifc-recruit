@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
@@ -9,7 +8,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTES } from '@/constants/routes.constant';
 import { useDebounce } from '@/hooks/use-debounce';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequestedPostStatus, JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
@@ -21,37 +20,36 @@ const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
 
 interface RequestedPostsListProps {
 	statusIn: JobRequestedPostStatus[];
+	requestStatusNotIn: JobRequestStatus[];
 }
 
-export function RequestedPostsList({ statusIn }: RequestedPostsListProps) {
+export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPostsListProps) {
 	const [data, setData] = useState<RequestedPost[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
-	const { toast } = useToast();
 
 	const loadItems = useCallback(
 		async (page: number, search: string) => {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { searchKey: search, statusIn },
+					body: { searchKey: search, statusIn, ...(requestStatusNotIn && { requestStatusNotIn }) },
 					meta: { page, limit: meta.limit },
 				};
 				const response = await JobRequestService.getRequestedPosts(payload);
 				setData(response.body);
 				setMeta(response.meta);
 			} catch (error: any) {
-				toast({
+				toast.error({
 					description: error.message || 'Failed to load requested posts.',
-					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit, toast, statusIn]
+		[meta.limit, statusIn, requestStatusNotIn]
 	);
 
 	useEffect(() => {

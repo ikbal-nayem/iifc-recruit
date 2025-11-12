@@ -1,5 +1,5 @@
 import { RequestedPostsList } from '@/components/app/admin/application/requested-posts-list';
-import { JobRequestedPostStatus } from '@/interfaces/job.interface';
+import { JobRequestedPostStatus, JobRequestStatus } from '@/interfaces/job.interface';
 
 export default function PendingApplicationsPage() {
 	return (
@@ -10,7 +10,10 @@ export default function PendingApplicationsPage() {
 					<p className='text-muted-foreground'>Review and prepare all incoming job posts for processing.</p>
 				</div>
 			</div>
-			<RequestedPostsList statusIn={[JobRequestedPostStatus.PENDING, JobRequestedPostStatus.CIRCULAR_PUBLISHED]} />
+			<RequestedPostsList
+				statusIn={[JobRequestedPostStatus.PENDING, JobRequestedPostStatus.CIRCULAR_PUBLISHED]}
+				requestStatusNotIn={[JobRequestStatus.PENDING]}
+			/>
 		</div>
 	);
 }
