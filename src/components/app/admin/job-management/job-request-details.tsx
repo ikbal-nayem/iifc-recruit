@@ -50,7 +50,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 	const handleAcceptRequest = async () => {
 		setIsAccepting(true);
 		try {
-			const response = await JobRequestService.updateStatus(request.id!, JobRequestStatus.PROCESSING);
+			await JobRequestService.updateStatus(request.id!, JobRequestStatus.PROCESSING);
 			router.push(ROUTES.JOB_REQUEST.PROCESSING);
 			toast.success({
 				title: 'Request Accepted',
@@ -64,6 +64,13 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 			setIsAccepting(false);
 		}
 	};
+
+	const canMarkAsComplete =
+		request.status === JobRequestStatus.PROCESSING &&
+		request.requestedPosts?.every(
+			(post) =>
+				post.status === JobRequestedPostStatus.SHORTLISTED || post.status === JobRequestedPostStatus.COMPLETED
+		);
 
 	return (
 		<div className='space-y-6'>
@@ -81,7 +88,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 						</Button>
 					)}
 					{request.status === JobRequestStatus.PROCESSING && (
-						<Button variant='lite-success' onClick={handleMarkAsComplete} disabled={isCompleting}>
+						<Button variant='lite-success' onClick={handleMarkAsComplete} disabled={!canMarkAsComplete || isCompleting}>
 							{isCompleting ? (
 								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
 							) : (
