@@ -1,3 +1,4 @@
+
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,7 @@ import { getStatusVariant } from '@/lib/color-mapping';
 import { cn } from '@/lib/utils';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { differenceInDays, format, isFuture, parseISO } from 'date-fns';
-import { ArrowLeft, Building, CheckCircle, Edit, FileText, Loader2, Pencil, Users } from 'lucide-react';
+import { ArrowLeft, Building, Check, CheckCircle, Edit, FileText, Loader2, Pencil, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
@@ -25,6 +26,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 	const router = useRouter();
 	const [request, setRequest] = React.useState<JobRequest>(initialJobRequest);
 	const [isCompleting, setIsCompleting] = React.useState(false);
+	const [isAccepting, setIsAccepting] = React.useState(false);
 
 	const isDeadlineSoon = differenceInDays(parseISO(request.deadline), new Date()) <= 7;
 
@@ -46,6 +48,24 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 		}
 	};
 
+	const handleAcceptRequest = async () => {
+		setIsAccepting(true);
+		try {
+			const response = await JobRequestService.updateStatus(request.id!, JobRequestStatus.PROCESSING);
+			setRequest(response.body);
+			toast.success({
+				title: 'Request Accepted',
+				description: 'The job request is now being processed.',
+			});
+		} catch (error: any) {
+			toast.error({
+				description: error.message || 'Failed to accept the job request.',
+			});
+		} finally {
+			setIsAccepting(false);
+		}
+	};
+
 	return (
 		<div className='space-y-6'>
 			<div className='flex items-center justify-between'>
@@ -54,6 +74,16 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					Back to Requests
 				</Button>
 				<div className='flex gap-2'>
+					{request.status === JobRequestStatus.PENDING && (
+						<Button variant='outline' onClick={handleAcceptRequest} disabled={isAccepting}>
+							{isAccepting ? (
+								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+							) : (
+								<Check className='mr-2 h-4 w-4' />
+							)}
+							Accept Request
+						</Button>
+					)}
 					{request.status === JobRequestStatus.PROCESSING && (
 						<Button variant='lite-success' onClick={handleMarkAsComplete} disabled={isCompleting}>
 							{isCompleting ? (
