@@ -10,7 +10,7 @@ export default function CompletedApplicationsPage() {
 					<p className='text-muted-foreground'>Browse all successfully completed application processes.</p>
 				</div>
 			</div>
-			<RequestedPostsList status={JobRequestedPostStatus.COMPLETED} />
+			<RequestedPostsList statusIn={[JobRequestedPostStatus.COMPLETED]} />
 		</div>
 	);
 }

@@ -10,7 +10,7 @@ export default function PendingApplicationsPage() {
 					<p className='text-muted-foreground'>Review and prepare all incoming job posts for processing.</p>
 				</div>
 			</div>
-			<RequestedPostsList status={JobRequestedPostStatus.PENDING} />
+			<RequestedPostsList statusIn={[JobRequestedPostStatus.PENDING, JobRequestedPostStatus.CIRCULAR_PUBLISHED]} />
 		</div>
 	);
 }

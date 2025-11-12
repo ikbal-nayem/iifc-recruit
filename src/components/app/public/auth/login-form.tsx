@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { CardContent, CardFooter } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
+import { ROLES } from '@/constants/auth.constant';
 import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from '@/hooks/use-toast';
@@ -32,6 +33,8 @@ export default function LoginForm() {
 
 	const redirectUrl = searchParams.get('redirectUrl');
 
+	console.log(redirectUrl)
+
 	const form = useForm<LoginFormValues>({
 		resolver: zodResolver(loginSchema),
 		defaultValues: {
@@ -46,7 +49,7 @@ export default function LoginForm() {
 		try {
 			const user = await login(data.username, data.password);
 			toast.success({ description: 'Logged in successfully.' });
-			if (user?.userType === 'SYSTEM' || user?.userType === 'IIFC_ADMIN') {
+			if (!user?.roles?.includes(ROLES.JOB_SEEKER)) {
 				router.push(ROUTES.DASHBOARD.ADMIN);
 			} else if (redirectUrl) router.push(redirectUrl);
 			else router.push(ROUTES.DASHBOARD.JOB_SEEKER);

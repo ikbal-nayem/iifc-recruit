@@ -17,13 +17,13 @@ import { JobRequestService } from '@/services/api/job-request.service';
 import { Building, Search, UserCog, Users } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
-const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
+const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
 
 interface RequestedPostsListProps {
-	status: JobRequestedPostStatus;
+	statusIn: JobRequestedPostStatus[];
 }
 
-export function RequestedPostsList({ status }: RequestedPostsListProps) {
+export function RequestedPostsList({ statusIn }: RequestedPostsListProps) {
 	const [data, setData] = useState<RequestedPost[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = useState(true);
@@ -36,7 +36,7 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { searchKey: search, status: status },
+					body: { searchKey: search, statusIn },
 					meta: { page, limit: meta.limit },
 				};
 				const response = await JobRequestService.getRequestedPosts(payload);
@@ -51,7 +51,7 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit, toast, status]
+		[meta.limit, toast, statusIn]
 	);
 
 	useEffect(() => {

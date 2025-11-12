@@ -10,7 +10,7 @@ export default function ProcessingApplicationsPage() {
 					<p className='text-muted-foreground'>Manage all application processes that are in progress.</p>
 				</div>
 			</div>
-			<RequestedPostsList status={JobRequestedPostStatus.PROCESSING} />
+			<RequestedPostsList statusIn={[JobRequestedPostStatus.PROCESSING]} />
 		</div>
 	);
 }
