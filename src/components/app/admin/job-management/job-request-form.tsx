@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form } from '@/components/ui/form';
+import { Form, FormMessage } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormCheckbox } from '@/components/ui/form-checkbox';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
@@ -361,6 +361,7 @@ export function JobRequestForm({
 						<Button type='button' variant='outline' onClick={() => append(defaultRequestedPost)}>
 							<PlusCircle className='mr-2 h-4 w-4' /> Add Another Post
 						</Button>
+						<FormMessage>{form.formState.errors.requestedPosts?.message}</FormMessage>
 					</CardContent>
 				</Card>
 				<div className='flex justify-center'>
