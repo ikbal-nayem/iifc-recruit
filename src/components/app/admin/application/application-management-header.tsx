@@ -1,5 +1,7 @@
+
 'use client';
 
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,7 +21,7 @@ import { getStatusVariant } from '@/lib/color-mapping';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { getExaminerAsync } from '@/services/async-api';
 import { format, isFuture, parseISO } from 'date-fns';
-import { Building, Calendar, Edit, Loader2, Pencil, Send, Users } from 'lucide-react';
+import { Building, Calendar, Edit, Info, Loader2, Pencil, Send, Users } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { CircularPublishForm } from '../job-management/circular-publish-form';
@@ -75,7 +77,12 @@ export function ApplicationManagementHeader({
 		setRequestedPost(updatedPost);
 	};
 
-	const isCircularPublished = requestedPost.status === JobRequestedPostStatus.CIRCULAR_PUBLISHED;
+	const isCircularPublished =
+		requestedPost.status === JobRequestedPostStatus.CIRCULAR_PUBLISHED ||
+		requestedPost.status === JobRequestedPostStatus.PROCESSING ||
+		requestedPost.status === JobRequestedPostStatus.SHORTLISTED ||
+		requestedPost.status === JobRequestedPostStatus.COMPLETED;
+
 	const isCircularEditable =
 		isCircularPublished && requestedPost.circularEndDate && isFuture(parseISO(requestedPost.circularEndDate));
 
@@ -89,13 +96,6 @@ export function ApplicationManagementHeader({
 							{requestedPost.statusDTO?.nameEn && (
 								<Badge variant={getStatusVariant(requestedPost.status)}>
 									{requestedPost.statusDTO.nameEn}
-									{isCircularEditable && (
-										<Pencil
-											className='ml-1 h-3 w-3 hover:scale-x-110 cursor-pointer'
-											onClick={() => setShowCircularForm(true)}
-											role='button'
-										/>
-									)}
 								</Badge>
 							)}
 						</div>
@@ -115,13 +115,6 @@ export function ApplicationManagementHeader({
 								<Users className='h-4 w-4' />
 								{requestedPost.vacancy} Vacancies
 							</span>
-							{isCircularPublished && requestedPost.circularPublishDate && (
-								<span className='flex items-center gap-1.5'>
-									<Calendar className='h-4 w-4' />
-									{format(parseISO(requestedPost.circularPublishDate), 'dd MMM, yy')} -{' '}
-									{format(parseISO(requestedPost.circularEndDate!), 'dd MMM, yy')}
-								</span>
-							)}
 						</CardDescription>
 						<div className='flex items-center gap-2 text-sm'>
 							<span className='text-muted-foreground'>Examiner:</span>
@@ -140,6 +133,40 @@ export function ApplicationManagementHeader({
 					</div>
 				</CardHeader>
 			</Card>
+
+			{isCircularPublished && (
+				<Alert variant='info' className='glassmorphism'>
+					<AlertTitle className='font-bold flex items-center justify-between'>
+						<span>Circular Information</span>
+						{isCircularEditable && (
+							<Button variant='outline' size='sm' onClick={() => setShowCircularForm(true)}>
+								<Pencil className='mr-2 h-3 w-3' /> Edit Circular
+							</Button>
+						)}
+					</AlertTitle>
+					<AlertDescription className='mt-2 grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1'>
+						<div className='flex items-center gap-2'>
+							<Calendar className='h-4 w-4' />
+							<span>
+								Published From:{' '}
+								<strong className='text-foreground'>
+									{format(parseISO(requestedPost.circularPublishDate!), 'dd MMM, yyyy')}
+								</strong>
+							</span>
+						</div>
+						<div className='flex items-center gap-2'>
+							<Calendar className='h-4 w-4' />
+							<span>
+								Expires On:{' '}
+								<strong className='text-foreground'>
+									{format(parseISO(requestedPost.circularEndDate!), 'dd MMM, yyyy')}
+								</strong>
+							</span>
+						</div>
+					</AlertDescription>
+				</Alert>
+			)}
+
 			<Dialog open={isExaminerDialogOpen} onOpenChange={setIsExaminerDialogOpen}>
 				<DialogContent>
 					<DialogHeader>
@@ -192,3 +219,4 @@ export function ApplicationManagementHeader({
 		</>
 	);
 }
+
