@@ -82,6 +82,11 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					Back to Requests
 				</Button>
 				<div className='flex gap-2'>
+					<Button asChild variant='outline'>
+						<Link href={ROUTES.JOB_REQUEST.EDIT(request.id)}>
+							<Edit className='mr-2 h-4 w-4' /> Edit Request
+						</Link>
+					</Button>
 					{request.status === JobRequestStatus.PROCESSING && (
 						<Button variant='lite-success' onClick={handleMarkAsComplete} disabled={isCompleting}>
 							{isCompleting ? (
@@ -92,11 +97,6 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 							Mark as Complete
 						</Button>
 					)}
-					<Button asChild variant='outline'>
-						<Link href={ROUTES.JOB_REQUEST.EDIT(request.id)}>
-							<Edit className='mr-2 h-4 w-4' /> Edit Request
-						</Link>
-					</Button>
 					{request.status === JobRequestStatus.PENDING && (
 						<Button variant='success' onClick={handleAcceptRequest} disabled={isAccepting}>
 							{isAccepting ? (
