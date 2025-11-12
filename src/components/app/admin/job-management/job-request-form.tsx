@@ -1,6 +1,6 @@
-
 'use client';
 
+import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormMessage } from '@/components/ui/form';
@@ -27,14 +27,14 @@ import * as z from 'zod';
 
 const requestedPostSchema = z.object({
 	id: z.string().optional(),
-	postId: z.coerce.string().min(1, 'Post is required.'),
-	vacancy: z.coerce.number().min(1, 'Vacancy must be at least 1.'),
-	experienceRequired: z.coerce.number().optional(),
+	postId: z.string().min(1, 'Post is required.'),
+	vacancy: z.number().min(1, 'Vacancy must be at least 1.'),
+	experienceRequired: z.number().optional(),
 	negotiable: z.boolean().default(false),
-	outsourcingZoneId: z.coerce.string().optional(),
-	salaryFrom: z.coerce.number().optional(),
-	salaryTo: z.coerce.number().optional(),
-	yearsOfContract: z.coerce.number().optional().nullable(),
+	outsourcingZoneId: z.string().min(1, 'Zone is required.'),
+	salaryFrom: z.number().optional(),
+	salaryTo: z.number().optional(),
+	yearsOfContract: z.number().optional().nullable(),
 });
 
 const jobRequestSchema = z
@@ -65,7 +65,8 @@ const jobRequestSchema = z
 	);
 
 const defaultRequestedPost = {
-	postId: undefined as any,
+	postId: '',
+	outsourcingZoneId: '',
 	vacancy: 1,
 	experienceRequired: undefined,
 	salaryFrom: undefined,
@@ -119,6 +120,8 @@ export function JobRequestForm({
 			  },
 	});
 
+	console.log(form.formState.errors);
+
 	const { fields, append, remove } = useFieldArray({
 		control: form.control,
 		name: 'requestedPosts',
@@ -155,7 +158,6 @@ export function JobRequestForm({
 	async function onSubmit(data: JobRequestFormValues) {
 		const cleanedData = { ...data };
 
-		// Clean up requestedPosts based on type
 		cleanedData.requestedPosts = cleanedData.requestedPosts.map((post) => {
 			const newPost: any = { ...post };
 
@@ -358,10 +360,16 @@ export function JobRequestForm({
 								)}
 							</Card>
 						))}
+
+						{!!form.formState.errors.requestedPosts?.root?.message && (
+							<Alert variant='danger'>
+								<FormMessage>{form.formState.errors.requestedPosts?.root?.message}</FormMessage>
+							</Alert>
+						)}
+
 						<Button type='button' variant='outline' onClick={() => append(defaultRequestedPost)}>
 							<PlusCircle className='mr-2 h-4 w-4' /> Add Another Post
 						</Button>
-						<FormMessage>{form.formState.errors.requestedPosts?.message}</FormMessage>
 					</CardContent>
 				</Card>
 				<div className='flex justify-center'>
