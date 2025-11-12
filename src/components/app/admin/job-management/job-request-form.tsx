@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -36,16 +37,32 @@ const requestedPostSchema = z.object({
 	yearsOfContract: z.coerce.number().optional().nullable(),
 });
 
-const jobRequestSchema = z.object({
-	type: z.nativeEnum(JobRequestType),
-	memoNo: z.string().min(1, 'Memo No. is required.').max(50, 'Memo No. cannot exceed 50 characters.'),
-	clientOrganizationId: z.string().min(1, 'Client Organization is required.'),
-	subject: z.string().min(1, 'Subject is required.').max(255, 'Subject cannot exceed 255 characters.'),
-	description: z.string().max(1000, 'Description cannot exceed 1000 characters.').optional(),
-	requestDate: z.string().min(1, 'Request date is required.'),
-	deadline: z.string().min(1, 'Deadline is required.'),
-	requestedPosts: z.array(requestedPostSchema).min(1, 'At least one post is required.'),
-});
+const jobRequestSchema = z
+	.object({
+		type: z.nativeEnum(JobRequestType),
+		memoNo: z.string().min(1, 'Memo No. is required.').max(50, 'Memo No. cannot exceed 50 characters.'),
+		clientOrganizationId: z.string().min(1, 'Client Organization is required.'),
+		subject: z.string().min(1, 'Subject is required.').max(255, 'Subject cannot exceed 255 characters.'),
+		description: z.string().max(1000, 'Description cannot exceed 1000 characters.').optional(),
+		requestDate: z.string().min(1, 'Request date is required.'),
+		deadline: z.string().min(1, 'Deadline is required.'),
+		requestedPosts: z.array(requestedPostSchema).min(1, 'At least one post is required.'),
+	})
+	.refine(
+		(data) => {
+			if (data.type !== JobRequestType.OUTSOURCING) {
+				const postIds = data.requestedPosts.map((p) => p.postId);
+				return new Set(postIds).size === postIds.length;
+			}
+
+			const uniquePairs = new Set(data.requestedPosts.map((p) => `${p.postId}-${p.outsourcingZoneId}`));
+			return uniquePairs.size === data.requestedPosts.length;
+		},
+		{
+			message: 'Duplicate post for the same zone is not allowed.',
+			path: ['requestedPosts'],
+		}
+	);
 
 const defaultRequestedPost = {
 	postId: undefined as any,
