@@ -1,3 +1,4 @@
+
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,26 +17,17 @@ import { getStatusVariant } from '@/lib/color-mapping';
 import { cn } from '@/lib/utils';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { differenceInDays, format, isFuture, parseISO } from 'date-fns';
-import { ArrowLeft, Building, CheckCircle, Edit, FileText, Loader2, Pencil, Send, Users } from 'lucide-react';
+import { ArrowLeft, Building, CheckCircle, Edit, FileText, Loader2, Pencil, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
-import { CircularPublishForm } from './circular-publish-form';
 
 export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: JobRequest }) {
 	const router = useRouter();
 	const [request, setRequest] = React.useState<JobRequest>(initialJobRequest);
-	const [selectedPost, setSelectedPost] = React.useState<RequestedPost | null>(null);
 	const [isCompleting, setIsCompleting] = React.useState(false);
 
 	const isDeadlineSoon = differenceInDays(parseISO(request.deadline), new Date()) <= 7;
-
-	const handlePublishSuccess = (updatedPost: RequestedPost) => {
-		setRequest((prevRequest) => ({
-			...prevRequest,
-			requestedPosts: prevRequest.requestedPosts.map((p) => (p.id === updatedPost.id ? updatedPost : p)),
-		}));
-	};
 
 	const handleMarkAsComplete = async () => {
 		setIsCompleting(true);
@@ -145,11 +137,10 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 									<div className='flex items-center gap-2 text-right'>
 										<div className='flex flex-col items-end gap-1'>
 											<Badge variant={getStatusVariant(post.status)}>
-												{post.statusDTO?.nameEn}{' '}
+												{post.statusDTO?.nameEn}
 												{isCircularEditable && (
 													<Pencil
 														className='ms-1 h-3 w-3 hover:scale-x-110'
-														onClick={() => setSelectedPost(post)}
 														role='button'
 													/>
 												)}
@@ -160,13 +151,6 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 												</p>
 											)}
 										</div>
-										{request.status === JobRequestStatus.PROCESSING &&
-											post.status === JobRequestedPostStatus.PENDING &&
-											!isCircularPublished && (
-												<Button size='sm' onClick={() => setSelectedPost(post)} title='Publish as circular'>
-													<Send className='h-4 w-4' />
-												</Button>
-											)}
 									</div>
 								</div>
 
@@ -225,15 +209,6 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					})}
 				</CardContent>
 			</Card>
-
-			{selectedPost && (
-				<CircularPublishForm
-					isOpen={!!selectedPost}
-					onClose={() => setSelectedPost(null)}
-					post={selectedPost}
-					onSuccess={handlePublishSuccess}
-				/>
-			)}
 		</div>
 	);
 }

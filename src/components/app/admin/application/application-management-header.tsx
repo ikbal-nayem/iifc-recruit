@@ -4,17 +4,26 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { useToast } from '@/hooks/use-toast';
-import { RequestedPost } from '@/interfaces/job.interface';
+import { JobRequestedPostStatus, RequestedPost } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { getExaminerAsync } from '@/services/async-api';
-import { Building, Edit, Loader2, Users } from 'lucide-react';
+import { isFuture, parseISO } from 'date-fns';
+import { Building, Edit, Loader2, Pencil, Send, Users } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { CircularPublishForm } from '../job-management/circular-publish-form';
 
 interface ApplicationManagementHeaderProps {
 	requestedPost: RequestedPost;
@@ -33,6 +42,7 @@ export function ApplicationManagementHeader({
 	const [selectedExaminerId, setSelectedExaminerId] = useState<string | undefined>(
 		requestedPost.examinerId?.toString()
 	);
+	const [showCircularForm, setShowCircularForm] = useState(false);
 
 	const examinerForm = useForm();
 
@@ -65,15 +75,41 @@ export function ApplicationManagementHeader({
 		}
 	};
 
+	const handlePublishSuccess = (updatedPost: RequestedPost) => {
+		setRequestedPost(updatedPost);
+	};
+
+	const isCircularPublished = requestedPost.status === JobRequestedPostStatus.CIRCULAR_PUBLISHED;
+	const isCircularEditable =
+		isCircularPublished && requestedPost.circularEndDate && isFuture(parseISO(requestedPost.circularEndDate));
+
 	return (
 		<>
 			<Card className='glassmorphism'>
 				<CardHeader>
-					<div className='flex items-center gap-4'>
-						<CardTitle>{requestedPost?.post?.nameEn}</CardTitle>
-						{requestedPost.statusDTO?.nameEn && (
-							<Badge variant={getStatusVariant(requestedPost.status)}>{requestedPost.statusDTO.nameEn}</Badge>
-						)}
+					<div className='flex flex-wrap items-center gap-4 justify-between'>
+						<div className='flex items-center gap-4'>
+							<CardTitle>{requestedPost?.post?.nameEn}</CardTitle>
+							{requestedPost.statusDTO?.nameEn && (
+								<Badge variant={getStatusVariant(requestedPost.status)}>
+									{requestedPost.statusDTO.nameEn}
+									{isCircularEditable && (
+										<Pencil
+											className='ml-1 h-3 w-3 hover:scale-x-110 cursor-pointer'
+											onClick={() => setShowCircularForm(true)}
+											role='button'
+										/>
+									)}
+								</Badge>
+							)}
+						</div>
+						{!isProcessing &&
+							requestedPost.status === JobRequestedPostStatus.PENDING &&
+							!isCircularPublished && (
+								<Button size='sm' onClick={() => setShowCircularForm(true)} title='Publish as circular'>
+									<Send className='mr-2 h-4 w-4' /> Publish Circular
+								</Button>
+							)}
 					</div>
 					<div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
 						<CardDescription className='flex flex-wrap items-center gap-x-4'>
@@ -139,6 +175,14 @@ export function ApplicationManagementHeader({
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
+			{showCircularForm && (
+				<CircularPublishForm
+					isOpen={showCircularForm}
+					onClose={() => setShowCircularForm(false)}
+					post={requestedPost}
+					onSuccess={handlePublishSuccess}
+				/>
+			)}
 		</>
 	);
 }
