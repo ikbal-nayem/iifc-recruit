@@ -157,9 +157,6 @@ export function ApplicationManagementPage({
 			if (isProcessing) {
 				await JobRequestService.proceedToShortlist(requestedPost.id!);
 				redirectRoute = ROUTES.APPLICATION_SHORTLISTED;
-			} else if (isShortlisted) {
-				await JobRequestService.updateStatus(requestedPost.id!, JobRequestStatus.COMPLETED);
-				redirectRoute = ROUTES.APPLICATION_COMPLETED;
 			} else {
 				await JobRequestService.proceedToProcess(requestedPost.id!);
 			}
@@ -183,7 +180,6 @@ export function ApplicationManagementPage({
 
 	const getProceedButtonText = () => {
 		if (isProcessing) return 'Proceed to Shortlist';
-		if (isShortlisted) return 'Mark as Completed';
 		return 'Proceed to Next Stage';
 	};
 
@@ -243,10 +239,12 @@ export function ApplicationManagementPage({
 					<ArrowLeft className='mr-2 h-4 w-4' />
 					Back
 				</Button>
-				<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg'>
-					<ChevronsRight className='mr-2 h-4 w-4' />
-					{getProceedButtonText()}
-				</Button>
+				{!isShortlisted && (
+					<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg'>
+						<ChevronsRight className='mr-2 h-4 w-4' />
+						{getProceedButtonText()}
+					</Button>
+				)}
 			</div>
 
 			<ApplicationManagementHeader
@@ -304,12 +302,14 @@ export function ApplicationManagementPage({
 				</CardContent>
 			</Card>
 
-			<div className='flex justify-center mt-6'>
-				<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg'>
-					<ChevronsRight className='mr-2 h-4 w-4' />
-					{getProceedButtonText()}
-				</Button>
-			</div>
+			{!isShortlisted && (
+				<div className='flex justify-center mt-6'>
+					<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg'>
+						<ChevronsRight className='mr-2 h-4 w-4' />
+						{getProceedButtonText()}
+					</Button>
+				</div>
+			)}
 
 			<Dialog open={isProceedConfirmationOpen} onOpenChange={setIsProceedConfirmationOpen}>
 				<DialogContent>

@@ -100,11 +100,6 @@ export const adminNavLinks: NavLink[] = [
 				label: 'Shortlisted',
 				icon: CalendarCheck,
 			},
-			{
-				href: ROUTES.APPLICATION_COMPLETED,
-				label: 'Completed',
-				icon: CheckCircle,
-			},
 		],
 	},
 	{ href: '/admin/jobseekers', label: 'Jobseekers', icon: Users },
