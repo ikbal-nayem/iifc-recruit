@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -21,7 +20,7 @@ import { getStatusVariant } from '@/lib/color-mapping';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { getExaminerAsync } from '@/services/async-api';
 import { format, isFuture, parseISO } from 'date-fns';
-import { Building, Calendar, Edit, Info, Loader2, Pencil, Send, Users } from 'lucide-react';
+import { Building, Calendar, Edit, Loader2, Pencil, Send, Users } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { CircularPublishForm } from '../job-management/circular-publish-form';
@@ -83,9 +82,6 @@ export function ApplicationManagementHeader({
 		requestedPost.status === JobRequestedPostStatus.SHORTLISTED ||
 		requestedPost.status === JobRequestedPostStatus.COMPLETED;
 
-	const isCircularEditable =
-		isCircularPublished && requestedPost.circularEndDate && isFuture(parseISO(requestedPost.circularEndDate));
-
 	return (
 		<>
 			<Card className='glassmorphism'>
@@ -138,29 +134,23 @@ export function ApplicationManagementHeader({
 				<Alert variant='info' className='' showIcon={false}>
 					<AlertTitle className='font-bold flex items-center justify-between'>
 						<span className='text-lg'>Circular Information</span>
-						{isCircularEditable && (
-							<Button variant='outline-info' size='sm' onClick={() => setShowCircularForm(true)}>
-								<Pencil className='mr-2 h-3 w-3' /> Edit Circular
-							</Button>
-						)}
+						<Button variant='outline-info' size='sm' onClick={() => setShowCircularForm(true)}>
+							<Pencil className='mr-2 h-3 w-3' /> Edit Circular
+						</Button>
 					</AlertTitle>
 					<AlertDescription className='mt-2 grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1'>
 						<div className='flex items-center gap-2'>
 							<Calendar className='h-4 w-4' />
 							<span>
 								Published From:{' '}
-								<strong>
-									{format(parseISO(requestedPost.circularPublishDate!), 'dd MMM, yyyy')}
-								</strong>
+								<strong>{format(parseISO(requestedPost.circularPublishDate!), 'dd MMM, yyyy')}</strong>
 							</span>
 						</div>
 						<div className='flex items-center gap-2'>
 							<Calendar className='h-4 w-4' />
 							<span>
 								Expires On:{' '}
-								<strong>
-									{format(parseISO(requestedPost.circularEndDate!), 'dd MMM, yyyy')}
-								</strong>
+								<strong>{format(parseISO(requestedPost.circularEndDate!), 'dd MMM, yyyy')}</strong>
 							</span>
 						</div>
 					</AlertDescription>
@@ -219,4 +209,3 @@ export function ApplicationManagementHeader({
 		</>
 	);
 }
-
