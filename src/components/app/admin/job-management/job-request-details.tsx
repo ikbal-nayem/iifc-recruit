@@ -1,4 +1,3 @@
-
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -88,7 +87,11 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 						</Button>
 					)}
 					{request.status === JobRequestStatus.PROCESSING && (
-						<Button variant='lite-success' onClick={handleMarkAsComplete} disabled={!canMarkAsComplete || isCompleting}>
+						<Button
+							variant='lite-success'
+							onClick={handleMarkAsComplete}
+							disabled={!canMarkAsComplete || isCompleting}
+						>
 							{isCompleting ? (
 								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
 							) : (
@@ -163,7 +166,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 				<CardContent className='space-y-4'>
 					{request.requestedPosts?.map((post, index) => {
 						return (
-							<Card key={index} className='p-4 border rounded-lg bg-muted/30 space-y-4'>
+							<Card key={index} className='p-4 border rounded-lg bg-muted/50 space-y-4'>
 								<div className='flex items-start justify-between'>
 									<div>
 										<CardTitle className='text-xl font-semibold'>{post.post?.nameEn}</CardTitle>
