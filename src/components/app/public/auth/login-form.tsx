@@ -33,8 +33,7 @@ export default function LoginForm() {
 
 	const redirectUrl = searchParams.get('redirectUrl');
 
-	console.log(redirectUrl)
-
+	
 	const form = useForm<LoginFormValues>({
 		resolver: zodResolver(loginSchema),
 		defaultValues: {
@@ -42,13 +41,14 @@ export default function LoginForm() {
 			password: '',
 		},
 	});
-
+	
 	const onSubmit = async (data: LoginFormValues) => {
 		setIsLoading(true);
 		setError(null);
 		try {
 			const user = await login(data.username, data.password);
 			toast.success({ description: 'Logged in successfully.' });
+			console.log("Redirect URL::::: ",redirectUrl)
 			if (!user?.roles?.includes(ROLES.JOB_SEEKER)) {
 				router.push(ROUTES.DASHBOARD.ADMIN);
 			} else if (redirectUrl) router.push(redirectUrl);

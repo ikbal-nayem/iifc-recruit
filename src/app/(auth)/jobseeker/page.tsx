@@ -170,7 +170,7 @@ export default function JobseekerDashboardPage() {
 							>
 								<div>
 									<Link
-										href={`/jobseeker/jobs/${app.requestedPostId}`}
+										href={ROUTES.JOB_SEEKER.JOB_DETAILS(app.requestedPostId)}
 										className='font-semibold hover:underline'
 									>
 										{app.requestedPost?.post?.nameEn}
