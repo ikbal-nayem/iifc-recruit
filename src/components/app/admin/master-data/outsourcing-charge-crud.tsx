@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -299,7 +300,8 @@ export function OutsourcingChargeCrud({
 									>
 										<div className='flex-1 mb-4 sm:mb-0'>
 											<p className='font-semibold'>{item.category?.nameEn}</p>
-											<p className='text-sm text-muted-foreground'>
+											<p className='text-sm text-muted-foreground'>{item.category?.nameBn}</p>
+											<p className='text-sm text-muted-foreground mt-1'>
 												Zone: {item.zone?.nameEn} | Charge: {item.monthlyServiceCharge?.toLocaleString()}
 											</p>
 										</div>
