@@ -29,12 +29,14 @@ interface ApplicationManagementHeaderProps {
 	requestedPost: RequestedPost;
 	setRequestedPost: (post: RequestedPost) => void;
 	isProcessing?: boolean;
+	isShortlisted?: boolean;
 }
 
 export function ApplicationManagementHeader({
 	requestedPost,
 	setRequestedPost,
 	isProcessing = false,
+	isShortlisted = false,
 }: ApplicationManagementHeaderProps) {
 	const [isExaminerDialogOpen, setIsExaminerDialogOpen] = useState(false);
 	const [isSavingExaminer, setIsSavingExaminer] = useState(false);
@@ -74,6 +76,7 @@ export function ApplicationManagementHeader({
 
 	const handlePublishSuccess = (updatedPost: RequestedPost) => {
 		setRequestedPost(updatedPost);
+		setShowCircularForm(false);
 	};
 
 	const isCircularPublished =
@@ -81,6 +84,8 @@ export function ApplicationManagementHeader({
 		requestedPost.status === JobRequestedPostStatus.PROCESSING ||
 		requestedPost.status === JobRequestedPostStatus.SHORTLISTED ||
 		requestedPost.status === JobRequestedPostStatus.COMPLETED;
+
+	const canEditCircular = !isProcessing && !isShortlisted;
 
 	return (
 		<>
@@ -115,7 +120,7 @@ export function ApplicationManagementHeader({
 						<div className='flex items-center gap-2 text-sm'>
 							<span className='text-muted-foreground'>Examiner:</span>
 							<span className='font-semibold'>{requestedPost.examiner?.nameEn || 'Not Assigned'}</span>
-							{!isProcessing && (
+							{!isProcessing && !isShortlisted && (
 								<Button
 									variant='ghost'
 									size='icon'
@@ -130,11 +135,11 @@ export function ApplicationManagementHeader({
 				</CardHeader>
 			</Card>
 
-			{isCircularPublished && (
+			{isCircularPublished && !isProcessing && (
 				<Alert variant='info' className='' showIcon={false}>
 					<AlertTitle className='font-bold flex items-center justify-between'>
 						<span className='text-lg'>Circular Information</span>
-						{!isProcessing && (
+						{canEditCircular && (
 							<Button variant='outline-info' size='sm' onClick={() => setShowCircularForm(true)}>
 								<Pencil className='mr-2 h-3 w-3' /> Edit Circular
 							</Button>
