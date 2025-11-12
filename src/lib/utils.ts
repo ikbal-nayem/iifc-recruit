@@ -42,7 +42,7 @@ export const makeFormData = (reqData: IObject) => {
 };
 
 export const isEnglish = (value: string) => {
-	return /^[a-zA-Z0-9 /.,_()-\s]*$/.test(value);
+	return /^[a-zA-Z0-9 /'.,_()-\s]*$/.test(value);
 };
 
 export const isBangla = (value: string) => {
