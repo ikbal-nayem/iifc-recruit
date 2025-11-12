@@ -33,7 +33,6 @@ export default function LoginForm() {
 
 	const redirectUrl = searchParams.get('redirectUrl');
 
-	
 	const form = useForm<LoginFormValues>({
 		resolver: zodResolver(loginSchema),
 		defaultValues: {
@@ -41,18 +40,19 @@ export default function LoginForm() {
 			password: '',
 		},
 	});
-	
+
 	const onSubmit = async (data: LoginFormValues) => {
 		setIsLoading(true);
 		setError(null);
 		try {
 			const user = await login(data.username, data.password);
 			toast.success({ description: 'Logged in successfully.' });
-			console.log("Redirect URL::::: ",redirectUrl)
-			if (!user?.roles?.includes(ROLES.JOB_SEEKER)) {
-				router.push(ROUTES.DASHBOARD.ADMIN);
-			} else if (redirectUrl) router.push(redirectUrl);
-			else router.push(ROUTES.DASHBOARD.JOB_SEEKER);
+			if (!!redirectUrl) {
+				router.push(redirectUrl);
+				console.log('Redirect URL::::: ', redirectUrl);
+			} else if (user?.roles?.includes(ROLES.JOB_SEEKER)) {
+				router.push(ROUTES.DASHBOARD.JOB_SEEKER);
+			} else router.push(ROUTES.DASHBOARD.ADMIN);
 		} catch (err: any) {
 			setError(err.message || 'An unexpected error occurred. Please try again.');
 		} finally {
