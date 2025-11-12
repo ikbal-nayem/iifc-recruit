@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -12,7 +11,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
-import { Form, FormMessage } from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormCheckbox } from '@/components/ui/form-checkbox';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
@@ -29,7 +28,7 @@ import { JobRequestService } from '@/services/api/job-request.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
-import { Loader2, PlusCircle, Save } from 'lucide-react';
+import { Loader2, PlusCircle, Save, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
@@ -417,10 +416,7 @@ export function JobRequestForm({
 							<div className='text-sm'>
 								<p className='text-muted-foreground'>Client</p>
 								<p className='font-semibold'>
-									{
-										clientOrganizations.find((c) => c.id === confirmationData.clientOrganizationId)
-											?.nameEn
-									}
+									{clientOrganizations.find((c) => c.id === confirmationData.clientOrganizationId)?.nameEn}
 								</p>
 							</div>
 							<div className='text-sm'>
