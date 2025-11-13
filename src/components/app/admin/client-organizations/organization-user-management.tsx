@@ -25,7 +25,12 @@ const userSchema = z.object({
 	firstName: z.string().min(1, 'First name is required.'),
 	lastName: z.string().min(1, 'Last name is required.'),
 	email: z.string().email('Please enter a valid email.'),
-	phone: z.string().max(11, 'Invalid phone number').regex(/^\d+$/, 'Invalid phone number').optional(),
+	phone: z
+		.string()
+		.max(11, 'Contact number must be 11 digits.')
+		.regex(/^01[0-9]{9}$/, 'Invalid phone number')
+		.optional()
+		.or(z.literal('')),
 	roles: z.array(z.string()).min(1, 'At least one role is required.'),
 	password: z.string().min(8, 'Password must be at least 8 characters.').optional(),
 });
