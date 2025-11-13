@@ -37,10 +37,11 @@ export const rolePermissions: Record<ROLES, { allow?: NavPermission[]; notAllow?
 		allow: ['*'], // Wildcard for all permissions
 	},
 	[ROLES.IIFC_ADMIN]: {
-		notAllow: ['MASTER_DATA', 'REQUESTS_LIST'],
+		notAllow: ['MASTER_DATA'],
 	},
 	[ROLES.IIFC_OPERATOR]: {
 		allow: [
+			'DASHBOARD',
 			'REQUESTS_NEW',
 			'REQUESTS_PROCESSING',
 			'APPLICATIONS_PENDING',
@@ -49,16 +50,16 @@ export const rolePermissions: Record<ROLES, { allow?: NavPermission[]; notAllow?
 		],
 	},
 	[ROLES.EXAMINER_ADMIN]: {
-		allow: ['APPLICATIONS_PROCESSING', 'APPLICATIONS_SHORTLISTED'],
+		allow: ['DASHBOARD', 'APPLICATIONS_PROCESSING', 'APPLICATIONS_SHORTLISTED'],
 	},
 	[ROLES.EXAMINER_OPERATOR]: {
-		allow: ['APPLICATIONS_PROCESSING'],
+		allow: ['DASHBOARD', 'APPLICATIONS_PROCESSING'],
 	},
 	[ROLES.CLIENT_ADMIN]: {
-		allow: ['REQUESTS_NEW', 'REQUESTS_LIST'],
+		allow: ['DASHBOARD', 'REQUESTS_NEW', 'REQUESTS_LIST'],
 	},
 	[ROLES.CLIENT_OPERATOR]: {
-		allow: ['REQUESTS_NEW'],
+		allow: ['DASHBOARD', 'REQUESTS_NEW'],
 	},
 	[ROLES.JOB_SEEKER]: {
 		// This is for jobseeker roles, handled separately but good to have.
