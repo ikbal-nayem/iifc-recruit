@@ -56,6 +56,7 @@ export const adminNavLinks: NavLink[] = [
 		href: ROUTES.JOB_REQUEST.LIST,
 		label: 'Requests',
 		icon: FolderKanban,
+		isActive: (pathname) => pathname.startsWith(ROUTES.JOB_REQUEST.LIST),
 		submenu: [
 			{
 				href: ROUTES.JOB_REQUEST.CREATE,
@@ -83,7 +84,7 @@ export const adminNavLinks: NavLink[] = [
 		href: ROUTES.APPLICATIONS,
 		label: 'Applications',
 		icon: Users2,
-		isActive: (pathname) => pathname.startsWith('/admin/application'),
+		isActive: (pathname) => pathname.startsWith(ROUTES.APPLICATIONS),
 		submenu: [
 			{
 				href: ROUTES.APPLICATION_PENDING,
