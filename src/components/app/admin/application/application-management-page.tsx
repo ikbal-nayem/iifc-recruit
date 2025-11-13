@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -92,11 +91,10 @@ export function ApplicationManagementPage({
 
 	const handleApplyApplicants = (newApplicants: JobseekerSearch[], onSuccess?: () => void) => {
 		const payload = newApplicants.map((js) => ({
-			applicantId: js.id,
+			applicantId: js.userId,
 			requestedPostId: requestedPost.id,
 			status: APPLICATION_STATUS.ACCEPTED,
 		}));
-
 		ApplicationService.createAll(payload)
 			.then((res) => {
 				toast.success({

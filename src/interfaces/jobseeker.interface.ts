@@ -209,7 +209,7 @@ export interface IProfileCompletionStatus {
 
 
 export type JobseekerSearch = {
-	id: string;
+	userId: string;
   firstName: string;
   lastName: string;
   middleName: string;

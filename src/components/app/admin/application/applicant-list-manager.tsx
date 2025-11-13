@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -12,10 +11,9 @@ import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { IMeta } from '@/interfaces/common.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
-import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { getSkillsAsync } from '@/services/async-api';
@@ -49,10 +47,9 @@ interface ApplicantListManagerProps {
 	existingApplicantIds?: (string | undefined)[];
 }
 
-const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
+const initMeta: IMeta = { page: 0, limit: 50, totalRecords: 0 };
 
 export function ApplicantListManager({ onApply, existingApplicantIds }: ApplicantListManagerProps) {
-	const { toast } = useToast();
 	const [isLoading, setIsLoading] = useState(false);
 	const [jobseekers, setJobseekers] = useState<JobseekerSearch[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
@@ -83,13 +80,11 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 					body: searchCriteria,
 					meta: { page: page, limit: meta.limit },
 				});
-				const newJobseekers = (response.body || []).filter(
-					(js) => !existingApplicantIds?.includes(js.id)
-				);
-				setJobseekers(newJobseekers);
+				// const newJobseekers = (response.body || []).filter((js) => !existingApplicantIds?.includes(js.userId));
+				setJobseekers(response.body);
 				setMeta(response.meta);
 			} catch (error: any) {
-				toast({
+				toast.error({
 					description: error.message || 'Could not fetch jobseekers.',
 					variant: 'danger',
 				});
@@ -98,7 +93,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 				setIsLoading(false);
 			}
 		},
-		[existingApplicantIds, meta.limit, toast]
+		[existingApplicantIds, meta?.limit]
 	);
 
 	useEffect(() => {
@@ -297,7 +292,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 
 			<Dialog open={!!selectedJobseeker} onOpenChange={(isOpen) => !isOpen && setSelectedJobseeker(null)}>
 				<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
-					{selectedJobseeker && <JobseekerProfileView jobseekerId={selectedJobseeker.id} />}
+					{selectedJobseeker && <JobseekerProfileView jobseekerId={selectedJobseeker.userId} />}
 				</DialogContent>
 			</Dialog>
 			<ConfirmationDialog
