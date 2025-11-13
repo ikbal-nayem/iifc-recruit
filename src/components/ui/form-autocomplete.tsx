@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounce } from '@/hooks/use-debounce';
 import { cn } from '@/lib/utils';
-import { Check, ChevronsUpDown, Loader2, PlusCircle } from 'lucide-react';
+import { Check, ChevronsUpDown, Loader2, PlusCircle, X } from 'lucide-react';
 import * as React from 'react';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
 
@@ -33,6 +34,7 @@ interface FormAutocompleteProps<
 	getOptionLabel: (option: TOption) => string | React.ReactNode;
 	renderOption?: (option: TOption) => React.ReactNode;
 	disabled?: boolean;
+	allowClear?: boolean;
 	onValueChange?: (value: string | undefined) => void;
 	value?: string;
 	initialLabel?: string;
@@ -55,6 +57,7 @@ export function FormAutocomplete<
 	getOptionLabel,
 	renderOption,
 	disabled = false,
+	allowClear = false,
 	onValueChange,
 	value: controlledValue,
 	initialLabel,
@@ -95,16 +98,37 @@ export function FormAutocomplete<
 		setSearchQuery('');
 	};
 
-	const renderTrigger = (value: any, displayLabel?: string | React.ReactNode) => (
-		<Button
-			variant='outline'
-			role='combobox'
-			className={cn('w-full justify-between h-10', !value && 'text-muted-foreground')}
-			disabled={disabled}
-		>
-			<span className='truncate'>{displayLabel || placeholder || 'Select...'}</span>
-			<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-		</Button>
+	const renderTrigger = (
+		value: any,
+		displayLabel?: string | React.ReactNode,
+		onClear?: (e: React.MouseEvent) => void
+	) => (
+		<div className='relative'>
+			<Button
+				variant='outline'
+				role='combobox'
+				className={cn(
+					'w-full justify-between h-10',
+					!value && 'text-muted-foreground',
+					allowClear && value && 'pr-8'
+				)}
+				disabled={disabled}
+			>
+				<span className='truncate'>{displayLabel || placeholder || 'Select...'}</span>
+				<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+			</Button>
+			{allowClear && value && onClear && (
+				<Button
+					type='button'
+					variant='ghost'
+					size='icon'
+					className='absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground hover:text-foreground'
+					onClick={onClear}
+				>
+					<X className='h-4 w-4' />
+				</Button>
+			)}
+		</div>
 	);
 
 	const renderPopoverContent = (field?: any) => (
@@ -176,7 +200,14 @@ export function FormAutocomplete<
 					{label && <FormLabel required={required}>{label}</FormLabel>}
 					<Popover open={open} onOpenChange={setOpen}>
 						<PopoverTrigger asChild>
-							{renderTrigger(controlledValue, selectedOption ? getOptionLabel(selectedOption) : initialLabel)}
+							{renderTrigger(
+								controlledValue,
+								selectedOption ? getOptionLabel(selectedOption) : initialLabel,
+								(e) => {
+									e.stopPropagation();
+									onValueChange?.(undefined);
+								}
+							)}
 						</PopoverTrigger>
 						{renderPopoverContent()}
 					</Popover>
@@ -200,7 +231,11 @@ export function FormAutocomplete<
 									<FormControl>
 										{renderTrigger(
 											field.value,
-											selectedOption ? getOptionLabel(selectedOption) : initialLabel
+											selectedOption ? getOptionLabel(selectedOption) : initialLabel,
+											(e) => {
+												e.stopPropagation();
+												field.onChange(undefined);
+											}
 										)}
 									</FormControl>
 								</PopoverTrigger>
