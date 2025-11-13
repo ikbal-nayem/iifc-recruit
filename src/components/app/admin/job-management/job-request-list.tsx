@@ -8,7 +8,9 @@ import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ROLES } from '@/constants/auth.constant';
 import { ROUTES } from '@/constants/routes.constant';
+import { useAuth } from '@/contexts/auth-context';
 import { useDebounce } from '@/hooks/use-debounce';
 import { toast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
@@ -27,12 +29,15 @@ interface JobRequestListProps {
 }
 
 export function JobRequestList({ status }: JobRequestListProps) {
+	const { currectUser } = useAuth();
 	const [data, setData] = React.useState<JobRequest[]>([]);
 	const [meta, setMeta] = React.useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [searchQuery, setSearchQuery] = React.useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
 	const [itemToDelete, setItemToDelete] = React.useState<JobRequest | null>(null);
+
+	const isClientAdmin = currectUser?.roles.includes(ROLES.CLIENT_ADMIN);
 
 	const loadItems = React.useCallback(
 		async (page: number, search: string) => {
@@ -104,12 +109,17 @@ export function JobRequestList({ status }: JobRequestListProps) {
 						? ROUTES.JOB_REQUEST.PROCESSING_DETAILS(request.id)
 						: ROUTES.JOB_REQUEST.COMPLETED_DETAILS(request.id),
 			},
-			{
-				label: 'Edit',
-				icon: <Edit className='mr-2 h-4 w-4' />,
-				href: ROUTES.JOB_REQUEST.EDIT(request.id),
-			},
 		];
+
+		if (isClientAdmin) {
+			return items;
+		}
+
+		items.push({
+			label: 'Edit',
+			icon: <Edit className='mr-2 h-4 w-4' />,
+			href: ROUTES.JOB_REQUEST.EDIT(request.id),
+		});
 
 		if (request.status === JobRequestStatus.PENDING) {
 			items.push(
@@ -121,17 +131,6 @@ export function JobRequestList({ status }: JobRequestListProps) {
 				}
 			);
 		}
-
-		// if (request.status === JobRequestStatus.PROCESSING) {
-		// 	items.push(
-		// 		{ isSeparator: true },
-		// 		{
-		// 			label: 'Mark as Completed',
-		// 			icon: <CheckCircle className='mr-2 h-4 w-4' />,
-		// 			onClick: () => handleStatusChange(request.id!, JobRequestStatus.COMPLETED),
-		// 		}
-		// 	);
-		// }
 
 		items.push(
 			{ isSeparator: true },
@@ -174,7 +173,7 @@ export function JobRequestList({ status }: JobRequestListProps) {
 						<Badge variant={getStatusVariant(item.status)}>{item.statusDTO?.nameEn}</Badge>
 					</div>
 					<div className='flex items-center gap-2'>
-						{item.status === JobRequestStatus.PENDING && (
+						{!isClientAdmin && item.status === JobRequestStatus.PENDING && (
 							<Button
 								size='sm'
 								variant='success'
