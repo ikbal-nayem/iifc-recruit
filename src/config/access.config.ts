@@ -1,8 +1,10 @@
+
 import { ROLES } from '@/constants/auth.constant';
 
 export type NavPermission =
 	| 'DASHBOARD'
-	| 'REQUESTS'
+	| 'REQUESTS_MENU'
+	| 'REQUESTS_LIST'
 	| 'REQUESTS_NEW'
 	| 'REQUESTS_PENDING'
 	| 'REQUESTS_PROCESSING'
@@ -52,7 +54,7 @@ export const rolePermissions: Record<ROLES, { allow?: NavPermission[]; notAllow?
 		allow: ['APPLICATIONS_PROCESSING'],
 	},
 	[ROLES.CLIENT_ADMIN]: {
-		allow: ['REQUESTS_NEW', 'REQUESTS'],
+		allow: ['REQUESTS_NEW', 'REQUESTS_LIST'],
 	},
 	[ROLES.CLIENT_OPERATOR]: {
 		allow: ['REQUESTS_NEW'],

@@ -1,3 +1,4 @@
+
 import { ROUTES } from '@/constants/routes.constant';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -31,6 +32,7 @@ import {
 	Users,
 	Users2,
 	CalendarCheck,
+	List,
 } from 'lucide-react';
 import type { NavPermission } from '@/config/access.config';
 
@@ -55,7 +57,7 @@ export const adminNavLinks: NavLink[] = [
 		isActive: (pathname) => pathname === ROUTES.DASHBOARD.ADMIN,
 	},
 	{
-		key: 'REQUESTS',
+		key: 'REQUESTS_MENU',
 		href: ROUTES.JOB_REQUEST.LIST,
 		label: 'Requests',
 		icon: FolderKanban,
@@ -66,6 +68,12 @@ export const adminNavLinks: NavLink[] = [
 				href: ROUTES.JOB_REQUEST.CREATE,
 				label: 'New Request',
 				icon: PlusCircle,
+			},
+			{
+				key: 'REQUESTS_LIST',
+				href: ROUTES.JOB_REQUEST.LIST,
+				label: 'All Requests',
+				icon: List,
 			},
 			{
 				key: 'REQUESTS_PENDING',
