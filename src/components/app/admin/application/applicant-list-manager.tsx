@@ -84,7 +84,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 					meta: { page: page, limit: meta.limit },
 				});
 				const newJobseekers = (response.body || []).filter(
-					(js) => !existingApplicantIds?.includes(js.userId)
+					(js) => !existingApplicantIds?.includes(js.id)
 				);
 				setJobseekers(newJobseekers);
 				setMeta(response.meta);
@@ -312,7 +312,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 
 			<Dialog open={!!selectedJobseeker} onOpenChange={(isOpen) => !isOpen && setSelectedJobseeker(null)}>
 				<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
-					{selectedJobseeker && <JobseekerProfileView jobseekerId={selectedJobseeker.userId} />}
+					{selectedJobseeker && <JobseekerProfileView jobseekerId={selectedJobseeker.id} />}
 				</DialogContent>
 			</Dialog>
 			<ConfirmationDialog
