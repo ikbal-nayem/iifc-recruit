@@ -13,7 +13,7 @@ export default function ManageJobRequestsPage() {
 					<p className='text-muted-foreground'>Review, approve, and manage all incoming job requests.</p>
 				</div>
 				<Button asChild>
-					<Link href={ROUTES.JOB_REQUEST_CREATE}>
+					<Link href={ROUTES.JOB_REQUEST.CREATE}>
 						<PlusCircle className='mr-2 h-4 w-4' />
 						Create New Request
 					</Link>

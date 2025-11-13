@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
@@ -9,49 +8,49 @@ import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTES } from '@/constants/routes.constant';
 import { useDebounce } from '@/hooks/use-debounce';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequestedPostStatus, JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { Building, Search, UserCog, Users } from 'lucide-react';
+import { format, parseISO } from 'date-fns';
+import { Building, Calendar, Search, UserCog, Users } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
-const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
+const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
 
 interface RequestedPostsListProps {
-	status: JobRequestedPostStatus;
+	statusIn: JobRequestedPostStatus[];
+	requestStatusNotIn: JobRequestStatus[];
 }
 
-export function RequestedPostsList({ status }: RequestedPostsListProps) {
+export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPostsListProps) {
 	const [data, setData] = useState<RequestedPost[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
-	const { toast } = useToast();
 
 	const loadItems = useCallback(
 		async (page: number, search: string) => {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { searchKey: search, status: status },
+					body: { searchKey: search, statusIn, ...(requestStatusNotIn && { requestStatusNotIn }) },
 					meta: { page, limit: meta.limit },
 				};
 				const response = await JobRequestService.getRequestedPosts(payload);
 				setData(response.body);
 				setMeta(response.meta);
 			} catch (error: any) {
-				toast({
+				toast.error({
 					description: error.message || 'Failed to load requested posts.',
-					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit, toast, status]
+		[meta.limit, statusIn, requestStatusNotIn]
 	);
 
 	useEffect(() => {
@@ -68,6 +67,7 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 
 		switch (item.status) {
 			case JobRequestedPostStatus.PENDING:
+			case JobRequestedPostStatus.CIRCULAR_PUBLISHED:
 				manageHref = ROUTES.MANAGE_PENDING_APPLICATION(item.id);
 				break;
 			case JobRequestedPostStatus.PROCESSING:
@@ -93,6 +93,8 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 	};
 
 	const renderItem = (item: RequestedPost) => {
+		const isCircularPublished = item.status === JobRequestedPostStatus.CIRCULAR_PUBLISHED;
+
 		return (
 			<Card key={item.id} className='p-4 flex flex-col sm:flex-row justify-between items-start'>
 				<div className='flex-1 mb-4 sm:mb-0 space-y-3'>
@@ -107,6 +109,13 @@ export function RequestedPostsList({ status }: RequestedPostsListProps) {
 						<span className='flex items-center gap-1.5'>
 							<Users className='h-4 w-4' /> {item.vacancy} vacancies
 						</span>
+						{isCircularPublished && item.circularPublishDate && (
+							<span className='flex items-center gap-1.5'>
+								<Calendar className='h-4 w-4' />
+								{format(parseISO(item.circularPublishDate), 'dd MMM')} -{' '}
+								{format(parseISO(item.circularEndDate!), 'dd MMM')}
+							</span>
+						)}
 						<Badge variant='outline' className='flex items-center gap-1.5'>
 							<span className='text-muted-foreground'>Examiner:</span>
 							<span className='font-semibold'>{item.examiner?.nameEn || 'Not Assigned'}</span>

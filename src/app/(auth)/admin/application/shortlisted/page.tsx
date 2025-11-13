@@ -10,7 +10,7 @@ export default function ShortlistedApplicationsPage() {
 					<p className='text-muted-foreground'>Manage all shortlisted application processes.</p>
 				</div>
 			</div>
-			<RequestedPostsList status={JobRequestedPostStatus.SHORTLISTED} />
+			<RequestedPostsList statusIn={[JobRequestedPostStatus.SHORTLISTED]} />
 		</div>
 	);
 }

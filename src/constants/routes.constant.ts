@@ -1,4 +1,3 @@
-
 export const ROUTES = {
 	AUTH: {
 		LOGIN: '/login',
@@ -18,15 +17,18 @@ export const ROUTES = {
 		FIND_JOBS: '/jobseeker/find-job',
 		JOB_DETAILS: (id?: string) => `/jobseeker/find-job/${id}`,
 	},
-	
-	HOME: '/',
-	JOB_REQUESTS: '/admin/request',
-	JOB_REQUEST_CREATE: '/admin/request/create',
-	JOB_REQUEST_DETAILS: (id?: string) => `/admin/request/${id}`,
-	JOB_REQUEST_EDIT: (id?: string) => `/admin/request/edit/${id}`,
-	JOB_REQUEST_PENDING: '/admin/request/pending',
-	JOB_REQUEST_PROCESSING: '/admin/request/processing',
-	JOB_REQUEST_COMPLETED: '/admin/request/completed',
+
+	JOB_REQUEST: {
+		LIST: '/admin/request',
+		CREATE: '/admin/request/create',
+		EDIT: (id?: string) => `/admin/request/edit/${id}`,
+		PENDING: '/admin/request/pending',
+		PENDING_DETAILS: (id?: string) => `/admin/request/pending/${id}`,
+		PROCESSING: '/admin/request/processing',
+		PROCESSING_DETAILS: (id?: string) => `/admin/request/processing/${id}`,
+		COMPLETED: '/admin/request/completed',
+		COMPLETED_DETAILS: (id?: string) => `/admin/request/completed/${id}`,
+	},
 
 	APPLICATIONS: '/admin/application',
 	APPLICATION_PENDING: '/admin/application/pending',

@@ -21,7 +21,7 @@ export function AdminDashboardCards({ data }: AdminDashboardCardsProps) {
 
 	const cardItems = [
 		{
-			href: ROUTES.JOB_REQUEST_PROCESSING,
+			href: ROUTES.JOB_REQUEST.PROCESSING,
 			title: 'Processing Requests',
 			value: processingJobRequests,
 			description: 'Active job requests',

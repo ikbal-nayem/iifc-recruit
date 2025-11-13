@@ -9,7 +9,7 @@ import { toast } from '@/hooks/use-toast';
 import { RequestedPost } from '@/interfaces/job.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { Loader2, Send } from 'lucide-react';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
@@ -39,8 +39,10 @@ export function CircularPublishForm({ isOpen, onClose, post, onSuccess }: Circul
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			circularPublishDate: post.circularPublishDate || format(new Date(), 'yyyy-MM-dd'),
-			circularEndDate: post.circularEndDate || '',
+			circularPublishDate: post.circularPublishDate
+				? format(parseISO(post.circularPublishDate), 'yyyy-MM-dd')
+				: format(new Date(), 'yyyy-MM-dd'),
+			circularEndDate: post.circularEndDate ? format(parseISO(post.circularEndDate), 'yyyy-MM-dd') : '',
 			jobDescription: post.jobDescription || '',
 			jobResponsibilities: post.jobResponsibilities || '',
 			jobRequirements: post.jobRequirements || '',

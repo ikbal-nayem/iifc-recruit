@@ -1,44 +1,55 @@
-
 'use client';
 
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
-import { useToast } from '@/hooks/use-toast';
-import { RequestedPost } from '@/interfaces/job.interface';
+import { toast } from '@/hooks/use-toast';
+import { JobRequestedPostStatus, RequestedPost } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { getExaminerAsync } from '@/services/async-api';
-import { Building, Edit, Loader2, Users } from 'lucide-react';
+import { format, parseISO } from 'date-fns';
+import { Building, Calendar, Edit, Loader2, Pencil, Send, Users } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { CircularPublishForm } from '../job-management/circular-publish-form';
 
 interface ApplicationManagementHeaderProps {
 	requestedPost: RequestedPost;
 	setRequestedPost: (post: RequestedPost) => void;
 	isProcessing?: boolean;
+	isShortlisted?: boolean;
 }
 
 export function ApplicationManagementHeader({
 	requestedPost,
 	setRequestedPost,
 	isProcessing = false,
+	isShortlisted = false,
 }: ApplicationManagementHeaderProps) {
-	const { toast } = useToast();
 	const [isExaminerDialogOpen, setIsExaminerDialogOpen] = useState(false);
 	const [isSavingExaminer, setIsSavingExaminer] = useState(false);
 	const [selectedExaminerId, setSelectedExaminerId] = useState<string | undefined>(
 		requestedPost.examinerId?.toString()
 	);
+	const [showCircularForm, setShowCircularForm] = useState(false);
 
 	const examinerForm = useForm();
 
 	const handleSaveExaminer = async () => {
 		if (!selectedExaminerId) {
-			toast({ title: 'Error', description: 'No examiner selected.', variant: 'danger' });
+			toast.error({ description: 'No examiner selected.' });
 			return;
 		}
 		setIsSavingExaminer(true);
@@ -49,30 +60,50 @@ export function ApplicationManagementHeader({
 			});
 			const updatedPost = response.body;
 			setRequestedPost(updatedPost);
-			toast({
+			toast.success({
 				title: 'Examiner Assigned',
 				description: 'The examining organization has been assigned to this post.',
-				variant: 'success',
 			});
 			setIsExaminerDialogOpen(false);
 		} catch (error: any) {
-			toast({
+			toast.error({
 				description: error.message || 'Failed to assign examiner.',
-				variant: 'danger',
 			});
 		} finally {
 			setIsSavingExaminer(false);
 		}
 	};
 
+	const handlePublishSuccess = (updatedPost: RequestedPost) => {
+		setRequestedPost(updatedPost);
+		setShowCircularForm(false);
+	};
+
+	const isCircularPublished =
+		requestedPost.status === JobRequestedPostStatus.CIRCULAR_PUBLISHED ||
+		requestedPost.status === JobRequestedPostStatus.PROCESSING ||
+		requestedPost.status === JobRequestedPostStatus.SHORTLISTED ||
+		requestedPost.status === JobRequestedPostStatus.COMPLETED;
+
+	const canEditCircular = !isProcessing && !isShortlisted;
+
 	return (
 		<>
 			<Card className='glassmorphism'>
 				<CardHeader>
-					<div className='flex items-center gap-4'>
-						<CardTitle>{requestedPost?.post?.nameEn}</CardTitle>
-						{requestedPost.statusDTO?.nameEn && (
-							<Badge variant={getStatusVariant(requestedPost.status)}>{requestedPost.statusDTO.nameEn}</Badge>
+					<div className='flex flex-wrap items-center gap-4 justify-between'>
+						<div className='flex items-center gap-4'>
+							<CardTitle>{requestedPost?.post?.nameEn}</CardTitle>
+							{requestedPost.statusDTO?.nameEn && (
+								<Badge variant={getStatusVariant(requestedPost.status)}>
+									{requestedPost.statusDTO.nameEn}
+								</Badge>
+							)}
+						</div>
+						{requestedPost.status === JobRequestedPostStatus.PENDING && !isCircularPublished && (
+							<Button size='sm' onClick={() => setShowCircularForm(true)} title='Publish as circular'>
+								<Send className='mr-2 h-4 w-4' /> Publish Circular
+							</Button>
 						)}
 					</div>
 					<div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
@@ -89,7 +120,7 @@ export function ApplicationManagementHeader({
 						<div className='flex items-center gap-2 text-sm'>
 							<span className='text-muted-foreground'>Examiner:</span>
 							<span className='font-semibold'>{requestedPost.examiner?.nameEn || 'Not Assigned'}</span>
-							{!isProcessing && (
+							{!isProcessing && !isShortlisted && (
 								<Button
 									variant='ghost'
 									size='icon'
@@ -103,6 +134,36 @@ export function ApplicationManagementHeader({
 					</div>
 				</CardHeader>
 			</Card>
+
+			{isCircularPublished && !isProcessing && (
+				<Alert variant='info' className='' showIcon={false}>
+					<AlertTitle className='font-bold flex items-center justify-between'>
+						<span className='text-lg'>Circular Information</span>
+						{canEditCircular && (
+							<Button variant='outline-info' size='sm' onClick={() => setShowCircularForm(true)}>
+								<Pencil className='mr-2 h-3 w-3' /> Edit Circular
+							</Button>
+						)}
+					</AlertTitle>
+					<AlertDescription className='mt-2 grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1'>
+						<div className='flex items-center gap-2'>
+							<Calendar className='h-4 w-4' />
+							<span>
+								Published From:{' '}
+								<strong>{format(parseISO(requestedPost.circularPublishDate!), 'dd MMM, yyyy')}</strong>
+							</span>
+						</div>
+						<div className='flex items-center gap-2'>
+							<Calendar className='h-4 w-4' />
+							<span>
+								Expires On:{' '}
+								<strong>{format(parseISO(requestedPost.circularEndDate!), 'dd MMM, yyyy')}</strong>
+							</span>
+						</div>
+					</AlertDescription>
+				</Alert>
+			)}
+
 			<Dialog open={isExaminerDialogOpen} onOpenChange={setIsExaminerDialogOpen}>
 				<DialogContent>
 					<DialogHeader>
@@ -120,8 +181,13 @@ export function ApplicationManagementHeader({
 								placeholder='Search for an examining organization...'
 								required
 								loadOptions={getExaminerAsync}
-								getOptionValue={(option) => option.id!.toString()}
-								getOptionLabel={(option) => option.nameEn}
+								getOptionValue={(option) => option.id!}
+								getOptionLabel={(option) => (
+									<div className='flex flex-col items-start'>
+										{option.nameEn}
+										<small>{option.nameBn}</small>
+									</div>
+								)}
 								value={selectedExaminerId}
 								initialLabel={requestedPost.examiner?.nameEn}
 								onValueChange={setSelectedExaminerId}
@@ -139,6 +205,14 @@ export function ApplicationManagementHeader({
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
+			{showCircularForm && (
+				<CircularPublishForm
+					isOpen={showCircularForm}
+					onClose={() => setShowCircularForm(false)}
+					post={requestedPost}
+					onSuccess={handlePublishSuccess}
+				/>
+			)}
 		</>
 	);
 }

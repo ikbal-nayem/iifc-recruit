@@ -17,7 +17,7 @@ import { getStatusVariant } from '@/lib/color-mapping';
 import { cn } from '@/lib/utils';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { differenceInDays, format, parseISO } from 'date-fns';
-import { Building, Calendar, Check, CheckCircle, Edit, Eye, FileText, Search, Trash } from 'lucide-react';
+import { Building, Calendar, Check, Edit, Eye, FileText, Search, Trash } from 'lucide-react';
 import * as React from 'react';
 
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
@@ -97,12 +97,17 @@ export function JobRequestList({ status }: JobRequestListProps) {
 			{
 				label: 'View Details',
 				icon: <Eye className='mr-2 h-4 w-4' />,
-				href: ROUTES.JOB_REQUEST_DETAILS(request.id),
+				href:
+					status === JobRequestStatus.PENDING
+						? ROUTES.JOB_REQUEST.PENDING_DETAILS(request.id)
+						: JobRequestStatus.PROCESSING
+						? ROUTES.JOB_REQUEST.PROCESSING_DETAILS(request.id)
+						: ROUTES.JOB_REQUEST.COMPLETED_DETAILS(request.id),
 			},
 			{
 				label: 'Edit',
 				icon: <Edit className='mr-2 h-4 w-4' />,
-				href: ROUTES.JOB_REQUEST_EDIT(request.id),
+				href: ROUTES.JOB_REQUEST.EDIT(request.id),
 			},
 		];
 
@@ -170,7 +175,11 @@ export function JobRequestList({ status }: JobRequestListProps) {
 					</div>
 					<div className='flex items-center gap-2'>
 						{item.status === JobRequestStatus.PENDING && (
-							<Button size='sm' onClick={() => handleStatusChange(item.id!, JobRequestStatus.PROCESSING)}>
+							<Button
+								size='sm'
+								variant='success'
+								onClick={() => handleStatusChange(item.id!, JobRequestStatus.PROCESSING)}
+							>
 								<Check className='mr-2 h-4 w-4' /> Accept
 							</Button>
 						)}

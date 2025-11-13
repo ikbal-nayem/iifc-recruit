@@ -1,9 +1,8 @@
-
 'use client';
 
 import { OutsourcingChargeCrud } from '@/components/app/admin/master-data/outsourcing-charge-crud';
 import { useDebounce } from '@/hooks/use-debounce';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import {
 	IOutsourcingCategory,
@@ -13,10 +12,9 @@ import {
 import { MasterDataService } from '@/services/api/master-data.service';
 import { useCallback, useEffect, useState } from 'react';
 
-const initMeta: IMeta = { page: 0, limit: 10 };
+const initMeta: IMeta = { page: 0, limit: 20 };
 
 export default function MasterOutsourcingChargePage() {
-	const { toast } = useToast();
 	const [items, setItems] = useState<IOutsourcingCharge[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = useState(true);
@@ -37,15 +35,13 @@ export default function MasterOutsourcingChargePage() {
 				setCategories(catRes.body);
 				setZones(zoneRes.body);
 			} catch (error) {
-				toast({
-					title: 'Error',
+				toast.error({
 					description: 'Failed to load master data.',
-					variant: 'danger',
 				});
 			}
 		};
 		fetchMasterData();
-	}, [toast]);
+	}, []);
 
 	const loadItems = useCallback(
 		async (page: number, search: string, categoryId: string, zoneId: string) => {
@@ -64,16 +60,14 @@ export default function MasterOutsourcingChargePage() {
 				setMeta(response.meta);
 			} catch (error) {
 				console.error('Failed to load items', error);
-				toast({
-					title: 'Error',
+				toast.error({
 					description: 'Failed to load outsourcing charges.',
-					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit, toast]
+		[meta.limit]
 	);
 
 	useEffect(() => {
@@ -87,12 +81,12 @@ export default function MasterOutsourcingChargePage() {
 	const handleAdd = async (item: Omit<IOutsourcingCharge, 'id'>): Promise<boolean> => {
 		try {
 			const resp = await MasterDataService.outsourcingCharge.add(item);
-			toast({ description: resp.message, variant: 'success' });
+			toast.success({ description: resp.message });
 			loadItems(meta.page, debouncedSearch, categoryFilter, zoneFilter);
 			return true;
 		} catch (error) {
 			console.error('Failed to add item', error);
-			toast({ title: 'Error', description: 'Failed to add outsourcing charge.', variant: 'danger' });
+			toast.error({ title: 'Error', description: 'Failed to add outsourcing charge.' });
 			return false;
 		}
 	};
@@ -100,29 +94,28 @@ export default function MasterOutsourcingChargePage() {
 	const handleUpdate = async (item: IOutsourcingCharge): Promise<boolean> => {
 		try {
 			const resp = await MasterDataService.outsourcingCharge.update(item);
-			toast({ description: resp.message, variant: 'success' });
+			toast.success({ description: resp.message });
 			loadItems(meta.page, debouncedSearch, categoryFilter, zoneFilter);
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update outsourcing charge.', variant: 'danger' });
+			toast.error({ title: 'Error', description: 'Failed to update outsourcing charge.' });
 			return false;
 		}
 	};
 
-	const handleDelete = async (id: number): Promise<boolean> => {
+	const handleDelete = async (id: string): Promise<boolean> => {
 		try {
 			await MasterDataService.outsourcingCharge.delete(id.toString());
-			toast({
+			toast.success({
 				title: 'Success',
 				description: 'Outsourcing charge deleted successfully.',
-				variant: 'success',
 			});
 			loadItems(meta.page, debouncedSearch, categoryFilter, zoneFilter);
 			return true;
 		} catch (error) {
 			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: 'Failed to delete outsourcing charge.', variant: 'danger' });
+			toast.error({ description: 'Failed to delete outsourcing charge.' });
 			return false;
 		}
 	};
@@ -131,7 +124,7 @@ export default function MasterOutsourcingChargePage() {
 		<OutsourcingChargeCrud
 			title='Outsourcing Charges'
 			description='Manage monthly service charges for different categories and zones.'
-			noun='Charge'
+			noun='Outsourcing Charge'
 			items={items}
 			meta={meta}
 			isLoading={isLoading}

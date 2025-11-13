@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -28,9 +29,9 @@ import {
 } from '@/interfaces/master-data.interface';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import * as z from 'zod';
 
 const formSchema = z.object({
 	categoryId: z.coerce.string().min(1, 'Category is required.'),
@@ -62,12 +63,28 @@ function OutsourcingChargeForm({
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
-		values: {
-			categoryId: initialData?.categoryId!,
-			zoneId: initialData?.zoneId!,
-			monthlyServiceCharge: initialData?.monthlyServiceCharge!,
+		defaultValues: {
+			categoryId: '',
+			zoneId: '',
+			monthlyServiceCharge: undefined,
 		},
 	});
+
+	useEffect(() => {
+		if (initialData) {
+			form.reset({
+				categoryId: initialData.categoryId,
+				zoneId: initialData.zoneId,
+				monthlyServiceCharge: initialData.monthlyServiceCharge,
+			});
+		} else {
+			form.reset({
+				categoryId: '',
+				zoneId: '',
+				monthlyServiceCharge: undefined,
+			});
+		}
+	}, [initialData, form]);
 
 	const handleSubmit = async (data: FormValues) => {
 		setIsSubmitting(true);
@@ -87,7 +104,7 @@ function OutsourcingChargeForm({
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>{initialData ? `Edit ${noun}` : `Add New ${noun}`}</DialogTitle>
+					<DialogTitle>{initialData ? `Edit ${noun}` : `Add ${noun}`}</DialogTitle>
 					<DialogDescription>
 						{initialData ? 'Update the details.' : `Enter the details for the new ${noun.toLowerCase()}.`}
 					</DialogDescription>
@@ -104,6 +121,7 @@ function OutsourcingChargeForm({
 							getOptionValue={(option) => option.id!}
 							getOptionLabel={(option) => option.nameEn}
 							disabled={isSubmitting}
+							initialLabel={initialData?.category?.nameEn}
 						/>
 						<FormAutocomplete
 							control={form.control}
@@ -115,6 +133,7 @@ function OutsourcingChargeForm({
 							getOptionValue={(option) => option.id!}
 							getOptionLabel={(option) => option.nameEn}
 							disabled={isSubmitting}
+							initialLabel={initialData?.zone?.nameEn}
 						/>
 						<FormInput
 							control={form.control}
@@ -256,7 +275,7 @@ export function OutsourcingChargeCrud({
 							options={[{ id: 'all', nameEn: 'All Categories' }, ...categories]}
 							getOptionValue={(option) => option.id!}
 							getOptionLabel={(option) => option.nameEn}
-							onValueChange={(val) => onCategoryChange(val.toString())}
+							onValueChange={(val) => onCategoryChange(val!)}
 							value={categoryFilter}
 						/>
 						<FormAutocomplete
@@ -267,7 +286,7 @@ export function OutsourcingChargeCrud({
 							options={[{ id: 'all', nameEn: 'All Zones' }, ...zones]}
 							getOptionValue={(option) => option.id!}
 							getOptionLabel={(option) => option.nameEn}
-							onValueChange={(val) => onZoneChange(val.toString())}
+							onValueChange={(val) => onZoneChange(val!)}
 							value={zoneFilter}
 						/>
 					</div>
@@ -281,7 +300,8 @@ export function OutsourcingChargeCrud({
 									>
 										<div className='flex-1 mb-4 sm:mb-0'>
 											<p className='font-semibold'>{item.category?.nameEn}</p>
-											<p className='text-sm text-muted-foreground'>
+											<p className='text-sm text-muted-foreground'>{item.category?.nameBn}</p>
+											<p className='text-sm text-muted-foreground mt-1'>
 												Zone: {item.zone?.nameEn} | Charge: {item.monthlyServiceCharge?.toLocaleString()}
 											</p>
 										</div>

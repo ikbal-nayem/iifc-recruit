@@ -13,7 +13,7 @@ async function getJobRequest(id: string): Promise<JobRequest> {
 	}
 }
 
-export default async function JobRequestDetailsPage({ params }: { params: { id: string } }) {
+export default async function JobRequestCompletedDetailsPage({ params }: { params: { id: string } }) {
 	const reqParams = await params;
 	const jobRequest = await getJobRequest(reqParams.id);
 

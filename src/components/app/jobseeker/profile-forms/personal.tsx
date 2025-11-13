@@ -103,7 +103,7 @@ function ProfileImageCard({
 					<div className='flex items-center gap-6'>
 						<Avatar className='h-28 w-28 border-2 border-primary/10'>
 							<AvatarImage
-								src={avatarPreview || makePreviewURL(profileImage?.filePath) || '/user-placeholder.png'}
+								src={avatarPreview || makePreviewURL(profileImage?.filePath)}
 								alt='Admin Avatar'
 							/>
 							<AvatarFallback className='text-3xl'>

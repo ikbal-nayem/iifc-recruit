@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -44,7 +43,7 @@ import {
 	Loader2,
 	RotateCcw,
 	UserCheck,
-	UserPlus
+	UserPlus,
 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -85,7 +84,7 @@ export function ApplicantsTable({
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 	const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
-	const [selectedApplicant, setSelectedApplicant] = React.useState<JobseekerSearch | null>(null);
+	const [selectedApplicant, setSelectedApplicant] = React.useState<string | null>(null);
 	const [bulkAction, setBulkAction] = React.useState<{
 		type: APPLICATION_STATUS;
 		count: number;
@@ -158,7 +157,7 @@ export function ApplicantsTable({
 			{
 				label: 'View Profile',
 				icon: <FileText className='mr-2 h-4 w-4' />,
-				onClick: () => setSelectedApplicant(application.applicant as JobseekerSearch),
+				onClick: () => setSelectedApplicant(application?.applicantId),
 			},
 		];
 
@@ -499,10 +498,7 @@ export function ApplicantsTable({
 							))}
 						</TableHeader>
 						<TableBody
-							className={cn(
-								'transition-opacity duration-300',
-								isLoading ? 'opacity-50' : 'opacity-100'
-							)}
+							className={cn('transition-opacity duration-300', isLoading ? 'opacity-50' : 'opacity-100')}
 						>
 							{table.getRowModel().rows?.length ? (
 								table.getRowModel().rows.map((row) => (
@@ -532,7 +528,7 @@ export function ApplicantsTable({
 			</Card>
 			<Dialog open={!!selectedApplicant} onOpenChange={(isOpen) => !isOpen && setSelectedApplicant(null)}>
 				<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
-					{selectedApplicant && <JobseekerProfileView jobseekerId={selectedApplicant.userId} />}
+					{selectedApplicant && <JobseekerProfileView jobseekerId={selectedApplicant} />}
 				</DialogContent>
 			</Dialog>
 
@@ -591,9 +587,7 @@ export function ApplicantsTable({
 					{marksApplicant && (
 						<div className='flex items-center gap-3 p-4 border-b border-t'>
 							<Avatar>
-								<AvatarImage
-									src={(marksApplicant.applicant as JobseekerSearch).profileImage?.filePath}
-								/>
+								<AvatarImage src={(marksApplicant.applicant as JobseekerSearch).profileImage?.filePath} />
 								<AvatarFallback>
 									{(marksApplicant.applicant as JobseekerSearch).firstName?.[0]}
 									{(marksApplicant.applicant as JobseekerSearch).lastName?.[0]}
@@ -640,6 +634,3 @@ export function ApplicantsTable({
 		</div>
 	);
 }
-
-    
-    

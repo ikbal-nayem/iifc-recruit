@@ -1,3 +1,4 @@
+
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,32 +11,23 @@ import {
 	JobRequestedPostStatus,
 	JobRequestStatus,
 	JobRequestType,
-	RequestedPost,
 } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { cn } from '@/lib/utils';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { differenceInDays, format, isFuture, parseISO } from 'date-fns';
-import { ArrowLeft, Building, CheckCircle, Edit, FileText, Loader2, Pencil, Send, Users } from 'lucide-react';
+import { differenceInDays, format, parseISO } from 'date-fns';
+import { ArrowLeft, Building, Check, CheckCircle, Edit, FileText, Loader2, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
-import { CircularPublishForm } from './circular-publish-form';
 
 export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: JobRequest }) {
 	const router = useRouter();
 	const [request, setRequest] = React.useState<JobRequest>(initialJobRequest);
-	const [selectedPost, setSelectedPost] = React.useState<RequestedPost | null>(null);
 	const [isCompleting, setIsCompleting] = React.useState(false);
+	const [isAccepting, setIsAccepting] = React.useState(false);
 
 	const isDeadlineSoon = differenceInDays(parseISO(request.deadline), new Date()) <= 7;
-
-	const handlePublishSuccess = (updatedPost: RequestedPost) => {
-		setRequest((prevRequest) => ({
-			...prevRequest,
-			requestedPosts: prevRequest.requestedPosts.map((p) => (p.id === updatedPost.id ? updatedPost : p)),
-		}));
-	};
 
 	const handleMarkAsComplete = async () => {
 		setIsCompleting(true);
@@ -45,13 +37,31 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 				title: 'Request Completed',
 				description: 'The job request has been marked as completed.',
 			});
-			router.push(ROUTES.JOB_REQUEST_COMPLETED);
+			router.push(ROUTES.JOB_REQUEST.COMPLETED);
 		} catch (error: any) {
 			toast.error({
 				description: error.message || 'Failed to complete the job request.',
 			});
 		} finally {
 			setIsCompleting(false);
+		}
+	};
+
+	const handleAcceptRequest = async () => {
+		setIsAccepting(true);
+		try {
+			const response = await JobRequestService.updateStatus(request.id!, JobRequestStatus.PROCESSING);
+			router.push(ROUTES.JOB_REQUEST.PROCESSING);
+			toast.success({
+				title: 'Request Accepted',
+				description: 'The job request is now being processed.',
+			});
+		} catch (error: any) {
+			toast.error({
+				description: error.message || 'Failed to accept the job request.',
+			});
+		} finally {
+			setIsAccepting(false);
 		}
 	};
 
@@ -63,6 +73,13 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					Back to Requests
 				</Button>
 				<div className='flex gap-2'>
+					{request.status === JobRequestStatus.PENDING && (
+						<Button asChild variant='outline'>
+							<Link href={ROUTES.JOB_REQUEST.EDIT(request.id)}>
+								<Edit className='mr-2 h-4 w-4' /> Edit Request
+							</Link>
+						</Button>
+					)}
 					{request.status === JobRequestStatus.PROCESSING && (
 						<Button variant='lite-success' onClick={handleMarkAsComplete} disabled={isCompleting}>
 							{isCompleting ? (
@@ -73,11 +90,16 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 							Mark as Complete
 						</Button>
 					)}
-					<Button asChild>
-						<Link href={ROUTES.JOB_REQUEST_EDIT(request.id)}>
-							<Edit className='mr-2 h-4 w-4' /> Edit Request
-						</Link>
-					</Button>
+					{request.status === JobRequestStatus.PENDING && (
+						<Button variant='success' onClick={handleAcceptRequest} disabled={isAccepting}>
+							{isAccepting ? (
+								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+							) : (
+								<Check className='mr-2 h-4 w-4' />
+							)}
+							Accept Request
+						</Button>
+					)}
 				</div>
 			</div>
 
@@ -133,9 +155,6 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 				</CardHeader>
 				<CardContent className='space-y-4'>
 					{request.requestedPosts?.map((post, index) => {
-						const isCircularPublished = post.status === JobRequestedPostStatus.CIRCULAR_PUBLISHED;
-						const isCircularEditable =
-							isCircularPublished && post.circularEndDate && isFuture(parseISO(post.circularEndDate));
 						return (
 							<Card key={index} className='p-4 border rounded-lg bg-muted/30 space-y-4'>
 								<div className='flex items-start justify-between'>
@@ -144,29 +163,8 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 									</div>
 									<div className='flex items-center gap-2 text-right'>
 										<div className='flex flex-col items-end gap-1'>
-											<Badge variant={getStatusVariant(post.status)}>
-												{post.statusDTO?.nameEn}{' '}
-												{isCircularEditable && (
-													<Pencil
-														className='ms-1 h-3 w-3 hover:scale-x-110'
-														onClick={() => setSelectedPost(post)}
-														role='button'
-													/>
-												)}
-											</Badge>
-											{isCircularPublished && post.circularEndDate && (
-												<p className='text-xs text-muted-foreground'>
-													Ends: {format(parseISO(post.circularEndDate), 'PPP')}
-												</p>
-											)}
+											<Badge variant={getStatusVariant(post.status)}>{post.statusDTO?.nameEn}</Badge>
 										</div>
-										{request.status === JobRequestStatus.PROCESSING &&
-											post.status === JobRequestedPostStatus.PENDING &&
-											!isCircularPublished && (
-												<Button size='sm' onClick={() => setSelectedPost(post)} title='Publish as circular'>
-													<Send className='h-4 w-4' />
-												</Button>
-											)}
 									</div>
 								</div>
 
@@ -225,15 +223,6 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					})}
 				</CardContent>
 			</Card>
-
-			{selectedPost && (
-				<CircularPublishForm
-					isOpen={!!selectedPost}
-					onClose={() => setSelectedPost(null)}
-					post={selectedPost}
-					onSuccess={handlePublishSuccess}
-				/>
-			)}
 		</div>
 	);
 }

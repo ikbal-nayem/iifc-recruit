@@ -46,10 +46,9 @@ interface TrainingFormProps {
 	onSubmit: (data: Training) => Promise<boolean>;
 	initialData?: Training;
 	noun: string;
-	trainingTypes: ICommonMasterData[];
 }
 
-function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTypes }: TrainingFormProps) {
+function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun }: TrainingFormProps) {
 	const form = useForm<TrainingFormValues>({
 		resolver: zodResolver(trainingSchema),
 		defaultValues: initialData
@@ -159,7 +158,7 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun, trainingTy
 	);
 }
 
-export function ProfileFormTraining({ trainingTypes }: { trainingTypes: ICommonMasterData[] }) {
+export function ProfileFormTraining() {
 	const [history, setHistory] = useState<Training[]>([]);
 	const [editingItem, setEditingItem] = useState<Training | undefined>(undefined);
 	const [isFormOpen, setIsFormOpen] = useState(false);
@@ -285,7 +284,6 @@ export function ProfileFormTraining({ trainingTypes }: { trainingTypes: ICommonM
 					onSubmit={handleFormSubmit}
 					initialData={editingItem}
 					noun='Training'
-					trainingTypes={trainingTypes}
 				/>
 			)}
 		</div>

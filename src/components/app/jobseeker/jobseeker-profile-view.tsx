@@ -263,7 +263,6 @@ export function JobseekerProfileView({
 										<div key={index} className='relative pl-6 pb-6 last:pb-0'>
 											<div className='absolute -left-1.5 top-1 h-4 w-4 rounded-full bg-primary border-4 border-background'></div>
 											<h3 className='font-semibold'>{exp.positionTitle}</h3>
-											<p className='text-sm text-muted-foreground'>{exp.organization?.nameEn}</p>
 											<p className='text-xs text-muted-foreground'>
 												{formatDateRange(exp.joinDate, exp.resignDate, exp.isCurrent)}
 											</p>

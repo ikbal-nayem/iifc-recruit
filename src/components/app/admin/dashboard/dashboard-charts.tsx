@@ -16,7 +16,13 @@ import {
 } from 'recharts';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartConfig, ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
+import {
+	ChartConfig,
+	ChartContainer,
+	ChartLegend,
+	ChartLegendContent,
+	ChartTooltipContent,
+} from '@/components/ui/chart';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const postStatusChartConfig = {
@@ -112,6 +118,7 @@ export function AdminDashboardCharts({ data }: AdminDashboardChartsProps) {
 									<Cell key={`cell-${entry.name}`} fill={entry.fill} />
 								))}
 							</Pie>
+							<ChartLegend content={<ChartLegendContent nameKey='name' />} className='-mt-4 flex-wrap' />
 						</PieChart>
 					</ChartContainer>
 				</CardContent>
