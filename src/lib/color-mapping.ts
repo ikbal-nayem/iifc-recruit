@@ -5,15 +5,18 @@ type BadgeVariant =
 	| 'warning'
 	| 'danger'
 	| 'info'
+	| 'purple'
 	| 'outline'
 	| 'outline-danger'
 	| 'outline-success'
 	| 'outline-warning'
 	| 'outline-info'
+	| 'outline-purple'
 	| 'lite-success'
 	| 'lite-warning'
 	| 'lite-danger'
-	| 'lite-info';
+	| 'lite-info'
+	| 'lite-purple';
 
 export const getStatusVariant = (status?: string): BadgeVariant => {
 	if (!status) return 'secondary';
@@ -23,6 +26,8 @@ export const getStatusVariant = (status?: string): BadgeVariant => {
 		// Success states
 		case 'published':
 		case 'circular_published':
+			return 'lite-purple';
+
 		case 'hired':
 		case 'completed':
 			return 'success';

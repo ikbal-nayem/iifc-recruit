@@ -66,10 +66,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 
 	const canMarkAsComplete =
 		request.status === JobRequestStatus.PROCESSING &&
-		request.requestedPosts?.every(
-			(post) =>
-				post.status === JobRequestedPostStatus.SHORTLISTED || post.status === JobRequestedPostStatus.COMPLETED
-		);
+		request.requestedPosts?.every((post) => post.status === JobRequestedPostStatus.SHORTLISTED);
 
 	return (
 		<div className='space-y-6'>
@@ -88,7 +85,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					)}
 					{request.status === JobRequestStatus.PROCESSING && (
 						<Button
-							variant='lite-success'
+							variant='success'
 							onClick={handleMarkAsComplete}
 							disabled={!canMarkAsComplete || isCompleting}
 						>
@@ -174,6 +171,12 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 									<div className='flex items-center gap-2 text-right'>
 										<div className='flex flex-col items-end gap-1'>
 											<Badge variant={getStatusVariant(post.status)}>{post.statusDTO?.nameEn}</Badge>
+											{!!post.circularPublishDate && !!post.circularEndDate && (
+												<i className='text-purple-600/80 text-xs'>
+													Circular: {format(new Date(post.circularPublishDate), 'dd/MM/yy')} -{' '}
+													{format(new Date(post.circularEndDate), 'dd/MM/yy')}
+												</i>
+											)}
 										</div>
 									</div>
 								</div>
