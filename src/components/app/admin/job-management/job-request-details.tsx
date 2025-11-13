@@ -3,7 +3,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { ROLES } from '@/constants/auth.constant';
 import { ROUTES } from '@/constants/routes.constant';
+import { useAuth } from '@/contexts/auth-context';
 import { toast } from '@/hooks/use-toast';
 import {
 	JobRequest,
@@ -19,8 +21,6 @@ import { ArrowLeft, Building, Check, CheckCircle, Edit, FileText, Loader2, Users
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
-import { useAuth } from '@/contexts/auth-context';
-import { ROLES } from '@/constants/auth.constant';
 
 export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: JobRequest }) {
 	const router = useRouter();
@@ -29,7 +29,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 	const [isCompleting, setIsCompleting] = React.useState(false);
 	const [isAccepting, setIsAccepting] = React.useState(false);
 
-	const isClientAdmin = currectUser?.roles.includes(ROLES.CLIENT_ADMIN);
+	const isIifcAdmin = currectUser?.roles.includes(ROLES.IIFC_ADMIN);
 
 	const isDeadlineSoon = differenceInDays(parseISO(request.deadline), new Date()) <= 7;
 
@@ -71,10 +71,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 
 	const canMarkAsComplete =
 		request.status === JobRequestStatus.PROCESSING &&
-		request.requestedPosts?.every(
-			(post) =>
-				post.status === JobRequestedPostStatus.SHORTLISTED || post.status === JobRequestedPostStatus.COMPLETED
-		);
+		request.requestedPosts?.every((post) => post.status === JobRequestedPostStatus.SHORTLISTED);
 
 	return (
 		<div className='space-y-6'>
@@ -83,7 +80,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					<ArrowLeft className='mr-2 h-4 w-4' />
 					Back to Requests
 				</Button>
-				{!isClientAdmin && (
+				{isIifcAdmin && (
 					<div className='flex gap-2'>
 						{request.status === JobRequestStatus.PENDING && (
 							<Button asChild variant='outline'>
@@ -181,6 +178,12 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 									<div className='flex items-center gap-2 text-right'>
 										<div className='flex flex-col items-end gap-1'>
 											<Badge variant={getStatusVariant(post.status)}>{post.statusDTO?.nameEn}</Badge>
+											{!!post.circularPublishDate && !!post.circularEndDate && (
+												<i className='text-purple-600/80 text-xs'>
+													Circular: {format(new Date(post.circularPublishDate), 'dd/MM/yy')} -{' '}
+													{format(new Date(post.circularEndDate), 'dd/MM/yy')}
+												</i>
+											)}
 										</div>
 									</div>
 								</div>

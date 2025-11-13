@@ -10,6 +10,7 @@ import {
 	SidebarSeparator,
 	useSidebar,
 } from '@/components/ui/sidebar';
+import { ROLES } from '@/constants/auth.constant';
 import { COMMON_URL } from '@/constants/common.constant';
 import { useAuth } from '@/contexts/auth-context';
 import { filterNavLinksByRole } from '@/lib/access-control';
@@ -106,7 +107,7 @@ export default function SidebarNav() {
 
 	const navItems = React.useMemo(() => {
 		if (!currectUser) return [];
-		if (currectUser.roles.includes('JOB_SEEKER')) {
+		if (currectUser.roles.includes(ROLES.JOB_SEEKER)) {
 			return jobseekerNavLinks.filter((link) => link.sidebar !== false);
 		}
 		const filteredAdminLinks = filterNavLinksByRole(adminNavLinks, currectUser.roles);

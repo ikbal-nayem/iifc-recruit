@@ -22,7 +22,7 @@ import { differenceInDays, format, parseISO } from 'date-fns';
 import { Building, Calendar, Check, Edit, Eye, FileText, Search, Trash } from 'lucide-react';
 import * as React from 'react';
 
-const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
+const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
 
 interface JobRequestListProps {
 	status?: JobRequestStatus;
@@ -37,7 +37,7 @@ export function JobRequestList({ status }: JobRequestListProps) {
 	const debouncedSearch = useDebounce(searchQuery, 500);
 	const [itemToDelete, setItemToDelete] = React.useState<JobRequest | null>(null);
 
-	const isClientAdmin = currectUser?.roles.includes(ROLES.CLIENT_ADMIN);
+	const isIifcAdmin = currectUser?.roles.includes(ROLES.IIFC_ADMIN);
 
 	const loadItems = React.useCallback(
 		async (page: number, search: string) => {
@@ -111,9 +111,7 @@ export function JobRequestList({ status }: JobRequestListProps) {
 			},
 		];
 
-		if (isClientAdmin) {
-			return items;
-		}
+		if (!isIifcAdmin) return items;
 
 		items.push({
 			label: 'Edit',
@@ -173,7 +171,7 @@ export function JobRequestList({ status }: JobRequestListProps) {
 						<Badge variant={getStatusVariant(item.status)}>{item.statusDTO?.nameEn}</Badge>
 					</div>
 					<div className='flex items-center gap-2'>
-						{!isClientAdmin && item.status === JobRequestStatus.PENDING && (
+						{isIifcAdmin && item.status === JobRequestStatus.PENDING && (
 							<Button
 								size='sm'
 								variant='success'

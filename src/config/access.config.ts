@@ -2,6 +2,7 @@
 import { ROLES } from '@/constants/auth.constant';
 
 export type NavPermission =
+	| '*'
 	| 'DASHBOARD'
 	| 'REQUESTS_MENU'
 	| 'REQUESTS_LIST'
