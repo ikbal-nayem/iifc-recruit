@@ -209,6 +209,8 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 								label='Skills'
 								placeholder='Filter by skills...'
 								loadOptions={getSkillsAsync}
+								getOptionValue={(option) => option.id}
+								getOptionLabel={(option) => option.nameEn}
 							/>
 						</div>
 						<Button type='submit'>
