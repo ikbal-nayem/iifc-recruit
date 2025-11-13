@@ -106,6 +106,7 @@ function ClientOrganizationForm({
 			nameEn: initialData?.nameEn || '',
 			nameBn: initialData?.nameBn || '',
 			organizationTypeId: initialData?.organizationTypeId!,
+			clientId: initialData?.clientId	|| '',
 			address: initialData?.address || '',
 			contactPersonName: initialData?.contactPersonName || '',
 			contactNumber: initialData?.contactNumber || '',
