@@ -107,7 +107,7 @@ export default async function AdminDashboard() {
 		<div className='space-y-8'>
 			<div>
 				<h1 className='text-3xl font-headline font-bold'>Dashboard</h1>
-				<p className='text-muted-foreground'>Welcome, {user.fullName}! Here's an overview of your activities.</p>
+				<p className='text-muted-foreground'>Welcome, {user.fullName}!</p>
 			</div>
 			{dashboardData ? (
 				<>
