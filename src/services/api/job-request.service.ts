@@ -38,6 +38,6 @@ export const JobRequestService = {
 		return axiosIns.delete(`/job-request/delete/${id}`);
 	},
 	updateStatus: async (id: string, status: JobRequestStatus): Promise<IApiResponse<RequestedPost>> => {
-		return axiosIns.put(`/job-request/requested-post/update-status/${id}?status=${status}`);
+		return axiosIns.put(`/job-request/update-status/${id}?status=${status}`);
 	},
 };
