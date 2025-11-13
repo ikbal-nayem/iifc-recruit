@@ -11,6 +11,8 @@ import {
 	useSidebar,
 } from '@/components/ui/sidebar';
 import { COMMON_URL } from '@/constants/common.constant';
+import { useAuth } from '@/contexts/auth-context';
+import { filterNavLinksByRole } from '@/lib/access-control';
 import { NavLink, adminNavLinks, jobseekerNavLinks } from '@/lib/nav-links';
 import { cn } from '@/lib/utils';
 import * as Collapsible from '@radix-ui/react-collapsible';
@@ -100,15 +102,16 @@ const NavMenu = ({ item }: { item: NavLink }) => {
 };
 
 export default function SidebarNav() {
-	const pathname = usePathname();
-	const role = pathname.split('/')[1];
+	const { currectUser } = useAuth();
 
-	const navItems =
-		role === 'admin'
-			? adminNavLinks.filter((link) => link.sidebar !== false)
-			: role === 'jobseeker'
-			? jobseekerNavLinks.filter((link) => link.sidebar !== false)
-			: [];
+	const navItems = React.useMemo(() => {
+		if (!currectUser) return [];
+		if (currectUser.roles.includes('JOB_SEEKER')) {
+			return jobseekerNavLinks.filter((link) => link.sidebar !== false);
+		}
+		const filteredAdminLinks = filterNavLinksByRole(adminNavLinks, currectUser.roles);
+		return filteredAdminLinks.filter((link) => link.sidebar !== false);
+	}, [currectUser]);
 
 	return (
 		<>
