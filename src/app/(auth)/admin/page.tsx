@@ -1,11 +1,17 @@
 
 import { AdminDashboardCards, AdminDashboardCardsSkeleton } from '@/components/app/admin/dashboard/dashboard-cards';
 import { AdminDashboardCharts, AdminDashboardChartsSkeleton } from '@/components/app/admin/dashboard/dashboard-charts';
+import { ROLES } from '@/constants/auth.constant';
+import { IUser } from '@/interfaces/auth.interface';
 import { JobRequestStatus } from '@/interfaces/job.interface';
 import { StatisticsService } from '@/services/api/statistics.service';
+import { UserService } from '@/services/api/user.service';
 import { Suspense } from 'react';
 
-async function getDashboardData() {
+async function getDashboardData(user: IUser) {
+	const isAdmin = user.roles.includes(ROLES.SUPER_ADMIN) || user.roles.includes(ROLES.IIFC_ADMIN);
+	if (!isAdmin) return null;
+
 	try {
 		const [jobseekerCountRes, jobRequestStatsRes, jobRequestPostStatsRes, clientOrgStatsRes] =
 			await Promise.allSettled([
@@ -82,24 +88,44 @@ async function getDashboardData() {
 	}
 }
 
+async function getUser() {
+	try {
+		const res = await UserService.getUserDetails();
+		return res.body;
+	} catch (error) {
+		return null;
+	}
+}
+
 export default async function AdminDashboard() {
-	const dashboardData = await getDashboardData();
+	const user = await getUser();
+	if (!user) return null; // Or some error component
+
+	const dashboardData = await getDashboardData(user);
+
 	return (
 		<div className='space-y-8'>
 			<div>
-				<h1 className='text-3xl font-headline font-bold'>Admin Dashboard</h1>
-				<p className='text-muted-foreground'>An overview of your recruitment activities.</p>
+				<h1 className='text-3xl font-headline font-bold'>Dashboard</h1>
+				<p className='text-muted-foreground'>Welcome, {user.fullName}! Here's an overview of your activities.</p>
 			</div>
+			{dashboardData ? (
+				<>
+					<Suspense fallback={<AdminDashboardCardsSkeleton />}>
+						<AdminDashboardCards data={dashboardData.cards} />
+					</Suspense>
 
-			<Suspense fallback={<AdminDashboardCardsSkeleton />}>
-				<AdminDashboardCards data={dashboardData.cards} />
-			</Suspense>
-
-			<div className='grid gap-6 md:grid-cols-1'>
-				<Suspense fallback={<AdminDashboardChartsSkeleton />}>
-					<AdminDashboardCharts data={dashboardData.charts} />
-				</Suspense>
-			</div>
+					<div className='grid gap-6 md:grid-cols-1'>
+						<Suspense fallback={<AdminDashboardChartsSkeleton />}>
+							<AdminDashboardCharts data={dashboardData.charts} />
+						</Suspense>
+					</div>
+				</>
+			) : (
+				<div className='pt-8 text-center'>
+					<p className='text-lg text-muted-foreground'>There are no dashboard widgets for your role yet.</p>
+				</div>
+			)}
 		</div>
 	);
 }
