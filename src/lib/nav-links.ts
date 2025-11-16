@@ -1,4 +1,3 @@
-
 import { ROUTES } from '@/constants/routes.constant';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -267,6 +266,12 @@ export const jobseekerNavLinks: NavLink[] = [
 				href: '/jobseeker/profile-edit/professional',
 				label: 'Professional',
 				icon: Briefcase,
+			},
+			{
+				key: 'PROFILE_EDIT_OUTSOURCING',
+				href: '/jobseeker/profile-edit/outsourcing',
+				label: 'Outsourcing',
+				icon: Network,
 			},
 			{ key: 'PROFILE_EDIT_SKILLS', href: '/jobseeker/profile-edit/skills', label: 'Skills', icon: Star },
 			{
