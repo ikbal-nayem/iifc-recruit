@@ -21,17 +21,16 @@ import { Separator } from '@/components/ui/separator';
 import { ROLES } from '@/constants/auth.constant';
 import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/contexts/auth-context';
-import { useDebounce } from '@/hooks/use-debounce';
 import { toast } from '@/hooks/use-toast';
 import { JobRequest, JobRequestType } from '@/interfaces/job.interface';
 import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from '@/interfaces/master-data.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { MasterDataService } from '@/services/api/master-data.service';
+import { getClientAsync, getPostNonOutsourcingAsync, getPostOutsourcingAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
 import { Loader2, PlusCircle, Save, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -107,11 +106,6 @@ export function JobRequestForm({
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [confirmationData, setConfirmationData] = useState<JobRequestFormValues | null>(null);
 
-	const [filteredPosts, setFilteredPosts] = useState<IPost[]>(initialPosts);
-	const [isLoadingPosts, setIsLoadingPosts] = useState(false);
-	const [postSearchQuery, setPostSearchQuery] = useState('');
-	const debouncedPostSearch = useDebounce(postSearchQuery, 500);
-
 	const form = useForm<JobRequestFormValues>({
 		resolver: zodResolver(jobRequestSchema),
 		defaultValues: initialData
@@ -140,32 +134,6 @@ export function JobRequestForm({
 	});
 
 	const type = form.watch('type');
-
-	useEffect(() => {
-		async function fetchPosts() {
-			setIsLoadingPosts(true);
-			try {
-				const response = await MasterDataService.post.getList({
-					body: {
-						searchKey: debouncedPostSearch,
-						outsourcing: type === JobRequestType.OUTSOURCING,
-					},
-					meta: { page: 0, limit: 25 },
-				});
-				setFilteredPosts(response.body);
-			} catch (error) {
-				toast.error({
-					description: 'Could not load posts for the selected request type.',
-				});
-				setFilteredPosts([]);
-			} finally {
-				setIsLoadingPosts(false);
-			}
-		}
-		if (type) {
-			fetchPosts();
-		}
-	}, [type, debouncedPostSearch]);
 
 	function onFormSubmit(data: JobRequestFormValues) {
 		setConfirmationData(data);
@@ -245,7 +213,7 @@ export function JobRequestForm({
 									placeholder='Select a client'
 									required
 									disabled={currectUser?.roles.includes(ROLES.CLIENT_ADMIN)}
-									options={clientOrganizations}
+									loadOptions={getClientAsync}
 									getOptionValue={(option) => option?.id!}
 									getOptionLabel={(option) => option?.nameEn}
 								/>
@@ -289,7 +257,7 @@ export function JobRequestForm({
 						</CardHeader>
 						<CardContent className='space-y-4'>
 							{fields.map((field, index) => (
-								<Card key={field.id} className='p-4 relative bg-muted/50'>
+								<Card key={field.id} className='p-4 relative bg-muted/5'>
 									<CardContent className='p-0 space-y-4'>
 										<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
 											<FormAutocomplete
@@ -297,17 +265,25 @@ export function JobRequestForm({
 												name={`requestedPosts.${index}.postId`}
 												label='Post'
 												required
-												placeholder={isLoadingPosts ? 'Loading posts...' : 'Select Post'}
-												options={filteredPosts}
+												loadOptions={
+													type === JobRequestType.OUTSOURCING
+														? getPostOutsourcingAsync
+														: getPostNonOutsourcingAsync
+												}
 												getOptionValue={(opt) => opt?.id!}
-												getOptionLabel={(opt) => (
-													<div className='flex flex-col items-start'>
-														{opt.nameEn}
-														<small>{opt.nameBn}</small>
-													</div>
-												)}
-												disabled={isLoadingPosts}
-												onInputChange={setPostSearchQuery}
+												getOptionLabel={(opt) =>
+													type === JobRequestType.OUTSOURCING ? (
+														<div className='flex flex-col items-start'>
+															{opt.nameBn}
+															<small>{opt.outsourcingCategory?.nameBn}</small>
+														</div>
+													) : (
+														<div className='flex flex-col items-start'>
+															{opt.nameEn}
+															<small>{opt.nameBn}</small>
+														</div>
+													)
+												}
 											/>
 											<FormInput
 												control={form.control}

@@ -63,7 +63,7 @@ export function FormAutocomplete<TFieldValues extends FieldValues, TOption exten
 	const [asyncOptions, setAsyncOptions] = React.useState<TOption[]>([]);
 	const [isLoading, setIsLoading] = React.useState(false);
 	const [searchQuery, setSearchQuery] = React.useState('');
-	const debouncedSearchQuery = useDebounce(searchQuery, 300);
+	const debouncedSearchQuery = useDebounce(searchQuery, 400);
 
 	const options = staticOptions || asyncOptions;
 

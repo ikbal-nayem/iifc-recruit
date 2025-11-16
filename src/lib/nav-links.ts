@@ -70,6 +70,7 @@ export const adminNavLinks: NavLink[] = [
 				icon: PlusCircle,
 			},
 			{
+				isActive: (pathname) => pathname === ROUTES.JOB_REQUEST.LIST,
 				key: 'REQUESTS_LIST',
 				href: ROUTES.JOB_REQUEST.LIST,
 				label: 'All Requests',
