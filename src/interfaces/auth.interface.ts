@@ -1,3 +1,4 @@
+import { ROLES } from '@/constants/auth.constant';
 import { IFile } from './common.interface';
 import { EnumDTO, IClientOrganization } from './master-data.interface';
 
@@ -19,7 +20,7 @@ export interface IUser {
 	id?: string;
 	username: string;
 	email: string;
-	roles: string[];
+	roles: ROLES[];
 	userType: UserType;
 	firstName: string;
 	lastName: string;

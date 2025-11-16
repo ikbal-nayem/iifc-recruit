@@ -34,6 +34,7 @@ interface FormMultiSelectProps<
 	getOptionLabel: (option: TOption) => string;
 	badgeVariant?: BadgeProps['variant'];
 	closeOnSelect?: boolean;
+	onValueChange?: (value: string[]) => void;
 }
 
 export function FormMultiSelect<
@@ -51,6 +52,7 @@ export function FormMultiSelect<
 	getOptionLabel,
 	badgeVariant = 'outline',
 	closeOnSelect = false,
+	onValueChange,
 }: FormMultiSelectProps<TFieldValues, TOption>) {
 	const [open, setOpen] = React.useState(false);
 	const [searchQuery, setSearchQuery] = React.useState('');
@@ -85,7 +87,11 @@ export function FormMultiSelect<
 					} else {
 						newSelectedValues.add(value);
 					}
-					field.onChange(Array.from(newSelectedValues));
+					const finalValues = Array.from(newSelectedValues);
+					field.onChange(finalValues);
+					if (onValueChange) {
+						onValueChange(finalValues);
+					}
 					setSearchQuery('');
 					if (closeOnSelect && newSelectedValues.size > selectedValues.size) {
 						setOpen(false);
@@ -95,7 +101,11 @@ export function FormMultiSelect<
 				const handleRemove = (valueToRemove: string) => {
 					const newSelectedValues = new Set(selectedValues);
 					newSelectedValues.delete(valueToRemove);
-					field.onChange(Array.from(newSelectedValues));
+					const finalValues = Array.from(newSelectedValues);
+					field.onChange(finalValues);
+					if (onValueChange) {
+						onValueChange(finalValues);
+					}
 				};
 
 				const displayedOptions = React.useMemo(() => {

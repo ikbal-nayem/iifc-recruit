@@ -15,17 +15,20 @@ const badgeVariants = cva(
 				success: 'border-transparent bg-success text-success-foreground',
 				warning: 'border-transparent bg-warning text-warning-foreground',
 				info: 'border-transparent bg-info text-info-foreground',
+				purple: 'border-transparent bg-purple-600 text-purple-50',
 
 				outline: 'text-foreground',
 				'outline-danger': 'text-danger border-danger',
 				'outline-success': 'text-success border-success',
 				'outline-warning': 'text-warning border-warning',
 				'outline-info': 'text-info border-info',
+				'outline-purple': 'text-purple-600 border-purple-600',
 
 				'lite-danger': 'bg-danger/10 text-danger border-transparent',
 				'lite-success': 'bg-success/10 text-success border-transparent',
 				'lite-warning': 'bg-warning/10 text-warning border-transparent',
 				'lite-info': 'bg-info/10 text-info border-transparent',
+				'lite-purple': 'bg-purple-600/10 text-purple-600 border-transparent',
 			},
 		},
 		defaultVariants: {

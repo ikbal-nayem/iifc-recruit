@@ -1,3 +1,4 @@
+
 'use client';
 
 import { FormMasterData } from '@/app/(auth)/admin/client-organizations/page';
@@ -74,7 +75,7 @@ const formSchema = z
 			.or(z.literal('')),
 		isClient: z.boolean().default(false),
 		isExaminer: z.boolean().default(false),
-		clientId: z.string().regex(/^\d+$/, 'Only numbers are allowed.').optional(),
+		clientId: z.string().regex(/^\d+$/, 'Only numbers are allowed.').optional().or(z.literal('')),
 	})
 	.refine((data) => data.isClient || data.isExaminer, {
 		message: 'At least one role (Client or Examiner) must be selected.',
@@ -106,6 +107,7 @@ function ClientOrganizationForm({
 			nameEn: initialData?.nameEn || '',
 			nameBn: initialData?.nameBn || '',
 			organizationTypeId: initialData?.organizationTypeId!,
+			clientId: initialData?.clientId	|| '',
 			address: initialData?.address || '',
 			contactPersonName: initialData?.contactPersonName || '',
 			contactNumber: initialData?.contactNumber || '',

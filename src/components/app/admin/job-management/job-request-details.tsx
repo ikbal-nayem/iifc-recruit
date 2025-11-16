@@ -1,10 +1,11 @@
-
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { ROLES } from '@/constants/auth.constant';
 import { ROUTES } from '@/constants/routes.constant';
+import { useAuth } from '@/contexts/auth-context';
 import { toast } from '@/hooks/use-toast';
 import {
 	JobRequest,
@@ -23,9 +24,12 @@ import * as React from 'react';
 
 export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: JobRequest }) {
 	const router = useRouter();
+	const { currectUser } = useAuth();
 	const [request, setRequest] = React.useState<JobRequest>(initialJobRequest);
 	const [isCompleting, setIsCompleting] = React.useState(false);
 	const [isAccepting, setIsAccepting] = React.useState(false);
+
+	const isIifcAdmin = currectUser?.roles.includes(ROLES.IIFC_ADMIN);
 
 	const isDeadlineSoon = differenceInDays(parseISO(request.deadline), new Date()) <= 7;
 
@@ -50,7 +54,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 	const handleAcceptRequest = async () => {
 		setIsAccepting(true);
 		try {
-			const response = await JobRequestService.updateStatus(request.id!, JobRequestStatus.PROCESSING);
+			await JobRequestService.updateStatus(request.id!, JobRequestStatus.PROCESSING);
 			router.push(ROUTES.JOB_REQUEST.PROCESSING);
 			toast.success({
 				title: 'Request Accepted',
@@ -65,6 +69,10 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 		}
 	};
 
+	const canMarkAsComplete =
+		request.status === JobRequestStatus.PROCESSING &&
+		request.requestedPosts?.every((post) => post.status === JobRequestedPostStatus.SHORTLISTED);
+
 	return (
 		<div className='space-y-6'>
 			<div className='flex items-center justify-between'>
@@ -72,35 +80,41 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					<ArrowLeft className='mr-2 h-4 w-4' />
 					Back to Requests
 				</Button>
-				<div className='flex gap-2'>
-					{request.status === JobRequestStatus.PENDING && (
-						<Button asChild variant='outline'>
-							<Link href={ROUTES.JOB_REQUEST.EDIT(request.id)}>
-								<Edit className='mr-2 h-4 w-4' /> Edit Request
-							</Link>
-						</Button>
-					)}
-					{request.status === JobRequestStatus.PROCESSING && (
-						<Button variant='lite-success' onClick={handleMarkAsComplete} disabled={isCompleting}>
-							{isCompleting ? (
-								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-							) : (
-								<CheckCircle className='mr-2 h-4 w-4' />
-							)}
-							Mark as Complete
-						</Button>
-					)}
-					{request.status === JobRequestStatus.PENDING && (
-						<Button variant='success' onClick={handleAcceptRequest} disabled={isAccepting}>
-							{isAccepting ? (
-								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-							) : (
-								<Check className='mr-2 h-4 w-4' />
-							)}
-							Accept Request
-						</Button>
-					)}
-				</div>
+				{isIifcAdmin && (
+					<div className='flex gap-2'>
+						{request.status === JobRequestStatus.PENDING && (
+							<Button asChild variant='outline'>
+								<Link href={ROUTES.JOB_REQUEST.EDIT(request.id)}>
+									<Edit className='mr-2 h-4 w-4' /> Edit Request
+								</Link>
+							</Button>
+						)}
+						{request.status === JobRequestStatus.PROCESSING && (
+							<Button
+								variant='success'
+								onClick={handleMarkAsComplete}
+								disabled={!canMarkAsComplete || isCompleting}
+							>
+								{isCompleting ? (
+									<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+								) : (
+									<CheckCircle className='mr-2 h-4 w-4' />
+								)}
+								Mark as Complete
+							</Button>
+						)}
+						{request.status === JobRequestStatus.PENDING && (
+							<Button variant='success' onClick={handleAcceptRequest} disabled={isAccepting}>
+								{isAccepting ? (
+									<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+								) : (
+									<Check className='mr-2 h-4 w-4' />
+								)}
+								Accept Request
+							</Button>
+						)}
+					</div>
+				)}
 			</div>
 
 			<Card className='glassmorphism'>
@@ -156,7 +170,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 				<CardContent className='space-y-4'>
 					{request.requestedPosts?.map((post, index) => {
 						return (
-							<Card key={index} className='p-4 border rounded-lg bg-muted/30 space-y-4'>
+							<Card key={index} className='p-4 border rounded-lg bg-muted/50 space-y-4'>
 								<div className='flex items-start justify-between'>
 									<div>
 										<CardTitle className='text-xl font-semibold'>{post.post?.nameEn}</CardTitle>
@@ -164,6 +178,12 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 									<div className='flex items-center gap-2 text-right'>
 										<div className='flex flex-col items-end gap-1'>
 											<Badge variant={getStatusVariant(post.status)}>{post.statusDTO?.nameEn}</Badge>
+											{!!post.circularPublishDate && !!post.circularEndDate && (
+												<i className='text-purple-600/80 text-xs'>
+													Circular: {format(new Date(post.circularPublishDate), 'dd/MM/yy')} -{' '}
+													{format(new Date(post.circularEndDate), 'dd/MM/yy')}
+												</i>
+											)}
 										</div>
 									</div>
 								</div>

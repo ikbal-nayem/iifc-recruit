@@ -13,10 +13,10 @@ interface PaginationProps {
 }
 
 export function Pagination({ meta, isLoading, onPageChange, noun }: PaginationProps) {
-	const currentPage = meta.page;
-	const totalPages = meta.totalPageCount || 1;
-	const from = meta.totalRecords ? meta.page * meta.limit + 1 : 0;
-	const to = Math.min((meta.page + 1) * meta.limit, meta.totalRecords || 0);
+	const currentPage = meta?.page || 0;
+	const totalPages = meta?.totalPageCount || 1;
+	const from = meta?.totalRecords ? meta?.page * meta?.limit + 1 : 0;
+	const to = Math.min((meta?.page + 1) * meta?.limit, meta?.totalRecords || 0) || 0;
 
 	const renderPageNumbers = () => {
 		const pageNumbers = [];
@@ -108,15 +108,15 @@ export function Pagination({ meta, isLoading, onPageChange, noun }: PaginationPr
                 <strong>
                     {from}-{to}
                 </strong>{' '}
-                of <strong>{meta.totalRecords}</strong> {noun.toLowerCase()}s
+                of <strong>{meta?.totalRecords}</strong> {noun.toLowerCase()}s
             </p>
             <div className='flex items-center space-x-2'>
                 <Button
                     variant='outline'
                     size='icon'
                     className='h-8 w-8'
-                    onClick={() => onPageChange(meta.prevPage ?? 0)}
-                    disabled={!meta.prevPage || isLoading}
+                    onClick={() => onPageChange(meta?.prevPage ?? 0)}
+                    disabled={!meta?.prevPage || isLoading}
                 >
                     <ChevronLeft className='h-4 w-4' />
                 </Button>
@@ -125,8 +125,8 @@ export function Pagination({ meta, isLoading, onPageChange, noun }: PaginationPr
                     variant='outline'
                     size='icon'
                     className='h-8 w-8'
-                    onClick={() => onPageChange(meta.nextPage ?? 0)}
-                    disabled={!meta.nextPage || isLoading}
+                    onClick={() => onPageChange(meta?.nextPage ?? 0)}
+                    disabled={!meta?.nextPage || isLoading}
                 >
                     <ChevronRight className='h-4 w-4' />
                 </Button>

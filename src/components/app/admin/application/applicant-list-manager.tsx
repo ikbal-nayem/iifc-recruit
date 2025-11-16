@@ -12,10 +12,9 @@ import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { IMeta } from '@/interfaces/common.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
-import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { getSkillsAsync } from '@/services/async-api';
@@ -49,10 +48,9 @@ interface ApplicantListManagerProps {
 	existingApplicantIds?: (string | undefined)[];
 }
 
-const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
+const initMeta: IMeta = { page: 0, limit: 50, totalRecords: 0 };
 
 export function ApplicantListManager({ onApply, existingApplicantIds }: ApplicantListManagerProps) {
-	const { toast } = useToast();
 	const [isLoading, setIsLoading] = useState(false);
 	const [jobseekers, setJobseekers] = useState<JobseekerSearch[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
@@ -60,8 +58,6 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 
 	const [textSearch, setTextSearch] = useState('');
 	const debouncedTextSearch = useDebounce(textSearch, 500);
-
-	const [selectedSkills, setSelectedSkills] = useState<ICommonMasterData[]>([]);
 
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -75,21 +71,20 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 		},
 	});
 
+	const watchedSkillIds = filterForm.watch('skillIds');
+
 	const searchApplicants = useCallback(
 		async (page: number, searchCriteria: { searchKey?: string; skillIds?: string[] }) => {
 			setIsLoading(true);
 			try {
 				const response = await JobseekerProfileService.search({
-					body: { ...searchCriteria, searchKey: debouncedTextSearch },
+					body: searchCriteria,
 					meta: { page: page, limit: meta.limit },
 				});
-				const newJobseekers = (response.body || []).filter(
-					(js) => !existingApplicantIds?.includes(js.userId)
-				);
-				setJobseekers(newJobseekers);
+				setJobseekers(response.body);
 				setMeta(response.meta);
 			} catch (error: any) {
-				toast({
+				toast.error({
 					description: error.message || 'Could not fetch jobseekers.',
 					variant: 'danger',
 				});
@@ -98,17 +93,12 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 				setIsLoading(false);
 			}
 		},
-		[existingApplicantIds, meta.limit, toast, debouncedTextSearch]
+		[meta.limit]
 	);
 
 	useEffect(() => {
-		const skillIds = filterForm.getValues('skillIds');
-		searchApplicants(0, { skillIds });
-	}, [debouncedTextSearch, searchApplicants, filterForm]);
-
-	const onFilterSubmit = (values: FilterFormValues) => {
-		searchApplicants(0, {...values,});
-	};
+		searchApplicants(0, { searchKey: debouncedTextSearch, skillIds: watchedSkillIds });
+	}, [debouncedTextSearch, watchedSkillIds, searchApplicants]);
 
 	const columns: ColumnDef<JobseekerSearch>[] = [
 		{
@@ -183,8 +173,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 	});
 
 	const handlePageChange = (newPage: number) => {
-		const skillIds = filterForm.getValues('skillIds');
-		searchApplicants(newPage, { skillIds });
+		searchApplicants(newPage, { searchKey: debouncedTextSearch, skillIds: watchedSkillIds });
 	};
 
 	const handleApply = () => {
@@ -200,7 +189,13 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 	return (
 		<>
 			<FormProvider {...filterForm}>
-				<form onSubmit={filterForm.handleSubmit(onFilterSubmit)} className='space-y-4'>
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						searchApplicants(0, { searchKey: debouncedTextSearch, skillIds: watchedSkillIds });
+					}}
+					className='space-y-4'
+				>
 					<Card className='p-4 border rounded-lg space-y-4'>
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 							<FormMultiSelect
@@ -209,23 +204,8 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 								label='Skills'
 								placeholder='Filter by skills...'
 								loadOptions={getSkillsAsync}
-								selected={selectedSkills}
-								onAdd={(skill) => {
-									const newSkills = [...selectedSkills, skill];
-									setSelectedSkills(newSkills);
-									filterForm.setValue(
-										'skillIds',
-										newSkills.map((s) => s.id)
-									);
-								}}
-								onRemove={(skill) => {
-									const newSkills = selectedSkills.filter((s) => s.id !== skill.id);
-									setSelectedSkills(newSkills);
-									filterForm.setValue(
-										'skillIds',
-										newSkills.map((s) => s.id)
-									);
-								}}
+								getOptionValue={(option) => option.id}
+								getOptionLabel={(option) => option.nameEn}
 							/>
 						</div>
 						<Button type='submit'>
