@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -80,7 +81,6 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 					body: searchCriteria,
 					meta: { page: page, limit: meta.limit },
 				});
-				// const newJobseekers = (response.body || []).filter((js) => !existingApplicantIds?.includes(js.userId));
 				setJobseekers(response.body);
 				setMeta(response.meta);
 			} catch (error: any) {
@@ -93,7 +93,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 				setIsLoading(false);
 			}
 		},
-		[existingApplicantIds, meta?.limit]
+		[meta.limit]
 	);
 
 	useEffect(() => {

@@ -61,6 +61,7 @@ export function FormAutocomplete<
 	onValueChange,
 	value: controlledValue,
 	initialLabel,
+	onInputChange,
 }: FormAutocompleteProps<TFieldValues, TOption>) {
 	const [open, setOpen] = React.useState(false);
 	const [asyncOptions, setAsyncOptions] = React.useState<TOption[]>([]);
@@ -105,6 +106,7 @@ export function FormAutocomplete<
 	) => (
 		<div className='relative'>
 			<Button
+				type='button'
 				variant='outline'
 				role='combobox'
 				className={cn(
@@ -136,7 +138,12 @@ export function FormAutocomplete<
 			<Command shouldFilter={!loadOptions}>
 				<CommandInput
 					placeholder={`Search ${label?.toLowerCase()}...`}
-					onValueChange={setSearchQuery}
+					onValueChange={(s) => {
+						setSearchQuery(s);
+						if (onInputChange) {
+							onInputChange(s);
+						}
+					}}
 					value={searchQuery}
 				/>
 				<CommandList>
