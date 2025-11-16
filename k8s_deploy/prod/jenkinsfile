@@ -6,7 +6,7 @@ pipeline {
         DEPLOYMENT_ENV="prod"
         IMAGE_CREATED_BY="jenkins"
         PROJECT_NAME="web-recruitment"
-        K8S_NAMESPACE="iifc-recruit-stage"
+        K8S_NAMESPACE="iifc-recruit-prod"
 
         GIT_TAG=sh(returnStdout: true, script: '''
             echo $(git describe --tags)
@@ -32,7 +32,7 @@ pipeline {
         K8S_CONTAINER_PORT="3000"
         K8S_PORT_NAME="http"
 
-        K8S_NODE_PORT="31910"
+        K8S_NODE_PORT="31913"
                 
 
         //Health check uri
