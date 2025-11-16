@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -20,7 +19,7 @@ import { Control, FieldPath, FieldValues } from 'react-hook-form';
 
 interface FormAutocompleteProps<
 	TFieldValues extends FieldValues,
-	TOption = { value: string; label: string },
+	TOption = { value: string; label: string }
 > {
 	control?: Control<TFieldValues> | any;
 	name: FieldPath<TFieldValues>;
@@ -41,10 +40,7 @@ interface FormAutocompleteProps<
 	onInputChange?: (value: string) => void;
 }
 
-export function FormAutocomplete<
-	TFieldValues extends FieldValues,
-	TOption extends { [key: string]: any },
->({
+export function FormAutocomplete<TFieldValues extends FieldValues, TOption extends { [key: string]: any }>({
 	control,
 	name,
 	label,
@@ -117,9 +113,9 @@ export function FormAutocomplete<
 				disabled={disabled}
 			>
 				<span className='truncate'>{displayLabel || placeholder || 'Select...'}</span>
-				<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+				{!disabled && <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />}
 			</Button>
-			{allowClear && value && onClear && (
+			{!disabled && allowClear && value && onClear && (
 				<Button
 					type='button'
 					variant='ghost'
@@ -155,10 +151,7 @@ export function FormAutocomplete<
 					) : (
 						<>
 							{onCreate && searchQuery && options.length === 0 && (
-								<CommandItem
-									onSelect={() => handleCreate(field)}
-									className='flex items-center gap-2'
-								>
+								<CommandItem onSelect={() => handleCreate(field)} className='flex items-center gap-2'>
 									<PlusCircle className='h-4 w-4' />
 									Create &quot;{searchQuery}&quot;
 								</CommandItem>
@@ -183,8 +176,8 @@ export function FormAutocomplete<
 										<Check
 											className={cn(
 												'mr-2 h-4 w-4',
-												(field?.value?.toString() === getOptionValue(option) ||
-													controlledValue === getOptionValue(option))
+												field?.value?.toString() === getOptionValue(option) ||
+													controlledValue === getOptionValue(option)
 													? 'opacity-100'
 													: 'opacity-0'
 											)}
