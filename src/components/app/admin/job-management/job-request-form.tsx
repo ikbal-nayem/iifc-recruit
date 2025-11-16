@@ -18,6 +18,7 @@ import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
 import { FormTextarea } from '@/components/ui/form-textarea';
 import { Separator } from '@/components/ui/separator';
+import { ROLES } from '@/constants/auth.constant';
 import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/contexts/auth-context';
 import { useDebounce } from '@/hooks/use-debounce';
@@ -121,7 +122,9 @@ export function JobRequestForm({
 			  }
 			: {
 					memoNo: '',
-					clientOrganizationId: undefined as any,
+					clientOrganizationId: currectUser?.roles.includes(ROLES.CLIENT_ADMIN)
+						? currectUser.organizationId
+						: '',
 					subject: '',
 					description: '',
 					requestDate: format(new Date(), 'yyyy-MM-dd'),
@@ -241,6 +244,7 @@ export function JobRequestForm({
 									label='Client Organization'
 									placeholder='Select a client'
 									required
+									disabled={currectUser?.roles.includes(ROLES.CLIENT_ADMIN)}
 									options={clientOrganizations}
 									getOptionValue={(option) => option?.id!}
 									getOptionLabel={(option) => option?.nameEn}
