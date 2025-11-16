@@ -15,7 +15,7 @@ import {
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { toast } from '@/hooks/use-toast';
-import { JobRequestedPostStatus, RequestedPost } from '@/interfaces/job.interface';
+import { JobRequestedPostStatus, JobRequestType, RequestedPost } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { getExaminerAsync } from '@/services/async-api';
@@ -82,7 +82,7 @@ export function ApplicationManagementHeader({
 	const isCircularPublished =
 		requestedPost.status === JobRequestedPostStatus.CIRCULAR_PUBLISHED ||
 		requestedPost.status === JobRequestedPostStatus.PROCESSING ||
-		requestedPost.status === JobRequestedPostStatus.SHORTLISTED
+		requestedPost.status === JobRequestedPostStatus.SHORTLISTED;
 
 	const canEditCircular = !isProcessing && !isShortlisted;
 
@@ -115,6 +115,11 @@ export function ApplicationManagementHeader({
 								<Users className='h-4 w-4' />
 								{requestedPost.vacancy} Vacancies
 							</span>
+							{requestedPost.jobRequest?.type === JobRequestType.OUTSOURCING && (
+								<span className='font-medium text-sm'>
+									Category: {requestedPost.post?.outsourcingCategory?.nameEn || 'N/A'}
+								</span>
+							)}
 						</CardDescription>
 						<div className='flex items-center gap-2 text-sm'>
 							<span className='text-muted-foreground'>Examiner:</span>
