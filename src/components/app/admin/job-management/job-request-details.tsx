@@ -71,7 +71,10 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 
 	const canMarkAsComplete =
 		request.status === JobRequestStatus.PROCESSING &&
-		request.requestedPosts?.every((post) => post.status === JobRequestedPostStatus.SHORTLISTED);
+		request.requestedPosts?.every(
+			(post) =>
+				post.status === JobRequestedPostStatus.SHORTLISTED || post.status === JobRequestedPostStatus.COMPLETED
+		);
 
 	return (
 		<div className='space-y-6'>
@@ -206,6 +209,12 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 									)}
 									{request.type === JobRequestType.OUTSOURCING ? (
 										<>
+											{post.post?.outsourcingCategory?.nameEn && (
+												<div>
+													<p className='text-muted-foreground'>Category</p>
+													<p className='font-medium'>{post.post.outsourcingCategory.nameEn}</p>
+												</div>
+											)}
 											{post.outsourcingZone?.nameEn && (
 												<div>
 													<p className='text-muted-foreground'>Zone</p>
