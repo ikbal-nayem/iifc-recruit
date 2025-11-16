@@ -13,7 +13,11 @@ export function ProfileTabs() {
 	const pathname = usePathname();
 
 	return profileTabs.map((tab) => {
-		const isActive = pathname === tab.href;
+		// For the base profile edit URL, we need an exact match. For others, startsWith is fine.
+		const isActive =
+			tab.href === '/jobseeker/profile-edit'
+				? pathname === tab.href
+				: pathname.startsWith(tab.href);
 
 		return (
 			<Link
