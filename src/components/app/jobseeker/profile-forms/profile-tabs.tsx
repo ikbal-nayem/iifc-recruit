@@ -13,7 +13,7 @@ export function ProfileTabs() {
 	const pathname = usePathname();
 
 	return profileTabs.map((tab) => {
-		const isActive = pathname.startsWith(tab.href) && (pathname === tab.href || pathname.startsWith(`${tab.href}/`));
+		const isActive = pathname === tab.href;
 
 		return (
 			<Link
