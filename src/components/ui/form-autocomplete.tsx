@@ -126,6 +126,7 @@ export function FormAutocomplete<
 					size='icon'
 					className='absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground hover:text-foreground'
 					onClick={onClear}
+					disabled={disabled}
 				>
 					<X className='h-4 w-4' />
 				</Button>
@@ -205,8 +206,8 @@ export function FormAutocomplete<
 			<FormItem>
 				<div className='space-y-2'>
 					{label && <FormLabel required={required}>{label}</FormLabel>}
-					<Popover open={open} onOpenChange={setOpen}>
-						<PopoverTrigger asChild>
+					<Popover open={open && !disabled} onOpenChange={setOpen}>
+						<PopoverTrigger asChild disabled={disabled}>
 							{renderTrigger(
 								controlledValue,
 								selectedOption ? getOptionLabel(selectedOption) : initialLabel,
@@ -233,8 +234,8 @@ export function FormAutocomplete<
 					<FormItem>
 						<div className='space-y-2'>
 							{label && <FormLabel required={required}>{label}</FormLabel>}
-							<Popover open={open} onOpenChange={setOpen}>
-								<PopoverTrigger asChild>
+							<Popover open={open && !disabled} onOpenChange={setOpen}>
+								<PopoverTrigger asChild disabled={disabled}>
 									<FormControl>
 										{renderTrigger(
 											field.value,
