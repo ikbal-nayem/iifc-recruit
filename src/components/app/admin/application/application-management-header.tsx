@@ -82,10 +82,11 @@ export function ApplicationManagementHeader({
 	const isCircularPublished =
 		requestedPost.status === JobRequestedPostStatus.CIRCULAR_PUBLISHED ||
 		requestedPost.status === JobRequestedPostStatus.PROCESSING ||
-		requestedPost.status === JobRequestedPostStatus.SHORTLISTED ||
-		requestedPost.status === JobRequestedPostStatus.COMPLETED;
+		requestedPost.status === JobRequestedPostStatus.SHORTLISTED
 
 	const canEditCircular = !isProcessing && !isShortlisted;
+
+	console.log(requestedPost)
 
 	return (
 		<>
