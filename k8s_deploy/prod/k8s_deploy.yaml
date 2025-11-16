@@ -7,7 +7,7 @@ spec:
   selector:
     matchLabels:
       app: $K8S_SERVICE_NAME
-  replicas: 1
+  replicas: 2
   template:
     metadata:
       annotations:
@@ -29,7 +29,7 @@ spec:
       imagePullSecrets:
       - name: imagerepo.gems.gov.bd
       hostAliases:
-        - ip: 114.130.241.87
-          hostnames:
-            - api.cao.gov.bd
-            - new.cao.gov.bd
+#        - ip: 114.130.241.87
+#          hostnames:
+#            - api.cao.gov.bd
+#            - new.cao.gov.bd
