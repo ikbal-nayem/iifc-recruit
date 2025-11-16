@@ -86,8 +86,6 @@ export function ApplicationManagementHeader({
 
 	const canEditCircular = !isProcessing && !isShortlisted;
 
-	console.log(requestedPost)
-
 	return (
 		<>
 			<Card className='glassmorphism'>
