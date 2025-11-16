@@ -268,9 +268,9 @@ export const jobseekerNavLinks: NavLink[] = [
 				icon: Briefcase,
 			},
 			{
-				key: 'PROFILE_EDIT_OUTSOURCING',
-				href: '/jobseeker/profile-edit/outsourcing',
-				label: 'Outsourcing',
+				key: 'PROFILE_EDIT_INTEREST',
+				href: '/jobseeker/profile-edit/interest',
+				label: 'Interest',
 				icon: Network,
 			},
 			{ key: 'PROFILE_EDIT_SKILLS', href: '/jobseeker/profile-edit/skills', label: 'Skills', icon: Star },

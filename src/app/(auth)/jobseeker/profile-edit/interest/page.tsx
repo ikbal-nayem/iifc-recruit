@@ -1,4 +1,4 @@
-import { ProfileFormOutsourcing } from '@/components/app/jobseeker/profile-forms/outsourcing';
+import { ProfileFormInterest } from '@/components/app/jobseeker/profile-forms/interest';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 
@@ -12,12 +12,12 @@ async function getMasterData(): Promise<{
 
 		return { categories };
 	} catch (error) {
-		console.error('Failed to load master data for outsourcing form', error);
+		console.error('Failed to load master data for interest form', error);
 		return { categories: [] };
 	}
 }
 
-export default async function JobseekerProfileOutsourcingPage() {
+export default async function JobseekerProfileInterestPage() {
 	const { categories } = await getMasterData();
-	return <ProfileFormOutsourcing categories={categories} />;
+	return <ProfileFormInterest categories={categories} />;
 }

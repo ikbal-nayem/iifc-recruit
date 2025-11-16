@@ -1,6 +1,6 @@
 
 import { IFile, ResultSystem } from './common.interface';
-import { EnumDTO, ICommonMasterData, IEducationInstitution, IOrganization } from './master-data.interface';
+import { EnumDTO, ICommonMasterData, IEducationInstitution, IOrganization, IPost } from './master-data.interface';
 
 export enum ProficiencyLevel {
 	BEGINNER = 'BEGINNER',
@@ -221,4 +221,10 @@ export type JobseekerSearch = {
 	organizationId?: string;
 	organizationNameEn?: string;
 	organizationNameBn?: string;
+}
+
+export interface IInterestedIn {
+	id?: string;
+	postId: string;
+	post?: IPost;
 }
