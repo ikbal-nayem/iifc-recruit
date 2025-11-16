@@ -9,11 +9,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
 import { IInterestedIn } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
-import { JobseekerInterestService } from '@/services/api/jobseeker-interest.service';
+import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { getPostOutsourcingAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, PlusCircle, Trash } from 'lucide-react';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -41,7 +41,7 @@ export function ProfileFormInterest({ categories }: ProfileFormInterestProps) {
 	const loadData = useCallback(async () => {
 		setIsLoading(true);
 		try {
-			const res = await JobseekerInterestService.get();
+			const res = await JobseekerProfileService.interest.get();
 			setHistory(res.body);
 		} catch (error) {
 			toast.error({ description: 'Failed to load interested positions.' });
@@ -57,12 +57,15 @@ export function ProfileFormInterest({ categories }: ProfileFormInterestProps) {
 	const onSubmit = async (data: InterestFormValues) => {
 		setIsSubmitting(true);
 		try {
-			await JobseekerInterestService.add(data);
+			await JobseekerProfileService.interest.add(data);
 			toast.success({ description: 'Position added to your interest list.' });
 			form.reset();
 			loadData();
 		} catch (error: any) {
-			toast.error({ description: error.message || 'Failed to add interest.' });
+			toast({
+				description: error.message || 'Failed to add interest.',
+				variant: error.status === 409 ? 'warning' : 'danger',
+			});
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -70,7 +73,7 @@ export function ProfileFormInterest({ categories }: ProfileFormInterestProps) {
 
 	const handleRemove = async (id: string) => {
 		try {
-			await JobseekerInterestService.delete(id);
+			await JobseekerProfileService.interest.delete(id);
 			toast.success({ description: 'Position removed from your interest list.' });
 			loadData();
 		} catch (error: any) {
@@ -84,8 +87,8 @@ export function ProfileFormInterest({ categories }: ProfileFormInterestProps) {
 				<CardHeader>
 					<CardTitle>Interested Outsourcing Positions</CardTitle>
 					<CardDescription>
-						Let us know which outsourcing roles you are interested in. This helps us match you with the
-						right opportunities.
+						Let us know which outsourcing roles you are interested in. This helps us match you with the right
+						opportunities.
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
