@@ -97,7 +97,7 @@ export function ProfileFormInterest({ categories }: ProfileFormInterestProps) {
 									placeholder='Filter by Category...'
 									options={categories}
 									getOptionValue={(option) => option.id!}
-									getOptionLabel={(option) => option.nameEn}
+									getOptionLabel={(option) => option.nameBn}
 									onValueChange={(val) => setCategoryFilter(val!)}
 									value={categoryFilter}
 								/>
@@ -116,7 +116,7 @@ export function ProfileFormInterest({ categories }: ProfileFormInterestProps) {
 										});
 									}}
 									getOptionValue={(option) => option.id!}
-									getOptionLabel={(option) => option.nameEn}
+									getOptionLabel={(option) => option.nameBn}
 									required
 								/>
 							</div>
@@ -143,8 +143,8 @@ export function ProfileFormInterest({ categories }: ProfileFormInterestProps) {
 						history.map((item) => (
 							<Card key={item.id} className='p-4 flex justify-between items-center'>
 								<div>
-									<p className='font-semibold'>{item.post?.nameEn}</p>
-									<p className='text-sm text-muted-foreground'>{item.post?.outsourcingCategory?.nameEn}</p>
+									<p className='font-semibold'>{item.post?.nameBn}</p>
+									<p className='text-sm text-muted-foreground'>{item.post?.outsourcingCategory?.nameBn}</p>
 								</div>
 								<ConfirmationDialog
 									trigger={
