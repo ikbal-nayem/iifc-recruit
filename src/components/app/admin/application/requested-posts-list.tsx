@@ -99,12 +99,12 @@ export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPo
 			<Card key={item.id} className='p-4 flex flex-col sm:flex-row justify-between items-start'>
 				<div className='flex-1 mb-4 sm:mb-0 space-y-3'>
 					<div className='flex items-center gap-2'>
-						<p className='font-semibold'>{item.post?.nameEn}</p>
+						<p className='font-semibold'>{item.post?.nameBn}</p>
 						<Badge variant={getStatusVariant(item.status)}>{item.statusDTO?.nameEn}</Badge>
 					</div>
 					<div className='text-sm text-muted-foreground flex flex-wrap gap-x-5 gap-y-2'>
 						<span className='flex items-center gap-1.5'>
-							<Building className='h-4 w-4' /> {item.jobRequest?.clientOrganization?.nameEn || 'N/A'}
+							<Building className='h-4 w-4' /> {item.jobRequest?.clientOrganization?.nameBn || 'N/A'}
 						</span>
 						<span className='flex items-center gap-1.5'>
 							<Users className='h-4 w-4' /> {item.vacancy} vacancies
@@ -118,7 +118,7 @@ export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPo
 						)}
 						<Badge variant='outline' className='flex items-center gap-1.5'>
 							<span className='text-muted-foreground'>Examiner:</span>
-							<span className='font-semibold'>{item.examiner?.nameEn || 'Not Assigned'}</span>
+							<span className='font-semibold'>{item.examiner?.nameBn || 'Not Assigned'}</span>
 						</Badge>
 					</div>
 				</div>
