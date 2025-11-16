@@ -71,10 +71,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 
 	const canMarkAsComplete =
 		request.status === JobRequestStatus.PROCESSING &&
-		request.requestedPosts?.every(
-			(post) =>
-				post.status === JobRequestedPostStatus.SHORTLISTED || post.status === JobRequestedPostStatus.COMPLETED
-		);
+		request.requestedPosts?.every((post) => post.status === JobRequestedPostStatus.SHORTLISTED);
 
 	return (
 		<div className='space-y-6'>

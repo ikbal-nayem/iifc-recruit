@@ -20,7 +20,7 @@ import { getStatusVariant } from '@/lib/color-mapping';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { getExaminerAsync } from '@/services/async-api';
 import { format, parseISO } from 'date-fns';
-import { Building, Calendar, Edit, Loader2, Pencil, Send, Users } from 'lucide-react';
+import { Boxes, Building, Calendar, Edit, Loader2, MapPin, Pencil, Send, Users } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { CircularPublishForm } from '../job-management/circular-publish-form';
@@ -92,7 +92,11 @@ export function ApplicationManagementHeader({
 				<CardHeader>
 					<div className='flex flex-wrap items-center gap-4 justify-between'>
 						<div className='flex items-center gap-4'>
-							<CardTitle>{requestedPost?.post?.nameEn}</CardTitle>
+							<CardTitle>
+								{requestedPost.jobRequest?.type === JobRequestType.OUTSOURCING
+									? requestedPost?.post?.nameBn
+									: requestedPost?.post?.nameEn}
+							</CardTitle>
 							{requestedPost.statusDTO?.nameEn && (
 								<Badge variant={getStatusVariant(requestedPost.status)}>
 									{requestedPost.statusDTO.nameEn}
@@ -107,19 +111,28 @@ export function ApplicationManagementHeader({
 					</div>
 					<div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
 						<CardDescription className='flex flex-wrap items-center gap-x-4'>
+							{requestedPost.jobRequest?.type === JobRequestType.OUTSOURCING && (
+								<>
+									<span className='flex items-center gap-1.5'>
+										<Boxes className='h-4 w-4' />
+										{requestedPost.post?.outsourcingCategory?.nameBn}
+									</span>
+									<span className='flex items-center gap-1.5'>
+										<MapPin className='h-4 w-4' />
+										{requestedPost.outsourcingZone?.nameBn}
+									</span>
+								</>
+							)}
 							<span className='flex items-center gap-1.5'>
 								<Building className='h-4 w-4' />
-								{requestedPost.jobRequest?.clientOrganization?.nameEn}
+								{requestedPost.jobRequest?.type === JobRequestType.OUTSOURCING
+									? requestedPost.jobRequest?.clientOrganization?.nameBn
+									: requestedPost.jobRequest?.clientOrganization?.nameEn}
 							</span>
 							<span className='flex items-center gap-1.5'>
 								<Users className='h-4 w-4' />
 								{requestedPost.vacancy} Vacancies
 							</span>
-							{requestedPost.jobRequest?.type === JobRequestType.OUTSOURCING && (
-								<span className='font-medium text-sm'>
-									Category: {requestedPost.post?.outsourcingCategory?.nameEn || 'N/A'}
-								</span>
-							)}
 						</CardDescription>
 						<div className='flex items-center gap-2 text-sm'>
 							<span className='text-muted-foreground'>Examiner:</span>

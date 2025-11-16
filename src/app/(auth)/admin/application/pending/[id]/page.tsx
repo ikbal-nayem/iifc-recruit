@@ -16,6 +16,8 @@ async function getData(requestedPostId: string) {
 		const post = postRes.body;
 		const allStatuses = statusRes.body as EnumDTO[];
 
+		console.log(post)
+		
 		const desiredStatuses = [
 			APPLICATION_STATUS.APPLIED.toString(),
 			APPLICATION_STATUS.ACCEPTED.toString(),
