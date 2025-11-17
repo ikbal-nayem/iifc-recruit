@@ -235,6 +235,7 @@ export function FormAutocomplete<TFieldValues extends FieldValues, TOption exten
 											selectedOption ? getOptionLabel(selectedOption) : initialLabel,
 											(e) => {
 												e.stopPropagation();
+												onValueChange?.(undefined);
 												field.onChange(undefined);
 											}
 										)}
