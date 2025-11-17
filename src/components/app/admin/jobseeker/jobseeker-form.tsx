@@ -30,17 +30,22 @@ import { useFieldArray, useForm } from 'react-hook-form';
 import * as XLSX from 'xlsx';
 import * as z from 'zod';
 import { FormSelect } from '@/components/ui/form-select';
+import { FormMultiSelect } from '@/components/ui/form-multi-select';
+import { getPostOutsourcingAsync } from '@/services/async-api';
+
 const userSchema = z.object({
 	firstName: z.string().min(1, 'First name is required.'),
 	lastName: z.string().min(1, 'Last name is required.'),
 	email: z.string().email('Email should be valid.'),
 	phone: z.string().optional(),
 	organizationId: z.string().min(1, 'Organization is required.'),
+	interestedInPostIds: z.array(z.string()).optional(),
 });
 type UserFormValues = z.infer<typeof userSchema>;
 
 const bulkUserSchema = z.object({
 	organizationId: z.string().min(1, 'Organization is required.'),
+	interestedInPostIds: z.array(z.string()).optional(),
 	file: z
 		.any()
 		.refine((file) => file, 'File is required.')
@@ -86,13 +91,21 @@ export function JobseekerForm({
 
 	const singleForm = useForm<UserFormValues>({
 		resolver: zodResolver(userSchema),
-		defaultValues: { firstName: '', lastName: '', email: '', phone: '', organizationId: '' },
+		defaultValues: {
+			firstName: '',
+			lastName: '',
+			email: '',
+			phone: '',
+			organizationId: '',
+			interestedInPostIds: [],
+		},
 	});
 
 	const bulkForm = useForm<BulkUserFormValues>({
 		resolver: zodResolver(bulkUserSchema),
 		defaultValues: {
 			organizationId: '',
+			interestedInPostIds: [],
 		},
 	});
 
@@ -109,8 +122,10 @@ export function JobseekerForm({
 	const handleSingleSubmit = async (data: UserFormValues) => {
 		setIsSubmitting(true);
 		try {
-			const { organizationId, ...userData } = data;
-			const response = await UserService.bulkCreateJobseeker([{ organizationId, ...userData }]);
+			const { organizationId, interestedInPostIds, ...userData } = data;
+			const response = await UserService.bulkCreateJobseeker([
+				{ organizationId, interestedInPostIds, ...userData },
+			]);
 			toast.success({ description: response.message || 'Jobseeker created successfully.' });
 			onSuccess();
 			onClose();
@@ -151,7 +166,7 @@ export function JobseekerForm({
 	const handleBulkSubmit = async (data: EditableUserFormValues) => {
 		setIsSubmitting(true);
 		bulkForm.clearErrors();
-		const organizationId = bulkForm.getValues('organizationId');
+		const { organizationId, interestedInPostIds } = bulkForm.getValues();
 		if (!organizationId) {
 			bulkForm.setError('organizationId', { message: 'Select an organization.', type: 'required' });
 			toast.error({
@@ -163,7 +178,7 @@ export function JobseekerForm({
 
 		try {
 			const response = await UserService.bulkCreateJobseeker(
-				data.users.map((user) => ({ organizationId, ...user }))
+				data.users.map((user) => ({ organizationId, interestedInPostIds, ...user }))
 			);
 			const results = response.body;
 			replace(results);
@@ -297,6 +312,15 @@ export function JobseekerForm({
 							</div>
 							<FormInput control={singleForm.control} name='email' label='Email' type='email' required />
 							<FormInput control={singleForm.control} name='phone' label='Phone' />
+							<FormMultiSelect
+								control={singleForm.control}
+								name='interestedInPostIds'
+								label='Interested in (Outsourcing)'
+								placeholder='Select posts...'
+								loadOptions={getPostOutsourcingAsync}
+								getOptionValue={(option) => option.id!}
+								getOptionLabel={(option) => option.nameEn}
+							/>
 							<SheetFooter className='pt-4'>
 								<Button type='button' variant='outline' onClick={resetState} disabled={isSubmitting}>
 									Cancel
@@ -310,7 +334,7 @@ export function JobseekerForm({
 					</Form>
 				) : (
 					<div className='flex-1 flex flex-col min-h-0'>
-						<div className='px-6 py-4 border-b'>
+						<div className='px-6 py-4 border-b space-y-4'>
 							<Form {...bulkForm}>
 								<FormAutocomplete
 									control={bulkForm.control}
@@ -322,6 +346,15 @@ export function JobseekerForm({
 									getOptionValue={(option) => option.id!}
 									getOptionLabel={(option) => option.nameEn}
 									onValueChange={() => bulkForm.clearErrors()}
+								/>
+								<FormMultiSelect
+									control={bulkForm.control}
+									name='interestedInPostIds'
+									label='Interested in (Outsourcing)'
+									placeholder='Select posts to apply to all users...'
+									loadOptions={getPostOutsourcingAsync}
+									getOptionValue={(option) => option.id!}
+									getOptionLabel={(option) => option.nameEn}
 								/>
 
 								{step === 'upload' && (

@@ -32,7 +32,7 @@ export const UserService = {
 	},
 
 	bulkCreateJobseeker: async (payload: IObject[]): Promise<IApiResponse<any[]>> => {
-		return axiosIns.post('/user/jobseeker/bulk-signup', payload);
+		return axiosIns.post('/user/jobseeker/bulk-signup-with-interest', payload);
 	},
 
 	searchOrganizationUsers: async (payload: IApiRequest): Promise<IApiResponse<IOrganizationUser[]>> => {
