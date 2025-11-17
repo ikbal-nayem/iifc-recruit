@@ -184,7 +184,6 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
 
 	const onSubmit = (data: ProfileFormValues) => {
 		setIsDetailsSubmitting(true);
-		console.log(data);
 		setTimeout(() => {
 			toast({
 				title: 'Profile Updated',

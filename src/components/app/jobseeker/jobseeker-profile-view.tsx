@@ -114,8 +114,6 @@ export function JobseekerProfileView({
 			</div>
 		) : null;
 
-	console.log(makePreviewURL(personalInfo.profileImage?.filePath))
-
 	return (
 		<div className='p-2 sm:p-4 md:p-6 space-y-6'>
 			{/* Header */}

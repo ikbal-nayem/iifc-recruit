@@ -96,13 +96,13 @@ export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPo
 	const renderItem = (item: RequestedPost) => {
 		const isCircularPublished = item.status === JobRequestedPostStatus.CIRCULAR_PUBLISHED;
 
-		let deadlineBadgeVariant: 'secondary' | 'warning' | 'danger' = 'secondary';
+		let deadlineBadgeVariant: 'outline-purple' | 'outline-warning' | 'outline-danger' = 'outline-purple';
 		if (item.circularEndDate) {
 			const deadline = parseISO(item.circularEndDate);
 			if (isPast(deadline)) {
-				deadlineBadgeVariant = 'danger';
+				deadlineBadgeVariant = 'outline-danger';
 			} else if (differenceInDays(deadline, new Date()) <= 7) {
-				deadlineBadgeVariant = 'warning';
+				deadlineBadgeVariant = 'outline-warning';
 			}
 		}
 
