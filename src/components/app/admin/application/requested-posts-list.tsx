@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
@@ -13,7 +14,7 @@ import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequestedPostStatus, JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { format, parseISO } from 'date-fns';
+import { differenceInDays, format, isPast, parseISO } from 'date-fns';
 import { Building, Calendar, Search, UserCog, Users } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -21,7 +22,7 @@ const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
 
 interface RequestedPostsListProps {
 	statusIn: JobRequestedPostStatus[];
-	requestStatusNotIn: JobRequestStatus[];
+	requestStatusNotIn?: JobRequestStatus[];
 }
 
 export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPostsListProps) {
@@ -95,6 +96,16 @@ export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPo
 	const renderItem = (item: RequestedPost) => {
 		const isCircularPublished = item.status === JobRequestedPostStatus.CIRCULAR_PUBLISHED;
 
+		let deadlineBadgeVariant: 'secondary' | 'warning' | 'danger' = 'secondary';
+		if (item.circularEndDate) {
+			const deadline = parseISO(item.circularEndDate);
+			if (isPast(deadline)) {
+				deadlineBadgeVariant = 'danger';
+			} else if (differenceInDays(deadline, new Date()) <= 7) {
+				deadlineBadgeVariant = 'warning';
+			}
+		}
+
 		return (
 			<Card key={item.id} className='p-4 flex flex-col sm:flex-row justify-between items-start'>
 				<div className='flex-1 mb-4 sm:mb-0 space-y-3'>
@@ -109,12 +120,12 @@ export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPo
 						<span className='flex items-center gap-1.5'>
 							<Users className='h-4 w-4' /> {item.vacancy} vacancies
 						</span>
-						{isCircularPublished && item.circularPublishDate && (
-							<span className='flex items-center gap-1.5'>
+						{isCircularPublished && item.circularPublishDate && item.circularEndDate && (
+							<Badge variant={deadlineBadgeVariant} className='flex items-center gap-1.5'>
 								<Calendar className='h-4 w-4' />
 								{format(parseISO(item.circularPublishDate), 'dd MMM')} -{' '}
-								{format(parseISO(item.circularEndDate!), 'dd MMM')}
-							</span>
+								{format(parseISO(item.circularEndDate), 'dd MMM')}
+							</Badge>
 						)}
 						<Badge variant='outline' className='flex items-center gap-1.5'>
 							<span className='text-muted-foreground'>Examiner:</span>
