@@ -46,16 +46,16 @@ export const getInstitutionsAsync = (
 	searchKey: string,
 	callback: (data: IEducationInstitution[]) => void
 ) => {
-	initPayload.body = { nameEn: searchKey };
+	initPayload.body = { searchKey: searchKey };
 	MasterDataService.educationInstitution.getList(initPayload).then((resp) => callback(resp?.body || []));
 };
 
 export const getCertificationsAsync = (searchKey: string, callback: (data: ICommonMasterData[]) => void) => {
-	initPayload.body = { nameEn: searchKey };
+	initPayload.body = { searchKey: searchKey };
 	MasterDataService.certification.getList(initPayload).then((resp) => callback(resp?.body || []));
 };
 
 export const getOutsourcingCategoriesAsync = (searchKey: string, callback: (data: ICommonMasterData[]) => void) => {
-	initPayload.body = { nameEn: searchKey };
+	initPayload.body = { searchKey: searchKey };
 	MasterDataService.outsourcingCategory.getList(initPayload).then((resp) => callback(resp?.body || []));
 };

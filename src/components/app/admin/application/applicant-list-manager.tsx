@@ -233,7 +233,7 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 								placeholder='Filter by category...'
 								loadOptions={getOutsourcingCategoriesAsync}
 								getOptionValue={(option) => option.id!}
-								getOptionLabel={(option) => option.nameEn}
+								getOptionLabel={(option) => option.nameBn}
 								allowClear
 								onValueChange={() => filterForm.setValue('postId', '')}
 							/>
@@ -252,7 +252,7 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 									});
 								}}
 								getOptionValue={(option) => option.id!}
-								getOptionLabel={(option) => option.nameEn}
+								getOptionLabel={(option) => option.nameBn}
 								initialLabel={filterForm.watch('postId')}
 								allowClear
 							/>
