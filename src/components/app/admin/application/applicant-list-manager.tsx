@@ -33,7 +33,7 @@ import {
 	SortingState,
 	useReactTable,
 } from '@tanstack/react-table';
-import { Filter, Loader2, Search, UserPlus } from 'lucide-react';
+import { Loader2, Search, UserPlus } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -224,12 +224,6 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 				<form
 					onSubmit={(e) => {
 						e.preventDefault();
-						searchApplicants(0, {
-							searchKey: debouncedTextSearch,
-							skillIds: watchedSkillIds,
-							outsourcingCategoryId: watchedCategoryId,
-							postId: watchedPostId,
-						});
 					}}
 					className='space-y-4'
 				>
@@ -277,10 +271,6 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 								getOptionLabel={(option) => option.nameEn}
 							/>
 						</div>
-
-						<Button type='submit'>
-							<Filter className='mr-2 h-4 w-4' /> Filter
-						</Button>
 					</Card>
 				</form>
 			</FormProvider>
