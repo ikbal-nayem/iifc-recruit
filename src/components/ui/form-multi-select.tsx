@@ -126,12 +126,12 @@ export function FormMultiSelect<
 									type='button'
 									variant='outline'
 									className={cn(
-										'flex flex-wrap gap-1 p-2 w-full justify-start font-normal h-auto min-h-10 items-start',
+										'flex w-full items-center justify-between p-2 font-normal h-auto min-h-10',
 										displayedOptions.length === 0 && 'text-muted-foreground'
 									)}
 									onClick={() => setOpen(true)}
 								>
-									<div className='flex flex-wrap gap-1 flex-1'>
+									<div className='flex flex-1 flex-wrap gap-1'>
 										{displayedOptions.length > 0 ? (
 											displayedOptions.map((item) => (
 												<Badge key={getOptionValue(item)} variant={badgeVariant} className='text-sm py-1 px-2'>
@@ -153,7 +153,7 @@ export function FormMultiSelect<
 											<span className='px-1 py-1.5'>{placeholder}</span>
 										)}
 									</div>
-									<ChevronsUpDown className='h-4 w-4 shrink-0 opacity-50 ml-auto' />
+									<ChevronsUpDown className='h-4 w-4 shrink-0 opacity-50 ml-2' />
 								</Button>
 							</PopoverTrigger>
 							<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start'>
