@@ -166,9 +166,14 @@ export function JobseekerManagement({
 						<p className='text-sm text-muted-foreground'>{jobseeker.email}</p>
 						<p className='text-sm text-muted-foreground'>{jobseeker.phone}</p>
 						{jobseeker.organizationNameEn && (
-							<p className='text-sm text-muted-foreground flex items-center gap-1.5 pt-1'>
-								<Building className='h-4 w-4' /> {jobseeker.organizationNameEn}
-							</p>
+							<div className='text-xs text-muted-foreground mt-1 space-y-0.5'>
+								<p className='flex items-center gap-1.5'>
+									<Building className='h-3 w-3' /> {jobseeker.organizationNameEn}
+								</p>
+								<p className='flex items-center gap-1.5 pl-4 -ml-0.5'>
+									{jobseeker.organizationNameBn}
+								</p>
+							</div>
 						)}
 					</div>
 				</div>
