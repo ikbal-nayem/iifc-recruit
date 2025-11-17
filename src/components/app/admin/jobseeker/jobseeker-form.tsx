@@ -321,7 +321,7 @@ export function JobseekerForm({
 								getOptionLabel={(option) => (
 									<div className='flex flex-col text-sm'>
 										{option.nameBn}
-										<span className='text-xs text-muted-foreground'>
+										<span className='text-muted-foreground'>
 											{option.outsourcingCategory?.nameBn}
 										</span>
 									</div>
@@ -363,7 +363,7 @@ export function JobseekerForm({
 									getOptionLabel={(option) => (
 										<div className='flex flex-col text-sm'>
 											{option.nameBn}
-											<span className='text-xs text-muted-foreground'>
+											<span className='text-muted-foreground'>
 												{option.outsourcingCategory?.nameBn}
 											</span>
 										</div>

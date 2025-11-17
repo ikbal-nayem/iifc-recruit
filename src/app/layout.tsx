@@ -1,6 +1,7 @@
-import { AuthProvider } from '@/contexts/auth-context';
 import { MainLayout } from '@/components/main-layout';
-import { Lato, Source_Code_Pro } from 'next/font/google';
+import { AuthProvider } from '@/contexts/auth-context';
+import { Lato } from 'next/font/google';
+import localFont from 'next/font/local';
 import { Suspense } from 'react';
 import './globals.css';
 
@@ -10,10 +11,7 @@ const lato = Lato({
 	weight: ['300', '400', '700', '900'],
 });
 
-const sourceCodePro = Source_Code_Pro({
-	subsets: ['latin'],
-	variable: '--font-source-code-pro',
-});
+const kalpurush = localFont({ src: '../../public/fonts/kalpurush.woff2', variable: '--font-kalpurush' });
 
 export default function RootLayout({
 	children,
@@ -23,10 +21,7 @@ export default function RootLayout({
 	params: { locale: string };
 }>) {
 	return (
-		<html
-			lang={locale}
-			className={`h-full ${lato.variable} ${sourceCodePro.variable}`}
-		>
+		<html lang={locale} className={`h-full ${lato.variable} ${kalpurush.variable}`}>
 			<head>
 				<title>IIFC Jobs</title>
 				<meta name='description' content='Streamlining the recruitment process.' />

@@ -9,9 +9,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['var(--font-lato)', 'sans-serif'],
-        headline: ['var(--font-lato)', 'sans-serif'],
-        code: ['var(--font-source-code-pro)', 'monospace'],
+        body: ['var(--font-lato)', 'var(--font-kalpurush)', 'sans-serif'],
+        headline: ['var(--font-lato)', 'var(--font-kalpurush)', 'sans-serif'],
+        code: ['monospace'],
       },
       colors: {
         background: 'hsl(var(--background))',
