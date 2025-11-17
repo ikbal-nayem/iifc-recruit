@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -7,7 +6,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormMultiSelect } from '@/components/ui/form-multi-select';
 import { Input } from '@/components/ui/input';
@@ -49,12 +47,11 @@ type FilterFormValues = z.infer<typeof filterSchema>;
 
 interface ApplicantListManagerProps {
 	onApply: (applicants: JobseekerSearch[], onSuccess?: () => void) => void;
-	existingApplicantIds?: (string | undefined)[];
 }
 
 const initMeta: IMeta = { page: 0, limit: 50, totalRecords: 0 };
 
-export function ApplicantListManager({ onApply, existingApplicantIds }: ApplicantListManagerProps) {
+export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [jobseekers, setJobseekers] = useState<JobseekerSearch[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);

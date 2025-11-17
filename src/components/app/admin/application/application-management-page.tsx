@@ -262,10 +262,7 @@ export function ApplicationManagementPage({
 									<DialogTitle>Add Applicants to Primary List</DialogTitle>
 								</DialogHeader>
 								<div className='flex-1 overflow-y-auto px-6'>
-									<ApplicantListManager
-										onApply={handleApplyApplicants}
-										existingApplicantIds={applicants.map((a) => a.applicantId)}
-									/>
+									<ApplicantListManager onApply={handleApplyApplicants} />
 								</div>
 							</DialogContent>
 						</Dialog>
