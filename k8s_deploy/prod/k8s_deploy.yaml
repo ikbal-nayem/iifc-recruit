@@ -17,10 +17,7 @@ spec:
     spec:
       containers:
       - name: $K8S_SERVICE_NAME
-        image: $DOCKER_TAG
-        envFrom:
-          - secretRef:
-              name: $K8S_SECRET_NAME        
+        image: $DOCKER_TAG    
         imagePullPolicy: IfNotPresent    
         ports:
           - name: $K8S_PORT_NAME
