@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,7 @@ import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormInput } from '@/components/ui/form-input';
+import { FormMultiSelect } from '@/components/ui/form-multi-select';
 import { Input } from '@/components/ui/input';
 import {
 	Sheet,
@@ -21,6 +21,7 @@ import { toast } from '@/hooks/use-toast';
 import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { cn } from '@/lib/utils';
 import { UserService } from '@/services/api/user.service';
+import { getPostOutsourcingAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { Check, Download, Loader2 } from 'lucide-react';
@@ -29,9 +30,6 @@ import * as React from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import * as XLSX from 'xlsx';
 import * as z from 'zod';
-import { FormSelect } from '@/components/ui/form-select';
-import { FormMultiSelect } from '@/components/ui/form-multi-select';
-import { getPostOutsourcingAsync } from '@/services/async-api';
 
 const userSchema = z.object({
 	firstName: z.string().min(1, 'First name is required.'),
@@ -304,7 +302,7 @@ export function JobseekerForm({
 								placeholder='Select an organization'
 								options={organizations}
 								getOptionValue={(option) => option.id!}
-								getOptionLabel={(option) => option.nameEn}
+								getOptionLabel={(option) => option.nameBn}
 							/>
 							<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
 								<FormInput control={singleForm.control} name='firstName' label='First Name' required />
@@ -319,7 +317,14 @@ export function JobseekerForm({
 								placeholder='Select posts...'
 								loadOptions={getPostOutsourcingAsync}
 								getOptionValue={(option) => option.id!}
-								getOptionLabel={(option) => option.nameEn}
+								getOptionLabel={(option) => (
+									<div className='flex flex-col text-sm'>
+										{option.nameBn}
+										<span className='text-xs text-muted-foreground'>
+											{option.outsourcingCategory?.nameBn}
+										</span>
+									</div>
+								)}
 							/>
 							<SheetFooter className='pt-4'>
 								<Button type='button' variant='outline' onClick={resetState} disabled={isSubmitting}>
@@ -344,7 +349,7 @@ export function JobseekerForm({
 									placeholder='Select an organization'
 									options={organizations}
 									getOptionValue={(option) => option.id!}
-									getOptionLabel={(option) => option.nameEn}
+									getOptionLabel={(option) => option.nameBn}
 									onValueChange={() => bulkForm.clearErrors()}
 								/>
 								<FormMultiSelect
@@ -354,7 +359,14 @@ export function JobseekerForm({
 									placeholder='Select posts to apply to all users...'
 									loadOptions={getPostOutsourcingAsync}
 									getOptionValue={(option) => option.id!}
-									getOptionLabel={(option) => option.nameEn}
+									getOptionLabel={(option) => (
+										<div className='flex flex-col text-sm'>
+											{option.nameBn}
+											<span className='text-xs text-muted-foreground'>
+												{option.outsourcingCategory?.nameBn}
+											</span>
+										</div>
+									)}
 								/>
 
 								{step === 'upload' && (

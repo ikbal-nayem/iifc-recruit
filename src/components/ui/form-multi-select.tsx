@@ -31,7 +31,7 @@ interface FormMultiSelectProps<
 	options?: TOption[];
 	loadOptions?: (searchKey: string, callback: (options: TOption[]) => void) => void;
 	getOptionValue: (option: TOption) => string;
-	getOptionLabel: (option: TOption) => string;
+	getOptionLabel: (option: TOption) => React.ReactNode | string;
 	badgeVariant?: BadgeProps['variant'];
 	closeOnSelect?: boolean;
 	onValueChange?: (value: string[]) => void;
@@ -126,7 +126,7 @@ export function FormMultiSelect<
 									type='button'
 									variant='outline'
 									className={cn(
-										'flex w-full items-center justify-between p-2 font-normal h-auto min-h-10',
+										'flex w-full items-center justify-between px-4 py-2 font-normal h-auto min-h-10',
 										displayedOptions.length === 0 && 'text-muted-foreground'
 									)}
 									onClick={() => setOpen(true)}
@@ -150,7 +150,7 @@ export function FormMultiSelect<
 												</Badge>
 											))
 										) : (
-											<span className='px-1 py-1.5'>{placeholder}</span>
+											<span className='truncate'>{placeholder}</span>
 										)}
 									</div>
 									<ChevronsUpDown className='h-4 w-4 shrink-0 opacity-50 ml-2' />
@@ -172,7 +172,7 @@ export function FormMultiSelect<
 											{allOptions.map((option) => (
 												<CommandItem
 													key={getOptionValue(option)}
-													value={getOptionLabel(option)}
+													value={getOptionValue(option)}
 													onSelect={() => handleSelect(option)}
 												>
 													<Check
