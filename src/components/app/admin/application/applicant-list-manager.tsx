@@ -164,6 +164,16 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 			accessorKey: 'phone',
 			header: 'Phone',
 		},
+		{
+			accessorKey: 'organizationNameEn',
+			header: 'Organization',
+			cell: ({ row }) => (
+				<div>
+					<p>{row.original.organizationNameEn}</p>
+					<p className='text-sm text-muted-foreground'>{row.original.organizationNameBn}</p>
+				</div>
+			),
+		},
 	];
 
 	const table = useReactTable({
