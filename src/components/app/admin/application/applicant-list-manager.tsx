@@ -157,12 +157,16 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 			},
 		},
 		{
-			accessorKey: 'email',
-			header: 'Email',
-		},
-		{
-			accessorKey: 'phone',
-			header: 'Phone',
+			header: 'Contact Info',
+			cell: ({ row }) => {
+				const { email, phone } = row.original;
+				return (
+					<div>
+						<p>{email}</p>
+						<p className='text-sm text-muted-foreground'>{phone}</p>
+					</div>
+				);
+			},
 		},
 		{
 			accessorKey: 'organizationNameEn',
@@ -357,7 +361,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 			</Card>
 
 			<Dialog open={!!selectedJobseeker} onOpenChange={(isOpen) => !isOpen && setSelectedJobseeker(null)}>
-				<DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
+				<DialogContent className='max-w-5xl max-h-[90vh] overflow-y-auto'>
 					{selectedJobseeker && <JobseekerProfileView jobseekerId={selectedJobseeker.userId} />}
 				</DialogContent>
 			</Dialog>
