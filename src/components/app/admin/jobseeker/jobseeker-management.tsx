@@ -86,18 +86,18 @@ export function JobseekerManagement({
 			icon: <FileText className='mr-2 h-4 w-4' />,
 			onClick: () => setSelectedJobseeker(jobseeker),
 		},
-		{
-			label: 'Contact',
-			icon: <Send className='mr-2 h-4 w-4' />,
-			onClick: () => toast({ description: `Contacting ${jobseeker.fullName}... (not implemented)` }),
-		},
-		{ isSeparator: true },
-		{
-			label: 'Deactivate',
-			icon: <UserX className='mr-2 h-4 w-4' />,
-			onClick: () => alert('Deactivating... (not implemented)'),
-			variant: 'danger',
-		},
+		// {
+		// 	label: 'Contact',
+		// 	icon: <Send className='mr-2 h-4 w-4' />,
+		// 	onClick: () => toast({ description: `Contacting ${jobseeker.fullName}... (not implemented)` }),
+		// },
+		// { isSeparator: true },
+		// {
+		// 	label: 'Deactivate',
+		// 	icon: <UserX className='mr-2 h-4 w-4' />,
+		// 	onClick: () => alert('Deactivating... (not implemented)'),
+		// 	variant: 'danger',
+		// },
 	];
 
 	const columns: ColumnDef<JobseekerSearch>[] = [

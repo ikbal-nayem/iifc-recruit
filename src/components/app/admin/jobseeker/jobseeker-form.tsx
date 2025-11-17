@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/sheet';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import useLoader from '@/hooks/use-loader';
 import { toast } from '@/hooks/use-toast';
 import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { cn } from '@/lib/utils';
@@ -84,7 +85,7 @@ export function JobseekerForm({
 	organizations: IClientOrganization[];
 }) {
 	const [activeTab, setActiveTab] = React.useState('single');
-	const [isSubmitting, setIsSubmitting] = React.useState(false);
+	const [isSubmitting, setIsSubmitting] = useLoader(false);
 	const [step, setStep] = React.useState<'upload' | 'preview' | 'result'>('upload');
 
 	const singleForm = useForm<UserFormValues>({
