@@ -3,10 +3,11 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormMultiSelect } from '@/components/ui/form-multi-select';
 import { Input } from '@/components/ui/input';
@@ -32,10 +33,10 @@ import {
 	SortingState,
 	useReactTable,
 } from '@tanstack/react-table';
-import { FileText, Filter, Loader2, Search, UserPlus } from 'lucide-react';
+import { Filter, Loader2, Search, UserPlus } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { z } from 'zod';
+import * as z from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 
 const filterSchema = z.object({
@@ -93,7 +94,6 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 			} catch (error: any) {
 				toast.error({
 					description: error.message || 'Could not fetch jobseekers.',
-					variant: 'danger',
 				});
 				setJobseekers([]);
 			} finally {
@@ -147,21 +147,18 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 							</AvatarFallback>
 						</Avatar>
 						<div>
-							<p className='font-semibold'>{fullName}</p>
+							<button
+								className='font-semibold text-left hover:underline'
+								onClick={() => setSelectedJobseeker(row.original)}
+							>
+								{fullName}
+							</button>
 							<p className='text-xs text-muted-foreground'>{email}</p>
 							<p className='text-xs text-muted-foreground'>{phone}</p>
 						</div>
 					</div>
 				);
 			},
-		},
-		{
-			id: 'actions',
-			cell: ({ row }) => (
-				<Button variant='ghost' size='sm' onClick={() => setSelectedJobseeker(row.original)} className='h-8'>
-					<FileText className='mr-2 h-4 w-4' /> View
-				</Button>
-			),
 		},
 	];
 
@@ -226,7 +223,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 								label='Outsourcing Category'
 								placeholder='Filter by category...'
 								loadOptions={getOutsourcingCategoriesAsync}
-								getOptionValue={(option) => option.id}
+								getOptionValue={(option) => option.id!}
 								getOptionLabel={(option) => option.nameEn}
 								allowClear
 								onValueChange={() => filterForm.setValue('postId', '')}
@@ -247,6 +244,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 								}}
 								getOptionValue={(option) => option.id!}
 								getOptionLabel={(option) => option.nameEn}
+								initialLabel={filterForm.watch('postId')}
 								allowClear
 							/>
 						</div>
@@ -322,7 +320,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 									table.getRowModel().rows.map((row) => (
 										<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
 											{row.getVisibleCells().map((cell) => (
-												<TableCell key={cell.id}>
+												<TableCell key={cell.id} className='py-2'>
 													{flexRender(cell.column.columnDef.cell, cell.getContext())}
 												</TableCell>
 											))}
