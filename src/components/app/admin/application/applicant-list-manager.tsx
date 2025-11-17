@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormMultiSelect } from '@/components/ui/form-multi-select';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
@@ -17,7 +18,7 @@ import { IMeta } from '@/interfaces/common.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
-import { getSkillsAsync } from '@/services/async-api';
+import { getOutsourcingCategoriesAsync, getPostOutsourcingAsync, getSkillsAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
 	ColumnDef,
@@ -39,6 +40,8 @@ import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 
 const filterSchema = z.object({
 	skillIds: z.array(z.string()).optional(),
+	outsourcingCategoryId: z.string().optional(),
+	postId: z.string().optional(),
 });
 
 type FilterFormValues = z.infer<typeof filterSchema>;
@@ -68,13 +71,17 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 		resolver: zodResolver(filterSchema),
 		defaultValues: {
 			skillIds: [],
+			outsourcingCategoryId: '',
+			postId: '',
 		},
 	});
 
 	const watchedSkillIds = filterForm.watch('skillIds');
+	const watchedCategoryId = filterForm.watch('outsourcingCategoryId');
+	const watchedPostId = filterForm.watch('postId');
 
 	const searchApplicants = useCallback(
-		async (page: number, searchCriteria: { searchKey?: string; skillIds?: string[] }) => {
+		async (page: number, searchCriteria: Partial<FilterFormValues & { searchKey: string }>) => {
 			setIsLoading(true);
 			try {
 				const response = await JobseekerProfileService.search({
@@ -97,8 +104,13 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 	);
 
 	useEffect(() => {
-		searchApplicants(0, { searchKey: debouncedTextSearch, skillIds: watchedSkillIds });
-	}, [debouncedTextSearch, watchedSkillIds, searchApplicants]);
+		searchApplicants(0, {
+			searchKey: debouncedTextSearch,
+			skillIds: watchedSkillIds,
+			outsourcingCategoryId: watchedCategoryId,
+			postId: watchedPostId,
+		});
+	}, [debouncedTextSearch, watchedSkillIds, watchedCategoryId, watchedPostId, searchApplicants]);
 
 	const columns: ColumnDef<JobseekerSearch>[] = [
 		{
@@ -173,7 +185,12 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 	});
 
 	const handlePageChange = (newPage: number) => {
-		searchApplicants(newPage, { searchKey: debouncedTextSearch, skillIds: watchedSkillIds });
+		searchApplicants(newPage, {
+			searchKey: debouncedTextSearch,
+			skillIds: watchedSkillIds,
+			outsourcingCategoryId: watchedCategoryId,
+			postId: watchedPostId,
+		});
 	};
 
 	const handleApply = () => {
@@ -192,11 +209,47 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 				<form
 					onSubmit={(e) => {
 						e.preventDefault();
-						searchApplicants(0, { searchKey: debouncedTextSearch, skillIds: watchedSkillIds });
+						searchApplicants(0, {
+							searchKey: debouncedTextSearch,
+							skillIds: watchedSkillIds,
+							outsourcingCategoryId: watchedCategoryId,
+							postId: watchedPostId,
+						});
 					}}
 					className='space-y-4'
 				>
 					<Card className='p-4 border rounded-lg space-y-4'>
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+							<FormAutocomplete
+								control={filterForm.control}
+								name='outsourcingCategoryId'
+								label='Outsourcing Category'
+								placeholder='Filter by category...'
+								loadOptions={getOutsourcingCategoriesAsync}
+								getOptionValue={(option) => option.id}
+								getOptionLabel={(option) => option.nameEn}
+								allowClear
+								onValueChange={() => filterForm.setValue('postId', '')}
+							/>
+							<FormAutocomplete
+								control={filterForm.control}
+								name='postId'
+								label='Outsourcing Post'
+								placeholder='Filter by post...'
+								disabled={!watchedCategoryId}
+								loadOptions={(search, callback) => {
+									getPostOutsourcingAsync(search, (posts) => {
+										const filtered = watchedCategoryId
+											? posts.filter((p) => p.outsourcingCategoryId === watchedCategoryId)
+											: posts;
+										callback(filtered);
+									});
+								}}
+								getOptionValue={(option) => option.id!}
+								getOptionLabel={(option) => option.nameEn}
+								allowClear
+							/>
+						</div>
 						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 							<FormMultiSelect
 								control={filterForm.control}
@@ -208,6 +261,7 @@ export function ApplicantListManager({ onApply, existingApplicantIds }: Applican
 								getOptionLabel={(option) => option.nameEn}
 							/>
 						</div>
+
 						<Button type='submit'>
 							<Filter className='mr-2 h-4 w-4' /> Filter
 						</Button>

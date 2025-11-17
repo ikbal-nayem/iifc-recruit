@@ -54,3 +54,8 @@ export const getCertificationsAsync = (searchKey: string, callback: (data: IComm
 	initPayload.body = { nameEn: searchKey };
 	MasterDataService.certification.getList(initPayload).then((resp) => callback(resp?.body || []));
 };
+
+export const getOutsourcingCategoriesAsync = (searchKey: string, callback: (data: ICommonMasterData[]) => void) => {
+	initPayload.body = { nameEn: searchKey };
+	MasterDataService.outsourcingCategory.getList(initPayload).then((resp) => callback(resp?.body || []));
+};
