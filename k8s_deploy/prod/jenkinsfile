@@ -32,7 +32,7 @@ pipeline {
         K8S_CONTAINER_PORT="3000"
         K8S_PORT_NAME="http"
 
-        K8S_NODE_PORT="31913"
+        K8S_NODE_PORT="31914"
                 
 
         //Health check uri
