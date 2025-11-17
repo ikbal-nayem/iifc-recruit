@@ -39,10 +39,7 @@ export default function Header() {
 		if (!currectUser?.roles.includes(ROLES.JOB_SEEKER)) {
 			return adminNavLinks;
 		}
-		if (currectUser?.userType === 'JOB_SEEKER') {
-			return jobseekerNavLinks;
-		}
-		return [];
+		return jobseekerNavLinks;
 	};
 	const navLinks = getNavLinks();
 

@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -12,6 +11,7 @@ import {
 } from '@/components/ui/sidebar';
 import { ROLES } from '@/constants/auth.constant';
 import { COMMON_URL } from '@/constants/common.constant';
+import { ENV } from '@/constants/env.constant';
 import { useAuth } from '@/contexts/auth-context';
 import { filterNavLinksByRole } from '@/lib/access-control';
 import { NavLink, adminNavLinks, jobseekerNavLinks } from '@/lib/nav-links';
@@ -22,6 +22,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import * as React from 'react';
+import { Badge } from '../ui/badge';
 
 const NavMenu = ({ item }: { item: NavLink }) => {
 	const pathname = usePathname();
@@ -120,6 +121,9 @@ export default function SidebarNav() {
 				<Link href='/' className='flex items-center gap-3'>
 					<Image src={COMMON_URL.SITE_LOGO} alt='IIFC Logo' width={32} height={32} className='h-8 w-auto' />
 					<span className='font-headline text-xl font-bold'>IIFC Jobs</span>
+					{ENV.NODE_ENV !== 'prod' ? (
+						<Badge variant='warning'>{ENV.NODE_ENV.toLocaleUpperCase()}</Badge>
+					) : null}
 				</Link>
 			</SidebarHeader>
 			<SidebarContent>

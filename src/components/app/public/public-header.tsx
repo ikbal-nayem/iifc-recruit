@@ -1,5 +1,6 @@
 'use client';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
 	Sheet,
@@ -10,6 +11,7 @@ import {
 	SheetTrigger,
 } from '@/components/ui/sheet';
 import { COMMON_URL } from '@/constants/common.constant';
+import { ENV } from '@/constants/env.constant';
 import { cn } from '@/lib/utils';
 import { LogIn, Menu, UserPlus } from 'lucide-react';
 import Image from 'next/image';
@@ -28,6 +30,7 @@ export default function PublicHeader() {
 			<Link href='/' className='flex items-center gap-2 font-headline text-xl font-bold mr-6'>
 				<Image src={COMMON_URL.SITE_LOGO} alt='IIFC Logo' width={40} height={40} className='h-10 w-auto' />
 				<span className='hidden sm:inline-block'>IIFC Jobs</span>
+				{ENV.NODE_ENV !== 'prod' ? <Badge variant='warning'>{ENV.NODE_ENV.toLocaleUpperCase()}</Badge> : null}
 			</Link>
 
 			<nav className='hidden md:flex items-center gap-6 text-sm font-medium'>
