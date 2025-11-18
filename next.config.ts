@@ -23,13 +23,13 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'picsum.photos',
+        hostname: 'api-rms.iifc.gov.bd',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'humane-weasel-renewed.ngrok-free.app',
+        hostname: 'api-stage-recruit.iifc.gov.bd',
         port: '',
         pathname: '/**',
       },
