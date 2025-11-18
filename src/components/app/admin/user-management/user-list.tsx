@@ -141,7 +141,7 @@ function UserForm({
 							<FormInput control={form.control} name='password' label='Password' type='password' required />
 						)}
 						<DialogFooter className='pt-4'>
-							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
+							<Button type='button' variant='outline' onClick={onClose} disabled={isSubmitting}>
 								Cancel
 							</Button>
 							<Button type='submit' disabled={isSubmitting}>
