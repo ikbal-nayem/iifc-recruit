@@ -21,6 +21,7 @@ export interface IUser {
 	username: string;
 	email: string;
 	roles: ROLES[];
+	openInterestModal?: boolean;
 	userType: UserType;
 	firstName: string;
 	lastName: string;
