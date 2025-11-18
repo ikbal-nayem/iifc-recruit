@@ -21,7 +21,7 @@ export default function RootLayout({
 	params: { locale: string };
 }>) {
 	return (
-		<html lang={locale} className={`h-full ${lato.variable} ${kalpurush.variable}`}>
+		<html lang={locale ?? 'en'} className={`h-full ${lato.variable} ${kalpurush.variable}`}>
 			<head>
 				<title>IIFC Jobs</title>
 				<meta name='description' content='Streamlining the recruitment process.' />

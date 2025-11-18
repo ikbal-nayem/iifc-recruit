@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const PUBLIC_FILE = /\.(.*)$/;
+const locales = ['en', 'bn'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Skip middleware for static files, API routes, and Next.js internals
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api/') ||
@@ -14,8 +16,16 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // const locale = request.cookies.get('NEXT_LOCALE')?.value || 'en';
-  // request.nextUrl.locale = locale;
+  const pathnameHasLocale = locales.some(
+    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+  );
+
+  if (pathnameHasLocale) return NextResponse.next();
+
+  // Redirect based on cookie
+  const localeCookie = request.cookies.get('NEXT_LOCALE')?.value || 'en';
+  request.nextUrl.pathname = `/${localeCookie}${pathname}`;
   
-  return NextResponse.rewrite(request.nextUrl);
+  // Use e.g. `path*` to skip this cookie from being forwarded to AHS
+  return NextResponse.redirect(request.nextUrl);
 }

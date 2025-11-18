@@ -1,101 +1,102 @@
-import { Button } from '@/components/ui/button';
 import { COMMON_URL } from '@/constants/common.constant';
-import { Facebook, Linkedin } from 'lucide-react';
+import { Facebook, Linkedin, Twitter } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { LanguageSwitcher } from './language-switcher';
 
 export default function PublicFooter() {
 	return (
-		<footer className='bg-white border-t'>
-			<div className='container mx-auto py-12 px-4 md:px-6'>
-				<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
-					<div className='lg:col-span-1'>
-						<Link href='/' className='flex items-center gap-3 font-headline text-2xl font-bold mb-4'>
-							<Image src={COMMON_URL.SITE_LOGO} alt='IIFC Logo' width={40} height={40} className='h-10 w-auto' />
-							<span>IIFC Jobs</span>
+		<footer className='bg-primary/5 border-t'>
+			<div className='container mx-auto px-4 md:px-6 py-8'>
+				<div className='grid grid-cols-1 md:grid-cols-4 gap-8'>
+					<div className='space-y-4'>
+						<Link href='/' className='flex items-center gap-2'>
+							<Image src={COMMON_URL.SITE_LOGO} alt='IIFC Logo' width={40} height={40} />
+							<span className='font-bold text-lg font-headline'>IIFC Jobs</span>
 						</Link>
-						<p className='text-muted-foreground text-sm mb-4'>
-							Connecting talent with opportunity. Find your dream job or your next star hire with us.
+						<p className='text-sm text-muted-foreground'>
+							Facilitating private sector investment in the infrastructure of Bangladesh.
 						</p>
-						<div className='flex space-x-2'>
-							<Button variant='ghost' size='icon' asChild>
-								<Link href='#'>
-									<Facebook className='h-5 w-5' />
+					</div>
+
+					<div>
+						<h4 className='font-semibold mb-3'>Quick Links</h4>
+						<ul className='space-y-2 text-sm'>
+							<li>
+								<Link href='/jobs' className='text-muted-foreground hover:text-primary'>
+									Job Listings
 								</Link>
-							</Button>
-							<Button variant='ghost' size='icon' asChild>
-								<Link href='#'>
-									<Linkedin className='h-5 w-5' />
+							</li>
+							<li>
+								<Link href='/about' className='text-muted-foreground hover:text-primary'>
+									About Us
 								</Link>
-							</Button>
+							</li>
+							<li>
+								<Link href='/contact' className='text-muted-foreground hover:text-primary'>
+									Contact
+								</Link>
+							</li>
+						</ul>
+					</div>
+
+					<div>
+						<h4 className='font-semibold mb-3'>For Candidates</h4>
+						<ul className='space-y-2 text-sm'>
+							<li>
+								<Link href='/signup' className='text-muted-foreground hover:text-primary'>
+									Create Account
+								</Link>
+							</li>
+							<li>
+								<Link href='/login' className='text-muted-foreground hover:text-primary'>
+									Candidate Login
+								</Link>
+							</li>
+							<li>
+								<Link href='#' className='text-muted-foreground hover:text-primary'>
+									FAQ
+								</Link>
+							</li>
+						</ul>
+					</div>
+
+					<div>
+						<h4 className='font-semibold mb-3'>Connect With Us</h4>
+						<div className='flex space-x-3'>
+							<a
+								href='https://facebook.com'
+								target='_blank'
+								rel='noopener noreferrer'
+								className='text-muted-foreground hover:text-primary'
+							>
+								<Facebook className='h-5 w-5' />
+							</a>
+							<a
+								href='https://twitter.com'
+								target='_blank'
+								rel='noopener noreferrer'
+								className='text-muted-foreground hover:text-primary'
+							>
+								<Twitter className='h-5 w-5' />
+							</a>
+							<a
+								href='https://linkedin.com'
+								target='_blank'
+								rel='noopener noreferrer'
+								className='text-muted-foreground hover:text-primary'
+							>
+								<Linkedin className='h-5 w-5' />
+							</a>
+						</div>
+						<div className='mt-4'>
+							<LanguageSwitcher />
 						</div>
 					</div>
-					<div>
-						<h4 className='font-semibold mb-4'>For Jobseekers</h4>
-						<nav className='flex flex-col gap-2'>
-							<Link href='/' className='text-sm hover:text-primary transition-colors text-muted-foreground'>
-								Find a Job
-							</Link>
-							<Link
-								href='/login'
-								className='text-sm hover:text-primary transition-colors text-muted-foreground'
-							>
-								Jobseeker Login
-							</Link>
-							<Link
-								href='/signup'
-								className='text-sm hover:text-primary transition-colors text-muted-foreground'
-							>
-								Jobseeker Sign Up
-							</Link>
-						</nav>
-					</div>
-					<div>
-						<h4 className='font-semibold mb-4'>Our Work</h4>
-						<nav className='flex flex-col gap-2'>
-							<Link
-								href='/services'
-								className='text-sm hover:text-primary transition-colors text-muted-foreground'
-							>
-								Our Services
-							</Link>
-							<Link
-								href='/projects'
-								className='text-sm hover:text-primary transition-colors text-muted-foreground'
-							>
-								Our Projects
-							</Link>
-							<Link
-								href='/sectors'
-								className='text-sm hover:text-primary transition-colors text-muted-foreground'
-							>
-								Sectors
-							</Link>
-						</nav>
-					</div>
-					<div>
-						<h4 className='font-semibold mb-4'>Company</h4>
-						<nav className='flex flex-col gap-2'>
-							<Link
-								href='/about'
-								className='text-sm hover:text-primary transition-colors text-muted-foreground'
-							>
-								About Us
-							</Link>
-							<Link
-								href='/contact'
-								className='text-sm hover:text-primary transition-colors text-muted-foreground'
-							>
-								Contact
-							</Link>
-							<Link href='#' className='text-sm hover:text-primary transition-colors text-muted-foreground'>
-								Privacy Policy
-							</Link>
-						</nav>
-					</div>
 				</div>
-				<div className='border-t mt-8 pt-6 text-center text-sm text-muted-foreground'>
-					&copy; {new Date().getFullYear()} IIFC Jobs. All rights reserved.
+
+				<div className='mt-8 border-t pt-4 text-center text-sm text-muted-foreground'>
+					<p>&copy; {new Date().getFullYear()} IIFC. All rights reserved.</p>
 				</div>
 			</div>
 		</footer>
