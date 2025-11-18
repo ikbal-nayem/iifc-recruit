@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -141,7 +142,7 @@ function UserForm({
 							<FormInput control={form.control} name='password' label='Password' type='password' required />
 						)}
 						<DialogFooter className='pt-4'>
-							<Button type='button' variant='outline' onClick={onClose} disabled={isSubmitting}>
+							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
 								Cancel
 							</Button>
 							<Button type='submit' disabled={isSubmitting}>
@@ -284,12 +285,20 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 				id: 'actions',
 				cell: ({ row }) => {
 					const user = row.original;
+					const isCurrentUser = user.id === currectUser?.id;
+
 					return (
 						<div className='flex gap-1 justify-end'>
 							<Button variant='ghost' size='icon' onClick={() => handleOpenForm(user)}>
 								<Edit className='h-4 w-4' />
 							</Button>
-							<Button variant='ghost' size='icon' onClick={() => setUserToDelete(user)}>
+							<Button
+								variant='ghost'
+								size='icon'
+								onClick={() => setUserToDelete(user)}
+								disabled={isCurrentUser}
+								title={isCurrentUser ? 'You cannot delete your own account' : 'Delete user'}
+							>
 								<Trash className='h-4 w-4 text-danger' />
 							</Button>
 						</div>
@@ -299,7 +308,7 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 		);
 
 		return baseColumns;
-	}, [isSuperAdmin, allRoles]);
+	}, [isSuperAdmin, allRoles, currectUser?.id]);
 
 	const table = useReactTable({
 		data: users,
@@ -307,43 +316,52 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 		getCoreRowModel: getCoreRowModel(),
 	});
 
-	const renderMobileCard = (user: IOrganizationUser) => (
-		<Card key={user.id} className='p-4'>
-			<div className='flex items-start justify-between'>
-				<div className='flex items-center gap-4'>
-					<Avatar>
-						<AvatarImage src={makePreviewURL(user.profileImage)} />
-						<AvatarFallback>{user.fullName.charAt(0)}</AvatarFallback>
-					</Avatar>
-					<div>
-						<p className='font-semibold'>{user.fullName}</p>
-						<p className='text-sm text-muted-foreground'>{user.email}</p>
-						{isSuperAdmin && (
-							<div className='text-xs text-muted-foreground mt-1'>
-								<p>{user.organizationNameEn}</p>
-								<p>{user.organizationNameBn}</p>
-							</div>
-						)}
+	const renderMobileCard = (user: IOrganizationUser) => {
+		const isCurrentUser = user.id === currectUser?.id;
+		return (
+			<Card key={user.id} className='p-4'>
+				<div className='flex items-start justify-between'>
+					<div className='flex items-center gap-4'>
+						<Avatar>
+							<AvatarImage src={makePreviewURL(user.profileImage)} />
+							<AvatarFallback>{user.fullName.charAt(0)}</AvatarFallback>
+						</Avatar>
+						<div>
+							<p className='font-semibold'>{user.fullName}</p>
+							<p className='text-sm text-muted-foreground'>{user.email}</p>
+							{isSuperAdmin && (
+								<div className='text-xs text-muted-foreground mt-1'>
+									<p>{user.organizationNameEn}</p>
+									<p>{user.organizationNameBn}</p>
+								</div>
+							)}
+						</div>
+					</div>
+					<div className='flex gap-1'>
+						<Button variant='ghost' size='icon' onClick={() => handleOpenForm(user)}>
+							<Edit className='h-4 w-4' />
+						</Button>
+						<Button
+							variant='ghost'
+							size='icon'
+							onClick={() => setUserToDelete(user)}
+							disabled={isCurrentUser}
+							title={isCurrentUser ? 'You cannot delete your own account' : 'Delete user'}
+						>
+							<Trash className='h-4 w-4 text-danger' />
+						</Button>
 					</div>
 				</div>
-				<div className='flex gap-1'>
-					<Button variant='ghost' size='icon' onClick={() => handleOpenForm(user)}>
-						<Edit className='h-4 w-4' />
-					</Button>
-					<Button variant='ghost' size='icon' onClick={() => setUserToDelete(user)}>
-						<Trash className='h-4 w-4 text-danger' />
-					</Button>
+				<div className='flex flex-wrap gap-1 mt-2'>
+					{user.roles?.map((role) => (
+						<Badge key={role} variant='secondary'>
+							{allRoles.find((r) => r.roleCode === role)?.nameEn || role}
+						</Badge>
+					))}
 				</div>
-			</div>
-			<div className='flex flex-wrap gap-1 mt-2'>
-				{user.roles?.map((role) => (
-					<Badge key={role} variant='secondary'>
-						{allRoles.find((r) => r.roleCode === role)?.nameEn || role}
-					</Badge>
-				))}
-			</div>
-		</Card>
-	);
+			</Card>
+		);
+	};
 
 	return (
 		<>
