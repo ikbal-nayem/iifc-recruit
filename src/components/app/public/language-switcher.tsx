@@ -1,36 +1,37 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuRadioGroup,
-	DropdownMenuRadioItem,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { usePathname, useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
+import { Button } from '../../ui/button';
 import { Globe } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export function LanguageSwitcher() {
-	const { i18n } = useTranslation();
+	const router = useRouter();
+	const pathname = usePathname();
+	const locale = useLocale();
 
-	const changeLanguage = (lng: string) => {
-		i18n?.changeLanguage(lng);
+	const changeLocale = (nextLocale: string) => {
+		const newPathname = pathname.replace(`/${locale}`, `/${nextLocale}`);
+		router.replace(newPathname, { scroll: false });
 	};
 
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button variant='outline' size='sm' className='gap-2'>
-					<Globe className='h-4 w-4' />
-					<span className='capitalize'>{i18n.language === 'bn' ? 'বাংলা' : 'English'}</span>
+				<Button variant='ghost' size='icon'>
+					<Globe className='h-5 w-5' />
+					<span className='sr-only'>Change language</span>
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align='end'>
-				<DropdownMenuRadioGroup value={i18n.language} onValueChange={changeLanguage}>
-					<DropdownMenuRadioItem value='en'>English</DropdownMenuRadioItem>
-					<DropdownMenuRadioItem value='bn'>বাংলা</DropdownMenuRadioItem>
-				</DropdownMenuRadioGroup>
+				<DropdownMenuItem onClick={() => changeLocale('en')}>English</DropdownMenuItem>
+				<DropdownMenuItem onClick={() => changeLocale('bn')}>বাংলা</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);

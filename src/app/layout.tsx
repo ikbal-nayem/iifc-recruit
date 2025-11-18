@@ -1,38 +1,7 @@
-import { MainLayout } from '@/components/main-layout';
-import { AuthProvider } from '@/contexts/auth-context';
-import { Lato } from 'next/font/google';
-import localFont from 'next/font/local';
-import { Suspense } from 'react';
-import './globals.css';
-
-const lato = Lato({
-	subsets: ['latin'],
-	variable: '--font-lato',
-	weight: ['300', '400', '700', '900'],
-});
-
-const kalpurush = localFont({ src: '../../public/fonts/kalpurush.woff2', variable: '--font-kalpurush' });
-
-export default function RootLayout({
-	children,
-	params: { locale },
-}: Readonly<{
-	children: React.ReactNode;
-	params: { locale: string };
-}>) {
-	return (
-		<html lang={locale ?? 'en'} className={`h-full ${lato.variable} ${kalpurush.variable}`}>
-			<head>
-				<title>IIFC Jobs</title>
-				<meta name='description' content='Streamlining the recruitment process.' />
-			</head>
-			<body className='font-body antialiased flex flex-col min-h-screen'>
-				<Suspense>
-					<AuthProvider>
-						<MainLayout>{children}</MainLayout>
-					</AuthProvider>
-				</Suspense>
-			</body>
-		</html>
-	);
+// This file is intentionally left blank as the root layout is now managed in src/app/[locale]/layout.tsx
+// to support next-intl's URL-based routing. Keeping this file might interfere with the build process,
+// but for now, we'll clear its content to avoid conflicts.
+// The primary layout logic is now in src/app/[locale]/layout.tsx.
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return children;
 }
