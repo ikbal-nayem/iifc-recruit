@@ -186,7 +186,7 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 				};
 				const response = await UserService.searchOrganizationUsers(payload);
 				setUsers(response.body);
-				setMeta(response.meta);
+				setMeta(response.meta || initMeta);
 			} catch (error: any) {
 				toast.error({ description: error.message || 'Failed to load organization users.' });
 			} finally {
