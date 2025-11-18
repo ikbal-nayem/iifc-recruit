@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -341,15 +340,11 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 						<Button variant='ghost' size='icon' onClick={() => handleOpenForm(user)}>
 							<Edit className='h-4 w-4' />
 						</Button>
-						<Button
-							variant='ghost'
-							size='icon'
-							onClick={() => setUserToDelete(user)}
-							disabled={isCurrentUser}
-							title={isCurrentUser ? 'You cannot delete your own account' : 'Delete user'}
-						>
-							<Trash className='h-4 w-4 text-danger' />
-						</Button>
+						{!isCurrentUser && (
+							<Button variant='ghost' size='icon' onClick={() => setUserToDelete(user)} title='Delete user'>
+								<Trash className='h-4 w-4 text-danger' />
+							</Button>
+						)}
 					</div>
 				</div>
 				<div className='flex flex-wrap gap-1 mt-2'>
