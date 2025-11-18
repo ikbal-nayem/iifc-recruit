@@ -215,7 +215,12 @@ export function JobRequestForm({
 									disabled={currectUser?.roles.includes(ROLES.CLIENT_ADMIN)}
 									loadOptions={getClientAsync}
 									getOptionValue={(option) => option?.id!}
-									getOptionLabel={(option) => option?.nameEn}
+									getOptionLabel={(opt) => (
+										<div className='flex flex-col items-start'>
+											{opt.nameEn}
+											<span>{opt.nameBn}</span>
+										</div>
+									)}
 								/>
 								<FormInput
 									control={form.control}
