@@ -460,7 +460,7 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 					open={!!userToDelete}
 					onOpenChange={(open) => !open && setUserToDelete(null)}
 					title='Are you sure?'
-					description={`This will permanently delete the user ${userToDelete.fullName}.`}
+					description={`This will permanently delete the user "${userToDelete.fullName}".`}
 					onConfirm={handleDelete}
 					confirmText='Delete'
 				/>
