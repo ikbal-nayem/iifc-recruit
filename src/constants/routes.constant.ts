@@ -14,12 +14,11 @@ export const ROUTES = {
 	JOB_SEEKER: {
 		APPLICATIONS: '/jobseeker/applications',
 		PROFILE: '/jobseeker/profile',
+		PROFILE_EDIT: {
+			INTEREST: '/jobseeker/profile-edit/interest',
+		},
 		FIND_JOBS: '/jobseeker/find-job',
 		JOB_DETAILS: (id?: string) => `/jobseeker/find-job/${id}`,
-	},
-
-	PROFILE_EDIT: {
-		INTEREST: '/jobseeker/profile-edit/interest',
 	},
 
 	JOB_REQUEST: {

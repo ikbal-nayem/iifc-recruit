@@ -12,7 +12,7 @@ import {
 import { ROUTES } from '@/constants/routes.constant';
 import { toast } from '@/hooks/use-toast';
 import { UserService } from '@/services/api/user.service';
-import { Hand, Loader2, Sparkles } from 'lucide-react';
+import { Hand, Loader2, MoveRight, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -40,7 +40,7 @@ export function InterestPromptModal({ isOpen, onOpenChange }: InterestPromptModa
 	};
 
 	const handleAddInterest = () => {
-		router.push(ROUTES.PROFILE_EDIT.INTEREST);
+		router.push(ROUTES.JOB_SEEKER.PROFILE_EDIT.INTEREST);
 		onOpenChange(false);
 	};
 
@@ -58,7 +58,7 @@ export function InterestPromptModal({ isOpen, onOpenChange }: InterestPromptModa
 					</DialogDescription>
 				</DialogHeader>
 				<DialogFooter className='sm:justify-between gap-2 pt-2'>
-					<Button variant='ghost' onClick={handleSkip} disabled={isLoading}>
+					<Button variant='outline' onClick={handleSkip} disabled={isLoading}>
 						{isLoading ? (
 							<Loader2 className='mr-2 h-4 w-4 animate-spin' />
 						) : (
@@ -66,7 +66,7 @@ export function InterestPromptModal({ isOpen, onOpenChange }: InterestPromptModa
 						)}
 						Skip for now
 					</Button>
-					<Button onClick={handleAddInterest}>Add Interest</Button>
+					<Button onClick={handleAddInterest}>Add Interest <MoveRight className='ml-2 h-4 w-4'/> </Button>
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>
