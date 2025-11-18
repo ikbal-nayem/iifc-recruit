@@ -1,5 +1,6 @@
 import { MainLayout } from '@/components/main-layout';
 import { AuthProvider } from '@/contexts/auth-context';
+import { LocaleProvider } from '@/contexts/locale-context';
 import { Lato } from 'next/font/google';
 import localFont from 'next/font/local';
 import { Suspense } from 'react';
@@ -32,9 +33,11 @@ export default async function RootLayout({
 			</head>
 			<body className='font-body antialiased flex flex-col min-h-screen'>
 				<Suspense>
-					<AuthProvider>
-						<MainLayout>{children}</MainLayout>
-					</AuthProvider>
+					<LocaleProvider>
+						<AuthProvider>
+							<MainLayout>{children}</MainLayout>
+						</AuthProvider>
+					</LocaleProvider>
 				</Suspense>
 			</body>
 		</html>

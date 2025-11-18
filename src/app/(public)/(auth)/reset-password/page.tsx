@@ -1,5 +1,6 @@
 'use client';
 
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
@@ -8,12 +9,11 @@ import { useToast } from '@/hooks/use-toast';
 import { AuthService } from '@/services/api/auth.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import Link from 'next/link';
 
 const resetSchema = z
 	.object({
@@ -28,6 +28,41 @@ const resetSchema = z
 
 type ResetFormValues = z.infer<typeof resetSchema>;
 
+const translations = {
+	en: {
+		title: 'Reset Your Password',
+		description: 'Enter the OTP sent to {{email}} and your new password.',
+		otpLabel: 'OTP',
+		otpPlaceholder: 'Enter 6-digit OTP',
+		newPasswordLabel: 'New Password',
+		newPasswordPlaceholder: 'Enter new password',
+		confirmPasswordLabel: 'Confirm New Password',
+		confirmPasswordPlaceholder: 'Confirm new password',
+		resetButton: 'Reset Password',
+		invalidRequest: 'Invalid request. Please start the forgot password process again.',
+		goBack: 'Go Back',
+		resetSuccess: 'Password Reset Successful',
+		resetSuccessDesc: 'You can now log in with your new password.',
+		resetError: 'Failed to reset password. Please check your OTP and try again.',
+	},
+	bn: {
+		title: 'আপনার পাসওয়ার্ড রিসেট করুন',
+		description: '{{email}}-এ পাঠানো OTP এবং আপনার নতুন পাসওয়ার্ড প্রবেশ করুন।',
+		otpLabel: 'OTP',
+		otpPlaceholder: '৬ অঙ্কের OTP প্রবেশ করুন',
+		newPasswordLabel: 'নতুন পাসওয়ার্ড',
+		newPasswordPlaceholder: 'নতুন পাসওয়ার্ড প্রবেশ করুন',
+		confirmPasswordLabel: 'নতুন পাসওয়ার্ড নিশ্চিত করুন',
+		confirmPasswordPlaceholder: 'নতুন পাসওয়ার্ড নিশ্চিত করুন',
+		resetButton: 'পাসওয়ার্ড রিসেট করুন',
+		invalidRequest: 'অবৈধ অনুরোধ। অনুগ্রহ করে পাসওয়ার্ড ভুলে যাওয়া প্রক্রিয়া শুরু করুন।',
+		goBack: 'ফিরে যান',
+		resetSuccess: 'পাসওয়ার্ড রিসেট সফল',
+		resetSuccessDesc: 'এখন আপনি আপনার নতুন পাসওয়ার্ড দিয়ে লগইন করতে পারেন।',
+		resetError: 'পাসওয়ার্ড রিসেট করতে ব্যর্থ। আপনার OTP পরীক্ষা করুন এবং আবার চেষ্টা করুন।',
+	}
+};
+
 export default function ResetPasswordPage() {
 	const { toast } = useToast();
 	const router = useRouter();
@@ -35,6 +70,22 @@ export default function ResetPasswordPage() {
 	const email = searchParams.get('email');
 	const [error, setError] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
+	const [isClient, setIsClient] = useState(false);
+	const [locale, setLocale] = useState<'en' | 'bn'>('en');
+
+	useEffect(() => {
+		setIsClient(true);
+		const cookieLocale = document.cookie
+			.split('; ')
+			.find((row) => row.startsWith('NEXT_LOCALE='))
+			?.split('=')[1] as 'en' | 'bn' | undefined;
+
+		if (cookieLocale && (cookieLocale === 'en' || cookieLocale === 'bn')) {
+			setLocale(cookieLocale);
+		}
+	}, []);
+
+	const t = translations[locale];
 
 	const form = useForm<ResetFormValues>({
 		resolver: zodResolver(resetSchema),
@@ -48,9 +99,9 @@ export default function ResetPasswordPage() {
 	if (!email) {
 		return (
 			<div className='text-center'>
-				<p>Invalid request. Please start the forgot password process again.</p>
+				<p>{t.invalidRequest}</p>
 				<Button asChild className='mt-4'>
-					<Link href='/forgot-password'>Go Back</Link>
+					<Link href='/forgot-password'>{t.goBack}</Link>
 				</Button>
 			</div>
 		);
@@ -66,23 +117,25 @@ export default function ResetPasswordPage() {
 				password: data.newPassword,
 			});
 			toast({
-				title: 'Password Reset Successful',
-				description: 'You can now log in with your new password.',
+				title: t.resetSuccess,
+				description: t.resetSuccessDesc,
 				variant: 'success',
 			});
 			router.push('/login');
 		} catch (err: any) {
-			setError(err.message || 'Failed to reset password. Please check your OTP and try again.');
+			setError(err.message || t.resetError);
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
+	if (!isClient) return null;
+
 	return (
 		<Card className='w-full max-w-sm glassmorphism'>
 			<CardHeader className='text-center'>
-				<CardTitle className='text-2xl font-headline'>Reset Your Password</CardTitle>
-				<CardDescription>Enter the OTP sent to {email} and your new password.</CardDescription>
+				<CardTitle className='text-2xl font-headline'>{t.title}</CardTitle>
+				<CardDescription>{t.description.replace('{{email}}', email)}</CardDescription>
 			</CardHeader>
 			<CardContent>
 				<Form {...form}>
@@ -92,26 +145,32 @@ export default function ResetPasswordPage() {
 								<AlertDescription>{error}</AlertDescription>
 							</Alert>
 						)}
-						<FormInput control={form.control} name='otp' label='OTP' placeholder='Enter 6-digit OTP' required />
+						<FormInput 
+							control={form.control} 
+							name='otp' 
+							label={t.otpLabel} 
+							placeholder={t.otpPlaceholder} 
+							required 
+						/>
 						<FormInput
 							control={form.control}
 							name='newPassword'
-							label='New Password'
+							label={t.newPasswordLabel}
 							type='password'
-							placeholder='Enter new password'
+							placeholder={t.newPasswordPlaceholder}
 							required
 						/>
 						<FormInput
 							control={form.control}
 							name='confirmPassword'
-							label='Confirm New Password'
+							label={t.confirmPasswordLabel}
 							type='password'
-							placeholder='Confirm new password'
+							placeholder={t.confirmPasswordPlaceholder}
 							required
 						/>
 						<Button type='submit' className='w-full' disabled={isLoading}>
 							{isLoading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-							Reset Password
+							{t.resetButton}
 						</Button>
 					</form>
 				</Form>

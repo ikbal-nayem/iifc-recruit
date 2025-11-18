@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/sheet';
 import { COMMON_URL } from '@/constants/common.constant';
 import { ENV } from '@/constants/env.constant';
+import { useTranslations } from '@/hooks/use-translations';
 import { cn } from '@/lib/utils';
 import { LogIn, Menu, UserPlus } from 'lucide-react';
 import Image from 'next/image';
@@ -19,13 +20,29 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
-// Using hardcoded English strings for header since it changes with language switch
-// For dynamic translations, this would need to be a client component or use dynamic imports
+const headerTranslations = {
+	en: {
+		findJob: 'Find a Job',
+		signIn: 'Sign In',
+		signUp: 'Sign Up',
+		toggleMenu: 'Toggle navigation menu',
+		mobileMenu: 'Mobile Menu',
+	},
+	bn: {
+		findJob: 'চাকরি খুঁজুন',
+		signIn: 'সাইন ইন করুন',
+		signUp: 'সাইন আপ করুন',
+		toggleMenu: 'নেভিগেশন মেনু টগল করুন',
+		mobileMenu: 'মোবাইল মেনু',
+	},
+};
+
 export default function PublicHeader() {
 	const pathname = usePathname();
 	const [isSheetOpen, setIsSheetOpen] = useState(false);
+	const t = useTranslations(headerTranslations);
 
-	const navLinks = [{ href: '/jobs', label: 'Find a Job' }];
+	const navLinks = [{ href: '/jobs', label: t.findJob }];
 
 	return (
 		<header className='sticky top-0 z-10 flex h-20 items-center gap-4 border-b bg-background/95 backdrop-blur-sm px-4 md:px-6'>
@@ -42,7 +59,9 @@ export default function PublicHeader() {
 						href={link.href}
 						className={cn(
 							'transition-colors hover:text-primary',
-							pathname === link.href || pathname.endsWith(link.href) ? 'text-primary' : 'text-muted-foreground'
+							pathname === link.href || pathname.endsWith(link.href)
+								? 'text-primary'
+								: 'text-muted-foreground'
 						)}
 					>
 						{link.label}
@@ -54,25 +73,25 @@ export default function PublicHeader() {
 				<Button asChild variant='ghost' className='hidden sm:inline-flex'>
 					<Link href='/login'>
 						<LogIn className='mr-2 h-4 w-4' />
-						Sign In
+						{t.signIn}
 					</Link>
 				</Button>
 				<Button asChild className='hidden sm:inline-flex'>
 					<Link href='/signup'>
 						<UserPlus className='mr-2 h-4 w-4' />
-						Sign Up
+						{t.signUp}
 					</Link>
 				</Button>
 				<Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
 					<SheetTrigger asChild>
 						<Button variant='outline' size='icon' className='md:hidden'>
 							<Menu className='h-5 w-5' />
-							<span className='sr-only'>Toggle navigation menu</span>
+							<span className='sr-only'>{t.toggleMenu}</span>
 						</Button>
 					</SheetTrigger>
 					<SheetContent side='right'>
 						<SheetHeader>
-							<SheetTitle className='sr-only'>Mobile Menu</SheetTitle>
+							<SheetTitle className='sr-only'>{t.mobileMenu}</SheetTitle>
 						</SheetHeader>
 						<nav className='grid gap-6 text-lg font-medium mt-8'>
 							{navLinks.map((link) => (
@@ -81,7 +100,9 @@ export default function PublicHeader() {
 										href={link.href}
 										className={cn(
 											'transition-colors hover:text-primary',
-											pathname === link.href || pathname.endsWith(link.href) ? 'text-primary' : 'text-muted-foreground'
+											pathname === link.href || pathname.endsWith(link.href)
+												? 'text-primary'
+												: 'text-muted-foreground'
 										)}
 									>
 										{link.label}
@@ -91,12 +112,12 @@ export default function PublicHeader() {
 							<hr className='my-4' />
 							<SheetClose asChild>
 								<Link href='/login' className='text-muted-foreground'>
-									Sign In
+									{t.signIn}
 								</Link>
 							</SheetClose>
 							<SheetClose asChild>
 								<Link href='/signup' className='text-muted-foreground'>
-									Sign Up
+									{t.signUp}
 								</Link>
 							</SheetClose>
 						</nav>

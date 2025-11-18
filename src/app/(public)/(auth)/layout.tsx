@@ -8,12 +8,38 @@ import { useAuth } from '@/contexts/auth-context';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
+import { useEffect, useState } from 'react';
+
+const authLayoutTranslations = {
+	en: {
+		tagline: 'Your Gateway to Opportunity',
+		logo: 'IIFC Logo',
+	},
+	bn: {
+		tagline: 'আপনার সুযোগের দরজা',
+		logo: 'আইএইফসি লোগো',
+	}
+};
 
 export default function AuthFormsLayout({ children }: { children: React.ReactNode }) {
 	const { isAuthenticated, isLoading, currectUser } = useAuth();
 	const router = useRouter();
+	const [locale, setLocale] = useState<'en' | 'bn'>('en');
+	const [isMounted, setIsMounted] = useState(false);
 
-	React.useEffect(() => {
+	useEffect(() => {
+		setIsMounted(true);
+		const cookieLocale = document.cookie
+			.split('; ')
+			.find((row) => row.startsWith('NEXT_LOCALE='))
+			?.split('=')[1] as 'en' | 'bn' | undefined;
+
+		if (cookieLocale && (cookieLocale === 'en' || cookieLocale === 'bn')) {
+			setLocale(cookieLocale);
+		}
+	}, []);
+
+	useEffect(() => {
 		if (!isLoading && isAuthenticated) {
 			if (currectUser?.roles?.includes(ROLES.JOB_SEEKER)) {
 				router.replace(ROUTES.DASHBOARD.JOB_SEEKER);
@@ -22,6 +48,8 @@ export default function AuthFormsLayout({ children }: { children: React.ReactNod
 			}
 		}
 	}, [isLoading, isAuthenticated, currectUser, router]);
+
+	const t = authLayoutTranslations[locale];
 
 	return (
 		<div className='w-full min-h-[calc(100vh-5rem)] grid grid-cols-1 lg:grid-cols-2'>
@@ -35,12 +63,14 @@ export default function AuthFormsLayout({ children }: { children: React.ReactNod
 				<div className='relative text-center p-10 rounded-lg bg-white/30 backdrop-blur-sm'>
 					<Image
 						src={COMMON_URL.SITE_LOGO}
-						alt='IIFC Logo'
+						alt={isMounted ? t.logo : 'IIFC Logo'}
 						width={80}
 						height={80}
 						className='h-20 w-auto mx-auto mb-4'
 					/>
-					<h1 className='text-4xl font-headline font-bold text-primary'>Your Gateway to Opportunity</h1>
+					<h1 className='text-4xl font-headline font-bold text-primary'>
+						{isMounted ? t.tagline : 'Your Gateway to Opportunity'}
+					</h1>
 				</div>
 			</div>
 			<main className='flex flex-col items-center justify-center p-4 bg-background'>
