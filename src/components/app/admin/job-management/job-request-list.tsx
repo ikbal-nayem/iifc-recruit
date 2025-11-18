@@ -156,7 +156,7 @@ export function JobRequestList({ status }: JobRequestListProps) {
 					</div>
 					<div className='text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-1'>
 						<span className='flex items-center gap-1.5'>
-							<Building className='h-4 w-4' /> {item.clientOrganization?.nameEn || 'N/A'}
+							<Building className='h-4 w-4' /> {item.clientOrganization?.nameBn || 'N/A'}
 						</span>
 						<span className='flex items-center gap-1.5'>
 							<FileText className='h-4 w-4' /> Memo: {item.memoNo}
