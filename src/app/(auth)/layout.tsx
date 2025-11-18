@@ -2,25 +2,32 @@
 
 import Header from '@/components/app/header';
 import SidebarNav from '@/components/app/sidebar-nav';
+import { InterestPromptModal } from '@/components/app/jobseeker/interest-prompt-modal';
 import { Sidebar, SidebarInset } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROLES } from '@/constants/auth.constant';
 import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/contexts/auth-context';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import AuthLayoutProvider from './auth-layout-provider';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
-	const { currectUser, isAuthenticated, isLoading } = useAuth();
+	const { currectUser, isAuthenticated, isLoading, clearInterestModalFlag } = useAuth();
 	const router = useRouter();
 	const pathname = usePathname();
+	const [showInterestModal, setShowInterestModal] = useState(false);
 
 	useEffect(() => {
 		if (!isLoading) {
 			if (!isAuthenticated || !currectUser) {
 				router.replace(ROUTES.AUTH.LOGIN);
 				return;
+			}
+
+			// Show interest modal if the flag is set for jobseekers
+			if (currectUser.roles.includes(ROLES.JOB_SEEKER) && currectUser.openInterestModal) {
+				setShowInterestModal(true);
 			}
 
 			const isJobseeker = currectUser.roles.includes(ROLES.JOB_SEEKER);
@@ -43,6 +50,11 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 		);
 	}
 
+	const handleModalClose = () => {
+		setShowInterestModal(false);
+		clearInterestModalFlag();
+	};
+
 	return (
 		<AuthLayoutProvider>
 			<Sidebar>
@@ -63,6 +75,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 					</Suspense>
 				</main>
 			</SidebarInset>
+			<InterestPromptModal isOpen={showInterestModal} onOpenChange={handleModalClose} />
 		</AuthLayoutProvider>
 	);
 }

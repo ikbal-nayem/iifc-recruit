@@ -14,6 +14,7 @@ import { createContext, ReactNode, useContext, useEffect, useState } from 'react
 interface AuthContextType {
 	currectUser: IUser | null;
 	updateUserInfo: (updatedUser: Partial<IUser>) => void;
+	clearInterestModalFlag: () => void;
 	authInfo: IAuthInfo | null;
 	isAuthenticated: boolean;
 	isLoading: boolean;
@@ -108,12 +109,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		setUser(prev => ({ ...prev, ...updatedUser}) as IUser);
 	};
 
+	const clearInterestModalFlag = () => {
+		if (user) {
+			setUser({ ...user, openInterestModal: false });
+		}
+	};
+
 
 	return (
 		<AuthContext.Provider
 			value={{
 				currectUser: user,
 				updateUserInfo,
+				clearInterestModalFlag,
 				authInfo,
 				isAuthenticated: !!user,
 				isLoading,

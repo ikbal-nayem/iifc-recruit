@@ -18,6 +18,10 @@ export const ROUTES = {
 		JOB_DETAILS: (id?: string) => `/jobseeker/find-job/${id}`,
 	},
 
+	PROFILE_EDIT: {
+		INTEREST: '/jobseeker/profile-edit/interest',
+	},
+
 	JOB_REQUEST: {
 		LIST: '/admin/request',
 		CREATE: '/admin/request/create',
