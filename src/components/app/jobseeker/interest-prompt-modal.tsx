@@ -47,11 +47,11 @@ export function InterestPromptModal({ isOpen, onOpenChange }: InterestPromptModa
 	return (
 		<Dialog open={isOpen} onOpenChange={onOpenChange}>
 			<DialogContent className='sm:max-w-md' closeOnOutsideClick={false}>
-				<DialogHeader>
-					<DialogTitle className='flex items-center gap-2'>
-						<Sparkles className='h-6 w-6 text-primary' />
-						Interested in Outsourcing Jobs?
-					</DialogTitle>
+				<DialogHeader className='items-center text-center'>
+					<div className='p-3 bg-primary/10 rounded-full w-fit mb-2'>
+						<Sparkles className='h-8 w-8 text-primary' />
+					</div>
+					<DialogTitle>Interested in Outsourcing Jobs?</DialogTitle>
 					<DialogDescription className='pt-2'>
 						To help us find the best opportunities for you, please add the outsourcing positions you are
 						interested in. You can always update this later in your profile.
