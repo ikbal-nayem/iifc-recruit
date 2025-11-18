@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/sheet';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { COMMON_URL } from '@/constants/common.constant';
 import useLoader from '@/hooks/use-loader';
 import { toast } from '@/hooks/use-toast';
 import { IClientOrganization } from '@/interfaces/master-data.interface';
@@ -37,13 +38,13 @@ const userSchema = z.object({
 	lastName: z.string().min(1, 'Last name is required.'),
 	email: z.string().email('Email should be valid.'),
 	phone: z.string().optional(),
-	organizationId: z.string().min(1, 'Organization is required.'),
+	organizationId: z.string().optional(),
 	interestedInPostIds: z.array(z.string()).optional(),
 });
 type UserFormValues = z.infer<typeof userSchema>;
 
 const bulkUserSchema = z.object({
-	organizationId: z.string().min(1, 'Organization is required.'),
+	organizationId: z.string().optional(),
 	interestedInPostIds: z.array(z.string()).optional(),
 	file: z
 		.any()
@@ -166,14 +167,14 @@ export function JobseekerForm({
 		setIsSubmitting(true);
 		bulkForm.clearErrors();
 		const { organizationId, interestedInPostIds } = bulkForm.getValues();
-		if (!organizationId) {
-			bulkForm.setError('organizationId', { message: 'Select an organization.', type: 'required' });
-			toast.error({
-				description: 'Please select a client organization.',
-			});
-			setIsSubmitting(false);
-			return;
-		}
+		// if (!organizationId) {
+		// 	bulkForm.setError('organizationId', { message: 'Select an organization.', type: 'required' });
+		// 	toast.error({
+		// 		description: 'Please select a client organization.',
+		// 	});
+		// 	setIsSubmitting(false);
+		// 	return;
+		// }
 
 		try {
 			const response = await UserService.bulkCreateJobseeker(
@@ -299,7 +300,7 @@ export function JobseekerForm({
 								control={singleForm.control}
 								name='organizationId'
 								label='Client Organization'
-								required
+								// required
 								placeholder='Select an organization'
 								options={organizations}
 								getOptionValue={(option) => option.id!}
@@ -321,9 +322,7 @@ export function JobseekerForm({
 								getOptionLabel={(option) => (
 									<div className='flex flex-col text-sm'>
 										{option.nameBn}
-										<span className='text-muted-foreground'>
-											{option.outsourcingCategory?.nameBn}
-										</span>
+										<span className='text-muted-foreground'>{option.outsourcingCategory?.nameBn}</span>
 									</div>
 								)}
 							/>
@@ -346,12 +345,12 @@ export function JobseekerForm({
 									control={bulkForm.control}
 									name='organizationId'
 									label='Client Organization'
-									required
+									// required
 									placeholder='Select an organization'
 									options={organizations}
 									getOptionValue={(option) => option.id!}
 									getOptionLabel={(option) => option.nameBn}
-									onValueChange={() => bulkForm.clearErrors()}
+									// onValueChange={() => bulkForm.clearErrors()}
 								/>
 								<FormMultiSelect
 									control={bulkForm.control}
@@ -363,9 +362,7 @@ export function JobseekerForm({
 									getOptionLabel={(option) => (
 										<div className='flex flex-col text-sm'>
 											{option.nameBn}
-											<span className='text-muted-foreground'>
-												{option.outsourcingCategory?.nameBn}
-											</span>
+											<span className='text-muted-foreground'>{option.outsourcingCategory?.nameBn}</span>
 										</div>
 									)}
 								/>
@@ -385,7 +382,7 @@ export function JobseekerForm({
 												</FormItem>
 											)}
 										/>
-										<Link href='/files/jobseeker-bulk-upload-sample.xlsx' target='_top' download>
+										<Link href={COMMON_URL.JOBSEEKER_BULK_UPLOAD_SAMPLE} target='_top' download>
 											<Button type='button' variant='link' className='p-0 h-auto mt-1'>
 												<Download className='mr-2 h-4 w-4' />
 												Download Sample File
