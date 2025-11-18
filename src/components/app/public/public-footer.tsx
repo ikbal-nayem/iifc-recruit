@@ -89,9 +89,9 @@ export default function PublicFooter() {
 								<Linkedin className='h-5 w-5' />
 							</a>
 						</div>
-						<div className='mt-4'>
+						{/* <div className='mt-4'>
 							<LanguageSwitcher />
-						</div>
+						</div> */}
 					</div>
 				</div>
 

@@ -4,36 +4,33 @@ import { Button } from '@/components/ui/button';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
-	DropdownMenuItem,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Globe } from 'lucide-react';
-import { usePathname, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 
 export function LanguageSwitcher() {
-	const router = useRouter();
-	const pathname = usePathname();
-	// const { i18n } = useTranslation();
-	// const currentLocale = i18n.language;
+	const { i18n } = useTranslation();
 
-	const handleLocaleChange = (newLocale: string) => {
-		// This will preserve the current path and search params
-		const newPath = `/${newLocale}${pathname.startsWith('/en') || pathname.startsWith('/bn') ? pathname.substring(3) : pathname}`;
-		router.replace(newPath);
+	const changeLanguage = (lng: string) => {
+		i18n?.changeLanguage(lng);
 	};
 
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button variant='ghost' size='icon'>
-					<Globe className='h-5 w-5' />
-					<span className='sr-only'>Change language</span>
+				<Button variant='outline' size='sm' className='gap-2'>
+					<Globe className='h-4 w-4' />
+					<span className='capitalize'>{i18n.language === 'bn' ? 'বাংলা' : 'English'}</span>
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align='end'>
-				<DropdownMenuItem onClick={() => handleLocaleChange('en')}>English</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => handleLocaleChange('bn')}>বাংলা</DropdownMenuItem>
+				<DropdownMenuRadioGroup value={i18n.language} onValueChange={changeLanguage}>
+					<DropdownMenuRadioItem value='en'>English</DropdownMenuRadioItem>
+					<DropdownMenuRadioItem value='bn'>বাংলা</DropdownMenuRadioItem>
+				</DropdownMenuRadioGroup>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);
