@@ -17,25 +17,17 @@ export function LanguageSwitcher() {
 		i18n.changeLanguage(lng);
 	};
 
-	const languages = [
-		{ code: 'en', name: 'English' },
-		{ code: 'bn', name: 'বাংলা' },
-	];
-
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button variant='ghost' className='text-muted-foreground'>
-					<Globe className='mr-2 h-4 w-4' />
-					<span>{i18n.language === 'bn' ? 'ভাষা' : 'Language'}</span>
+				<Button variant='outline' className='flex items-center gap-2'>
+					<Globe className='h-4 w-4' />
+					<span>{i18n.language === 'en' ? 'English' : 'বাংলা'}</span>
 				</Button>
 			</DropdownMenuTrigger>
-			<DropdownMenuContent>
-				{languages.map((lang) => (
-					<DropdownMenuItem key={lang.code} onClick={() => changeLanguage(lang.code)}>
-						{lang.name}
-					</DropdownMenuItem>
-				))}
+			<DropdownMenuContent align='start'>
+				<DropdownMenuItem onClick={() => changeLanguage('en')}>English</DropdownMenuItem>
+				<DropdownMenuItem onClick={() => changeLanguage('bn')}>বাংলা</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);
