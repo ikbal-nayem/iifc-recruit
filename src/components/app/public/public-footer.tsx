@@ -1,86 +1,102 @@
 import { COMMON_URL } from '@/constants/common.constant';
-import { useTranslations } from 'next-intl';
+import { Facebook, Linkedin, Twitter } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { LanguageSwitcher } from './language-switcher';
 
 export default function PublicFooter() {
-	const t = useTranslations('PublicFooter');
-
-	const quickLinks = [
-		{ href: '/jobs', label: t('allJobs') },
-		{ href: '/about', label: t('aboutUs') },
-		{ href: '/projects', label: 'Projects' },
-		{ href: '/sectors', label: 'Sectors' },
-		{ href: '/services', label: 'Services' },
-	];
-
-	const resourceLinks = [
-		{ href: '#', label: t('faq') },
-		{ href: '#', label: t('privacyPolicy') },
-		{ href: '#', label: t('termsOfService') },
-	];
-
 	return (
-		<footer className='bg-background border-t'>
-			<div className='container mx-auto px-4 py-12'>
-				<div className='grid grid-cols-1 gap-8 md:grid-cols-4'>
-					<div className='md:col-span-1'>
-						<div className='flex items-center gap-3 mb-4'>
-							<Image
-								src={COMMON_URL.SITE_LOGO}
-								alt='IIFC Logo'
-								width={40}
-								height={40}
-								className='h-10 w-auto'
-							/>
-							<span className='font-headline text-2xl font-bold'>IIFC Jobs</span>
-						</div>
-						<p className='text-muted-foreground max-w-xs'>{t('tagline')}</p>
+		<footer className='bg-primary/5 border-t'>
+			<div className='container mx-auto px-4 md:px-6 py-8'>
+				<div className='grid grid-cols-1 md:grid-cols-4 gap-8'>
+					<div className='space-y-4'>
+						<Link href='/' className='flex items-center gap-2'>
+							<Image src={COMMON_URL.SITE_LOGO} alt='IIFC Logo' width={40} height={40} />
+							<span className='font-bold text-lg font-headline'>IIFC Jobs</span>
+						</Link>
+						<p className='text-sm text-muted-foreground'>
+							Facilitating private sector investment in the infrastructure of Bangladesh.
+						</p>
 					</div>
 
 					<div>
-						<h3 className='font-headline text-lg font-semibold'>{t('quickLinks')}</h3>
-						<ul className='mt-4 space-y-2'>
-							{quickLinks.map((link) => (
-								<li key={link.href}>
-									<Link href={link.href} className='text-muted-foreground hover:text-primary'>
-										{link.label}
-									</Link>
-								</li>
-							))}
-						</ul>
-					</div>
-
-					<div>
-						<h3 className='font-headline text-lg font-semibold'>{t('resources')}</h3>
-						<ul className='mt-4 space-y-2'>
-							{resourceLinks.map((link) => (
-								<li key={link.label}>
-									<Link href={link.href} className='text-muted-foreground hover:text-primary'>
-										{link.label}
-									</Link>
-								</li>
-							))}
-						</ul>
-					</div>
-
-					<div>
-						<h3 className='font-headline text-lg font-semibold'>{t('contactUs')}</h3>
-						<ul className='mt-4 space-y-2 text-muted-foreground'>
-							<li>Ede-II, 6/B, 147, Mohakhali</li>
-							<li>Dhaka-1212</li>
+						<h4 className='font-semibold mb-3'>Quick Links</h4>
+						<ul className='space-y-2 text-sm'>
 							<li>
-								Email:{' '}
-								<a href='mailto:info@iifc.gov.bd' className='hover:text-primary'>
-									info@iifc.gov.bd
-								</a>
+								<Link href='/jobs' className='text-muted-foreground hover:text-primary'>
+									Job Listings
+								</Link>
+							</li>
+							<li>
+								<Link href='/about' className='text-muted-foreground hover:text-primary'>
+									About Us
+								</Link>
+							</li>
+							<li>
+								<Link href='/contact' className='text-muted-foreground hover:text-primary'>
+									Contact
+								</Link>
 							</li>
 						</ul>
 					</div>
+
+					<div>
+						<h4 className='font-semibold mb-3'>For Candidates</h4>
+						<ul className='space-y-2 text-sm'>
+							<li>
+								<Link href='/signup' className='text-muted-foreground hover:text-primary'>
+									Create Account
+								</Link>
+							</li>
+							<li>
+								<Link href='/login' className='text-muted-foreground hover:text-primary'>
+									Candidate Login
+								</Link>
+							</li>
+							<li>
+								<Link href='#' className='text-muted-foreground hover:text-primary'>
+									FAQ
+								</Link>
+							</li>
+						</ul>
+					</div>
+
+					<div>
+						<h4 className='font-semibold mb-3'>Connect With Us</h4>
+						<div className='flex space-x-3'>
+							<a
+								href='https://facebook.com'
+								target='_blank'
+								rel='noopener noreferrer'
+								className='text-muted-foreground hover:text-primary'
+							>
+								<Facebook className='h-5 w-5' />
+							</a>
+							<a
+								href='https://twitter.com'
+								target='_blank'
+								rel='noopener noreferrer'
+								className='text-muted-foreground hover:text-primary'
+							>
+								<Twitter className='h-5 w-5' />
+							</a>
+							<a
+								href='https://linkedin.com'
+								target='_blank'
+								rel='noopener noreferrer'
+								className='text-muted-foreground hover:text-primary'
+							>
+								<Linkedin className='h-5 w-5' />
+							</a>
+						</div>
+						{/* <div className='mt-4'>
+							<LanguageSwitcher />
+						</div> */}
+					</div>
 				</div>
 
-				<div className='mt-12 border-t pt-8 text-center text-sm text-muted-foreground'>
-					<p>&copy; {new Date().getFullYear()} IIFC. {t('copyright')}</p>
+				<div className='mt-8 border-t pt-4 text-center text-sm text-muted-foreground'>
+					<p>&copy; {new Date().getFullYear()} IIFC. All rights reserved.</p>
 				</div>
 			</div>
 		</footer>

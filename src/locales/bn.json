@@ -1,32 +1,21 @@
 {
     "language": "বাংলা",
-    "Home": {
-        "title": "আপনার পরবর্তী ক্যারিয়ার খুঁজুন",
-        "subtitle": "আপনার ক্ষেত্রের হাজার হাজার খোলা পদের মধ্যে অনুসন্ধান করুন। আপনার স্বপ্নের চাকরি অপেক্ষা করছে।",
-        "browseButton": "সকল চাকরি দেখুন",
-        "featuredJobs": "বিশেষ চাকরি",
-        "searchMoreButton": "আরও চাকরি খুঁজুন"
-    },
-    "PublicHeader": {
-        "Jobs": "চাকরি",
-        "About": "আমাদের সম্পর্কে",
-        "Projects": "প্রকল্প",
-        "Sectors": "সেক্টর",
-        "Services": "সেবা",
-        "Contact": "যোগাযোগ",
-        "Login": "লগইন",
-        "Sign Up": "সাইন আপ"
-    },
-    "PublicFooter": {
-        "tagline": "প্রতিভাকে সুযোগের সাথে সংযুক্ত করা।",
-        "quickLinks": "দ্রুত লিঙ্ক",
-        "allJobs": "সকল চাকরি",
-        "aboutUs": "আমাদের সম্পর্কে",
-        "resources": "সম্পদ",
-        "faq": "সচরাচর জিজ্ঞাস্য",
-        "privacyPolicy": "গোপনীয়তা নীতি",
-        "termsOfService": "পরিষেবার শর্তাবলী",
-        "contactUs": "যোগাযোগ করুন",
-        "copyright": "সর্বস্বত্ব সংরক্ষিত।"
-    }
+    "Jobs": "চাকরি",
+    "About": "আমাদের সম্পর্কে",
+    "Projects": "প্রকল্প",
+    "Sectors": "সেক্টর",
+    "Services": "সেবা",
+    "Contact": "যোগাযোগ",
+    "Login": "লগইন",
+    "Sign Up": "সাইন আপ",
+    "Connecting talent with opportunity.": "প্রতিভাকে সুযোগের সাথে সংযুক্ত করা।",
+    "Quick Links": "দ্রুত লিঙ্ক",
+    "All Jobs": "সকল চাকরি",
+    "About Us": "আমাদের সম্পর্কে",
+    "Resources": "সম্পদ",
+    "FAQ": "সচরাচর জিজ্ঞাস্য",
+    "Privacy Policy": "গোপনীয়তা নীতি",
+    "Terms of Service": "পরিষেবার শর্তাবলী",
+    "Contact Us": "যোগাযোগ করুন",
+    "All rights reserved.": "সর্বস্বত্ব সংরক্ষিত।"
 }

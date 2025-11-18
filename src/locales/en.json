@@ -1,32 +1,21 @@
 {
     "language": "English",
-    "Home": {
-        "title": "Find Your Next Career Move",
-        "subtitle": "Search through thousands of open positions in your field. Your dream job is waiting.",
-        "browseButton": "Browse All Jobs",
-        "featuredJobs": "Featured Jobs",
-        "searchMoreButton": "Search More Jobs"
-    },
-    "PublicHeader": {
-        "Jobs": "Jobs",
-        "About": "About",
-        "Projects": "Projects",
-        "Sectors": "Sectors",
-        "Services": "Services",
-        "Contact": "Contact",
-        "Login": "Login",
-        "Sign Up": "Sign Up"
-    },
-    "PublicFooter": {
-        "tagline": "Connecting talent with opportunity.",
-        "quickLinks": "Quick Links",
-        "allJobs": "All Jobs",
-        "aboutUs": "About Us",
-        "resources": "Resources",
-        "faq": "FAQ",
-        "privacyPolicy": "Privacy Policy",
-        "termsOfService": "Terms of Service",
-        "contactUs": "Contact Us",
-        "copyright": "All rights reserved."
-    }
+    "Jobs": "Jobs",
+    "About": "About",
+    "Projects": "Projects",
+    "Sectors": "Sectors",
+    "Services": "Services",
+    "Contact": "Contact",
+    "Login": "Login",
+    "Sign Up": "Sign Up",
+    "Connecting talent with opportunity.": "Connecting talent with opportunity.",
+    "Quick Links": "Quick Links",
+    "All Jobs": "All Jobs",
+    "About Us": "About Us",
+    "Resources": "Resources",
+    "FAQ": "FAQ",
+    "Privacy Policy": "Privacy Policy",
+    "Terms of Service": "Terms of Service",
+    "Contact Us": "Contact Us",
+    "All rights reserved.": "All rights reserved."
 }
