@@ -18,10 +18,7 @@ import { Check, ChevronsUpDown, Loader2, X } from 'lucide-react';
 import * as React from 'react';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
 
-interface FormMultiSelectProps<
-	TFieldValues extends FieldValues,
-	TOption = { [key: string]: any },
-> {
+interface FormMultiSelectProps<TFieldValues extends FieldValues, TOption = { [key: string]: any }> {
 	control: Control<TFieldValues> | any;
 	name: FieldPath<TFieldValues>;
 	label?: string;
@@ -36,10 +33,7 @@ interface FormMultiSelectProps<
 	onValueChange?: (value: string[]) => void;
 }
 
-export function FormMultiSelect<
-	TFieldValues extends FieldValues,
-	TOption extends { [key: string]: any },
->({
+export function FormMultiSelect<TFieldValues extends FieldValues, TOption extends { [key: string]: any }>({
 	control,
 	name,
 	label,
@@ -58,7 +52,6 @@ export function FormMultiSelect<
 	const [asyncOptions, setAsyncOptions] = React.useState<TOption[]>([]);
 	const [isLoading, setIsLoading] = React.useState(false);
 	const containerRef = React.useRef<HTMLDivElement>(null);
-
 
 	const debouncedSearchQuery = useDebounce(searchQuery, 300);
 	const allOptions = React.useMemo(() => staticOptions || asyncOptions, [staticOptions, asyncOptions]);
@@ -135,7 +128,11 @@ export function FormMultiSelect<
 									<div className='flex flex-1 flex-wrap gap-1'>
 										{displayedOptions.length > 0 ? (
 											displayedOptions.map((item) => (
-												<Badge key={getOptionValue(item)} variant={badgeVariant} className='text-sm py-1 px-2'>
+												<Badge
+													key={getOptionValue(item)}
+													variant={badgeVariant}
+													className='text-sm py-1 px-2'
+												>
 													{getOptionLabel(item)}
 													<div
 														role='button'
@@ -160,7 +157,7 @@ export function FormMultiSelect<
 							<PopoverContent
 								className='w-[--radix-popover-trigger-width] p-0'
 								align='start'
-								container={containerRef.current}
+								container={containerRef.current!}
 							>
 								<Command shouldFilter={!loadOptions}>
 									<CommandInput placeholder='Search...' value={searchQuery} onValueChange={setSearchQuery} />

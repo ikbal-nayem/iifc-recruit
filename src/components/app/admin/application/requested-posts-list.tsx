@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
@@ -14,6 +13,7 @@ import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequestedPostStatus, JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { JobRequestService } from '@/services/api/job-request.service';
+import clsx from 'clsx';
 import { differenceInDays, format, isPast, parseISO } from 'date-fns';
 import { Building, Calendar, Search, UserCog, Users } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
@@ -96,13 +96,13 @@ export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPo
 	const renderItem = (item: RequestedPost) => {
 		const isCircularPublished = item.status === JobRequestedPostStatus.CIRCULAR_PUBLISHED;
 
-		let deadlineBadgeVariant: 'outline-purple' | 'outline-warning' | 'outline-danger' = 'outline-purple';
+		let deadlineBadgeVariant: 'text-purple-500' | 'text-warning' | 'text-danger' = 'text-purple-500';
 		if (item.circularEndDate) {
 			const deadline = parseISO(item.circularEndDate);
 			if (isPast(deadline)) {
-				deadlineBadgeVariant = 'outline-danger';
+				deadlineBadgeVariant = 'text-danger';
 			} else if (differenceInDays(deadline, new Date()) <= 7) {
-				deadlineBadgeVariant = 'outline-warning';
+				deadlineBadgeVariant = 'text-warning';
 			}
 		}
 
@@ -121,11 +121,11 @@ export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPo
 							<Users className='h-4 w-4' /> {item.vacancy} vacancies
 						</span>
 						{isCircularPublished && item.circularPublishDate && item.circularEndDate && (
-							<Badge variant={deadlineBadgeVariant} className='flex items-center gap-1.5'>
+							<span className={clsx('flex items-center gap-1.5', deadlineBadgeVariant)}>
 								<Calendar className='h-4 w-4' />
 								{format(parseISO(item.circularPublishDate), 'dd MMM')} -{' '}
 								{format(parseISO(item.circularEndDate), 'dd MMM')}
-							</Badge>
+							</span>
 						)}
 						<Badge variant='outline' className='flex items-center gap-1.5'>
 							<span className='text-muted-foreground'>Examiner:</span>
