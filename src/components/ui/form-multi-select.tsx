@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Badge, BadgeProps } from '@/components/ui/badge';
@@ -58,6 +57,8 @@ export function FormMultiSelect<
 	const [searchQuery, setSearchQuery] = React.useState('');
 	const [asyncOptions, setAsyncOptions] = React.useState<TOption[]>([]);
 	const [isLoading, setIsLoading] = React.useState(false);
+	const containerRef = React.useRef<HTMLDivElement>(null);
+
 
 	const debouncedSearchQuery = useDebounce(searchQuery, 300);
 	const allOptions = React.useMemo(() => staticOptions || asyncOptions, [staticOptions, asyncOptions]);
@@ -118,7 +119,7 @@ export function FormMultiSelect<
 				}, [selectedValues, allOptions, getOptionValue]);
 
 				return (
-					<FormItem>
+					<FormItem ref={containerRef}>
 						{label && <FormLabel required={required}>{label}</FormLabel>}
 						<Popover open={open} onOpenChange={setOpen}>
 							<PopoverTrigger asChild>
@@ -156,7 +157,11 @@ export function FormMultiSelect<
 									<ChevronsUpDown className='h-4 w-4 shrink-0 opacity-50 ml-2' />
 								</Button>
 							</PopoverTrigger>
-							<PopoverContent className='w-[--radix-popover-trigger-width] p-0' align='start' container={undefined}>
+							<PopoverContent
+								className='w-[--radix-popover-trigger-width] p-0'
+								align='start'
+								container={containerRef.current}
+							>
 								<Command shouldFilter={!loadOptions}>
 									<CommandInput placeholder='Search...' value={searchQuery} onValueChange={setSearchQuery} />
 									<CommandList>
