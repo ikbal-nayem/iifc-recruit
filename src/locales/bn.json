@@ -1,21 +1,62 @@
 {
+  "common": {
     "language": "বাংলা",
-    "Jobs": "চাকরি",
-    "About": "আমাদের সম্পর্কে",
-    "Projects": "প্রকল্প",
-    "Sectors": "সেক্টর",
-    "Services": "সেবা",
-    "Contact": "যোগাযোগ",
-    "Login": "লগইন",
-    "Sign Up": "সাইন আপ",
-    "Connecting talent with opportunity.": "প্রতিভাকে সুযোগের সাথে সংযুক্ত করা।",
-    "Quick Links": "দ্রুত লিঙ্ক",
-    "All Jobs": "সকল চাকরি",
-    "About Us": "আমাদের সম্পর্কে",
-    "Resources": "সম্পদ",
-    "FAQ": "সচরাচর জিজ্ঞাস্য",
-    "Privacy Policy": "গোপনীয়তা নীতি",
-    "Terms of Service": "পরিষেবার শর্তাবলী",
-    "Contact Us": "যোগাযোগ করুন",
-    "All rights reserved.": "সর্বস্বত্ব সংরক্ষিত।"
+    "siteName": "IIFC চাকরি",
+    "siteTagline": "বাংলাদেশের অবকাঠামোতে ব্যক্তিগত খাতের বিনিয়োগ সহজতর করা।",
+    "copyright": "সর্বস্বত্ব সংরক্ষিত।"
+  },
+  "navigation": {
+    "jobs": "চাকরি",
+    "about": "আমাদের সম্পর্কে",
+    "projects": "প্রকল্প",
+    "sectors": "সেক্টর",
+    "services": "সেবা",
+    "contact": "যোগাযোগ",
+    "login": "লগইন",
+    "signUp": "সাইন আপ",
+    "signIn": "সাইন ইন করুন",
+    "toggleMenu": "নেভিগেশন মেনু টগল করুন",
+    "mobileMenu": "মোবাইল মেনু"
+  },
+  "footer": {
+    "quickLinks": "দ্রুত লিঙ্ক",
+    "forCandidates": "প্রার্থীদের জন্য",
+    "connectWithUs": "আমাদের সাথে সংযুক্ত হন",
+    "jobListings": "চাকরির তালিকা",
+    "jobsLink": "সকল চাকরি",
+    "aboutLink": "আমাদের সম্পর্কে",
+    "resourcesLink": "সম্পদ",
+    "faqLink": "সচরাচর জিজ্ঞাস্য",
+    "privacyPolicyLink": "গোপনীয়তা নীতি",
+    "termsOfServiceLink": "পরিষেবার শর্তাবলী",
+    "contactLink": "যোগাযোগ করুন",
+    "createAccountLink": "অ্যাকাউন্ট তৈরি করুন",
+    "candidateLoginLink": "প্রার্থী লগইন",
+    "companyTagline": "IIFC"
+  },
+  "hero": {
+    "title": "আপনার পরবর্তী ক্যারিয়ার পদক্ষেপ খুঁজুন",
+    "description": "আপনার ক্ষেত্রে হাজার হাজার খোলা অবস্থানের মাধ্যমে অনুসন্ধান করুন। আপনার স্বপ্নের চাকরি অপেক্ষা করছে।",
+    "primaryButton": "সমস্ত চাকরি ব্রাউজ করুন",
+    "tagline": "প্রতিভাকে সুযোগের সাথে সংযুক্ত করা।"
+  },
+  "jobs": {
+    "sectionTitle": "বৈশিষ্ট্যযুক্ত চাকরি",
+    "browseButton": "সমস্ত চাকরি ব্রাউজ করুন",
+    "searchButton": "আরও চাকরি অনুসন্ধান করুন",
+    "allOpenings": "সমস্ত চাকরির সুযোগ",
+    "description": "আপনার পরবর্তী ক্যারিয়ারের সুযোগ খুঁজুন। আপনার অনুসন্ধান সংকীর্ণ করতে নীচের ফিল্টার ব্যবহার করুন।",
+    "noJobsFound": "কোন চাকরি পাওয়া যায়নি"
+  },
+  "auth": {
+    "signup": {
+      "title": "একটি অ্যাকাউন্ট তৈরি করুন",
+      "description": "আপনার পরবর্তী সুযোগ খুঁজে পেতে আমাদের প্ল্যাটফর্মে যোগ দিন।",
+      "button": "সাইন আপ"
+    },
+    "login": {
+      "title": "সাইন ইন করুন",
+      "button": "লগইন"
+    }
+  }
 }

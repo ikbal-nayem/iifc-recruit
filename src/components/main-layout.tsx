@@ -6,6 +6,7 @@ import { TopLoader } from '@/components/ui/top-loader';
 import SplashScreen from './splash-screen';
 import { useEffect, useState } from 'react';
 import { SessionStorageService } from '@/services/storage.service';
+import { I18nProvider } from '@/providers/i18n-provider';
 
 const SPLASH_SHOWN_KEY = 'splash_shown';
 
@@ -36,10 +37,10 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 	}
 
 	return (
-		<>
+		<I18nProvider>
 			<TopLoader />
 			<Toaster />
 			{children}
-		</>
+		</I18nProvider>
 	);
 }

@@ -19,6 +19,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
+// Using hardcoded English strings for header since it changes with language switch
+// For dynamic translations, this would need to be a client component or use dynamic imports
 export default function PublicHeader() {
 	const pathname = usePathname();
 	const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -40,7 +42,7 @@ export default function PublicHeader() {
 						href={link.href}
 						className={cn(
 							'transition-colors hover:text-primary',
-							pathname === link.href ? 'text-primary' : 'text-muted-foreground'
+							pathname === link.href || pathname.endsWith(link.href) ? 'text-primary' : 'text-muted-foreground'
 						)}
 					>
 						{link.label}
@@ -79,7 +81,7 @@ export default function PublicHeader() {
 										href={link.href}
 										className={cn(
 											'transition-colors hover:text-primary',
-											pathname === link.href ? 'text-primary' : 'text-muted-foreground'
+											pathname === link.href || pathname.endsWith(link.href) ? 'text-primary' : 'text-muted-foreground'
 										)}
 									>
 										{link.label}

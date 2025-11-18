@@ -1,21 +1,62 @@
 {
+  "common": {
     "language": "English",
-    "Jobs": "Jobs",
-    "About": "About",
-    "Projects": "Projects",
-    "Sectors": "Sectors",
-    "Services": "Services",
-    "Contact": "Contact",
-    "Login": "Login",
-    "Sign Up": "Sign Up",
-    "Connecting talent with opportunity.": "Connecting talent with opportunity.",
-    "Quick Links": "Quick Links",
-    "All Jobs": "All Jobs",
-    "About Us": "About Us",
-    "Resources": "Resources",
-    "FAQ": "FAQ",
-    "Privacy Policy": "Privacy Policy",
-    "Terms of Service": "Terms of Service",
-    "Contact Us": "Contact Us",
-    "All rights reserved.": "All rights reserved."
+    "siteName": "IIFC Jobs",
+    "siteTagline": "Facilitating private sector investment in the infrastructure of Bangladesh.",
+    "copyright": "All rights reserved."
+  },
+  "navigation": {
+    "jobs": "Jobs",
+    "about": "About",
+    "projects": "Projects",
+    "sectors": "Sectors",
+    "services": "Services",
+    "contact": "Contact",
+    "login": "Login",
+    "signUp": "Sign Up",
+    "signIn": "Sign In",
+    "toggleMenu": "Toggle navigation menu",
+    "mobileMenu": "Mobile Menu"
+  },
+  "footer": {
+    "quickLinks": "Quick Links",
+    "forCandidates": "For Candidates",
+    "connectWithUs": "Connect With Us",
+    "jobListings": "Job Listings",
+    "jobsLink": "All Jobs",
+    "aboutLink": "About Us",
+    "resourcesLink": "Resources",
+    "faqLink": "FAQ",
+    "privacyPolicyLink": "Privacy Policy",
+    "termsOfServiceLink": "Terms of Service",
+    "contactLink": "Contact Us",
+    "createAccountLink": "Create Account",
+    "candidateLoginLink": "Candidate Login",
+    "companyTagline": "IIFC"
+  },
+  "hero": {
+    "title": "Find Your Next Career Move",
+    "description": "Search through thousands of open positions in your field. Your dream job is waiting.",
+    "primaryButton": "Browse All Jobs",
+    "tagline": "Connecting talent with opportunity."
+  },
+  "jobs": {
+    "sectionTitle": "Featured Jobs",
+    "browseButton": "Browse All Jobs",
+    "searchButton": "Search More Jobs",
+    "allOpenings": "All Job Openings",
+    "description": "Find your next career opportunity. Use the filters below to narrow your search.",
+    "noJobsFound": "No jobs found"
+  },
+  "auth": {
+    "signup": {
+      "title": "Create an Account",
+      "description": "Join our platform to find your next opportunity.",
+      "button": "Sign Up"
+    },
+    "login": {
+      "title": "Sign In",
+      "button": "Login"
+    }
+  }
 }
