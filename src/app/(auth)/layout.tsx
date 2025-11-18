@@ -1,47 +1,31 @@
 'use client';
 
 import Header from '@/components/app/header';
-import { InterestPromptModal } from '@/components/app/jobseeker/interest-prompt-modal';
 import SidebarNav from '@/components/app/sidebar-nav';
-import { PageLoader } from '@/components/ui/page-loader';
+import { InterestPromptModal } from '@/components/app/jobseeker/interest-prompt-modal';
 import { Sidebar, SidebarInset } from '@/components/ui/sidebar';
 import { ROLES } from '@/constants/auth.constant';
-import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/contexts/auth-context';
-import { useRouter } from 'next/navigation';
 import React, { Suspense, useEffect, useState } from 'react';
 import AuthLayoutProvider from './auth-layout-provider';
+import { PageLoader } from '@/components/ui/page-loader';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
-	const { currectUser, clearInterestModalFlag, isAuthenticated, isLoading } = useAuth();
-	const router = useRouter();
+	const { currectUser, clearInterestModalFlag } = useAuth();
 	const [showInterestModal, setShowInterestModal] = useState(false);
 
 	useEffect(() => {
-		if (!isLoading && !isAuthenticated) {
-			const currentPath = window.location.pathname;
-			const redirectUrl =
-				currentPath === ROUTES.DASHBOARD.ADMIN || currentPath === ROUTES.DASHBOARD.JOB_SEEKER
-					? ''
-					: `?redirectUrl=${encodeURIComponent(currentPath)}`;
-			router.replace(`${ROUTES.AUTH.LOGIN}${redirectUrl}`);
-		}
-	}, [isAuthenticated, isLoading, router]);
-
-	useEffect(() => {
+		// Show interest modal if the flag is set for jobseekers
 		if (currectUser?.roles.includes(ROLES.JOB_SEEKER) && currectUser.openInterestModal) {
 			setShowInterestModal(true);
 		}
 	}, [currectUser]);
 
+
 	const handleModalClose = () => {
 		setShowInterestModal(false);
 		clearInterestModalFlag();
 	};
-
-	if (isLoading || !isAuthenticated) {
-		return <PageLoader />;
-	}
 
 	return (
 		<AuthLayoutProvider>
