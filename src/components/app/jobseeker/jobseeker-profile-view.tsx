@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -207,6 +208,7 @@ export function JobseekerProfileView({
 						<DetailItem label='Religion' value={personalInfo.religionDTO?.nameEn || personalInfo.religion} />
 						<DetailItem label='NID' value={personalInfo.nid} />
 						<DetailItem label='Passport No.' value={personalInfo.passportNo} />
+						<DetailItem label='Birth Certificate No.' value={personalInfo.birthCertificate} />
 					</div>
 					<Separator />
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6'>
