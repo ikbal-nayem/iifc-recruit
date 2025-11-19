@@ -8,7 +8,6 @@ import { FormInput } from '@/components/ui/form-input';
 import { ROLES } from '@/constants/auth.constant';
 import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/contexts/auth-context';
-import { toast } from '@/hooks/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, LogIn } from 'lucide-react';
 import Link from 'next/link';
@@ -46,7 +45,6 @@ export default function LoginForm() {
 		setError(null);
 		try {
 			const user = await login(data.username, data.password);
-			toast.success({ description: 'Logged in successfully.' });
 			if (!!redirectUrl) {
 				router.push(redirectUrl);
 				console.log('Redirect URL::::: ', redirectUrl);

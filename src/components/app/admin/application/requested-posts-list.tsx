@@ -122,7 +122,7 @@ export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPo
 						</span>
 						{isCircularPublished && item.circularPublishDate && item.circularEndDate && (
 							<span className={clsx('flex items-center gap-1.5', deadlineBadgeVariant)}>
-								<Calendar className='h-4 w-4' />
+								<Calendar className='h-4 w-4' />Circular:{' '}
 								{format(parseISO(item.circularPublishDate), 'dd MMM')} -{' '}
 								{format(parseISO(item.circularEndDate), 'dd MMM')}
 							</span>
