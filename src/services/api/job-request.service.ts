@@ -1,7 +1,7 @@
-
 import { axiosIns } from '@/config/api.config';
-import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
+import { IApiRequest, IApiResponse, IFile } from '@/interfaces/common.interface';
 import { JobRequest, JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
+import { AxiosProgressEvent } from 'axios';
 
 export const JobRequestService = {
 	create: async (payload: Omit<JobRequest, 'id'>): Promise<IApiResponse<JobRequest>> => {
@@ -39,5 +39,16 @@ export const JobRequestService = {
 	},
 	updateStatus: async (id: string, status: JobRequestStatus): Promise<IApiResponse<RequestedPost>> => {
 		return axiosIns.put(`/job-request/update-status/${id}?status=${status}`);
+	},
+	uploadAttachment: async (
+		id: string,
+		type: string,
+		formData: FormData,
+		onUploadProgress?: (progressEvent: AxiosProgressEvent) => void
+	): Promise<IApiResponse<IFile>> => {
+		return axiosIns.post(`/job-request/attachment/upload/${id}/${type}`, formData, {
+			headers: { 'Content-Type': 'multipart/form-data' },
+			onUploadProgress,
+		});
 	},
 };

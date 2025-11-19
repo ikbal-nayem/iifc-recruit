@@ -13,9 +13,10 @@ import { Card, CardContent } from './card';
 interface FilePreviewProps {
 	file: File | IFile;
 	onRemove: () => void;
+	disabled?: boolean;
 }
 
-const FilePreview = ({ file, onRemove }: FilePreviewProps) => {
+const FilePreview = ({ file, onRemove, disabled }: FilePreviewProps) => {
 	const isFileObject = file instanceof File;
 	const name = isFileObject ? file.name : file.originalFileName;
 	const size = isFileObject ? `(${(file.size / 1024).toFixed(1)} KB)` : '';
@@ -35,7 +36,13 @@ const FilePreview = ({ file, onRemove }: FilePreviewProps) => {
 							{size && <p className='text-xs text-muted-foreground'>{size}</p>}
 						</div>
 					</div>
-					<Button variant='ghost' size='icon' className='h-8 w-8 text-muted-foreground' onClick={onRemove}>
+					<Button 
+						variant='ghost' 
+						size='icon' 
+						className='h-8 w-8 text-muted-foreground' 
+						onClick={onRemove}
+						disabled={disabled}
+					>
 						<X className='h-4 w-4' />
 					</Button>
 				</div>
@@ -52,6 +59,7 @@ interface FormFileUploadProps<TFieldValues extends FieldValues> {
 	accept?: string;
 	multiple?: boolean;
 	maxSize?: number; // Max size in bytes
+	disabled?: boolean;
 }
 
 export function FormFileUpload<TFieldValues extends FieldValues>({
@@ -62,6 +70,7 @@ export function FormFileUpload<TFieldValues extends FieldValues>({
 	accept,
 	multiple = false,
 	maxSize,
+	disabled,
 }: FormFileUploadProps<TFieldValues>) {
 	const { setError, clearErrors } = useFormContext();
 
@@ -112,14 +121,16 @@ export function FormFileUpload<TFieldValues extends FieldValues>({
 						<div className='relative flex items-center justify-center w-full'>
 							<label
 								htmlFor={name}
-								className='flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted'
+								className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted transition-colors ${
+									disabled ? 'opacity-50 cursor-not-allowed hover:bg-background' : ''
+								}`}
 							>
 								<div className='flex flex-col items-center justify-center pt-5 pb-6 text-center'>
-									<Upload className='w-8 h-8 mb-2 text-muted-foreground' />
-									<p className='text-sm text-muted-foreground'>
+									<Upload className={`w-8 h-8 mb-2 ${disabled ? 'text-muted-foreground/50' : 'text-muted-foreground'}`} />
+									<p className={`text-sm ${disabled ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>
 										<span className='font-semibold'>Click to upload</span> or drag and drop
 									</p>
-									{description && <p className='text-xs text-muted-foreground mt-1'>{description}</p>}
+									{description && <p className={`text-xs ${disabled ? 'text-muted-foreground/50' : 'text-muted-foreground'} mt-1`}>{description}</p>}
 								</div>
 								<Input
 									id={name}
@@ -128,13 +139,14 @@ export function FormFileUpload<TFieldValues extends FieldValues>({
 									className='hidden'
 									accept={accept}
 									onChange={(e) => handleFileChange(e, field)}
+									disabled={disabled}
 								/>
 							</label>
 						</div>
 					</FormControl>
 					<div className='space-y-2 mt-2'>
 						{multiple && Array.isArray(field.value)
-							? field.value.map((file, i) => (
+							? field.value.map((file: any, i: number) => (
 									<FilePreview
 										key={i}
 										file={file}
@@ -143,6 +155,7 @@ export function FormFileUpload<TFieldValues extends FieldValues>({
 											newFiles.splice(i, 1);
 											field.onChange(newFiles.length > 0 ? newFiles : null);
 										}}
+										disabled={disabled}
 									/>
 							  ))
 							: field.value && (
@@ -151,6 +164,7 @@ export function FormFileUpload<TFieldValues extends FieldValues>({
 										onRemove={() => {
 											field.onChange(null);
 										}}
+										disabled={disabled}
 									/>
 							  )}
 					</div>

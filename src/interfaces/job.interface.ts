@@ -1,4 +1,5 @@
 
+import { IFile } from './common.interface';
 import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from './master-data.interface';
 
 export enum JobRequestType {
@@ -63,6 +64,12 @@ export type JobRequest = {
 	statusDTO?: EnumDTO;
 	requestedPosts: RequestedPost[];
 	active?: boolean;
+	invitationLetter?: IFile;
+	acceptanceLetter?: IFile;
+	financialProposal?: IFile;
+	technicalProposal?: IFile;
+	noa?: IFile;
+	contractPaper?: IFile;
 };
 
 export interface ICircular {

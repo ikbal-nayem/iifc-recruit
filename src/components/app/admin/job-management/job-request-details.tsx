@@ -2,11 +2,13 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { FilePreviewer } from '@/components/ui/file-previewer';
 import { Separator } from '@/components/ui/separator';
 import { ROLES } from '@/constants/auth.constant';
 import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from '@/hooks/use-toast';
+import { IFile } from '@/interfaces/common.interface';
 import {
 	JobRequest,
 	JobRequestedPostStatus,
@@ -22,6 +24,25 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { AttachmentsUpload } from './attachment-upload';
+
+const attachmentPropsMap: Record<string, keyof JobRequest> = {
+	ACCEPTANCE_LETTER: 'invitationLetter',
+	INVITATION_LETTER: 'acceptanceLetter',
+	TECHNICAL_PROPOSAL: 'financialProposal',
+	FINANCIAL_PROPOSAL: 'technicalProposal',
+	NOA: 'noa',
+	CONTRACT_PAPER: 'contractPaper',
+};
+
+const ATTACHMENT_TYPE_LABELS: Record<string, string> = {
+	INVITATION_LETTER: 'Invitation Letter',
+	ACCEPTANCE_LETTER: 'Acceptance Letter',
+	FINANCIAL_PROPOSAL: 'Financial Proposal',
+	TECHNICAL_PROPOSAL: 'Technical Proposal',
+	NOA: 'NOA',
+	CONTRACT_SIGN: 'Contract Sign',
+	CONTRACT_PAPER: 'Contract Paper',
+};
 
 export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: JobRequest }) {
 	const router = useRouter();
@@ -68,6 +89,26 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 		} finally {
 			setIsAccepting(false);
 		}
+	};
+
+	const onAttachmentUploadSuccess = (attachmentType: string, file: IFile) => {
+		setRequest((prev) => ({
+			...prev,
+			[attachmentPropsMap[attachmentType]]: file,
+		}));
+	};
+
+	const getAttachments = (): Array<{ type: string; file: IFile }> => {
+		const attachments: Array<{ type: string; file: IFile }> = [];
+
+		Object.entries(attachmentPropsMap).forEach(([type, key]) => {
+			const file = request[key] as IFile | undefined;
+			if (file) {
+				attachments.push({ type, file });
+			}
+		});
+
+		return attachments;
 	};
 
 	const canMarkAsComplete =
@@ -121,7 +162,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 			<Card className='glassmorphism'>
 				<CardHeader>
 					<CardTitle className='text-2xl font-headline'>
-						{request.subject} <AttachmentsUpload onSuccess={() => {}} />
+						{request.subject} <AttachmentsUpload request={request} onSuccess={onAttachmentUploadSuccess} />
 					</CardTitle>
 					<div className='text-sm text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1'>
 						<span className='flex items-center gap-1.5'>
@@ -164,6 +205,28 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					)}
 				</CardContent>
 			</Card>
+
+			{getAttachments().length > 0 && (
+				<Card className='glassmorphism'>
+					<CardHeader className='pb-3'>
+						<CardTitle className='text-lg'>Attachments</CardTitle>
+					</CardHeader>
+					<CardContent className='pt-0'>
+						<div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4'>
+							{getAttachments().map((attachment) => (
+								<FilePreviewer key={attachment.file.id} file={attachment.file}>
+									<div className='flex flex-col items-center justify-center p-2 border border-dashed rounded-lg hover:bg-muted/50 transition-colors group cursor-pointer'>
+										<FileText className='h-6 w-6 text-primary mb-1 group-hover:scale-110 transition-transform' />
+										<p className='font-semibold text-xs text-center line-clamp-2'>
+											{ATTACHMENT_TYPE_LABELS[attachment.type] || attachment.type}
+										</p>
+									</div>
+								</FilePreviewer>
+							))}
+						</div>
+					</CardContent>
+				</Card>
+			)}
 
 			<Card className='glassmorphism'>
 				<CardHeader>
