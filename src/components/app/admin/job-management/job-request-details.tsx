@@ -82,13 +82,14 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 				</Button>
 				{isIifcAdmin && (
 					<div className='flex gap-2'>
-						{request.status === JobRequestStatus.PENDING && (
-							<Button asChild variant='outline'>
-								<Link href={ROUTES.JOB_REQUEST.EDIT(request.id)}>
-									<Edit className='mr-2 h-4 w-4' /> Edit Request
-								</Link>
-							</Button>
-						)}
+						{request.status === JobRequestStatus.PROCESSING ||
+							(request.status === JobRequestStatus.PENDING && (
+								<Button asChild variant='outline'>
+									<Link href={ROUTES.JOB_REQUEST.EDIT(request.id)}>
+										<Edit className='mr-2 h-4 w-4' /> Edit Request
+									</Link>
+								</Button>
+							))}
 						{request.status === JobRequestStatus.PROCESSING && (
 							<Button
 								variant='success'
