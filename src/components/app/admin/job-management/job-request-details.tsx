@@ -21,6 +21,7 @@ import { ArrowLeft, Building, Check, CheckCircle, Edit, FileText, Loader2, Users
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
+import { AttachmentsUpload } from './attachment-upload';
 
 export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: JobRequest }) {
 	const router = useRouter();
@@ -82,14 +83,13 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 				</Button>
 				{isIifcAdmin && (
 					<div className='flex gap-2'>
-						{request.status === JobRequestStatus.PROCESSING ||
-							(request.status === JobRequestStatus.PENDING && (
-								<Button asChild variant='outline'>
-									<Link href={ROUTES.JOB_REQUEST.EDIT(request.id)}>
-										<Edit className='mr-2 h-4 w-4' /> Edit Request
-									</Link>
-								</Button>
-							))}
+						{request.status !== JobRequestStatus.COMPLETED && (
+							<Button asChild variant='outline'>
+								<Link href={ROUTES.JOB_REQUEST.EDIT(request.id)}>
+									<Edit className='mr-2 h-4 w-4' /> Edit Request
+								</Link>
+							</Button>
+						)}
 						{request.status === JobRequestStatus.PROCESSING && (
 							<Button
 								variant='success'
@@ -120,7 +120,9 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 
 			<Card className='glassmorphism'>
 				<CardHeader>
-					<CardTitle className='text-2xl font-headline'>{request.subject}</CardTitle>
+					<CardTitle className='text-2xl font-headline'>
+						{request.subject} <AttachmentsUpload onSuccess={() => {}} />
+					</CardTitle>
 					<div className='text-sm text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1'>
 						<span className='flex items-center gap-1.5'>
 							<Building className='h-4 w-4' /> {request.clientOrganization?.nameEn}
