@@ -2,7 +2,7 @@
 
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Zap, Ship, Plane, Building2, Globe, Wrench, Hospital, GraduationCap } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useTranslations } from '@/hooks/use-translations';
 
 const sectorsTranslations = {
 	en: {
@@ -32,22 +32,7 @@ const sectorsTranslations = {
 };
 
 export default function SectorsPage() {
-	const [isClient, setIsClient] = useState(false);
-	const [locale, setLocale] = useState<'en' | 'bn'>('en');
-
-	useEffect(() => {
-		setIsClient(true);
-		const cookieLocale = document.cookie
-			.split('; ')
-			.find((row) => row.startsWith('NEXT_LOCALE='))
-			?.split('=')[1] as 'en' | 'bn' | undefined;
-
-		if (cookieLocale && (cookieLocale === 'en' || cookieLocale === 'bn')) {
-			setLocale(cookieLocale);
-		}
-	}, []);
-
-	const t = sectorsTranslations[locale];
+	const t = useTranslations(sectorsTranslations);
 
 	const sectors = [
 		{ title: t.power, icon: Zap },
@@ -59,10 +44,6 @@ export default function SectorsPage() {
 		{ title: t.health, icon: Hospital },
 		{ title: t.education, icon: GraduationCap },
 	];
-
-	if (!isClient) {
-		return null;
-	}
 
 	return (
 		<div className='bg-background'>

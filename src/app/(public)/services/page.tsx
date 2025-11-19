@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useTranslations } from '@/hooks/use-translations';
 
 const servicesTranslations = {
 	en: {
@@ -31,28 +31,9 @@ const servicesTranslations = {
 };
 
 export default function ServicesPage() {
-	const [isClient, setIsClient] = useState(false);
-	const [locale, setLocale] = useState<'en' | 'bn'>('en');
-
-	useEffect(() => {
-		setIsClient(true);
-		const cookieLocale = document.cookie
-			.split('; ')
-			.find((row) => row.startsWith('NEXT_LOCALE='))
-			?.split('=')[1] as 'en' | 'bn' | undefined;
-
-		if (cookieLocale && (cookieLocale === 'en' || cookieLocale === 'bn')) {
-			setLocale(cookieLocale);
-		}
-	}, []);
-
-	const t = servicesTranslations[locale];
+	const t = useTranslations(servicesTranslations);
 
 	const services = [t.service1, t.service2, t.service3, t.service4];
-
-	if (!isClient) {
-		return null;
-	}
 
 	return (
 		<div className='bg-background'>

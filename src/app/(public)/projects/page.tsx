@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useTranslations } from '@/hooks/use-translations';
 
 const projectsTranslations = {
 	en: {
@@ -45,22 +45,7 @@ const projectsTranslations = {
 };
 
 export default function ProjectsPage() {
-	const [isClient, setIsClient] = useState(false);
-	const [locale, setLocale] = useState<'en' | 'bn'>('en');
-
-	useEffect(() => {
-		setIsClient(true);
-		const cookieLocale = document.cookie
-			.split('; ')
-			.find((row) => row.startsWith('NEXT_LOCALE='))
-			?.split('=')[1] as 'en' | 'bn' | undefined;
-
-		if (cookieLocale && (cookieLocale === 'en' || cookieLocale === 'bn')) {
-			setLocale(cookieLocale);
-		}
-	}, []);
-
-	const t = projectsTranslations[locale];
+	const t = useTranslations(projectsTranslations);
 
 	const projects = [
 		{
@@ -100,10 +85,6 @@ export default function ProjectsPage() {
 			hint: 'parking garage',
 		}
 	];
-
-	if (!isClient) {
-		return null;
-	}
 
 	return (
 		<div className='bg-background'>
