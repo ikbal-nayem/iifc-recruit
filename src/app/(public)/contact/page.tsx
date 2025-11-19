@@ -6,7 +6,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { FormInput } from '@/components/ui/form-input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
-import { getLocaleSync } from '@/lib/i18n-server';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Mail, MapPin, Phone, Printer } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -25,9 +24,10 @@ type ContactFormValues = z.infer<typeof contactSchema>;
 const translations = {
 	en: {
 		heading: 'Get In Touch',
-		subheading: 'We\'d love to hear from you. Whether you have a question about our services, or anything else, our team is ready to answer all your questions.',
+		subheading:
+			"We'd love to hear from you. Whether you have a question about our services, or anything else, our team is ready to answer all your questions.",
 		sendMessage: 'Send us a Message',
-		fillForm: 'Fill out the form and we\'ll get back to you.',
+		fillForm: "Fill out the form and we'll get back to you.",
 		name: 'Name',
 		namePlaceholder: 'Your name',
 		email: 'Email',
@@ -47,7 +47,8 @@ const translations = {
 	},
 	bn: {
 		heading: 'আমাদের সাথে যোগাযোগ করুন',
-		subheading: 'আমরা আপনার সাথে শুনতে পছন্দ করব। আমাদের সেবা সম্পর্কে কোনো প্রশ্ন আছে বা অন্য কিছু, আমাদের দল আপনার সমস্ত প্রশ্নের উত্তর দিতে প্রস্তুত।',
+		subheading:
+			'আমরা আপনার সাথে শুনতে পছন্দ করব। আমাদের সেবা সম্পর্কে কোনো প্রশ্ন আছে বা অন্য কিছু, আমাদের দল আপনার সমস্ত প্রশ্নের উত্তর দিতে প্রস্তুত।',
 		sendMessage: 'আমাদের কাছে বার্তা পাঠান',
 		fillForm: 'ফর্মটি পূরণ করুন এবং আমরা আপনার সাথে যোগাযোগ করব।',
 		name: 'নাম',
@@ -66,7 +67,7 @@ const translations = {
 		fax: 'ফ্যাক্স',
 		successTitle: 'বার্তা পাঠানো হয়েছে!',
 		successDesc: 'আমাদের সাথে যোগাযোগ করার জন্য ধন্যবাদ। আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব।',
-	}
+	},
 };
 
 export default function ContactPage() {
@@ -106,10 +107,10 @@ export default function ContactPage() {
 			<section className='w-full py-20 md:py-24 hero-gradient'>
 				<div className='container mx-auto px-4 md:px-6 text-center'>
 					<div className='max-w-3xl mx-auto'>
-						<h1 className='text-4xl md:text-5xl lg:text-6xl font-headline font-bold mb-4 text-white'>{t.heading}</h1>
-						<p className='text-lg md:text-xl text-white'>
-							{t.subheading}
-						</p>
+						<h1 className='text-4xl md:text-5xl lg:text-6xl font-headline font-bold mb-4 text-white'>
+							{t.heading}
+						</h1>
+						<p className='text-lg md:text-xl text-white'>{t.subheading}</p>
 					</div>
 				</div>
 			</section>
@@ -176,7 +177,9 @@ export default function ContactPage() {
 									<MapPin className='h-6 w-6 text-primary mt-1' />
 									<div>
 										<h4 className='font-semibold text-foreground'>{t.ourOffice}</h4>
-										<p>Ede-II, 6/B, 147, Mohakhali, Dhaka-1212</p>
+										<p>
+											JDPC Bhaban <sup>(3rd floor)</sup>, 145 Monipuripara, Tejgaon, Dhaka-1215, Bangladesh.
+										</p>
 									</div>
 								</div>
 								<div className='flex items-start gap-4'>
@@ -193,21 +196,14 @@ export default function ContactPage() {
 									<div>
 										<h4 className='font-semibold text-foreground'>{t.telephone}</h4>
 										<p>
-											<a href='tel:+88029889244' className='hover:text-primary'>
-												(+8802) 9889244
+											<a href='tel:+8802223314093' className='hover:text-primary'>
+												(+8802) 223314093
 											</a>
 											,{' '}
-											<a href='tel:+88029889255' className='hover:text-primary'>
-												9889255
+											<a href='tel:+8802223314096' className='hover:text-primary'>
+												223314096
 											</a>
 										</p>
-									</div>
-								</div>
-								<div className='flex items-start gap-4'>
-									<Printer className='h-6 w-6 text-primary mt-1' />
-									<div>
-										<h4 className='font-semibold text-foreground'>{t.fax}</h4>
-										<p>(+8802) 9889233</p>
 									</div>
 								</div>
 							</div>

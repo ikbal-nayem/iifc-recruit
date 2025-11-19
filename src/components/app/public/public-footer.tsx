@@ -31,11 +31,6 @@ export default async function PublicFooter() {
 								</Link>
 							</li>
 							<li>
-								<Link href='/about' className='text-muted-foreground hover:text-primary'>
-									{t('footer.aboutLink')}
-								</Link>
-							</li>
-							<li>
 								<Link href='/contact' className='text-muted-foreground hover:text-primary'>
 									{t('footer.contactLink')}
 								</Link>
