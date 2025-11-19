@@ -92,7 +92,7 @@ export default async function PublicFooter() {
 								<Linkedin className='h-5 w-5' />
 							</a>
 						</div>
-						<LanguageSwitcher />
+						{/* <LanguageSwitcher /> */}
 					</div>
 				</div>
 
