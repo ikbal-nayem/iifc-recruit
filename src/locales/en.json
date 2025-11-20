@@ -110,6 +110,7 @@
     },
     "login": {
       "title": "Sign In",
+      "description": "Welcome back! Please sign in to continue.",
       "button": "Login",
       "email": "Email Address",
       "password": "Password",
