@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/contexts/auth-context';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
+import { JobRequestType } from '@/interfaces/job.interface';
 import { IProfileCompletionStatus } from '@/interfaces/jobseeker.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { ApplicationService } from '@/services/api/application.service';
@@ -173,10 +174,13 @@ export default function JobseekerDashboardPage() {
 										href={ROUTES.JOB_SEEKER.JOB_DETAILS(app.requestedPostId)}
 										className='font-semibold hover:underline'
 									>
-										{app.requestedPost?.post?.nameEn}
+										{app.requestedPost?.post?.nameBn}{' '}
+										{app.requestedPost?.jobRequest?.type === JobRequestType.OUTSOURCING
+											? `[${app.requestedPost?.post?.outsourcingCategory?.nameBn}]`
+											: null}
 									</Link>
 									<p className='text-sm text-muted-foreground'>
-										{app.requestedPost?.jobRequest?.clientOrganization?.nameEn}
+										{app.requestedPost?.jobRequest?.clientOrganization?.nameBn}
 									</p>
 								</div>
 								<Badge variant={getStatusVariant(app.status)}>{app.statusDTO.nameEn}</Badge>
