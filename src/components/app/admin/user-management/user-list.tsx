@@ -13,11 +13,11 @@ import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ROLES } from '@/constants/auth.constant';
 import { useAuth } from '@/contexts/auth-context';
 import { useDebounce } from '@/hooks/use-debounce';
 import useLoader from '@/hooks/use-loader';
 import { toast } from '@/hooks/use-toast';
-import { UserType } from '@/interfaces/auth.interface';
 import { IApiRequest, IMeta, IObject } from '@/interfaces/common.interface';
 import { IClientOrganization, IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
@@ -170,7 +170,7 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 
 	const debouncedSearch = useDebounce(searchQuery, 500);
 
-	const isSuperAdmin = currectUser?.userType === UserType.SYSTEM;
+	const isSuperAdmin = !!currectUser?.roles?.includes(ROLES.SUPER_ADMIN);
 	const organizationId = isSuperAdmin ? undefined : currectUser?.organizationId;
 
 	const loadUsers = useCallback(

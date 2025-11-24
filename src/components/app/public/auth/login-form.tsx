@@ -71,8 +71,8 @@ export default function LoginForm() {
 						<FormInput
 							control={form.control}
 							name='username'
-							label='Username or Email'
-							placeholder='you@example.com'
+							label='Username or Phone'
+							placeholder='Enter username or phone'
 							required
 						/>
 						<FormInput

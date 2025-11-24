@@ -89,7 +89,7 @@ export default function Header() {
 								<p className='text-primary font-medium leading-none'>
 									{currectUser.fullName || currectUser.firstName}
 								</p>
-								<p className='text-xs leading-none text-muted-foreground'>{currectUser.email}</p>
+								<p className='text-xs leading-none text-muted-foreground'>{currectUser.email || currectUser.phone}</p>
 								<p className='text-xs leading-none text-muted-foreground'>{currectUser.organization?.nameEn}</p>
 							</div>
 						</DropdownMenuLabel>

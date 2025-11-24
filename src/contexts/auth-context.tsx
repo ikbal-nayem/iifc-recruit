@@ -1,12 +1,17 @@
 'use client';
 
 import { setAuthToken } from '@/config/api.config';
-import { ACCESS_TOKEN, AUTH_INFO, REFRESH_TOKEN } from '@/constants/auth.constant';
+import { ACCESS_TOKEN, AUTH_INFO, REFRESH_TOKEN, ROLES } from '@/constants/auth.constant';
 import { ROUTES } from '@/constants/routes.constant';
 import { IAuthInfo, IUser } from '@/interfaces/auth.interface';
 import { AuthService } from '@/services/api/auth.service';
 import { UserService } from '@/services/api/user.service';
-import { clearAuthInfo, CookieService, LocalStorageService, SessionStorageService } from '@/services/storage.service';
+import {
+	clearAuthInfo,
+	CookieService,
+	LocalStorageService,
+	SessionStorageService,
+} from '@/services/storage.service';
 import { useRouter } from 'next/navigation';
 import nProgress from 'nprogress';
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
@@ -29,7 +34,6 @@ const storeAuthInfo = (authInfo: IAuthInfo) => {
 	CookieService.set(ACCESS_TOKEN, authInfo.access_token, 1);
 	CookieService.set(REFRESH_TOKEN, authInfo.refresh_token, 1);
 };
-
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [user, setUser] = useState<IUser | null>(null);
@@ -87,12 +91,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 			const redirectUrl = SessionStorageService.get('redirectUrl');
 			SessionStorageService.delete('redirectUrl');
-			
+
 			if (redirectUrl) {
 				router.push(redirectUrl);
 			} else {
 				// Default redirection logic based on user type
-				if (loggedInUser.userType === 'JOB_SEEKER') {
+				if (loggedInUser.roles.includes(ROLES.JOB_SEEKER)) {
 					router.push(ROUTES.DASHBOARD.JOB_SEEKER);
 				} else {
 					router.push(ROUTES.DASHBOARD.ADMIN);
@@ -106,7 +110,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	};
 
 	const updateUserInfo = (updatedUser: Partial<IUser>) => {
-		setUser(prev => ({ ...prev, ...updatedUser}) as IUser);
+		setUser((prev) => ({ ...prev, ...updatedUser } as IUser));
 	};
 
 	const clearInterestModalFlag = () => {
@@ -114,7 +118,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			setUser({ ...user, openInterestModal: false });
 		}
 	};
-
 
 	return (
 		<AuthContext.Provider

@@ -12,7 +12,7 @@ import { FormInput } from '@/components/ui/form-input';
 import { ROUTES } from '@/constants/routes.constant';
 import { useToast } from '@/hooks/use-toast';
 import { AuthService } from '@/services/api/auth.service';
-import { Loader2, UserRoundPlus } from 'lucide-react';
+import { Loader2, Mail, Phone, UserRoundPlus } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -21,7 +21,12 @@ const signupSchema = z
 	.object({
 		firstName: z.string().min(1, 'First name is required.'),
 		lastName: z.string().min(1, 'Last name is required.'),
-		email: z.string().email('Please enter a valid email.'),
+		email: z.string().email('Please enter a valid email.').optional().or(z.literal('')),
+		phone: z
+			.string()
+			.min(1, 'Phone number is required')
+			.max(11, 'Phone number too long')
+			.regex(/^01[0-9]{9}$/, 'Invalid phone number'),
 		password: z
 			.string()
 			.min(8, 'Password must be at least 8 characters long.')
@@ -49,6 +54,7 @@ export default function SignupForm() {
 			firstName: '',
 			lastName: '',
 			email: '',
+			phone: '',
 			password: '',
 			confirmPassword: '',
 		},
@@ -58,12 +64,7 @@ export default function SignupForm() {
 		setIsLoading(true);
 		setError(null);
 		try {
-			const res = await AuthService.signup({
-				firstName: data.firstName,
-				lastName: data.lastName,
-				email: data.email,
-				password: data.password,
-			});
+			const res = await AuthService.signup(data);
 			toast({
 				description: res.message || 'You can now log in with your new credentials.',
 				variant: 'success',
@@ -103,12 +104,21 @@ export default function SignupForm() {
 					</div>
 					<FormInput
 						control={form.control}
+						name='phone'
+						label='Phone'
+						placeholder='01XXXXXXXXX'
+						required
+						disabled={isLoading}
+						startIcon={<Phone className='h-4 w-4 text-muted-foreground' />}
+					/>
+					<FormInput
+						control={form.control}
 						name='email'
 						label='Email'
 						type='email'
 						placeholder='you@example.com'
-						required
 						disabled={isLoading}
+						startIcon={<Mail className='h-4 w-4 text-muted-foreground' />}
 					/>
 					<FormInput
 						control={form.control}
