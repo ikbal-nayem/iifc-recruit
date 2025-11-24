@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -203,7 +204,7 @@ export function MasterDataCrud({
 				</Button>
 			</div>
 			<Card className='glassmorphism'>
-				<CardContent className='space-y-4 pt-6'>
+				<CardContent className='space-y-4 pt-6 relative'>
 					<div className='flex flex-col sm:flex-row gap-4 justify-between'>
 						<div className='relative w-full sm:max-w-xs'>
 							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
@@ -214,10 +215,15 @@ export function MasterDataCrud({
 							/>
 						</div>
 					</div>
+					{isLoading && items.length > 0 && (
+						<div className='absolute inset-0 bg-white/50 backdrop-blur-[2px] flex items-center justify-center z-10 mt-20'>
+							<Loader2 className='h-8 w-8 animate-spin text-primary' />
+						</div>
+					)}
 					<div className='space-y-2 pt-4'>
-						{isLoading
-							? [...Array(5)].map((_, i) => <Skeleton key={i} className='h-16 w-full' />)
-							: items.map((item) => (
+						{isLoading && items.length === 0 ? (
+							[...Array(5)].map((_, i) => <Skeleton key={i} className='h-16 w-full' />)
+						) : items.map((item) => (
 									<Card
 										key={item.id}
 										className='p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-background/50'

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
@@ -15,7 +16,7 @@ import { getStatusVariant } from '@/lib/color-mapping';
 import { JobRequestService } from '@/services/api/job-request.service';
 import clsx from 'clsx';
 import { differenceInDays, format, isPast, parseISO } from 'date-fns';
-import { Building, Calendar, Search, UserCog, Users } from 'lucide-react';
+import { Building, Calendar, Loader2, Search, UserCog, Users } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
@@ -143,7 +144,7 @@ export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPo
 	return (
 		<>
 			<Card className='glassmorphism'>
-				<CardContent className='pt-6 space-y-4'>
+				<CardContent className='pt-6 space-y-4 relative'>
 					<div className='relative w-full max-w-sm'>
 						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 						<Input
@@ -153,8 +154,13 @@ export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPo
 							className='pl-10'
 						/>
 					</div>
+					{isLoading && data.length > 0 && (
+						<div className='absolute inset-0 bg-white/50 backdrop-blur-[2px] flex items-center justify-center z-10 mt-20'>
+							<Loader2 className='h-8 w-8 animate-spin text-primary' />
+						</div>
+					)}
 					<div className='space-y-4'>
-						{isLoading ? (
+						{isLoading && data.length === 0 ? (
 							[...Array(5)].map((_, i) => <Skeleton key={i} className='h-32 sm:h-24 w-full' />)
 						) : data.length > 0 ? (
 							data.map(renderItem)

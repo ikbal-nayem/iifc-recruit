@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -380,10 +381,15 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 						Create User
 					</Button>
 				</CardHeader>
-				<CardContent>
+				<CardContent className='relative'>
+					{isLoading && users.length > 0 && (
+						<div className='absolute inset-0 bg-white/50 backdrop-blur-[2px] flex items-center justify-center z-10'>
+							<Loader2 className='h-8 w-8 animate-spin text-primary' />
+						</div>
+					)}
 					{/* Mobile View */}
 					<div className='md:hidden space-y-4'>
-						{isLoading ? (
+						{isLoading && users.length === 0 ? (
 							[...Array(3)].map((_, i) => <Skeleton key={i} className='h-24 w-full' />)
 						) : users.length > 0 ? (
 							users.map(renderMobileCard)
@@ -407,7 +413,7 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 								))}
 							</TableHeader>
 							<TableBody>
-								{isLoading ? (
+								{isLoading && users.length === 0 ? (
 									[...Array(5)].map((_, i) => (
 										<TableRow key={i}>
 											<TableCell colSpan={columns.length}>

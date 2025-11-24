@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
@@ -19,7 +20,7 @@ import { getStatusVariant } from '@/lib/color-mapping';
 import { cn } from '@/lib/utils';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { differenceInDays, format, parseISO } from 'date-fns';
-import { Building, Calendar, Check, Edit, Eye, FileText, Search, Trash } from 'lucide-react';
+import { Building, Calendar, Check, Edit, Eye, FileText, Loader2, Search, Trash } from 'lucide-react';
 import * as React from 'react';
 
 const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
@@ -189,7 +190,7 @@ export function JobRequestList({ status }: JobRequestListProps) {
 
 	return (
 		<Card className='glassmorphism'>
-			<CardContent className='pt-6'>
+			<CardContent className='pt-6 relative'>
 				<div className='relative w-full'>
 					<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 					<Input
@@ -199,8 +200,13 @@ export function JobRequestList({ status }: JobRequestListProps) {
 						className='pl-10'
 					/>
 				</div>
+				{isLoading && data.length > 0 && (
+					<div className='absolute inset-0 bg-white/50 backdrop-blur-[2px] flex items-center justify-center z-10 mt-16'>
+						<Loader2 className='h-8 w-8 animate-spin text-primary' />
+					</div>
+				)}
 				<div className='mt-4 space-y-4'>
-					{isLoading ? (
+					{isLoading && data.length === 0 ? (
 						[...Array(5)].map((_, i) => <Skeleton key={i} className='h-24 w-full' />)
 					) : data.length > 0 ? (
 						data.map(renderItem)

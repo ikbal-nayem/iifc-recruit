@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -28,7 +29,7 @@ import { getStatusVariant } from '@/lib/color-mapping';
 import { ApplicationService } from '@/services/api/application.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { format } from 'date-fns';
-import { Eye } from 'lucide-react';
+import { Eye, Loader2 } from 'lucide-react';
 import { JobCircularDetails } from '../public/job-circular-details';
 
 const initMeta: IMeta = { page: 0, limit: 10 };
@@ -210,65 +211,74 @@ export function MyApplications({ initialStatusFilter = 'all' }: MyApplicationsPr
 					getOptionValue={(option) => option.value}
 				/>
 			</div>
-			{/* Mobile View */}
-			<div className='md:hidden'>
-				{isLoading ? (
-					[...Array(3)].map((_, i) => renderSkeletonCard(i))
-				) : data.length > 0 ? (
-					data.map(renderMobileCard)
-				) : (
-					<div className='text-center py-16'>
-						<p className='text-muted-foreground'>You haven&apos;t applied for any jobs yet.</p>
+
+			<div className='relative'>
+				{isLoading && data.length > 0 && (
+					<div className='absolute inset-0 bg-white/50 backdrop-blur-[2px] flex items-center justify-center z-10'>
+						<Loader2 className='h-8 w-8 animate-spin text-primary' />
 					</div>
 				)}
-			</div>
 
-			{/* Desktop View */}
-			<div className='hidden md:block rounded-md border glassmorphism'>
-				<Table>
-					<TableHeader>
-						{table.getHeaderGroups().map((headerGroup) => (
-							<TableRow key={headerGroup.id}>
-								{headerGroup.headers.map((header) => {
-									return (
-										<TableHead key={header.id}>
-											{header.isPlaceholder
-												? null
-												: flexRender(header.column.columnDef.header, header.getContext())}
-										</TableHead>
-									);
-								})}
-							</TableRow>
-						))}
-					</TableHeader>
-					<TableBody>
-						{isLoading ? (
-							[...Array(initMeta.limit)].map((_, i) => (
-								<TableRow key={i}>
-									<TableCell colSpan={columns.length}>
-										<Skeleton className='h-8 w-full' />
+				{/* Mobile View */}
+				<div className='md:hidden'>
+					{isLoading && data.length === 0 ? (
+						[...Array(3)].map((_, i) => renderSkeletonCard(i))
+					) : data.length > 0 ? (
+						data.map(renderMobileCard)
+					) : (
+						<div className='text-center py-16'>
+							<p className='text-muted-foreground'>You haven&apos;t applied for any jobs yet.</p>
+						</div>
+					)}
+				</div>
+
+				{/* Desktop View */}
+				<div className='hidden md:block rounded-md border glassmorphism'>
+					<Table>
+						<TableHeader>
+							{table.getHeaderGroups().map((headerGroup) => (
+								<TableRow key={headerGroup.id}>
+									{headerGroup.headers.map((header) => {
+										return (
+											<TableHead key={header.id}>
+												{header.isPlaceholder
+													? null
+													: flexRender(header.column.columnDef.header, header.getContext())}
+											</TableHead>
+										);
+									})}
+								</TableRow>
+							))}
+						</TableHeader>
+						<TableBody>
+							{isLoading && data.length === 0 ? (
+								[...Array(initMeta.limit)].map((_, i) => (
+									<TableRow key={i}>
+										<TableCell colSpan={columns.length}>
+											<Skeleton className='h-8 w-full' />
+										</TableCell>
+									</TableRow>
+								))
+							) : table.getRowModel().rows?.length ? (
+								table.getRowModel().rows.map((row) => (
+									<TableRow key={row.id}>
+										{row.getVisibleCells().map((cell) => (
+											<TableCell key={cell.id}>
+												{flexRender(cell.column.columnDef.cell, cell.getContext())}
+											</TableCell>
+										))}
+									</TableRow>
+								))
+							) : (
+								<TableRow>
+									<TableCell colSpan={columns.length} className='h-24 text-center'>
+										You haven&apos;t applied for any jobs yet.
 									</TableCell>
 								</TableRow>
-							))
-						) : table.getRowModel().rows?.length ? (
-							table.getRowModel().rows.map((row) => (
-								<TableRow key={row.id}>
-									{row.getVisibleCells().map((cell) => (
-										<TableCell key={cell.id}>
-											{flexRender(cell.column.columnDef.cell, cell.getContext())}
-										</TableCell>
-									))}
-								</TableRow>
-							))
-						) : (
-							<TableRow>
-								<TableCell colSpan={columns.length} className='h-24 text-center'>
-									You haven&apos;t applied for any jobs yet.
-								</TableCell>
-							</TableRow>
-						)}
-					</TableBody>
-				</Table>
+							)}
+						</TableBody>
+					</Table>
+				</div>
 			</div>
 
 			{meta && meta.totalRecords && meta.totalRecords > 0 ? (

@@ -20,7 +20,7 @@ import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
-import { Building, FileText, Search, Send, UserX } from 'lucide-react';
+import { Building, FileText, Loader2, Search } from 'lucide-react';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 import { JobseekerForm } from './jobseeker-form';
@@ -86,18 +86,6 @@ export function JobseekerManagement({
 			icon: <FileText className='mr-2 h-4 w-4' />,
 			onClick: () => setSelectedJobseeker(jobseeker),
 		},
-		// {
-		// 	label: 'Contact',
-		// 	icon: <Send className='mr-2 h-4 w-4' />,
-		// 	onClick: () => toast({ description: `Contacting ${jobseeker.fullName}... (not implemented)` }),
-		// },
-		// { isSeparator: true },
-		// {
-		// 	label: 'Deactivate',
-		// 	icon: <UserX className='mr-2 h-4 w-4' />,
-		// 	onClick: () => alert('Deactivating... (not implemented)'),
-		// 	variant: 'danger',
-		// },
 	];
 
 	const columns: ColumnDef<JobseekerSearch>[] = [
@@ -210,10 +198,15 @@ export function JobseekerManagement({
 						</div>
 					</div>
 				</CardHeader>
-				<CardContent>
+				<CardContent className='relative'>
+					{isLoading && data.length > 0 && (
+						<div className='absolute inset-0 bg-white/50 backdrop-blur-[2px] flex items-center justify-center z-10'>
+							<Loader2 className='h-8 w-8 animate-spin text-primary' />
+						</div>
+					)}
 					{/* Mobile View */}
 					<div className='md:hidden space-y-4'>
-						{isLoading ? (
+						{isLoading && data.length === 0 ? (
 							[...Array(5)].map((_, i) => (
 								<Card key={i} className='p-4'>
 									<Skeleton className='h-24 w-full' />
@@ -247,7 +240,7 @@ export function JobseekerManagement({
 								))}
 							</TableHeader>
 							<TableBody>
-								{isLoading ? (
+								{isLoading && data.length === 0 ? (
 									[...Array(initMeta.limit)].map((_, i) => (
 										<TableRow key={i}>
 											<TableCell colSpan={columns.length}>

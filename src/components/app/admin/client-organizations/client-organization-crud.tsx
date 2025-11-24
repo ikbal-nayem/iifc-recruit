@@ -458,7 +458,7 @@ export function ClientOrganizationCrud({
 				</Button>
 			</div>
 			<Card className='glassmorphism'>
-				<CardContent className='pt-6 space-y-4'>
+				<CardContent className='pt-6 space-y-4 relative'>
 					<div className='flex flex-col sm:flex-row gap-4'>
 						<div className='relative w-full sm:max-w-xs'>
 							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
@@ -484,6 +484,11 @@ export function ClientOrganizationCrud({
 						</div>
 					</div>
 
+					{isLoading && items.length > 0 && (
+						<div className='absolute inset-0 bg-white/50 backdrop-blur-[2px] flex items-center justify-center z-10 mt-28'>
+							<Loader2 className='h-8 w-8 animate-spin text-primary' />
+						</div>
+					)}
 					<div className='mt-4 rounded-md border'>
 						<Table>
 							<TableHeader>
@@ -502,7 +507,7 @@ export function ClientOrganizationCrud({
 								))}
 							</TableHeader>
 							<TableBody>
-								{isLoading ? (
+								{isLoading && items.length === 0 ? (
 									[...Array(meta.limit)].map((_, i) => (
 										<TableRow key={i}>
 											<TableCell colSpan={columns.length}>
