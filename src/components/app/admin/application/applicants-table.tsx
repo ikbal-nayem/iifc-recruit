@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -479,7 +480,12 @@ export function ApplicantsTable({
 			</div>
 
 			{/* Desktop View */}
-			<Card className='hidden md:block rounded-md border glassmorphism'>
+			<Card className='hidden md:block rounded-md border glassmorphism relative'>
+				{isLoading && (
+					<div className='absolute inset-0 bg-white/50 backdrop-blur-[2px] flex items-center justify-center z-10'>
+						<Loader2 className='h-8 w-8 animate-spin text-primary' />
+					</div>
+				)}
 				<CardContent className='p-0'>
 					<Table>
 						<TableHeader>
@@ -497,9 +503,7 @@ export function ApplicantsTable({
 								</TableRow>
 							))}
 						</TableHeader>
-						<TableBody
-							className={cn('transition-opacity duration-300', isLoading ? 'opacity-50' : 'opacity-100')}
-						>
+						<TableBody>
 							{table.getRowModel().rows?.length ? (
 								table.getRowModel().rows.map((row) => (
 									<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
