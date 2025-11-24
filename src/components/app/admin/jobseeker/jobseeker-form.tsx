@@ -36,8 +36,12 @@ import * as z from 'zod';
 const userSchema = z.object({
 	firstName: z.string().min(1, 'First name is required.'),
 	lastName: z.string().min(1, 'Last name is required.'),
-	email: z.string().email('Email should be valid.'),
-	phone: z.string().optional(),
+	email: z.string().email('Email should be valid.').optional().or(z.literal('')),
+	phone: z
+		.string()
+		.min(1, 'Phone number is required')
+		.max(11, 'Phone number too long')
+		.regex(/^01[0-9]{9}$/, 'Invalid phone number'),
 	organizationId: z.string().optional(),
 	interestedInPostIds: z.array(z.string()).optional(),
 });
@@ -167,15 +171,6 @@ export function JobseekerForm({
 		setIsSubmitting(true);
 		bulkForm.clearErrors();
 		const { organizationId, interestedInPostIds } = bulkForm.getValues();
-		// if (!organizationId) {
-		// 	bulkForm.setError('organizationId', { message: 'Select an organization.', type: 'required' });
-		// 	toast.error({
-		// 		description: 'Please select a client organization.',
-		// 	});
-		// 	setIsSubmitting(false);
-		// 	return;
-		// }
-
 		try {
 			const response = await UserService.bulkCreateJobseeker(
 				data.users.map((user) => ({ organizationId, interestedInPostIds, ...user }))
@@ -310,8 +305,8 @@ export function JobseekerForm({
 								<FormInput control={singleForm.control} name='firstName' label='First Name' required />
 								<FormInput control={singleForm.control} name='lastName' label='Last Name' required />
 							</div>
-							<FormInput control={singleForm.control} name='email' label='Email' type='email' required />
-							<FormInput control={singleForm.control} name='phone' label='Phone' />
+							<FormInput control={singleForm.control} name='phone' label='Phone' required />
+							<FormInput control={singleForm.control} name='email' label='Email' type='email' />
 							<FormMultiSelect
 								control={singleForm.control}
 								name='interestedInPostIds'

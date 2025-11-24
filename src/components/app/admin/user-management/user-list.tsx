@@ -32,8 +32,12 @@ import * as z from 'zod';
 const userSchema = z.object({
 	firstName: z.string().min(1, 'First name is required.'),
 	lastName: z.string().min(1, 'Last name is required.'),
-	email: z.string().email('Please enter a valid email.'),
-	phone: z.string().optional(),
+	email: z.string().email('Please enter a valid email.').optional().or(z.literal('')),
+	phone: z
+		.string()
+		.min(1, 'Phone number is required')
+		.max(11, 'Phone number too long')
+		.regex(/^01[0-9]{9}$/, 'Invalid phone number'),
 	roles: z.array(z.string()).min(1, 'At least one role is required.'),
 	password: z.string().min(8, 'Password must be at least 8 characters.').optional(),
 	organizationId: z.string().optional(),
@@ -125,8 +129,8 @@ function UserForm({
 							<FormInput control={form.control} name='firstName' label='First Name' required />
 							<FormInput control={form.control} name='lastName' label='Last Name' required />
 						</div>
-						<FormInput control={form.control} name='email' label='Email Address' type='email' required />
-						<FormInput control={form.control} name='phone' label='Phone Number' />
+						<FormInput control={form.control} name='phone' label='Phone Number' required />
+						<FormInput control={form.control} name='email' label='Email Address' type='email' />
 						<FormMultiSelect
 							control={form.control}
 							name='roles'
