@@ -83,13 +83,14 @@ export default function Header() {
 							</Avatar>
 						</Button>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent className='w-56' align='end' forceMount>
+					<DropdownMenuContent className='w-60' align='end' forceMount>
 						<DropdownMenuLabel className='font-normal'>
 							<div className='flex flex-col space-y-1'>
-								<p className='text-sm font-medium leading-none'>
+								<p className='text-primary font-medium leading-none'>
 									{currectUser.fullName || currectUser.firstName}
 								</p>
 								<p className='text-xs leading-none text-muted-foreground'>{currectUser.email}</p>
+								<p className='text-xs leading-none text-muted-foreground'>{currectUser.organization?.nameEn}</p>
 							</div>
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
