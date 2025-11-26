@@ -5,6 +5,7 @@ import { ROLES } from '@/constants/auth.constant';
 import { COMMON_URL } from '@/constants/common.constant';
 import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/contexts/auth-context';
+import { BriefcaseBusiness } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
@@ -61,13 +62,14 @@ export default function AuthFormsLayout({ children }: { children: React.ReactNod
 					<div className='absolute inset-0 bg-gradient-to-t from-background/80 to-transparent'></div>
 				</div>
 				<div className='relative text-center p-10 rounded-lg bg-white/30 backdrop-blur-sm'>
-					<Image
+					{/* <Image
 						src={COMMON_URL.SITE_LOGO}
 						alt={isMounted ? t.logo : 'IIFC Logo'}
 						width={80}
 						height={80}
 						className='h-20 w-auto mx-auto mb-4'
-					/>
+					/> */}
+					<BriefcaseBusiness className='mx-auto mb-4 h-20 w-20 text-primary' />
 					<h1 className='text-4xl font-headline font-bold text-primary'>
 						{isMounted ? t.tagline : 'Your Gateway to Opportunity'}
 					</h1>
