@@ -21,7 +21,8 @@ import { MasterDataService } from '@/services/api/master-data.service';
 import { getCertificationsAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO } from 'date-fns';
-import { Edit, FileText, Loader2, PlusCircle, Trash } from 'lucide-react';
+import { ArrowLeft, Edit, FileText, Loader2, MoveRight, PlusCircle, Trash } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -211,6 +212,7 @@ function CertificationForm({ isOpen, onClose, onSubmit, initialData, noun }: Cer
 }
 
 export default function ProfileFormCertifications() {
+	const router = useRouter();
 	const { toast } = useToast();
 	const [history, setHistory] = useState<Certification[]>([]);
 	const [editingItem, setEditingItem] = useState<Certification | undefined>(undefined);
@@ -250,11 +252,11 @@ export default function ProfileFormCertifications() {
 	const handleFormSubmit = async (formData: Certification) => {
 		try {
 			const response = await JobseekerProfileService.certification.save(makeFormData(formData));
-			toast({ description: response.message, variant: 'success' });
+			toast.success({ description: response.message });
 			loadData();
 			return true;
 		} catch (error: any) {
-			toast({ description: error.message || 'An error occurred.', variant: 'danger' });
+			toast.error({ description: error.message || 'An error occurred.' });
 			return false;
 		}
 	};
@@ -263,12 +265,11 @@ export default function ProfileFormCertifications() {
 		if (!itemToDelete?.id) return;
 		try {
 			await JobseekerProfileService.certification.delete(itemToDelete.id);
-			toast({ description: 'Certification deleted successfully.', variant: 'success' });
+			toast.success({ description: 'Certification deleted successfully.' });
 			loadData();
 		} catch (error: any) {
-			toast({
+			toast.error({
 				description: error.message || 'Failed to delete certification.',
-				variant: 'danger',
 			});
 		} finally {
 			setItemToDelete(null);
@@ -355,6 +356,14 @@ export default function ProfileFormCertifications() {
 				onConfirm={handleRemove}
 				confirmText='Delete'
 			/>
+			<div className='flex justify-between mt-8'>
+				<Button variant='outline' onClick={() => router.push('/jobseeker/profile-edit/skills')}>
+					<ArrowLeft className='mr-2 h-4 w-4' /> Previous
+				</Button>
+				<Button onClick={() => router.push('/jobseeker/profile-edit/training')}>
+					Next <MoveRight className='ml-2 h-4 w-4' />
+				</Button>
+			</div>
 		</div>
 	);
 }

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { PersonalInfoMasterData } from '@/app/(auth)/jobseeker/profile-edit/page';
@@ -24,7 +25,8 @@ import { JobseekerProfileService } from '@/services/api/jobseeker-profile.servic
 import { MasterDataService } from '@/services/api/master-data.service';
 import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Linkedin, Loader2, Mail, Phone, Save, Upload, Video } from 'lucide-react';
+import { Linkedin, Loader2, Mail, MoveRight, Phone, Save, Upload, Video } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -212,6 +214,7 @@ interface ProfileFormProps {
 }
 
 export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormProps) {
+	const router = useRouter();
 	const [presentDistricts, setPresentDistricts] = React.useState<ICommonMasterData[]>([]);
 	const [presentUpazilas, setPresentUpazilas] = React.useState<ICommonMasterData[]>([]);
 	const [permanentDistricts, setPermanentDistricts] = React.useState<ICommonMasterData[]>([]);
@@ -332,6 +335,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 				toast.success({
 					description: res.message || 'Your personal information has been saved.',
 				});
+				router.push('/jobseeker/profile-edit/academic');
 			})
 			.catch((err) => {
 				toast.error({
@@ -634,7 +638,8 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 						<div className='pt-2 flex justify-center'>
 							<Button type='submit'>
 								<Save className='mr-2 h-4 w-4' />
-								Save Changes
+								Save and Next
+								<MoveRight className='ml-2 h-4 w-4' />
 							</Button>
 						</div>
 					</div>

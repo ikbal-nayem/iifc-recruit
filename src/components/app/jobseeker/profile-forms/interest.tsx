@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,8 @@ import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { getPostOutsourcingAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, PlusCircle, Trash } from 'lucide-react';
+import { ArrowLeft, Loader2, MoveRight, PlusCircle, Trash } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -28,6 +30,7 @@ interface ProfileFormInterestProps {
 }
 
 export function ProfileFormInterest({ categories }: ProfileFormInterestProps) {
+	const router = useRouter();
 	const [history, setHistory] = useState<IInterestedIn[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -169,6 +172,14 @@ export function ProfileFormInterest({ categories }: ProfileFormInterestProps) {
 					)}
 				</CardContent>
 			</Card>
+			<div className='flex justify-between mt-8'>
+				<Button variant='outline' onClick={() => router.push('/jobseeker/profile-edit/professional')}>
+					<ArrowLeft className='mr-2 h-4 w-4' /> Previous
+				</Button>
+				<Button onClick={() => router.push('/jobseeker/profile-edit/skills')}>
+					Next <MoveRight className='ml-2 h-4 w-4' />
+				</Button>
+			</div>
 		</div>
 	);
 }

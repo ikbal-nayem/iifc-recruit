@@ -17,7 +17,8 @@ import { JobseekerProfileService } from '@/services/api/jobseeker-profile.servic
 import { MasterDataService } from '@/services/api/master-data.service';
 import { getSkillsAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
+import { ArrowLeft, Edit, Loader2, MoveRight, PlusCircle, Trash } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -141,6 +142,7 @@ interface ProfileFormSkillsProps {
 }
 
 export function ProfileFormSkills({ proficiencyOptions }: ProfileFormSkillsProps) {
+	const router = useRouter();
 	const { toast } = useToast();
 	const [skills, setSkills] = React.useState<JobseekerSkill[]>([]);
 	const [isLoading, setIsLoading] = React.useState(true);
@@ -263,6 +265,14 @@ export function ProfileFormSkills({ proficiencyOptions }: ProfileFormSkillsProps
 				onConfirm={handleRemove}
 				confirmText='Delete'
 			/>
+			<div className='flex justify-between mt-8'>
+				<Button variant='outline' onClick={() => router.push('/jobseeker/profile-edit/interest')}>
+					<ArrowLeft className='mr-2 h-4 w-4' /> Previous
+				</Button>
+				<Button onClick={() => router.push('/jobseeker/profile-edit/certifications')}>
+					Next <MoveRight className='ml-2 h-4 w-4' />
+				</Button>
+			</div>
 		</div>
 	);
 }

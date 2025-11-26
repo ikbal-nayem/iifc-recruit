@@ -1,3 +1,4 @@
+
 import { ROUTES } from '@/constants/routes.constant';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -14,7 +15,6 @@ import {
 	Globe,
 	GraduationCap,
 	Handshake,
-	Heart,
 	History,
 	Languages,
 	LayoutDashboard,
@@ -254,7 +254,6 @@ export const jobseekerNavLinks: NavLink[] = [
 				icon: User,
 				isActive: (pathname) => pathname === '/jobseeker/profile-edit',
 			},
-			{ key: 'PROFILE_EDIT_FAMILY', href: '/jobseeker/profile-edit/family', label: 'Family', icon: Heart },
 			{
 				key: 'PROFILE_EDIT_ACADEMIC',
 				href: '/jobseeker/profile-edit/academic',

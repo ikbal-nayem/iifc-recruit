@@ -14,7 +14,8 @@ import { Language } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData, EnumDTO } from '@/interfaces/master-data.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
+import { ArrowLeft, Edit, Loader2, MoveRight, PlusCircle, Trash } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -114,6 +115,7 @@ interface ProfileFormLanguagesProps {
 }
 
 export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: ProfileFormLanguagesProps) {
+	const router = useRouter();
 	const { toast } = useToast();
 	const [history, setHistory] = React.useState<Language[]>([]);
 	const [editingItem, setEditingItem] = React.useState<Language | undefined>(undefined);
@@ -246,6 +248,14 @@ export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: Pr
 				onConfirm={handleRemove}
 				confirmText='Delete'
 			/>
+			<div className='flex justify-between mt-8'>
+				<Button variant='outline' onClick={() => router.push('/jobseeker/profile-edit/training')}>
+					<ArrowLeft className='mr-2 h-4 w-4' /> Previous
+				</Button>
+				<Button onClick={() => router.push('/jobseeker/profile-edit/publications')}>
+					Next <MoveRight className='ml-2 h-4 w-4' />
+				</Button>
+			</div>
 		</div>
 	);
 }

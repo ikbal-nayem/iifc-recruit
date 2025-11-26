@@ -14,7 +14,8 @@ import { Publication } from '@/interfaces/jobseeker.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
-import { Edit, Link2, Loader2, PlusCircle, Trash } from 'lucide-react';
+import { ArrowLeft, Edit, Link2, Loader2, MoveRight, PlusCircle, Trash } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -110,6 +111,7 @@ function PublicationForm({ isOpen, onClose, onSubmit, initialData, noun }: Publi
 }
 
 export function ProfileFormPublications() {
+	const router = useRouter();
 	const { toast } = useToast();
 	const [history, setHistory] = React.useState<Publication[]>([]);
 	const [editingItem, setEditingItem] = React.useState<Publication | undefined>(undefined);
@@ -250,6 +252,14 @@ export function ProfileFormPublications() {
 				onConfirm={handleRemove}
 				confirmText='Delete'
 			/>
+			<div className='flex justify-between mt-8'>
+				<Button variant='outline' onClick={() => router.push('/jobseeker/profile-edit/languages')}>
+					<ArrowLeft className='mr-2 h-4 w-4' /> Previous
+				</Button>
+				<Button onClick={() => router.push('/jobseeker/profile-edit/awards')}>
+					Next <MoveRight className='ml-2 h-4 w-4' />
+				</Button>
+			</div>
 		</div>
 	);
 }

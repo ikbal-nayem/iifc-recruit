@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -12,12 +13,12 @@ import { FormInput } from '@/components/ui/form-input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
 import { Training } from '@/interfaces/jobseeker.interface';
-import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makeFormData } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO } from 'date-fns';
-import { Edit, FileText, Loader2, PlusCircle, Trash } from 'lucide-react';
+import { ArrowLeft, Edit, FileText, Loader2, MoveRight, PlusCircle, Trash } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -159,6 +160,7 @@ function TrainingForm({ isOpen, onClose, onSubmit, initialData, noun }: Training
 }
 
 export function ProfileFormTraining() {
+	const router = useRouter();
 	const [history, setHistory] = useState<Training[]>([]);
 	const [editingItem, setEditingItem] = useState<Training | undefined>(undefined);
 	const [isFormOpen, setIsFormOpen] = useState(false);
@@ -286,6 +288,14 @@ export function ProfileFormTraining() {
 					noun='Training'
 				/>
 			)}
+			<div className='flex justify-between mt-8'>
+				<Button variant='outline' onClick={() => router.push('/jobseeker/profile-edit/certifications')}>
+					<ArrowLeft className='mr-2 h-4 w-4' /> Previous
+				</Button>
+				<Button onClick={() => router.push('/jobseeker/profile-edit/languages')}>
+					Next <MoveRight className='ml-2 h-4 w-4' />
+				</Button>
+			</div>
 		</div>
 	);
 }

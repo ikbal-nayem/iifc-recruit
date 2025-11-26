@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -19,7 +20,8 @@ import { makeFormData } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parseISO } from 'date-fns';
-import { Edit, FileText, Loader2, PlusCircle, Trash } from 'lucide-react';
+import { ArrowLeft, Edit, FileText, Loader2, MoveRight, PlusCircle, Trash } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -200,6 +202,7 @@ function ProfessionalExperienceForm({
 }
 
 export function ProfileFormProfessional() {
+	const router = useRouter();
 	const [history, setHistory] = React.useState<ProfessionalInfo[]>([]);
 	const [editingItem, setEditingItem] = React.useState<ProfessionalInfo | undefined>(undefined);
 	const [isFormOpen, setIsFormOpen] = React.useState(false);
@@ -341,6 +344,14 @@ export function ProfileFormProfessional() {
 					initialData={editingItem}
 				/>
 			)}
+			<div className='flex justify-between mt-8'>
+				<Button variant='outline' onClick={() => router.push('/jobseeker/profile-edit/academic')}>
+					<ArrowLeft className='mr-2 h-4 w-4' /> Previous
+				</Button>
+				<Button onClick={() => router.push('/jobseeker/profile-edit/interest')}>
+					Next <MoveRight className='ml-2 h-4 w-4' />
+				</Button>
+			</div>
 		</div>
 	);
 }
