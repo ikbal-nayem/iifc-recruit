@@ -51,6 +51,7 @@ function ProfileImageCard({
 	firstName?: string;
 	lastName?: string;
 }) {
+	const { toast } = useToast();
 	const [avatarPreview, setAvatarPreview] = React.useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useLoader(false);
 	const { updateUserInfo } = useAuth();
@@ -80,16 +81,18 @@ function ProfileImageCard({
 			const formData = new FormData();
 			formData.append('file', compressedFile);
 			const res = await UserService.saveProfileImage(formData);
-			toast.success({
+			toast({
 				title: 'Photo Updated',
 				description: res.message || 'Your new profile photo has been saved.',
+				variant: 'success',
 			});
 			updateUserInfo({ profileImage: res.body });
 			form.reset();
 		} catch (err: any) {
-			toast.error({
+			toast({
 				title: 'Upload Failed',
 				description: err.message || 'There was a problem uploading your photo.',
+				variant: 'danger',
 			});
 		} finally {
 			setIsSubmitting(false);
@@ -183,11 +186,11 @@ const personalInfoSchema = z.object({
 	presentUpazilaId: z.coerce.string().optional(),
 	presentAddress: z.string().optional(),
 	presentPostCode: z.coerce.number().optional(),
-	sameAsPresentAddress: z.boolean().default(false),
-	permanentDivisionId: z.coerce.string().optional(),
-	permanentDistrictId: z.coerce.string().optional(),
-	permanentUpazilaId: z.coerce.string().optional(),
-	permanentAddress: z.string().optional(),
+	sameAsPermanentAddress: z.boolean().default(false),
+	permanentDivisionId: z.coerce.string().min(1, 'Division is required.'),
+	permanentDistrictId: z.coerce.string().min(1, 'District is required.'),
+	permanentUpazilaId: z.coerce.string().min(1, 'Upazila is required.'),
+	permanentAddress: z.string().min(1, 'Address line is required.'),
 	permanentPostCode: z.coerce.number().optional(),
 	linkedInProfile: z
 		.string()
@@ -227,7 +230,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 		resolver: zodResolver(personalInfoSchema),
 		defaultValues: {
 			...personalInfo,
-			sameAsPresentAddress: personalInfo?.sameAsPresentAddress ?? true,
+			sameAsPermanentAddress: personalInfo?.sameAsPermanentAddress ?? true,
 		},
 	});
 
@@ -235,7 +238,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 	const watchPresentDistrictId = form.watch('presentDistrictId');
 	const watchPermanentDivisionId = form.watch('permanentDivisionId');
 	const watchPermanentDistrictId = form.watch('permanentDistrictId');
-	const watchSameAsPresent = form.watch('sameAsPresentAddress');
+	const watchSameAsPermanent = form.watch('sameAsPermanentAddress');
 
 	const useFetchDependentData = (
 		watchId: string | undefined,
@@ -259,8 +262,9 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 		}, [watchId]);
 	};
 
+	// For Present Address
 	useFetchDependentData(
-		watchPresentDivisionId,
+		!watchSameAsPermanent ? watchPresentDivisionId : undefined,
 		MasterDataService.country.getDistricts,
 		setPresentDistricts,
 		setIsLoadingPresentDistricts,
@@ -271,15 +275,16 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 	);
 
 	useFetchDependentData(
-		watchPresentDistrictId,
+		!watchSameAsPermanent ? watchPresentDistrictId : undefined,
 		MasterDataService.country.getUpazilas,
 		setPresentUpazilas,
 		setIsLoadingPresentUpazilas,
 		() => form.setValue('presentUpazilaId', undefined)
 	);
 
+	// For Permanent Address
 	useFetchDependentData(
-		!watchSameAsPresent ? watchPermanentDivisionId : undefined,
+		watchPermanentDivisionId,
 		MasterDataService.country.getDistricts,
 		setPermanentDistricts,
 		setIsLoadingPermanentDistricts,
@@ -290,37 +295,36 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 	);
 
 	useFetchDependentData(
-		!watchSameAsPresent ? watchPermanentDistrictId : undefined,
+		watchPermanentDistrictId,
 		MasterDataService.country.getUpazilas,
 		setPermanentUpazilas,
 		setIsLoadingPermanentUpazilas,
 		() => form.setValue('permanentUpazilaId', undefined)
 	);
 
-	const handleSameAsPresentChange = (checked: boolean) => {
+	const handleSameAsPermanentChange = (checked: boolean) => {
 		if (checked) {
-			const presentValues = form.getValues([
-				'presentDivisionId',
-				'presentDistrictId',
-				'presentUpazilaId',
-				'presentAddress',
-				'presentPostCode',
+			const permanentValues = form.getValues([
+				'permanentDivisionId',
+				'permanentDistrictId',
+				'permanentUpazilaId',
+				'permanentAddress',
+				'permanentPostCode',
 			]);
-			form.setValue('permanentDivisionId', presentValues[0]);
-			form.setValue('permanentDistrictId', presentValues[1]);
-			form.setValue('permanentUpazilaId', presentValues[2]);
-			form.setValue('permanentAddress', presentValues[3]);
-			form.setValue('permanentPostCode', presentValues[4]);
+			form.setValue('presentDivisionId', permanentValues[0]);
+			form.setValue('presentDistrictId', permanentValues[1]);
+			form.setValue('presentUpazilaId', permanentValues[2]);
+			form.setValue('presentAddress', permanentValues[3]);
+			form.setValue('presentPostCode', permanentValues[4]);
 
-			setPermanentDistricts(presentDistricts);
-			setPermanentUpazilas(presentUpazilas);
+			setPresentDistricts(permanentDistricts);
+			setPresentUpazilas(permanentUpazilas);
 		} else {
-			// Optionally clear permanent address fields when unchecked
-			form.setValue('permanentDivisionId', undefined);
-			form.setValue('permanentDistrictId', undefined);
-			form.setValue('permanentUpazilaId', undefined);
-			form.setValue('permanentAddress', '');
-			form.setValue('permanentPostCode', undefined);
+			form.setValue('presentDivisionId', undefined);
+			form.setValue('presentDistrictId', undefined);
+			form.setValue('presentUpazilaId', undefined);
+			form.setValue('presentAddress', '');
+			form.setValue('presentPostCode', undefined);
 		}
 	};
 
@@ -473,55 +477,59 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 									/>
 								</div>
 								<div>
-									<h3 className='text-md font-medium mb-4'>Present Address</h3>
+									<h3 className='text-md font-medium mb-4'>Permanent Address</h3>
 									<div className='space-y-4 rounded-md border p-4'>
 										<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
 											<FormSelect
 												control={form.control}
-												name='presentDivisionId'
+												name='permanentDivisionId'
 												label='Division'
 												placeholder='Select division'
+												required
 												options={masterData.divisions}
 												getOptionLabel={(option) => option.nameEn}
 												getOptionValue={(option) => option.id}
 											/>
 											<FormSelect
 												control={form.control}
-												name='presentDistrictId'
+												name='permanentDistrictId'
 												label='District'
 												placeholder='Select district'
-												disabled={isLoadingPresentDistricts}
-												options={presentDistricts}
+												required
+												disabled={isLoadingPermanentDistricts}
+												options={permanentDistricts}
 												getOptionLabel={(option) => option.nameEn}
 												getOptionValue={(option) => option.id}
 											/>
 											<FormSelect
 												control={form.control}
-												name='presentUpazilaId'
+												name='permanentUpazilaId'
 												label='Upazila / Thana'
 												placeholder='Select upazila'
-												disabled={isLoadingPresentUpazilas}
-												options={presentUpazilas}
+												required
+												disabled={isLoadingPermanentUpazilas}
+												options={permanentUpazilas}
 												getOptionLabel={(option) => option.nameEn}
 												getOptionValue={(option) => option.id}
 											/>
 										</div>
 										<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-											<FormInput control={form.control} name='presentAddress' label='Address Line' />
+											<FormInput control={form.control} name='permanentAddress' label='Address Line' required />
 											<FormInput
 												control={form.control}
-												name='presentPostCode'
+												name='permanentPostCode'
 												label='Post Code'
 												type='number'
 											/>
 										</div>
 									</div>
 								</div>
+
 								<div>
-									<h3 className='text-md font-medium mb-2'>Permanent Address</h3>
+									<h3 className='text-md font-medium mb-2'>Present Address</h3>
 									<FormField
 										control={form.control}
-										name='sameAsPresentAddress'
+										name='sameAsPermanentAddress'
 										render={({ field }) => (
 											<FormItem className='flex flex-row items-start space-x-3 space-y-0'>
 												<FormControl>
@@ -529,45 +537,45 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 														checked={field.value}
 														onCheckedChange={(checked) => {
 															field.onChange(checked);
-															handleSameAsPresentChange(Boolean(checked));
+															handleSameAsPermanentChange(Boolean(checked));
 														}}
 													/>
 												</FormControl>
-												<FormLabel>Same as present address</FormLabel>
+												<FormLabel>Same as permanent address</FormLabel>
 											</FormItem>
 										)}
 									/>
 
-									{!watchSameAsPresent && (
+									{!watchSameAsPermanent && (
 										<div className='mt-4 space-y-4 rounded-md border p-4'>
 											<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
 												<FormSelect
 													control={form.control}
-													name='permanentDivisionId'
+													name='presentDivisionId'
 													label='Division'
 													placeholder='Select division'
-													disabled={watchSameAsPresent}
+													disabled={watchSameAsPermanent}
 													options={masterData.divisions}
 													getOptionLabel={(option) => option.nameEn}
 													getOptionValue={(option) => option.id}
 												/>
 												<FormSelect
 													control={form.control}
-													name='permanentDistrictId'
+													name='presentDistrictId'
 													label='District'
 													placeholder='Select district'
-													disabled={watchSameAsPresent || isLoadingPermanentDistricts}
-													options={permanentDistricts}
+													disabled={watchSameAsPermanent || isLoadingPresentDistricts}
+													options={presentDistricts}
 													getOptionLabel={(option) => option.nameEn}
 													getOptionValue={(option) => option.id}
 												/>
 												<FormSelect
 													control={form.control}
-													name='permanentUpazilaId'
+													name='presentUpazilaId'
 													label='Upazila / Thana'
 													placeholder='Select upazila'
-													disabled={watchSameAsPresent || isLoadingPermanentUpazilas}
-													options={permanentUpazilas}
+													disabled={watchSameAsPermanent || isLoadingPresentUpazilas}
+													options={presentUpazilas}
 													getOptionLabel={(option) => option.nameEn}
 													getOptionValue={(option) => option.id}
 												/>
@@ -575,16 +583,16 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 											<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 												<FormInput
 													control={form.control}
-													name='permanentAddress'
+													name='presentAddress'
 													label='Address Line'
-													disabled={watchSameAsPresent}
+													disabled={watchSameAsPermanent}
 												/>
 												<FormInput
 													control={form.control}
-													name='permanentPostCode'
+													name='presentPostCode'
 													label='Post Code'
 													type='number'
-													disabled={watchSameAsPresent}
+													disabled={watchSameAsPermanent}
 												/>
 											</div>
 										</div>
