@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ import { FormInput } from '@/components/ui/form-input';
 import { FormRadioGroup } from '@/components/ui/form-radio-group';
 import { FormSelect } from '@/components/ui/form-select';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ROUTES } from '@/constants/routes.constant';
 import { toast, useToast } from '@/hooks/use-toast';
 import { ResultSystem } from '@/interfaces/common.interface';
 import { AcademicInfo } from '@/interfaces/jobseeker.interface';
@@ -21,7 +23,8 @@ import { JobseekerProfileService } from '@/services/api/jobseeker-profile.servic
 import { MasterDataService } from '@/services/api/master-data.service';
 import { getInstitutionsAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Edit, FileText, Loader2, PlusCircle, Trash } from 'lucide-react';
+import { ArrowLeft, Edit, FileText, Loader2, MoveRight, PlusCircle, Trash } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -230,6 +233,7 @@ interface ProfileFormAcademicProps {
 }
 
 export function ProfileFormAcademic({ masterData }: ProfileFormAcademicProps) {
+	const router = useRouter();
 	const { toast } = useToast();
 	const [history, setHistory] = React.useState<AcademicInfo[]>([]);
 	const [editingItem, setEditingItem] = React.useState<AcademicInfo | undefined>(undefined);
@@ -376,6 +380,15 @@ export function ProfileFormAcademic({ masterData }: ProfileFormAcademicProps) {
 					masterData={masterData}
 				/>
 			)}
+
+			<div className='flex justify-between mt-8'>
+				<Button variant='outline' onClick={() => router.push(ROUTES.JOB_SEEKER.PROFILE_EDIT.PERSONAL)}>
+					<ArrowLeft className='mr-2 h-4 w-4' /> Previous
+				</Button>
+				<Button onClick={() => router.push(ROUTES.JOB_SEEKER.PROFILE_EDIT.PROFESSIONAL)}>
+					Next <MoveRight className='ml-2 h-4 w-4' />
+				</Button>
+			</div>
 		</div>
 	);
 }

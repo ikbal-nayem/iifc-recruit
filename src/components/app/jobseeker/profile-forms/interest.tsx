@@ -7,6 +7,7 @@ import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ROUTES } from '@/constants/routes.constant';
 import { toast } from '@/hooks/use-toast';
 import { IInterestedIn } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
@@ -173,10 +174,10 @@ export function ProfileFormInterest({ categories }: ProfileFormInterestProps) {
 				</CardContent>
 			</Card>
 			<div className='flex justify-between mt-8'>
-				<Button variant='outline' onClick={() => router.push('/jobseeker/profile-edit/professional')}>
+				<Button variant='outline' onClick={() => router.push(ROUTES.JOB_SEEKER.PROFILE_EDIT.PROFESSIONAL)}>
 					<ArrowLeft className='mr-2 h-4 w-4' /> Previous
 				</Button>
-				<Button onClick={() => router.push('/jobseeker/profile-edit/skills')}>
+				<Button onClick={() => router.push(ROUTES.JOB_SEEKER.PROFILE_EDIT.SKILLS)}>
 					Next <MoveRight className='ml-2 h-4 w-4' />
 				</Button>
 			</div>

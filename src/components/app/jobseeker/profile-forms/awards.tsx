@@ -10,6 +10,7 @@ import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
 import { FormTextarea } from '@/components/ui/form-textarea';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ROUTES } from '@/constants/routes.constant';
 import { toast } from '@/hooks/use-toast';
 import { Award } from '@/interfaces/jobseeker.interface';
 import { makeReqDateFormat } from '@/lib/utils';
@@ -236,10 +237,10 @@ export function ProfileFormAwards() {
 				confirmText='Delete'
 			/>
 			<div className='flex justify-between mt-8'>
-				<Button variant='outline' onClick={() => router.push('/jobseeker/profile-edit/publications')}>
+				<Button variant='outline' onClick={() => router.push(ROUTES.JOB_SEEKER.PROFILE_EDIT.PUBLICATIONS)}>
 					<ArrowLeft className='mr-2 h-4 w-4' /> Previous
 				</Button>
-				<Button onClick={() => router.push('/jobseeker/profile-edit/resume')}>
+				<Button onClick={() => router.push(ROUTES.JOB_SEEKER.PROFILE_EDIT.RESUME)}>
 					Next <MoveRight className='ml-2 h-4 w-4' />
 				</Button>
 			</div>

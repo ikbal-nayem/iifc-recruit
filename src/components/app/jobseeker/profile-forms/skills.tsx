@@ -10,6 +10,7 @@ import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ROUTES } from '@/constants/routes.constant';
 import { useToast } from '@/hooks/use-toast';
 import { JobseekerSkill } from '@/interfaces/jobseeker.interface';
 import { EnumDTO, ICommonMasterData } from '@/interfaces/master-data.interface';
@@ -266,10 +267,10 @@ export function ProfileFormSkills({ proficiencyOptions }: ProfileFormSkillsProps
 				confirmText='Delete'
 			/>
 			<div className='flex justify-between mt-8'>
-				<Button variant='outline' onClick={() => router.push('/jobseeker/profile-edit/interest')}>
+				<Button variant='outline' onClick={() => router.push(ROUTES.JOB_SEEKER.PROFILE_EDIT.INTEREST)}>
 					<ArrowLeft className='mr-2 h-4 w-4' /> Previous
 				</Button>
-				<Button onClick={() => router.push('/jobseeker/profile-edit/certifications')}>
+				<Button onClick={() => router.push(ROUTES.JOB_SEEKER.PROFILE_EDIT.CERTIFICATIONS)}>
 					Next <MoveRight className='ml-2 h-4 w-4' />
 				</Button>
 			</div>

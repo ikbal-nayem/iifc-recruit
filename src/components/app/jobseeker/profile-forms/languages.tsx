@@ -9,9 +9,10 @@ import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormSelect } from '@/components/ui/form-select';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ROUTES } from '@/constants/routes.constant';
 import { useToast } from '@/hooks/use-toast';
 import { Language } from '@/interfaces/jobseeker.interface';
-import { ICommonMasterData, EnumDTO } from '@/interfaces/master-data.interface';
+import { EnumDTO, ICommonMasterData } from '@/interfaces/master-data.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Edit, Loader2, MoveRight, PlusCircle, Trash } from 'lucide-react';
@@ -249,10 +250,10 @@ export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: Pr
 				confirmText='Delete'
 			/>
 			<div className='flex justify-between mt-8'>
-				<Button variant='outline' onClick={() => router.push('/jobseeker/profile-edit/training')}>
+				<Button variant='outline' onClick={() => router.push(ROUTES.JOB_SEEKER.PROFILE_EDIT.TRAINING)}>
 					<ArrowLeft className='mr-2 h-4 w-4' /> Previous
 				</Button>
-				<Button onClick={() => router.push('/jobseeker/profile-edit/publications')}>
+				<Button onClick={() => router.push(ROUTES.JOB_SEEKER.PROFILE_EDIT.PUBLICATIONS)}>
 					Next <MoveRight className='ml-2 h-4 w-4' />
 				</Button>
 			</div>

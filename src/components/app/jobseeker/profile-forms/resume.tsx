@@ -9,21 +9,13 @@ import { FilePreviewer } from '@/components/ui/file-previewer';
 import { Form } from '@/components/ui/form';
 import { FormFileUpload } from '@/components/ui/form-file-upload';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ROUTES } from '@/constants/routes.constant';
 import { useToast } from '@/hooks/use-toast';
 import { Resume } from '@/interfaces/jobseeker.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
-import {
-	ArrowLeft,
-	CheckCircle,
-	Eye,
-	FileText,
-	History,
-	Loader2,
-	Save,
-	Trash,
-} from 'lucide-react';
+import { ArrowLeft, CheckCircle, Eye, FileText, History, Loader2, Save } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
@@ -278,10 +270,10 @@ export default function JobseekerProfileResumePage() {
 				</Collapsible>
 			)}
 			<div className='flex justify-between mt-8'>
-				<Button variant='outline' onClick={() => router.push('/jobseeker/profile-edit/awards')}>
+				<Button variant='outline' onClick={() => router.push(ROUTES.JOB_SEEKER.PROFILE_EDIT.AWARDS)}>
 					<ArrowLeft className='mr-2 h-4 w-4' /> Previous
 				</Button>
-				<Button onClick={() => router.push('/jobseeker/profile-view')}>
+				<Button onClick={() => router.push(ROUTES.JOB_SEEKER.PROFILE_EDIT.VIEW)}>
 					<Save className='mr-2 h-4 w-4' /> Finish & View Profile
 				</Button>
 			</div>

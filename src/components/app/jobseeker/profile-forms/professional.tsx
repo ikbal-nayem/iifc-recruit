@@ -14,6 +14,7 @@ import { FormSelect } from '@/components/ui/form-select';
 import { FormSwitch } from '@/components/ui/form-switch';
 import { FormTextarea } from '@/components/ui/form-textarea';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ROUTES } from '@/constants/routes.constant';
 import { toast } from '@/hooks/use-toast';
 import { ProfessionalInfo } from '@/interfaces/jobseeker.interface';
 import { makeFormData } from '@/lib/utils';
@@ -345,10 +346,10 @@ export function ProfileFormProfessional() {
 				/>
 			)}
 			<div className='flex justify-between mt-8'>
-				<Button variant='outline' onClick={() => router.push('/jobseeker/profile-edit/academic')}>
+				<Button variant='outline' onClick={() => router.push(ROUTES.JOB_SEEKER.PROFILE_EDIT.ACADEMIC)}>
 					<ArrowLeft className='mr-2 h-4 w-4' /> Previous
 				</Button>
-				<Button onClick={() => router.push('/jobseeker/profile-edit/interest')}>
+				<Button onClick={() => router.push(ROUTES.JOB_SEEKER.PROFILE_EDIT.INTEREST)}>
 					Next <MoveRight className='ml-2 h-4 w-4' />
 				</Button>
 			</div>

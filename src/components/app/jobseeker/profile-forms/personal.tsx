@@ -13,6 +13,7 @@ import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
 import { FormTextarea } from '@/components/ui/form-textarea';
 import { Input } from '@/components/ui/input';
+import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/contexts/auth-context';
 import useLoader from '@/hooks/use-loader';
 import { toast, useToast } from '@/hooks/use-toast';
@@ -335,7 +336,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 				toast.success({
 					description: res.message || 'Your personal information has been saved.',
 				});
-				router.push('/jobseeker/profile-edit/academic');
+				router.push(ROUTES.JOB_SEEKER.PROFILE_EDIT.ACADEMIC);
 			})
 			.catch((err) => {
 				toast.error({
