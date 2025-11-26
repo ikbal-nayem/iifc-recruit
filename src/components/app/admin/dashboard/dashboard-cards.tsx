@@ -4,11 +4,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTES } from '@/constants/routes.constant';
-import { Briefcase, Building, FileText, Users } from 'lucide-react';
+import { Briefcase, Building, FileText, History, Users } from 'lucide-react';
 import Link from 'next/link';
 
 interface AdminDashboardCardsProps {
 	data: {
+		pendingJobRequests: number;
 		processingJobRequests: number;
 		totalJobseekers: number;
 		clientCount: number;
@@ -17,9 +18,16 @@ interface AdminDashboardCardsProps {
 }
 
 export function AdminDashboardCards({ data }: AdminDashboardCardsProps) {
-	const { processingJobRequests, totalJobseekers, clientCount, examinerCount } = data;
+	const { pendingJobRequests, processingJobRequests, totalJobseekers, clientCount, examinerCount } = data;
 
 	const cardItems = [
+		{
+			href: ROUTES.JOB_REQUEST.PENDING,
+			title: 'Pending Requests',
+			value: pendingJobRequests,
+			description: 'Awaiting approval',
+			icon: <History className='h-4 w-4 text-muted-foreground' />,
+		},
 		{
 			href: ROUTES.JOB_REQUEST.PROCESSING,
 			title: 'Processing Requests',
@@ -51,7 +59,7 @@ export function AdminDashboardCards({ data }: AdminDashboardCardsProps) {
 	];
 
 	return (
-		<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
+		<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-5'>
 			{cardItems.map((item) => (
 				<Link key={item.title} href={item.href}>
 					<Card className='glassmorphism card-hover'>
@@ -72,8 +80,8 @@ export function AdminDashboardCards({ data }: AdminDashboardCardsProps) {
 
 export function AdminDashboardCardsSkeleton() {
 	return (
-		<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
-			{[...Array(4)].map((_, i) => (
+		<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-5'>
+			{[...Array(5)].map((_, i) => (
 				<Card key={i}>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 						<Skeleton className='h-4 w-24' />

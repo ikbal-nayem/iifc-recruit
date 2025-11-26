@@ -21,11 +21,10 @@ async function getDashboardData(user: IUser) {
 				StatisticsService.getClientOrganizationStats(),
 			]);
 
-		const getCountFromStats = (res: PromiseSettledResult<any>, key: string) => {
-			if (res.status === 'fulfilled' && Array.isArray(res.value.body)) {
-				return res.value.body.find((stat) => stat.statusKey === key)?.count || 0;
-			}
-			return 0;
+		const jobRequestStats = jobRequestStatsRes.status === 'fulfilled' ? jobRequestStatsRes.value.body : [];
+
+		const getCountFromStats = (stats: any[], key: string) => {
+			return stats.find((stat) => stat.statusKey === key)?.count || 0;
 		};
 
 		const getSingleCount = (res: PromiseSettledResult<any>) => {
@@ -35,7 +34,8 @@ async function getDashboardData(user: IUser) {
 			return 0;
 		};
 
-		const processingJobRequests = getCountFromStats(jobRequestStatsRes, JobRequestStatus.PROCESSING);
+		const pendingJobRequests = getCountFromStats(jobRequestStats, JobRequestStatus.PENDING);
+		const processingJobRequests = getCountFromStats(jobRequestStats, JobRequestStatus.PROCESSING);
 		const totalJobseekers = getSingleCount(jobseekerCountRes);
 
 		const clientOrgStats = clientOrgStatsRes.status === 'fulfilled' ? clientOrgStatsRes.value.body : null;
@@ -60,6 +60,7 @@ async function getDashboardData(user: IUser) {
 
 		return {
 			cards: {
+				pendingJobRequests,
 				processingJobRequests,
 				totalJobseekers,
 				clientCount: clientOrgStats?.clientCount || 0,
@@ -75,6 +76,7 @@ async function getDashboardData(user: IUser) {
 		// Return zeroed-out data on error
 		return {
 			cards: {
+				pendingJobRequests: 0,
 				processingJobRequests: 0,
 				totalJobseekers: 0,
 				clientCount: 0,
