@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -15,7 +14,7 @@ import { Resume } from '@/interfaces/jobseeker.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
-import { ArrowLeft, CheckCircle, Eye, FileText, History, Loader2, Save } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Eye, FileText, History, Loader2, Save, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
@@ -273,7 +272,7 @@ export default function JobseekerProfileResumePage() {
 				<Button variant='outline' onClick={() => router.push(ROUTES.JOB_SEEKER.PROFILE_EDIT.AWARDS)}>
 					<ArrowLeft className='mr-2 h-4 w-4' /> Previous
 				</Button>
-				<Button onClick={() => router.push(ROUTES.JOB_SEEKER.PROFILE_EDIT.VIEW)}>
+				<Button onClick={() => router.push(ROUTES.JOB_SEEKER.PROFILE)}>
 					<Save className='mr-2 h-4 w-4' /> Finish & View Profile
 				</Button>
 			</div>

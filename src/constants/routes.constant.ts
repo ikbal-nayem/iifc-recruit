@@ -1,4 +1,3 @@
-
 export const ROUTES = {
 	AUTH: {
 		LOGIN: '/login',
@@ -14,7 +13,7 @@ export const ROUTES = {
 
 	JOB_SEEKER: {
 		APPLICATIONS: '/jobseeker/applications',
-		PROFILE: '/jobseeker/profile',
+		PROFILE: '/jobseeker/profile-view',
 		PROFILE_EDIT: {
 			PERSONAL: '/jobseeker/profile-edit',
 			ACADEMIC: '/jobseeker/profile-edit/academic',
@@ -27,7 +26,6 @@ export const ROUTES = {
 			PUBLICATIONS: '/jobseeker/profile-edit/publications',
 			AWARDS: '/jobseeker/profile-edit/awards',
 			RESUME: '/jobseeker/profile-edit/resume',
-			VIEW: '/jobseeker/profile-view',
 		},
 		FIND_JOBS: '/jobseeker/find-job',
 		JOB_DETAILS: (id?: string) => `/jobseeker/find-job/${id}`,
