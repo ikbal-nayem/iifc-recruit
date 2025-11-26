@@ -4,6 +4,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
+import { IFile, ResultSystem } from '@/interfaces/common.interface';
 import { Jobseeker, JobseekerSkill } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makeDownloadURL, makePreviewURL } from '@/lib/file-oparations';
@@ -24,6 +25,7 @@ import {
 	Mail,
 	MapPin,
 	Phone,
+	Printer,
 	Star,
 	User,
 	Video,
@@ -32,6 +34,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button } from '../../ui/button';
 import { Separator } from '../../ui/separator';
+import { generateCv } from '@/lib/cv-generator';
 
 interface JobseekerProfileViewProps {
 	jobseeker?: Jobseeker;
@@ -50,7 +53,22 @@ export function JobseekerProfileView({
 }: JobseekerProfileViewProps) {
 	const [jobseeker, setJobseeker] = useState<Jobseeker | null | undefined>(initialJobseeker);
 	const [isLoading, setIsLoading] = useState(false);
+	const [isGeneratingCv, setIsGeneratingCv] = useState(false);
 
+	const handleGenerateCv = async () => {
+		if (!jobseeker) return;
+		setIsGeneratingCv(true);
+		try {
+			await generateCv(jobseeker);
+		} catch (error) {
+			console.error('CV Generation failed:', error);
+			toast.error({
+				description: 'Failed to generate CV. Please ensure all profile information is complete.',
+			});
+		} finally {
+			setIsGeneratingCv(false);
+		}
+	};
 	useEffect(() => {
 		if (!initialJobseeker && jobseekerId) {
 			setIsLoading(true);
@@ -167,7 +185,7 @@ export function JobseekerProfileView({
 						)}
 					</div>
 				</div>
-				<div className='flex-shrink-0'>
+				<div className='flex-shrink-0 space-x-2'>
 					{resume && (
 						<Button asChild>
 							<Link href={makeDownloadURL(resume.file)} target='_blank' download>
@@ -175,6 +193,14 @@ export function JobseekerProfileView({
 							</Link>
 						</Button>
 					)}
+					<Button onClick={handleGenerateCv} disabled={isGeneratingCv} variant='outline'>
+						{isGeneratingCv ? (
+							<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+						) : (
+							<Printer className='mr-2 h-4 w-4' />
+						)}
+						Generate CV
+					</Button>
 				</div>
 			</div>
 
