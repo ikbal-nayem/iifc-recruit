@@ -150,6 +150,7 @@ export type PersonalInfo = {
 	// Status
 	maritalStatus: string;
 	maritalStatusDTO?: EnumDTO;
+	spouseName?: string;
 	religion?: string;
 	religionDTO?: EnumDTO;
 	professionalStatus?: string;

@@ -53,6 +53,7 @@ const emptyPersonalInfo: PersonalInfo = {
 	dateOfBirth: '',
 	gender: 'MALE',
 	maritalStatus: 'SINGLE',
+	spouseName: '',
 	nationality: 'Bangladeshi',
 	careerObjective: '',
 	nid: '',

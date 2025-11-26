@@ -169,6 +169,7 @@ const personalInfoSchema = z.object({
 	dateOfBirth: z.string().min(1, 'Date of birth is required'),
 	gender: z.string().min(1, 'Gender is required'),
 	maritalStatus: z.string().min(1, 'Marital status is required'),
+	spouseName: z.string().max(50, 'Maximum 50 characters allowed').optional(),
 	nationality: z.string().min(1, 'Nationality is required'),
 	religion: z.string().optional(),
 	nid: z.string().max(17, 'NID maximum 17 digits').min(10, 'NID minimum 10 digits'),
@@ -234,6 +235,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 	const watchPermanentDivisionId = form.watch('permanentDivisionId');
 	const watchPermanentDistrictId = form.watch('permanentDistrictId');
 	const watchSameAsPermanent = form.watch('sameAsPermanentAddress');
+	const isMarried = form.watch('maritalStatus') === 'MARRIED';
 
 	const useFetchDependentData = (
 		watchId: string | undefined,
@@ -422,6 +424,17 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 									/>
 									<FormSelect
 										control={form.control}
+										name='religion'
+										label='Religion'
+										placeholder='Select religion'
+										options={masterData.religions}
+										getOptionLabel={(option) => option.nameEn}
+										getOptionValue={(option) => option.value}
+									/>
+								</div>
+								<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+									<FormSelect
+										control={form.control}
 										name='maritalStatus'
 										label='Marital Status'
 										required
@@ -430,17 +443,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 										getOptionLabel={(option) => option.nameEn}
 										getOptionValue={(option) => option.value}
 									/>
-								</div>
-								<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-									<FormSelect
-										control={form.control}
-										name='religion'
-										label='Religion'
-										placeholder='Select religion'
-										options={masterData.religions}
-										getOptionLabel={(option) => option.nameEn}
-										getOptionValue={(option) => option.value}
-									/>
+									{isMarried && <FormInput control={form.control} name='spouseName' label='Spouse Name' />}
 								</div>
 							</CardContent>
 						</Card>
