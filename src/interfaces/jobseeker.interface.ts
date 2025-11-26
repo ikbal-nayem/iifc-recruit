@@ -161,7 +161,7 @@ export type PersonalInfo = {
 	presentUpazilaId?: string;
 	presentAddress?: string;
 	presentPostCode?: number;
-	sameAsPresentAddress?: boolean;
+	sameAsPermanentAddress?: boolean;
 	permanentDivisionId?: string;
 	permanentDistrictId?: string;
 	permanentUpazilaId?: string;

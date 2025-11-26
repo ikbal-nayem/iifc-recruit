@@ -105,10 +105,7 @@ function ProfileImageCard({
 				<form onSubmit={form.handleSubmit(onImageSubmit)}>
 					<div className='flex items-center gap-6'>
 						<Avatar className='h-28 w-28 border-2 border-primary/10'>
-							<AvatarImage
-								src={avatarPreview || makePreviewURL(profileImage?.filePath)}
-								alt='Admin Avatar'
-							/>
+							<AvatarImage src={avatarPreview || makePreviewURL(profileImage?.filePath)} alt='Admin Avatar' />
 							<AvatarFallback className='text-3xl'>
 								{firstName?.[0]}
 								{lastName?.[0]}
@@ -174,7 +171,7 @@ const personalInfoSchema = z.object({
 	maritalStatus: z.string().min(1, 'Marital status is required'),
 	nationality: z.string().min(1, 'Nationality is required'),
 	religion: z.string().optional(),
-	nid: z.string().max(17, 'NID maximum 17 digits').min(10, 'NID minimum 10 digits').optional(),
+	nid: z.string().max(17, 'NID maximum 17 digits').min(10, 'NID minimum 10 digits'),
 	passportNo: z.string().max(10, 'NID maximum 10 digits').optional(),
 	birthCertificate: z
 		.string()
@@ -214,8 +211,6 @@ interface ProfileFormProps {
 }
 
 export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormProps) {
-	const { toast } = useToast();
-
 	const [presentDistricts, setPresentDistricts] = React.useState<ICommonMasterData[]>([]);
 	const [presentUpazilas, setPresentUpazilas] = React.useState<ICommonMasterData[]>([]);
 	const [permanentDistricts, setPermanentDistricts] = React.useState<ICommonMasterData[]>([]);
@@ -289,8 +284,8 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 		setPermanentDistricts,
 		setIsLoadingPermanentDistricts,
 		() => {
-			form.setValue('permanentDistrictId', undefined);
-			form.setValue('permanentUpazilaId', undefined);
+			form.setValue('permanentDistrictId', '');
+			form.setValue('permanentUpazilaId', '');
 		}
 	);
 
@@ -299,7 +294,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 		MasterDataService.country.getUpazilas,
 		setPermanentUpazilas,
 		setIsLoadingPermanentUpazilas,
-		() => form.setValue('permanentUpazilaId', undefined)
+		() => form.setValue('permanentUpazilaId', '')
 	);
 
 	const handleSameAsPermanentChange = (checked: boolean) => {
@@ -332,16 +327,14 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 		JobseekerProfileService.personalInfo
 			.save(data as PersonalInfo)
 			.then((res) => {
-				toast({
+				toast.success({
 					description: res.message || 'Your personal information has been saved.',
-					variant: 'success',
 				});
 			})
 			.catch((err) => {
-				toast({
+				toast.error({
 					title: 'Update Failed',
 					description: err.message || 'There was a problem saving your profile.',
-					variant: 'danger',
 				});
 			});
 	};
@@ -514,7 +507,12 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 											/>
 										</div>
 										<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-											<FormInput control={form.control} name='permanentAddress' label='Address Line' required />
+											<FormInput
+												control={form.control}
+												name='permanentAddress'
+												label='Address Line'
+												required
+											/>
 											<FormInput
 												control={form.control}
 												name='permanentPostCode'
@@ -607,7 +605,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 							</CardHeader>
 							<CardContent className='space-y-6'>
 								<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-									<FormInput control={form.control} name='nid' label='NID' />
+									<FormInput control={form.control} name='nid' label='NID' required />
 									<FormInput control={form.control} name='passportNo' label='Passport No.' />
 									<FormInput control={form.control} name='birthCertificate' label='Birth Certificate No.' />
 								</div>
