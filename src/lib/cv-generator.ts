@@ -260,8 +260,7 @@ const generateInterests = (jobseeker: Jobseeker): Content => {
 				],
 				margin: [0, 0, 0, 5],
 			})),
-		},
-		'before'
+		}
 	);
 };
 
