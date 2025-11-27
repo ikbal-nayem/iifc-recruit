@@ -201,6 +201,17 @@ const generateAwards = (jobseeker: Jobseeker): Content => {
 	});
 };
 
+const generateInterests = (jobseeker: Jobseeker): Content => {
+	if (!jobseeker.interestIn || jobseeker.interestIn.length === 0) return [];
+	return generateSection('Interested In (Outsourcing)', {
+		ul: jobseeker.interestIn.map((interest) => {
+			const postName = interest.post?.nameBn || '';
+			const categoryName = interest.post?.outsourcingCategory?.nameBn || '';
+			return `${postName} (${categoryName})`;
+		}),
+	});
+};
+
 const generatePersonalInfo = (jobseeker: Jobseeker): Content => {
 	const personalInfo = jobseeker.personalInfo;
 	const tableRow = (label: string, value: string | undefined) => [
@@ -244,6 +255,7 @@ export const generateCv = async (jobseeker: Jobseeker) => {
 		content: [
 			await generateCvHeader(jobseeker),
 			generatePersonalInfo(jobseeker),
+			generateInterests(jobseeker),
 			generateExperience(jobseeker),
 			generateEducation(jobseeker),
 			generateSkills(jobseeker),
@@ -310,4 +322,3 @@ export const generateCv = async (jobseeker: Jobseeker) => {
 
 	generatePDF(docDefinition, { action: 'open', fileName: `CV-${jobseeker.personalInfo.fullName}.pdf` });
 };
-

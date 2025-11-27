@@ -67,7 +67,6 @@ export type Certification = {
 export type AcademicInfo = {
 	id?: string;
 	degreeLevel: ICommonMasterData;
-	// domain: ICommonMasterData;
 	domainNameEn: string;
 	domainNameBn: string;
 	institution: IEducationInstitution;
@@ -192,8 +191,8 @@ export interface IInterestedIn {
 export type Jobseeker = {
 	id?: string;
 	personalInfo: PersonalInfo;
-	// spouse?: FamilyInfo;
-	// children?: ChildInfo[];
+	spouse?: FamilyInfo;
+	children?: ChildInfo[];
 	interestIn?: IInterestedIn[];
 	education: AcademicInfo[];
 	experiences: ProfessionalInfo[];

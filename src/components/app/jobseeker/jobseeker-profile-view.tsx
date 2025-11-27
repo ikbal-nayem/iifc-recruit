@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -17,12 +18,12 @@ import {
 	Download,
 	FileText,
 	GraduationCap,
-	Heart,
 	Languages,
 	Linkedin,
 	Loader2,
 	Mail,
 	MapPin,
+	Network,
 	Phone,
 	Printer,
 	Star,
@@ -98,8 +99,7 @@ export function JobseekerProfileView({
 
 	const {
 		personalInfo,
-		spouse,
-		children,
+		interestIn,
 		education,
 		experiences,
 		skills,
@@ -182,24 +182,24 @@ export function JobseekerProfileView({
 							</a>
 						)}
 					</div>
+				</div>
+				<div className='flex flex-col items-stretch gap-2'>
+					<Button onClick={handleGenerateCv} disabled={isGeneratingCv} size='sm'>
+						{isGeneratingCv ? (
+							<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+						) : (
+							<Printer className='mr-2 h-4 w-4' />
+						)}
+						Generate CV
+					</Button>
 					{resume && (
-						<div className='gap-2 pt-2'>
-							<Button asChild variant='outline' size='sm'>
-								<Link href={makeDownloadURL(resume.file)} target='_blank' download>
-									<Download className='mr-2 h-4 w-4' /> Uploaded Resume
-								</Link>
-							</Button>
-						</div>
+						<Button asChild variant='outline' size='sm'>
+							<Link href={makeDownloadURL(resume.file)} target='_blank' download>
+								<Download className='mr-2 h-4 w-4' /> Uploaded CV
+							</Link>
+						</Button>
 					)}
 				</div>
-				<Button onClick={handleGenerateCv} disabled={isGeneratingCv} size='sm'>
-					{isGeneratingCv ? (
-						<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-					) : (
-						<Printer className='mr-2 h-4 w-4' />
-					)}
-					Generate CV
-				</Button>
 			</div>
 
 			<Separator />
@@ -323,55 +323,31 @@ export function JobseekerProfileView({
 							</CardContent>
 						</Card>
 					)}
-
-					{(spouse || (children && children?.length > 0)) && (
-						<Card className='border'>
-							<CardHeader>
-								<CardTitle className='flex items-center gap-3'>
-									<div className='bg-primary/10 text-primary p-2 rounded-full'>
-										<Heart className='h-5 w-5' />
-									</div>
-									Family Information
-								</CardTitle>
-							</CardHeader>
-							<CardContent className='space-y-4'>
-								{spouse && (
-									<div>
-										<h3 className='font-semibold text-md mb-2'>Spouse</h3>
-										<div className='text-sm space-y-1'>
-											<p>
-												<span className='font-medium'>Name:</span> {spouse.name}
-											</p>
-											<p>
-												<span className='font-medium'>Profession:</span> {spouse.profession}
-											</p>
-										</div>
-									</div>
-								)}
-								{children && children.length > 0 && (
-									<div>
-										<h3 className='font-semibold text-md mb-2'>Children</h3>
-										<div className='space-y-2'>
-											{children.map((child, index) => (
-												<div key={index} className='text-sm'>
-													<p>
-														<span className='font-medium'>{child.name}</span> (
-														{child.genderDTO?.nameEn || child.gender})
-													</p>
-													<p className='text-xs text-muted-foreground'>
-														Born on {format(parseISO(child.dob), 'do MMM, yyyy')}
-													</p>
-												</div>
-											))}
-										</div>
-									</div>
-								)}
-							</CardContent>
-						</Card>
-					)}
 				</div>
 
 				<div className='lg:col-span-1 space-y-6'>
+					{interestIn && interestIn.length > 0 && (
+						<Card className='border'>
+							<CardHeader>
+								<CardTitle className='flex items-center gap-3'>
+									<div className='bg-primary/10 text-primary p-2 rounded-lg'>
+										<Network className='h-5 w-5' />
+									</div>
+									Interested Outsourcing Positions
+								</CardTitle>
+							</CardHeader>
+							<CardContent className='space-y-3'>
+								{interestIn.map((interest) => (
+									<div key={interest.id}>
+										<p className='font-semibold text-sm'>{interest.post?.nameBn}</p>
+										<p className='text-xs text-muted-foreground'>
+											{interest.post?.outsourcingCategory?.nameBn}
+										</p>
+									</div>
+								))}
+							</CardContent>
+						</Card>
+					)}
 					{skills?.length > 0 && (
 						<Card className='border'>
 							<CardHeader>
