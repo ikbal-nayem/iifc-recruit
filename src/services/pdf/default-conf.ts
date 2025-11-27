@@ -47,26 +47,4 @@ export const defaultDef: TDocumentDefinitions = {
 		fontSize: 9,
 		color: '#2c2c2c',
 	},
-	styles: {
-		header: {
-			fontSize: 18,
-			bold: true,
-			marginBottom: 10,
-		},
-		subheader: {
-			fontSize: 14,
-			bold: true,
-			marginBottom: 5,
-		},
-		tableHeader: {
-			bold: true,
-			fontSize: 11,
-			color: 'black',
-			fillColor: '#eeeeee',
-			alignment: 'center',
-		},
-		small: {
-			fontSize: 8,
-		},
-	},
 };
