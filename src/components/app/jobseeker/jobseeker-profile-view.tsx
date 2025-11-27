@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -182,24 +181,24 @@ export function JobseekerProfileView({
 							</a>
 						)}
 					</div>
-					<div className='flex flex-wrap items-center gap-2 pt-2'>
-						<Button onClick={handleGenerateCv} disabled={isGeneratingCv} size='sm'>
-							{isGeneratingCv ? (
-								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-							) : (
-								<Printer className='mr-2 h-4 w-4' />
-							)}
-							Generate CV
-						</Button>
-						{resume && (
+					{resume && (
+						<div className='pt-2'>
 							<Button asChild variant='outline' size='sm'>
 								<Link href={makeDownloadURL(resume.file)} target='_blank' download>
 									<Download className='mr-2 h-4 w-4' /> Uploaded Resume
 								</Link>
 							</Button>
-						)}
-					</div>
+						</div>
+					)}
 				</div>
+				<Button onClick={handleGenerateCv} disabled={isGeneratingCv} size='sm'>
+					{isGeneratingCv ? (
+						<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+					) : (
+						<Printer className='mr-2 h-4 w-4' />
+					)}
+					Generate CV
+				</Button>
 			</div>
 
 			<Separator />

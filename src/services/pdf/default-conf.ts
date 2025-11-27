@@ -24,9 +24,9 @@ const defaultPDFFooter = (currentPage: number, pageCount: number, pageSize: Cont
 					color: '#555',
 				},
 			],
-			marginTop: 5,
-			marginLeft: 50,
-			marginRight: 50,
+			marginTop: 10,
+			marginLeft: 40,
+			marginRight: 40,
 		},
 	];
 };

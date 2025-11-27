@@ -398,7 +398,6 @@ export const generateCv = async (jobseeker: Jobseeker) => {
 			fontSize: 10,
 			lineHeight: 1.2,
 		},
-		pageMargins: [40, 40, 40, 40],
 	};
 
 	generatePDF(docDefinition, { action: 'open', fileName: `CV-${jobseeker.personalInfo.fullName}.pdf` });
