@@ -182,23 +182,23 @@ export function JobseekerProfileView({
 							</a>
 						)}
 					</div>
-				</div>
-				<div className='flex flex-col items-stretch gap-2'>
-					<Button onClick={handleGenerateCv} disabled={isGeneratingCv} size='sm'>
-						{isGeneratingCv ? (
-							<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-						) : (
-							<Printer className='mr-2 h-4 w-4' />
-						)}
-						Generate CV
-					</Button>
-					{resume && (
-						<Button asChild variant='outline' size='sm'>
-							<Link href={makeDownloadURL(resume.file)} target='_blank' download>
-								<Download className='mr-2 h-4 w-4' /> Uploaded CV
-							</Link>
+					<div className='flex flex-wrap items-center gap-2 pt-2'>
+						<Button onClick={handleGenerateCv} disabled={isGeneratingCv} size='sm'>
+							{isGeneratingCv ? (
+								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+							) : (
+								<Printer className='mr-2 h-4 w-4' />
+							)}
+							Generate CV
 						</Button>
-					)}
+						{resume && (
+							<Button asChild variant='outline' size='sm'>
+								<Link href={makeDownloadURL(resume.file)} target='_blank' download>
+									<Download className='mr-2 h-4 w-4' /> Uploaded Resume
+								</Link>
+							</Button>
+						)}
+					</div>
 				</div>
 			</div>
 
@@ -268,6 +268,27 @@ export function JobseekerProfileView({
 				</CardContent>
 			</Card>
 
+			{interestIn && interestIn.length > 0 && (
+				<Card className='border'>
+					<CardHeader>
+						<CardTitle className='flex items-center gap-3'>
+							<div className='bg-primary/10 text-primary p-2 rounded-lg'>
+								<Network className='h-5 w-5' />
+							</div>
+							Interested Outsourcing Positions
+						</CardTitle>
+					</CardHeader>
+					<CardContent className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
+						{interestIn.map((interest) => (
+							<div key={interest.id} className='bg-muted/50 p-3 rounded-md'>
+								<p className='font-semibold text-sm'>{interest.post?.nameBn}</p>
+								<p className='text-xs text-muted-foreground'>{interest.post?.outsourcingCategory?.nameBn}</p>
+							</div>
+						))}
+					</CardContent>
+				</Card>
+			)}
+
 			<div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
 				<div className='lg:col-span-2 space-y-6'>
 					{experiences?.length > 0 && (
@@ -326,28 +347,6 @@ export function JobseekerProfileView({
 				</div>
 
 				<div className='lg:col-span-1 space-y-6'>
-					{interestIn && interestIn.length > 0 && (
-						<Card className='border'>
-							<CardHeader>
-								<CardTitle className='flex items-center gap-3'>
-									<div className='bg-primary/10 text-primary p-2 rounded-lg'>
-										<Network className='h-5 w-5' />
-									</div>
-									Interested Outsourcing Positions
-								</CardTitle>
-							</CardHeader>
-							<CardContent className='space-y-3'>
-								{interestIn.map((interest) => (
-									<div key={interest.id}>
-										<p className='font-semibold text-sm'>{interest.post?.nameBn}</p>
-										<p className='text-xs text-muted-foreground'>
-											{interest.post?.outsourcingCategory?.nameBn}
-										</p>
-									</div>
-								))}
-							</CardContent>
-						</Card>
-					)}
 					{skills?.length > 0 && (
 						<Card className='border'>
 							<CardHeader>
@@ -426,7 +425,7 @@ export function JobseekerProfileView({
 										<p className='font-semibold text-sm'>{cert.certification?.nameEn}</p>
 										<p className='text-xs text-muted-foreground'>
 											{cert.issuingAuthority} -{' '}
-											{cert.issueDate && format(parseISO(cert.issueDate), 'MMM yyyy')}
+											{cert.issueDate ? format(parseISO(cert.issueDate), 'MMM yyyy') : 'N/A'}
 										</p>
 									</div>
 								))}

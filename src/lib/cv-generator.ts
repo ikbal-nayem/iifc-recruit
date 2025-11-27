@@ -290,6 +290,8 @@ export const generateCv = async (jobseeker: Jobseeker) => {
 	const docDefinition: TDocumentDefinitions = {
 		content: [
 			await generateHeader(jobseeker),
+			generatePersonalInfo(jobseeker),
+			generateInterests(jobseeker),
 			generateExperience(jobseeker),
 			generateEducation(jobseeker),
 			generateSkills(jobseeker),
@@ -298,8 +300,6 @@ export const generateCv = async (jobseeker: Jobseeker) => {
 			generateLanguages(jobseeker),
 			generatePublications(jobseeker),
 			generateAwards(jobseeker),
-			generateInterests(jobseeker),
-			generatePersonalInfo(jobseeker),
 		],
 		styles: {
 			name: {
