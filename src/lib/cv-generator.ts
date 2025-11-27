@@ -149,10 +149,18 @@ const generateEducation = (jobseeker: Jobseeker): Content => {
 const generateSkills = (jobseeker: Jobseeker): Content => {
 	if (!jobseeker.skills || jobseeker.skills.length === 0) return [];
 	return generateSection('Skills', {
-		columns: jobseeker.skills.map((skill) => ({
-			text: skill.skill?.nameEn,
-			style: 'paragraph',
-		})),
+		columns: [
+			{
+				ul: jobseeker.skills
+					.slice(0, Math.ceil(jobseeker.skills.length / 2))
+					.map((skill) => ({ text: skill.skill?.nameEn, style: 'paragraph' })),
+			},
+			{
+				ul: jobseeker.skills
+					.slice(Math.ceil(jobseeker.skills.length / 2))
+					.map((skill) => ({ text: skill.skill?.nameEn, style: 'paragraph' })),
+			},
+		],
 	});
 };
 
@@ -237,12 +245,24 @@ const generateAwards = (jobseeker: Jobseeker): Content => {
 
 const generateInterests = (jobseeker: Jobseeker): Content => {
 	if (!jobseeker.interestIn || jobseeker.interestIn.length === 0) return [];
-	return generateSection('Interested Outsourcing Posts', {
-		columns: jobseeker.interestIn.map((interest) => ({
-			text: interest.post?.nameBn,
-			style: 'paragraph',
-		})),
-	});
+	return generateSection(
+		'Interested Outsourcing Posts',
+		{
+			ul: jobseeker.interestIn.map((interest) => ({
+				stack: [
+					{ text: interest.post?.nameBn, style: 'paragraph', bold: true },
+					{
+						text: interest.post?.outsourcingCategory?.nameBn || '',
+						style: 'paragraph',
+						color: '#64748B',
+						fontSize: 9,
+					},
+				],
+				margin: [0, 0, 0, 5],
+			})),
+		},
+		'before'
+	);
 };
 
 const generatePersonalInfo = (jobseeker: Jobseeker): Content => {
