@@ -34,6 +34,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '../../ui/button';
 import { Separator } from '../../ui/separator';
 import { generateCv } from '@/lib/cv-generator';
+import { ResultSystem } from '@/interfaces/common.interface';
 
 interface JobseekerProfileViewProps {
 	jobseeker?: Jobseeker;
@@ -184,7 +185,7 @@ export function JobseekerProfileView({
 						)}
 					</div>
 				</div>
-				<div className='flex-shrink-0'>
+				<div className='flex-shrink-0 flex flex-col items-stretch gap-2'>
 					<Button onClick={handleGenerateCv} disabled={isGeneratingCv}>
 						{isGeneratingCv ? (
 							<Loader2 className='mr-2 h-4 w-4 animate-spin' />
@@ -193,33 +194,17 @@ export function JobseekerProfileView({
 						)}
 						Generate CV
 					</Button>
+					{resume && (
+						<Button asChild variant='outline'>
+							<Link href={makeDownloadURL(resume.file)} target='_blank' download>
+								<Download className='mr-2 h-4 w-4' /> Download Uploaded CV
+							</Link>
+						</Button>
+					)}
 				</div>
 			</div>
 
 			<Separator />
-
-			{resume && (
-				<Card className='border'>
-					<CardHeader>
-						<CardTitle className='flex items-center gap-3'>
-							<div className='bg-primary/10 text-primary p-2 rounded-full'>
-								<FileText className='h-5 w-5' />
-							</div>
-							Uploaded Resume
-						</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div className='flex items-center justify-between p-3 rounded-md border bg-muted/50'>
-							<p className='font-medium text-sm'>{resume.file.originalFileName}</p>
-							<Button asChild size='sm'>
-								<Link href={makeDownloadURL(resume.file)} target='_blank' download>
-									<Download className='mr-2 h-4 w-4' /> Download
-								</Link>
-							</Button>
-						</div>
-					</CardContent>
-				</Card>
-			)}
 
 			<Card className='border'>
 				<CardHeader>
