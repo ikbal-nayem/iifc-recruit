@@ -147,10 +147,10 @@ export function JobseekerProfileView({
 						{personalInfo.lastName?.[0]}
 					</AvatarFallback>
 				</Avatar>
-				<div className='flex-1'>
+				<div className='flex-1 space-y-2'>
 					<h1 className='text-3xl font-bold font-headline'>{personalInfo.fullName}</h1>
 					<p className='text-lg text-muted-foreground'>{personalInfo.careerObjective}</p>
-					<div className='flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground mt-2'>
+					<div className='flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground'>
 						{personalInfo?.email && (
 							<span className='flex items-center gap-2'>
 								<Mail className='h-4 w-4' /> {personalInfo.email}
@@ -162,7 +162,7 @@ export function JobseekerProfileView({
 							</span>
 						)}
 					</div>
-					<div className='flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground mt-2'>
+					<div className='flex flex-wrap gap-x-4 gap-y-2 text-sm'>
 						{personalInfo.linkedInProfile && (
 							<a
 								href={personalInfo.linkedInProfile}
@@ -184,23 +184,23 @@ export function JobseekerProfileView({
 							</a>
 						)}
 					</div>
-				</div>
-				<div className='flex-shrink-0 flex flex-col items-stretch gap-2'>
-					<Button onClick={handleGenerateCv} disabled={isGeneratingCv}>
-						{isGeneratingCv ? (
-							<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-						) : (
-							<Printer className='mr-2 h-4 w-4' />
-						)}
-						Generate CV
-					</Button>
-					{resume && (
-						<Button asChild variant='outline'>
-							<Link href={makeDownloadURL(resume.file)} target='_blank' download>
-								<Download className='mr-2 h-4 w-4' /> Download Uploaded CV
-							</Link>
+					<div className='flex flex-wrap gap-2 pt-2'>
+						<Button onClick={handleGenerateCv} disabled={isGeneratingCv} size='sm'>
+							{isGeneratingCv ? (
+								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+							) : (
+								<Printer className='mr-2 h-4 w-4' />
+							)}
+							Generate CV
 						</Button>
-					)}
+						{resume && (
+							<Button asChild variant='outline' size='sm'>
+								<Link href={makeDownloadURL(resume.file)} target='_blank' download>
+									<Download className='mr-2 h-4 w-4' /> Uploaded Resume
+								</Link>
+							</Button>
+						)}
+					</div>
 				</div>
 			</div>
 
