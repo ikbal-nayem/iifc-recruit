@@ -1,0 +1,65 @@
+import { format } from 'date-fns';
+import nProgress from 'nprogress';
+import { TDocumentDefinitions } from 'pdfmake/interfaces';
+import { defaultDef } from './default-conf';
+// import pdfFonts from 'pdfmake/build/vfs_fonts';
+import pdfMake from 'pdfmake/build/pdfmake';
+// pdfMake.vfs = pdfFonts.vfs;
+
+const kalpurush = location.origin + '/fonts/kalpurush-mod.ttf';
+const kalpurush_bold = location.origin + '/fonts/kalpurush-mod-bold.ttf';
+
+pdfMake.fonts = {
+	Kalpurush: {
+		normal: kalpurush,
+		bold: kalpurush_bold,
+		italics: kalpurush,
+		bolditalics: kalpurush_bold,
+	}
+};
+
+type IOptions = {
+	action?: 'open' | 'print' | 'download' | 'data-url' | 'base64' | 'blob';
+	progressCallback?: (progress: number | string) => void;
+	fileName?: string;
+	getValue?: (value: string | Blob | ArrayBuffer) => void;
+};
+
+const generatePDF = (docDefinition: TDocumentDefinitions, options?: IOptions) => {
+	nProgress.start();
+	docDefinition = {
+		...defaultDef,
+		...docDefinition,
+	};
+	const pdf = pdfMake.createPdf(docDefinition);
+	const fileName = options?.fileName || `iifc-report-${format(new Date(), 'dd/MM/yyyy')}.pdf`;
+	const progressCallback = options?.progressCallback;
+
+	switch (options?.action) {
+		case 'print':
+			pdf.print({ progressCallback });
+			nProgress.done();
+			break;
+		case 'download':
+			pdf.download(fileName, undefined, { progressCallback });
+			nProgress.done();
+			break;
+		case 'data-url':
+			pdf.getDataUrl((res) => options?.getValue && options?.getValue(res), { progressCallback });
+			nProgress.done();
+			break;
+		case 'base64':
+			pdf.getBase64((res) => options?.getValue && options?.getValue(res), { progressCallback });
+			nProgress.done();
+			break;
+		case 'blob':
+			pdf.getBlob((res) => options?.getValue && options?.getValue(res), { progressCallback });
+			nProgress.done();
+			break;
+		default:
+			pdf.open({ progressCallback });
+			nProgress.done();
+	}
+};
+
+export { generatePDF };

@@ -4,7 +4,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
-import { IFile, ResultSystem } from '@/interfaces/common.interface';
 import { Jobseeker, JobseekerSkill } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makeDownloadURL, makePreviewURL } from '@/lib/file-oparations';

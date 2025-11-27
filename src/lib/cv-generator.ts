@@ -1,7 +1,8 @@
-
+import { COMMON_URL } from '@/constants/common.constant';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
-import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
+import { generatePDF } from '@/services/pdf/pdf.service';
 import { format } from 'date-fns';
+import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
 import { makePreviewURL } from './file-oparations';
 
 const toDataURL = (url: string) =>
@@ -36,7 +37,7 @@ const generateCvHeader = async (jobseeker: Jobseeker): Promise<Content> => {
 				alignment: 'right',
 				stack: [
 					{
-						image: imageDataUrl || 'placeholder.png', // Fallback if image fails
+						image: imageDataUrl || 'placeholder',
 						width: 100,
 						height: 100,
 						alignment: 'center',
@@ -59,7 +60,11 @@ const generateCvHeader = async (jobseeker: Jobseeker): Promise<Content> => {
 
 const generateGeneralInfo = (jobseeker: Jobseeker): Content => {
 	const personalInfo = jobseeker.personalInfo;
-	const tableRow = (label: string, value: string | undefined) => [{ text: label }, { text: ':' }, { text: value || '' }];
+	const tableRow = (label: string, value: string | undefined) => [
+		{ text: label },
+		{ text: ':' },
+		{ text: value || '' },
+	];
 
 	return {
 		stack: [
@@ -79,7 +84,10 @@ const generateGeneralInfo = (jobseeker: Jobseeker): Content => {
 						tableRow('পিতার নাম', personalInfo.fatherName),
 						tableRow('মাতার নাম', personalInfo.motherName),
 						tableRow('স্থায়ী ঠিকানা', personalInfo.permanentAddress),
-						tableRow('জন্ম তারিখ', personalInfo.dateOfBirth ? format(new Date(personalInfo.dateOfBirth), 'dd/MM/yyyy') : ''),
+						tableRow(
+							'জন্ম তারিখ',
+							personalInfo.dateOfBirth ? format(new Date(personalInfo.dateOfBirth), 'dd/MM/yyyy') : ''
+						),
 						tableRow('ধর্ম', personalInfo.religionDTO?.nameBn),
 						tableRow('জাতীয় পরিচয়পত্র নম্বর', personalInfo.nid),
 						tableRow('বৈবাহিক অবস্থা', personalInfo.maritalStatusDTO?.nameBn),
@@ -96,7 +104,11 @@ const generateGeneralInfo = (jobseeker: Jobseeker): Content => {
 const generateSpouseInfo = (jobseeker: Jobseeker): Content => {
 	if (!jobseeker.spouse) return { text: '' };
 	const spouse = jobseeker.spouse;
-	const tableRow = (label: string, value: string | undefined) => [{ text: label }, { text: ':' }, { text: value || '' }];
+	const tableRow = (label: string, value: string | undefined) => [
+		{ text: label },
+		{ text: ':' },
+		{ text: value || '' },
+	];
 	return {
 		stack: [
 			{ text: 'খ. স্বামীর/স্ত্রীর তথ্য:', style: 'subheader' },
@@ -188,7 +200,11 @@ const generateExperienceInfo = (jobseeker: Jobseeker): Content => {
 		{ text: 'চাকুরীর মেয়াদ', style: 'tableHeader' },
 	];
 	const body = jobseeker.experiences.map((exp, index) => {
-		const endDate = exp.isCurrent ? 'Present' : exp.resignDate ? format(new Date(exp.resignDate), 'MMM yyyy') : '';
+		const endDate = exp.isCurrent
+			? 'Present'
+			: exp.resignDate
+			? format(new Date(exp.resignDate), 'MMM yyyy')
+			: '';
 		const period = `${format(new Date(exp.joinDate), 'MMM yyyy')} - ${endDate}`;
 		return [{ text: (index + 1).toString(), alignment: 'center' }, exp.organizationNameEn, period];
 	});
@@ -216,19 +232,6 @@ const generateSignature = (): Content => {
 };
 
 export const generateCv = async (jobseeker: Jobseeker) => {
-	const pdfMake = (await import('pdfmake/build/pdfmake')).default;
-	const pdfFonts = (await import('pdfmake/build/vfs_fonts')).default;
-	pdfMake.vfs = pdfFonts.pdfMake.vfs;
-
-	pdfMake.fonts = {
-		Kalpurush: {
-			normal: 'Kalpurush.woff2',
-			bold: 'Kalpurush.woff2',
-			italics: 'Kalpurush.woff2',
-			bolditalics: 'Kalpurush.woff2',
-		},
-	};
-
 	const docDefinition: TDocumentDefinitions = {
 		content: [
 			await generateCvHeader(jobseeker),
@@ -239,33 +242,10 @@ export const generateCv = async (jobseeker: Jobseeker) => {
 			generateExperienceInfo(jobseeker),
 			generateSignature(),
 		],
-		defaultStyle: {
-			font: 'Kalpurush',
-			fontSize: 10,
-		},
-		styles: {
-			header: {
-				fontSize: 18,
-				bold: true,
-				marginBottom: 10,
-			},
-			subheader: {
-				fontSize: 14,
-				bold: true,
-				marginBottom: 5,
-			},
-			tableHeader: {
-				bold: true,
-				fontSize: 11,
-				color: 'black',
-				fillColor: '#eeeeee',
-				alignment: 'center',
-			},
-			small: {
-				fontSize: 8,
-			},
+		images: {
+			placeholder: location.origin + COMMON_URL.DUMMY_USER_AVATAR,
 		},
 	};
 
-	pdfMake.createPdf(docDefinition).open();
+	generatePDF(docDefinition, { action: 'open', fileName: `iifc-cv-${jobseeker.personalInfo.fullName}.pdf` });
 };
