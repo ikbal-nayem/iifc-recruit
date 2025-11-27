@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -6,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
 import { Jobseeker, JobseekerSkill } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
+import { generateCv } from '@/lib/cv-generator';
 import { makeDownloadURL, makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { format, parseISO } from 'date-fns';
@@ -33,8 +33,6 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button } from '../../ui/button';
 import { Separator } from '../../ui/separator';
-import { generateCv } from '@/lib/cv-generator';
-import { ResultSystem } from '@/interfaces/common.interface';
 
 interface JobseekerProfileViewProps {
 	jobseeker?: Jobseeker;
@@ -184,24 +182,24 @@ export function JobseekerProfileView({
 							</a>
 						)}
 					</div>
-					<div className='flex flex-wrap gap-2 pt-2'>
-						<Button onClick={handleGenerateCv} disabled={isGeneratingCv} size='sm'>
-							{isGeneratingCv ? (
-								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-							) : (
-								<Printer className='mr-2 h-4 w-4' />
-							)}
-							Generate CV
-						</Button>
-						{resume && (
+					{resume && (
+						<div className='gap-2 pt-2'>
 							<Button asChild variant='outline' size='sm'>
 								<Link href={makeDownloadURL(resume.file)} target='_blank' download>
 									<Download className='mr-2 h-4 w-4' /> Uploaded Resume
 								</Link>
 							</Button>
-						)}
-					</div>
+						</div>
+					)}
 				</div>
+				<Button onClick={handleGenerateCv} disabled={isGeneratingCv} size='sm'>
+					{isGeneratingCv ? (
+						<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+					) : (
+						<Printer className='mr-2 h-4 w-4' />
+					)}
+					Generate CV
+				</Button>
 			</div>
 
 			<Separator />
