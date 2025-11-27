@@ -6,7 +6,10 @@ import { defaultDef } from './default-conf';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
+// Correctly assign the virtual file system
+if (pdfMake.vfs) {
+	pdfMake.vfs = pdfFonts.pdfMake.vfs;
+}
 
 const kalpurush = location.origin + '/fonts/kalpurush-mod.ttf';
 const kalpurush_bold = location.origin + '/fonts/kalpurush-mod-bold.ttf';
