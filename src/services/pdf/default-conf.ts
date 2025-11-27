@@ -6,7 +6,7 @@ const defaultPDFFooter = (currentPage: number, pageCount: number, pageSize: Cont
 		{
 			columns: [
 				{
-					text: `Date: ${format(new Date(), 'dd/MM/yyyy HH:mm a')}`,
+					text: `Date: ${format(new Date(), 'dd/MM/yyyy hh:mm a')}`,
 					fontSize: 9,
 					color: '#555',
 				},
@@ -70,37 +70,3 @@ export const defaultDef: TDocumentDefinitions = {
 		},
 	},
 };
-
-// export const defaultPDFStyles = {
-// 	header: {
-// 		fontSize: 13,
-// 		bold: true,
-// 		color: '#000',
-// 		alignment: 'center',
-// 	},
-// 	subHeader: {
-// 		fontSize: 11,
-// 		bold: true,
-// 		color: '#000',
-// 		alignment: 'center',
-// 	},
-// 	tableHeader: {
-// 		bold: true,
-// 		fontSize: 9.5,
-// 		color: '#000',
-// 	},
-// 	text_body: {
-// 		color: '#40414b',
-// 		fontSize: 9,
-// 	},
-// 	text_muted: {
-// 		color: '#555',
-// 	},
-// 	text_bold: {
-// 		color: '#000',
-// 		bold: true,
-// 	},
-// 	line_gap: {
-// 		marginBottom: 10,
-// 	},
-// };

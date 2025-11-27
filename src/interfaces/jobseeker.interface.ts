@@ -1,6 +1,5 @@
-
 import { IFile, ResultSystem } from './common.interface';
-import { EnumDTO, ICommonMasterData, IEducationInstitution, IOrganization, IPost } from './master-data.interface';
+import { EnumDTO, ICommonMasterData, IEducationInstitution, IPost } from './master-data.interface';
 
 export enum ProficiencyLevel {
 	BEGINNER = 'BEGINNER',
@@ -184,11 +183,18 @@ export type PersonalInfo = {
 	profileImage?: IFile;
 };
 
+export interface IInterestedIn {
+	id?: string;
+	postId: string;
+	post?: IPost;
+}
+
 export type Jobseeker = {
 	id?: string;
 	personalInfo: PersonalInfo;
-	spouse?: FamilyInfo;
-	children?: ChildInfo[];
+	// spouse?: FamilyInfo;
+	// children?: ChildInfo[];
+	interestIn?: IInterestedIn[];
 	education: AcademicInfo[];
 	experiences: ProfessionalInfo[];
 	certifications: Certification[];
@@ -208,24 +214,17 @@ export interface IProfileCompletionStatus {
 	}[];
 }
 
-
 export type JobseekerSearch = {
 	userId: string;
-  firstName: string;
-  lastName: string;
-  middleName: string;
+	firstName: string;
+	lastName: string;
+	middleName: string;
 	fullName: string;
-  passportNo: string;
-  email: string;
-  phone: string;
+	passportNo: string;
+	email: string;
+	phone: string;
 	profileImage?: IFile;
 	organizationId?: string;
 	organizationNameEn?: string;
 	organizationNameBn?: string;
-}
-
-export interface IInterestedIn {
-	id?: string;
-	postId: string;
-	post?: IPost;
-}
+};
