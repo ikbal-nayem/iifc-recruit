@@ -1,3 +1,4 @@
+
 import { COMMON_URL } from '@/constants/common.constant';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
 import { generatePDF } from '@/services/pdf/pdf.service';
@@ -170,20 +171,20 @@ const generatePersonalInfo = (jobseeker: Jobseeker): Content => {
 
 const generateInterests = (jobseeker: Jobseeker): Content => {
 	if (!jobseeker.interestIn || jobseeker.interestIn.length === 0) return [];
-	return generateSection(
-		'Interested Outsourcing Posts',
-		jobseeker.interestIn.map((interest) => ({
-			stack: [
-				createText(interest.post?.nameBn, { style: 'paragraph', bold: true }),
-				createText(interest.post?.outsourcingCategory?.nameBn, {
-					style: 'paragraph',
-					color: '#64748B',
-					fontSize: 9,
-				}),
-			],
-			margin: [0, 0, 0, 5],
-		}))
-	);
+	return generateSection('Interested Outsourcing Posts', {
+		ul: jobseeker.interestIn.map((interest) => {
+			const postName = interest.post?.nameBn || '';
+			const categoryName = interest.post?.outsourcingCategory?.nameBn || '';
+			return {
+				text: [
+					createText(postName, { bold: true }),
+					createText(categoryName ? ` (${categoryName})` : '', { color: '#64748B' }),
+				],
+				style: 'paragraph',
+				margin: [0, 0, 0, 2],
+			};
+		}),
+	});
 };
 
 const generateExperience = (jobseeker: Jobseeker): Content => {
