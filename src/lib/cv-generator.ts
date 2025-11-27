@@ -1,7 +1,8 @@
+
 import { COMMON_URL } from '@/constants/common.constant';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
 import { generatePDF } from '@/services/pdf/pdf.service';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
 import { makePreviewURL } from './file-oparations';
 
@@ -19,7 +20,7 @@ const toDataURL = (url: string) =>
 		);
 
 const generateCvHeader = async (jobseeker: Jobseeker): Promise<Content> => {
-	const personalInfo = jobseeker.personalInfo;
+	const { personalInfo } = jobseeker;
 	let imageDataUrl: string | undefined;
 
 	if (personalInfo.profileImage?.filePath) {
@@ -29,223 +30,284 @@ const generateCvHeader = async (jobseeker: Jobseeker): Promise<Content> => {
 			console.error('Could not fetch profile image for CV:', error);
 		}
 	}
+
 	return {
 		columns: [
-			{ text: 'ব্যক্তিগত তথ্য', style: 'header', alignment: 'center', width: '*' },
 			{
-				width: 120,
-				alignment: 'right',
+				width: '*',
 				stack: [
+					{ text: personalInfo.fullName, style: 'name' },
+					{ text: personalInfo.careerObjective || '', style: 'headline' },
 					{
-						image: imageDataUrl || 'placeholder',
-						width: 100,
-						height: 100,
-						alignment: 'center',
-					},
-					{ text: 'পাসপোর্ট সাইজ ছবি-০১ কপি', alignment: 'center', style: 'small' },
-					{
-						table: {
-							widths: ['*'],
-							body: [[' '], ['ক্রমিক নম্বর:']],
-						},
-						layout: 'noBorders',
-						margin: [0, 10, 0, 0],
+						columns: [
+							{
+								stack: [
+									{ text: `📧 ${personalInfo.email}` },
+									{ text: `📱 ${personalInfo.phone}` },
+									{ text: `📍 ${personalInfo.presentAddress || ''}` },
+								],
+							},
+							{
+								stack: [
+									personalInfo.linkedInProfile
+										? { text: `🔗 ${personalInfo.linkedInProfile}`, link: personalInfo.linkedInProfile }
+										: '',
+								],
+							},
+						],
+						style: 'contactInfo',
 					},
 				],
+			},
+			{
+				width: 100,
+				image: imageDataUrl || 'placeholder',
+				height: 100,
+				alignment: 'right',
 			},
 		],
 		marginBottom: 20,
 	};
 };
 
-const generateGeneralInfo = (jobseeker: Jobseeker): Content => {
+const generateSection = (title: string, content: Content, pageBreak: 'before' | 'after' | 'none' = 'none'): Content => {
+    if (Array.isArray(content) && content.every(item => typeof item === 'object' && Object.keys(item).length === 0)) {
+        return [];
+    }
+    if(Array.isArray(content) && content.length === 0) return [];
+	return {
+		stack: [
+			{ text: title, style: 'header' },
+			{ canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1, lineColor: '#cccccc' }] },
+			{
+                ...content,
+                margin: [0, 10, 0, 0]
+            },
+		],
+		marginBottom: 15,
+		pageBreak: pageBreak,
+	};
+};
+
+const generateExperience = (jobseeker: Jobseeker): Content => {
+	if (!jobseeker.experiences || jobseeker.experiences.length === 0) return [];
+	return generateSection('Work Experience', {
+		ul: jobseeker.experiences.map((exp) => ({
+			stack: [
+				{ text: exp.positionTitle, style: 'subheader' },
+				{ text: exp.organizationNameEn, italics: true },
+				{ text: `${format(parseISO(exp.joinDate), 'MMM yyyy')} - ${exp.isCurrent ? 'Present' : format(parseISO(exp.resignDate!), 'MMM yyyy')}`, style: 'date' },
+				{ text: exp.responsibilities || '', style: 'paragraph' }
+			],
+			margin: [0, 0, 0, 10]
+		}))
+	});
+};
+
+const generateEducation = (jobseeker: Jobseeker): Content => {
+	if (!jobseeker.education || jobseeker.education.length === 0) return [];
+	return generateSection('Education', {
+		ul: jobseeker.education.map((edu) => ({
+			stack: [
+				{ text: edu.degreeTitle, style: 'subheader' },
+				{ text: edu.institution.nameEn, italics: true },
+				{ text: `Passing Year: ${edu.passingYear}`, style: 'date' },
+			],
+			margin: [0, 0, 0, 10]
+		}))
+	});
+};
+
+const generateSkills = (jobseeker: Jobseeker): Content => {
+	if (!jobseeker.skills || jobseeker.skills.length === 0) return [];
+	return generateSection('Skills', {
+        columns: [
+            {
+                width: '50%',
+                ul: jobseeker.skills.slice(0, Math.ceil(jobseeker.skills.length / 2)).map(skill => ({
+                    text: `${skill.skill?.nameEn} (${skill.proficiencyDTO?.nameEn})`
+                }))
+            },
+            {
+                width: '50%',
+                ul: jobseeker.skills.slice(Math.ceil(jobseeker.skills.length / 2)).map(skill => ({
+                    text: `${skill.skill?.nameEn} (${skill.proficiencyDTO?.nameEn})`
+                }))
+            }
+        ]
+	});
+};
+
+const generateTrainings = (jobseeker: Jobseeker): Content => {
+	if (!jobseeker.trainings || jobseeker.trainings.length === 0) return [];
+	return generateSection('Trainings', {
+		ul: jobseeker.trainings.map(training => ({
+			stack: [
+				{ text: training.name, style: 'subheader' },
+				{ text: training.institutionName, italics: true },
+				{ text: `${format(parseISO(training.startDate), 'MMM yyyy')} - ${format(parseISO(training.endDate), 'MMM yyyy')}`, style: 'date' },
+			],
+			margin: [0, 0, 0, 10]
+		}))
+	});
+};
+
+const generateCertifications = (jobseeker: Jobseeker): Content => {
+	if (!jobseeker.certifications || jobseeker.certifications.length === 0) return [];
+	return generateSection('Certifications', {
+		ul: jobseeker.certifications.map(cert => ({
+			stack: [
+				{ text: cert.certification?.nameEn, style: 'subheader' },
+				{ text: `Issued by ${cert.issuingAuthority}`, italics: true },
+				{ text: `Issued on ${format(parseISO(cert.issueDate!), 'MMM yyyy')}`, style: 'date' },
+			],
+			margin: [0, 0, 0, 10]
+		}))
+	});
+};
+
+const generateLanguages = (jobseeker: Jobseeker): Content => {
+	if (!jobseeker.languages || jobseeker.languages.length === 0) return [];
+	return generateSection('Languages', {
+		ul: jobseeker.languages.map(lang => `${lang.language?.nameEn} (${lang.proficiencyDTO?.nameEn})`)
+	});
+};
+
+const generatePublications = (jobseeker: Jobseeker): Content => {
+	if (!jobseeker.publications || jobseeker.publications.length === 0) return [];
+	return generateSection('Publications', {
+		ul: jobseeker.publications.map(pub => ({
+			stack: [
+				{ text: pub.title, style: 'subheader', link: pub.url, color: 'blue' },
+				{ text: `Published by ${pub.publisher}`, italics: true },
+				{ text: `on ${format(parseISO(pub.publicationDate), 'MMM yyyy')}`, style: 'date' },
+			],
+			margin: [0, 0, 0, 10]
+		}))
+	});
+};
+
+const generateAwards = (jobseeker: Jobseeker): Content => {
+	if (!jobseeker.awards || jobseeker.awards.length === 0) return [];
+	return generateSection('Awards', {
+		ul: jobseeker.awards.map(award => ({
+			stack: [
+				{ text: award.name, style: 'subheader' },
+				{ text: award.description, italics: true },
+				{ text: `Awarded on ${format(parseISO(award.date), 'MMM yyyy')}`, style: 'date' },
+			],
+			margin: [0, 0, 0, 10]
+		}))
+	});
+};
+
+const generatePersonalInfo = (jobseeker: Jobseeker): Content => {
 	const personalInfo = jobseeker.personalInfo;
 	const tableRow = (label: string, value: string | undefined) => [
-		{ text: label },
-		{ text: ':' },
-		{ text: value || '' },
+		{ text: label, style: 'tableLabel' },
+		{ text: value || '', style: 'tableValue' },
 	];
-
-	return {
-		stack: [
-			{ text: 'ক. সাধারণ তথ্য:', style: 'subheader' },
-			{
-				layout: {
-					defaultBorder: true,
-					hLineWidth: (i, node) => (i === 0 || i === node.table.body.length ? 1 : 1),
-					vLineWidth: (i, node) => (i === 0 || i === node.table.widths?.length ? 1 : 1),
-					hLineColor: (i, node) => '#dddddd',
-					vLineColor: (i, node) => '#dddddd',
-				},
-				table: {
-					widths: [120, 'auto', '*'],
-					body: [
-						tableRow('নাম', personalInfo.fullName),
-						tableRow('পিতার নাম', personalInfo.fatherName),
-						tableRow('মাতার নাম', personalInfo.motherName),
-						tableRow('স্থায়ী ঠিকানা', personalInfo.permanentAddress),
-						tableRow(
-							'জন্ম তারিখ',
-							personalInfo.dateOfBirth ? format(new Date(personalInfo.dateOfBirth), 'dd/MM/yyyy') : ''
-						),
-						tableRow('ধর্ম', personalInfo.religionDTO?.nameBn),
-						tableRow('জাতীয় পরিচয়পত্র নম্বর', personalInfo.nid),
-						tableRow('বৈবাহিক অবস্থা', personalInfo.maritalStatusDTO?.nameBn),
-						tableRow('মোবাইল নম্বর', personalInfo.phone),
-						tableRow('বর্তমান ঠিকানা/বাসস্থান', personalInfo.presentAddress),
-					],
-				},
-			},
-		],
-		marginBottom: 15,
-	};
-};
-
-const generateSpouseInfo = (jobseeker: Jobseeker): Content => {
-	if (!jobseeker.spouse) return { text: '' };
-	const spouse = jobseeker.spouse;
-	const tableRow = (label: string, value: string | undefined) => [
-		{ text: label },
-		{ text: ':' },
-		{ text: value || '' },
-	];
-	return {
-		stack: [
-			{ text: 'খ. স্বামীর/স্ত্রীর তথ্য:', style: 'subheader' },
-			{
-				layout: 'lightHorizontalLines',
-				table: {
-					widths: [120, 'auto', '*'],
-					body: [
-						tableRow('নাম', spouse.name),
-						tableRow('পেশা', spouse.profession),
-						tableRow('নিজ জেলা', jobseeker.personalInfo.permanentDistrict?.nameBn),
-					],
-				},
-			},
-		],
-		marginBottom: 15,
-	};
-};
-
-const generateChildrenInfo = (jobseeker: Jobseeker): Content => {
-	if (!jobseeker.children || jobseeker.children.length === 0) return { text: '' };
-	const header = [
-		{ text: 'ক্রমিক নং', style: 'tableHeader' },
-		{ text: 'নাম', style: 'tableHeader' },
-		{ text: 'জন্ম তারিখ', style: 'tableHeader' },
-		{ text: 'লিঙ্গ', style: 'tableHeader' },
-	];
-	const body = jobseeker.children.map((child, index) => [
-		{ text: (index + 1).toString(), alignment: 'center' },
-		child.name,
-		format(new Date(child.dob), 'dd/MM/yyyy'),
-		child.genderDTO?.nameBn || '',
-	]);
-
-	return {
-		stack: [
-			{ text: 'গ. ছেলে মেয়ের বিবরণ:', style: 'subheader' },
-			{
-				layout: 'lightHorizontalLines',
-				table: {
-					headerRows: 1,
-					widths: ['auto', '*', '*', '*'],
-					body: [header, ...body],
-				},
-			},
-		],
-		marginBottom: 15,
-	};
-};
-
-const generateEducationInfo = (jobseeker: Jobseeker): Content => {
-	if (!jobseeker.education || jobseeker.education.length === 0) return { text: '' };
-	const header = [
-		{ text: 'ক্রমিক নং', style: 'tableHeader' },
-		{ text: 'পরীক্ষা', style: 'tableHeader' },
-		{ text: 'ফলাফল', style: 'tableHeader' },
-		{ text: 'শিক্ষা প্রতিষ্ঠানের নাম', style: 'tableHeader' },
-		{ text: 'পাসের সাল', style: 'tableHeader' },
-	];
-	const body = jobseeker.education.map((edu, index) => [
-		{ text: (index + 1).toString(), alignment: 'center' },
-		edu.degreeTitle,
-		edu.resultSystem === 'GRADE' ? `${edu.cgpa}/${edu.outOfCgpa}` : edu.resultAchieved || '',
-		edu.institution.nameEn,
-		edu.passingYear,
-	]);
-
-	return {
-		stack: [
-			{ text: 'ঘ. শিক্ষাগত যোগ্যতা:', style: 'subheader' },
-			{
-				layout: 'lightHorizontalLines',
-				table: {
-					headerRows: 1,
-					widths: ['auto', '*', '*', '*', 'auto'],
-					body: [header, ...body],
-				},
-			},
-		],
-		marginBottom: 15,
-	};
-};
-
-const generateExperienceInfo = (jobseeker: Jobseeker): Content => {
-	if (!jobseeker.experiences || jobseeker.experiences.length === 0) return { text: '' };
-	const header = [
-		{ text: 'ক্রমিক নং', style: 'tableHeader' },
-		{ text: 'প্রতিষ্ঠানের নাম', style: 'tableHeader' },
-		{ text: 'চাকুরীর মেয়াদ', style: 'tableHeader' },
-	];
-	const body = jobseeker.experiences.map((exp, index) => {
-		const endDate = exp.isCurrent
-			? 'Present'
-			: exp.resignDate
-			? format(new Date(exp.resignDate), 'MMM yyyy')
-			: '';
-		const period = `${format(new Date(exp.joinDate), 'MMM yyyy')} - ${endDate}`;
-		return [{ text: (index + 1).toString(), alignment: 'center' }, exp.organizationNameEn, period];
+	return generateSection('Personal Information', {
+        columns: [
+            {
+                width: '50%',
+                layout: 'noBorders',
+                table: {
+                    body: [
+                        tableRow("Father's Name", personalInfo.fatherName),
+                        tableRow("Mother's Name", personalInfo.motherName),
+                        tableRow('Date of Birth', personalInfo.dateOfBirth ? format(parseISO(personalInfo.dateOfBirth), 'do MMM, yyyy') : ''),
+                        tableRow('Gender', personalInfo.genderDTO?.nameEn),
+                        tableRow('Marital Status', personalInfo.maritalStatusDTO?.nameEn),
+                    ]
+                }
+            },
+            {
+                width: '50%',
+                layout: 'noBorders',
+                table: {
+                    body: [
+                        tableRow('Nationality', personalInfo.nationality),
+                        tableRow('Religion', personalInfo.religionDTO?.nameEn),
+                        tableRow('NID', personalInfo.nid),
+                        tableRow('Passport No.', personalInfo.passportNo),
+                        tableRow('Permanent Address', personalInfo.permanentAddress),
+                    ]
+                }
+            }
+        ]
 	});
-
-	return {
-		stack: [
-			{ text: 'ঙ. অভিজ্ঞতা:', style: 'subheader' },
-			{
-				layout: 'lightHorizontalLines',
-				table: {
-					headerRows: 1,
-					widths: ['auto', '*', '*'],
-					body: [header, ...body],
-				},
-			},
-		],
-		marginBottom: 15,
-	};
-};
-
-const generateSignature = (): Content => {
-	return {
-		stack: [{ text: 'স্বাক্ষর ও তারিখ', alignment: 'right', margin: [0, 40, 0, 0] }],
-	};
-};
+}
 
 export const generateCv = async (jobseeker: Jobseeker) => {
 	const docDefinition: TDocumentDefinitions = {
 		content: [
 			await generateCvHeader(jobseeker),
-			generateGeneralInfo(jobseeker),
-			generateSpouseInfo(jobseeker),
-			generateChildrenInfo(jobseeker),
-			generateEducationInfo(jobseeker),
-			generateExperienceInfo(jobseeker),
-			generateSignature(),
+			generatePersonalInfo(jobseeker),
+			generateExperience(jobseeker),
+			generateEducation(jobseeker),
+			generateSkills(jobseeker),
+			generateTrainings(jobseeker),
+			generateCertifications(jobseeker),
+			generateLanguages(jobseeker),
+			generatePublications(jobseeker),
+			generateAwards(jobseeker),
 		],
+        styles: {
+            name: {
+                fontSize: 24,
+                bold: true,
+                color: '#1E40AF', // A professional blue
+                marginBottom: 5,
+            },
+            headline: {
+                fontSize: 12,
+                color: '#555555',
+                marginBottom: 10,
+            },
+            contactInfo: {
+                fontSize: 9,
+                color: '#333333',
+                marginBottom: 10,
+            },
+            header: {
+                fontSize: 16,
+                bold: true,
+                color: '#333333',
+                marginBottom: 5,
+            },
+            subheader: {
+                fontSize: 11,
+                bold: true,
+                color: '#444444',
+            },
+            date: {
+                fontSize: 9,
+                color: '#777777',
+                marginBottom: 3,
+            },
+            paragraph: {
+                fontSize: 10,
+                color: '#555555',
+            },
+            tableLabel: {
+                bold: true,
+                color: '#555555',
+            },
+            tableValue: {
+                color: '#333333',
+            }
+        },
 		images: {
 			placeholder: location.origin + COMMON_URL.DUMMY_USER_AVATAR,
 		},
+		defaultStyle: {
+			font: 'Kalpurush', // Using Kalpurush but design is english-centric, can be changed
+			fontSize: 10,
+			lineHeight: 1.2,
+		}
 	};
 
-	generatePDF(docDefinition, { action: 'open', fileName: `iifc-cv-${jobseeker.personalInfo.fullName}.pdf` });
+	generatePDF(docDefinition, { action: 'open', fileName: `CV-${jobseeker.personalInfo.fullName}.pdf` });
 };
+
