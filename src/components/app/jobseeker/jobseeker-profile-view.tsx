@@ -430,7 +430,7 @@ export function JobseekerProfileView({
 								{languages.map((lang) => (
 									<div key={lang.id} className='flex justify-between text-sm'>
 										<span>{lang.language?.nameEn}</span>
-										<span className='text-muted-foreground'>{lang.proficiency}</span>
+										<span className='text-muted-foreground'>{lang.proficiencyDTO?.nameEn}</span>
 									</div>
 								))}
 							</CardContent>
