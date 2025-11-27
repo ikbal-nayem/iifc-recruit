@@ -1,4 +1,3 @@
-
 import { COMMON_URL } from '@/constants/common.constant';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
 import { generatePDF } from '@/services/pdf/pdf.service';
@@ -14,8 +13,7 @@ const getFontForText = (text: string | null | undefined): 'Roboto' | 'Kalpurush'
 };
 
 // Helper to create a text object with dynamic font
-const
- createText = (text: string | null | undefined, style?: any): Content => {
+const createText = (text: string | null | undefined, style?: any): Content => {
 	if (!text) return '';
 	return { text, font: getFontForText(text), ...style };
 };
@@ -84,7 +82,9 @@ const generateHeader = async (jobseeker: Jobseeker): Promise<Content> => {
 			{
 				stack: [
 					createText(personalInfo.fullName?.toUpperCase(), { style: 'name' }),
-					personalInfo.careerObjective ? createText(personalInfo.careerObjective, { style: 'paragraph' }) : {},
+					personalInfo.careerObjective
+						? createText(personalInfo.careerObjective, { style: 'paragraph' })
+						: {},
 					contactInfo,
 				],
 			},
@@ -104,7 +104,7 @@ const generateHeader = async (jobseeker: Jobseeker): Promise<Content> => {
 const generateSection = (
 	title: string,
 	content: Content,
-	pageBreak: 'before' | 'after' | 'none' = 'none'
+	pageBreak: 'before' | 'after' | undefined = undefined
 ): Content => {
 	if (Array.isArray(content) && content.length === 0) {
 		return [];
@@ -376,7 +376,7 @@ export const generateCv = async (jobseeker: Jobseeker) => {
 				fontSize: 14,
 				bold: true,
 				color: '#1E3A8A',
-				marginBottom: 5,
+				marginBottom: 2,
 			},
 			subheader: {
 				fontSize: 11,
