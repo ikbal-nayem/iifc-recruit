@@ -5,6 +5,20 @@ import { generatePDF } from '@/services/pdf/pdf.service';
 import { format, parseISO } from 'date-fns';
 import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
 import { makePreviewURL } from './file-oparations';
+import { isBangla } from './utils';
+
+// Helper to determine the font based on content
+const getFontForText = (text: string | null | undefined): 'Roboto' | 'Kalpurush' => {
+	if (!text) return 'Roboto';
+	return isBangla(text) ? 'Kalpurush' : 'Roboto';
+};
+
+// Helper to create a text object with dynamic font
+const
+ createText = (text: string | null | undefined, style?: any): Content => {
+	if (!text) return '';
+	return { text, font: getFontForText(text), ...style };
+};
 
 const toDataURL = (url: string) =>
 	fetch(url)
@@ -47,7 +61,7 @@ const generateHeader = async (jobseeker: Jobseeker): Promise<Content> => {
 				stack: [
 					{ text: personalInfo.email || '', style: 'contact' },
 					{ text: personalInfo.phone || '', style: 'contact' },
-					{ text: address || '', style: 'contact' },
+					createText(address, { style: 'contact' }),
 				],
 			},
 			{
@@ -69,8 +83,8 @@ const generateHeader = async (jobseeker: Jobseeker): Promise<Content> => {
 		columns: [
 			{
 				stack: [
-					{ text: personalInfo.fullName?.toUpperCase(), style: 'name' },
-					personalInfo.careerObjective ? { text: personalInfo.careerObjective, style: 'paragraph' } : {},
+					createText(personalInfo.fullName?.toUpperCase(), { style: 'name' }),
+					personalInfo.careerObjective ? createText(personalInfo.careerObjective, { style: 'paragraph' }) : {},
 					contactInfo,
 				],
 			},
@@ -100,10 +114,12 @@ const generateSection = (
 	return {
 		stack: [
 			{ text: title.toUpperCase(), style: 'header' },
-			{ canvas: [{ type: 'line', x1: 0, y1: 2, x2: 515, y2: 2, lineWidth: 0.5, lineColor: '#cccccc' }] },
+			{
+				canvas: [{ type: 'line', x1: 0, y1: 2, x2: 515, y2: 2, lineWidth: 0.5, lineColor: '#cccccc' }],
+				margin: [0, 0, 0, 10],
+			},
 			{
 				stack: [content],
-				margin: [0, 10, 0, 0],
 			},
 		],
 		marginBottom: 15,
@@ -131,8 +147,8 @@ const generatePersonalInfo = (jobseeker: Jobseeker): Content => {
 			{
 				stack: details.slice(0, Math.ceil(details.length / 2)).map((item) => ({
 					columns: [
-						{ text: `${item.label}:`, bold: true, width: 'auto' },
-						{ text: item.value, width: '*', margin: [4, 0, 0, 0] },
+						{ text: `${item.label}:`, bold: true, width: 'auto', font: 'Roboto' },
+						createText(item.value, { width: '*', margin: [4, 0, 0, 0] }),
 					],
 					columnGap: 5,
 					margin: [0, 0, 0, 3],
@@ -141,8 +157,8 @@ const generatePersonalInfo = (jobseeker: Jobseeker): Content => {
 			{
 				stack: details.slice(Math.ceil(details.length / 2)).map((item) => ({
 					columns: [
-						{ text: `${item.label}:`, bold: true, width: 'auto' },
-						{ text: item.value, width: '*', margin: [4, 0, 0, 0] },
+						{ text: `${item.label}:`, bold: true, width: 'auto', font: 'Roboto' },
+						createText(item.value, { width: '*', margin: [4, 0, 0, 0] }),
 					],
 					columnGap: 5,
 					margin: [0, 0, 0, 3],
@@ -158,14 +174,12 @@ const generateInterests = (jobseeker: Jobseeker): Content => {
 		'Interested Outsourcing Posts',
 		jobseeker.interestIn.map((interest) => ({
 			stack: [
-				{ text: interest.post?.nameBn, style: 'paragraph', font: 'Kalpurush', bold: true },
-				{
-					text: interest.post?.outsourcingCategory?.nameBn || '',
+				createText(interest.post?.nameBn, { style: 'paragraph', bold: true }),
+				createText(interest.post?.outsourcingCategory?.nameBn, {
 					style: 'paragraph',
-					font: 'Kalpurush',
 					color: '#64748B',
 					fontSize: 9,
-				},
+				}),
 			],
 			margin: [0, 0, 0, 5],
 		}))
@@ -180,7 +194,7 @@ const generateExperience = (jobseeker: Jobseeker): Content => {
 			stack: [
 				{
 					columns: [
-						{ text: exp.positionTitle, style: 'subheader' },
+						createText(exp.positionTitle, { style: 'subheader' }),
 						{
 							text: `${format(parseISO(exp.joinDate), 'MMM yyyy')} - ${
 								exp.isCurrent ? 'Present' : exp.resignDate ? format(parseISO(exp.resignDate), 'MMM yyyy') : ''
@@ -190,10 +204,10 @@ const generateExperience = (jobseeker: Jobseeker): Content => {
 						},
 					],
 				},
-				{ text: exp.organizationNameEn, italics: true, style: 'paragraph', margin: [0, 2, 0, 5] },
+				createText(exp.organizationNameEn, { italics: true, style: 'paragraph', margin: [0, 2, 0, 5] }),
 				exp.responsibilities
 					? {
-							ul: (exp.responsibilities || '').split('\n').map((r) => ({ text: r, style: 'paragraph' })),
+							ul: (exp.responsibilities || '').split('\n').map((r) => createText(r, { style: 'paragraph' })),
 							margin: [10, 0, 0, 0],
 					  }
 					: {},
@@ -211,16 +225,15 @@ const generateEducation = (jobseeker: Jobseeker): Content => {
 			stack: [
 				{
 					columns: [
-						{ text: edu.degreeTitle, style: 'subheader' },
+						createText(edu.degreeTitle, { style: 'subheader' }),
 						{ text: `Passing Year: ${edu.passingYear}`, style: 'date', alignment: 'right' },
 					],
 				},
-				{ text: edu.institution.nameEn, italics: true, style: 'paragraph' },
-				{
-					text: `Major: ${edu.domainNameEn} | CGPA: ${edu.cgpa || 'N/A'}`,
+				createText(edu.institution.nameEn, { italics: true, style: 'paragraph' }),
+				createText(`Major: ${edu.domainNameEn} | CGPA: ${edu.cgpa || 'N/A'}`, {
 					style: 'paragraph',
 					color: '#64748B',
-				},
+				}),
 			],
 			margin: [0, 0, 0, 10],
 		}))
@@ -234,12 +247,12 @@ const generateSkills = (jobseeker: Jobseeker): Content => {
 			{
 				ul: jobseeker.skills
 					.slice(0, Math.ceil(jobseeker.skills.length / 2))
-					.map((skill) => ({ text: skill.skill?.nameEn, style: 'paragraph' })),
+					.map((skill) => createText(skill.skill?.nameEn, { style: 'paragraph' })),
 			},
 			{
 				ul: jobseeker.skills
 					.slice(Math.ceil(jobseeker.skills.length / 2))
-					.map((skill) => ({ text: skill.skill?.nameEn, style: 'paragraph' })),
+					.map((skill) => createText(skill.skill?.nameEn, { style: 'paragraph' })),
 			},
 		],
 	});
@@ -251,14 +264,14 @@ const generateTrainings = (jobseeker: Jobseeker): Content => {
 		'Trainings & Courses',
 		jobseeker.trainings.map((training) => ({
 			stack: [
-				{ text: training.name, style: 'subheader' },
-				{
-					text: `${training.institutionName} | ${format(
-						parseISO(training.startDate),
+				createText(training.name, { style: 'subheader' }),
+				createText(
+					`${training.institutionName} | ${format(parseISO(training.startDate), 'MMM yyyy')} - ${format(
+						parseISO(training.endDate),
 						'MMM yyyy'
-					)} - ${format(parseISO(training.endDate), 'MMM yyyy')}`,
-					style: 'date',
-				},
+					)}`,
+					{ style: 'date' }
+				),
 			],
 			margin: [0, 0, 0, 10],
 		}))
@@ -271,13 +284,13 @@ const generateCertifications = (jobseeker: Jobseeker): Content => {
 		'Certifications',
 		jobseeker.certifications.map((cert) => ({
 			stack: [
-				{ text: cert.certification?.nameEn, style: 'subheader' },
-				{
-					text: `${cert.issuingAuthority} | Issued on ${
+				createText(cert.certification?.nameEn, { style: 'subheader' }),
+				createText(
+					`${cert.issuingAuthority} | Issued on ${
 						cert.issueDate ? format(parseISO(cert.issueDate), 'MMM yyyy') : 'N/A'
 					}`,
-					style: 'date',
-				},
+					{ style: 'date' }
+				),
 			],
 			margin: [0, 0, 0, 10],
 		}))
@@ -302,11 +315,10 @@ const generatePublications = (jobseeker: Jobseeker): Content => {
 		'Publications',
 		jobseeker.publications.map((pub) => ({
 			stack: [
-				{ text: pub.title, style: 'subheader', link: pub.url, color: 'blue' },
-				{
-					text: `${pub.publisher} | ${format(parseISO(pub.publicationDate), 'MMM yyyy')}`,
+				createText(pub.title, { style: 'subheader', link: pub.url, color: 'blue' }),
+				createText(`${pub.publisher} | ${format(parseISO(pub.publicationDate), 'MMM yyyy')}`, {
 					style: 'date',
-				},
+				}),
 			],
 			margin: [0, 0, 0, 10],
 		}))
@@ -319,11 +331,10 @@ const generateAwards = (jobseeker: Jobseeker): Content => {
 		'Awards',
 		jobseeker.awards.map((award) => ({
 			stack: [
-				{ text: award.name, style: 'subheader' },
-				{
-					text: `${award.description} | Awarded on ${format(parseISO(award.date), 'MMM yyyy')}`,
+				createText(award.name, { style: 'subheader' }),
+				createText(`${award.description} | Awarded on ${format(parseISO(award.date), 'MMM yyyy')}`, {
 					style: 'date',
-				},
+				}),
 			],
 			margin: [0, 0, 0, 10],
 		}))
@@ -350,7 +361,6 @@ export const generateCv = async (jobseeker: Jobseeker) => {
 				fontSize: 24,
 				bold: true,
 				color: '#003366',
-				font: 'Roboto',
 				marginBottom: 2,
 			},
 			headline: {
@@ -366,24 +376,20 @@ export const generateCv = async (jobseeker: Jobseeker) => {
 				fontSize: 14,
 				bold: true,
 				color: '#1E3A8A',
-				font: 'Roboto',
 				marginBottom: 5,
 			},
 			subheader: {
 				fontSize: 11,
 				bold: true,
 				color: '#334155',
-				font: 'Roboto',
 			},
 			date: {
 				fontSize: 9,
 				color: '#64748B',
-				font: 'Roboto',
 			},
 			paragraph: {
 				fontSize: 10,
 				color: '#475569',
-				font: 'Roboto',
 			},
 		},
 		defaultStyle: {
