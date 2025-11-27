@@ -1,4 +1,3 @@
-
 import { COMMON_URL } from '@/constants/common.constant';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
 import { generatePDF } from '@/services/pdf/pdf.service';
@@ -245,23 +244,21 @@ const generateAwards = (jobseeker: Jobseeker): Content => {
 
 const generateInterests = (jobseeker: Jobseeker): Content => {
 	if (!jobseeker.interestIn || jobseeker.interestIn.length === 0) return [];
-	return generateSection(
-		'Interested Outsourcing Posts',
-		{
-			ul: jobseeker.interestIn.map((interest) => ({
-				stack: [
-					{ text: interest.post?.nameBn, style: 'paragraph', bold: true },
-					{
-						text: interest.post?.outsourcingCategory?.nameBn || '',
-						style: 'paragraph',
-						color: '#64748B',
-						fontSize: 9,
-					},
-				],
-				margin: [0, 0, 0, 5],
-			})),
-		}
-	);
+	return generateSection('Interested Outsourcing Posts', {
+		ul: jobseeker.interestIn.map((interest) => ({
+			stack: [
+				{ text: interest.post?.nameBn, style: 'paragraph', font: 'Kalpurush', bold: true },
+				{
+					text: interest.post?.outsourcingCategory?.nameBn || '',
+					style: 'paragraph',
+					font: 'Kalpurush',
+					color: '#64748B',
+					fontSize: 9,
+				},
+			],
+			margin: [0, 0, 0, 5],
+		})),
+	});
 };
 
 const generatePersonalInfo = (jobseeker: Jobseeker): Content => {
@@ -357,7 +354,7 @@ export const generateCv = async (jobseeker: Jobseeker) => {
 			},
 		},
 		defaultStyle: {
-			font: 'Kalpurush',
+			font: 'Roboto',
 			fontSize: 10,
 			lineHeight: 1.2,
 		},

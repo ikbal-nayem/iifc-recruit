@@ -1,21 +1,29 @@
+
 import { format } from 'date-fns';
 import nProgress from 'nprogress';
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
 import { defaultDef } from './default-conf';
-// import pdfFonts from 'pdfmake/build/vfs_fonts';
 import pdfMake from 'pdfmake/build/pdfmake';
-// pdfMake.vfs = pdfFonts.vfs;
+import pdfFonts from 'pdfmake/build/vfs_fonts';
+
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 const kalpurush = location.origin + '/fonts/kalpurush-mod.ttf';
 const kalpurush_bold = location.origin + '/fonts/kalpurush-mod-bold.ttf';
 
 pdfMake.fonts = {
+	Roboto: {
+		normal: 'Roboto-Regular.ttf',
+		bold: 'Roboto-Medium.ttf',
+		italics: 'Roboto-Italic.ttf',
+		bolditalics: 'Roboto-MediumItalic.ttf',
+	},
 	Kalpurush: {
 		normal: kalpurush,
 		bold: kalpurush_bold,
 		italics: kalpurush,
 		bolditalics: kalpurush_bold,
-	}
+	},
 };
 
 type IOptions = {
