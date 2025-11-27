@@ -191,8 +191,6 @@ export interface IInterestedIn {
 export type Jobseeker = {
 	id?: string;
 	personalInfo: PersonalInfo;
-	spouse?: FamilyInfo;
-	children?: ChildInfo[];
 	interestIn?: IInterestedIn[];
 	education: AcademicInfo[];
 	experiences: ProfessionalInfo[];
