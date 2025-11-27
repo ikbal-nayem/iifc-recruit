@@ -21,33 +21,12 @@ const toDataURL = (url: string) =>
 
 const generateHeader = async (jobseeker: Jobseeker): Promise<Content> => {
 	const { personalInfo } = jobseeker;
-	let imageDataUrl: string | undefined;
-
-	if (personalInfo.profileImage?.filePath) {
-		try {
-			imageDataUrl = (await toDataURL(makePreviewURL(personalInfo.profileImage.filePath))) as string;
-		} catch (error) {
-			console.error('Could not fetch profile image for CV:', error);
-		}
-	}
-
 	return {
-		columns: [
-			{
-				stack: [
-					{ text: personalInfo.fullName?.toUpperCase(), style: 'name' },
-					{ text: personalInfo.careerObjective, style: 'headline' },
-				],
-				width: '*',
-			},
-			imageDataUrl
-				? {
-						image: imageDataUrl,
-						width: 80,
-						height: 80,
-						alignment: 'right',
-				  }
-				: {},
+		stack: [
+			{ text: personalInfo.fullName?.toUpperCase(), style: 'name' },
+			personalInfo.careerObjective
+				? { text: personalInfo.careerObjective, style: 'headline' }
+				: { text: '' },
 		],
 		marginBottom: 20,
 	};
@@ -69,14 +48,7 @@ const generateSection = (
 	}
 
 	return {
-		stack: [
-			{ text: title, style: 'header' },
-			{
-				canvas: [{ type: 'line', x1: 0, y1: 2, x2: 515, y2: 2, lineWidth: 0.5, lineColor: '#cccccc' }],
-				margin: [0, 0, 0, 10],
-			},
-			content,
-		],
+		stack: [{ text: title, style: 'header' }, content],
 		marginBottom: 15,
 		pageBreak,
 	};
@@ -92,18 +64,20 @@ const generateExperience = (jobseeker: Jobseeker): Content => {
 						{ text: exp.positionTitle, style: 'subheader' },
 						{
 							text: `${format(parseISO(exp.joinDate), 'MMM yyyy')} - ${
-								exp.isCurrent ? 'Present' : format(parseISO(exp.resignDate!), 'MMM yyyy')
+								exp.isCurrent ? 'Present' : exp.resignDate ? format(parseISO(exp.resignDate), 'MMM yyyy') : ''
 							}`,
 							style: 'date',
 							alignment: 'right',
 						},
 					],
 				},
-				{ text: exp.organizationNameEn, italics: true, style: 'paragraph', margin: [0, 0, 0, 5] },
-				{
-					ul: (exp.responsibilities || '').split('\n').map((r) => ({ text: r, style: 'paragraph' })),
-					margin: [10, 0, 0, 0],
-				},
+				{ text: exp.organizationNameEn, italics: true, style: 'paragraph', margin: [0, 2, 0, 5] },
+				exp.responsibilities
+					? {
+							ul: (exp.responsibilities || '').split('\n').map((r) => ({ text: r, style: 'paragraph' })),
+							margin: [10, 0, 0, 0],
+					  }
+					: {},
 			],
 			margin: [0, 0, 0, 15],
 		})),
@@ -122,6 +96,11 @@ const generateEducation = (jobseeker: Jobseeker): Content => {
 					],
 				},
 				{ text: edu.institution.nameEn, italics: true, style: 'paragraph' },
+				{
+					text: `Major: ${edu.domainNameEn} | CGPA: ${edu.cgpa || 'N/A'}`,
+					style: 'paragraph',
+					color: '#64748B',
+				},
 			],
 			margin: [0, 0, 0, 10],
 		})),
@@ -134,10 +113,10 @@ const generateSkills = (jobseeker: Jobseeker): Content => {
 		stack: [
 			{ text: 'Skills', style: 'sidebarHeader' },
 			{
-				ul: jobseeker.skills.map(
-					(skill) => `${skill.skill?.nameEn} (${skill.yearsOfExperience} yrs)`
-				),
-				style: 'sidebarList',
+				columns: jobseeker.skills.map((skill) => ({
+					text: skill.skill?.nameEn,
+					style: 'sidebarList',
+				})),
 			},
 		],
 		marginBottom: 15,
@@ -170,7 +149,9 @@ const generateCertifications = (jobseeker: Jobseeker): Content => {
 			stack: [
 				{ text: cert.certification?.nameEn, style: 'subheader' },
 				{
-					text: `${cert.issuingAuthority} | Issued on ${format(parseISO(cert.issueDate!), 'MMM yyyy')}`,
+					text: `${cert.issuingAuthority} | Issued on ${
+						cert.issueDate ? format(parseISO(cert.issueDate), 'MMM yyyy') : 'N/A'
+					}`,
 					style: 'date',
 				},
 			],
@@ -184,10 +165,10 @@ const generateLanguages = (jobseeker: Jobseeker): Content => {
 	return {
 		stack: [
 			{ text: 'Languages', style: 'sidebarHeader' },
-			{
-				ul: jobseeker.languages.map((lang) => `${lang.language?.nameEn} (${lang.proficiencyDTO?.nameEn})`),
+			...jobseeker.languages.map((lang) => ({
+				text: `${lang.language?.nameEn} (${lang.proficiencyDTO?.nameEn})`,
 				style: 'sidebarList',
-			},
+			})),
 		],
 		marginBottom: 15,
 	};
@@ -231,39 +212,103 @@ const generateInterests = (jobseeker: Jobseeker): Content => {
 		stack: [
 			{ text: 'Interests', style: 'sidebarHeader' },
 			{
-				ul: jobseeker.interestIn.map(
-					(interest) => `${interest.post?.nameBn} (${interest.post?.outsourcingCategory?.nameBn})`
-				),
-				style: 'sidebarList',
+				columns: jobseeker.interestIn.map((interest) => ({
+					text: interest.post?.nameBn,
+					style: 'sidebarList',
+				})),
 			},
 		],
 		marginBottom: 15,
 	};
 };
 
-const generateContactInfo = (jobseeker: Jobseeker): Content => {
+const generatePersonalInfoSection = (jobseeker: Jobseeker): Content => {
 	const { personalInfo } = jobseeker;
+	const details = [
+		{ label: "Father's Name", value: personalInfo.fatherName },
+		{ label: "Mother's Name", value: personalInfo.motherName },
+		{
+			label: 'Date of Birth',
+			value: personalInfo.dateOfBirth ? format(parseISO(personalInfo.dateOfBirth), 'do MMM, yyyy') : '',
+		},
+		{ label: 'Gender', value: personalInfo.genderDTO?.nameEn },
+		{ label: 'Marital Status', value: personalInfo.maritalStatusDTO?.nameEn },
+		{ label: 'Nationality', value: personalInfo.nationality },
+		{ label: 'NID', value: personalInfo.nid },
+	].filter((item) => item.value);
+
+	return {
+		stack: [
+			{ text: 'Personal Details', style: 'sidebarHeader' },
+			...details.map((item) => ({
+				columns: [
+					{ text: `${item.label}:`, bold: true, width: 'auto', style: 'sidebarList' },
+					{ text: item.value, width: '*', style: 'sidebarList', margin: [4, 0, 0, 0] },
+				],
+				columnGap: 5,
+				margin: [0, 0, 0, 2],
+			})),
+		],
+		marginBottom: 15,
+	};
+};
+
+const generateContactInfo = async (jobseeker: Jobseeker): Promise<Content> => {
+	const { personalInfo } = jobseeker;
+	let imageDataUrl: string | undefined;
+
+	if (personalInfo.profileImage?.filePath) {
+		try {
+			imageDataUrl = (await toDataURL(makePreviewURL(personalInfo.profileImage.filePath))) as string;
+		} catch (error) {
+			console.error('Could not fetch profile image for CV:', error);
+		}
+	} else {
+		try {
+			imageDataUrl = (await toDataURL(COMMON_URL.DUMMY_USER_AVATAR)) as string;
+		} catch (error) {
+			console.error('Could not fetch placeholder image for CV:', error);
+		}
+	}
+
 	const contactItems = [
-		personalInfo.email ? { text: `📧  ${personalInfo.email}`, margin: [0, 0, 0, 5] } : null,
-		personalInfo.phone ? { text: `📱  ${personalInfo.phone}`, margin: [0, 0, 0, 5] } : null,
+		{ icon: '✉️', text: personalInfo.email },
+		{ icon: '📱', text: personalInfo.phone },
 		personalInfo.permanentAddress
 			? {
-					text: `🏠  ${personalInfo.permanentAddress}, ${personalInfo.permanentUpazila?.nameEn}, ${personalInfo.permanentDistrict?.nameEn}`,
-					margin: [0, 0, 0, 5],
+					icon: '🏠',
+					text: `${personalInfo.permanentAddress}, ${personalInfo.permanentUpazila?.nameEn}, ${personalInfo.permanentDistrict?.nameEn}`,
 			  }
 			: null,
 		personalInfo.linkedInProfile
 			? {
-					text: `🔗  LinkedIn Profile`,
+					icon: '🔗',
+					text: 'LinkedIn Profile',
 					link: personalInfo.linkedInProfile,
-					color: 'blue',
-					margin: [0, 0, 0, 5],
 			  }
 			: null,
 	].filter(Boolean);
 
 	return {
-		stack: [{ text: 'Contact', style: 'sidebarHeader' }, { stack: contactItems, style: 'sidebarList' }],
+		stack: [
+			imageDataUrl ? { image: imageDataUrl, width: 100, alignment: 'center', margin: [0, 0, 0, 10] } : {},
+			{ text: 'Contact', style: 'sidebarHeader' },
+			...contactItems.map((item) => ({
+				columns: [
+					{ text: item!.icon, width: 'auto', style: 'sidebarList' },
+					{
+						text: item!.text,
+						width: '*',
+						style: 'sidebarList',
+						link: item!.link,
+						color: item!.link ? 'blue' : undefined,
+						margin: [4, 0, 0, 0],
+					},
+				],
+				columnGap: 5,
+				margin: [0, 0, 0, 3],
+			})),
+		],
 		marginBottom: 15,
 	};
 };
@@ -271,12 +316,23 @@ const generateContactInfo = (jobseeker: Jobseeker): Content => {
 export const generateCv = async (jobseeker: Jobseeker) => {
 	const docDefinition: TDocumentDefinitions = {
 		content: [
-			await generateHeader(jobseeker),
 			{
 				columns: [
 					{
+						width: '30%',
+						stack: [
+							await generateContactInfo(jobseeker),
+							generatePersonalInfoSection(jobseeker),
+							generateSkills(jobseeker),
+							generateLanguages(jobseeker),
+							generateInterests(jobseeker),
+						],
+					},
+					{ width: '5%', text: '' }, // Spacer
+					{
 						width: '65%',
 						stack: [
+							await generateHeader(jobseeker),
 							generateExperience(jobseeker),
 							generateEducation(jobseeker),
 							generateTrainings(jobseeker),
@@ -285,45 +341,36 @@ export const generateCv = async (jobseeker: Jobseeker) => {
 							generateAwards(jobseeker),
 						],
 					},
-					{ width: '5%', text: '' }, // Spacer
-					{
-						width: '30%',
-						stack: [
-							generateContactInfo(jobseeker),
-							generateSkills(jobseeker),
-							generateLanguages(jobseeker),
-							generateInterests(jobseeker),
-						],
-					},
 				],
 			},
 		],
 		styles: {
 			name: {
-				fontSize: 26,
+				fontSize: 24,
 				bold: true,
-				color: '#172554', // Dark Blue
+				color: '#172554',
 				marginBottom: 2,
 			},
 			headline: {
 				fontSize: 11,
-				color: '#475569', // Slate Gray
+				color: '#475569',
 				marginBottom: 15,
+				italics: true,
 			},
 			header: {
 				fontSize: 14,
 				bold: true,
-				color: '#1E3A8A', // Medium Blue
-				marginBottom: 5,
+				color: '#1E3A8A',
+				marginBottom: 8,
 			},
 			subheader: {
 				fontSize: 11,
 				bold: true,
-				color: '#334155', // Dark Slate Gray
+				color: '#334155',
 			},
 			date: {
 				fontSize: 9,
-				color: '#64748B', // Light Slate Gray
+				color: '#64748B',
 			},
 			paragraph: {
 				fontSize: 10,
@@ -333,15 +380,12 @@ export const generateCv = async (jobseeker: Jobseeker) => {
 				fontSize: 12,
 				bold: true,
 				color: '#1E3A8A',
-				marginBottom: 5,
+				marginBottom: 8,
 			},
 			sidebarList: {
 				fontSize: 9,
 				color: '#334155',
 			},
-		},
-		images: {
-			placeholder: location.origin + COMMON_URL.DUMMY_USER_AVATAR,
 		},
 		defaultStyle: {
 			font: 'Kalpurush',
