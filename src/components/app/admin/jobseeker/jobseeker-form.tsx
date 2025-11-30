@@ -35,7 +35,7 @@ import * as z from 'zod';
 
 const userSchema = z.object({
 	firstName: z.string().min(1, 'First name is required.'),
-	lastName: z.string().min(1, 'Last name is required.'),
+	// lastName: z.string().optional(),
 	email: z.string().email('Email should be valid.').optional().or(z.literal('')),
 	phone: z
 		.string()
@@ -69,7 +69,7 @@ const editableUserSchema = z.object({
 	users: z.array(
 		z.object({
 			firstName: z.string().min(1, 'First name is required'),
-			lastName: z.string().min(1, 'Last name is required'),
+			// lastName: z.string().optional(),
 			email: z.string().email('Invalid email'),
 			phone: z.string().optional(),
 			status: z.string().optional(),
@@ -97,7 +97,7 @@ export function JobseekerForm({
 		resolver: zodResolver(userSchema),
 		defaultValues: {
 			firstName: '',
-			lastName: '',
+			// lastName: '',
 			email: '',
 			phone: '',
 			organizationId: '',
@@ -153,7 +153,7 @@ export function JobseekerForm({
 				const sheetName = workbook.SheetNames[0];
 				const worksheet = workbook.Sheets[sheetName];
 				const json = XLSX.utils.sheet_to_json(worksheet, {
-					header: ['firstName', 'lastName', 'email', 'phone'],
+					header: ['firstName', 'email', 'phone'],
 					range: 1,
 				});
 				const modJson = json.map((item: any) => ({
@@ -211,18 +211,18 @@ export function JobseekerForm({
 					/>
 				),
 			},
-			{
-				accessorKey: 'lastName',
-				header: 'Last Name',
-				cell: ({ row }) => (
-					<FormInput
-						control={editableForm.control}
-						name={`users.${row.index}.lastName`}
-						onFocus={(e) => e.target.select()}
-						className='border-none'
-					/>
-				),
-			},
+			// {
+			// 	accessorKey: 'lastName',
+			// 	header: 'Last Name',
+			// 	cell: ({ row }) => (
+			// 		<FormInput
+			// 			control={editableForm.control}
+			// 			name={`users.${row.index}.lastName`}
+			// 			onFocus={(e) => e.target.select()}
+			// 			className='border-none'
+			// 		/>
+			// 	),
+			// },
 			{
 				accessorKey: 'email',
 				header: 'Email',
@@ -302,8 +302,8 @@ export function JobseekerForm({
 								getOptionLabel={(option) => option.nameBn}
 							/>
 							<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-								<FormInput control={singleForm.control} name='firstName' label='First Name' required />
-								<FormInput control={singleForm.control} name='lastName' label='Last Name' required />
+								<FormInput control={singleForm.control} name='firstName' label='Name' required />
+								{/* <FormInput control={singleForm.control} name='lastName' label='Last Name' /> */}
 							</div>
 							<FormInput control={singleForm.control} name='phone' label='Phone' required />
 							<FormInput control={singleForm.control} name='email' label='Email' type='email' />
