@@ -20,7 +20,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { COMMON_URL } from '@/constants/common.constant';
 import useLoader from '@/hooks/use-loader';
 import { toast } from '@/hooks/use-toast';
-import { IClientOrganization, ICommonMasterData } from '@/interfaces/master-data.interface';
+import { IClientOrganization, IOutsourcingCategory } from '@/interfaces/master-data.interface';
 import { cn } from '@/lib/utils';
 import { UserService } from '@/services/api/user.service';
 import { getOutsourcingCategoriesAsync, getPostOutsourcingByCategoryAsync } from '@/services/async-api';
@@ -294,36 +294,38 @@ export function JobseekerForm({
 							/>
 							<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
 								<FormInput control={singleForm.control} name='firstName' label='Name' required />
+								<FormInput control={singleForm.control} name='phone' label='Phone' required />
 							</div>
-							<FormInput control={singleForm.control} name='phone' label='Phone' required />
 							<FormInput control={singleForm.control} name='email' label='Email' type='email' />
-							<FormAutocomplete
-								control={singleForm.control}
-								name='categoryFilter'
-								label='Filter Posts by Category'
-								placeholder='Select a category'
-								loadOptions={getOutsourcingCategoriesAsync}
-								getOptionValue={(option) => option.id!}
-								getOptionLabel={(option) => option.nameBn}
-								allowClear
-								onValueChange={() => singleForm.setValue('interestedInPostIds', [])}
-							/>
-							<FormMultiSelect
-								control={singleForm.control}
-								name='interestedInPostIds'
-								label='Interested in (Outsourcing)'
-								placeholder='Select posts...'
-								loadOptions={(search, callback) =>
-									getPostOutsourcingByCategoryAsync(search, singleCategoryFilter, callback)
-								}
-								getOptionValue={(option) => option.id!}
-								getOptionLabel={(option) => (
-									<div className='flex flex-col text-sm'>
-										{option.nameBn}
-										<span className='text-muted-foreground'>{option.outsourcingCategory?.nameBn}</span>
-									</div>
-								)}
-							/>
+							<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+								<FormAutocomplete
+									control={singleForm.control}
+									name='categoryFilter'
+									label='Posts Category'
+									placeholder='Select a category'
+									loadOptions={getOutsourcingCategoriesAsync}
+									getOptionValue={(option) => option.id!}
+									getOptionLabel={(option) => option.nameBn}
+									allowClear
+									onValueChange={() => singleForm.setValue('interestedInPostIds', [])}
+								/>
+								<FormMultiSelect
+									control={singleForm.control}
+									name='interestedInPostIds'
+									label='Interested in (Outsourcing Post)'
+									placeholder='Select posts...'
+									loadOptions={(search, callback) =>
+										getPostOutsourcingByCategoryAsync(search, singleCategoryFilter, callback)
+									}
+									getOptionValue={(option) => option.id!}
+									getOptionLabel={(option) => (
+										<div className='flex flex-col text-sm'>
+											{option.nameBn}
+											<span className='text-muted-foreground'>{option.outsourcingCategory?.nameBn}</span>
+										</div>
+									)}
+								/>
+							</div>
 							<SheetFooter className='pt-4'>
 								<Button type='button' variant='outline' onClick={resetState} disabled={isSubmitting}>
 									Cancel
@@ -348,33 +350,35 @@ export function JobseekerForm({
 									getOptionValue={(option) => option.id!}
 									getOptionLabel={(option) => option.nameBn}
 								/>
-								<FormAutocomplete
-									control={bulkForm.control}
-									name='categoryFilter'
-									label='Filter Posts by Category'
-									placeholder='Select a category'
-									loadOptions={getOutsourcingCategoriesAsync}
-									getOptionValue={(option) => option.id!}
-									getOptionLabel={(option) => option.nameBn}
-									allowClear
-									onValueChange={() => bulkForm.setValue('interestedInPostIds', [])}
-								/>
-								<FormMultiSelect
-									control={bulkForm.control}
-									name='interestedInPostIds'
-									label='Interested in (Outsourcing)'
-									placeholder='Select posts to apply to all users...'
-									loadOptions={(search, callback) =>
-										getPostOutsourcingByCategoryAsync(search, bulkCategoryFilter, callback)
-									}
-									getOptionValue={(option) => option.id!}
-									getOptionLabel={(option) => (
-										<div className='flex flex-col text-sm'>
-											{option.nameBn}
-											<span className='text-muted-foreground'>{option.outsourcingCategory?.nameBn}</span>
-										</div>
-									)}
-								/>
+								<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+									<FormAutocomplete
+										control={bulkForm.control}
+										name='categoryFilter'
+										label='Posts Category'
+										placeholder='Select a category'
+										loadOptions={getOutsourcingCategoriesAsync}
+										getOptionValue={(option) => option.id!}
+										getOptionLabel={(option) => option.nameBn}
+										allowClear
+										onValueChange={() => bulkForm.setValue('interestedInPostIds', [])}
+									/>
+									<FormMultiSelect
+										control={bulkForm.control}
+										name='interestedInPostIds'
+										label='Interested in (Outsourcing Post)'
+										placeholder='Select posts to apply to all users...'
+										loadOptions={(search, callback) =>
+											getPostOutsourcingByCategoryAsync(search, bulkCategoryFilter, callback)
+										}
+										getOptionValue={(option) => option.id!}
+										getOptionLabel={(option) => (
+											<div className='flex flex-col text-sm'>
+												{option.nameBn}
+												<span className='text-muted-foreground'>{option.outsourcingCategory?.nameBn}</span>
+											</div>
+										)}
+									/>
+								</div>
 
 								{step === 'upload' && (
 									<div className='mt-4 space-y-2'>

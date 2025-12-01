@@ -18,7 +18,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
-import { IClientOrganization } from '@/interfaces/master-data.interface';
+import { IClientOrganization, IOutsourcingCategory } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { Building, FileText, Loader2, Search, Trash } from 'lucide-react';
