@@ -49,7 +49,6 @@ import {
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
-import { FormDatePicker } from '@/components/ui/form-datepicker';
 
 interface ApplicantsTableProps {
 	applicants: Application[];
@@ -63,7 +62,7 @@ interface ApplicantsTableProps {
 }
 
 const interviewSchema = z.object({
-	interviewTimeTime: z.string().min(1, 'Interview date and time is required.'),
+	interviewTime: z.string().min(1, 'Interview date and time is required.'),
 });
 type InterviewFormValues = z.infer<typeof interviewSchema>;
 
@@ -107,14 +106,14 @@ export function ApplicantsTable({
 	const handleStatusChange = async (
 		applications: Application[],
 		newStatus: APPLICATION_STATUS,
-		details?: { interviewTimeTime?: string; marks?: number }
+		details?: { interviewTime?: string; marks?: number }
 	) => {
 		const updatedApplications = applications.map((application) => ({
 			...application,
 			status: newStatus,
 			...(newStatus === APPLICATION_STATUS.INTERVIEW &&
-				details?.interviewTimeTime && {
-					interviewTime: format(new Date(details.interviewTimeTime), "yyyy-MM-dd'T'HH:mm:ss"),
+				details?.interviewTime && {
+					interviewTime: format(new Date(details.interviewTime), "yyyy-MM-dd'T'HH:mm:ss"),
 				}),
 			...(details?.marks !== undefined && { marks: details.marks }),
 		}));
@@ -567,12 +566,12 @@ export function ApplicantsTable({
 							onSubmit={interviewForm.handleSubmit(handleInterviewScheduleSubmit)}
 							className='space-y-4 py-4'
 						>
-							<FormDatePicker
+							<FormInput
 								control={interviewForm.control}
-								name='interviewTimeTime'
+								name='interviewTime'
 								label='Interview Date & Time'
+								type='datetime-local'
 								required
-								showTime
 							/>
 							<DialogFooter>
 								<Button type='button' variant='ghost' onClick={() => setIsInterviewModalOpen(false)}>
