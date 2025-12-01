@@ -113,7 +113,7 @@ export function ApplicantsTable({
 			status: newStatus,
 			...(newStatus === APPLICATION_STATUS.INTERVIEW &&
 				details?.interviewTime && {
-					interviewTime: format(new Date(details.interviewTime), "yyyy-MM-dd'T'HH:mm:ss"),
+					interviewTime: new Date(details.interviewTime).toISOString(),
 				}),
 			...(details?.marks !== undefined && { marks: details.marks }),
 		}));
