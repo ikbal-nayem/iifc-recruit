@@ -23,6 +23,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
+import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
@@ -34,7 +35,6 @@ import { IMeta } from '@/interfaces/common.interface';
 import { JobRequestedPostStatus } from '@/interfaces/job.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
-import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, formatDate } from 'date-fns';
 import {
@@ -566,12 +566,12 @@ export function ApplicantsTable({
 							onSubmit={interviewForm.handleSubmit(handleInterviewScheduleSubmit)}
 							className='space-y-4 py-4'
 						>
-							<FormInput
+							<FormDatePicker
 								control={interviewForm.control}
 								name='interviewTime'
 								label='Interview Date & Time'
-								type='datetime-local'
 								required
+								showTime
 							/>
 							<DialogFooter>
 								<Button type='button' variant='ghost' onClick={() => setIsInterviewModalOpen(false)}>

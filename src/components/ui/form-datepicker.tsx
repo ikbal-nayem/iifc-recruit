@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
+import { Input } from './input';
 
 interface FormDatePickerProps<TFieldValues extends FieldValues>
 	extends Omit<CalendarProps, 'onSelect' | 'selected' | 'mode'> {
@@ -17,6 +18,7 @@ interface FormDatePickerProps<TFieldValues extends FieldValues>
 	label: string;
 	required?: boolean;
 	placeholder?: string;
+	showTime?: boolean;
 }
 
 export function FormDatePicker<TFieldValues extends FieldValues>({
@@ -28,8 +30,29 @@ export function FormDatePicker<TFieldValues extends FieldValues>({
 	captionLayout = 'dropdown-buttons',
 	fromYear = 1960,
 	toYear = new Date().getFullYear() + 10,
+	showTime = false,
 	...props
 }: FormDatePickerProps<TFieldValues>) {
+	if (showTime) {
+		return (
+			<FormField
+				control={control}
+				name={name}
+				render={({ field }) => (
+					<FormItem>
+						<div className='space-y-2'>
+							<FormLabel required={required}>{label}</FormLabel>
+							<FormControl>
+								<Input type='datetime-local' {...field} className='w-full' />
+							</FormControl>
+						</div>
+						<FormMessage />
+					</FormItem>
+				)}
+			/>
+		);
+	}
+
 	return (
 		<FormField
 			control={control}
