@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -164,7 +163,6 @@ export function JobRequestForm({
 
 			if (cleanedData.type !== JobRequestType.OUTSOURCING) {
 				delete newPost.outsourcingZoneId;
-				delete newPost.yearsOfContract;
 			} else {
 				delete newPost.salaryFrom;
 				delete newPost.salaryTo;
@@ -285,19 +283,36 @@ export function JobRequestForm({
 										<CardContent className='p-0 space-y-4'>
 											<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
 												{type === JobRequestType.OUTSOURCING && (
-													<FormAutocomplete
-														control={form.control}
-														name={`requestedPosts.${index}.outsourcingCategoryId`}
-														label='Category'
-														required
-														placeholder='Select category'
-														loadOptions={getOutsourcingCategoriesAsync}
-														getOptionValue={(opt) => opt?.id!}
-														getOptionLabel={(opt) => opt.nameBn}
-														onValueChange={() => {
-															form.setValue(`requestedPosts.${index}.postId`, '');
-														}}
-													/>
+													<>
+														<FormAutocomplete
+															control={form.control}
+															name={`requestedPosts.${index}.outsourcingZoneId`}
+															label='Zone'
+															required
+															placeholder='Select Zone'
+															options={outsourcingZones}
+															getOptionValue={(opt) => opt.id}
+															getOptionLabel={(opt) => (
+																<div className='flex flex-col items-start'>
+																	{opt.nameEn}
+																	<small>{opt.nameBn}</small>
+																</div>
+															)}
+														/>
+														<FormAutocomplete
+															control={form.control}
+															name={`requestedPosts.${index}.outsourcingCategoryId`}
+															label='Category'
+															required
+															placeholder='Select category'
+															loadOptions={getOutsourcingCategoriesAsync}
+															getOptionValue={(opt) => opt?.id!}
+															getOptionLabel={(opt) => opt.nameBn}
+															onValueChange={() => {
+																form.setValue(`requestedPosts.${index}.postId`, '');
+															}}
+														/>
+													</>
 												)}
 												<FormAutocomplete
 													control={form.control}
@@ -342,56 +357,37 @@ export function JobRequestForm({
 													type='number'
 													placeholder='e.g., 5'
 												/>
-											</div>
-
-											{type === JobRequestType.OUTSOURCING ? (
-												<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-													<FormAutocomplete
-														control={form.control}
-														name={`requestedPosts.${index}.outsourcingZoneId`}
-														label='Zone'
-														required
-														placeholder='Select Zone'
-														options={outsourcingZones}
-														getOptionValue={(opt) => opt.id}
-														getOptionLabel={(opt) => (
-															<div className='flex flex-col items-start'>
-																{opt.nameEn}
-																<small>{opt.nameBn}</small>
-															</div>
-														)}
-													/>
-													<FormInput
-														control={form.control}
-														name={`requestedPosts.${index}.yearsOfContract`}
-														label='Years of Contract'
-														type='number'
-														placeholder='e.g., 3'
-													/>
-												</div>
-											) : (
-												<div className='grid grid-cols-1 md:grid-cols-3 gap-4 items-center'>
-													<FormInput
-														control={form.control}
-														name={`requestedPosts.${index}.salaryFrom`}
-														label='Salary From'
-														type='number'
-													/>
-													<FormInput
-														control={form.control}
-														name={`requestedPosts.${index}.salaryTo`}
-														label='Salary To'
-														type='number'
-													/>
-													<div className='pt-8'>
-														<FormCheckbox
+												<FormInput
+													control={form.control}
+													name={`requestedPosts.${index}.yearsOfContract`}
+													label='Years of Contract'
+													type='number'
+													placeholder='e.g., 3'
+												/>
+												{type === JobRequestType.OUTSOURCING ? null : (
+													<>
+														<FormInput
 															control={form.control}
-															name={`requestedPosts.${index}.negotiable`}
-															label='Negotiable'
+															name={`requestedPosts.${index}.salaryFrom`}
+															label='Salary From'
+															type='number'
 														/>
-													</div>
-												</div>
-											)}
+														<FormInput
+															control={form.control}
+															name={`requestedPosts.${index}.salaryTo`}
+															label='Salary To'
+															type='number'
+														/>
+														<div className='pt-8'>
+															<FormCheckbox
+																control={form.control}
+																name={`requestedPosts.${index}.negotiable`}
+																label='Negotiable'
+															/>
+														</div>
+													</>
+												)}
+											</div>
 										</CardContent>
 										{fields.length > 1 && (
 											<Button
