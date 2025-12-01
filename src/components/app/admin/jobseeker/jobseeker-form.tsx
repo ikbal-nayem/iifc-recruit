@@ -20,10 +20,10 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { COMMON_URL } from '@/constants/common.constant';
 import useLoader from '@/hooks/use-loader';
 import { toast } from '@/hooks/use-toast';
-import { IClientOrganization } from '@/interfaces/master-data.interface';
+import { IClientOrganization, ICommonMasterData } from '@/interfaces/master-data.interface';
 import { cn } from '@/lib/utils';
 import { UserService } from '@/services/api/user.service';
-import { getPostOutsourcingAsync } from '@/services/async-api';
+import { getOutsourcingCategoriesAsync, getPostOutsourcingByCategoryAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { Check, Download, Loader2 } from 'lucide-react';
@@ -35,7 +35,6 @@ import * as z from 'zod';
 
 const userSchema = z.object({
 	firstName: z.string().min(1, 'First name is required.'),
-	// lastName: z.string().optional(),
 	email: z.string().email('Email should be valid.').optional().or(z.literal('')),
 	phone: z
 		.string()
@@ -44,12 +43,14 @@ const userSchema = z.object({
 		.regex(/^01[0-9]{9}$/, 'Invalid phone number'),
 	organizationId: z.string().optional(),
 	interestedInPostIds: z.array(z.string()).optional(),
+	categoryFilter: z.string().optional(),
 });
 type UserFormValues = z.infer<typeof userSchema>;
 
 const bulkUserSchema = z.object({
 	organizationId: z.string().optional(),
 	interestedInPostIds: z.array(z.string()).optional(),
+	categoryFilter: z.string().optional(),
 	file: z
 		.any()
 		.refine((file) => file, 'File is required.')
@@ -69,7 +70,6 @@ const editableUserSchema = z.object({
 	users: z.array(
 		z.object({
 			firstName: z.string().min(1, 'First name is required'),
-			// lastName: z.string().optional(),
 			email: z.string().email('Invalid email'),
 			phone: z.string().optional(),
 			status: z.string().optional(),
@@ -97,11 +97,11 @@ export function JobseekerForm({
 		resolver: zodResolver(userSchema),
 		defaultValues: {
 			firstName: '',
-			// lastName: '',
 			email: '',
 			phone: '',
 			organizationId: '',
 			interestedInPostIds: [],
+			categoryFilter: '',
 		},
 	});
 
@@ -110,6 +110,7 @@ export function JobseekerForm({
 		defaultValues: {
 			organizationId: '',
 			interestedInPostIds: [],
+			categoryFilter: '',
 		},
 	});
 
@@ -117,6 +118,9 @@ export function JobseekerForm({
 		resolver: zodResolver(editableUserSchema),
 		defaultValues: { users: [] },
 	});
+
+	const singleCategoryFilter = singleForm.watch('categoryFilter');
+	const bulkCategoryFilter = bulkForm.watch('categoryFilter');
 
 	const { fields, replace } = useFieldArray({
 		control: editableForm.control,
@@ -211,18 +215,6 @@ export function JobseekerForm({
 					/>
 				),
 			},
-			// {
-			// 	accessorKey: 'lastName',
-			// 	header: 'Last Name',
-			// 	cell: ({ row }) => (
-			// 		<FormInput
-			// 			control={editableForm.control}
-			// 			name={`users.${row.index}.lastName`}
-			// 			onFocus={(e) => e.target.select()}
-			// 			className='border-none'
-			// 		/>
-			// 	),
-			// },
 			{
 				accessorKey: 'email',
 				header: 'Email',
@@ -295,7 +287,6 @@ export function JobseekerForm({
 								control={singleForm.control}
 								name='organizationId'
 								label='Client Organization'
-								// required
 								placeholder='Select an organization'
 								options={organizations}
 								getOptionValue={(option) => option.id!}
@@ -303,16 +294,28 @@ export function JobseekerForm({
 							/>
 							<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
 								<FormInput control={singleForm.control} name='firstName' label='Name' required />
-								{/* <FormInput control={singleForm.control} name='lastName' label='Last Name' /> */}
 							</div>
 							<FormInput control={singleForm.control} name='phone' label='Phone' required />
 							<FormInput control={singleForm.control} name='email' label='Email' type='email' />
+							<FormAutocomplete
+								control={singleForm.control}
+								name='categoryFilter'
+								label='Filter Posts by Category'
+								placeholder='Select a category'
+								loadOptions={getOutsourcingCategoriesAsync}
+								getOptionValue={(option) => option.id!}
+								getOptionLabel={(option) => option.nameBn}
+								allowClear
+								onValueChange={() => singleForm.setValue('interestedInPostIds', [])}
+							/>
 							<FormMultiSelect
 								control={singleForm.control}
 								name='interestedInPostIds'
 								label='Interested in (Outsourcing)'
 								placeholder='Select posts...'
-								loadOptions={getPostOutsourcingAsync}
+								loadOptions={(search, callback) =>
+									getPostOutsourcingByCategoryAsync(search, singleCategoryFilter, callback)
+								}
 								getOptionValue={(option) => option.id!}
 								getOptionLabel={(option) => (
 									<div className='flex flex-col text-sm'>
@@ -340,19 +343,30 @@ export function JobseekerForm({
 									control={bulkForm.control}
 									name='organizationId'
 									label='Client Organization'
-									// required
 									placeholder='Select an organization'
 									options={organizations}
 									getOptionValue={(option) => option.id!}
 									getOptionLabel={(option) => option.nameBn}
-									// onValueChange={() => bulkForm.clearErrors()}
+								/>
+								<FormAutocomplete
+									control={bulkForm.control}
+									name='categoryFilter'
+									label='Filter Posts by Category'
+									placeholder='Select a category'
+									loadOptions={getOutsourcingCategoriesAsync}
+									getOptionValue={(option) => option.id!}
+									getOptionLabel={(option) => option.nameBn}
+									allowClear
+									onValueChange={() => bulkForm.setValue('interestedInPostIds', [])}
 								/>
 								<FormMultiSelect
 									control={bulkForm.control}
 									name='interestedInPostIds'
 									label='Interested in (Outsourcing)'
 									placeholder='Select posts to apply to all users...'
-									loadOptions={getPostOutsourcingAsync}
+									loadOptions={(search, callback) =>
+										getPostOutsourcingByCategoryAsync(search, bulkCategoryFilter, callback)
+									}
 									getOptionValue={(option) => option.id!}
 									getOptionLabel={(option) => (
 										<div className='flex flex-col text-sm'>

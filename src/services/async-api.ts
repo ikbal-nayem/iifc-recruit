@@ -37,6 +37,22 @@ export const getPostOutsourcingAsync = (searchKey: string, callback: (data: IPos
 	MasterDataService.post.getList(initPayload).then((resp) => callback(resp?.body || []));
 };
 
+export const getPostOutsourcingByCategoryAsync = (
+	searchKey: string,
+	categoryId: string | undefined,
+	callback: (data: IPost[]) => void
+) => {
+	const body: { searchKey: string; outsourcing: boolean; outsourcingCategoryId?: string } = {
+		searchKey: searchKey,
+		outsourcing: true,
+	};
+	if (categoryId) {
+		body.outsourcingCategoryId = categoryId;
+	}
+	initPayload.body = body;
+	MasterDataService.post.getList(initPayload).then((resp) => callback(resp?.body || []));
+};
+
 export const getPostNonOutsourcingAsync = (searchKey: string, callback: (data: IPost[]) => void) => {
 	initPayload.body = { searchKey: searchKey, outsourcing: false };
 	MasterDataService.post.getList(initPayload).then((resp) => callback(resp?.body || []));
