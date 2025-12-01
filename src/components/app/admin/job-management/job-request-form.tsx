@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -25,7 +26,12 @@ import { toast } from '@/hooks/use-toast';
 import { JobRequest, JobRequestType } from '@/interfaces/job.interface';
 import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from '@/interfaces/master-data.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { getClientAsync, getPostNonOutsourcingAsync, getPostOutsourcingAsync } from '@/services/async-api';
+import {
+	getClientAsync,
+	getOutsourcingCategoriesAsync,
+	getPostNonOutsourcingAsync,
+	getPostOutsourcingByCategoryAsync,
+} from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
 import { Loader2, PlusCircle, Save, Trash } from 'lucide-react';
@@ -44,6 +50,7 @@ const requestedPostSchema = z.object({
 	salaryFrom: z.coerce.number().optional(),
 	salaryTo: z.coerce.number().optional(),
 	yearsOfContract: z.coerce.number().optional().nullable(),
+	outsourcingCategoryId: z.string().optional(), // Added for filtering
 });
 
 const jobRequestSchema = z
@@ -82,6 +89,7 @@ const defaultRequestedPost = {
 	salaryTo: undefined,
 	yearsOfContract: undefined,
 	negotiable: false,
+	outsourcingCategoryId: '',
 };
 
 type JobRequestFormValues = z.infer<typeof jobRequestSchema>;
@@ -113,6 +121,11 @@ export function JobRequestForm({
 					...initialData,
 					requestDate: format(new Date(initialData.requestDate), 'yyyy-MM-dd'),
 					deadline: format(new Date(initialData.deadline), 'yyyy-MM-dd'),
+					requestedPosts:
+						initialData.requestedPosts.map((p) => ({
+							...p,
+							outsourcingCategoryId: p.post?.outsourcingCategoryId,
+						})) || [],
 			  }
 			: {
 					memoNo: '',
@@ -134,6 +147,7 @@ export function JobRequestForm({
 	});
 
 	const type = form.watch('type');
+	const requestedPostsValues = form.watch('requestedPosts');
 
 	function onFormSubmit(data: JobRequestFormValues) {
 		setConfirmationData(data);
@@ -156,6 +170,7 @@ export function JobRequestForm({
 				delete newPost.salaryTo;
 				delete newPost.negotiable;
 			}
+			delete newPost.outsourcingCategoryId; // remove filter field before submitting
 			return newPost;
 		});
 
@@ -263,114 +278,135 @@ export function JobRequestForm({
 							<CardDescription>Add the details for each requested post.</CardDescription>
 						</CardHeader>
 						<CardContent className='space-y-4'>
-							{fields.map((field, index) => (
-								<Card key={field.id} className='p-4 relative bg-muted/5'>
-									<CardContent className='p-0 space-y-4'>
-										<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-											<FormAutocomplete
-												control={form.control}
-												name={`requestedPosts.${index}.postId`}
-												label='Post'
-												required
-												loadOptions={
-													type === JobRequestType.OUTSOURCING
-														? getPostOutsourcingAsync
-														: getPostNonOutsourcingAsync
-												}
-												getOptionValue={(opt) => opt?.id!}
-												getOptionLabel={(opt) =>
-													type === JobRequestType.OUTSOURCING ? (
-														<div className='flex flex-col items-start'>
-															{opt.nameBn}
-															<small>{opt.outsourcingCategory?.nameBn}</small>
-														</div>
-													) : (
-														<div className='flex flex-col items-start'>
-															{opt.nameEn}
-															<small>{opt.nameBn}</small>
-														</div>
-													)
-												}
-											/>
-											<FormInput
-												control={form.control}
-												name={`requestedPosts.${index}.vacancy`}
-												label='Vacancies'
-												required
-												type='number'
-												placeholder='e.g., 10'
-											/>
-											<FormInput
-												control={form.control}
-												name={`requestedPosts.${index}.experienceRequired`}
-												label='Experience Required (Yrs)'
-												type='number'
-												placeholder='e.g., 5'
-											/>
-										</div>
-
-										{type === JobRequestType.OUTSOURCING ? (
-											<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+							{fields.map((field, index) => {
+								const categoryId = requestedPostsValues?.[index]?.outsourcingCategoryId;
+								return (
+									<Card key={field.id} className='p-4 relative bg-muted/5'>
+										<CardContent className='p-0 space-y-4'>
+											<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+												{type === JobRequestType.OUTSOURCING && (
+													<FormAutocomplete
+														control={form.control}
+														name={`requestedPosts.${index}.outsourcingCategoryId`}
+														label='Category'
+														required
+														placeholder='Select category'
+														loadOptions={getOutsourcingCategoriesAsync}
+														getOptionValue={(opt) => opt?.id!}
+														getOptionLabel={(opt) => opt.nameBn}
+														onValueChange={() => {
+															form.setValue(`requestedPosts.${index}.postId`, '');
+														}}
+													/>
+												)}
 												<FormAutocomplete
 													control={form.control}
-													name={`requestedPosts.${index}.outsourcingZoneId`}
-													label='Zone'
+													name={`requestedPosts.${index}.postId`}
+													label='Post'
 													required
-													placeholder='Select Zone'
-													options={outsourcingZones}
-													getOptionValue={(opt) => opt.id}
-													getOptionLabel={(opt) => (
-														<div className='flex flex-col items-start'>
-															{opt.nameEn}
-															<small>{opt.nameBn}</small>
-														</div>
-													)}
+													disabled={type === JobRequestType.OUTSOURCING && !categoryId}
+													loadOptions={(searchKey, callback) => {
+														if (type === JobRequestType.OUTSOURCING) {
+															getPostOutsourcingByCategoryAsync(searchKey, categoryId, callback);
+														} else {
+															getPostNonOutsourcingAsync(searchKey, callback);
+														}
+													}}
+													getOptionValue={(opt) => opt?.id!}
+													getOptionLabel={(opt) =>
+														type === JobRequestType.OUTSOURCING ? (
+															<div className='flex flex-col items-start'>
+																{opt.nameBn}
+																<small>{opt.outsourcingCategory?.nameBn}</small>
+															</div>
+														) : (
+															<div className='flex flex-col items-start'>
+																{opt.nameEn}
+																<small>{opt.nameBn}</small>
+															</div>
+														)
+													}
 												/>
 												<FormInput
 													control={form.control}
-													name={`requestedPosts.${index}.yearsOfContract`}
-													label='Years of Contract'
+													name={`requestedPosts.${index}.vacancy`}
+													label='Vacancies'
+													required
 													type='number'
-													placeholder='e.g., 3'
+													placeholder='e.g., 10'
+												/>
+												<FormInput
+													control={form.control}
+													name={`requestedPosts.${index}.experienceRequired`}
+													label='Experience Required (Yrs)'
+													type='number'
+													placeholder='e.g., 5'
 												/>
 											</div>
-										) : (
-											<div className='grid grid-cols-1 md:grid-cols-3 gap-4 items-center'>
-												<FormInput
-													control={form.control}
-													name={`requestedPosts.${index}.salaryFrom`}
-													label='Salary From'
-													type='number'
-												/>
-												<FormInput
-													control={form.control}
-													name={`requestedPosts.${index}.salaryTo`}
-													label='Salary To'
-													type='number'
-												/>
-												<div className='pt-8'>
-													<FormCheckbox
+
+											{type === JobRequestType.OUTSOURCING ? (
+												<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+													<FormAutocomplete
 														control={form.control}
-														name={`requestedPosts.${index}.negotiable`}
-														label='Negotiable'
+														name={`requestedPosts.${index}.outsourcingZoneId`}
+														label='Zone'
+														required
+														placeholder='Select Zone'
+														options={outsourcingZones}
+														getOptionValue={(opt) => opt.id}
+														getOptionLabel={(opt) => (
+															<div className='flex flex-col items-start'>
+																{opt.nameEn}
+																<small>{opt.nameBn}</small>
+															</div>
+														)}
+													/>
+													<FormInput
+														control={form.control}
+														name={`requestedPosts.${index}.yearsOfContract`}
+														label='Years of Contract'
+														type='number'
+														placeholder='e.g., 3'
 													/>
 												</div>
-											</div>
+											) : (
+												<div className='grid grid-cols-1 md:grid-cols-3 gap-4 items-center'>
+													<FormInput
+														control={form.control}
+														name={`requestedPosts.${index}.salaryFrom`}
+														label='Salary From'
+														type='number'
+													/>
+													<FormInput
+														control={form.control}
+														name={`requestedPosts.${index}.salaryTo`}
+														label='Salary To'
+														type='number'
+													/>
+													<div className='pt-8'>
+														<FormCheckbox
+															control={form.control}
+															name={`requestedPosts.${index}.negotiable`}
+															label='Negotiable'
+														/>
+													</div>
+												</div>
+											)}
+										</CardContent>
+										{fields.length > 1 && (
+											<Button
+												type='button'
+												variant='ghost'
+												size='icon'
+												className='absolute top-1 right-1 h-7 w-7'
+												onClick={() => remove(index)}
+											>
+												<Trash className='h-4 w-4 text-danger' />
+											</Button>
 										)}
-									</CardContent>
-									{fields.length > 1 && (
-										<Button
-											type='button'
-											variant='ghost'
-											size='icon'
-											className='absolute top-1 right-1 h-7 w-7'
-											onClick={() => remove(index)}
-										>
-											<Trash className='h-4 w-4 text-danger' />
-										</Button>
-									)}
-								</Card>
-							))}
+									</Card>
+								);
+							})}
 
 							{!!form.formState.errors.requestedPosts?.root?.message && (
 								<Alert variant='danger'>
