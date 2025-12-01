@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
@@ -10,6 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -20,10 +21,10 @@ import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
-import { Building, FileText, Loader2, Search } from 'lucide-react';
-import { FormAutocomplete } from '@/components/ui/form-autocomplete';
+import { Building, FileText, Loader2, Search, Trash } from 'lucide-react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 import { JobseekerForm } from './jobseeker-form';
+import { UserService } from '@/services/api/user.service';
 
 const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
 
@@ -42,6 +43,7 @@ export function JobseekerManagement({
 	const { toast } = useToast();
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [searchQuery, setSearchQuery] = React.useState('');
+	const [userToDelete, setUserToDelete] = React.useState<JobseekerSearch | null>(null);
 	const debouncedSearch = useDebounce(searchQuery, 500);
 	const [organizationFilter, setOrganizationFilter] = React.useState('all');
 
@@ -80,11 +82,31 @@ export function JobseekerManagement({
 		loadJobseekers(newPage, debouncedSearch, organizationFilter);
 	};
 
+	const handleDelete = async () => {
+		if (!userToDelete) return;
+		try {
+			await UserService.deleteUser(userToDelete.userId);
+			toast.success({ description: `Jobseeker ${userToDelete.fullName} has been deleted.` });
+			loadJobseekers(meta.page, debouncedSearch, organizationFilter);
+		} catch (error: any) {
+			toast.error({ description: error.message || 'Failed to delete user.' });
+		} finally {
+			setUserToDelete(null);
+		}
+	};
+
 	const getActionItems = (jobseeker: JobseekerSearch): ActionItem[] => [
 		{
 			label: 'View Full Profile',
 			icon: <FileText className='mr-2 h-4 w-4' />,
 			onClick: () => setSelectedJobseeker(jobseeker),
+		},
+		{ isSeparator: true },
+		{
+			label: 'Delete',
+			icon: <Trash className='mr-2 h-4 w-4' />,
+			onClick: () => setUserToDelete(jobseeker),
+			variant: 'danger',
 		},
 	];
 
@@ -158,9 +180,7 @@ export function JobseekerManagement({
 								<p className='flex items-center gap-1.5'>
 									<Building className='h-3 w-3' /> {jobseeker.organizationNameEn}
 								</p>
-								<p className='flex items-center gap-1.5 pl-4 -ml-0.5'>
-									{jobseeker.organizationNameBn}
-								</p>
+								<p className='flex items-center gap-1.5 pl-4 -ml-0.5'>{jobseeker.organizationNameBn}</p>
 							</div>
 						)}
 					</div>
@@ -271,7 +291,12 @@ export function JobseekerManagement({
 				</CardContent>
 				{meta && meta.totalRecords && meta.totalRecords > 0 ? (
 					<CardFooter>
-						<Pagination meta={meta} isLoading={isLoading} onPageChange={handlePageChange} noun={'jobseeker'} />
+						<Pagination
+							meta={meta}
+							isLoading={isLoading}
+							onPageChange={handlePageChange}
+							noun={'jobseeker'}
+						/>
 					</CardFooter>
 				) : null}
 			</Card>
@@ -291,6 +316,16 @@ export function JobseekerManagement({
 				onSuccess={() => loadJobseekers(0, '', 'all')}
 				organizations={organizations}
 			/>
+			{userToDelete && (
+				<ConfirmationDialog
+					open={!!userToDelete}
+					onOpenChange={(open) => !open && setUserToDelete(null)}
+					title='Are you sure?'
+					description={`This will permanently delete the user "${userToDelete.fullName}".`}
+					onConfirm={handleDelete}
+					confirmText='Delete'
+				/>
+			)}
 		</div>
 	);
 }
