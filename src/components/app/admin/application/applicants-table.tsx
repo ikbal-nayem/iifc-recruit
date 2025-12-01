@@ -49,6 +49,7 @@ import {
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
+import { FormDatePicker } from '@/components/ui/form-datepicker';
 
 interface ApplicantsTableProps {
 	applicants: Application[];
@@ -566,12 +567,12 @@ export function ApplicantsTable({
 							onSubmit={interviewForm.handleSubmit(handleInterviewScheduleSubmit)}
 							className='space-y-4 py-4'
 						>
-							<FormInput
+							<FormDatePicker
 								control={interviewForm.control}
 								name='interviewTimeTime'
 								label='Interview Date & Time'
-								type='datetime-local'
 								required
+								showTime
 							/>
 							<DialogFooter>
 								<Button type='button' variant='ghost' onClick={() => setIsInterviewModalOpen(false)}>
