@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -14,7 +13,7 @@ import { FormRadioGroup } from '@/components/ui/form-radio-group';
 import { FormSelect } from '@/components/ui/form-select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTES } from '@/constants/routes.constant';
-import { toast, useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { ResultSystem } from '@/interfaces/common.interface';
 import { AcademicInfo } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
@@ -150,6 +149,13 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 								placeholder='e.g., Science, Arts'
 							/>
 						</div>
+						<FormInput
+							control={form.control}
+							name='degreeTitle'
+							label='Degree Name'
+							required
+							placeholder='e.g., Bachelor of Science in CSE'
+						/>
 						<FormAutocomplete
 							control={form.control}
 							name='institutionId'
@@ -160,13 +166,6 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 							getOptionValue={(option) => option.id}
 							getOptionLabel={(option) => option.nameEn}
 							initialLabel={initialData?.institution?.nameEn}
-						/>
-						<FormInput
-							control={form.control}
-							name='degreeTitle'
-							label='Degree Name'
-							required
-							placeholder='e.g., Bachelor of Science in CSE'
 						/>
 						<FormRadioGroup
 							control={form.control}
@@ -234,7 +233,6 @@ interface ProfileFormAcademicProps {
 
 export function ProfileFormAcademic({ masterData }: ProfileFormAcademicProps) {
 	const router = useRouter();
-	const { toast } = useToast();
 	const [history, setHistory] = React.useState<AcademicInfo[]>([]);
 	const [editingItem, setEditingItem] = React.useState<AcademicInfo | undefined>(undefined);
 	const [isFormOpen, setIsFormOpen] = React.useState(false);
@@ -244,16 +242,15 @@ export function ProfileFormAcademic({ masterData }: ProfileFormAcademicProps) {
 		setIsLoading(true);
 		try {
 			const academicRes = await JobseekerProfileService.academic.get();
-			setHistory(academicRes.body);
+			setHistory(academicRes.body as AcademicInfo[]);
 		} catch (error) {
-			toast({
+			toast.error({
 				description: 'Failed to load academic history.',
-				variant: 'danger',
 			});
 		} finally {
 			setIsLoading(false);
 		}
-	}, [toast]);
+	}, []);
 
 	React.useEffect(() => {
 		loadData();
@@ -274,11 +271,11 @@ export function ProfileFormAcademic({ masterData }: ProfileFormAcademicProps) {
 			const payload: any = { ...data, id };
 			const formData = makeFormData(payload);
 			const response = await JobseekerProfileService.academic.save(formData);
-			toast({ description: response.message, variant: 'success' });
+			toast.success({ description: response.message });
 			loadData();
 			return true;
 		} catch (error: any) {
-			toast({ title: 'Error', description: error.message || 'An error occurred.', variant: 'danger' });
+			toast.error({ title: 'Error', description: error.message || 'An error occurred.' });
 			return false;
 		}
 	};
@@ -286,17 +283,15 @@ export function ProfileFormAcademic({ masterData }: ProfileFormAcademicProps) {
 	const handleRemove = async (id: string) => {
 		try {
 			await JobseekerProfileService.academic.delete(id);
-			toast({
+			toast.success({
 				title: 'Entry Deleted',
 				description: 'The academic record has been removed.',
-				variant: 'success',
 			});
 			loadData();
 		} catch (error: any) {
-			toast({
+			toast.error({
 				title: 'Error',
 				description: error.message || 'Failed to delete record.',
-				variant: 'danger',
 			});
 		}
 	};
