@@ -6,7 +6,7 @@ import { Calendar, CalendarProps } from '@/components/ui/calendar';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { format, parse } from 'date-fns';
+import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
 import { Input } from './input';
@@ -39,47 +39,52 @@ export function FormDatePicker<TFieldValues extends FieldValues>({
 			control={control}
 			name={name}
 			render={({ field }) => {
-				const [time, setTime] = React.useState(() => {
-					if (field.value && showTime) {
-						try {
-							return format(new Date(field.value), 'HH:mm');
-						} catch (e) {
-							return '';
-						}
-					}
-					return '';
-				});
-
 				const handleDateSelect = (date: Date | undefined) => {
 					if (!date) {
 						field.onChange('');
 						return;
 					}
 
-					let newDate = new Date(date);
-					if (showTime && time) {
-						const [hours, minutes] = time.split(':').map(Number);
-						newDate.setHours(hours, minutes);
+					let newDateTime = date;
+					if (showTime && field.value) {
+						// Preserve time part if it exists
+						const currentTime = new Date(field.value);
+						if (!isNaN(currentTime.getTime())) {
+							newDateTime.setHours(currentTime.getHours(), currentTime.getMinutes());
+						}
 					}
-					field.onChange(newDate.toISOString());
+					field.onChange(newDateTime.toISOString());
 				};
 
 				const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-					const newTime = e.target.value;
-					setTime(newTime);
-
-					if (field.value) {
-						const currentDate = new Date(field.value);
-						if (!isNaN(currentDate.getTime())) {
-							const [hours, minutes] = newTime.split(':').map(Number);
-							currentDate.setHours(hours, minutes);
-							field.onChange(currentDate.toISOString());
-						}
+					const timeValue = e.target.value;
+					let baseDate = field.value ? new Date(field.value) : new Date();
+					
+					if (isNaN(baseDate.getTime())) {
+						baseDate = new Date();
+					}
+					
+					if (timeValue) {
+						const [hours, minutes] = timeValue.split(':').map(Number);
+						baseDate.setHours(hours, minutes, 0, 0); // Reset seconds and ms
+						field.onChange(baseDate.toISOString());
+					} else {
+						// Handle case where time is cleared
+						const dateOnly = new Date(baseDate);
+						dateOnly.setHours(0, 0, 0, 0);
+						field.onChange(dateOnly.toISOString());
 					}
 				};
 
-				const displayFormat = showTime ? 'PPP p' : 'PPP';
-				const displayValue = field.value ? format(new Date(field.value), displayFormat) : '';
+				// Format the date for the button display
+				const displayValue = field.value
+					? format(new Date(field.value), showTime ? 'PPP p' : 'PPP')
+					: `Pick a ${showTime ? 'date and time' : 'date'}`;
+
+				// Format the date/time for the input field value
+				const inputValue = field.value
+					? format(new Date(field.value), showTime ? "yyyy-MM-dd'T'HH:mm" : 'yyyy-MM-dd')
+					: '';
 
 				return (
 					<FormItem>
@@ -95,7 +100,11 @@ export function FormDatePicker<TFieldValues extends FieldValues>({
 												!field.value && 'text-muted-foreground'
 											)}
 										>
-											{displayValue ? displayValue : <span>{placeholder || 'Pick a date'}</span>}
+											{field.value ? (
+												format(new Date(field.value), showTime ? 'PPP p' : 'PPP')
+											) : (
+												<span>{placeholder || 'Pick a date'}</span>
+											)}
 											<CalendarIcon className='ml-auto h-4 w-4 opacity-50' />
 										</Button>
 									</FormControl>
@@ -114,7 +123,12 @@ export function FormDatePicker<TFieldValues extends FieldValues>({
 									{showTime && (
 										<div className='p-3 border-t'>
 											<label className='text-sm font-medium'>Time</label>
-											<Input type='time' value={time} onChange={handleTimeChange} className='mt-1' />
+											<Input
+												type='time'
+												value={field.value ? format(new Date(field.value), 'HH:mm') : ''}
+												onChange={handleTimeChange}
+												className='mt-1'
+											/>
 										</div>
 									)}
 								</PopoverContent>

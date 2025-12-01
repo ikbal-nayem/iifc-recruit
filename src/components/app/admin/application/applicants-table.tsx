@@ -134,6 +134,18 @@ export function ApplicantsTable({
 		setBulkAction(null);
 	};
 
+	const openInterviewDialog = (applications: Application[]) => {
+		setInterviewApplicants(applications);
+		// If editing a single applicant with an existing interview time, set it as default
+		if (applications.length === 1 && applications[0].interviewTime) {
+			const localTime = format(new Date(applications[0].interviewTime), "yyyy-MM-dd'T'HH:mm");
+			interviewForm.setValue('interviewTime', localTime);
+		} else {
+			interviewForm.reset({ interviewTime: '' });
+		}
+		setIsInterviewModalOpen(true);
+	};
+
 	const handleInterviewScheduleSubmit = (values: InterviewFormValues) => {
 		handleStatusChange(interviewApplicants, APPLICATION_STATUS.INTERVIEW, values);
 		setIsInterviewModalOpen(false);
@@ -188,10 +200,7 @@ export function ApplicantsTable({
 				{
 					label: 'Call for Interview',
 					icon: <CalendarIcon className='mr-2 h-4 w-4' />,
-					onClick: () => {
-						setInterviewApplicants([application]);
-						setIsInterviewModalOpen(true);
-					},
+					onClick: () => openInterviewDialog([application]),
 				}
 			);
 		}
@@ -202,10 +211,7 @@ export function ApplicantsTable({
 				{
 					label: 'Change Interview Time',
 					icon: <CalendarIcon className='mr-2 h-4 w-4' />,
-					onClick: () => {
-						setInterviewApplicants([application]);
-						setIsInterviewModalOpen(true);
-					},
+					onClick: () => openInterviewDialog([application]),
 				},
 				{
 					label: 'Set Interview Marks',
@@ -359,8 +365,7 @@ export function ApplicantsTable({
 
 	const handleBulkInterview = () => {
 		const selected = table.getSelectedRowModel().rows.map((row) => row.original);
-		setInterviewApplicants(selected);
-		setIsInterviewModalOpen(true);
+		openInterviewDialog(selected);
 	};
 
 	const renderMobileCard = (applicant: Application) => {
