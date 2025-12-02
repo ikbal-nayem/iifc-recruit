@@ -80,12 +80,12 @@ export function JobCircularDetails({ circularId, isReadOnly = false }: JobCircul
 
 		return isAuthenticated ? (
 			<JobApplicationClient
-				jobTitle={job.postNameEn}
-				jobOrganizationName={job.clientOrganizationNameEn}
+				jobTitle={job.postNameBn}
+				jobOrganizationName={job.clientOrganizationNameBn}
 				jobId={job.id}
 			/>
 		) : (
-			<JobDetailClient jobTitle={job.postNameEn} jobId={job.id} />
+			<JobDetailClient jobTitle={job.postNameBn} jobId={job.id} />
 		);
 	};
 
@@ -107,14 +107,14 @@ export function JobCircularDetails({ circularId, isReadOnly = false }: JobCircul
 						<CardHeader>
 							<div className='flex flex-col sm:flex-row justify-between items-start gap-4'>
 								<div className='flex-1'>
-									<CardTitle className='font-headline text-3xl'>{job.postNameEn}</CardTitle>
+									<CardTitle className='font-headline text-3xl'>{job.postNameBn}</CardTitle>
 									<CardDescription className='flex flex-wrap items-center gap-x-4 gap-y-2 pt-4'>
 										<span className='flex items-center gap-2'>
-											<Briefcase className='h-4 w-4' /> {job.clientOrganizationNameEn}
+											<Briefcase className='h-4 w-4' /> {job.clientOrganizationNameBn}
 										</span>
-										{job.outsourcingZoneNameEn && (
+										{job.outsourcingZoneNameBn && (
 											<span className='flex items-center gap-2'>
-												<MapPin className='h-4 w-4' /> {job.outsourcingZoneNameEn}
+												<MapPin className='h-4 w-4' /> {job.outsourcingZoneNameBn}
 											</span>
 										)}
 										{(job.salaryFrom || job.salaryTo) && (
