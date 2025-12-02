@@ -1,3 +1,4 @@
+
 import { JobApplicationClient } from '@/components/app/jobseeker/job-application-client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,7 @@ import { ROUTES } from '@/constants/routes.constant';
 import { IObject } from '@/interfaces/common.interface';
 import { ICircular } from '@/interfaces/job.interface';
 import { CircularService } from '@/services/api/circular.service';
-import { format, isPast, parseISO } from 'date-fns';
+import { endOfDay, format, isPast, parseISO } from 'date-fns';
 import { ArrowLeft, Briefcase, CheckCheck, DollarSign, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -43,6 +44,7 @@ export default async function JobDetailsPage({
 	const deadline = parseISO(job.circularEndDate);
 	const today = new Date();
 	const daysUntilDeadline = Math.ceil((deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+	const isExpired = isPast(endOfDay(deadline));
 
 	return (
 		<div className='container mx-auto px-4'>
@@ -80,7 +82,7 @@ export default async function JobDetailsPage({
 									</CardDescription>
 								</div>
 								<div className='flex-shrink-0'>
-									{!job.applied && !isPast(deadline) && (
+									{!job.applied && !isExpired && (
 										<JobApplicationClient
 											jobTitle={job.postNameEn}
 											jobOrganizationName={job.clientOrganizationNameEn}
