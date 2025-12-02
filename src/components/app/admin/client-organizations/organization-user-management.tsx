@@ -147,7 +147,6 @@ export function OrganizationUserManagement({
 	organizationId: string;
 	roles: IRole[];
 }) {
-	const { toast } = useToast();
 	const { currectUser } = useAuth();
 	const [users, setUsers] = useState<IOrganizationUser[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
