@@ -5,8 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/contexts/auth-context';
 import { ICircular } from '@/interfaces/job.interface';
+import { convertEnToBn } from '@/lib/translator';
 import { cn } from '@/lib/utils';
-import { differenceInDays, format, isPast, parseISO } from 'date-fns';
+import { differenceInDays, endOfDay, format, isPast, parseISO } from 'date-fns';
 import { Briefcase, MapPin, Users } from 'lucide-react';
 import Link from 'next/link';
 
@@ -18,8 +19,8 @@ interface JobCardProps {
 
 export function JobCard({ job, view = 'grid', searchParams }: JobCardProps) {
 	const deadline = parseISO(job.circularEndDate);
-	const isDeadlinePast = isPast(deadline);
-	const daysLeft = differenceInDays(deadline, new Date());
+	const isDeadlinePast = isPast(endOfDay(deadline));
+	const daysLeft = differenceInDays(deadline, new Date()) + 1;
 	const { isAuthenticated } = useAuth();
 
 	let deadlineText: string;
@@ -52,10 +53,10 @@ export function JobCard({ job, view = 'grid', searchParams }: JobCardProps) {
 				<CardHeader className={cn(view === 'list' && 'sm:w-2/3')}>
 					<div className='space-y-1.5'>
 						<CardTitle className='text-lg font-bold group-hover:text-primary transition-colors'>
-							{job.postNameEn}
+							{job.postNameBn}
 						</CardTitle>
 						<CardDescription className='flex items-center gap-2 text-sm font-medium text-muted-foreground'>
-							<Briefcase className='h-4 w-4' /> {job.clientOrganizationNameEn}
+							<Briefcase className='h-4 w-4' /> {job.clientOrganizationNameBn}
 						</CardDescription>
 					</div>
 					<div className='text-sm text-muted-foreground line-clamp-2 pt-2' title={job.jobDescription}>
@@ -70,15 +71,15 @@ export function JobCard({ job, view = 'grid', searchParams }: JobCardProps) {
 					)}
 				>
 					<div className='space-y-2 text-sm'>
-						{job.outsourcingZoneNameEn && (
+						{job.outsourcingZoneNameBn && (
 							<div className='flex items-center gap-2 text-muted-foreground'>
 								<MapPin className='h-4 w-4' />
-								<span>{job.outsourcingZoneNameEn}</span>
+								<span>{job.outsourcingZoneNameBn}</span>
 							</div>
 						)}
 						<div className='flex items-center gap-2 text-muted-foreground'>
 							<Users className='h-4 w-4' />
-							<span>{job.vacancy} Vacancies</span>
+							<span>{convertEnToBn(job.vacancy)} জন</span>
 						</div>
 						{/* <div className='flex items-center gap-2 text-muted-foreground'>
 							<Clock className='h-4 w-4' />

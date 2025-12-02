@@ -8,7 +8,7 @@ import { toast } from '@/hooks/use-toast';
 import { ICircular } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { CircularService } from '@/services/api/circular.service';
-import { format, isPast, parseISO } from 'date-fns';
+import { endOfDay, format, isPast, parseISO } from 'date-fns';
 import { ArrowLeft, Briefcase, CheckCheck, DollarSign, Loader2, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -64,7 +64,7 @@ export function JobCircularDetails({ circularId, isReadOnly = false }: JobCircul
 	const backUrl = `/jobs?${queryParams.toString()}`;
 
 	const deadline = parseISO(job.circularEndDate);
-	const isDeadlinePast = isPast(deadline);
+	const isDeadlinePast = isPast(endOfDay(deadline));
 
 	const renderApplyButton = () => {
 		if (isReadOnly || isDeadlinePast) return null;
