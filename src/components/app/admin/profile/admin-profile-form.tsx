@@ -8,7 +8,7 @@ import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/auth-context';
 import useLoader from '@/hooks/use-loader';
-import { useToast } from '@/hooks/use-toast';
+import { toast, useToast } from '@/hooks/use-toast';
 import { IFile } from '@/interfaces/common.interface';
 import { compressImage } from '@/lib/compresser';
 import { makePreviewURL } from '@/lib/file-oparations';
@@ -150,7 +150,9 @@ function ProfileImageCard({
 
 interface AdminProfileFormProps {
 	user: {
-		name: string;
+		fullName: string;
+		firstName: string;
+		lastName: string;
 		email: string;
 		phone: string;
 		avatar: string;
@@ -161,22 +163,20 @@ interface AdminProfileFormProps {
 const profileSchema = z.object({
 	firstName: z.string().min(1, 'First name is required'),
 	lastName: z.string().min(1, 'Last name is required'),
-	email: z.string().email(),
+	email: z.string().email().optional(),
 	phone: z.string().min(1, 'Phone number is required'),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export function AdminProfileForm({ user }: AdminProfileFormProps) {
-	const { toast } = useToast();
-	const nameParts = user.name.split(' ');
 	const [isDetailsSubmitting, setIsDetailsSubmitting] = React.useState(false);
 
 	const form = useForm<ProfileFormValues>({
 		resolver: zodResolver(profileSchema),
 		defaultValues: {
-			firstName: nameParts[0] || '',
-			lastName: nameParts.slice(1).join(' ') || '',
+			firstName: user.firstName,
+			lastName: user.lastName,
 			email: user.email,
 			phone: user.phone,
 		},
@@ -185,10 +185,9 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
 	const onSubmit = (data: ProfileFormValues) => {
 		setIsDetailsSubmitting(true);
 		setTimeout(() => {
-			toast({
+			toast.success({
 				title: 'Profile Updated',
 				description: 'Your personal information has been saved.',
-				variant: 'success',
 			});
 			setIsDetailsSubmitting(false);
 		}, 1000);
@@ -219,7 +218,7 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
 									name='email'
 									label='Email'
 									type='email'
-									required
+									// required
 									startIcon={<Mail className='h-4 w-4 text-muted-foreground' />}
 								/>
 								<FormInput

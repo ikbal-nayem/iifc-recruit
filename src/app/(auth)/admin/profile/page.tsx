@@ -14,7 +14,9 @@ export default function AdminProfilePage() {
 	}
 
 	const user = {
-		name: currectUser.fullName || `${currectUser.firstName} ${currectUser.lastName}`,
+		fullName: currectUser.fullName || `${currectUser.firstName} ${currectUser.lastName}`,
+		firstName: currectUser.firstName || '',
+		lastName: currectUser.lastName || '',
 		email: currectUser.email,
 		phone: currectUser.phone || '',
 		avatar: currectUser.profileImage?.filePath || '',
