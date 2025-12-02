@@ -41,7 +41,6 @@ export default async function ClientOrganizationDetailsPage({ params }: { params
 				<div>
 					<h1 className='text-3xl font-headline font-bold'>{organization.nameEn}</h1>
 					<p className='text-muted-foreground'>{organization.nameBn}</p>
-					{organization?.clientId && <strong>Client id: {organization?.clientId}</strong>}
 				</div>
 			</div>
 
@@ -57,6 +56,7 @@ export default async function ClientOrganizationDetailsPage({ params }: { params
 								{organization.isClient && <Badge variant='success'>Client</Badge>}
 								{organization.isExaminer && <Badge variant='info'>Examiner</Badge>}
 							</div>
+							{organization?.clientId && <strong>Client ID: {organization?.clientId}</strong>}
 						</div>
 						{organization.organizationType && (
 							<div className='flex items-start gap-3'>
