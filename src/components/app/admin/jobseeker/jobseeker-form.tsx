@@ -20,7 +20,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { COMMON_URL } from '@/constants/common.constant';
 import useLoader from '@/hooks/use-loader';
 import { toast } from '@/hooks/use-toast';
-import { IClientOrganization, IOutsourcingCategory } from '@/interfaces/master-data.interface';
+import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { cn } from '@/lib/utils';
 import { UserService } from '@/services/api/user.service';
 import { getOutsourcingCategoriesAsync, getPostOutsourcingByCategoryAsync } from '@/services/async-api';
@@ -157,12 +157,12 @@ export function JobseekerForm({
 				const sheetName = workbook.SheetNames[0];
 				const worksheet = workbook.Sheets[sheetName];
 				const json = XLSX.utils.sheet_to_json(worksheet, {
-					header: ['firstName', 'email', 'phone'],
+					header: ['name', 'mobile', 'email'],
 					range: 1,
 				});
 				const modJson = json.map((item: any) => ({
 					...item,
-					phone: item.phone ? String(item.phone) : '',
+					phone: item.mobile ? String(item.mobile) : '',
 				}));
 				replace(modJson as any);
 				setStep('preview');
