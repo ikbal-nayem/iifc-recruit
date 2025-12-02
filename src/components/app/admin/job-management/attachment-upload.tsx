@@ -13,6 +13,8 @@ import { Form } from '@/components/ui/form';
 import { FormFileUpload } from '@/components/ui/form-file-upload';
 import { FormSelect } from '@/components/ui/form-select';
 import { Progress } from '@/components/ui/progress';
+import { ROLES } from '@/constants/auth.constant';
+import { useAuth } from '@/contexts/auth-context';
 import useLoader from '@/hooks/use-loader';
 import { toast } from '@/hooks/use-toast';
 import { IFile } from '@/interfaces/common.interface';
@@ -45,6 +47,7 @@ export function AttachmentsUpload({ request, onSuccess }: AttachmentsUploadProps
 	const [isSubmitting, setIsSubmitting] = useLoader(false);
 	const [uploadProgress, setUploadProgress] = useState(0);
 	const [attachmentTypes, setAttachmentTypes] = useState<EnumDTO[]>([]);
+	const { currectUser } = useAuth();
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
@@ -89,7 +92,10 @@ export function AttachmentsUpload({ request, onSuccess }: AttachmentsUploadProps
 		}
 	};
 
-	if (request.status !== JobRequestStatus.PROCESSING) {
+	if (
+		request.status !== JobRequestStatus.PROCESSING ||
+		![ROLES.IIFC_ADMIN, ROLES.IIFC_OPERATOR].some((role) => currectUser?.roles.includes(role))
+	) {
 		return null;
 	}
 
