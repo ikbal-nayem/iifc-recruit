@@ -1,39 +1,76 @@
+
 'use client';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form } from '@/components/ui/form';
+import { FormInput } from '@/components/ui/form-input';
 import { Pagination } from '@/components/ui/pagination';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ROUTES } from '@/constants/routes.constant';
+import { useAuth } from '@/contexts/auth-context';
 import { useDebounce } from '@/hooks/use-debounce';
+import { useTranslations } from '@/hooks/use-translations';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { ICircular } from '@/interfaces/job.interface';
-import { cn } from '@/lib/utils';
+import { getStatusVariant } from '@/lib/color-mapping';
 import { CircularService } from '@/services/api/circular.service';
-import { LayoutGrid, List, Search } from 'lucide-react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { differenceInDays, endOfDay, format, isPast, parseISO } from 'date-fns';
+import { ArrowRight, Briefcase, Calendar, MapPin, Search } from 'lucide-react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import * as React from 'react';
-import { JobCard } from './job-card';
+import { useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
-const initMeta: IMeta = { page: 0, limit: 12 };
+const filterSchema = z.object({
+	searchKey: z.string().optional(),
+});
 
-interface JobListingsProps {
+type FilterFormValues = z.infer<typeof filterSchema>;
+
+const jobListingsTranslations = {
+	en: {
+		experience: 'Experience',
+		applicants: 'Applicants',
+		viewDetails: 'View Details',
+		noJobs: 'No job openings found matching your criteria.',
+	},
+	bn: {
+		experience: 'অভিজ্ঞতা',
+		applicants: 'আবেদনকারী',
+		viewDetails: 'বিবরণ দেখুন',
+		noJobs: 'আপনার মানদণ্ড অনুযায়ী কোনো চাকরির সুযোগ পাওয়া যায়নি।',
+	},
+};
+
+export function JobListings({
+	isPaginated = true,
+	showFilters = true,
+	itemLimit = 6,
+}: {
 	isPaginated?: boolean;
 	showFilters?: boolean;
 	itemLimit?: number;
-}
-
-export function JobListings({ isPaginated = true, showFilters = true, itemLimit = 10 }: JobListingsProps) {
+}) {
+	const t = useTranslations(jobListingsTranslations);
 	const searchParams = useSearchParams();
-	const [circulars, setCirculars] = React.useState<ICircular[]>([]);
-	const [meta, setMeta] = React.useState<IMeta>({ ...initMeta, limit: itemLimit });
-	const [isLoading, setIsLoading] = React.useState(true);
+	const { isAuthenticated } = useAuth();
+	const [jobs, setJobs] = useState<ICircular[]>([]);
+	const [meta, setMeta] = useState<IMeta>({ page: 0, limit: itemLimit });
+	const [isLoading, setIsLoading] = useState(true);
 
-	const [searchQuery, setSearchQuery] = React.useState(searchParams.get('q') || '');
-	const debouncedSearch = useDebounce(searchQuery, 500);
+	const form = useForm<FilterFormValues>({
+		resolver: zodResolver(filterSchema),
+		defaultValues: { searchKey: searchParams.get('query') || '' },
+	});
 
-	const [view, setView] = React.useState<'grid' | 'list'>('grid');
+	const searchKey = form.watch('searchKey');
+	const debouncedSearch = useDebounce(searchKey, 300);
 
-	const loadCirculars = React.useCallback(
+	const loadJobs = useCallback(
 		async (page: number, search: string) => {
 			setIsLoading(true);
 			try {
@@ -42,10 +79,10 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 					meta: { page: page, limit: itemLimit },
 				};
 				const response = await CircularService.search(payload);
-				setCirculars(response.body);
+				setJobs(response.body);
 				setMeta(response.meta);
-			} catch (error: any) {
-				console.error('Failed to load circulars', error);
+			} catch (error) {
+				console.error('Failed to load jobs', error);
 			} finally {
 				setIsLoading(false);
 			}
@@ -53,87 +90,107 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 		[itemLimit]
 	);
 
-	React.useEffect(() => {
-		loadCirculars(0, debouncedSearch);
-	}, [debouncedSearch, loadCirculars]);
+	useEffect(() => {
+		loadJobs(0, debouncedSearch);
+	}, [debouncedSearch, loadJobs]);
 
 	const handlePageChange = (newPage: number) => {
-		loadCirculars(newPage, debouncedSearch);
+		loadJobs(newPage, debouncedSearch);
 	};
 
-	const renderSkeletons = () => (
-		<div
-			className={cn(
-				'grid gap-6',
-				view === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'
-			)}
-		>
-			{Array.from({ length: itemLimit }).map((_, index) => (
-				<Card key={index} className='p-6 animate-pulse bg-muted/50'>
-					<div className='h-6 bg-muted rounded w-3/4 mb-4'></div>
-					<div className='h-4 bg-muted rounded w-1/2 mb-2'></div>
-					<div className='h-4 bg-muted rounded w-1/3'></div>
-				</Card>
-			))}
-		</div>
-	);
+	const renderJobCard = (job: ICircular) => {
+		const deadline = parseISO(job.circularEndDate);
+		const isExpired = isPast(endOfDay(deadline));
+		const daysUntilDeadline = differenceInDays(endOfDay(deadline), new Date());
+
+		return (
+			<Card key={job.id} className='group glassmorphism card-hover'>
+				<CardHeader>
+					<div className='flex justify-between items-start'>
+						<CardTitle className='font-headline text-xl group-hover:text-primary transition-colors'>
+							{job.postNameEn}
+						</CardTitle>
+						<Badge variant={isExpired ? 'danger' : daysUntilDeadline <= 7 ? 'warning' : 'secondary'}>
+							<Calendar className='mr-2 h-3 w-3' />
+							{format(deadline, 'dd MMM, yyyy')}
+						</Badge>
+					</div>
+					<CardDescription className='flex flex-wrap items-center gap-x-4 gap-y-2 pt-2'>
+						<span className='flex items-center gap-2'>
+							<Briefcase className='h-4 w-4' /> {job.clientOrganizationNameEn}
+						</span>
+						{job.outsourcingZoneNameEn && (
+							<span className='flex items-center gap-2'>
+								<MapPin className='h-4 w-4' /> {job.outsourcingZoneNameEn}
+							</span>
+						)}
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<p className='text-sm text-muted-foreground line-clamp-2'>{job.jobDescription}</p>
+				</CardContent>
+				<CardFooter>
+					<Button asChild variant='link' className='p-0 h-auto group'>
+						<Link
+							href={
+								isAuthenticated
+									? ROUTES.JOB_SEEKER.JOB_DETAILS(job.id)
+									: `/jobs/${job.id}?${searchParams.toString()}`
+							}
+						>
+							{t.viewDetails} <ArrowRight className='ml-2 h-4 w-4 transition-transform group-hover:translate-x-1' />
+						</Link>
+					</Button>
+				</CardFooter>
+			</Card>
+		);
+	};
 
 	return (
 		<div className='space-y-8'>
 			{showFilters && (
-				<Card className='p-4 glassmorphism'>
-					<div className='relative w-full'>
-						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-						<Input
-							placeholder='Search by job title...'
-							onChange={(e) => setSearchQuery(e.target.value)}
-							className='pl-10 h-12'
-						/>
-					</div>
-					<div className='flex items-center justify-between mt-3'>
-						<strong className='text-sm text-muted-foreground'>
-							Job found: <strong>{(meta?.totalRecords || 0).toLocaleString()}</strong>
-						</strong>
-						<div className='flex items-center justify-end gap-2'>
-							<Button
-								variant={view === 'grid' ? 'default' : 'outline'}
-								size='icon'
-								onClick={() => setView('grid')}
-							>
-								<LayoutGrid className='h-5 w-5' />
-							</Button>
-							<Button
-								variant={view === 'list' ? 'default' : 'outline'}
-								size='icon'
-								onClick={() => setView('list')}
-							>
-								<List className='h-5 w-5' />
-							</Button>
+				<Form {...form}>
+					<form className='max-w-md mx-auto'>
+						<div className='relative'>
+							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground' />
+							<FormInput
+								control={form.control}
+								name='searchKey'
+								placeholder='Search by job title, organization...'
+								className='pl-10 h-12 text-base'
+							/>
 						</div>
-					</div>
-				</Card>
+					</form>
+				</Form>
 			)}
 
 			{isLoading ? (
-				renderSkeletons()
-			) : circulars.length > 0 ? (
-				<div
-					className={cn(
-						'grid gap-4',
-						view === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'
-					)}
-				>
-					{circulars.map((job) => (
-						<JobCard key={job.id} job={job} view={view} searchParams={searchParams} />
+				<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+					{[...Array(itemLimit)].map((_, i) => (
+						<Card key={i}>
+							<CardHeader>
+								<Skeleton className='h-6 w-3/4' />
+								<Skeleton className='h-4 w-1/2 mt-2' />
+							</CardHeader>
+							<CardContent>
+								<Skeleton className='h-10 w-full' />
+							</CardContent>
+							<CardFooter>
+								<Skeleton className='h-5 w-24' />
+							</CardFooter>
+						</Card>
 					))}
 				</div>
+			) : jobs.length > 0 ? (
+				<>
+					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>{jobs.map(renderJobCard)}</div>
+					{isPaginated && meta.totalRecords && meta.totalRecords > 0 && (
+						<Pagination meta={meta} onPageChange={handlePageChange} noun='job' />
+					)}
+				</>
 			) : (
-				<div className='text-center py-16 text-muted-foreground'>No jobs found for your criteria.</div>
-			)}
-
-			{isPaginated && meta && meta.totalRecords! > 0 && (
-				<div className='flex justify-center'>
-					<Pagination meta={meta} isLoading={isLoading} onPageChange={handlePageChange} noun={'Job'} />
+				<div className='text-center py-16'>
+					<p className='text-muted-foreground'>{t.noJobs}</p>
 				</div>
 			)}
 		</div>

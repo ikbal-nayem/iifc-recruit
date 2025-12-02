@@ -95,18 +95,14 @@ export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPo
 	};
 
 	const renderItem = (item: RequestedPost) => {
-		const isCircularPublished = item.status === JobRequestedPostStatus.CIRCULAR_PUBLISHED;
+		let deadlineBadgeVariant: 'info' | 'warning' | 'danger' = 'info';
 
-		let deadlineBadgeVariant: 'text-purple-500' | 'text-warning' | 'text-danger' = 'text-purple-500';
 		if (item.circularEndDate) {
 			const deadline = parseISO(item.circularEndDate);
-			const isExpired = isPast(endOfDay(deadline));
-			const daysUntilDeadline = differenceInDays(endOfDay(deadline), new Date());
-
-			if (isExpired) {
-				deadlineBadgeVariant = 'text-danger';
-			} else if (daysUntilDeadline <= 7) {
-				deadlineBadgeVariant = 'text-warning';
+			if (isPast(endOfDay(deadline))) {
+				deadlineBadgeVariant = 'danger';
+			} else if (differenceInDays(endOfDay(deadline), new Date()) <= 7) {
+				deadlineBadgeVariant = 'warning';
 			}
 		}
 
@@ -124,12 +120,12 @@ export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPo
 						<span className='flex items-center gap-1.5'>
 							<Users className='h-4 w-4' /> {item.vacancy} vacancies
 						</span>
-						{isCircularPublished && item.circularPublishDate && item.circularEndDate && (
-							<span className={clsx('flex items-center gap-1.5', deadlineBadgeVariant)}>
+						{item.circularPublishDate && item.circularEndDate && (
+							<Badge variant={`lite-${deadlineBadgeVariant}`} className='flex items-center gap-1.5'>
 								<Calendar className='h-4 w-4' />Circular:{' '}
 								{format(parseISO(item.circularPublishDate), 'dd MMM')} -{' '}
 								{format(parseISO(item.circularEndDate), 'dd MMM')}
-							</span>
+							</Badge>
 						)}
 						<Badge variant='outline' className='flex items-center gap-1.5'>
 							<span className='text-muted-foreground'>Examiner:</span>
