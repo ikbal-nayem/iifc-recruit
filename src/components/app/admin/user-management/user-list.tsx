@@ -240,7 +240,7 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 		try {
 			await UserService.toggleActiveStatus(user.id);
 			setUsers((prev) =>
-				prev.map((u) => (u.id === user.id ? { ...u, active: !u.active } : u))
+				prev.map((u) => (u.id === user.id ? { ...u, enabled: !u.enabled } : u))
 			);
 			toast.success({ description: `Status for ${user.fullName} updated.` });
 		} catch (error: any) {
@@ -313,12 +313,12 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 					return (
 						<div className='flex items-center gap-2'>
 							<Switch
-								checked={user.active}
+								checked={user.enabled}
 								onCheckedChange={() => handleToggleActive(user)}
 								disabled={isCurrentUser || statusSubmitting === user.id}
 								aria-label='Toggle user status'
 							/>
-							<Label className='text-xs font-medium'>{user.active ? 'Active' : 'Inactive'}</Label>
+							<Label className='text-xs font-medium'>{user.enabled ? 'Active' : 'Inactive'}</Label>
 						</div>
 					);
 				},
@@ -400,13 +400,13 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 					</div>
 					<div className='flex items-center gap-2'>
 						<Switch
-							checked={user.active}
+							checked={user.enabled}
 							onCheckedChange={() => handleToggleActive(user)}
 							disabled={isCurrentUser || statusSubmitting === user.id}
 							aria-label='Toggle user status'
 							id={`switch-${user.id}`}
 						/>
-						<Label htmlFor={`switch-${user.id}`} className='text-xs font-medium'>{user.active ? 'Active' : 'Inactive'}</Label>
+						<Label htmlFor={`switch-${user.id}`} className='text-xs font-medium'>{user.enabled ? 'Active' : 'Inactive'}</Label>
 					</div>
 				</div>
 			</Card>
