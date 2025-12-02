@@ -27,7 +27,7 @@ export default async function JobseekerProfileLayout({ children }: { children: R
 
 			{profileCompletion && (
 				<div className='my-6'>
-					<ProfileCompletion profileCompletion={profileCompletion} />
+					<ProfileCompletion profileCompletion={profileCompletion} isCompact={true} />
 				</div>
 			)}
 

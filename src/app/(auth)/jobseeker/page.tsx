@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ProfileCompletion } from '@/components/app/jobseeker/profile-completion';
