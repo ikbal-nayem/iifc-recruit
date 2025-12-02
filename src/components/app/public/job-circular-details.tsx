@@ -9,7 +9,7 @@ import { ICircular } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { CircularService } from '@/services/api/circular.service';
 import { endOfDay, format, isPast, parseISO } from 'date-fns';
-import { ArrowLeft, Briefcase, CheckCheck, DollarSign, Loader2, MapPin } from 'lucide-react';
+import { ArrowLeft, Briefcase, CheckCheck, Loader2, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -119,8 +119,7 @@ export function JobCircularDetails({ circularId, isReadOnly = false }: JobCircul
 										)}
 										{(job.salaryFrom || job.salaryTo) && (
 											<span className='flex items-center gap-2'>
-												<DollarSign className='h-4 w-4' />
-												{job.salaryFrom?.toLocaleString()}
+												৳ {job.salaryFrom?.toLocaleString()}
 												{job.salaryTo ? ` - ${job.salaryTo?.toLocaleString()}` : ''}
 											</span>
 										)}

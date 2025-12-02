@@ -230,12 +230,7 @@ export function JobRequestForm({
 									disabled={currectUser?.roles.includes(ROLES.CLIENT_ADMIN)}
 									loadOptions={getClientAsync}
 									getOptionValue={(option) => option?.id!}
-									getOptionLabel={(opt) => (
-										<div className='flex flex-col items-start'>
-											{opt.nameEn}
-											<span>{opt.nameBn}</span>
-										</div>
-									)}
+									getOptionLabel={(opt) => opt.nameBn}
 								/>
 								<FormInput
 									control={form.control}
@@ -292,12 +287,7 @@ export function JobRequestForm({
 															placeholder='Select Zone'
 															options={outsourcingZones}
 															getOptionValue={(opt) => opt.id}
-															getOptionLabel={(opt) => (
-																<div className='flex flex-col items-start'>
-																	{opt.nameEn}
-																	<small>{opt.nameBn}</small>
-																</div>
-															)}
+															getOptionLabel={(opt) => opt.nameBn}
 														/>
 														<FormAutocomplete
 															control={form.control}
@@ -330,10 +320,7 @@ export function JobRequestForm({
 													getOptionValue={(opt) => opt?.id!}
 													getOptionLabel={(opt) =>
 														type === JobRequestType.OUTSOURCING ? (
-															<div className='flex flex-col items-start'>
-																{opt.nameBn}
-																<small>{opt.outsourcingCategory?.nameBn}</small>
-															</div>
+															opt.nameBn
 														) : (
 															<div className='flex flex-col items-start'>
 																{opt.nameEn}
