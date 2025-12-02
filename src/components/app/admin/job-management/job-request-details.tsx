@@ -166,7 +166,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 					</CardTitle>
 					<div className='text-sm text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1'>
 						<span className='flex items-center gap-1.5'>
-							<Building className='h-4 w-4' /> {request.clientOrganization?.nameEn}
+							<Building className='h-4 w-4' /> {request.clientOrganization?.nameBn}
 						</span>
 						<span className='flex items-center gap-1.5'>
 							<FileText className='h-4 w-4' /> Memo: {request.memoNo}
@@ -239,7 +239,7 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 							<Card key={index} className='p-4 border rounded-lg bg-muted/50 space-y-4'>
 								<div className='flex items-start justify-between'>
 									<div>
-										<CardTitle className='text-xl font-semibold'>{post.post?.nameEn}</CardTitle>
+										<CardTitle className='text-xl font-semibold'>{post.post?.nameBn}</CardTitle>
 									</div>
 									<div className='flex items-center gap-2 text-right'>
 										<div className='flex flex-col items-end gap-1'>
@@ -272,16 +272,16 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 									)}
 									{request.type === JobRequestType.OUTSOURCING ? (
 										<>
-											{post.post?.outsourcingCategory?.nameEn && (
+											{post.post?.outsourcingCategory?.nameBn && (
 												<div>
 													<p className='text-muted-foreground'>Category</p>
-													<p className='font-medium'>{post.post.outsourcingCategory.nameEn}</p>
+													<p className='font-medium'>{post.post.outsourcingCategory.nameBn}</p>
 												</div>
 											)}
-											{post.outsourcingZone?.nameEn && (
+											{post.outsourcingZone?.nameBn && (
 												<div>
 													<p className='text-muted-foreground'>Zone</p>
-													<p className='font-medium'>{post.outsourcingZone?.nameEn}</p>
+													<p className='font-medium'>{post.outsourcingZone?.nameBn}</p>
 												</div>
 											)}
 											{post.yearsOfContract && post.yearsOfContract > 0 ? (
