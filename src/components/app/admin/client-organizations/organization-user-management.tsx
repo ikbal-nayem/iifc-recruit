@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -9,8 +10,11 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { FormMultiSelect } from '@/components/ui/form-multi-select';
+import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
-import { toast, useToast } from '@/hooks/use-toast';
+import { Switch } from '@/components/ui/switch';
+import { useAuth } from '@/contexts/auth-context';
+import { toast } from '@/hooks/use-toast';
 import { IApiRequest } from '@/interfaces/common.interface';
 import { IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
@@ -144,11 +148,13 @@ export function OrganizationUserManagement({
 	roles: IRole[];
 }) {
 	const { toast } = useToast();
+	const { currectUser } = useAuth();
 	const [users, setUsers] = useState<IOrganizationUser[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isUserFormOpen, setIsUserFormOpen] = useState(false);
 	const [editingUser, setEditingUser] = useState<IOrganizationUser | undefined>(undefined);
 	const [userToDelete, setUserToDelete] = useState<IOrganizationUser | null>(null);
+	const [statusSubmitting, setStatusSubmitting] = useState<string | null>(null);
 
 	const loadUsers = useCallback(async () => {
 		setIsLoading(true);
@@ -193,6 +199,19 @@ export function OrganizationUserManagement({
 		}
 	};
 
+	const handleToggleActive = async (user: IOrganizationUser) => {
+		setStatusSubmitting(user.id);
+		try {
+			await UserService.toggleActiveStatus(user.id);
+			setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, enabled: !u.enabled } : u)));
+			toast.success({ description: `Status for ${user.fullName} updated.` });
+		} catch (error: any) {
+			toast.error({ description: error.message || 'Failed to update status.' });
+		} finally {
+			setStatusSubmitting(null);
+		}
+	};
+
 	return (
 		<>
 			<Card className='glassmorphism'>
@@ -208,46 +227,62 @@ export function OrganizationUserManagement({
 						{isLoading ? (
 							[...Array(2)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
 						) : users.length > 0 ? (
-							users.map((user) => (
-								<Card key={user.id} className='p-4 flex items-center justify-between'>
-									<div className='flex items-center gap-4'>
-										<Avatar>
-											<AvatarImage src={makePreviewURL(user.profileImage)} />
-											<AvatarFallback>{user.fullName.charAt(0)}</AvatarFallback>
-										</Avatar>
-										<div>
-											<p className='font-semibold'>{user.fullName}</p>
-											<p className='text-sm text-muted-foreground'>{user.email}</p>
+							users.map((user) => {
+								const isCurrentUser = user.id === currectUser?.id;
+								return (
+									<Card key={user.id} className='p-4'>
+										<div className='flex items-center justify-between'>
+											<div className='flex items-center gap-4'>
+												<Avatar>
+													<AvatarImage src={makePreviewURL(user.profileImage)} />
+													<AvatarFallback>{user.fullName.charAt(0)}</AvatarFallback>
+												</Avatar>
+												<div>
+													<p className='font-semibold'>{user.fullName}</p>
+													<p className='text-sm text-muted-foreground'>{user.email}</p>
+												</div>
+											</div>
+											<div className='hidden sm:flex flex-wrap gap-1 justify-end'>
+												{user.roles?.map((role) => (
+													<Badge key={role} variant='secondary'>
+														{roles.find((r) => r.roleCode === role)?.nameEn || role}
+													</Badge>
+												))}
+											</div>
 										</div>
-									</div>
-									<div className='flex items-center gap-4'>
-										<div className='hidden sm:flex flex-wrap gap-1 justify-end'>
-											{user.roles?.map((role) => (
-												<Badge key={role} variant='secondary'>
-													{roles.find((r) => r.roleCode === role)?.nameEn || role}
-												</Badge>
-											))}
+										<div className='flex justify-between items-center mt-2 pt-2 border-t'>
+											<div className='flex items-center gap-2'>
+												<Switch
+													checked={user.enabled}
+													onCheckedChange={() => handleToggleActive(user)}
+													disabled={isCurrentUser || statusSubmitting === user.id}
+													id={`user-status-${user.id}`}
+												/>
+												<Label htmlFor={`user-status-${user.id}`} className='text-xs font-medium'>
+													{user.enabled ? 'Active' : 'Inactive'}
+												</Label>
+											</div>
+											<div className='flex gap-1'>
+												<Button variant='ghost' size='icon' onClick={() => handleOpenForm(user)}>
+													<Edit className='h-4 w-4' />
+												</Button>
+												<ConfirmationDialog
+													trigger={
+														<Button variant='ghost' size='icon' disabled={isCurrentUser}>
+															<Trash className='h-4 w-4 text-danger' />
+														</Button>
+													}
+													title='Are you sure?'
+													description={`This will permanently delete the user ${user.fullName}.`}
+													onConfirm={handleDelete}
+													open={userToDelete?.id === user.id}
+													onOpenChange={(open) => !open && setUserToDelete(null)}
+												/>
+											</div>
 										</div>
-										<div className='flex gap-1'>
-											<Button variant='ghost' size='icon' onClick={() => handleOpenForm(user)}>
-												<Edit className='h-4 w-4' />
-											</Button>
-											<ConfirmationDialog
-												trigger={
-													<Button variant='ghost' size='icon'>
-														<Trash className='h-4 w-4 text-danger' />
-													</Button>
-												}
-												title='Are you sure?'
-												description={`This will permanently delete the user ${user.fullName}.`}
-												onConfirm={handleDelete}
-												open={userToDelete?.id === user.id}
-												onOpenChange={(open) => !open && setUserToDelete(null)}
-											/>
-										</div>
-									</div>
-								</Card>
-							))
+									</Card>
+								);
+							})
 						) : (
 							<div className='text-center py-8 text-muted-foreground'>
 								No users found for this organization.
