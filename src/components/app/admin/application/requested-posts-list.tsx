@@ -15,7 +15,7 @@ import { JobRequestedPostStatus, JobRequestStatus, RequestedPost } from '@/inter
 import { getStatusVariant } from '@/lib/color-mapping';
 import { JobRequestService } from '@/services/api/job-request.service';
 import clsx from 'clsx';
-import { differenceInDays, endOfDay, format, isPast, parseISO } from 'date-fns';
+import { differenceInDays, format, isPast, parseISO } from 'date-fns';
 import { Building, Calendar, Loader2, Search, UserCog, Users } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -100,7 +100,7 @@ export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPo
 		let deadlineBadgeVariant: 'text-purple-500' | 'text-warning' | 'text-danger' = 'text-purple-500';
 		if (item.circularEndDate) {
 			const deadline = parseISO(item.circularEndDate);
-			if (isPast(endOfDay(deadline))) {
+			if (isPast(deadline)) {
 				deadlineBadgeVariant = 'text-danger';
 			} else if (differenceInDays(deadline, new Date()) <= 7) {
 				deadlineBadgeVariant = 'text-warning';
