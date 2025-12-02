@@ -96,7 +96,6 @@ export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPo
 
 	const renderItem = (item: RequestedPost) => {
 		let deadlineBadgeVariant: 'info' | 'warning' | 'danger' = 'info';
-
 		if (item.circularEndDate) {
 			const deadline = parseISO(item.circularEndDate);
 			if (isPast(endOfDay(deadline))) {

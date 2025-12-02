@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
@@ -41,7 +41,7 @@ const projectsTranslations = {
 		wasteDesc: 'ঢাকায় বর্জ্য থেকে শক্তি উৎপাদন কেন্দ্র স্থাপনের জন্য পরামর্শ, কঠিন বর্জ্য ব্যবস্থাপনা এবং বিদ্যুৎ উৎপাদন।',
 		parking: 'বহু-তল গাড়ি পার্কিং',
 		parkingDesc: 'ঢাকা শহরে বহু-তল গাড়ি পার্কিং সুবিধা নির্মাণের জন্য পরামর্শ সেবা।',
-	}
+	},
 };
 
 export default function ProjectsPage() {
@@ -83,7 +83,7 @@ export default function ProjectsPage() {
 			description: t.parkingDesc,
 			imageUrl: 'https://picsum.photos/seed/parking/600/400',
 			hint: 'parking garage',
-		}
+		},
 	];
 
 	return (
@@ -91,12 +91,10 @@ export default function ProjectsPage() {
 			<section className='w-full py-20 md:py-32 hero-gradient'>
 				<div className='container mx-auto px-4 md:px-6 text-center'>
 					<div className='max-w-3xl mx-auto'>
-						<h1 className='text-4xl md:text-5xl lg:text-6xl font-headline font-bold mb-4'>
+						<h1 className='text-4xl md:text-5xl lg:text-6xl font-headline font-bold mb-4 text-white'>
 							{t.title}
 						</h1>
-						<p className='text-lg md:text-xl text-muted-foreground'>
-							{t.description}
-						</p>
+						<p className='text-lg md:text-xl text-white'>{t.description}</p>
 					</div>
 				</div>
 			</section>
@@ -110,13 +108,15 @@ export default function ProjectsPage() {
 									<Image
 										src={project.imageUrl}
 										alt={project.title}
-										layout='fill'
-										objectFit='cover'
+										fill
+										style={{ objectFit: 'cover' }}
 										className='transition-transform duration-300 group-hover:scale-105'
 										data-ai-hint={project.hint}
 									/>
 								</div>
-								<CardTitle className='font-headline text-xl pt-4 group-hover:text-primary transition-colors'>{project.title}</CardTitle>
+								<CardTitle className='font-headline text-xl pt-4 group-hover:text-primary transition-colors'>
+									{project.title}
+								</CardTitle>
 							</CardHeader>
 							<CardContent className='flex-grow'>
 								<CardDescription>{project.description}</CardDescription>
@@ -124,7 +124,8 @@ export default function ProjectsPage() {
 							<CardFooter>
 								<Button variant='link' asChild className='p-0 h-auto group'>
 									<Link href='#'>
-										{t.learnMore} <ArrowRight className='ml-2 h-4 w-4 transition-transform group-hover:translate-x-1' />
+										{t.learnMore}{' '}
+										<ArrowRight className='ml-2 h-4 w-4 transition-transform group-hover:translate-x-1' />
 									</Link>
 								</Button>
 							</CardFooter>
