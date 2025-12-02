@@ -47,44 +47,40 @@ export function FormDatePicker<TFieldValues extends FieldValues>({
 
 					let newDateTime = date;
 					if (showTime && field.value) {
-						// Preserve time part if it exists
 						const currentTime = new Date(field.value);
 						if (!isNaN(currentTime.getTime())) {
 							newDateTime.setHours(currentTime.getHours(), currentTime.getMinutes());
 						}
 					}
-					field.onChange(newDateTime.toISOString());
+					
+					if (showTime) {
+						field.onChange(newDateTime.toISOString());
+					} else {
+						// Set time to midnight in local timezone before formatting to avoid timezone shifts
+						newDateTime.setHours(0, 0, 0, 0);
+						// format to 'yyyy-MM-dd'
+						field.onChange(format(newDateTime, 'yyyy-MM-dd'));
+					}
 				};
 
 				const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 					const timeValue = e.target.value;
 					let baseDate = field.value ? new Date(field.value) : new Date();
-					
+
 					if (isNaN(baseDate.getTime())) {
 						baseDate = new Date();
 					}
-					
+
 					if (timeValue) {
 						const [hours, minutes] = timeValue.split(':').map(Number);
-						baseDate.setHours(hours, minutes, 0, 0); // Reset seconds and ms
+						baseDate.setHours(hours, minutes, 0, 0);
 						field.onChange(baseDate.toISOString());
 					} else {
-						// Handle case where time is cleared
 						const dateOnly = new Date(baseDate);
 						dateOnly.setHours(0, 0, 0, 0);
 						field.onChange(dateOnly.toISOString());
 					}
 				};
-
-				// Format the date for the button display
-				const displayValue = field.value
-					? format(new Date(field.value), showTime ? 'PPP p' : 'PPP')
-					: `Pick a ${showTime ? 'date and time' : 'date'}`;
-
-				// Format the date/time for the input field value
-				const inputValue = field.value
-					? format(new Date(field.value), showTime ? "yyyy-MM-dd'T'HH:mm" : 'yyyy-MM-dd')
-					: '';
 
 				return (
 					<FormItem>
