@@ -11,8 +11,10 @@ import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { FormMultiSelect } from '@/components/ui/form-multi-select';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ROLES } from '@/constants/auth.constant';
 import { useAuth } from '@/contexts/auth-context';
@@ -172,6 +174,7 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 	const [editingUser, setEditingUser] = useState<IOrganizationUser | undefined>(undefined);
 	const [userToDelete, setUserToDelete] = useState<IOrganizationUser | null>(null);
 	const [searchQuery, setSearchQuery] = useState('');
+	const [statusSubmitting, setStatusSubmitting] = useState<string | null>(null);
 
 	const debouncedSearch = useDebounce(searchQuery, 500);
 
@@ -232,6 +235,22 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 		}
 	};
 
+	const handleToggleActive = async (user: IOrganizationUser) => {
+		setStatusSubmitting(user.id);
+		try {
+			await UserService.toggleActiveStatus(user.id);
+			setUsers((prev) =>
+				prev.map((u) => (u.id === user.id ? { ...u, active: !u.active } : u))
+			);
+			toast.success({ description: `Status for ${user.fullName} updated.` });
+		} catch (error: any) {
+			toast.error({ description: error.message || 'Failed to update status.' });
+		} finally {
+			setStatusSubmitting(null);
+		}
+	};
+
+
 	const columns: ColumnDef<IOrganizationUser>[] = useMemo(() => {
 		const baseColumns: ColumnDef<IOrganizationUser>[] = [
 			{
@@ -286,6 +305,25 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 				},
 			},
 			{
+				header: 'Status',
+				id: 'status',
+				cell: ({ row }) => {
+					const user = row.original;
+					const isCurrentUser = user.id === currectUser?.id;
+					return (
+						<div className='flex items-center gap-2'>
+							<Switch
+								checked={user.active}
+								onCheckedChange={() => handleToggleActive(user)}
+								disabled={isCurrentUser || statusSubmitting === user.id}
+								aria-label='Toggle user status'
+							/>
+							<Label className='text-xs font-medium'>{user.active ? 'Active' : 'Inactive'}</Label>
+						</div>
+					);
+				},
+			},
+			{
 				id: 'actions',
 				cell: ({ row }) => {
 					const user = row.original;
@@ -312,7 +350,7 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 		);
 
 		return baseColumns;
-	}, [isSuperAdmin, allRoles, currectUser?.id]);
+	}, [isSuperAdmin, allRoles, currectUser?.id, statusSubmitting]);
 
 	const table = useReactTable({
 		data: users,
@@ -352,12 +390,24 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 						)}
 					</div>
 				</div>
-				<div className='flex flex-wrap gap-1 mt-2'>
-					{user.roles?.map((role) => (
-						<Badge key={role} variant='secondary'>
-							{allRoles.find((r) => r.roleCode === role)?.nameEn || role}
-						</Badge>
-					))}
+				<div className='flex justify-between items-center mt-2 pt-2 border-t'>
+					<div className='flex flex-wrap gap-1'>
+						{user.roles?.map((role) => (
+							<Badge key={role} variant='secondary' className='text-xs'>
+								{allRoles.find((r) => r.roleCode === role)?.nameEn || role}
+							</Badge>
+						))}
+					</div>
+					<div className='flex items-center gap-2'>
+						<Switch
+							checked={user.active}
+							onCheckedChange={() => handleToggleActive(user)}
+							disabled={isCurrentUser || statusSubmitting === user.id}
+							aria-label='Toggle user status'
+							id={`switch-${user.id}`}
+						/>
+						<Label htmlFor={`switch-${user.id}`} className='text-xs font-medium'>{user.active ? 'Active' : 'Inactive'}</Label>
+					</div>
 				</div>
 			</Card>
 		);

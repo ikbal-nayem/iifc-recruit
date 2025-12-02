@@ -1,3 +1,4 @@
+
 import { axiosIns } from '@/config/api.config';
 import { IUser } from '@/interfaces/auth.interface';
 import { IApiRequest, IApiResponse, IObject } from '@/interfaces/common.interface';
@@ -40,5 +41,9 @@ export const UserService = {
 
 	skipOutsourcingInterest: async (): Promise<IApiResponse<void>> => {
 		return axiosIns.post('/user/skip-outsourcing-interest');
+	},
+	
+	toggleActiveStatus: async (id: string): Promise<IApiResponse<boolean>> => {
+		return axiosIns.post(`/user/toggle-active-status/${id}`);
 	},
 };

@@ -90,4 +90,5 @@ export interface IOrganizationUser {
 	lastName: string;
 	roles: string[];
 	profileImage?: IFile;
+	active: boolean;
 }
