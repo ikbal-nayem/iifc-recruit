@@ -1,4 +1,3 @@
-
 import { ProfileCompletion } from '@/components/app/jobseeker/profile-completion';
 import { ProfileTabs } from '@/components/app/jobseeker/profile-forms/profile-tabs';
 import { IProfileCompletionStatus } from '@/interfaces/jobseeker.interface';
@@ -20,10 +19,7 @@ export default async function JobseekerProfileLayout({ children }: { children: R
 
 	return (
 		<div className='space-y-8'>
-			<div>
-				<h1 className='text-3xl font-headline font-bold'>Edit Your Profile</h1>
-				<p className='text-muted-foreground'>Keep your profile updated to attract the best opportunities.</p>
-			</div>
+			<h1 className='text-3xl font-headline font-bold'>Edit Your Profile</h1>
 
 			{profileCompletion && (
 				<div className='my-6'>
