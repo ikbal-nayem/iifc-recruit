@@ -13,6 +13,7 @@ import { FormMultiSelect } from '@/components/ui/form-multi-select';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from '@/hooks/use-toast';
 import { IApiRequest } from '@/interfaces/common.interface';
@@ -20,8 +21,9 @@ import { IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -57,8 +59,8 @@ function UserForm({ isOpen, onClose, organizationId, onSuccess, roles, initialDa
 				: userSchema
 		),
 		defaultValues: {
-			firstName: initialData?.fullName.split(' ')[0] || '',
-			lastName: initialData?.fullName.split(' ').slice(1).join(' ') || '',
+			firstName: initialData?.firstName || '',
+			lastName: initialData?.lastName || '',
 			email: initialData?.email || '',
 			phone: initialData?.phone || '',
 			roles: initialData?.roles || [],
@@ -72,7 +74,7 @@ function UserForm({ isOpen, onClose, organizationId, onSuccess, roles, initialDa
 			const payload = { ...data, organizationId, id: initialData?.id };
 			const response = initialData
 				? await UserService.updateUser(payload)
-				: await UserService.createUser(payload);
+				: await UserService.createOwnUser(payload);
 
 			toast.success({
 				title: initialData ? 'User Updated' : 'User Created',
@@ -169,7 +171,7 @@ export function OrganizationUserManagement({
 		} finally {
 			setIsLoading(false);
 		}
-	}, [organizationId, toast]);
+	}, [organizationId]);
 
 	useEffect(() => {
 		loadUsers();
@@ -211,6 +213,157 @@ export function OrganizationUserManagement({
 		}
 	};
 
+	const columns: ColumnDef<IOrganizationUser>[] = useMemo(
+		() => [
+			{
+				accessorKey: 'fullName',
+				header: 'User',
+				cell: ({ row }) => {
+					const user = row.original;
+					return (
+						<div className='flex items-center gap-4'>
+							<Avatar>
+								<AvatarImage src={makePreviewURL(user.profileImage)} />
+								<AvatarFallback>{user.fullName.charAt(0)}</AvatarFallback>
+							</Avatar>
+							<div>
+								<p className='font-semibold'>{user.fullName}</p>
+								<p className='text-sm text-muted-foreground'>{user.email}</p>
+							</div>
+						</div>
+					);
+				},
+			},
+			{
+				accessorKey: 'roles',
+				header: 'Roles',
+				cell: ({ row }) => {
+					const user = row.original;
+					return (
+						<div className='flex flex-wrap gap-1'>
+							{user.roles?.map((role) => (
+								<Badge key={role} variant='secondary'>
+									{roles.find((r) => r.roleCode === role)?.nameEn || role}
+								</Badge>
+							))}
+						</div>
+					);
+				},
+			},
+			{
+				id: 'status',
+				header: 'Status',
+				cell: ({ row }) => {
+					const user = row.original;
+					const isCurrentUser = user.id === currectUser?.id;
+					return (
+						<div className='flex items-center gap-2'>
+							<Switch
+								checked={user.enabled}
+								onCheckedChange={() => handleToggleActive(user)}
+								disabled={isCurrentUser || statusSubmitting === user.id}
+								id={`user-status-switch-${user.id}`}
+							/>
+							<Label htmlFor={`user-status-switch-${user.id}`} className='text-xs font-medium'>
+								{user.enabled ? 'Active' : 'Inactive'}
+							</Label>
+						</div>
+					);
+				},
+			},
+			{
+				id: 'actions',
+				cell: ({ row }) => {
+					const user = row.original;
+					const isCurrentUser = user.id === currectUser?.id;
+					return (
+						<div className='flex gap-1 justify-end'>
+							<Button variant='ghost' size='icon' onClick={() => handleOpenForm(user)}>
+								<Edit className='h-4 w-4' />
+							</Button>
+							<ConfirmationDialog
+								trigger={
+									<Button variant='ghost' size='icon' disabled={isCurrentUser}>
+										<Trash className='h-4 w-4 text-danger' />
+									</Button>
+								}
+								title='Are you sure?'
+								description={`This will permanently delete the user ${user.fullName}.`}
+								onConfirm={handleDelete}
+								open={userToDelete?.id === user.id}
+								onOpenChange={(open) => !open && setUserToDelete(null)}
+							/>
+						</div>
+					);
+				},
+			},
+		],
+		[roles, currectUser?.id, statusSubmitting, userToDelete]
+	);
+
+	const table = useReactTable({
+		data: users,
+		columns,
+		getCoreRowModel: getCoreRowModel(),
+	});
+
+	const renderMobileCard = (user: IOrganizationUser) => {
+		const isCurrentUser = user.id === currectUser?.id;
+		return (
+			<Card key={user.id} className='p-4'>
+				<div className='flex items-start justify-between'>
+					<div className='flex items-center gap-4'>
+						<Avatar>
+							<AvatarImage src={makePreviewURL(user.profileImage)} />
+							<AvatarFallback>{user.fullName.charAt(0)}</AvatarFallback>
+						</Avatar>
+						<div>
+							<p className='font-semibold'>{user.fullName}</p>
+							<p className='text-sm text-muted-foreground'>{user.email}</p>
+						</div>
+					</div>
+					<div className='flex gap-1'>
+						<Button variant='ghost' size='icon' onClick={() => handleOpenForm(user)}>
+							<Edit className='h-4 w-4' />
+						</Button>
+						<ConfirmationDialog
+							trigger={
+								<Button variant='ghost' size='icon' disabled={isCurrentUser}>
+									<Trash className='h-4 w-4 text-danger' />
+								</Button>
+							}
+							title='Are you sure?'
+							description={`This will permanently delete the user ${user.fullName}.`}
+							onConfirm={handleDelete}
+							open={userToDelete?.id === user.id}
+							onOpenChange={(open) => !open && setUserToDelete(null)}
+						/>
+					</div>
+				</div>
+				<div className='flex justify-between items-center mt-2 pt-2 border-t'>
+					<div className='flex flex-wrap gap-1'>
+						{user.roles?.map((role) => (
+							<Badge key={role} variant='secondary' className='text-xs'>
+								{roles.find((r) => r.roleCode === role)?.nameEn || role}
+							</Badge>
+						))}
+					</div>
+					<div className='flex items-center gap-2'>
+						<Switch
+							checked={user.enabled}
+							onCheckedChange={() => handleToggleActive(user)}
+							disabled={isCurrentUser || statusSubmitting === user.id}
+							id={`user-status-${user.id}`}
+						/>
+						<Label htmlFor={`user-status-${user.id}`} className='text-xs font-medium'>
+							{user.enabled ? 'Active' : 'Inactive'}
+						</Label>
+					</div>
+				</div>
+			</Card>
+		);
+	};
+
 	return (
 		<>
 			<Card className='glassmorphism'>
@@ -226,62 +379,35 @@ export function OrganizationUserManagement({
 						{isLoading ? (
 							[...Array(2)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
 						) : users.length > 0 ? (
-							users.map((user) => {
-								const isCurrentUser = user.id === currectUser?.id;
-								return (
-									<Card key={user.id} className='p-4'>
-										<div className='flex items-center justify-between'>
-											<div className='flex items-center gap-4'>
-												<Avatar>
-													<AvatarImage src={makePreviewURL(user.profileImage)} />
-													<AvatarFallback>{user.fullName.charAt(0)}</AvatarFallback>
-												</Avatar>
-												<div>
-													<p className='font-semibold'>{user.fullName}</p>
-													<p className='text-sm text-muted-foreground'>{user.email}</p>
-												</div>
-											</div>
-											<div className='hidden sm:flex flex-wrap gap-1 justify-end'>
-												{user.roles?.map((role) => (
-													<Badge key={role} variant='secondary'>
-														{roles.find((r) => r.roleCode === role)?.nameEn || role}
-													</Badge>
-												))}
-											</div>
-										</div>
-										<div className='flex justify-between items-center mt-2 pt-2 border-t'>
-											<div className='flex items-center gap-2'>
-												<Switch
-													checked={user.enabled}
-													onCheckedChange={() => handleToggleActive(user)}
-													disabled={isCurrentUser || statusSubmitting === user.id}
-													id={`user-status-${user.id}`}
-												/>
-												<Label htmlFor={`user-status-${user.id}`} className='text-xs font-medium'>
-													{user.enabled ? 'Active' : 'Inactive'}
-												</Label>
-											</div>
-											<div className='flex gap-1'>
-												<Button variant='ghost' size='icon' onClick={() => handleOpenForm(user)}>
-													<Edit className='h-4 w-4' />
-												</Button>
-												<ConfirmationDialog
-													trigger={
-														<Button variant='ghost' size='icon' disabled={isCurrentUser}>
-															<Trash className='h-4 w-4 text-danger' />
-														</Button>
-													}
-													title='Are you sure?'
-													description={`This will permanently delete the user ${user.fullName}.`}
-													onConfirm={handleDelete}
-													open={userToDelete?.id === user.id}
-													onOpenChange={(open) => !open && setUserToDelete(null)}
-												/>
-											</div>
-										</div>
-									</Card>
-								);
-							})
+							<>
+								<div className='md:hidden space-y-3'>{users.map(renderMobileCard)}</div>
+								<div className='hidden md:block rounded-md border'>
+									<Table>
+										<TableHeader>
+											{table.getHeaderGroups().map((headerGroup) => (
+												<TableRow key={headerGroup.id}>
+													{headerGroup.headers.map((header) => (
+														<TableHead key={header.id}>
+															{flexRender(header.column.columnDef.header, header.getContext())}
+														</TableHead>
+													))}
+												</TableRow>
+											))}
+										</TableHeader>
+										<TableBody>
+											{table.getRowModel().rows.map((row) => (
+												<TableRow key={row.id}>
+													{row.getVisibleCells().map((cell) => (
+														<TableCell key={cell.id}>
+															{flexRender(cell.column.columnDef.cell, cell.getContext())}
+														</TableCell>
+													))}
+												</TableRow>
+											))}
+										</TableBody>
+									</Table>
+								</div>
+							</>
 						) : (
 							<div className='text-center py-8 text-muted-foreground'>
 								No users found for this organization.
