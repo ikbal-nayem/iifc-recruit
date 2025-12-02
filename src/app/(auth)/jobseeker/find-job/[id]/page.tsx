@@ -7,7 +7,7 @@ import { ROUTES } from '@/constants/routes.constant';
 import { IObject } from '@/interfaces/common.interface';
 import { ICircular } from '@/interfaces/job.interface';
 import { CircularService } from '@/services/api/circular.service';
-import { endOfDay, format, isPast, parseISO } from 'date-fns';
+import { differenceInDays, endOfDay, format, isPast, parseISO } from 'date-fns';
 import { ArrowLeft, Briefcase, CheckCheck, DollarSign, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -42,9 +42,8 @@ export default async function JobDetailsPage({
 	const backUrl = ROUTES.JOB_SEEKER.FIND_JOBS + `?${queryParams.toString()}`;
 
 	const deadline = parseISO(job.circularEndDate);
-	const today = new Date();
-	const daysUntilDeadline = Math.ceil((deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 	const isExpired = isPast(endOfDay(deadline));
+	const daysUntilDeadline = differenceInDays(endOfDay(deadline), new Date());
 
 	return (
 		<div className='container mx-auto px-4'>
@@ -103,11 +102,7 @@ export default async function JobDetailsPage({
 								<Badge variant='secondary'>
 									Posted: {format(parseISO(job.circularPublishDate), 'dd MMM, yyyy')}
 								</Badge>
-								<Badge
-									variant={
-										daysUntilDeadline <= 3 ? 'danger' : daysUntilDeadline <= 7 ? 'warning' : 'secondary'
-									}
-								>
+								<Badge variant={isExpired ? 'danger' : daysUntilDeadline <= 7 ? 'warning' : 'secondary'}>
 									Deadline: {format(deadline, 'dd MMM, yyyy')}
 								</Badge>
 							</div>
