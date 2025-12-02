@@ -171,6 +171,7 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export function AdminProfileForm({ user }: AdminProfileFormProps) {
 	const [isDetailsSubmitting, setIsDetailsSubmitting] = React.useState(false);
+	const { currectUser, updateUserInfo } = useAuth();
 
 	const form = useForm<ProfileFormValues>({
 		resolver: zodResolver(profileSchema),
@@ -182,15 +183,28 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
 		},
 	});
 
-	const onSubmit = (data: ProfileFormValues) => {
+	const onSubmit = async (data: ProfileFormValues) => {
+		if (!currectUser?.id) return;
 		setIsDetailsSubmitting(true);
-		setTimeout(() => {
+		try {
+			const payload = {
+				id: currectUser.id,
+				...data,
+			};
+			const response = await UserService.updateUser(payload);
+			updateUserInfo(response.body);
 			toast.success({
 				title: 'Profile Updated',
 				description: 'Your personal information has been saved.',
 			});
+		} catch (error: any) {
+			toast.error({
+				title: 'Update Failed',
+				description: error.message || 'There was a problem saving your profile.',
+			});
+		} finally {
 			setIsDetailsSubmitting(false);
-		}, 1000);
+		}
 	};
 
 	return (
