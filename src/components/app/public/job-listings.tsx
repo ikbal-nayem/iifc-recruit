@@ -1,36 +1,20 @@
-
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { differenceInDays, endOfDay, format, isPast, parseISO } from 'date-fns';
-import { Briefcase, Calendar, Loader2, MapPin, Search } from 'lucide-react';
-import Link from 'next/link';
-import { useForm } from 'react-hook-form';
-import { useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
-import { z } from 'zod';
-import { getLocaleSync, t } from '@/lib/i18n-server';
-import { ICircular } from '@/interfaces/job.interface';
-import { IApiRequest, IMeta } from '@/interfaces/common.interface';
-import { CircularService } from '@/services/api/circular.service';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Pagination } from '@/components/ui/pagination';
 import { useDebounce } from '@/hooks/use-debounce';
-import { toast } from '@/hooks/use-toast';
-import { ROUTES } from '@/constants/routes.constant';
+import { IApiRequest, IMeta } from '@/interfaces/common.interface';
+import { ICircular } from '@/interfaces/job.interface';
 import { cn } from '@/lib/utils';
-import { Button } from '../../ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
-import { Form } from '../../ui/form';
-import { FormInput } from '../../ui/form-input';
-import { Pagination } from '../../ui/pagination';
-import { Skeleton } from '@/components/ui/skeleton';
+import { CircularService } from '@/services/api/circular.service';
+import { LayoutGrid, List, Search } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import * as React from 'react';
+import { JobCard } from './job-card';
 
-const filterSchema = z.object({
-	searchKey: z.string().optional(),
-});
-
-type FilterFormValues = z.infer<typeof filterSchema>;
-
-const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
+const initMeta: IMeta = { page: 0, limit: 12 };
 
 interface JobListingsProps {
 	isPaginated?: boolean;
@@ -40,151 +24,118 @@ interface JobListingsProps {
 
 export function JobListings({ isPaginated = true, showFilters = true, itemLimit = 10 }: JobListingsProps) {
 	const searchParams = useSearchParams();
-	const [data, setData] = useState<ICircular[]>([]);
-	const [meta, setMeta] = useState<IMeta>({ ...initMeta, limit: itemLimit });
-	const [isLoading, setIsLoading] = useState(true);
+	const [circulars, setCirculars] = React.useState<ICircular[]>([]);
+	const [meta, setMeta] = React.useState<IMeta>({ ...initMeta, limit: itemLimit });
+	const [isLoading, setIsLoading] = React.useState(true);
 
-	const form = useForm<FilterFormValues>({
-		resolver: zodResolver(filterSchema),
-		defaultValues: {
-			searchKey: searchParams.get('query') || '',
-		},
-	});
+	const [searchQuery, setSearchQuery] = React.useState(searchParams.get('q') || '');
+	const debouncedSearch = useDebounce(searchQuery, 500);
 
-	const debouncedSearch = useDebounce(form.watch('searchKey'), 500);
+	const [view, setView] = React.useState<'grid' | 'list'>('grid');
 
-	const loadData = useCallback(
+	const loadCirculars = React.useCallback(
 		async (page: number, search: string) => {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
 					body: { searchKey: search },
-					meta: { page: page, limit: meta.limit },
+					meta: { page: page, limit: itemLimit },
 				};
 				const response = await CircularService.search(payload);
-				setData(response.body);
+				setCirculars(response.body);
 				setMeta(response.meta);
 			} catch (error: any) {
-				toast.error({
-					description: error.message || 'Failed to load job circulars.',
-				});
+				console.error('Failed to load circulars', error);
 			} finally {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit]
+		[itemLimit]
 	);
 
-	useEffect(() => {
-		loadData(0, debouncedSearch);
-	}, [debouncedSearch, loadData]);
+	React.useEffect(() => {
+		loadCirculars(0, debouncedSearch);
+	}, [debouncedSearch, loadCirculars]);
 
 	const handlePageChange = (newPage: number) => {
-		loadData(newPage, debouncedSearch);
+		loadCirculars(newPage, debouncedSearch);
 	};
 
-	const locale = getLocaleSync();
-
-	const renderJobCard = (job: ICircular) => {
-		const deadline = parseISO(job.circularEndDate);
-		const isExpired = isPast(endOfDay(deadline));
-		const daysLeft = differenceInDays(endOfDay(deadline), new Date());
-
-		let deadlineBadgeVariant: 'danger' | 'warning' | 'secondary' = 'secondary';
-		if (isExpired) {
-			deadlineBadgeVariant = 'danger';
-		} else if (daysLeft <= 7) {
-			deadlineBadgeVariant = 'warning';
-		}
-
-		return (
-			<Card key={job.id} className='glassmorphism card-hover'>
-				<CardHeader>
-					<CardTitle className='font-headline text-xl group-hover:text-primary transition-colors'>
-						<Link href={ROUTES.JOB_SEEKER.JOB_DETAILS(job.id)}>{job.postNameEn}</Link>
-					</CardTitle>
-					<CardDescription className='flex flex-wrap items-center gap-x-4 gap-y-2 pt-1'>
-						<span className='flex items-center gap-2'>
-							<Briefcase className='h-4 w-4' /> {job.clientOrganizationNameEn}
-						</span>
-						{job.outsourcingZoneNameEn && (
-							<span className='flex items-center gap-2'>
-								<MapPin className='h-4 w-4' /> {job.outsourcingZoneNameEn}
-							</span>
-						)}
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
-					<div className='flex items-center gap-4 text-sm'>
-						<Badge variant={deadlineBadgeVariant}>
-							<Calendar className='mr-1.5 h-4 w-4' />
-							{t(locale, 'jobs.deadline')}: {format(deadline, 'dd MMM, yyyy')}
-						</Badge>
-					</div>
-				</CardContent>
-			</Card>
-		);
-	};
-
-	const renderSkeleton = (key: number) => (
-		<Card key={key} className='glassmorphism'>
-			<CardHeader>
-				<Skeleton className='h-6 w-3/4' />
-				<Skeleton className='h-4 w-1/2 mt-2' />
-			</CardHeader>
-			<CardContent>
-				<Skeleton className='h-6 w-1/3' />
-			</CardContent>
-		</Card>
+	const renderSkeletons = () => (
+		<div
+			className={cn(
+				'grid gap-6',
+				view === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'
+			)}
+		>
+			{Array.from({ length: itemLimit }).map((_, index) => (
+				<Card key={index} className='p-6 animate-pulse bg-muted/50'>
+					<div className='h-6 bg-muted rounded w-3/4 mb-4'></div>
+					<div className='h-4 bg-muted rounded w-1/2 mb-2'></div>
+					<div className='h-4 bg-muted rounded w-1/3'></div>
+				</Card>
+			))}
+		</div>
 	);
 
 	return (
 		<div className='space-y-8'>
 			{showFilters && (
-				<Card className='glassmorphism p-4 md:p-6'>
-					<Form {...form}>
-						<form
-							onSubmit={(e) => {
-								e.preventDefault();
-								loadData(0, form.getValues('searchKey') || '');
-							}}
-							className='flex flex-col md:flex-row gap-4'
-						>
-							<div className='flex-1'>
-								<FormInput
-									control={form.control}
-									name='searchKey'
-									placeholder={t(locale, 'jobs.jobTitle') + ', ' + t(locale, 'jobs.category') + '...'}
-									startIcon={<Search className='h-4 w-4 text-muted-foreground' />}
-								/>
-							</div>
-
-							<Button type='submit' className='w-full md:w-auto'>
-								{isLoading ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Search className='mr-2 h-4 w-4' />}
-								{t(locale, 'common.search')}
+				<Card className='p-4 glassmorphism'>
+					<div className='relative w-full'>
+						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+						<Input
+							placeholder='Search by job title...'
+							onChange={(e) => setSearchQuery(e.target.value)}
+							className='pl-10 h-12'
+						/>
+					</div>
+					<div className='flex items-center justify-between mt-3'>
+						<strong className='text-sm text-muted-foreground'>
+							Job found: <strong>{(meta?.totalRecords || 0).toLocaleString()}</strong>
+						</strong>
+						<div className='flex items-center justify-end gap-2'>
+							<Button
+								variant={view === 'grid' ? 'default' : 'outline'}
+								size='icon'
+								onClick={() => setView('grid')}
+							>
+								<LayoutGrid className='h-5 w-5' />
 							</Button>
-						</form>
-					</Form>
+							<Button
+								variant={view === 'list' ? 'default' : 'outline'}
+								size='icon'
+								onClick={() => setView('list')}
+							>
+								<List className='h-5 w-5' />
+							</Button>
+						</div>
+					</div>
 				</Card>
 			)}
 
-			<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-				{isLoading ? (
-					[...Array(itemLimit)].map((_, i) => renderSkeleton(i))
-				) : data.length > 0 ? (
-					data.map(renderJobCard)
-				) : (
-					<div className='md:col-span-2 lg:col-span-3 text-center py-16'>
-						<p className='text-muted-foreground'>{t(locale, 'jobs.noJobsFound')}</p>
-					</div>
-				)}
-			</div>
+			{isLoading ? (
+				renderSkeletons()
+			) : circulars.length > 0 ? (
+				<div
+					className={cn(
+						'grid gap-4',
+						view === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'
+					)}
+				>
+					{circulars.map((job) => (
+						<JobCard key={job.id} job={job} view={view} searchParams={searchParams} />
+					))}
+				</div>
+			) : (
+				<div className='text-center py-16 text-muted-foreground'>No jobs found for your criteria.</div>
+			)}
 
-			{isPaginated && meta && meta.totalRecords && meta.totalRecords > 0 ? (
+			{isPaginated && meta && meta.totalRecords! > 0 && (
 				<div className='flex justify-center'>
 					<Pagination meta={meta} isLoading={isLoading} onPageChange={handlePageChange} noun={'Job'} />
 				</div>
-			) : null}
+			)}
 		</div>
 	);
 }
