@@ -23,7 +23,9 @@ import * as z from 'zod';
 
 const languageSchema = z.object({
 	languageId: z.coerce.string().min(1, 'Language is required.'),
-	proficiency: z.string().min(1, 'Proficiency is required'),
+	reading: z.string().min(1, 'Reading proficiency is required'),
+	writing: z.string().min(1, 'Writing proficiency is required'),
+	speaking: z.string().min(1, 'Speaking proficiency is required'),
 });
 
 type LanguageFormValues = z.infer<typeof languageSchema>;
@@ -38,7 +40,7 @@ interface LanguageFormProps {
 	proficiencyOptions: EnumDTO[];
 }
 
-const defaultValues = { languageId: '', proficiency: '' };
+const defaultValues = { languageId: '', reading: '', writing: '', speaking: '' };
 
 function LanguageForm({
 	isOpen,
@@ -83,17 +85,46 @@ function LanguageForm({
 							getOptionValue={(option) => option.id!}
 							disabled={isSubmitting}
 						/>
-						<FormSelect
-							control={form.control}
-							name='proficiency'
-							label='Proficiency'
-							required
-							options={proficiencyOptions}
-							placeholder='Select proficiency'
-							getOptionLabel={(option) => option.nameEn}
-							getOptionValue={(option) => option.value}
-							disabled={isSubmitting}
-						/>
+
+						<div className='space-y-2'>
+							<p className='text-sm font-medium'>Proficiency Levels</p>
+							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+								<FormSelect
+									control={form.control}
+									name='reading'
+									label='Reading'
+									required
+									options={proficiencyOptions}
+									placeholder='Select proficiency'
+									getOptionLabel={(option) => option.nameEn}
+									getOptionValue={(option) => option.value}
+									disabled={isSubmitting}
+								/>
+								<FormSelect
+									control={form.control}
+									name='writing'
+									label='Writing'
+									required
+									options={proficiencyOptions}
+									placeholder='Select proficiency'
+									getOptionLabel={(option) => option.nameEn}
+									getOptionValue={(option) => option.value}
+									disabled={isSubmitting}
+								/>
+								<FormSelect
+									control={form.control}
+									name='speaking'
+									label='Speaking'
+									required
+									options={proficiencyOptions}
+									placeholder='Select proficiency'
+									getOptionLabel={(option) => option.nameEn}
+									getOptionValue={(option) => option.value}
+									disabled={isSubmitting}
+								/>
+							</div>
+						</div>
+
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
 								Cancel
@@ -187,13 +218,21 @@ export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: Pr
 		}
 	};
 
+	const getProficiencyLabel = (value?: string) => {
+		return proficiencyOptions.find((p) => p.value === value)?.nameEn || value;
+	};
+
 	const renderItem = (item: Language) => {
 		const languageName = languageOptions.find((l) => l.id === item.languageId)?.nameEn || item.language?.nameEn;
 		return (
-			<Card key={item.id} className='p-4 flex justify-between items-center'>
-				<div>
+			<Card key={item.id} className='p-4 flex justify-between items-start'>
+				<div className='space-y-1'>
 					<p className='font-semibold'>{languageName}</p>
-					<p className='text-sm text-muted-foreground'>{item?.proficiencyDTO?.nameEn}</p>
+					<div className='flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground'>
+						<span>Reading: {getProficiencyLabel(item.reading)}</span>
+						<span>Writing: {getProficiencyLabel(item.writing)}</span>
+						<span>Speaking: {getProficiencyLabel(item.speaking)}</span>
+					</div>
 				</div>
 				<div className='flex gap-2'>
 					<Button variant='ghost' size='icon' onClick={() => handleOpenForm(item)}>

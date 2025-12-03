@@ -1,3 +1,4 @@
+
 import { IFile, ResultSystem } from './common.interface';
 import { EnumDTO, ICommonMasterData, IEducationInstitution, IPost } from './master-data.interface';
 
@@ -21,8 +22,12 @@ export type Language = {
 	id?: string;
 	languageId: string;
 	language?: ICommonMasterData;
-	proficiency: string;
-	proficiencyDTO?: EnumDTO;
+	reading?: string;
+	writing?: string;
+	speaking?: string;
+	readingProficiency?: EnumDTO;
+	writingProficiency?: EnumDTO;
+	speakingProficiency?: EnumDTO;
 };
 
 export type Publication = {

@@ -1,9 +1,10 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
-import { Jobseeker, JobseekerSkill } from '@/interfaces/jobseeker.interface';
+import { Jobseeker, JobseekerSkill, Language } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { generateCv } from '@/lib/cv-generator';
 import { makeDownloadURL, makePreviewURL } from '@/lib/file-oparations';
@@ -399,10 +400,14 @@ export function JobseekerProfileView({
 								</CardTitle>
 							</CardHeader>
 							<CardContent className='space-y-2'>
-								{languages.map((lang) => (
-									<div key={lang.id} className='flex justify-between text-sm'>
-										<span>{lang.language?.nameEn}</span>
-										<span className='text-muted-foreground'>{lang.proficiencyDTO?.nameEn}</span>
+								{languages.map((lang: Language) => (
+									<div key={lang.id} className='text-sm'>
+										<p className='font-semibold'>{lang.language?.nameEn}</p>
+										<div className='flex flex-wrap gap-x-3 text-xs text-muted-foreground'>
+											<span>Reading: {lang.readingProficiency?.nameEn}</span>
+											<span>Writing: {lang.writingProficiency?.nameEn}</span>
+											<span>Speaking: {lang.speakingProficiency?.nameEn}</span>
+										</div>
 									</div>
 								))}
 							</CardContent>
