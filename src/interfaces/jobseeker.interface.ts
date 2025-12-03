@@ -25,9 +25,11 @@ export type Language = {
 	reading?: string;
 	writing?: string;
 	speaking?: string;
+	listening?: string;
 	readingProficiency?: EnumDTO;
 	writingProficiency?: EnumDTO;
 	speakingProficiency?: EnumDTO;
+	listeningProficiency?: EnumDTO;
 };
 
 export type Publication = {

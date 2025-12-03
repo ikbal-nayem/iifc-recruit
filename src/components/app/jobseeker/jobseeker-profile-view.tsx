@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -404,9 +403,18 @@ export function JobseekerProfileView({
 									<div key={lang.id} className='text-sm'>
 										<p className='font-semibold'>{lang.language?.nameEn}</p>
 										<div className='flex flex-wrap gap-x-3 text-xs text-muted-foreground'>
-											<span>Reading: {lang.readingProficiency?.nameEn}</span>
-											<span>Writing: {lang.writingProficiency?.nameEn}</span>
-											<span>Speaking: {lang.speakingProficiency?.nameEn}</span>
+											<span>
+												Reading: <b>{lang.readingProficiency?.nameEn}</b>
+											</span>
+											<span>
+												Writing: <b>{lang.writingProficiency?.nameEn}</b>
+											</span>
+											<span>
+												Speaking: <b>{lang.speakingProficiency?.nameEn}</b>
+											</span>
+											<span>
+												Listening: <b>{lang.listeningProficiency?.nameEn}</b>
+											</span>
 										</div>
 									</div>
 								))}

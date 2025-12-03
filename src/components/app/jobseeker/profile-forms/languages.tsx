@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,7 @@ import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormSelect } from '@/components/ui/form-select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTES } from '@/constants/routes.constant';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { Language } from '@/interfaces/jobseeker.interface';
 import { EnumDTO, ICommonMasterData } from '@/interfaces/master-data.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
@@ -26,6 +25,7 @@ const languageSchema = z.object({
 	reading: z.string().min(1, 'Reading proficiency is required'),
 	writing: z.string().min(1, 'Writing proficiency is required'),
 	speaking: z.string().min(1, 'Speaking proficiency is required'),
+	listening: z.string().min(1, 'Listening proficiency is required'),
 });
 
 type LanguageFormValues = z.infer<typeof languageSchema>;
@@ -40,7 +40,7 @@ interface LanguageFormProps {
 	proficiencyOptions: EnumDTO[];
 }
 
-const defaultValues = { languageId: '', reading: '', writing: '', speaking: '' };
+const defaultValues = { languageId: '', reading: '', writing: '', speaking: '', listening: '' };
 
 function LanguageForm({
 	isOpen,
@@ -53,9 +53,17 @@ function LanguageForm({
 }: LanguageFormProps) {
 	const form = useForm<LanguageFormValues>({
 		resolver: zodResolver(languageSchema),
-		values: initialData || defaultValues,
+		values: defaultValues,
 	});
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+	React.useEffect(() => {
+		if (initialData) {
+			form.reset({ ...initialData });
+		} else {
+			form.reset(defaultValues);
+		}
+	}, [initialData, form]);
 
 	const handleSubmit = async (data: LanguageFormValues) => {
 		setIsSubmitting(true);
@@ -122,11 +130,22 @@ function LanguageForm({
 									getOptionValue={(option) => option.value}
 									disabled={isSubmitting}
 								/>
+								<FormSelect
+									control={form.control}
+									name='listening'
+									label='Listening'
+									required
+									options={proficiencyOptions}
+									placeholder='Select proficiency'
+									getOptionLabel={(option) => option.nameEn}
+									getOptionValue={(option) => option.value}
+									disabled={isSubmitting}
+								/>
 							</div>
 						</div>
 
 						<DialogFooter className='pt-4'>
-							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
+							<Button type='button' variant='outline' onClick={onClose} disabled={isSubmitting}>
 								Cancel
 							</Button>
 							<Button type='submit' disabled={isSubmitting}>
@@ -148,7 +167,6 @@ interface ProfileFormLanguagesProps {
 
 export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: ProfileFormLanguagesProps) {
 	const router = useRouter();
-	const { toast } = useToast();
 	const [history, setHistory] = React.useState<Language[]>([]);
 	const [editingItem, setEditingItem] = React.useState<Language | undefined>(undefined);
 	const [itemToDelete, setItemToDelete] = React.useState<Language | null>(null);
@@ -161,14 +179,13 @@ export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: Pr
 			const languagesRes = await JobseekerProfileService.language.get();
 			setHistory(languagesRes.body);
 		} catch (error) {
-			toast({
+			toast.error({
 				description: 'Failed to load data.',
-				variant: 'danger',
 			});
 		} finally {
 			setIsLoading(false);
 		}
-	}, [toast]);
+	}, []);
 
 	React.useEffect(() => {
 		loadData();
@@ -190,12 +207,12 @@ export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: Pr
 			const response = id
 				? await JobseekerProfileService.language.update({ ...payload, id })
 				: await JobseekerProfileService.language.add(payload);
-			toast({ description: response.message, variant: 'success' });
+			toast.success({ description: response.message });
 			router.refresh();
 			loadData();
 			return true;
 		} catch (error: any) {
-			toast({ title: 'Error', description: error.message || 'An error occurred.', variant: 'danger' });
+			toast.error({ title: 'Error', description: error.message || 'An error occurred.' });
 			return false;
 		}
 	};
@@ -204,14 +221,13 @@ export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: Pr
 		if (!itemToDelete?.id) return;
 		try {
 			const response = await JobseekerProfileService.language.delete(itemToDelete.id);
-			toast({ description: response.message || 'Language deleted successfully.', variant: 'success' });
+			toast.success({ description: response.message || 'Language deleted successfully.' });
 			router.refresh();
 			loadData();
 		} catch (error: any) {
-			toast({
+			toast.error({
 				title: 'Error',
 				description: error.message || 'Failed to delete language.',
-				variant: 'danger',
 			});
 		} finally {
 			setItemToDelete(null);
@@ -223,15 +239,25 @@ export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: Pr
 	};
 
 	const renderItem = (item: Language) => {
-		const languageName = languageOptions.find((l) => l.id === item.languageId)?.nameEn || item.language?.nameEn;
+		const languageName =
+			languageOptions.find((l) => l.id === item.languageId)?.nameEn || item.language?.nameEn;
 		return (
 			<Card key={item.id} className='p-4 flex justify-between items-start'>
 				<div className='space-y-1'>
 					<p className='font-semibold'>{languageName}</p>
 					<div className='flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground'>
-						<span>Reading: {getProficiencyLabel(item.reading)}</span>
-						<span>Writing: {getProficiencyLabel(item.writing)}</span>
-						<span>Speaking: {getProficiencyLabel(item.speaking)}</span>
+						<span>
+							Reading: <b>{getProficiencyLabel(item.reading)}</b>
+						</span>
+						<span>
+							Writing: <b>{getProficiencyLabel(item.writing)}</b>
+						</span>
+						<span>
+							Speaking: <b>{getProficiencyLabel(item.speaking)}</b>
+						</span>
+						<span>
+							Listening: <b>{getProficiencyLabel(item.listening)}</b>
+						</span>
 					</div>
 				</div>
 				<div className='flex gap-2'>
