@@ -1,5 +1,3 @@
-'use client';
-
 import { ChangePasswordForm } from '@/components/app/change-password-form';
 
 export default function AdminChangePasswordPage() {
