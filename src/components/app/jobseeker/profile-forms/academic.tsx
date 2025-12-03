@@ -56,7 +56,7 @@ interface AcademicFormProps {
 	noun: string;
 	masterData: {
 		degreeLevels: ICommonMasterData[];
-		domains: ICommonMasterData[];
+		// domains: ICommonMasterData[];
 		institutions: IEducationInstitution[];
 	};
 }
@@ -227,7 +227,7 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 interface ProfileFormAcademicProps {
 	masterData: {
 		degreeLevels: ICommonMasterData[];
-		domains: ICommonMasterData[];
+		// domains: ICommonMasterData[];
 		institutions: IEducationInstitution[];
 	};
 }
