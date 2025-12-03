@@ -12,9 +12,10 @@ import {
 } from '@/components/ui/sheet';
 import { COMMON_URL } from '@/constants/common.constant';
 import { ENV } from '@/constants/env.constant';
+import { ROUTES } from '@/constants/routes.constant';
 import { useTranslations } from '@/hooks/use-translations';
 import { cn } from '@/lib/utils';
-import { LogIn, Menu, UserPlus } from 'lucide-react';
+import { LogIn, Menu, Search, UserPlus } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -54,30 +55,33 @@ export default function PublicHeader() {
 
 			<nav className='hidden md:flex items-center gap-6 text-sm font-medium'>
 				{navLinks.map((link) => (
-					<Link
-						key={link.href}
-						href={link.href}
-						className={cn(
-							'transition-colors hover:text-primary',
-							pathname === link.href || pathname.endsWith(link.href)
-								? 'text-primary'
-								: 'text-muted-foreground'
-						)}
-					>
-						{link.label}
-					</Link>
+					<Button asChild variant='lite-success'>
+						<Link
+							key={link.href}
+							href={link.href}
+							className={cn(
+								'transition-colors hover:text-primary',
+								pathname === link.href || pathname.endsWith(link.href)
+									? 'text-primary'
+									: 'text-muted-foreground'
+							)}
+						>
+							<Search className='mr-2 h-4 w-4' />
+							{link.label}
+						</Link>
+					</Button>
 				))}
 			</nav>
 
 			<div className='ml-auto flex items-center gap-2'>
 				<Button asChild variant='ghost' className='hidden sm:inline-flex'>
-					<Link href='/login'>
+					<Link href={ROUTES.AUTH.LOGIN}>
 						<LogIn className='mr-2 h-4 w-4' />
 						{t.signIn}
 					</Link>
 				</Button>
 				<Button asChild className='hidden sm:inline-flex'>
-					<Link href='/signup'>
+					<Link href={ROUTES.AUTH.SIGNUP}>
 						<UserPlus className='mr-2 h-4 w-4' />
 						{t.signUp}
 					</Link>
