@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,7 @@ import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
-import { FormSelect } from '@/components/ui/form-select';
+import { FormRadioGroup } from '@/components/ui/form-radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTES } from '@/constants/routes.constant';
 import { toast } from '@/hooks/use-toast';
@@ -53,7 +54,13 @@ function LanguageForm({
 }: LanguageFormProps) {
 	const form = useForm<LanguageFormValues>({
 		resolver: zodResolver(languageSchema),
-		values: defaultValues,
+		defaultValues: {
+			...defaultValues,
+			reading: proficiencyOptions[0]?.value,
+			writing: proficiencyOptions[0]?.value,
+			speaking: proficiencyOptions[0]?.value,
+			listening: proficiencyOptions[0]?.value,
+		},
 	});
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
 
@@ -61,9 +68,15 @@ function LanguageForm({
 		if (initialData) {
 			form.reset({ ...initialData });
 		} else {
-			form.reset(defaultValues);
+			form.reset({
+				...defaultValues,
+				reading: proficiencyOptions[0]?.value,
+				writing: proficiencyOptions[0]?.value,
+				speaking: proficiencyOptions[0]?.value,
+				listening: proficiencyOptions[0]?.value,
+			});
 		}
-	}, [initialData, form]);
+	}, [initialData, form, proficiencyOptions]);
 
 	const handleSubmit = async (data: LanguageFormValues) => {
 		setIsSubmitting(true);
@@ -76,7 +89,7 @@ function LanguageForm({
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
-			<DialogContent>
+			<DialogContent className='max-w-3xl'>
 				<DialogHeader>
 					<DialogTitle>{initialData ? `Edit ${noun}` : `Add ${noun}`}</DialogTitle>
 				</DialogHeader>
@@ -94,58 +107,46 @@ function LanguageForm({
 							disabled={isSubmitting}
 						/>
 
-						<div className='space-y-2'>
+						<div className='space-y-4'>
 							<p className='text-sm font-medium'>Proficiency Levels</p>
-							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-								<FormSelect
+							<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+								<FormRadioGroup
 									control={form.control}
 									name='reading'
 									label='Reading'
 									required
-									options={proficiencyOptions}
-									placeholder='Select proficiency'
-									getOptionLabel={(option) => option.nameEn}
-									getOptionValue={(option) => option.value}
-									disabled={isSubmitting}
+									options={proficiencyOptions.map((p) => ({ label: p.nameEn, value: p.value }))}
+									orientation='vertical'
 								/>
-								<FormSelect
+								<FormRadioGroup
 									control={form.control}
 									name='writing'
 									label='Writing'
 									required
-									options={proficiencyOptions}
-									placeholder='Select proficiency'
-									getOptionLabel={(option) => option.nameEn}
-									getOptionValue={(option) => option.value}
-									disabled={isSubmitting}
+									options={proficiencyOptions.map((p) => ({ label: p.nameEn, value: p.value }))}
+									orientation='vertical'
 								/>
-								<FormSelect
+								<FormRadioGroup
 									control={form.control}
 									name='speaking'
 									label='Speaking'
 									required
-									options={proficiencyOptions}
-									placeholder='Select proficiency'
-									getOptionLabel={(option) => option.nameEn}
-									getOptionValue={(option) => option.value}
-									disabled={isSubmitting}
+									options={proficiencyOptions.map((p) => ({ label: p.nameEn, value: p.value }))}
+									orientation='vertical'
 								/>
-								<FormSelect
+								<FormRadioGroup
 									control={form.control}
 									name='listening'
 									label='Listening'
 									required
-									options={proficiencyOptions}
-									placeholder='Select proficiency'
-									getOptionLabel={(option) => option.nameEn}
-									getOptionValue={(option) => option.value}
-									disabled={isSubmitting}
+									options={proficiencyOptions.map((p) => ({ label: p.nameEn, value: p.value }))}
+									orientation='vertical'
 								/>
 							</div>
 						</div>
 
 						<DialogFooter className='pt-4'>
-							<Button type='button' variant='outline' onClick={onClose} disabled={isSubmitting}>
+							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
 								Cancel
 							</Button>
 							<Button type='submit' disabled={isSubmitting}>
