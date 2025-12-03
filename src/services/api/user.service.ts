@@ -22,9 +22,16 @@ export const UserService = {
 	createOwnUser: async (payload: IObject): Promise<IApiResponse<IUser>> => {
 		return axiosIns.post('/user/create-own', payload);
 	},
-	
+
 	updateUser: async (payload: IObject): Promise<IApiResponse<IUser>> => {
 		return axiosIns.put('/user/update', payload);
+	},
+
+	adminResetPassword: async (payload: {
+		userId: string;
+		newPassword: any;
+	}): Promise<IApiResponse<void>> => {
+		return axiosIns.post('/user/update-password', payload);
 	},
 
 	deleteUser: async (id: string): Promise<IApiResponse<void>> => {
@@ -42,7 +49,7 @@ export const UserService = {
 	skipOutsourcingInterest: async (): Promise<IApiResponse<void>> => {
 		return axiosIns.post('/user/skip-outsourcing-interest');
 	},
-	
+
 	toggleActiveStatus: async (id: string): Promise<IApiResponse<boolean>> => {
 		return axiosIns.post(`/user/toggle-active-status/${id}`);
 	},

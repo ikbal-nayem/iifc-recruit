@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ROLES } from '@/constants/auth.constant';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from '@/hooks/use-toast';
 import { IApiRequest } from '@/interfaces/common.interface';
@@ -22,10 +23,11 @@ import { makePreviewURL } from '@/lib/file-oparations';
 import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { Edit, Loader2, PlusCircle, Trash } from 'lucide-react';
+import { Edit, KeyRound, Loader2, PlusCircle, Trash } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { PasswordResetDialog } from '../user-management/password-reset-dialog';
 
 const userSchema = z.object({
 	firstName: z.string().min(1, 'First name is required.'),
@@ -34,7 +36,7 @@ const userSchema = z.object({
 	phone: z
 		.string()
 		.min(1, 'Phone number is required')
-		.max(11, 'Phone number must be 11 digits.')
+		.max(11, 'Phone number too long')
 		.regex(/^01[0-9]{9}$/, 'Invalid phone number'),
 	roles: z.array(z.string()).min(1, 'At least one role is required.'),
 	password: z.string().min(8, 'Password must be at least 8 characters.').optional(),
@@ -156,6 +158,10 @@ export function OrganizationUserManagement({
 	const [editingUser, setEditingUser] = useState<IOrganizationUser | undefined>(undefined);
 	const [userToDelete, setUserToDelete] = useState<IOrganizationUser | null>(null);
 	const [statusSubmitting, setStatusSubmitting] = useState<string | null>(null);
+	const [userToResetPassword, setUserToResetPassword] = useState<IOrganizationUser | null>(null);
+
+	const canResetPassword =
+		!!currectUser?.roles.includes(ROLES.SUPER_ADMIN) || !!currectUser?.roles.includes(ROLES.IIFC_ADMIN);
 
 	const loadUsers = useCallback(async () => {
 		setIsLoading(true);
@@ -281,6 +287,11 @@ export function OrganizationUserManagement({
 							<Button variant='ghost' size='icon' onClick={() => handleOpenForm(user)}>
 								<Edit className='h-4 w-4' />
 							</Button>
+							{canResetPassword && !isCurrentUser && (
+								<Button variant='ghost' size='icon' onClick={() => setUserToResetPassword(user)}>
+									<KeyRound className='h-4 w-4 text-warning' />
+								</Button>
+							)}
 							<ConfirmationDialog
 								trigger={
 									<Button variant='ghost' size='icon' disabled={isCurrentUser}>
@@ -298,7 +309,7 @@ export function OrganizationUserManagement({
 				},
 			},
 		],
-		[roles, currectUser?.id, statusSubmitting, userToDelete]
+		[roles, currectUser?.id, statusSubmitting, userToDelete, canResetPassword]
 	);
 
 	const table = useReactTable({
@@ -326,18 +337,27 @@ export function OrganizationUserManagement({
 						<Button variant='ghost' size='icon' onClick={() => handleOpenForm(user)}>
 							<Edit className='h-4 w-4' />
 						</Button>
-						<ConfirmationDialog
-							trigger={
-								<Button variant='ghost' size='icon' disabled={isCurrentUser}>
-									<Trash className='h-4 w-4 text-danger' />
-								</Button>
-							}
-							title='Are you sure?'
-							description={`This will permanently delete the user ${user.fullName}.`}
-							onConfirm={handleDelete}
-							open={userToDelete?.id === user.id}
-							onOpenChange={(open) => !open && setUserToDelete(null)}
-						/>
+						{!isCurrentUser && (
+							<>
+								{canResetPassword && (
+									<Button variant='ghost' size='icon' onClick={() => setUserToResetPassword(user)}>
+										<KeyRound className='h-4 w-4 text-warning' />
+									</Button>
+								)}
+								<ConfirmationDialog
+									trigger={
+										<Button variant='ghost' size='icon' disabled={isCurrentUser}>
+											<Trash className='h-4 w-4 text-danger' />
+										</Button>
+									}
+									title='Are you sure?'
+									description={`This will permanently delete the user ${user.fullName}.`}
+									onConfirm={handleDelete}
+									open={userToDelete?.id === user.id}
+									onOpenChange={(open) => !open && setUserToDelete(null)}
+								/>
+							</>
+						)}
 					</div>
 				</div>
 				<div className='flex justify-between items-center mt-2 pt-2 border-t'>
@@ -424,6 +444,13 @@ export function OrganizationUserManagement({
 					onSuccess={loadUsers}
 					roles={roles}
 					initialData={editingUser}
+				/>
+			)}
+			{userToResetPassword && (
+				<PasswordResetDialog
+					user={userToResetPassword}
+					open={!!userToResetPassword}
+					onOpenChange={(open) => !open && setUserToResetPassword(null)}
 				/>
 			)}
 		</>

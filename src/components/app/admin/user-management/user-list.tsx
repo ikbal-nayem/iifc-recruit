@@ -27,10 +27,11 @@ import { makePreviewURL } from '@/lib/file-oparations';
 import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { Edit, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
+import { Edit, KeyRound, Loader2, PlusCircle, Search, Trash } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { PasswordResetDialog } from './password-reset-dialog';
 
 const userSchema = z.object({
 	firstName: z.string().min(1, 'First name is required.'),
@@ -173,12 +174,14 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 	const [isUserFormOpen, setIsUserFormOpen] = useState(false);
 	const [editingUser, setEditingUser] = useState<IOrganizationUser | undefined>(undefined);
 	const [userToDelete, setUserToDelete] = useState<IOrganizationUser | null>(null);
+	const [userToResetPassword, setUserToResetPassword] = useState<IOrganizationUser | null>(null);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [statusSubmitting, setStatusSubmitting] = useState<string | null>(null);
 
 	const debouncedSearch = useDebounce(searchQuery, 500);
 
 	const isSuperAdmin = !!currectUser?.roles?.includes(ROLES.SUPER_ADMIN);
+	const canResetPassword = isSuperAdmin || !!currectUser?.roles.includes(ROLES.IIFC_ADMIN);
 	const organizationId = isSuperAdmin ? undefined : currectUser?.organizationId;
 
 	const loadUsers = useCallback(
@@ -239,9 +242,7 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 		setStatusSubmitting(user.id);
 		try {
 			await UserService.toggleActiveStatus(user.id);
-			setUsers((prev) =>
-				prev.map((u) => (u.id === user.id ? { ...u, enabled: !u.enabled } : u))
-			);
+			setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, enabled: !u.enabled } : u)));
 			toast.success({ description: `Status for ${user.fullName} updated.` });
 		} catch (error: any) {
 			toast.error({ description: error.message || 'Failed to update status.' });
@@ -249,7 +250,6 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 			setStatusSubmitting(null);
 		}
 	};
-
 
 	const columns: ColumnDef<IOrganizationUser>[] = useMemo(() => {
 		const baseColumns: ColumnDef<IOrganizationUser>[] = [
@@ -334,6 +334,11 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 							<Button variant='ghost' size='icon' onClick={() => handleOpenForm(user)}>
 								<Edit className='h-4 w-4' />
 							</Button>
+							{canResetPassword && !isCurrentUser && (
+								<Button variant='ghost' size='icon' onClick={() => setUserToResetPassword(user)}>
+									<KeyRound className='h-4 w-4 text-warning' />
+								</Button>
+							)}
 							<Button
 								variant='ghost'
 								size='icon'
@@ -350,7 +355,7 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 		);
 
 		return baseColumns;
-	}, [isSuperAdmin, allRoles, currectUser?.id, statusSubmitting]);
+	}, [isSuperAdmin, allRoles, currectUser?.id, statusSubmitting, canResetPassword]);
 
 	const table = useReactTable({
 		data: users,
@@ -384,9 +389,16 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 							<Edit className='h-4 w-4' />
 						</Button>
 						{!isCurrentUser && (
-							<Button variant='ghost' size='icon' onClick={() => setUserToDelete(user)} title='Delete user'>
-								<Trash className='h-4 w-4 text-danger' />
-							</Button>
+							<>
+								{canResetPassword && (
+									<Button variant='ghost' size='icon' onClick={() => setUserToResetPassword(user)}>
+										<KeyRound className='h-4 w-4 text-warning' />
+									</Button>
+								)}
+								<Button variant='ghost' size='icon' onClick={() => setUserToDelete(user)} title='Delete user'>
+									<Trash className='h-4 w-4 text-danger' />
+								</Button>
+							</>
 						)}
 					</div>
 				</div>
@@ -406,7 +418,9 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 							aria-label='Toggle user status'
 							id={`switch-${user.id}`}
 						/>
-						<Label htmlFor={`switch-${user.id}`} className='text-xs font-medium'>{user.enabled ? 'Active' : 'Inactive'}</Label>
+						<Label htmlFor={`switch-${user.id}`} className='text-xs font-medium'>
+							{user.enabled ? 'Active' : 'Inactive'}
+						</Label>
 					</div>
 				</div>
 			</Card>
@@ -518,6 +532,13 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 					description={`This will permanently delete the user "${userToDelete.fullName}".`}
 					onConfirm={handleDelete}
 					confirmText='Delete'
+				/>
+			)}
+			{userToResetPassword && (
+				<PasswordResetDialog
+					user={userToResetPassword}
+					open={!!userToResetPassword}
+					onOpenChange={(open) => !open && setUserToResetPassword(null)}
 				/>
 			)}
 		</>
