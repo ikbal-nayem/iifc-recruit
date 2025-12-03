@@ -160,6 +160,7 @@ export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: Pr
 				? await JobseekerProfileService.language.update({ ...payload, id })
 				: await JobseekerProfileService.language.add(payload);
 			toast({ description: response.message, variant: 'success' });
+			router.refresh();
 			loadData();
 			return true;
 		} catch (error: any) {
@@ -173,6 +174,7 @@ export function ProfileFormLanguages({ languageOptions, proficiencyOptions }: Pr
 		try {
 			const response = await JobseekerProfileService.language.delete(itemToDelete.id);
 			toast({ description: response.message || 'Language deleted successfully.', variant: 'success' });
+			router.refresh();
 			loadData();
 		} catch (error: any) {
 			toast({

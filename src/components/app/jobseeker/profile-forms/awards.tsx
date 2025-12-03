@@ -147,6 +147,7 @@ export function ProfileFormAwards() {
 				? await JobseekerProfileService.award.update({ ...payload, id })
 				: await JobseekerProfileService.award.add(payload);
 			toast({ description: response.message, variant: 'success' });
+			router.refresh();
 			loadAwards();
 			return true;
 		} catch (error: any) {
@@ -160,6 +161,7 @@ export function ProfileFormAwards() {
 		try {
 			const response = await JobseekerProfileService.award.delete(itemToDelete.id);
 			toast({ description: response.message || 'Award deleted successfully.', variant: 'success' });
+			router.refresh();
 			loadAwards();
 		} catch (error: any) {
 			toast({

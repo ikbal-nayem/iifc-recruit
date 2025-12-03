@@ -184,6 +184,7 @@ export function ProfileFormSkills({ proficiencyOptions }: ProfileFormSkillsProps
 				? await JobseekerProfileService.skill.update(payload as JobseekerSkill)
 				: await JobseekerProfileService.skill.add(payload);
 			toast({ description: response.message, variant: 'success' });
+			router.refresh();
 			loadSkills();
 			return true;
 		} catch (error: any) {
@@ -197,6 +198,7 @@ export function ProfileFormSkills({ proficiencyOptions }: ProfileFormSkillsProps
 		try {
 			await JobseekerProfileService.skill.delete(itemToDelete.id);
 			toast({ description: 'Skill deleted successfully.', variant: 'success' });
+			router.refresh();
 			loadSkills();
 		} catch (error: any) {
 			toast({ title: 'Error', description: error.message || 'Failed to delete skill.', variant: 'danger' });

@@ -197,6 +197,7 @@ export function ProfileFormTraining() {
 		try {
 			const response = await JobseekerProfileService.training.save(makeFormData(formData));
 			toast.success({ description: response.message });
+			router.refresh();
 			loadTrainings();
 			return true;
 		} catch (error: any) {
@@ -209,6 +210,7 @@ export function ProfileFormTraining() {
 		try {
 			const response = await JobseekerProfileService.training.delete(id);
 			toast.success({ description: response.message || 'Training deleted successfully.' });
+			router.refresh();
 			loadTrainings();
 		} catch (error: any) {
 			toast.error({

@@ -254,6 +254,7 @@ export default function ProfileFormCertifications() {
 		try {
 			const response = await JobseekerProfileService.certification.save(makeFormData(formData));
 			toast.success({ description: response.message });
+			router.refresh();
 			loadData();
 			return true;
 		} catch (error: any) {
@@ -267,6 +268,7 @@ export default function ProfileFormCertifications() {
 		try {
 			await JobseekerProfileService.certification.delete(itemToDelete.id);
 			toast.success({ description: 'Certification deleted successfully.' });
+			router.refresh();
 			loadData();
 		} catch (error: any) {
 			toast.error({

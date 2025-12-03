@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -272,6 +273,7 @@ export function ProfileFormAcademic({ masterData }: ProfileFormAcademicProps) {
 			const formData = makeFormData(payload);
 			const response = await JobseekerProfileService.academic.save(formData);
 			toast.success({ description: response.message });
+			router.refresh();
 			loadData();
 			return true;
 		} catch (error: any) {
@@ -287,6 +289,7 @@ export function ProfileFormAcademic({ masterData }: ProfileFormAcademicProps) {
 				title: 'Entry Deleted',
 				description: 'The academic record has been removed.',
 			});
+			router.refresh();
 			loadData();
 		} catch (error: any) {
 			toast.error({

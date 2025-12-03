@@ -25,12 +25,12 @@ const publicationSchema = z.object({
 	title: z.string().min(1, 'Title is required.').max(100, 'Title is too long.'),
 	publisher: z.string().min(1, 'Publisher is required.').max(100, 'Publisher is too long.'),
 	publicationDate: z.string().min(1, 'Publication date is required.'),
-	url: z.string().url('Please enter a valid URL.').max(150, 'URL is too long.')
+	url: z.string().url('Please enter a valid URL.').max(150, 'URL is too long.'),
 });
 
 type PublicationFormValues = z.infer<typeof publicationSchema>;
 
-const defaultData = { title: '', publisher: '', publicationDate: '', url: ''};
+const defaultData = { title: '', publisher: '', publicationDate: '', url: '' };
 
 interface PublicationFormProps {
 	isOpen: boolean;
@@ -156,6 +156,7 @@ export function ProfileFormPublications() {
 				? await JobseekerProfileService.publication.update({ ...payload, id })
 				: await JobseekerProfileService.publication.add(payload);
 			toast({ description: response.message, variant: 'success' });
+			router.refresh();
 			loadPublications();
 			return true;
 		} catch (error: any) {
@@ -169,6 +170,7 @@ export function ProfileFormPublications() {
 		try {
 			const response = await JobseekerProfileService.publication.delete(itemToDelete.id);
 			toast({ description: response.message || 'Publication deleted successfully.', variant: 'success' });
+			router.refresh();
 			loadPublications();
 		} catch (error: any) {
 			toast({
@@ -216,7 +218,7 @@ export function ProfileFormPublications() {
 			<Card className='glassmorphism'>
 				<CardHeader>
 					<div className='flex justify-between items-center'>
-						<div className="space-y-1.5">
+						<div className='space-y-1.5'>
 							<CardTitle>Your Publications</CardTitle>
 							<CardDescription>Listed below is your published work.</CardDescription>
 						</div>

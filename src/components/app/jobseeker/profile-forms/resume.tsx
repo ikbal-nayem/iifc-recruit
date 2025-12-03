@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -72,6 +73,7 @@ export default function JobseekerProfileResumePage() {
 				description: response.message,
 				variant: 'success',
 			});
+			router.refresh();
 			form.reset();
 			loadResumes();
 		} catch (error: any) {
@@ -93,6 +95,7 @@ export default function JobseekerProfileResumePage() {
 				description: response.message,
 				variant: 'success',
 			});
+			router.refresh();
 			loadResumes();
 		} catch (error: any) {
 			toast({
@@ -114,6 +117,7 @@ export default function JobseekerProfileResumePage() {
 					title: 'Resume Deleted',
 					variant: 'success',
 				});
+				router.refresh();
 				loadResumes();
 			})
 			.catch((error: any) => {

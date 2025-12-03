@@ -233,6 +233,7 @@ export function ProfileFormProfessional() {
 			const formData = makeFormData(payload);
 			const response = await JobseekerProfileService.experience.save(formData);
 			toast.success({ description: response.message });
+			router.refresh();
 			loadExperience();
 			return true;
 		} catch (error: any) {
@@ -250,6 +251,7 @@ export function ProfileFormProfessional() {
 				title: 'Entry Deleted',
 				description: 'The professional record has been removed.',
 			});
+			router.refresh();
 			loadExperience();
 		} catch (error: any) {
 			toast.error({

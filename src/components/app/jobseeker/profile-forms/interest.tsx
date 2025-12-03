@@ -63,6 +63,7 @@ export function ProfileFormInterest({ categories }: ProfileFormInterestProps) {
 		try {
 			await JobseekerProfileService.interest.add(data);
 			toast.success({ description: 'Position added to your interest list.' });
+			router.refresh();
 			form.reset();
 			loadData();
 		} catch (error: any) {
@@ -79,6 +80,7 @@ export function ProfileFormInterest({ categories }: ProfileFormInterestProps) {
 		try {
 			await JobseekerProfileService.interest.delete(id);
 			toast.success({ description: 'Position removed from your interest list.' });
+			router.refresh();
 			loadData();
 		} catch (error: any) {
 			toast.error({ description: error.message || 'Failed to remove interest.' });

@@ -55,6 +55,7 @@ function ProfileImageCard({
 	lastName?: string;
 }) {
 	const { toast } = useToast();
+	const router = useRouter();
 	const [avatarPreview, setAvatarPreview] = React.useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useLoader(false);
 	const { updateUserInfo } = useAuth();
@@ -90,6 +91,7 @@ function ProfileImageCard({
 				variant: 'success',
 			});
 			updateUserInfo({ profileImage: res.body });
+			router.refresh();
 			form.reset();
 		} catch (err: any) {
 			toast({
@@ -336,6 +338,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 				toast.success({
 					description: res.message || 'Your personal information has been saved.',
 				});
+				router.refresh();
 				router.push(ROUTES.JOB_SEEKER.PROFILE_EDIT.ACADEMIC);
 			})
 			.catch((err) => {
