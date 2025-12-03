@@ -10,7 +10,7 @@ import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormRadioGroup } from '@/components/ui/form-radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTES } from '@/constants/routes.constant';
-import { toast } from '@/hooks/use-toast';
+import { toast, useToast } from '@/hooks/use-toast';
 import { Language } from '@/interfaces/jobseeker.interface';
 import { EnumDTO, ICommonMasterData } from '@/interfaces/master-data.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
@@ -109,14 +109,14 @@ function LanguageForm({
 
 						<div className='space-y-4'>
 							<p className='text-sm font-medium'>Proficiency Levels</p>
-							<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+							<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-x-8 gap-y-4'>
 								<FormRadioGroup
 									control={form.control}
 									name='reading'
 									label='Reading'
 									required
 									options={proficiencyOptions.map((p) => ({ label: p.nameEn, value: p.value }))}
-									orientation='vertical'
+									orientation='horizontal'
 								/>
 								<FormRadioGroup
 									control={form.control}
@@ -124,7 +124,7 @@ function LanguageForm({
 									label='Writing'
 									required
 									options={proficiencyOptions.map((p) => ({ label: p.nameEn, value: p.value }))}
-									orientation='vertical'
+									orientation='horizontal'
 								/>
 								<FormRadioGroup
 									control={form.control}
@@ -132,7 +132,7 @@ function LanguageForm({
 									label='Speaking'
 									required
 									options={proficiencyOptions.map((p) => ({ label: p.nameEn, value: p.value }))}
-									orientation='vertical'
+									orientation='horizontal'
 								/>
 								<FormRadioGroup
 									control={form.control}
@@ -140,7 +140,7 @@ function LanguageForm({
 									label='Listening'
 									required
 									options={proficiencyOptions.map((p) => ({ label: p.nameEn, value: p.value }))}
-									orientation='vertical'
+									orientation='horizontal'
 								/>
 							</div>
 						</div>
