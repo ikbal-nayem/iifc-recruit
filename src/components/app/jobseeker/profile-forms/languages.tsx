@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,7 @@ import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormRadioGroup } from '@/components/ui/form-radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTES } from '@/constants/routes.constant';
-import { toast, useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { Language } from '@/interfaces/jobseeker.interface';
 import { EnumDTO, ICommonMasterData } from '@/interfaces/master-data.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
@@ -108,8 +107,8 @@ function LanguageForm({
 						/>
 
 						<div className='space-y-4'>
-							<p className='text-sm font-medium'>Proficiency Levels</p>
-							<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-x-8 gap-y-4'>
+							<p className='text-sm font-bold'>Proficiency Levels</p>
+							<div className='space-y-2'>
 								<FormRadioGroup
 									control={form.control}
 									name='reading'
@@ -118,6 +117,8 @@ function LanguageForm({
 									options={proficiencyOptions.map((p) => ({ label: p.nameEn, value: p.value }))}
 									orientation='horizontal'
 								/>
+							</div>
+							<div className='space-y-2'>
 								<FormRadioGroup
 									control={form.control}
 									name='writing'
@@ -126,6 +127,8 @@ function LanguageForm({
 									options={proficiencyOptions.map((p) => ({ label: p.nameEn, value: p.value }))}
 									orientation='horizontal'
 								/>
+							</div>
+							<div className='space-y-2'>
 								<FormRadioGroup
 									control={form.control}
 									name='speaking'
@@ -134,6 +137,8 @@ function LanguageForm({
 									options={proficiencyOptions.map((p) => ({ label: p.nameEn, value: p.value }))}
 									orientation='horizontal'
 								/>
+							</div>
+							<div className='space-y-2'>
 								<FormRadioGroup
 									control={form.control}
 									name='listening'
@@ -146,7 +151,7 @@ function LanguageForm({
 						</div>
 
 						<DialogFooter className='pt-4'>
-							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
+							<Button type='button' variant='outline' onClick={onClose} disabled={isSubmitting}>
 								Cancel
 							</Button>
 							<Button type='submit' disabled={isSubmitting}>
