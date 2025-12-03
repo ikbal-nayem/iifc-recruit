@@ -13,6 +13,7 @@ import {
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { toast } from '@/hooks/use-toast';
+import { AuthService } from '@/services/api/auth.service';
 import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
@@ -49,7 +50,7 @@ export function PasswordResetDialog({ user, open, onOpenChange }: PasswordResetD
 	const handleSubmit = async (data: PasswordFormValues) => {
 		setIsSubmitting(true);
 		try {
-			await UserService.adminResetPassword({
+			await AuthService.changePassword({
 				userId: user.id,
 				newPassword: data.newPassword,
 			});

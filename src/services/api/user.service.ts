@@ -1,4 +1,3 @@
-
 import { axiosIns } from '@/config/api.config';
 import { IUser } from '@/interfaces/auth.interface';
 import { IApiRequest, IApiResponse, IObject } from '@/interfaces/common.interface';
@@ -25,13 +24,6 @@ export const UserService = {
 
 	updateUser: async (payload: IObject): Promise<IApiResponse<IUser>> => {
 		return axiosIns.put('/user/update', payload);
-	},
-
-	adminResetPassword: async (payload: {
-		userId: string;
-		newPassword: any;
-	}): Promise<IApiResponse<void>> => {
-		return axiosIns.post('/user/update-password', payload);
 	},
 
 	deleteUser: async (id: string): Promise<IApiResponse<void>> => {
