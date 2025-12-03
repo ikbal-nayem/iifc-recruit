@@ -212,7 +212,7 @@ export function ProfileFormAwards() {
 				</CardHeader>
 				<CardContent className='space-y-4'>
 					{isLoading ? (
-						[...Array(2)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
+						[...Array(1)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
 					) : history.length > 0 ? (
 						history.map(renderItem)
 					) : (

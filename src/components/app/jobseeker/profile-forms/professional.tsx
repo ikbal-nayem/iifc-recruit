@@ -213,7 +213,7 @@ export function ProfileFormProfessional() {
 		setIsLoading(true);
 		try {
 			const response = await JobseekerProfileService.experience.get();
-			setHistory(response.body);
+			setHistory(response.body as ProfessionalInfo[]);
 		} catch (error) {
 			toast.error({
 				description: 'Failed to load professional experience.',
@@ -330,7 +330,7 @@ export function ProfileFormProfessional() {
 				</CardHeader>
 				<CardContent className='space-y-4'>
 					{isLoading ? (
-						[...Array(2)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
+						[...Array(1)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
 					) : history.length > 0 ? (
 						history.map(renderItem)
 					) : (

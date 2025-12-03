@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,7 @@ import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTES } from '@/constants/routes.constant';
-import { useToast } from '@/hooks/use-toast';
+import { toast, useToast } from '@/hooks/use-toast';
 import { JobseekerSkill } from '@/interfaces/jobseeker.interface';
 import { EnumDTO, ICommonMasterData } from '@/interfaces/master-data.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
@@ -44,7 +43,6 @@ interface SkillFormProps {
 }
 
 function SkillForm({ isOpen, onClose, onSubmit, initialData, noun, proficiencyOptions }: SkillFormProps) {
-	const { toast } = useToast();
 	const form = useForm<SkillFormValues>({
 		resolver: zodResolver(skillSchema),
 		defaultValues: initialData || defaultValues,
@@ -71,15 +69,13 @@ function SkillForm({ isOpen, onClose, onSubmit, initialData, noun, proficiencyOp
 				nameBn: name,
 				active: true,
 			});
-			toast({
+			toast.success({
 				description: `Skill "${name}" created.`,
-				variant: 'success',
 			});
 			return response.body;
 		} catch (error: any) {
-			toast({
+			toast.error({
 				description: error.message || 'Failed to create skill.',
-				variant: 'danger',
 			});
 			return null;
 		}
@@ -157,11 +153,11 @@ export function ProfileFormSkills({ proficiencyOptions }: ProfileFormSkillsProps
 			const response = await JobseekerProfileService.skill.get();
 			setSkills(response.body);
 		} catch (error) {
-			toast({ title: 'Error', description: 'Failed to load skills.', variant: 'danger' });
+			toast.error({ title: 'Error', description: 'Failed to load skills.' });
 		} finally {
 			setIsLoading(false);
 		}
-	}, [toast]);
+	}, []);
 
 	React.useEffect(() => {
 		loadSkills();
@@ -243,7 +239,7 @@ export function ProfileFormSkills({ proficiencyOptions }: ProfileFormSkillsProps
 				</CardHeader>
 				<CardContent className='space-y-4'>
 					{isLoading ? (
-						[...Array(3)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
+						[...Array(1)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
 					) : skills.length > 0 ? (
 						skills.map(renderItem)
 					) : (

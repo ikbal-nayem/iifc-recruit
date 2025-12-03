@@ -225,7 +225,7 @@ export default function ProfileFormCertifications() {
 		setIsLoading(true);
 		try {
 			const [certRes] = await Promise.all([JobseekerProfileService.certification.get()]);
-			setHistory(certRes.body);
+			setHistory(certRes.body as Certification[]);
 		} catch (error) {
 			toast({
 				description: 'Failed to load certifications.',
@@ -334,7 +334,7 @@ export default function ProfileFormCertifications() {
 				</CardHeader>
 				<CardContent className='space-y-4'>
 					{isLoading ? (
-						[...Array(2)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
+						[...Array(1)].map((_, i) => <Skeleton key={i} className='h-20 w-full' />)
 					) : history.length > 0 ? (
 						history.map(renderItem)
 					) : (

@@ -147,7 +147,7 @@ export function ProfileFormInterest({ categories }: ProfileFormInterestProps) {
 				</CardHeader>
 				<CardContent className='space-y-4'>
 					{isLoading ? (
-						[...Array(2)].map((_, i) => <Skeleton key={i} className='h-16 w-full' />)
+						[...Array(1)].map((_, i) => <Skeleton key={i} className='h-16 w-full' />)
 					) : history.length > 0 ? (
 						history.map((item) => (
 							<Card key={item.id} className='p-4 flex justify-between items-center'>
