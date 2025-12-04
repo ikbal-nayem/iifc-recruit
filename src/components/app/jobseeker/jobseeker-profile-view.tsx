@@ -154,7 +154,7 @@ export function JobseekerProfileView({
 						src={makePreviewURL(personalInfo.profileImage?.filePath)}
 						alt={personalInfo.fullName}
 					/>
-					<AvatarFallback>
+					<AvatarFallback className='text-3xl'>
 						{personalInfo.firstName?.[0]}
 						{personalInfo.lastName?.[0]}
 					</AvatarFallback>
