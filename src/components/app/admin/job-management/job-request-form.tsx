@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -283,6 +284,7 @@ export function JobRequestForm({
 						<CardContent className='space-y-4'>
 							{fields.map((field, index) => {
 								const categoryId = requestedPostsValues?.[index]?.outsourcingCategoryId;
+								const initialPost = initialData?.requestedPosts[index];
 								return (
 									<Card key={field.id} className='p-4 relative bg-muted/5'>
 										<CardContent className='p-0 space-y-4'>
@@ -311,6 +313,7 @@ export function JobRequestForm({
 															onValueChange={() => {
 																form.setValue(`requestedPosts.${index}.postId`, '');
 															}}
+															initialLabel={initialPost?.post?.outsourcingCategory?.nameBn}
 														/>
 													</>
 												)}
@@ -338,6 +341,7 @@ export function JobRequestForm({
 															</div>
 														)
 													}
+													initialLabel={initialPost?.post?.nameBn}
 												/>
 												<FormInput
 													control={form.control}
