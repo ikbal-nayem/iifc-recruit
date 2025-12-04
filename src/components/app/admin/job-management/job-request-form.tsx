@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -24,7 +23,13 @@ import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from '@/hooks/use-toast';
 import { JobRequest, JobRequestType } from '@/interfaces/job.interface';
-import { EnumDTO, IClientOrganization, IOutsourcingCategory, IOutsourcingZone, IPost } from '@/interfaces/master-data.interface';
+import {
+	EnumDTO,
+	IClientOrganization,
+	IOutsourcingCategory,
+	IOutsourcingZone,
+	IPost,
+} from '@/interfaces/master-data.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
 import {
 	getClientAsync,
@@ -126,7 +131,7 @@ export function JobRequestForm({
 					requestedPosts:
 						initialData.requestedPosts.map((p) => ({
 							...p,
-							outsourcingCategoryId: p.post?.outsourcingCategoryId,
+							outsourcingCategoryId: p.post?.outsourcingCategory?.id,
 						})) || [],
 			  }
 			: {
@@ -314,7 +319,6 @@ export function JobRequestForm({
 															onValueChange={() => {
 																form.setValue(`requestedPosts.${index}.postId`, '');
 															}}
-															initialLabel={initialPost?.post?.outsourcingCategory?.nameBn}
 														/>
 													</>
 												)}
