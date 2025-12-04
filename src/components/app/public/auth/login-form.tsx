@@ -52,7 +52,7 @@ export default function LoginForm() {
 				router.push(ROUTES.DASHBOARD.JOB_SEEKER);
 			} else router.push(ROUTES.DASHBOARD.ADMIN);
 		} catch (err: any) {
-			setError(err.message || 'An unexpected error occurred. Please try again.');
+			setError(err?.data?.message || 'An unexpected error occurred. Please try again.');
 		} finally {
 			setIsLoading(false);
 		}

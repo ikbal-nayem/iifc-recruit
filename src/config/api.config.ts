@@ -67,7 +67,7 @@ class AxiosInstance {
 			async (error) => {
 				const originalRequest = error.config;
 				if (error?.response?.status === 401 && originalRequest.url?.includes('/api/auth/login')) {
-					return Promise.reject(error);
+					return Promise.reject(error?.response);
 				}
 
 				if (error?.response?.status === 401 && !originalRequest._retry) {

@@ -14,6 +14,8 @@ async function getProfileData() {
 export default async function JobseekerPublicProfilePage() {
 	const jobseeker = await getProfileData();
 
+	console.log(jobseeker)
+
 	if (!jobseeker) {
 		return (
 			<div className='flex flex-col items-center justify-center h-full'>
