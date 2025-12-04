@@ -62,6 +62,7 @@ const jobRequestSchema = z
 		requestDate: z.string().min(1, 'Request date is required.'),
 		deadline: z.string().min(1, 'Deadline is required.'),
 		requestedPosts: z.array(requestedPostSchema).min(1, 'At least one post is required.'),
+		maxApplication: z.coerce.number().min(1, 'Max Application must be at least 1.').optional(),
 	})
 	.refine(
 		(data) => {
@@ -261,6 +262,15 @@ export function JobRequestForm({
 							<div className='grid grid-cols-1 md:grid-cols-2 gap-6 items-start'>
 								<FormDatePicker control={form.control} name='requestDate' label='Request Date' required />
 								<FormDatePicker control={form.control} name='deadline' label='Deadline' required />
+							</div>
+
+							<div className='grid grid-cols-1 md:grid-cols-3 gap-6 items-start'>
+								<FormInput
+									control={form.control}
+									name='maxApplication'
+									label='Max Application Per Applicant'
+									placeholder='e.g., 3'
+								/>
 							</div>
 						</CardContent>
 					</Card>
