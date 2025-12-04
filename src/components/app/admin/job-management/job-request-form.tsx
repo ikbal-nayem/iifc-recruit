@@ -24,11 +24,10 @@ import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from '@/hooks/use-toast';
 import { JobRequest, JobRequestType } from '@/interfaces/job.interface';
-import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from '@/interfaces/master-data.interface';
+import { EnumDTO, IClientOrganization, IOutsourcingCategory, IOutsourcingZone, IPost } from '@/interfaces/master-data.interface';
 import { JobRequestService } from '@/services/api/job-request.service';
 import {
 	getClientAsync,
-	getOutsourcingCategoriesAsync,
 	getPostNonOutsourcingAsync,
 	getPostOutsourcingByCategoryAsync,
 } from '@/services/async-api';
@@ -101,6 +100,7 @@ interface JobRequestFormProps {
 	outsourcingZones: IOutsourcingZone[];
 	requestTypes: EnumDTO[];
 	initialData?: JobRequest;
+	outsourcingCategories: IOutsourcingCategory[];
 }
 
 export function JobRequestForm({
@@ -109,6 +109,7 @@ export function JobRequestForm({
 	outsourcingZones,
 	requestTypes,
 	initialData,
+	outsourcingCategories,
 }: JobRequestFormProps) {
 	const router = useRouter();
 	const { currectUser } = useAuth();
@@ -307,7 +308,7 @@ export function JobRequestForm({
 															label='Category'
 															required
 															placeholder='Select category'
-															loadOptions={getOutsourcingCategoriesAsync}
+															options={outsourcingCategories}
 															getOptionValue={(opt) => opt?.id!}
 															getOptionLabel={(opt) => opt.nameBn}
 															onValueChange={() => {

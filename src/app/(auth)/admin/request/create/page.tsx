@@ -1,5 +1,6 @@
+
 import { JobRequestForm } from '@/components/app/admin/job-management/job-request-form';
-import { EnumDTO, IClientOrganization, IOutsourcingZone, IPost } from '@/interfaces/master-data.interface';
+import { EnumDTO, IClientOrganization, IOutsourcingCategory, IOutsourcingZone, IPost } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 
 type MasterData = {
@@ -7,15 +8,17 @@ type MasterData = {
 	posts: IPost[];
 	outsourcingZones: IOutsourcingZone[];
 	requestTypes: EnumDTO[];
+	outsourcingCategories: IOutsourcingCategory[];
 };
 
 async function getMasterData(): Promise<MasterData> {
 	try {
-		const [clientOrgsRes, postsRes, zonesRes, requestTypesRes] = await Promise.allSettled([
+		const [clientOrgsRes, postsRes, zonesRes, requestTypesRes, outsourcingCategoriesRes] = await Promise.allSettled([
 			MasterDataService.clientOrganization.getList({ body: { isClient: true } }),
 			MasterDataService.post.getList({}),
 			MasterDataService.outsourcingZone.get(),
 			MasterDataService.getEnum('job-request-type'),
+			MasterDataService.outsourcingCategory.get(),
 		]);
 
 		const clientOrganizations = clientOrgsRes.status === 'fulfilled' ? clientOrgsRes.value.body : [];
@@ -23,11 +26,12 @@ async function getMasterData(): Promise<MasterData> {
 		const outsourcingZones = zonesRes.status === 'fulfilled' ? zonesRes.value.body : [];
 		const requestTypes =
 			requestTypesRes.status === 'fulfilled' ? (requestTypesRes.value.body as EnumDTO[]) : [];
+		const outsourcingCategories = outsourcingCategoriesRes.status === 'fulfilled' ? outsourcingCategoriesRes.value.body : [];
 
-		return { clientOrganizations, posts, outsourcingZones, requestTypes };
+		return { clientOrganizations, posts, outsourcingZones, requestTypes, outsourcingCategories };
 	} catch (error) {
 		console.error('Failed to load master data for job request form', error);
-		return { clientOrganizations: [], posts: [], outsourcingZones: [], requestTypes: [] };
+		return { clientOrganizations: [], posts: [], outsourcingZones: [], requestTypes: [], outsourcingCategories: [] };
 	}
 }
 
@@ -46,6 +50,7 @@ export default async function CreateJobRequestPage() {
 				posts={masterData.posts}
 				outsourcingZones={masterData.outsourcingZones}
 				requestTypes={masterData.requestTypes}
+				outsourcingCategories={masterData.outsourcingCategories}
 			/>
 		</div>
 	);
