@@ -1,6 +1,11 @@
-
 import { IFile, ResultSystem } from './common.interface';
-import { EnumDTO, ICommonMasterData, IEducationInstitution, IPost } from './master-data.interface';
+import {
+	EnumDTO,
+	IClientOrganization,
+	ICommonMasterData,
+	IEducationInstitution,
+	IPost,
+} from './master-data.interface';
 
 export enum ProficiencyLevel {
 	BEGINNER = 'BEGINNER',
@@ -151,6 +156,8 @@ export type PersonalInfo = {
 	nid?: string;
 	passportNo?: string;
 	birthCertificate?: string;
+
+	organization?: IClientOrganization;
 
 	// Status
 	maritalStatus: string;

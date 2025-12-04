@@ -46,20 +46,6 @@ export interface IEducationInstitution extends ICommonMasterData {
 	country?: IObject;
 }
 
-export interface IOrganization extends ICommonMasterData {
-	countryCode: string;
-	organizationTypeId: string;
-	industryTypeId?: string;
-	address?: string;
-	phone?: string;
-	email?: string;
-	website?: string;
-
-	country?: ICommonMasterData;
-	organizationType?: ICommonMasterData;
-	industryType?: ICommonMasterData;
-}
-
 export interface IClientOrganization {
 	id?: string;
 	nameEn: string;

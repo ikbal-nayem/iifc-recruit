@@ -45,6 +45,18 @@ const formatDateRange = (fromDate: string, toDate?: string, isPresent?: boolean)
 	return `${start} - ${end}`;
 };
 
+const formatAddress = (
+	addressLine?: string,
+	upazila?: ICommonMasterData,
+	district?: ICommonMasterData,
+	division?: ICommonMasterData,
+	postCode?: number
+) => {
+	return [addressLine, upazila?.nameEn, district?.nameEn, division?.nameEn, postCode]
+		.filter(Boolean)
+		.join(', ');
+};
+
 export function JobseekerProfileView({
 	jobseeker: initialJobseeker,
 	jobseekerId,
@@ -110,18 +122,6 @@ export function JobseekerProfileView({
 		resume,
 	} = jobseeker;
 
-	const formatAddress = (
-		addressLine?: string,
-		upazila?: ICommonMasterData,
-		district?: ICommonMasterData,
-		division?: ICommonMasterData,
-		postCode?: number
-	) => {
-		return [addressLine, upazila?.nameEn, district?.nameEn, division?.nameEn, postCode]
-			.filter(Boolean)
-			.join(', ');
-	};
-
 	const DetailItem = ({ label, value }: { label: string; value?: React.ReactNode }) =>
 		value ? (
 			<div>
@@ -129,6 +129,21 @@ export function JobseekerProfileView({
 				<p className='font-medium'>{value}</p>
 			</div>
 		) : null;
+
+	const permanentAddress = formatAddress(
+		personalInfo.permanentAddress,
+		personalInfo.permanentUpazila,
+		personalInfo.permanentDistrict,
+		personalInfo.permanentDivision,
+		personalInfo.permanentPostCode
+	);
+	const presentAddress = formatAddress(
+		personalInfo.presentAddress,
+		personalInfo.presentUpazila,
+		personalInfo.presentDistrict,
+		personalInfo.presentDivision,
+		personalInfo.presentPostCode
+	);
 
 	return (
 		<div className='p-2 sm:p-4 md:p-6 space-y-6'>
@@ -146,6 +161,9 @@ export function JobseekerProfileView({
 				</Avatar>
 				<div className='flex-1 space-y-2'>
 					<h1 className='text-3xl font-bold font-headline'>{personalInfo.fullName}</h1>
+					{personalInfo?.organization && (
+						<span className='font-semibold text-muted-foreground'>{personalInfo?.organization?.nameEn}</span>
+					)}
 					<p className='text-lg text-muted-foreground'>{personalInfo.careerObjective}</p>
 					<div className='flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground'>
 						{personalInfo?.email && (
@@ -235,34 +253,23 @@ export function JobseekerProfileView({
 					</div>
 					<Separator />
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6'>
-						<div>
-							<h4 className='font-semibold text-muted-foreground mb-2 flex items-center gap-2'>
-								<MapPin className='h-4 w-4' /> Present Address
-							</h4>
-							<address className='not-italic'>
-								{formatAddress(
-									personalInfo.presentAddress,
-									personalInfo.presentUpazila,
-									personalInfo.presentDistrict,
-									personalInfo.presentDivision,
-									personalInfo.presentPostCode
-								)}
-							</address>
-						</div>
-						<div>
-							<h4 className='font-semibold text-muted-foreground mb-2 flex items-center gap-2'>
-								<MapPin className='h-4 w-4' /> Permanent Address
-							</h4>
-							<address className='not-italic'>
-								{formatAddress(
-									personalInfo.permanentAddress,
-									personalInfo.permanentUpazila,
-									personalInfo.permanentDistrict,
-									personalInfo.permanentDivision,
-									personalInfo.permanentPostCode
-								)}
-							</address>
-						</div>
+						{!!permanentAddress && (
+							<div>
+								<h4 className='font-semibold text-muted-foreground mb-2 flex items-center gap-2'>
+									<MapPin className='h-4 w-4' /> Permanent Address
+								</h4>
+								<address className='not-italic'>{permanentAddress}</address>
+							</div>
+						)}
+
+						{!!presentAddress && (
+							<div>
+								<h4 className='font-semibold text-muted-foreground mb-2 flex items-center gap-2'>
+									<MapPin className='h-4 w-4' /> Present Address
+								</h4>
+								<address className='not-italic'>{presentAddress}</address>
+							</div>
+						)}
 					</div>
 				</CardContent>
 			</Card>
