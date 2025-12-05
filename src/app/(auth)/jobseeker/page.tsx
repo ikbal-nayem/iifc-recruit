@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ProfileCompletion } from '@/components/app/jobseeker/profile-completion';
@@ -41,7 +40,7 @@ export default function JobseekerDashboardPage() {
 			try {
 				const [completionRes, applicationsRes, statsRes] = await Promise.allSettled([
 					JobseekerProfileService.getProfileCompletion(),
-					ApplicationService.getByApplicant({ meta: { limit: 2 } }),
+					ApplicationService.getByApplicant({ meta: { page: 0, limit: 2 } }),
 					ApplicationService.getStatistics(currectUser?.id!),
 				]);
 
