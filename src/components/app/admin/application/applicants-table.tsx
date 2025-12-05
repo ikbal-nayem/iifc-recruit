@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -48,6 +49,8 @@ import {
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
+import { useAuth } from '@/contexts/auth-context';
+import { ROLES } from '@/constants/auth.constant';
 
 interface ApplicantsTableProps {
 	applicants: Application[];
@@ -80,6 +83,7 @@ export function ApplicantsTable({
 	isProcessing = false,
 	isShortlisted = false,
 }: ApplicantsTableProps) {
+	const { currectUser } = useAuth();
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 	const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
@@ -92,6 +96,9 @@ export function ApplicantsTable({
 	const [interviewApplicants, setInterviewApplicants] = React.useState<Application[]>([]);
 	const [isMarksModalOpen, setIsMarksModalOpen] = React.useState(false);
 	const [marksApplicant, setMarksApplicant] = React.useState<Application | null>(null);
+
+	const canDirectShortlist =
+		!!currectUser?.roles.includes(ROLES.IIFC_ADMIN) || !!currectUser?.roles.includes(ROLES.IIFC_OPERATOR);
 
 	const interviewForm = useForm<InterviewFormValues>({
 		resolver: zodResolver(interviewSchema),
@@ -192,19 +199,19 @@ export function ApplicantsTable({
 			requestedPostStatus === JobRequestedPostStatus.PROCESSING &&
 			application.status === APPLICATION_STATUS.ACCEPTED
 		) {
-			items.push(
-				{ isSeparator: true },
-				{
-					label: 'Call for Interview',
-					icon: <CalendarIcon className='mr-2 h-4 w-4' />,
-					onClick: () => openInterviewDialog([application]),
-				},
-				{
+			items.push({ isSeparator: true });
+			items.push({
+				label: 'Call for Interview',
+				icon: <CalendarIcon className='mr-2 h-4 w-4' />,
+				onClick: () => openInterviewDialog([application]),
+			});
+			if (canDirectShortlist) {
+				items.push({
 					label: 'Mark as Shortlisted',
 					icon: <UserCheck className='mr-2 h-4 w-4' />,
 					onClick: () => handleStatusChange([application], APPLICATION_STATUS.SHORTLISTED),
-				}
-			);
+				});
+			}
 		}
 
 		if (application.status === APPLICATION_STATUS.INTERVIEW) {
@@ -447,15 +454,17 @@ export function ApplicantsTable({
 									<Button size='sm' variant='lite-info' onClick={handleBulkInterview}>
 										<CalendarIcon className='mr-2 h-4 w-4' /> Call for Interview ({selectedRowCount})
 									</Button>
-									<Button
-										size='sm'
-										variant='lite-success'
-										onClick={() =>
-											setBulkAction({ type: APPLICATION_STATUS.SHORTLISTED, count: selectedRowCount })
-										}
-									>
-										<UserCheck className='mr-2 h-4 w-4' /> Shortlist ({selectedRowCount})
-									</Button>
+									{canDirectShortlist && (
+										<Button
+											size='sm'
+											variant='lite-success'
+											onClick={() =>
+												setBulkAction({ type: APPLICATION_STATUS.SHORTLISTED, count: selectedRowCount })
+											}
+										>
+											<UserCheck className='mr-2 h-4 w-4' /> Shortlist ({selectedRowCount})
+										</Button>
+									)}
 								</>
 							) : null)}
 						{isShortlisted && (
