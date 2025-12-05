@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
@@ -14,7 +13,6 @@ import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobRequestedPostStatus, JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { JobRequestService } from '@/services/api/job-request.service';
-import clsx from 'clsx';
 import { differenceInDays, endOfDay, format, isPast, parseISO } from 'date-fns';
 import { Building, Calendar, Loader2, Search, UserCog, Users } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
@@ -121,8 +119,8 @@ export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPo
 						</span>
 						{item.circularPublishDate && item.circularEndDate && (
 							<Badge variant={`lite-${deadlineBadgeVariant}`} className='flex items-center gap-1.5'>
-								<Calendar className='h-4 w-4' />Circular:{' '}
-								{format(parseISO(item.circularPublishDate), 'dd MMM')} -{' '}
+								<Calendar className='h-4 w-4' />
+								Circular: {format(parseISO(item.circularPublishDate), 'dd MMM')} -{' '}
 								{format(parseISO(item.circularEndDate), 'dd MMM')}
 							</Badge>
 						)}
@@ -159,7 +157,7 @@ export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPo
 					)}
 					<div className='space-y-4'>
 						{isLoading && data.length === 0 ? (
-							[...Array(5)].map((_, i) => <Skeleton key={i} className='h-32 sm:h-24 w-full' />)
+							[...Array(2)].map((_, i) => <Skeleton key={i} className='h-32 sm:h-24 w-full' />)
 						) : data.length > 0 ? (
 							data.map(renderItem)
 						) : (

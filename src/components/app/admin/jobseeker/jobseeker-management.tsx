@@ -227,7 +227,7 @@ export function JobseekerManagement({
 					{/* Mobile View */}
 					<div className='md:hidden space-y-4'>
 						{isLoading && data.length === 0 ? (
-							[...Array(5)].map((_, i) => (
+							[...Array(2)].map((_, i) => (
 								<Card key={i} className='p-4'>
 									<Skeleton className='h-24 w-full' />
 								</Card>

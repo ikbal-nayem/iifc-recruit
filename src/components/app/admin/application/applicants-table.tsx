@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -29,7 +28,7 @@ import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DATE_FORMAT } from '@/constants/common.constant';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { IMeta } from '@/interfaces/common.interface';
 import { JobRequestedPostStatus } from '@/interfaces/job.interface';
@@ -81,7 +80,6 @@ export function ApplicantsTable({
 	isProcessing = false,
 	isShortlisted = false,
 }: ApplicantsTableProps) {
-	const { toast } = useToast();
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 	const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
@@ -149,10 +147,9 @@ export function ApplicantsTable({
 	const handleInterviewScheduleSubmit = (values: InterviewFormValues) => {
 		handleStatusChange(interviewApplicants, APPLICATION_STATUS.INTERVIEW, values);
 		setIsInterviewModalOpen(false);
-		toast({
+		toast.success({
 			title: 'Interview Scheduled',
 			description: `Interview has been scheduled for ${interviewApplicants.length} applicant(s).`,
-			variant: 'success',
 		});
 		setInterviewApplicants([]);
 	};

@@ -310,7 +310,7 @@ export function EducationInstitutionCrud({
 					</div>
 					<div className='space-y-2 pt-4'>
 						{isLoading
-							? [...Array(5)].map((_, i) => <Skeleton key={i} className='h-16 w-full' />)
+							? [...Array(2)].map((_, i) => <Skeleton key={i} className='h-16 w-full' />)
 							: items.map((item) => (
 									<Card
 										key={item.id}

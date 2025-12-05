@@ -478,7 +478,7 @@ export function UserList({ allRoles }: { allRoles: IRole[] }) {
 							</TableHeader>
 							<TableBody>
 								{isLoading && users.length === 0 ? (
-									[...Array(5)].map((_, i) => (
+									[...Array(2)].map((_, i) => (
 										<TableRow key={i}>
 											<TableCell colSpan={columns.length}>
 												<Skeleton className='h-12 w-full' />

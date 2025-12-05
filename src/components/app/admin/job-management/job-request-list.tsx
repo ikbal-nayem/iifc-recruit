@@ -207,7 +207,7 @@ export function JobRequestList({ status }: JobRequestListProps) {
 				)}
 				<div className='mt-4 space-y-4'>
 					{isLoading && data.length === 0 ? (
-						[...Array(5)].map((_, i) => <Skeleton key={i} className='h-24 w-full' />)
+						[...Array(2)].map((_, i) => <Skeleton key={i} className='h-24 w-full' />)
 					) : data.length > 0 ? (
 						data.map(renderItem)
 					) : (
