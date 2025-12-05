@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -28,7 +27,9 @@ import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ROLES } from '@/constants/auth.constant';
 import { DATE_FORMAT } from '@/constants/common.constant';
+import { useAuth } from '@/contexts/auth-context';
 import { toast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { IMeta } from '@/interfaces/common.interface';
@@ -49,8 +50,6 @@ import {
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
-import { useAuth } from '@/contexts/auth-context';
-import { ROLES } from '@/constants/auth.constant';
 
 interface ApplicantsTableProps {
 	applicants: Application[];
@@ -195,6 +194,26 @@ export function ApplicantsTable({
 			}
 		}
 
+		if (application.status === APPLICATION_STATUS.INTERVIEW) {
+			items.push(
+				{ isSeparator: true },
+				{
+					label: 'Set Interview Marks',
+					icon: <Award className='mr-2 h-4 w-4' />,
+					onClick: () => {
+						setMarksApplicant(application);
+						marksForm.setValue('marks', application.marks || 0);
+						setIsMarksModalOpen(true);
+					},
+				},
+				{
+					label: 'Change Interview Time',
+					icon: <CalendarIcon className='mr-2 h-4 w-4' />,
+					onClick: () => openInterviewDialog([application]),
+				}
+			);
+		}
+
 		if (requestedPostStatus === JobRequestedPostStatus.PROCESSING) {
 			if (application.status === APPLICATION_STATUS.ACCEPTED) {
 				items.push({ isSeparator: true });
@@ -214,32 +233,19 @@ export function ApplicantsTable({
 				application.status === APPLICATION_STATUS.SHORTLISTED ||
 				application.status === APPLICATION_STATUS.INTERVIEW
 			) {
-				items.push({
-					label: 'Revert to Applied',
-					icon: <RotateCcw className='mr-2 h-4 w-4' />,
-					onClick: () => handleStatusChange([application], APPLICATION_STATUS.APPLIED),
-				});
+				items.push(
+					{ isSeparator: true },
+					{
+						label: 'Revert to Applied',
+						icon: <RotateCcw className='mr-2 h-4 w-4' />,
+						onClick: () =>
+							handleStatusChange([application], APPLICATION_STATUS.ACCEPTED, {
+								interviewTime: '',
+								marks: 0,
+							}),
+					}
+				);
 			}
-		}
-
-		if (application.status === APPLICATION_STATUS.INTERVIEW) {
-			items.push(
-				{ isSeparator: true },
-				{
-					label: 'Change Interview Time',
-					icon: <CalendarIcon className='mr-2 h-4 w-4' />,
-					onClick: () => openInterviewDialog([application]),
-				},
-				{
-					label: 'Set Interview Marks',
-					icon: <Award className='mr-2 h-4 w-4' />,
-					onClick: () => {
-						setMarksApplicant(application);
-						marksForm.setValue('marks', application.marks || 0);
-						setIsMarksModalOpen(true);
-					},
-				}
-			);
 		}
 
 		if (isShortlisted) {
@@ -345,7 +351,7 @@ export function ApplicantsTable({
 				return (
 					<div className='flex flex-col items-start gap-1'>
 						<Badge variant={getStatusVariant(status)}>{statusDTO.nameEn}</Badge>
-						{marks !== null && marks !== undefined && (
+						{!!marks && (
 							<span className='text-xs font-semibold text-primary'>Marks: {marks}</span>
 						)}
 					</div>
