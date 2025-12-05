@@ -195,21 +195,29 @@ export function ApplicantsTable({
 			}
 		}
 
-		if (
-			requestedPostStatus === JobRequestedPostStatus.PROCESSING &&
-			application.status === APPLICATION_STATUS.ACCEPTED
-		) {
-			items.push({ isSeparator: true });
-			items.push({
-				label: 'Call for Interview',
-				icon: <CalendarIcon className='mr-2 h-4 w-4' />,
-				onClick: () => openInterviewDialog([application]),
-			});
-			if (canDirectShortlist) {
+		if (requestedPostStatus === JobRequestedPostStatus.PROCESSING) {
+			if (application.status === APPLICATION_STATUS.ACCEPTED) {
+				items.push({ isSeparator: true });
 				items.push({
-					label: 'Mark as Shortlisted',
-					icon: <UserCheck className='mr-2 h-4 w-4' />,
-					onClick: () => handleStatusChange([application], APPLICATION_STATUS.SHORTLISTED),
+					label: 'Call for Interview',
+					icon: <CalendarIcon className='mr-2 h-4 w-4' />,
+					onClick: () => openInterviewDialog([application]),
+				});
+				if (canDirectShortlist) {
+					items.push({
+						label: 'Mark as Shortlisted',
+						icon: <UserCheck className='mr-2 h-4 w-4' />,
+						onClick: () => handleStatusChange([application], APPLICATION_STATUS.SHORTLISTED),
+					});
+				}
+			} else if (
+				application.status === APPLICATION_STATUS.SHORTLISTED ||
+				application.status === APPLICATION_STATUS.INTERVIEW
+			) {
+				items.push({
+					label: 'Revert to Applied',
+					icon: <RotateCcw className='mr-2 h-4 w-4' />,
+					onClick: () => handleStatusChange([application], APPLICATION_STATUS.APPLIED),
 				});
 			}
 		}
