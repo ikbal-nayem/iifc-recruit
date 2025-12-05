@@ -611,17 +611,15 @@ export function ApplicantsTable({
 					{marksApplicant && (
 						<div className='flex items-center gap-3 p-4 border-b border-t'>
 							<Avatar>
-								<AvatarImage src={(marksApplicant.applicant as JobseekerSearch).profileImage?.filePath} />
+								<AvatarImage src={marksApplicant.applicant?.profileImage?.filePath} />
 								<AvatarFallback>
-									{(marksApplicant.applicant as JobseekerSearch).firstName?.[0]}
-									{(marksApplicant.applicant as JobseekerSearch).lastName?.[0]}
+									{marksApplicant.applicant?.firstName?.[0]}
+									{marksApplicant.applicant?.lastName?.[0]}
 								</AvatarFallback>
 							</Avatar>
 							<div>
-								<p className='font-semibold'>{(marksApplicant.applicant as JobseekerSearch).fullName}</p>
-								<p className='text-xs text-muted-foreground'>
-									{(marksApplicant.applicant as JobseekerSearch).email}
-								</p>
+								<p className='font-semibold'>{marksApplicant.applicant?.fullName}</p>
+								<p className='text-xs text-muted-foreground'>{marksApplicant?.applicant?.phone}</p>
 							</div>
 						</div>
 					)}
