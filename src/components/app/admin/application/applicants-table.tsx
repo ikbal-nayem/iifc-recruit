@@ -198,6 +198,11 @@ export function ApplicantsTable({
 					label: 'Call for Interview',
 					icon: <CalendarIcon className='mr-2 h-4 w-4' />,
 					onClick: () => openInterviewDialog([application]),
+				},
+				{
+					label: 'Mark as Shortlisted',
+					icon: <UserCheck className='mr-2 h-4 w-4' />,
+					onClick: () => handleStatusChange([application], APPLICATION_STATUS.SHORTLISTED),
 				}
 			);
 		}
@@ -435,13 +440,24 @@ export function ApplicantsTable({
 						)}
 						{isProcessing &&
 							!isShortlisted &&
-							table
+							(table
 								.getSelectedRowModel()
-								.rows.every((row) => row.original.status !== APPLICATION_STATUS.INTERVIEW) && (
-								<Button size='sm' variant='lite-info' onClick={handleBulkInterview}>
-									<CalendarIcon className='mr-2 h-4 w-4' /> Call for Interview ({selectedRowCount})
-								</Button>
-							)}
+								.rows.every((row) => row.original.status !== APPLICATION_STATUS.INTERVIEW) ? (
+								<>
+									<Button size='sm' variant='lite-info' onClick={handleBulkInterview}>
+										<CalendarIcon className='mr-2 h-4 w-4' /> Call for Interview ({selectedRowCount})
+									</Button>
+									<Button
+										size='sm'
+										variant='lite-success'
+										onClick={() =>
+											setBulkAction({ type: APPLICATION_STATUS.SHORTLISTED, count: selectedRowCount })
+										}
+									>
+										<UserCheck className='mr-2 h-4 w-4' /> Shortlist ({selectedRowCount})
+									</Button>
+								</>
+							) : null)}
 						{isShortlisted && (
 							<div className='flex gap-2'>
 								<Button
@@ -546,6 +562,8 @@ export function ApplicantsTable({
 						? 'Accept'
 						: bulkAction?.type === APPLICATION_STATUS.HIRED
 						? 'Hire'
+						: bulkAction?.type === APPLICATION_STATUS.SHORTLISTED
+						? 'Shortlist'
 						: 'Revert'
 				}`}
 				description={`Are you sure you want to mark ${bulkAction?.count} applicant(s) as ${
