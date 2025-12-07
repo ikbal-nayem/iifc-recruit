@@ -11,8 +11,8 @@ if (pdfMake.vfs) {
 	pdfMake.vfs = pdfFonts.pdfMake.vfs;
 }
 
-const kalpurush = location.origin + '/fonts/kalpurush-mod.ttf';
-const kalpurush_bold = location.origin + '/fonts/kalpurush-mod-bold.ttf';
+const kalpurush = location.origin + '/fonts/kalpurush.woff2';
+const kalpurush_bold = location.origin + '/fonts/kalpurush-bold.ttf';
 
 pdfMake.fonts = {
 	Roboto: {
