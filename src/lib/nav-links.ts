@@ -75,12 +75,12 @@ export const adminNavLinks: NavLink[] = [
 				label: 'All Requests',
 				icon: List,
 			},
-			{
-				key: 'REQUESTS_PENDING',
-				href: ROUTES.JOB_REQUEST.PENDING,
-				label: 'Pending',
-				icon: History,
-			},
+			// {
+			// 	key: 'REQUESTS_PENDING',
+			// 	href: ROUTES.JOB_REQUEST.PENDING,
+			// 	label: 'Pending',
+			// 	icon: History,
+			// },
 			{
 				key: 'REQUESTS_PROCESSING',
 				href: ROUTES.JOB_REQUEST.PROCESSING,
