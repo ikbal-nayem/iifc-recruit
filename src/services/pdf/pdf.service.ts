@@ -11,8 +11,8 @@ if (pdfMake.vfs) {
 	pdfMake.vfs = pdfFonts.pdfMake.vfs;
 }
 
-const kalpurush = location.origin + '/fonts/kalpurush-mod.ttf';
-const kalpurush_bold = location.origin + '/fonts/kalpurush-mod-bold.ttf';
+const kalpurush = '/fonts/kalpurush-mod.ttf';
+const kalpurush_bold = '/fonts/kalpurush-mod-bold.ttf';
 
 pdfMake.fonts = {
 	Roboto: {
@@ -48,27 +48,27 @@ const generatePDF = (docDefinition: TDocumentDefinitions, options?: IOptions) =>
 
 	switch (options?.action) {
 		case 'print':
-			pdf.print({ progressCallback });
+			pdf.print({}, window);
 			nProgress.done();
 			break;
 		case 'download':
-			pdf.download(fileName, undefined, { progressCallback });
+			pdf.download(fileName, undefined);
 			nProgress.done();
 			break;
 		case 'data-url':
-			pdf.getDataUrl((res) => options?.getValue && options?.getValue(res), { progressCallback });
+			pdf.getDataUrl((res) => options?.getValue && options?.getValue(res));
 			nProgress.done();
 			break;
 		case 'base64':
-			pdf.getBase64((res) => options?.getValue && options?.getValue(res), { progressCallback });
+			pdf.getBase64((res) => options?.getValue && options?.getValue(res));
 			nProgress.done();
 			break;
 		case 'blob':
-			pdf.getBlob((res) => options?.getValue && options?.getValue(res), { progressCallback });
+			pdf.getBlob((res) => options?.getValue && options?.getValue(res));
 			nProgress.done();
 			break;
 		default:
-			pdf.open({ progressCallback });
+			pdf.open({}, window);
 			nProgress.done();
 	}
 };
