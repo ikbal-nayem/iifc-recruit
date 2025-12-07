@@ -121,7 +121,7 @@ export default async function ClientOrganizationDetailsPage({ params }: { params
 			</Card>
 
 			<Tabs defaultValue='users' className='w-full'>
-				<TabsList className='grid w-full grid-cols-2 max-w-md mx-auto'>
+				<TabsList className='grid w-full grid-cols-2 max-w-md mx-auto bg-white rounded-lg'>
 					<TabsTrigger value='users'>Organization Users</TabsTrigger>
 					<TabsTrigger value='jobseekers'>Jobseekers</TabsTrigger>
 				</TabsList>
