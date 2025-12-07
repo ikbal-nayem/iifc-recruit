@@ -51,40 +51,34 @@ export default async function ClientOrganizationDetailsPage({ params }: { params
 				<CardHeader>
 					<CardTitle>Organization Details</CardTitle>
 				</CardHeader>
-				<CardContent className='space-y-4'>
-					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-sm'>
+				<CardContent>
+					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-6 text-sm'>
 						<div className='flex items-center gap-3'>
-							<UserCheck className='h-4 w-4 mt-1 text-muted-foreground' />
-							<div className='flex gap-2 mt-1'>
+							<UserCheck className='h-5 w-5 text-muted-foreground' />
+							<div className='flex items-center gap-2'>
+								<span className='font-medium'>Roles:</span>
 								{organization.isClient && <Badge variant='success'>Client</Badge>}
 								{organization.isExaminer && <Badge variant='info'>Examiner</Badge>}
 							</div>
-							{organization?.clientId && <strong>Client ID: {organization?.clientId}</strong>}
 						</div>
+						{organization.clientId && (
+							<div className='flex items-center gap-3'>
+								<span className='font-medium'>Client ID:</span>
+								<strong>{organization.clientId}</strong>
+							</div>
+						)}
 						{organization.organizationType && (
-							<div className='flex items-start gap-3'>
-								<Building className='h-4 w-4 mt-1 text-muted-foreground' />
+							<div className='flex items-center gap-3'>
+								<Building className='h-5 w-5 text-muted-foreground' />
 								<div>
-									<p className='font-medium'>Organization Type</p>
+									<p className='font-medium'>Type</p>
 									<p className='text-muted-foreground'>{organization.organizationType.nameEn}</p>
 								</div>
 							</div>
 						)}
-						{organization.contactPersonName && (
-							<div className='flex items-start gap-3'>
-								<Phone className='h-4 w-4 mt-1 text-muted-foreground' />
-								<div>
-									<p className='font-medium'>Contact Person</p>
-									<p className='text-muted-foreground'>
-										{organization.contactPersonName}{' '}
-										{organization?.contactNumber && <>({organization.contactNumber})</>}
-									</p>
-								</div>
-							</div>
-						)}
 						{organization.email && (
-							<div className='flex items-start gap-3'>
-								<Mail className='h-4 w-4 mt-1 text-muted-foreground' />
+							<div className='flex items-center gap-3'>
+								<Mail className='h-5 w-5 text-muted-foreground' />
 								<div>
 									<p className='font-medium'>Email</p>
 									<p className='text-muted-foreground'>{organization.email}</p>
@@ -92,8 +86,8 @@ export default async function ClientOrganizationDetailsPage({ params }: { params
 							</div>
 						)}
 						{organization.website && (
-							<div className='flex items-start gap-3'>
-								<Globe className='h-4 w-4 mt-1 text-muted-foreground' />
+							<div className='flex items-center gap-3'>
+								<Globe className='h-5 w-5 text-muted-foreground' />
 								<div>
 									<p className='font-medium'>Website</p>
 									<a
@@ -107,9 +101,21 @@ export default async function ClientOrganizationDetailsPage({ params }: { params
 								</div>
 							</div>
 						)}
+						{organization.contactPersonName && (
+							<div className='flex items-center gap-3'>
+								<Phone className='h-5 w-5 text-muted-foreground' />
+								<div>
+									<p className='font-medium'>Contact Person</p>
+									<p className='text-muted-foreground'>
+										{organization.contactPersonName}{' '}
+										{organization?.contactNumber && <>({organization.contactNumber})</>}
+									</p>
+								</div>
+							</div>
+						)}
 						{organization.address && (
-							<div className='flex items-start gap-3 md:col-span-2'>
-								<MapPin className='h-4 w-4 mt-1 text-muted-foreground' />
+							<div className='flex items-start gap-3 md:col-span-3'>
+								<MapPin className='h-5 w-5 mt-0.5 text-muted-foreground' />
 								<div>
 									<p className='font-medium'>Address</p>
 									<p className='text-muted-foreground'>{organization.address}</p>
