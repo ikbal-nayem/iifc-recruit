@@ -303,9 +303,22 @@ const generateLanguages = (jobseeker: Jobseeker): Content => {
 	return generateSection(
 		'Languages',
 		jobseeker.languages.map((lang) => ({
-			text: `${lang.language?.nameEn} (${lang.proficiencyDTO?.nameEn})`,
-			style: 'paragraph',
-			margin: [0, 0, 0, 5],
+			stack: [
+				createText(lang.language?.nameEn, { style: 'subheader', margin: [0, 0, 0, 2] }),
+				{
+					columns: [
+						createText(`Reading: ${lang.readingProficiency?.nameEn}`, { style: 'paragraph' }),
+						createText(`Writing: ${lang.writingProficiency?.nameEn}`, { style: 'paragraph' }),
+					],
+				},
+				{
+					columns: [
+						createText(`Speaking: ${lang.speakingProficiency?.nameEn}`, { style: 'paragraph' }),
+						createText(`Listening: ${lang.listeningProficiency?.nameEn}`, { style: 'paragraph' }),
+					],
+				},
+			],
+			margin: [0, 0, 0, 10],
 		}))
 	);
 };
