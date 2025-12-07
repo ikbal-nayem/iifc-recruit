@@ -41,10 +41,7 @@ export function JobApplicationClient({
 
 		setIsApplying(true);
 		try {
-			await ApplicationService.apply({
-				applicantId: currectUser.id,
-				requestedPostId: jobId,
-			});
+			await ApplicationService.apply({ requestedPostId: jobId });
 			toast.success({
 				title: 'Application Submitted!',
 				description: `Your application for the ${jobTitle} position has been sent.`,
