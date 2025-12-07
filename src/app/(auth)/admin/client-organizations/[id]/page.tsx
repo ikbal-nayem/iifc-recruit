@@ -48,10 +48,7 @@ export default async function ClientOrganizationDetailsPage({ params }: { params
 			</div>
 
 			<Card className='glassmorphism'>
-				<CardHeader>
-					<CardTitle>Organization Details</CardTitle>
-				</CardHeader>
-				<CardContent>
+				<CardContent className='pt-5'>
 					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-6 text-sm'>
 						<div className='flex items-center gap-3'>
 							<UserCheck className='h-5 w-5 text-muted-foreground' />
