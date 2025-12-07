@@ -1,10 +1,13 @@
+
 import { OrganizationUserManagement } from '@/components/app/admin/client-organizations/organization-user-management';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AuthService } from '@/services/api/auth.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { Building, Globe, Mail, MapPin, Phone, UserCheck } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import { OrganizationJobseekerList } from '@/components/app/admin/client-organizations/organization-jobseeker-list';
 
 async function getData(id: string) {
 	try {
@@ -117,7 +120,18 @@ export default async function ClientOrganizationDetailsPage({ params }: { params
 				</CardContent>
 			</Card>
 
-			<OrganizationUserManagement organizationId={aParams.id} roles={roles} />
+			<Tabs defaultValue='users' className='w-full'>
+				<TabsList className='grid w-full grid-cols-2 max-w-md mx-auto'>
+					<TabsTrigger value='users'>Organization Users</TabsTrigger>
+					<TabsTrigger value='jobseekers'>Jobseekers</TabsTrigger>
+				</TabsList>
+				<TabsContent value='users'>
+					<OrganizationUserManagement organizationId={aParams.id} roles={roles} />
+				</TabsContent>
+				<TabsContent value='jobseekers'>
+					<OrganizationJobseekerList organizationId={aParams.id} />
+				</TabsContent>
+			</Tabs>
 		</div>
 	);
 }
