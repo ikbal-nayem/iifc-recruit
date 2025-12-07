@@ -156,8 +156,6 @@ export function JobRequestForm({
 	const type = form.watch('type');
 	const requestedPostsValues = form.watch('requestedPosts');
 
-	console.log(requestedPostsValues)
-
 	function onFormSubmit(data: JobRequestFormValues) {
 		setConfirmationData(data);
 	}
