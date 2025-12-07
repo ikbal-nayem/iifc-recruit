@@ -39,7 +39,7 @@ export default async function ClientOrganizationDetailsPage({ params }: { params
 	}
 
 	return (
-		<div className='space-y-8'>
+		<div className='space-y-4'>
 			<div className='flex justify-between items-start'>
 				<div>
 					<h1 className='text-3xl font-headline font-bold'>{organization.nameEn}</h1>
