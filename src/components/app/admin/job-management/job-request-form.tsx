@@ -89,10 +89,10 @@ const defaultRequestedPost = {
 	postId: '',
 	outsourcingZoneId: '',
 	vacancy: 1,
-	experienceRequired: undefined,
-	salaryFrom: undefined,
-	salaryTo: undefined,
-	yearsOfContract: undefined,
+	experienceRequired: null as any,
+	salaryFrom: null as any,
+	salaryTo: null as any,
+	yearsOfContract: null as any,
 	negotiable: false,
 	outsourcingCategoryId: '',
 };
@@ -155,6 +155,8 @@ export function JobRequestForm({
 
 	const type = form.watch('type');
 	const requestedPostsValues = form.watch('requestedPosts');
+
+	console.log(requestedPostsValues)
 
 	function onFormSubmit(data: JobRequestFormValues) {
 		setConfirmationData(data);
@@ -290,9 +292,9 @@ export function JobRequestForm({
 						<CardContent className='space-y-4'>
 							{fields.map((field, index) => {
 								const categoryId = requestedPostsValues?.[index]?.outsourcingCategoryId;
-								const initialPost = initialData?.requestedPosts[index];
+								const initialPost = (requestedPostsValues[index] as any)?.post as IPost | undefined;
 								return (
-									<Card key={field.id} className='p-4 relative bg-muted/5'>
+									<Card key={field.id} className='p-4 relative bg-muted/10'>
 										<CardContent className='p-0 space-y-4'>
 											<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
 												{type === JobRequestType.OUTSOURCING && (
@@ -346,7 +348,7 @@ export function JobRequestForm({
 															</div>
 														)
 													}
-													initialLabel={initialPost?.post?.nameBn}
+													initialLabel={initialPost?.nameBn}
 												/>
 												<FormInput
 													control={form.control}
@@ -354,21 +356,18 @@ export function JobRequestForm({
 													label='Vacancies'
 													required
 													type='number'
-													placeholder='e.g., 10'
 												/>
 												<FormInput
 													control={form.control}
 													name={`requestedPosts.${index}.experienceRequired`}
 													label='Experience Required (Yrs)'
 													type='number'
-													placeholder='e.g., 5'
 												/>
 												<FormInput
 													control={form.control}
 													name={`requestedPosts.${index}.yearsOfContract`}
 													label='Years of Contract'
 													type='number'
-													placeholder='e.g., 3'
 												/>
 												{type === JobRequestType.OUTSOURCING ? null : (
 													<>
