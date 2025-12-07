@@ -1,18 +1,17 @@
-
 import { format } from 'date-fns';
 import nProgress from 'nprogress';
-import { TDocumentDefinitions } from 'pdfmake/interfaces';
-import { defaultDef } from './default-conf';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
+import { TDocumentDefinitions } from 'pdfmake/interfaces';
+import { defaultDef } from './default-conf';
 
 // Correctly assign the virtual file system
 if (pdfMake.vfs) {
 	pdfMake.vfs = pdfFonts.pdfMake.vfs;
 }
 
-const kalpurush = '/fonts/kalpurush-mod.ttf';
-const kalpurush_bold = '/fonts/kalpurush-mod-bold.ttf';
+const kalpurush = location.origin + '/fonts/kalpurush-mod.ttf';
+const kalpurush_bold = location.origin + '/fonts/kalpurush-mod-bold.ttf';
 
 pdfMake.fonts = {
 	Roboto: {
@@ -48,27 +47,27 @@ const generatePDF = (docDefinition: TDocumentDefinitions, options?: IOptions) =>
 
 	switch (options?.action) {
 		case 'print':
-			pdf.print({}, window);
+			pdf.print({ progressCallback });
 			nProgress.done();
 			break;
 		case 'download':
-			pdf.download(fileName, undefined);
+			pdf.download(fileName, undefined, { progressCallback });
 			nProgress.done();
 			break;
 		case 'data-url':
-			pdf.getDataUrl((res) => options?.getValue && options?.getValue(res));
+			pdf.getDataUrl((res) => options?.getValue && options?.getValue(res), { progressCallback });
 			nProgress.done();
 			break;
 		case 'base64':
-			pdf.getBase64((res) => options?.getValue && options?.getValue(res));
+			pdf.getBase64((res) => options?.getValue && options?.getValue(res), { progressCallback });
 			nProgress.done();
 			break;
 		case 'blob':
-			pdf.getBlob((res) => options?.getValue && options?.getValue(res));
+			pdf.getBlob((res) => options?.getValue && options?.getValue(res), { progressCallback });
 			nProgress.done();
 			break;
 		default:
-			pdf.open({}, window);
+			pdf.open({ progressCallback });
 			nProgress.done();
 	}
 };

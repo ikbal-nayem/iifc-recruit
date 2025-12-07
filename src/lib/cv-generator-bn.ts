@@ -1,10 +1,10 @@
-
 import { COMMON_URL } from '@/constants/common.constant';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
 import { generatePDF } from '@/services/pdf/pdf.service';
 import { format, parseISO } from 'date-fns';
-import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
+import { Content, TableLayout, TDocumentDefinitions } from 'pdfmake/interfaces';
 import { makePreviewURL } from './file-oparations';
+import { convertEnToBn } from './translator';
 
 const toDataURL = (url: string) =>
 	fetch(url)
@@ -19,25 +19,16 @@ const toDataURL = (url: string) =>
 				})
 		);
 
-const enToBn = (num: any) => {
-	if (num === null || num === undefined || num === '') return '';
-	return num
-		.toString()
-		.replaceAll('0', '০')
-		.replaceAll('1', '১')
-		.replaceAll('2', '২')
-		.replaceAll('3', '৩')
-		.replaceAll('4', '৪')
-		.replaceAll('5', '৫')
-		.replaceAll('6', '৬')
-		.replaceAll('7', '৭')
-		.replaceAll('8', '৮')
-		.replaceAll('9', '৯');
+const defautlTableLayout: TableLayout = {
+	hLineWidth: () => 0.5,
+	vLineWidth: () => 0.5,
+	hLineColor: () => 'grey',
+	vLineColor: () => 'grey',
 };
 
 const formatDateBn = (dateString: string) => {
 	if (!dateString) return '';
-	return enToBn(format(parseISO(dateString), 'dd-MM-yyyy'));
+	return convertEnToBn(format(parseISO(dateString), 'dd-MM-yyyy'));
 };
 
 const generateHeader = async (jobseeker: Jobseeker): Promise<Content> => {
@@ -45,7 +36,9 @@ const generateHeader = async (jobseeker: Jobseeker): Promise<Content> => {
 
 	if (jobseeker.personalInfo.profileImage?.filePath) {
 		try {
-			imageDataUrl = (await toDataURL(makePreviewURL(jobseeker.personalInfo.profileImage.filePath))) as string;
+			imageDataUrl = (await toDataURL(
+				makePreviewURL(jobseeker.personalInfo.profileImage.filePath)
+			)) as string;
 		} catch (error) {
 			console.error('Could not fetch profile image for CV:', error);
 		}
@@ -57,64 +50,59 @@ const generateHeader = async (jobseeker: Jobseeker): Promise<Content> => {
 		}
 	}
 
+	// @ts-ignore
 	return {
-		columns: [
+		stack: [
 			{
-				width: '*',
-				text: '',
-			},
-			{
-				width: 'auto',
-				stack: [
+				columns: [
 					{
-						text: 'ব্যক্তিগত তথ্য',
-						style: 'header',
-						alignment: 'center',
-						margin: [0, 0, 0, 20],
+						width: '*',
+						text: '',
+					},
+					{
+						width: 'auto',
+						table: {
+							body: [
+								[
+									{
+										image: imageDataUrl,
+										width: 80,
+										height: 80,
+										alignment: 'center',
+									},
+								],
+							],
+						},
+						layout: defautlTableLayout,
 					},
 				],
 			},
 			{
-				width: '*',
-				stack: [
+				columns: [
+					{ width: '*', text: '' },
+					{ text: 'ব্যক্তিগত তথ্য', style: 'header', alignment: 'center' },
 					{
+						width: '*',
 						table: {
+							widths: ['*', 'auto'],
 							body: [
 								[
+									{text: '', border: [false, false, false, false]},
 									{
-										text: 'পাসপোর্ট সাইজ\nছবি-০১ কপি',
-										alignment: 'center',
-										margin: [10, 20],
-									},
-								],
-							],
-						},
-						width: 100,
-						height: 120,
-						alignment: 'right',
-					},
-					{
-						table: {
-							widths: ['auto', '*'],
-							body: [
-								[
-									'ক্রমিক নম্বর:',
-									{
-										text: `${enToBn(jobseeker.personalInfo.id?.slice(-5) || 'N/A')}`,
+										text: `ক্রমিক নম্বর: ${convertEnToBn(jobseeker.personalInfo.id?.slice(-5) || '-')}`,
 										bold: true,
 										alignment: 'center',
+										lineHeight: 1,
 									},
 								],
 							],
 						},
-						width: 120,
 						alignment: 'right',
 						margin: [0, 10, 0, 0],
 					},
 				],
 			},
 		],
-		marginBottom: 10,
 	};
 };
 
@@ -123,19 +111,14 @@ const generateSectionTable = (title: string, data: (string | undefined)[][]): Co
 		{ text: title, style: 'subheader' },
 		{
 			table: {
-				widths: ['auto', 'auto', '*'],
+				widths: [100, '*'],
 				body: data.map(([label, value]) => [
-					{ text: label || '', border: [true, true, false, true], alignment: 'left', margin: [5, 2] },
-					{ text: ':', border: [false, true, false, true], alignment: 'center', margin: [0, 2] },
-					{ text: value || '', border: [false, true, true, true], alignment: 'left', margin: [5, 2] },
+					{ text: label || '', lineHeight: 1, },
+					// { text: ':', border: [false, true, false, true], alignment: 'center', margin: [0, 2] },
+					{ text: value || '', lineHeight: 1, },
 				]),
 			},
-			layout: {
-				hLineWidth: (i) => (i === 0 ? 1 : 0.5),
-				vLineWidth: (i) => (i === 0 ? 1 : 0.5),
-				hLineColor: (i) => (i === 0 ? 'black' : 'grey'),
-				vLineColor: (i) => (i === 0 ? 'black' : 'grey'),
-			},
+			layout: defautlTableLayout,
 		},
 	],
 	marginBottom: 15,
@@ -144,7 +127,11 @@ const generateSectionTable = (title: string, data: (string | undefined)[][]): Co
 const generatePersonalInfo = (jobseeker: Jobseeker): Content => {
 	const { personalInfo } = jobseeker;
 	const permanentAddress =
-		[personalInfo.permanentAddress, personalInfo.permanentUpazila?.nameBn, personalInfo.permanentDistrict?.nameBn]
+		[
+			personalInfo.permanentAddress,
+			personalInfo.permanentUpazila?.nameBn,
+			personalInfo.permanentDistrict?.nameBn,
+		]
 			.filter(Boolean)
 			.join(', ') || '';
 	const presentAddress =
@@ -156,57 +143,57 @@ const generatePersonalInfo = (jobseeker: Jobseeker): Content => {
 		['নাম', personalInfo.fullName],
 		['পিতার নাম', personalInfo.fatherName],
 		['মাতার নাম', personalInfo.motherName],
-		['স্থায়ী ঠিকানা', permanentAddress],
 		['জন্ম তারিখ', formatDateBn(personalInfo.dateOfBirth)],
 		['ধর্ম', personalInfo.religionDTO?.nameBn],
-		['জাতীয় পরিচয়পত্র নম্বর', enToBn(personalInfo.nid)],
+		['জাতীয় পরিচয়পত্র নম্বর', convertEnToBn(personalInfo.nid)],
 		['বৈবাহিক অবস্থা', personalInfo.maritalStatusDTO?.nameBn],
-		['মোবাইল নম্বর', enToBn(personalInfo.phone)],
+		['মোবাইল নম্বর', convertEnToBn(personalInfo.phone)],
 		['বর্তমান পেশাগত অবস্থা', personalInfo.organization?.nameBn],
+		['স্থায়ী ঠিকানা', permanentAddress],
 		['বর্তমান ঠিকানা/বাসস্থান', presentAddress],
 	];
 
 	return generateSectionTable('ক. সাধারণ তথ্য:', data);
 };
 
-const generateSpouseInfo = (jobseeker: Jobseeker): Content => {
-	const { familyInfo } = jobseeker;
-	if (!familyInfo || !familyInfo.name) return [];
+// const generateSpouseInfo = (jobseeker: Jobseeker): Content => {
+// 	const { familyInfo } = jobseeker;
+// 	if (!familyInfo || !familyInfo.name) return [];
 
-	const data = [
-		['নাম', familyInfo.name],
-		['পেশা', familyInfo.profession],
-		['নিজ জেলা', jobseeker.personalInfo.permanentDistrict?.nameBn],
-	];
-	return generateSectionTable('খ. স্বামীর/স্ত্রীর তথ্য:', data);
-};
+// 	const data = [
+// 		['নাম', familyInfo.name],
+// 		['পেশা', familyInfo.profession],
+// 		['নিজ জেলা', jobseeker.personalInfo.permanentDistrict?.nameBn],
+// 	];
+// 	return generateSectionTable('খ. স্বামীর/স্ত্রীর তথ্য:', data);
+// };
 
-const generateChildrenInfo = (jobseeker: Jobseeker): Content => {
-	const { familyInfo } = jobseeker;
-	if (!familyInfo || !familyInfo.children || familyInfo.children.length === 0) return [];
-	return {
-		stack: [
-			{ text: 'গ. ছেলে মেয়ের বিবরণ:', style: 'subheader' },
-			{
-				table: {
-					headerRows: 1,
-					widths: ['auto', '*', 'auto', 'auto'],
-					body: [
-						['ক্রমিক নং', 'নাম', 'জন্ম তারিখ', 'লিঙ্গ'].map((h) => ({ text: h, style: 'tableHeader' })),
-						...familyInfo.children.map((child, i) => [
-							enToBn(i + 1),
-							child.name,
-							formatDateBn(child.dob),
-							child.genderDTO?.nameBn || '',
-						]),
-					],
-				},
-				layout: 'lightHorizontalLines',
-			},
-		],
-		marginBottom: 15,
-	};
-};
+// const generateChildrenInfo = (jobseeker: Jobseeker): Content => {
+// 	const { familyInfo } = jobseeker;
+// 	if (!familyInfo || !familyInfo.children || familyInfo.children.length === 0) return [];
+// 	return {
+// 		stack: [
+// 			{ text: 'গ. ছেলে মেয়ের বিবরণ:', style: 'subheader' },
+// 			{
+// 				table: {
+// 					headerRows: 1,
+// 					widths: ['auto', '*', 'auto', 'auto'],
+// 					body: [
+// 						['ক্রমিক নং', 'নাম', 'জন্ম তারিখ', 'লিঙ্গ'].map((h) => ({ text: h, style: 'tableHeader' })),
+// 						...familyInfo.children.map((child, i) => [
+// 							convertEnToBn(i + 1),
+// 							child.name,
+// 							formatDateBn(child.dob),
+// 							child.genderDTO?.nameBn || '',
+// 						]),
+// 					],
+// 				},
+// 				layout: 'lightHorizontalLines',
+// 			},
+// 		],
+// 		marginBottom: 15,
+// 	};
+// };
 
 const generateEducation = (jobseeker: Jobseeker): Content => {
 	const { education } = jobseeker;
@@ -225,15 +212,15 @@ const generateEducation = (jobseeker: Jobseeker): Content => {
 							style: 'tableHeader',
 						})),
 						...education.map((edu, i) => [
-							enToBn(i + 1),
+							convertEnToBn(i + 1),
 							edu.degreeLevel.nameBn,
-							enToBn(edu.cgpa),
+							convertEnToBn(edu.cgpa),
 							edu.institution.nameBn,
-							enToBn(edu.passingYear),
+							convertEnToBn(edu.passingYear),
 						]),
 					],
 				},
-				layout: 'lightHorizontalLines',
+				layout: defautlTableLayout,
 			},
 		],
 		marginBottom: 15,
@@ -256,13 +243,13 @@ const generateExperience = (jobseeker: Jobseeker): Content => {
 							style: 'tableHeader',
 						})),
 						...experiences.map((exp, i) => [
-							enToBn(i + 1),
+							convertEnToBn(i + 1),
 							exp.organizationNameBn || exp.organizationNameEn,
-							exp.isCurrent ? 'চলমান' : 'N/A', // Placeholder for duration
+							exp.isCurrent ? 'চলমান' : '-'
 						]),
 					],
 				},
-				layout: 'lightHorizontalLines',
+				layout: defautlTableLayout,
 			},
 		],
 		marginBottom: 15,
@@ -274,8 +261,8 @@ export const generateCvBn = async (jobseeker: Jobseeker) => {
 		content: [
 			await generateHeader(jobseeker),
 			generatePersonalInfo(jobseeker),
-			generateSpouseInfo(jobseeker),
-			generateChildrenInfo(jobseeker),
+			// generateSpouseInfo(jobseeker),
+			// generateChildrenInfo(jobseeker),
 			generateEducation(jobseeker),
 			generateExperience(jobseeker),
 			{

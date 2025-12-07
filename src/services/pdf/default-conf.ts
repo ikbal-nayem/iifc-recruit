@@ -11,7 +11,7 @@ const defaultPDFFooter = (currentPage: number, pageCount: number, pageSize: Cont
 					color: '#555',
 				},
 				{
-					text: 'IIFC Jobs',
+					text: 'IIFC Outsourcing Jobs',
 					fontSize: 8,
 					color: '#327632',
 					alignment: 'center',
@@ -36,7 +36,7 @@ export const defaultDef: TDocumentDefinitions = {
 	pageMargins: [50, 50, 50, 50],
 	content: [],
 	info: {
-		title: 'IIFC Report',
+		title: 'IIFC Outsourcing Jobs',
 		author: 'IIFC',
 		creator: 'IIFC Jobs',
 		subject: 'IIFC Report',

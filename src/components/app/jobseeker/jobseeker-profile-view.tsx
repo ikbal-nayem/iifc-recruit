@@ -228,21 +228,21 @@ export function JobseekerProfileView({
 					)}
 				</div>
 				<div className='flex flex-col gap-2'>
-					<Button onClick={handleGenerateCv} disabled={isGeneratingCv} size='sm'>
+					{/* <Button onClick={handleGenerateCv} disabled={isGeneratingCv} size='sm'>
 						{isGeneratingCv ? (
 							<Loader2 className='mr-2 h-4 w-4 animate-spin' />
 						) : (
 							<Printer className='mr-2 h-4 w-4' />
 						)}
 						Generate CV
-					</Button>
+					</Button> */}
 					<Button onClick={handleGenerateCvBn} disabled={isGeneratingCvBn} size='sm'>
 						{isGeneratingCvBn ? (
 							<Loader2 className='mr-2 h-4 w-4 animate-spin' />
 						) : (
 							<Printer className='mr-2 h-4 w-4' />
 						)}
-						Generate CV (BN)
+						Generate CV
 					</Button>
 				</div>
 			</div>
