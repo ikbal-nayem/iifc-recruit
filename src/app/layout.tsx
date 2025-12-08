@@ -22,12 +22,11 @@ export default async function RootLayout({
 }>) {
 	const headersList = await headers();
 	const locale = headersList.get('x-locale') || 'en';
-	const isRTL = locale === 'ar'; // Add if you support RTL languages
 
 	return (
-		<html lang={locale} dir={isRTL ? 'rtl' : 'ltr'} className={`h-full ${lato.variable} ${kalpurush.variable}`}>
+		<html lang={locale} className={`h-full ${lato.variable} ${kalpurush.variable}`}>
 			<head>
-				<title>IIFC Jobs</title>
+				<title>IIFC Outsourcing Jobs</title>
 				<meta name='description' content='Streamlining the recruitment process.' />
 				<meta name='viewport' content='width=device-width, initial-scale=1' />
 			</head>

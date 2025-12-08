@@ -49,7 +49,7 @@ export default function PublicHeader() {
 		<header className='sticky top-0 z-10 flex h-20 items-center gap-4 border-b bg-background/95 backdrop-blur-sm px-4 md:px-6'>
 			<Link href='/' className='flex items-center gap-2 font-headline text-xl font-bold mr-6'>
 				<Image src={COMMON_URL.SITE_LOGO} alt='IIFC Logo' width={50} height={50} className='h-13 w-auto' />
-				<span className='hidden sm:inline-block'>Jobs</span>
+				<span className='hidden sm:inline-block'>Outsourcing Jobs</span>
 				{ENV.NODE_ENV !== 'prod' ? <Badge variant='warning'>{ENV.NODE_ENV.toLocaleUpperCase()}</Badge> : null}
 			</Link>
 
@@ -115,12 +115,12 @@ export default function PublicHeader() {
 							))}
 							<hr className='my-4' />
 							<SheetClose asChild>
-								<Link href='/login' className='text-muted-foreground'>
+								<Link href={ROUTES.AUTH.LOGIN} className='text-muted-foreground'>
 									{t.signIn}
 								</Link>
 							</SheetClose>
 							<SheetClose asChild>
-								<Link href='/signup' className='text-muted-foreground'>
+								<Link href={ROUTES.AUTH.SIGNUP} className='text-muted-foreground'>
 									{t.signUp}
 								</Link>
 							</SheetClose>

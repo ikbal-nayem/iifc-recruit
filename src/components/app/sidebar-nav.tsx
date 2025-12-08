@@ -120,7 +120,7 @@ export default function SidebarNav() {
 			<SidebarHeader>
 				<Link href='/' className='flex items-center gap-3'>
 					<Image src={COMMON_URL.SITE_LOGO} alt='IIFC Logo' width={32} height={32} className='h-8 w-auto' />
-					<span className='font-headline text-xl font-bold'>IIFC Jobs</span>
+					<span className='font-headline text-xl font-bold'>Outsourcing Jobs</span>
 					{ENV.NODE_ENV !== 'prod' ? (
 						<Badge variant='warning'>{ENV.NODE_ENV.toLocaleUpperCase()}</Badge>
 					) : null}
