@@ -32,28 +32,28 @@ export function AdminDashboardCards({ data }: AdminDashboardCardsProps) {
 			href: ROUTES.JOB_REQUEST.PROCESSING,
 			title: 'Processing Requests',
 			value: processingJobRequests,
-			description: 'Active job requests',
+			// description: 'Active job requests',
 			icon: <Briefcase className='h-4 w-4 text-muted-foreground' />,
 		},
 		{
 			href: ROUTES.JOB_SEEKERS,
 			title: 'Total Jobseekers',
 			value: totalJobseekers,
-			description: 'In the talent pool',
+			// description: 'In the talent pool',
 			icon: <Users className='h-4 w-4 text-muted-foreground' />,
 		},
 		{
 			href: `${ROUTES.CLIENT_ORGANIZATIONS}?isClient=true`,
 			title: 'Clients',
 			value: clientCount,
-			description: 'Partners you are hiring for',
+			// description: 'Partners you are hiring for',
 			icon: <Building className='h-4 w-4 text-muted-foreground' />,
 		},
 		{
 			href: `${ROUTES.CLIENT_ORGANIZATIONS}?isExaminer=true`,
 			title: 'Examiners',
 			value: examinerCount,
-			description: 'Organizations conducting exams',
+			// description: 'Organizations conducting exams',
 			icon: <FileText className='h-4 w-4 text-muted-foreground' />,
 		},
 	];
@@ -69,7 +69,7 @@ export function AdminDashboardCards({ data }: AdminDashboardCardsProps) {
 						</CardHeader>
 						<CardContent>
 							<div className='text-2xl font-bold'>{item.value}</div>
-							<p className='text-xs text-muted-foreground'>{item.description}</p>
+							{/* <p className='text-xs text-muted-foreground'>{item.description}</p> */}
 						</CardContent>
 					</Card>
 				</Link>

@@ -3,6 +3,7 @@
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { FormSelect } from '@/components/ui/form-select';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -16,8 +17,6 @@ import { JobRequestService } from '@/services/api/job-request.service';
 import { differenceInDays, endOfDay, format, isPast, parseISO } from 'date-fns';
 import { Boxes, Building, Calendar, Loader2, Search, UserCog, Users } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import { FormSelect } from '@/components/ui/form-select';
-import { EnumDTO } from '@/interfaces/master-data.interface';
 
 const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
 
@@ -123,6 +122,9 @@ export function RequestedPostsList({
 						<Badge variant={getStatusVariant(item.status)}>{item.statusDTO?.nameEn}</Badge>
 					</div>
 					<div className='text-sm text-muted-foreground flex flex-wrap gap-x-5 gap-y-2'>
+						{item.status === JobRequestedPostStatus.CIRCULAR_PUBLISHED && (
+							<span className='flex items-center gap-1.5'>Circular ID: {item.sequenceNo}</span>
+						)}
 						<span className='flex items-center gap-1.5'>
 							<Building className='h-4 w-4' /> {item.jobRequest?.clientOrganization?.nameBn || 'N/A'}
 						</span>

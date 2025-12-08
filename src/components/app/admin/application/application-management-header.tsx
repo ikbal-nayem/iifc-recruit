@@ -1,6 +1,5 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,12 +13,14 @@ import {
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
+import { Separator } from '@/components/ui/separator';
+import { DATE_FORMAT } from '@/constants/common.constant';
 import { toast } from '@/hooks/use-toast';
 import { JobRequestedPostStatus, JobRequestType, RequestedPost } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { getExaminerAsync } from '@/services/async-api';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import { Boxes, Building, Calendar, Edit, Loader2, MapPin, Pencil, Send, Users } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -99,7 +100,9 @@ export function ApplicationManagementHeader({
 							</CardTitle>
 							{requestedPost.statusDTO?.nameEn && (
 								<Badge variant={getStatusVariant(requestedPost.status)}>
-									{requestedPost.statusDTO.nameEn}
+									{requestedPost.statusDTO.nameEn}{' '}
+									{requestedPost.status === JobRequestedPostStatus.CIRCULAR_PUBLISHED &&
+										` : ${requestedPost?.sequenceNo}`}
 								</Badge>
 							)}
 						</div>
@@ -150,36 +153,30 @@ export function ApplicationManagementHeader({
 						</div>
 					</div>
 				</CardHeader>
+				{requestedPost.circularPublishDate && requestedPost.circularEndDate && (
+					<CardDescription className='bg-purple-100/80 px-5'>
+						<Separator />
+						<div className='flex justify-between items-center'>
+							<div className='flex items-center gap-2 py-2 text-purple-600'>
+								<Calendar className='h-4 w-4' />
+								Published: {format(requestedPost.circularPublishDate, DATE_FORMAT.DISPLAY_DATE)} -{' '}
+								{format(requestedPost.circularEndDate, DATE_FORMAT.DISPLAY_DATE)}
+							</div>
+							{canEditCircular && (
+								<div>
+									<Badge
+										variant='outline-purple'
+										className='cursor-pointer'
+										onClick={() => setShowCircularForm(true)}
+									>
+										<Pencil className='mr-2 h-3 w-3' /> Edit
+									</Badge>
+								</div>
+							)}
+						</div>
+					</CardDescription>
+				)}
 			</Card>
-
-			{isCircularPublished && !isProcessing && (
-				<Alert variant='info' className='' showIcon={false}>
-					<AlertTitle className='font-bold flex items-center justify-between'>
-						<span className='text-lg'>Circular Information</span>
-						{canEditCircular && (
-							<Button variant='outline-info' size='sm' onClick={() => setShowCircularForm(true)}>
-								<Pencil className='mr-2 h-3 w-3' /> Edit Circular
-							</Button>
-						)}
-					</AlertTitle>
-					<AlertDescription className='mt-2 grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1'>
-						<div className='flex items-center gap-2'>
-							<Calendar className='h-4 w-4' />
-							<span>
-								Published From:{' '}
-								<strong>{format(parseISO(requestedPost.circularPublishDate!), 'dd MMM, yyyy')}</strong>
-							</span>
-						</div>
-						<div className='flex items-center gap-2'>
-							<Calendar className='h-4 w-4' />
-							<span>
-								Expires On:{' '}
-								<strong>{format(parseISO(requestedPost.circularEndDate!), 'dd MMM, yyyy')}</strong>
-							</span>
-						</div>
-					</AlertDescription>
-				</Alert>
-			)}
 
 			<Dialog open={isExaminerDialogOpen} onOpenChange={setIsExaminerDialogOpen}>
 				<DialogContent>

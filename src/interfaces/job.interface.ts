@@ -23,6 +23,7 @@ export enum JobRequestedPostStatus {
 
 export type RequestedPost = {
 	id?: string;
+	sequenceNo: string;
 	jobRequestId?: string;
 	jobRequest?: JobRequest;
 	postId: string;
