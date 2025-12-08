@@ -58,7 +58,7 @@ export function JobCard({ job, view = 'grid', searchParams }: JobCardProps) {
 						</CardTitle>
 						<CardDescription className='flex items-center gap-2 text-xs font-medium text-muted-foreground'>
 							{/* <Briefcase className='h-4 w-4' /> {job.clientOrganizationNameBn} */}
-							{job?.sequenceNo}
+							Circular ID: {job?.sequenceNo}
 						</CardDescription>
 					</div>
 					<div className='text-sm text-muted-foreground line-clamp-2 pt-2' title={job.jobDescription}>
