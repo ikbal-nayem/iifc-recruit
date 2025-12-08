@@ -82,14 +82,13 @@ export type AcademicInfo = {
 	id?: string;
 	degreeLevelId: string;
 	degreeLevel: ICommonMasterData;
-	domainNameEn: string;
-	domainNameBn: string;
+	subjectNameEn: string;
+	subjectNameBn: string;
 	institutionId: string;
 	institution: IEducationInstitution;
 	degreeId: string;
 	degree?: IEducationDegree;
 	resultSystem: ResultSystem;
-	resultAchieved?: string;
 	cgpa?: number;
 	outOfCgpa?: number;
 	passingYear: string;

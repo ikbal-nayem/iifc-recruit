@@ -231,7 +231,7 @@ const generateEducation = (jobseeker: Jobseeker): Content => {
 					],
 				},
 				createText(edu.institution.nameEn, { italics: true, style: 'paragraph' }),
-				createText(`Major: ${edu.domainNameEn} | CGPA: ${edu.cgpa || 'N/A'}`, {
+				createText(`Major: ${edu.subjectNameEn} | CGPA: ${edu.cgpa || 'N/A'}`, {
 					style: 'paragraph',
 					color: '#64748B',
 				}),

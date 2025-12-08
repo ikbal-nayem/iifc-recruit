@@ -207,13 +207,14 @@ const generateEducation = (jobseeker: Jobseeker): Content => {
 					headerRows: 1,
 					widths: ['auto', '*', '*', '*', 'auto'],
 					body: [
-						['ক্রমিক নং', 'পরীক্ষা', 'ফলাফল', 'শিক্ষা প্রতিষ্ঠানের নাম', 'পাসের সাল'].map((h) => ({
+						['ক্রমিক নং', 'পরীক্ষা', 'বিষয়/বিভাগ', 'ফলাফল', 'শিক্ষা প্রতিষ্ঠানের নাম', 'পাসের সাল'].map((h) => ({
 							text: h,
 							style: 'tableHeader',
 						})),
 						...education.map((edu, i) => [
 							convertEnToBn(i + 1),
 							edu.degree?.nameBn,
+							edu.subjectNameBn || edu.subjectNameEn,
 							convertEnToBn(edu.cgpa),
 							edu.institution.nameBn,
 							convertEnToBn(edu.passingYear),

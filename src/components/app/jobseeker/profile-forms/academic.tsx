@@ -15,9 +15,9 @@ import { FormSelect } from '@/components/ui/form-select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTES } from '@/constants/routes.constant';
 import { toast } from '@/hooks/use-toast';
-import { ResultSystem } from '@/interfaces/common.interface';
+import { IApiResponse, ResultSystem } from '@/interfaces/common.interface';
 import { AcademicInfo } from '@/interfaces/jobseeker.interface';
-import { ICommonMasterData, IEducationDegree, IEducationInstitution } from '@/interfaces/master-data.interface';
+import { EnumDTO, ICommonMasterData, IEducationDegree, IEducationInstitution } from '@/interfaces/master-data.interface';
 import { makeFormData } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
@@ -31,11 +31,10 @@ import * as z from 'zod';
 
 const academicInfoSchema = z.object({
 	degreeLevelId: z.string().min(1, 'Degree level is required'),
-	domainNameEn: z.string().max(100, 'Domain must be at most 100 characters').optional(),
+	subjectNameEn: z.string().max(100, 'Subject must be at most 100 characters').optional(),
 	institutionId: z.string().min(1, 'Institution is required'),
 	degreeId: z.string().min(1, 'Degree is required'),
-	resultSystem: z.nativeEnum(ResultSystem).default(ResultSystem.GRADE),
-	resultAchieved: z.string().optional(),
+	resultSystem: z.string().min(1, 'Result System is required'),
 	cgpa: z.coerce.number().optional(),
 	outOfCgpa: z.coerce.number().optional(),
 	passingYear: z.string().min(4, 'Passing year is required'),
@@ -55,16 +54,16 @@ interface AcademicFormProps {
 		degreeLevels: ICommonMasterData[];
 		degrees: IEducationDegree[];
 		institutions: IEducationInstitution[];
+		resultSystems: EnumDTO[];
 	};
 }
 
 const defaultValues = {
 	degreeLevelId: undefined,
-	domainNameEn: '',
+	subjectNameEn: '',
 	institutionId: undefined,
 	degreeId: undefined,
 	resultSystem: ResultSystem.GRADE,
-	resultAchieved: '',
 	cgpa: undefined,
 	outOfCgpa: undefined,
 	passingYear: '',
@@ -163,7 +162,7 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 						</div>
 						<FormInput
 							control={form.control}
-							name='domainNameEn'
+							name='subjectNameEn'
 							label='Subject'
 							placeholder='e.g., Science, Arts'
 						/>
@@ -183,19 +182,13 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 							name='resultSystem'
 							label='Result System'
 							required
-							options={[
-								{ value: ResultSystem.GRADE, label: 'Grade' },
-								{ value: ResultSystem.DIVISION, label: 'Division' },
-								{ value: ResultSystem.CLASS, label: 'Class' },
-							]}
+							options={masterData.resultSystems.map((rs) => ({ label: rs.nameEn, value: rs.value }))}
 						/>
-						{watchResultSystem === ResultSystem.GRADE ? (
+						{watchResultSystem === ResultSystem.GRADE && (
 							<div className='grid grid-cols-2 gap-4'>
 								<FormInput control={form.control} name='cgpa' label='CGPA' type='number' step='0.01' />
 								<FormInput control={form.control} name='outOfCgpa' label='Out of' type='number' />
 							</div>
-						) : (
-							<FormInput control={form.control} name='resultAchieved' label='Result Achieved' />
 						)}
 						<div className='grid grid-cols-2 gap-4'>
 							<FormSelect
@@ -239,6 +232,7 @@ interface ProfileFormAcademicProps {
 		degreeLevels: ICommonMasterData[];
 		degrees: IEducationDegree[];
 		institutions: IEducationInstitution[];
+		resultSystems: EnumDTO[];
 	};
 }
 
@@ -311,15 +305,13 @@ export function ProfileFormAcademic({ masterData }: ProfileFormAcademicProps) {
 
 	const renderItem = (item: AcademicInfo) => {
 		const resultText =
-			item.resultSystem === ResultSystem.GRADE
-				? `CGPA: ${item.cgpa}/${item.outOfCgpa}`
-				: `Result: ${item.resultAchieved}`;
+			item.resultSystem === ResultSystem.GRADE ? `CGPA: ${item.cgpa}/${item.outOfCgpa}` : item.resultSystem;
 		return (
 			<Card key={item.id} className='p-4 flex justify-between items-start'>
 				<div>
 					<p className='font-semibold'>{item.degree?.nameEn}</p>
 					<p className='text-sm text-muted-foreground'>
-						{item.institution.nameEn} | {item.degree?.nameEn} in {item.domainNameEn}
+						{item.institution.nameEn} | {item.degree?.nameEn} in {item.subjectNameEn}
 					</p>
 					<p className='text-xs text-muted-foreground'>
 						{item.passingYear} | {resultText}

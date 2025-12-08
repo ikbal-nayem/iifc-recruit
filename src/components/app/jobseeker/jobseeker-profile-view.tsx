@@ -372,7 +372,9 @@ export function JobseekerProfileView({
 									<div key={index}>
 										<h3 className='font-semibold'>{edu.degree?.nameEn}</h3>
 										<p className='text-sm text-muted-foreground'>{edu.institution.nameEn}</p>
-										<p className='text-xs text-muted-foreground'>Graduated: {edu.passingYear}</p>
+										<p className='text-xs text-muted-foreground'>
+											Major: {edu.subjectNameEn} | Graduated: {edu.passingYear}
+										</p>
 									</div>
 								))}
 							</CardContent>
