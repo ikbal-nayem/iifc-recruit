@@ -187,9 +187,9 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 						</div>
 						<div>
 							<p className='font-medium text-muted-foreground text-sm'>Request Type</p>
-							<Badge variant={request.type === JobRequestType.OUTSOURCING ? 'secondary' : 'outline'}>
+							{/* <Badge variant={request.type === JobRequestType.OUTSOURCING ? 'secondary' : 'outline'}>
 								{request.typeDTO?.nameEn}
-							</Badge>
+							</Badge> */}
 						</div>
 						<div>
 							<p className='font-medium text-muted-foreground text-sm'>Status</p>

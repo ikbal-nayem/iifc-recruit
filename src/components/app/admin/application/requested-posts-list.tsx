@@ -14,7 +14,7 @@ import { JobRequestedPostStatus, JobRequestStatus, RequestedPost } from '@/inter
 import { getStatusVariant } from '@/lib/color-mapping';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { differenceInDays, endOfDay, format, isPast, parseISO } from 'date-fns';
-import { Building, Calendar, Loader2, Search, UserCog, Users } from 'lucide-react';
+import { Boxes, Building, Calendar, Loader2, Search, UserCog, Users } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
@@ -115,6 +115,9 @@ export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPo
 							<Building className='h-4 w-4' /> {item.jobRequest?.clientOrganization?.nameBn || 'N/A'}
 						</span>
 						<span className='flex items-center gap-1.5'>
+							<Boxes className='h-4 w-4' /> {item.post?.outsourcingCategory?.nameBn || 'N/A'}
+						</span>
+						<span className='flex items-center gap-1.5'>
 							<Users className='h-4 w-4' /> {item.vacancy} vacancies
 						</span>
 						{item.circularPublishDate && item.circularEndDate && (
@@ -124,10 +127,12 @@ export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPo
 								{format(parseISO(item.circularEndDate), 'dd MMM')}
 							</Badge>
 						)}
-						<Badge variant='outline' className='flex items-center gap-1.5'>
-							<span className='text-muted-foreground'>Examiner:</span>
-							<span className='font-semibold'>{item.examiner?.nameBn || 'Not Assigned'}</span>
-						</Badge>
+						{item?.examinerId && (
+							<Badge variant='outline' className='flex items-center gap-1.5'>
+								<span className='text-muted-foreground'>Examiner:</span>
+								<span className='font-semibold'>{item.examiner?.nameBn || 'Not Assigned'}</span>
+							</Badge>
+						)}
 					</div>
 				</div>
 				<div className='flex items-center gap-4 w-full sm:w-auto justify-end'>

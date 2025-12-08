@@ -151,9 +151,9 @@ export function JobRequestList({ status }: JobRequestListProps) {
 				<div className='flex-1 mb-4 sm:mb-0 space-y-2'>
 					<div className='flex gap-2 items-center'>
 						<p className='font-semibold'>{item.subject}</p>
-						<Badge variant={item.type === JobRequestType.OUTSOURCING ? 'secondary' : 'outline'}>
+						{/* <Badge variant={item.type === JobRequestType.OUTSOURCING ? 'secondary' : 'outline'}>
 							{item.typeDTO?.nameEn}
-						</Badge>
+						</Badge> */}
 					</div>
 					<div className='text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-1'>
 						<span className='flex items-center gap-1.5'>

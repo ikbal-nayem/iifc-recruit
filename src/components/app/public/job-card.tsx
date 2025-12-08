@@ -2,6 +2,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { DATE_FORMAT } from '@/constants/common.constant';
 import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/contexts/auth-context';
 import { ICircular } from '@/interfaces/job.interface';
@@ -55,8 +56,9 @@ export function JobCard({ job, view = 'grid', searchParams }: JobCardProps) {
 						<CardTitle className='text-lg font-bold group-hover:text-primary transition-colors'>
 							{job.postNameBn}
 						</CardTitle>
-						<CardDescription className='flex items-center gap-2 text-sm font-medium text-muted-foreground'>
-							<Briefcase className='h-4 w-4' /> {job.clientOrganizationNameBn}
+						<CardDescription className='flex items-center gap-2 text-xs font-medium text-muted-foreground'>
+							{/* <Briefcase className='h-4 w-4' /> {job.clientOrganizationNameBn} */}
+							{job?.sequenceNo}
 						</CardDescription>
 					</div>
 					<div className='text-sm text-muted-foreground line-clamp-2 pt-2' title={job.jobDescription}>
@@ -87,7 +89,7 @@ export function JobCard({ job, view = 'grid', searchParams }: JobCardProps) {
 						</div> */}
 					</div>
 					<div className='flex items-center justify-between gap-2'>
-						<Badge variant='outline'>Posted: {format(parseISO(job.circularPublishDate), 'dd MMM')}</Badge>
+						<Badge variant='outline'>Posted: {format(parseISO(job.circularPublishDate), DATE_FORMAT.CASUAL)}</Badge>
 						<span className={cn('text-sm font-medium', deadlineColorClass)}>{deadlineText}</span>
 					</div>
 				</CardContent>

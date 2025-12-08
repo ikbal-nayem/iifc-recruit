@@ -3,13 +3,15 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { DATE_FORMAT } from '@/constants/common.constant';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from '@/hooks/use-toast';
 import { ICircular } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
+import { convertEnToBn } from '@/lib/translator';
 import { CircularService } from '@/services/api/circular.service';
 import { endOfDay, format, isPast, parseISO } from 'date-fns';
-import { ArrowLeft, Briefcase, CheckCheck, Loader2, MapPin } from 'lucide-react';
+import { ArrowLeft, Boxes, CheckCheck, Loader2, MapPin, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -109,18 +111,27 @@ export function JobCircularDetails({ circularId, isReadOnly = false }: JobCircul
 								<div className='flex-1'>
 									<CardTitle className='font-headline text-3xl'>{job.postNameBn}</CardTitle>
 									<CardDescription className='flex flex-wrap items-center gap-x-4 gap-y-2 pt-4'>
-										<span className='flex items-center gap-2'>
-											<Briefcase className='h-4 w-4' /> {job.clientOrganizationNameBn}
-										</span>
+										<span className='flex items-center gap-2'>Circular ID: {job.sequenceNo}</span>
+										{job.outsourcingCategoryNameBn && (
+											<span className='flex items-center gap-2'>
+												<Boxes className='h-4 w-4' /> {job.outsourcingCategoryNameBn}
+											</span>
+										)}
 										{job.outsourcingZoneNameBn && (
 											<span className='flex items-center gap-2'>
 												<MapPin className='h-4 w-4' /> {job.outsourcingZoneNameBn}
 											</span>
 										)}
-										{(job.salaryFrom || job.salaryTo) && (
+										{job.vacancy && (
 											<span className='flex items-center gap-2'>
-												৳ {job.salaryFrom?.toLocaleString()}
-												{job.salaryTo ? ` - ${job.salaryTo?.toLocaleString()}` : ''}
+												<Users className='h-4 w-4' />
+												<span>{convertEnToBn(job.vacancy)} জন</span>
+											</span>
+										)}
+										{(job.salaryFrom || job.salaryTo) && (
+											<span className='flex items-center gap-2 text-base'>
+												৳ {convertEnToBn(job.salaryFrom?.toLocaleString())}
+												{job.salaryTo ? ` - ${convertEnToBn(job.salaryTo?.toLocaleString())}` : ''}
 											</span>
 										)}
 									</CardDescription>
@@ -131,10 +142,10 @@ export function JobCircularDetails({ circularId, isReadOnly = false }: JobCircul
 						<CardContent className='space-y-6'>
 							<div className='flex items-center gap-4 text-sm'>
 								<Badge variant='secondary'>
-									Posted: {format(parseISO(job.circularPublishDate), 'dd MMM, yyyy')}
+									Posted: {format(parseISO(job.circularPublishDate), DATE_FORMAT.CASUAL)}
 								</Badge>
 								<Badge variant={getStatusVariant(isDeadlinePast ? 'expired' : '')}>
-									Deadline: {format(deadline, 'dd MMM, yyyy')}
+									Deadline: {format(deadline, DATE_FORMAT.CASUAL)}
 								</Badge>
 							</div>
 							<div>

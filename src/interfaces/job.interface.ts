@@ -74,6 +74,7 @@ export type JobRequest = {
 
 export interface ICircular {
 	id: string;
+	sequenceNo: string;
 	jobRequestType: string;
 	jobDescription: string;
 	jobRequirements: string;
