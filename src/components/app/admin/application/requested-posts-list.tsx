@@ -16,27 +16,39 @@ import { JobRequestService } from '@/services/api/job-request.service';
 import { differenceInDays, endOfDay, format, isPast, parseISO } from 'date-fns';
 import { Boxes, Building, Calendar, Loader2, Search, UserCog, Users } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { FormSelect } from '@/components/ui/form-select';
+import { EnumDTO } from '@/interfaces/master-data.interface';
 
 const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
 
 interface RequestedPostsListProps {
 	statusIn: JobRequestedPostStatus[];
 	requestStatusNotIn?: JobRequestStatus[];
+	filterableStatuses?: EnumDTO[];
 }
 
-export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPostsListProps) {
+export function RequestedPostsList({
+	statusIn,
+	requestStatusNotIn,
+	filterableStatuses,
+}: RequestedPostsListProps) {
 	const [data, setData] = useState<RequestedPost[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState('');
+	const [statusFilter, setStatusFilter] = useState('all');
 	const debouncedSearch = useDebounce(searchQuery, 500);
 
 	const loadItems = useCallback(
-		async (page: number, search: string) => {
+		async (page: number, search: string, status: string) => {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { searchKey: search, statusIn, ...(requestStatusNotIn && { requestStatusNotIn }) },
+					body: {
+						searchKey: search,
+						statusIn: status === 'all' ? statusIn : [status as JobRequestedPostStatus],
+						...(requestStatusNotIn && { requestStatusNotIn }),
+					},
 					meta: { page, limit: meta.limit },
 				};
 				const response = await JobRequestService.getRequestedPosts(payload);
@@ -54,11 +66,11 @@ export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPo
 	);
 
 	useEffect(() => {
-		loadItems(0, debouncedSearch);
-	}, [debouncedSearch, loadItems]);
+		loadItems(0, debouncedSearch, statusFilter);
+	}, [debouncedSearch, statusFilter, loadItems]);
 
 	const handlePageChange = (newPage: number) => {
-		loadItems(newPage, debouncedSearch);
+		loadItems(newPage, debouncedSearch, statusFilter);
 	};
 
 	const getActionItems = (item: RequestedPost): ActionItem[] => {
@@ -146,14 +158,29 @@ export function RequestedPostsList({ statusIn, requestStatusNotIn }: RequestedPo
 		<>
 			<Card className='glassmorphism'>
 				<CardContent className='pt-6 space-y-4 relative'>
-					<div className='relative w-full max-w-sm'>
-						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-						<Input
-							placeholder='Search by post name...'
-							value={searchQuery}
-							onChange={(e) => setSearchQuery(e.target.value)}
-							className='pl-10'
-						/>
+					<div className='flex flex-col md:flex-row gap-4'>
+						<div className='relative w-full md:max-w-sm'>
+							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+							<Input
+								placeholder='Search by post name...'
+								value={searchQuery}
+								onChange={(e) => setSearchQuery(e.target.value)}
+								className='pl-10'
+							/>
+						</div>
+						{filterableStatuses && (
+							<div className='w-full md:max-w-sm'>
+								<FormSelect
+									name='statusFilter'
+									placeholder='Filter by status...'
+									value={statusFilter}
+									onValueChange={(value) => setStatusFilter(value || 'all')}
+									options={filterableStatuses}
+									getOptionLabel={(option) => option.nameEn}
+									getOptionValue={(option) => option.value}
+								/>
+							</div>
+						)}
 					</div>
 					{isLoading && data.length > 0 && (
 						<div className='absolute inset-0 bg-white/50 backdrop-blur-[2px] flex items-center justify-center z-10 mt-20'>
