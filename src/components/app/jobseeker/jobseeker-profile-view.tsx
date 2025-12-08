@@ -370,7 +370,7 @@ export function JobseekerProfileView({
 							<CardContent className='space-y-4'>
 								{education.map((edu, index) => (
 									<div key={index}>
-										<h3 className='font-semibold'>{edu.degreeTitle}</h3>
+										<h3 className='font-semibold'>{edu.degree?.nameEn}</h3>
 										<p className='text-sm text-muted-foreground'>{edu.institution.nameEn}</p>
 										<p className='text-xs text-muted-foreground'>Graduated: {edu.passingYear}</p>
 									</div>

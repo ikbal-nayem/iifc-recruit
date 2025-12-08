@@ -1,8 +1,10 @@
+
 import { IFile, ResultSystem } from './common.interface';
 import {
 	EnumDTO,
 	IClientOrganization,
 	ICommonMasterData,
+	IEducationDegree,
 	IEducationInstitution,
 	IPost,
 } from './master-data.interface';
@@ -78,11 +80,14 @@ export type Certification = {
 
 export type AcademicInfo = {
 	id?: string;
+	degreeLevelId: string;
 	degreeLevel: ICommonMasterData;
 	domainNameEn: string;
 	domainNameBn: string;
+	institutionId: string;
 	institution: IEducationInstitution;
-	degreeTitle: string;
+	degreeId: string;
+	degree?: IEducationDegree;
 	resultSystem: ResultSystem;
 	resultAchieved?: string;
 	cgpa?: number;

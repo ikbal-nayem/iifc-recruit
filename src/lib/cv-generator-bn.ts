@@ -213,7 +213,7 @@ const generateEducation = (jobseeker: Jobseeker): Content => {
 						})),
 						...education.map((edu, i) => [
 							convertEnToBn(i + 1),
-							edu.degreeLevel.nameBn,
+							edu.degree?.nameBn,
 							convertEnToBn(edu.cgpa),
 							edu.institution.nameBn,
 							convertEnToBn(edu.passingYear),

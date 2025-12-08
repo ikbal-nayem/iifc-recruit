@@ -226,7 +226,7 @@ const generateEducation = (jobseeker: Jobseeker): Content => {
 			stack: [
 				{
 					columns: [
-						createText(edu.degreeTitle, { style: 'subheader' }),
+						createText(edu.degree?.nameEn, { style: 'subheader' }),
 						{ text: `Passing Year: ${edu.passingYear}`, style: 'date', alignment: 'right' },
 					],
 				},

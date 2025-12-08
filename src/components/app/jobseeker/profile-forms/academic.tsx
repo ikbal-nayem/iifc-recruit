@@ -17,7 +17,7 @@ import { ROUTES } from '@/constants/routes.constant';
 import { toast } from '@/hooks/use-toast';
 import { ResultSystem } from '@/interfaces/common.interface';
 import { AcademicInfo } from '@/interfaces/jobseeker.interface';
-import { ICommonMasterData, IEducationInstitution } from '@/interfaces/master-data.interface';
+import { ICommonMasterData, IEducationDegree, IEducationInstitution } from '@/interfaces/master-data.interface';
 import { makeFormData } from '@/lib/utils';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
@@ -33,10 +33,7 @@ const academicInfoSchema = z.object({
 	degreeLevelId: z.string().min(1, 'Degree level is required'),
 	domainNameEn: z.string().max(100, 'Domain must be at most 100 characters').optional(),
 	institutionId: z.string().min(1, 'Institution is required'),
-	degreeTitle: z
-		.string()
-		.min(1, 'Degree title is required')
-		.max(100, 'Degree title must be at most 100 characters'),
+	degreeId: z.string().min(1, 'Degree is required'),
 	resultSystem: z.nativeEnum(ResultSystem).default(ResultSystem.GRADE),
 	resultAchieved: z.string().optional(),
 	cgpa: z.coerce.number().optional(),
@@ -56,7 +53,7 @@ interface AcademicFormProps {
 	noun: string;
 	masterData: {
 		degreeLevels: ICommonMasterData[];
-		// domains: ICommonMasterData[];
+		degrees: IEducationDegree[];
 		institutions: IEducationInstitution[];
 	};
 }
@@ -65,7 +62,7 @@ const defaultValues = {
 	degreeLevelId: undefined,
 	domainNameEn: '',
 	institutionId: undefined,
-	degreeTitle: '',
+	degreeId: undefined,
 	resultSystem: ResultSystem.GRADE,
 	resultAchieved: '',
 	cgpa: undefined,
@@ -78,7 +75,7 @@ const defaultValues = {
 function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData }: AcademicFormProps) {
 	const form = useForm<AcademicFormValues>({
 		resolver: zodResolver(academicInfoSchema),
-		defaultValues: defaultValues,
+		defaultValues: defaultValues as any,
 	});
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -89,9 +86,10 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 				...initialData,
 				degreeLevelId: initialData.degreeLevel?.id,
 				institutionId: initialData.institution?.id,
+				degreeId: initialData.degree?.id,
 			});
 		} else {
-			form.reset(defaultValues);
+			form.reset(defaultValues as any);
 		}
 	}, [initialData, form]);
 
@@ -118,6 +116,12 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 	};
 
 	const watchResultSystem = form.watch('resultSystem');
+	const watchDegreeLevelId = form.watch('degreeLevelId');
+
+	const filteredDegrees = React.useMemo(() => {
+		if (!watchDegreeLevelId) return [];
+		return masterData.degrees.filter((d) => d.degreeLevelId === watchDegreeLevelId);
+	}, [watchDegreeLevelId, masterData.degrees]);
 
 	const currentYear = new Date().getFullYear();
 	const years = Array.from({ length: currentYear - 1959 }, (_, i) => {
@@ -142,20 +146,26 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 								options={masterData.degreeLevels}
 								getOptionValue={(option) => option.id}
 								getOptionLabel={(option) => option.nameEn}
+								onValueChange={() => form.setValue('degreeId', '')}
 							/>
-							<FormInput
+							<FormAutocomplete
 								control={form.control}
-								name='domainNameEn'
-								label='Domain / Major Subject'
-								placeholder='e.g., Science, Arts'
+								name='degreeId'
+								label='Degree Name'
+								required
+								placeholder='Select a degree'
+								disabled={!watchDegreeLevelId}
+								options={filteredDegrees}
+								getOptionValue={(option) => option.id}
+								getOptionLabel={(option) => option.nameEn}
+								initialLabel={initialData?.degree?.nameEn}
 							/>
 						</div>
 						<FormInput
 							control={form.control}
-							name='degreeTitle'
-							label='Degree Name'
-							required
-							placeholder='e.g., Bachelor of Science in CSE'
+							name='domainNameEn'
+							label='Domain / Major Subject'
+							placeholder='e.g., Science, Arts'
 						/>
 						<FormAutocomplete
 							control={form.control}
@@ -227,7 +237,7 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 interface ProfileFormAcademicProps {
 	masterData: {
 		degreeLevels: ICommonMasterData[];
-		// domains: ICommonMasterData[];
+		degrees: IEducationDegree[];
 		institutions: IEducationInstitution[];
 	};
 }
@@ -307,9 +317,9 @@ export function ProfileFormAcademic({ masterData }: ProfileFormAcademicProps) {
 		return (
 			<Card key={item.id} className='p-4 flex justify-between items-start'>
 				<div>
-					<p className='font-semibold'>{item.degreeTitle}</p>
+					<p className='font-semibold'>{item.degree?.nameEn}</p>
 					<p className='text-sm text-muted-foreground'>
-						{item.institution.nameEn} | {item.degreeLevel.nameEn} in {item.degreeTitle}
+						{item.institution.nameEn} | {item.degreeLevel.nameEn} in {item.domainNameEn}
 					</p>
 					<p className='text-xs text-muted-foreground'>
 						{item.passingYear} | {resultText}
