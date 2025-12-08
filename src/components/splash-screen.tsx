@@ -41,7 +41,7 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
 					height={80}
 					className='h-20 w-auto animate-pulse'
 				/>
-				<h1 className='text-4xl font-headline font-bold'>IIFC Outsourcing Jobs</h1>
+				<h1 className='text-4xl font-headline font-bold'>Outsourcing Jobs</h1>
 				<div className='flex justify-center items-center space-x-2 mt-4'>
 					<div className='h-3 w-3 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]'></div>
 					<div className='h-3 w-3 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]'></div>
