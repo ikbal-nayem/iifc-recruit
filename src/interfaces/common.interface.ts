@@ -7,6 +7,7 @@ export enum ResultSystem {
 	GRADE = 'G',
 	DIVISION = 'D',
 	CLASS = 'C',
+	PASS = 'P',
 }
 
 export interface IMeta {

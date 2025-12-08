@@ -164,7 +164,7 @@ function AcademicForm({ isOpen, onClose, onSubmit, initialData, noun, masterData
 						<FormInput
 							control={form.control}
 							name='domainNameEn'
-							label='Domain / Major Subject'
+							label='Subject'
 							placeholder='e.g., Science, Arts'
 						/>
 						<FormAutocomplete
@@ -319,7 +319,7 @@ export function ProfileFormAcademic({ masterData }: ProfileFormAcademicProps) {
 				<div>
 					<p className='font-semibold'>{item.degree?.nameEn}</p>
 					<p className='text-sm text-muted-foreground'>
-						{item.institution.nameEn} | {item.degreeLevel.nameEn} in {item.domainNameEn}
+						{item.institution.nameEn} | {item.degree?.nameEn} in {item.domainNameEn}
 					</p>
 					<p className='text-xs text-muted-foreground'>
 						{item.passingYear} | {resultText}
