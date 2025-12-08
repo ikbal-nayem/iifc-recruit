@@ -107,7 +107,7 @@ export function ApplicationManagementHeader({
 							)}
 						</div>
 						{requestedPost.status === JobRequestedPostStatus.PENDING && !isCircularPublished && (
-							<Button size='sm' onClick={() => setShowCircularForm(true)} title='Publish as circular'>
+							<Button size='sm' variant="lite-info" onClick={() => setShowCircularForm(true)} title='Publish as circular'>
 								<Send className='mr-2 h-4 w-4' /> Publish Circular
 							</Button>
 						)}
