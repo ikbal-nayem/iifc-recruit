@@ -45,6 +45,7 @@ export const MasterDataService = {
 			| 'job-request-type'
 			| 'application-status'
 			| 'job-request-attachment-type'
+			| 'result-system'
 	): Promise<IApiResponse<EnumDTO[]>> => {
 		return axiosIns.get(`/master-data/enum/${enumType}`);
 	},

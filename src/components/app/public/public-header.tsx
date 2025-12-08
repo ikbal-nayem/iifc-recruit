@@ -55,7 +55,7 @@ export default function PublicHeader() {
 
 			<nav className='hidden md:flex items-center gap-6 text-sm font-medium'>
 				{navLinks.map((link) => (
-					<Button asChild variant='lite-success'>
+					<Button asChild variant='lite-success' key={link.href}>
 						<Link
 							key={link.href}
 							href={link.href}
