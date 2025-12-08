@@ -46,6 +46,12 @@ export interface IEducationInstitution extends ICommonMasterData {
 	country?: IObject;
 }
 
+export interface IEducationDegree extends ICommonMasterData {
+	degreeLevelId: string;
+	degreeLevel?: ICommonMasterData;
+	serial?: number;
+}
+
 export interface IClientOrganization {
 	id?: string;
 	nameEn: string;

@@ -182,6 +182,11 @@ export const adminNavLinks: NavLink[] = [
 						label: 'Degree Levels',
 					},
 					{
+						key: 'MASTER_DATA_EDUCATION_DEGREES',
+						href: '/admin/master-data/education/degrees',
+						label: 'Degrees',
+					},
+					{
 						key: 'MASTER_DATA_EDUCATION_INSTITUTIONS',
 						href: '/admin/master-data/education/institutions',
 						label: 'Institutions',

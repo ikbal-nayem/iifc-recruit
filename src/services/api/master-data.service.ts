@@ -1,9 +1,11 @@
+
 import { axiosIns } from '@/config/api.config';
 import { IApiRequest, IApiResponse } from '@/interfaces/common.interface';
 import {
 	EnumDTO,
 	IClientOrganization,
 	ICommonMasterData,
+	IEducationDegree,
 	IEducationInstitution,
 	IOutsourcingCategory,
 	IOutsourcingCharge,
@@ -50,6 +52,7 @@ export const MasterDataService = {
 	skill: createMasterDataCrud<ICommonMasterData>('skill'),
 	language: createMasterDataCrud<ICommonMasterData>('language'),
 	degreeLevel: createMasterDataCrud<ICommonMasterData>('education-degree-level'),
+	educationDegree: createMasterDataCrud<IEducationDegree>('education-degree'),
 	educationDomain: createMasterDataCrud<ICommonMasterData>('education-domain'),
 	organizationType: createMasterDataCrud<ICommonMasterData>('organization-type'),
 	certification: createMasterDataCrud<ICommonMasterData>('certification-type'),
