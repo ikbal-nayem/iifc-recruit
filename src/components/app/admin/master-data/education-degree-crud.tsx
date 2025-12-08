@@ -183,6 +183,8 @@ interface EducationDegreeCrudProps {
 	onDelete: (id: string) => Promise<boolean>;
 	onPageChange: (page: number) => void;
 	onSearch: (query: string) => void;
+	degreeLevelFilter: string;
+	onDegreeLevelChange: (id: string) => void;
 }
 
 export function EducationDegreeCrud({
@@ -198,6 +200,8 @@ export function EducationDegreeCrud({
 	onDelete,
 	onPageChange,
 	onSearch,
+	degreeLevelFilter,
+	onDegreeLevelChange,
 }: EducationDegreeCrudProps) {
 	const { toast } = useToast();
 	const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
@@ -255,8 +259,8 @@ export function EducationDegreeCrud({
 			</div>
 			<Card className='glassmorphism'>
 				<CardContent className='space-y-4 pt-6'>
-					<div className='flex flex-col sm:flex-row gap-4 justify-between'>
-						<div className='relative w-full sm:max-w-xs'>
+					<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+						<div className='relative w-full'>
 							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 							<Input
 								placeholder={`Search ${noun.toLowerCase()}s...`}
@@ -264,6 +268,15 @@ export function EducationDegreeCrud({
 								className='pl-10'
 							/>
 						</div>
+						<FormAutocomplete
+							name='degreeLevelFilter'
+							placeholder='Filter by Degree Level...'
+							options={[{ id: 'all', nameEn: 'All Degree Levels' }, ...degreeLevels]}
+							getOptionValue={(option) => option.id!}
+							getOptionLabel={(option) => option.nameEn}
+							onValueChange={(val) => onDegreeLevelChange(val || 'all')}
+							value={degreeLevelFilter}
+						/>
 					</div>
 					<div className='space-y-2 pt-4'>
 						{isLoading

@@ -18,6 +18,7 @@ export default function MasterDegreesPage() {
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
 	const [degreeLevels, setDegreeLevels] = useState<ICommonMasterData[]>([]);
+	const [degreeLevelFilter, setDegreeLevelFilter] = useState('all');
 
 	useEffect(() => {
 		const fetchDegreeLevels = async () => {
@@ -34,11 +35,14 @@ export default function MasterDegreesPage() {
 	}, []);
 
 	const loadItems = useCallback(
-		async (page: number, search: string) => {
+		async (page: number, search: string, degreeLevelId: string) => {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { searchKey: search },
+					body: {
+						searchKey: search,
+						...(degreeLevelId !== 'all' && { degreeLevelId }),
+					},
 					meta: { page: page, limit: meta.limit },
 				};
 				const response = await MasterDataService.educationDegree.getList(payload);
@@ -57,18 +61,18 @@ export default function MasterDegreesPage() {
 	);
 
 	useEffect(() => {
-		loadItems(0, debouncedSearch);
-	}, [debouncedSearch, loadItems]);
+		loadItems(0, debouncedSearch, degreeLevelFilter);
+	}, [debouncedSearch, degreeLevelFilter, loadItems]);
 
 	const handlePageChange = (newPage: number) => {
-		loadItems(newPage, debouncedSearch);
+		loadItems(newPage, debouncedSearch, degreeLevelFilter);
 	};
 
 	const handleAdd = async (item: Omit<IEducationDegree, 'id'>): Promise<boolean> => {
 		try {
 			const resp = await MasterDataService.educationDegree.add(item);
 			toast.success({ description: resp.message });
-			loadItems(meta.page, debouncedSearch);
+			loadItems(meta.page, debouncedSearch, degreeLevelFilter);
 			return true;
 		} catch (error: any) {
 			console.error('Failed to add item', error);
@@ -81,7 +85,7 @@ export default function MasterDegreesPage() {
 		try {
 			const resp = await MasterDataService.educationDegree.update(item);
 			toast.success({ description: resp.message });
-			loadItems(meta.page, debouncedSearch);
+			loadItems(meta.page, debouncedSearch, degreeLevelFilter);
 			return true;
 		} catch (error: any) {
 			console.error('Failed to update item', error);
@@ -94,7 +98,7 @@ export default function MasterDegreesPage() {
 		try {
 			await MasterDataService.educationDegree.delete(id);
 			toast.success({ description: 'Degree deleted successfully.' });
-			loadItems(meta.page, debouncedSearch);
+			loadItems(meta.page, debouncedSearch, degreeLevelFilter);
 			return true;
 		} catch (error: any) {
 			console.error('Failed to delete item', error);
@@ -117,6 +121,8 @@ export default function MasterDegreesPage() {
 			onDelete={handleDelete}
 			onPageChange={handlePageChange}
 			onSearch={setSearchQuery}
+			degreeLevelFilter={degreeLevelFilter}
+			onDegreeLevelChange={setDegreeLevelFilter}
 		/>
 	);
 }
