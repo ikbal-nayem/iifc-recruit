@@ -38,7 +38,7 @@ export default function MasterDegreesPage() {
 			setIsLoading(true);
 			try {
 				const payload: IApiRequest = {
-					body: { nameEn: search },
+					body: { searchKey: search },
 					meta: { page: page, limit: meta.limit },
 				};
 				const response = await MasterDataService.educationDegree.getList(payload);

@@ -53,7 +53,6 @@ export const MasterDataService = {
 	language: createMasterDataCrud<ICommonMasterData>('language'),
 	degreeLevel: createMasterDataCrud<ICommonMasterData>('education-degree-level'),
 	educationDegree: createMasterDataCrud<IEducationDegree>('education-degree'),
-	educationDomain: createMasterDataCrud<ICommonMasterData>('education-domain'),
 	organizationType: createMasterDataCrud<ICommonMasterData>('organization-type'),
 	certification: createMasterDataCrud<ICommonMasterData>('certification-type'),
 	country: {

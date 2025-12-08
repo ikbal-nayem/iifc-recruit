@@ -279,7 +279,7 @@ export function EducationDegreeCrud({
 											</p>
 											<p className='text-sm text-muted-foreground'>{item.nameBn}</p>
 											<p className='text-xs text-muted-foreground'>
-												Level: {item.degreeLevel?.nameEn || 'N/A'}
+												Level: {item.degreeLevel?.nameEn || '-'}
 											</p>
 										</div>
 										<div className='flex items-center gap-2 w-full sm:w-auto justify-between'>
