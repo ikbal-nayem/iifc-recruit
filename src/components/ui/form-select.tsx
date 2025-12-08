@@ -97,7 +97,7 @@ export function FormSelect<TFieldValues extends FieldValues, TOption>({
 
 	if (!control) {
 		return (
-			<div className='space-y-2'>
+			<div className=''>
 				<Label>
 					{label}
 					{required && <span className='text-danger font-semibold'> *</span>}

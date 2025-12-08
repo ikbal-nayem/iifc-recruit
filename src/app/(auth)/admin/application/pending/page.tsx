@@ -1,10 +1,8 @@
-'use client';
-
 import { RequestedPostsList } from '@/components/app/admin/application/requested-posts-list';
 import { JobRequestedPostStatus, JobRequestStatus } from '@/interfaces/job.interface';
 
 const filterableStatuses = [
-	{ value: 'all', nameEn: 'All Statuses' },
+	{ value: 'all', nameEn: 'All' },
 	{ value: JobRequestedPostStatus.PENDING, nameEn: 'Pending' },
 	{ value: JobRequestedPostStatus.CIRCULAR_PUBLISHED, nameEn: 'Circular Published' },
 ];

@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTES } from '@/constants/routes.constant';
 import { useDebounce } from '@/hooks/use-debounce';
 import { toast } from '@/hooks/use-toast';
-import { IApiRequest, IMeta } from '@/interfaces/common.interface';
+import { IApiRequest, IMeta, IObject } from '@/interfaces/common.interface';
 import { JobRequestedPostStatus, JobRequestStatus, RequestedPost } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { JobRequestService } from '@/services/api/job-request.service';
@@ -24,7 +24,7 @@ const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
 interface RequestedPostsListProps {
 	statusIn: JobRequestedPostStatus[];
 	requestStatusNotIn?: JobRequestStatus[];
-	filterableStatuses?: EnumDTO[];
+	filterableStatuses?: IObject[];
 }
 
 export function RequestedPostsList({
@@ -158,8 +158,8 @@ export function RequestedPostsList({
 		<>
 			<Card className='glassmorphism'>
 				<CardContent className='pt-6 space-y-4 relative'>
-					<div className='flex flex-col md:flex-row gap-4'>
-						<div className='relative w-full md:max-w-sm'>
+					<div className='flex flex-col sm:flex-row gap-4'>
+						<div className='relative w-full'>
 							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 							<Input
 								placeholder='Search by post name...'
@@ -169,7 +169,7 @@ export function RequestedPostsList({
 							/>
 						</div>
 						{filterableStatuses && (
-							<div className='w-full md:max-w-sm'>
+							<div className='w-full md:max-w-xs'>
 								<FormSelect
 									name='statusFilter'
 									placeholder='Filter by status...'
