@@ -5,7 +5,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
@@ -41,7 +40,7 @@ import {
 	SortingState,
 	useReactTable,
 } from '@tanstack/react-table';
-import { Loader2, Search, SlidersHorizontal, UserPlus, X } from 'lucide-react';
+import { Loader2, Search, UserPlus, X } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -85,7 +84,6 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 	const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 	const [showConfirmation, setShowConfirmation] = useState(false);
-	const [isOpen, setIsOpen] = useState(false);
 	const [masterData, setMasterData] = useState({
 		genders: [],
 		religions: [],
@@ -144,7 +142,6 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 			searchKey: debouncedTextSearch,
 			...debouncedFilters,
 		});
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [debouncedTextSearch, JSON.stringify(debouncedFilters), searchApplicants]);
 
 	useEffect(() => {
@@ -283,135 +280,121 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 	return (
 		<>
 			<FormProvider {...filterForm}>
-				<Collapsible open={isOpen} onOpenChange={setIsOpen}>
-					<div className='flex items-center justify-between'>
-						<CollapsibleTrigger asChild>
-							<Button variant='outline'>
-								<SlidersHorizontal className='mr-2 h-4 w-4' />
-								Filters
-								{activeFilterCount > 0 && (
-									<span className='ml-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground'>
-										{activeFilterCount}
-									</span>
-								)}
-							</Button>
-						</CollapsibleTrigger>
+				<Card className='p-4 border-2 border-dashed glassmorphism mb-4'>
+					<CardHeader className='p-0 mb-4 flex-row items-center justify-between'>
+						<CardTitle>Filters</CardTitle>
 						{activeFilterCount > 0 && (
 							<Button variant='ghost' onClick={handleReset}>
 								<X className='mr-2 h-4 w-4' />
 								Reset Filters
 							</Button>
 						)}
-					</div>
-					<CollapsibleContent className='mt-4'>
-						<Card className='p-4 border-2 border-dashed glassmorphism'>
-							<CardContent className='p-0'>
-								<form className='space-y-6'>
-									<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
-										<FormAutocomplete
-											name='outsourcingCategoryId'
-											control={filterForm.control}
-											label='Outsourcing Category'
-											placeholder='Select category...'
-											loadOptions={getOutsourcingCategoriesAsync}
-											getOptionValue={(option) => option.id}
-											getOptionLabel={(option) => option.nameBn}
-											allowClear
-											onValueChange={() => filterForm.setValue('postId', '')}
-										/>
-										<FormAutocomplete
-											name='postId'
-											control={filterForm.control}
-											label='Post'
-											placeholder='Select post...'
-											disabled={!watchedFilters.outsourcingCategoryId}
-											loadOptions={(search, callback) =>
-												getPostOutsourcingAsync(search, callback, watchedFilters.outsourcingCategoryId)
-											}
-											getOptionValue={(option) => option.id}
-											getOptionLabel={(option) => option.nameBn}
-											allowClear
-										/>
-										<FormAutocomplete
-											name='degreeLevelId'
-											control={filterForm.control}
-											label='Degree Level'
-											placeholder='Select degree level...'
-											options={masterData.degreeLevels}
-											getOptionValue={(option) => option.id}
-											getOptionLabel={(option) => option.nameEn}
-											allowClear
-										/>
-										<FormInput
-											control={filterForm.control}
-											name='minExp'
-											label='Minimum Experience (Yrs)'
-											type='number'
-											placeholder='e.g., 5'
-										/>
-									</div>
+					</CardHeader>
+					<CardContent className='p-0'>
+						<form className='space-y-6'>
+							<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+								<FormAutocomplete
+									name='outsourcingCategoryId'
+									control={filterForm.control}
+									label='Outsourcing Category'
+									placeholder='Select category...'
+									loadOptions={getOutsourcingCategoriesAsync}
+									getOptionValue={(option) => option.id}
+									getOptionLabel={(option) => option.nameBn}
+									allowClear
+									onValueChange={() => filterForm.setValue('postId', '')}
+								/>
+								<FormAutocomplete
+									name='postId'
+									control={filterForm.control}
+									label='Post'
+									placeholder='Select post...'
+									disabled={!watchedFilters.outsourcingCategoryId}
+									loadOptions={(search, callback) =>
+										getPostOutsourcingAsync(search, callback, watchedFilters.outsourcingCategoryId)
+									}
+									getOptionValue={(option) => option.id}
+									getOptionLabel={(option) => option.nameBn}
+									allowClear
+								/>
+								<FormAutocomplete
+									name='degreeLevelId'
+									control={filterForm.control}
+									label='Degree Level'
+									placeholder='Select degree level...'
+									options={masterData.degreeLevels}
+									getOptionValue={(option) => option.id}
+									getOptionLabel={(option) => option.nameEn}
+									allowClear
+								/>
+								<FormInput
+									control={filterForm.control}
+									name='minExp'
+									label='Minimum Experience (Yrs)'
+									type='number'
+									placeholder='e.g., 5'
+								/>
+							</div>
 
-									<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
-										<FormSelect
-											name='gender'
-											control={filterForm.control}
-											label='Gender'
-											placeholder='Filter by gender'
-											options={masterData.genders}
-											getOptionValue={(o) => o.value}
-											getOptionLabel={(o) => o.nameEn}
-											allowClear
-										/>
-										<FormSelect
-											name='religion'
-											control={filterForm.control}
-											label='Religion'
-											placeholder='Filter by religion'
-											options={masterData.religions}
-											getOptionValue={(o) => o.value}
-											getOptionLabel={(o) => o.nameEn}
-											allowClear
-										/>
-										<FormSelect
-											name='maritalStatus'
-											control={filterForm.control}
-											label='Marital Status'
-											placeholder='Filter by marital status'
-											options={masterData.maritalStatuses}
-											getOptionValue={(o) => o.value}
-											getOptionLabel={(o) => o.nameEn}
-											allowClear
-										/>
-									</div>
+							<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+								<FormSelect
+									name='gender'
+									control={filterForm.control}
+									label='Gender'
+									placeholder='Filter by gender'
+									options={masterData.genders}
+									getOptionValue={(o) => o.value}
+									getOptionLabel={(o) => o.nameEn}
+									allowClear
+								/>
+								<FormSelect
+									name='religion'
+									control={filterForm.control}
+									label='Religion'
+									placeholder='Filter by religion'
+									options={masterData.religions}
+									getOptionValue={(o) => o.value}
+									getOptionLabel={(o) => o.nameEn}
+									allowClear
+								/>
+								<FormSelect
+									name='maritalStatus'
+									control={filterForm.control}
+									label='Marital Status'
+									placeholder='Filter by marital status'
+									options={masterData.maritalStatuses}
+									getOptionValue={(o) => o.value}
+									getOptionLabel={(o) => o.nameEn}
+									allowClear
+								/>
+							</div>
 
-									<div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4'>
-										<div className='flex gap-2'>
-											<FormInput control={filterForm.control} name='minAge' label='Min Age' type='number' />
-											<FormInput control={filterForm.control} name='maxAge' label='Max Age' type='number' />
-										</div>
-										<FormInput
-											control={filterForm.control}
-											name='profileCompletion'
-											label='Profile Completion >'
-											type='number'
-											placeholder='e.g., 75'
-										/>
-									</div>
+							<div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4'>
+								<div className='flex gap-2'>
+									<FormInput control={filterForm.control} name='minAge' label='Min Age' type='number' />
+									<FormInput control={filterForm.control} name='maxAge' label='Max Age' type='number' />
+								</div>
+								<FormInput
+									control={filterForm.control}
+									name='profileCompletion'
+									label='Profile Completion >'
+									type='number'
+									placeholder='e.g., 75'
+								/>
+							</div>
 
-									<FormMultiSelect
-										name='skillIds'
-										control={filterForm.control}
-										label='Required Skills'
-										placeholder='Filter by skills...'
-										loadOptions={getSkillsAsync}
-										getOptionValue={(option) => option.id}
-										getOptionLabel={(option) => option.nameEn}
-									/>
-								</form>
-							</CardContent>
-						</Card>
-					</CollapsibleContent>
-				</Collapsible>
+							<FormMultiSelect
+								name='skillIds'
+								control={filterForm.control}
+								label='Required Skills'
+								placeholder='Filter by skills...'
+								loadOptions={getSkillsAsync}
+								getOptionValue={(option) => option.id}
+								getOptionLabel={(option) => option.nameEn}
+							/>
+						</form>
+					</CardContent>
+				</Card>
 			</FormProvider>
 
 			<Card className='my-4'>
