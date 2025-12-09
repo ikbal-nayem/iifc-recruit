@@ -16,6 +16,9 @@ export const ApplicationService = {
 	getShortlistedList: async (payload: IApiRequest): Promise<IApiResponse<Application[]>> =>
 		await axiosIns.post('/application/get-shortlisted-list', payload),
 
+	search: async (payload: IApiRequest): Promise<IApiResponse<Application[]>> =>
+		await axiosIns.post('/application/search', payload),
+
 	createAll: async (payload: IObject[]): Promise<IApiResponse<Application[]>> =>
 		await axiosIns.post('/application/create-all', payload),
 

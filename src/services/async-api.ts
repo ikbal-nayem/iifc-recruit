@@ -1,3 +1,4 @@
+
 import { IApiRequest } from '@/interfaces/common.interface';
 import {
 	IClientOrganization,
@@ -32,8 +33,19 @@ export const getSkillsAsync = (searchKey: string, callback: (data: ICommonMaster
 	MasterDataService.skill.getList(initPayload).then((resp) => callback(resp?.body || []));
 };
 
-export const getPostOutsourcingAsync = (searchKey: string, callback: (data: IPost[]) => void) => {
-	initPayload.body = { searchKey: searchKey, outsourcing: true };
+export const getPostOutsourcingAsync = (
+	searchKey: string,
+	callback: (data: IPost[]) => void,
+	categoryId?: string
+) => {
+	const body: { searchKey: string; outsourcing: boolean; outsourcingCategoryId?: string } = {
+		searchKey: searchKey,
+		outsourcing: true,
+	};
+	if (categoryId) {
+		body.outsourcingCategoryId = categoryId;
+	}
+	initPayload.body = body;
 	MasterDataService.post.getList(initPayload).then((resp) => callback(resp?.body || []));
 };
 
