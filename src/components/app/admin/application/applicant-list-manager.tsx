@@ -19,6 +19,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { toast } from '@/hooks/use-toast';
 import { IMeta } from '@/interfaces/common.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
+import { IEducationDegree } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
@@ -60,6 +61,7 @@ const filterSchema = z.object({
 	outsourcingCategoryId: z.string().optional(),
 	skillIds: z.array(z.string()).optional(),
 	degreeLevelId: z.string().optional(),
+	degreeId: z.string().optional(),
 	minExp: z.coerce.number().optional(),
 });
 
@@ -90,6 +92,7 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 		maritalStatuses: [],
 		divisions: [],
 		degreeLevels: [],
+		degrees: [],
 	});
 
 	const filterForm = useForm<FilterFormValues>({
@@ -108,6 +111,7 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 			outsourcingCategoryId: '',
 			skillIds: [],
 			degreeLevelId: '',
+			degreeId: '',
 			minExp: undefined,
 		},
 	});
@@ -146,12 +150,13 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 
 	useEffect(() => {
 		async function loadMaster() {
-			const [genderRes, religionRes, maritalStatusRes, divisionRes, degreeLevelRes] = await Promise.allSettled([
+			const [genderRes, religionRes, maritalStatusRes, divisionRes, degreeLevelRes, degreesRes] = await Promise.allSettled([
 				MasterDataService.getEnum('gender'),
 				MasterDataService.getEnum('religion'),
 				MasterDataService.getEnum('marital-status'),
 				MasterDataService.country.getDivisions(),
 				MasterDataService.degreeLevel.get(),
+				MasterDataService.educationDegree.get(),
 			]);
 
 			setMasterData({
@@ -160,6 +165,7 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 				maritalStatuses: maritalStatusRes.status === 'fulfilled' ? maritalStatusRes.value.body : [],
 				divisions: divisionRes.status === 'fulfilled' ? divisionRes.value.body : [],
 				degreeLevels: degreeLevelRes.status === 'fulfilled' ? degreeLevelRes.value.body : [],
+				degrees: degreesRes.status === 'fulfilled' ? degreesRes.value.body : [],
 			});
 		}
 		loadMaster();
@@ -172,6 +178,12 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 	const activeFilterCount = Object.values(watchedFilters).filter(
 		(v) => v !== '' && v !== undefined && (!Array.isArray(v) || v.length > 0)
 	).length;
+	
+	const filteredDegrees = React.useMemo(() => {
+		if (!watchedFilters.degreeLevelId) return [];
+		return masterData.degrees.filter((d: IEducationDegree) => d.degreeLevelId === watchedFilters.degreeLevelId);
+	}, [watchedFilters.degreeLevelId, masterData.degrees]);
+
 
 	const columns: ColumnDef<JobseekerSearch>[] = [
 		{
@@ -326,6 +338,18 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 									getOptionValue={(option) => option.id}
 									getOptionLabel={(option) => option.nameEn}
 									allowClear
+									onValueChange={() => filterForm.setValue('degreeId', '')}
+								/>
+								<FormAutocomplete
+									name='degreeId'
+									control={filterForm.control}
+									label='Degree'
+									placeholder='Select degree...'
+									disabled={!watchedFilters.degreeLevelId}
+									options={filteredDegrees}
+									getOptionValue={(option) => option.id}
+									getOptionLabel={(option) => option.nameEn}
+									allowClear
 								/>
 								<FormInput
 									control={filterForm.control}
@@ -368,7 +392,7 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 									allowClear
 								/>
 							</div>
-
+							
 							<div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4'>
 								<div className='flex gap-2'>
 									<FormInput control={filterForm.control} name='minAge' label='Min Age' type='number' />
