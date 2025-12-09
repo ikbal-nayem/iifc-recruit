@@ -257,7 +257,10 @@ export function ApplicationManagementPage({
 									Add Candidate
 								</Button>
 							</DialogTrigger>
-							<DialogContent className='max-w-4xl h-[90vh] flex flex-col p-0'>
+							<DialogContent
+								className='max-w-7xl flex flex-col p-0'
+								onPointerDownOutside={(e) => e.preventDefault()}
+							>
 								<DialogHeader className='p-6 pb-0'>
 									<DialogTitle>Add Applicants to Primary List</DialogTitle>
 								</DialogHeader>

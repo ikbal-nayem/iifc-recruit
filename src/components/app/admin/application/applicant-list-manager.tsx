@@ -277,10 +277,9 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 					<div className='flex justify-between items-center'>
 						<div>
 							<CardTitle>Search Results</CardTitle>
-							<CardDescription>Select jobseekers to add them to the primary list below.</CardDescription>
 						</div>
 						{table.getIsSomeRowsSelected() || table.getIsAllRowsSelected() ? (
-							<Button onClick={() => setShowConfirmation(true)}>
+							<Button size="sm" onClick={() => setShowConfirmation(true)}>
 								<UserPlus className='mr-2 h-4 w-4' />
 								Add {table.getSelectedRowModel().rows.length} Selected Candidates
 							</Button>
