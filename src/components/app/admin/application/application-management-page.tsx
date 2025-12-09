@@ -98,7 +98,8 @@ export function ApplicationManagementPage({
 
 	useEffect(() => {
 		loadApplicants(0, statusFilter, activeFilters);
-	}, [statusFilter, activeFilters, loadApplicants]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [statusFilter, JSON.stringify(activeFilters), loadApplicants]);
 	
 	const handleFilterChange = (filters: Partial<FilterFormValues>) => {
 		setActiveFilters(filters);
