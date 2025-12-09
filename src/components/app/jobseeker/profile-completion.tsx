@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { ROUTES } from '@/constants/routes.constant';
 import { IProfileCompletionStatus } from '@/interfaces/jobseeker.interface';
 import { cn } from '@/lib/utils';
-import { CheckCircle, Edit } from 'lucide-react';
+import { CheckCircle, CircleAlert, Edit, SquareX } from 'lucide-react';
 import Link from 'next/link';
 
 interface ProfileCompletionProps {
@@ -115,11 +115,11 @@ export function ProfileCompletion({ profileCompletion, isCompact = false }: Prof
 					<div className='grid grid-cols-2 gap-x-6 gap-y-3'>
 						{formCompletionStatus.map((item) => (
 							<Link href={getFormRoute(item.form)} key={item.form} className='flex items-center gap-2 group'>
-								<CheckCircle
-									className={`h-5 w-5 transition-colors ${
-										item.isComplete ? 'text-success' : 'text-muted-foreground/50'
-									}`}
-								/>
+								{item.isComplete ? (
+									<CheckCircle className='h-5 w-5 transition-colors text-success' />
+								) : (
+									<SquareX className='h-5 w-5 transition-colors text-muted-foreground/50' />
+								)}
 								<span className='text-sm group-hover:text-primary transition-colors'>{item.form}</span>
 							</Link>
 						))}
