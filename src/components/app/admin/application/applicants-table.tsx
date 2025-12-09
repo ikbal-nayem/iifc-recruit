@@ -565,7 +565,7 @@ export function ApplicantsTable({
 						</TableBody>
 					</Table>
 				</CardContent>
-				{meta.totalRecords && meta.totalRecords > 0 ? (
+				{meta?.totalRecords && meta?.totalRecords > 0 ? (
 					<CardFooter className='py-4'>
 						<Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} noun={'Applicant'} />
 					</CardFooter>

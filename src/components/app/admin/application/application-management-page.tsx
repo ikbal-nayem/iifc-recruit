@@ -77,7 +77,7 @@ export function ApplicationManagementPage({
 				
 				const payload: IApiRequest = {
 					body,
-					meta: { page, limit: applicantsMeta.limit },
+					meta: { page, limit: applicantsMeta?.limit || initMeta.limit },
 				};
 				
 				const response = await ApplicationService.search(payload);
@@ -85,6 +85,7 @@ export function ApplicationManagementPage({
 				setApplicants(response.body);
 				setApplicantsMeta(response.meta);
 			} catch (error: any) {
+				console.log(error)
 				toast.error({
 					description: error.message || 'Failed to load applicants.',
 				});
@@ -92,7 +93,7 @@ export function ApplicationManagementPage({
 				setIsLoadingApplicants(false);
 			}
 		},
-		[requestedPost.id, applicantsMeta.limit, isProcessing, isShortlisted]
+		[requestedPost.id, isProcessing, isShortlisted]
 	);
 
 	useEffect(() => {

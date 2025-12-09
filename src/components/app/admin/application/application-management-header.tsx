@@ -107,7 +107,12 @@ export function ApplicationManagementHeader({
 							)}
 						</div>
 						{requestedPost.status === JobRequestedPostStatus.PENDING && !isCircularPublished && (
-							<Button size='sm' variant="lite-info" onClick={() => setShowCircularForm(true)} title='Publish as circular'>
+							<Button
+								size='sm'
+								variant='lite-info'
+								onClick={() => setShowCircularForm(true)}
+								title='Publish as circular'
+							>
 								<Send className='mr-2 h-4 w-4' /> Publish Circular
 							</Button>
 						)}
@@ -154,7 +159,7 @@ export function ApplicationManagementHeader({
 					</div>
 				</CardHeader>
 				{requestedPost.circularPublishDate && requestedPost.circularEndDate && (
-					<CardDescription className='bg-purple-100/80 px-5'>
+					<div className='bg-purple-100/80 px-5'>
 						<Separator />
 						<div className='flex justify-between items-center'>
 							<div className='flex items-center gap-2 py-2 text-purple-600'>
@@ -174,7 +179,7 @@ export function ApplicationManagementHeader({
 								</div>
 							)}
 						</div>
-					</CardDescription>
+					</div>
 				)}
 			</Card>
 
