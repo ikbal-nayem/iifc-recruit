@@ -36,7 +36,7 @@ interface ApplicationManagementPageProps {
 	isShortlisted?: boolean;
 }
 
-const initMeta: IMeta = { page: 0, limit: 30, totalRecords: 0 };
+const initMeta: IMeta = { page: 0, limit: 50, totalRecords: 0 };
 
 export function ApplicationManagementPage({
 	requestedPost: initialPost,
