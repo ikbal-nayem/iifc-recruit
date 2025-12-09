@@ -34,7 +34,6 @@ import { toast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { IMeta } from '@/interfaces/common.interface';
 import { JobRequestedPostStatus } from '@/interfaces/job.interface';
-import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, formatDate } from 'date-fns';
@@ -308,12 +307,11 @@ export function ApplicantsTable({
 			accessorKey: 'applicant',
 			header: 'Applicant',
 			cell: ({ row }) => {
-				const { fullName, email, profileImage, firstName, lastName, phone } = row.original
-					.applicant as JobseekerSearch;
+				const { fullName, email, profileImage, firstName, lastName, phone } = row.original;
 				return (
 					<div className='flex items-center gap-3'>
 						<Avatar>
-							<AvatarImage src={profileImage?.filePath} />
+							<AvatarImage src={profileImage} />
 							<AvatarFallback>
 								{firstName?.[0]}
 								{lastName?.[0]}
@@ -339,8 +337,8 @@ export function ApplicantsTable({
 					}
 					return <span className='text-muted-foreground'>-</span>;
 				}
-				const { appliedDate } = row.original;
-				return <span>{formatDate(appliedDate, DATE_FORMAT.DISPLAY_DATE)}</span>;
+				const { createdOn } = row.original;
+				return <span>{formatDate(createdOn, DATE_FORMAT.DISPLAY_DATE)}</span>;
 			},
 		},
 		{
@@ -351,9 +349,7 @@ export function ApplicantsTable({
 				return (
 					<div className='flex flex-col items-start gap-1'>
 						<Badge variant={getStatusVariant(status)}>{statusDTO.nameEn}</Badge>
-						{!!marks && (
-							<span className='text-xs font-semibold text-primary'>Marks: {marks}</span>
-						)}
+						{!!marks && <span className='text-xs font-semibold text-primary'>Marks: {marks}</span>}
 					</div>
 				);
 			},
@@ -392,7 +388,8 @@ export function ApplicantsTable({
 	};
 
 	const renderMobileCard = (applicant: Application) => {
-		const { fullName, profileImage, firstName, lastName } = applicant.applicant as JobseekerSearch;
+		console.log(applicant);
+		const { fullName, profileImage, firstName, lastName } = applicant;
 		const row = table.getRow(applicant.id);
 		return (
 			<Card key={applicant.id} className='mb-2 p-3 glassmorphism'>
@@ -405,7 +402,7 @@ export function ApplicantsTable({
 					/>
 					<div className='flex-1 flex items-start gap-3'>
 						<Avatar>
-							<AvatarImage src={profileImage?.filePath} alt={fullName} data-ai-hint='avatar' />
+							<AvatarImage src={profileImage} alt={fullName} data-ai-hint='avatar' />
 							<AvatarFallback>
 								{firstName?.[0]}
 								{lastName?.[0]}
@@ -413,9 +410,11 @@ export function ApplicantsTable({
 						</Avatar>
 						<div className='flex-1'>
 							<p className='font-semibold text-sm'>{fullName}</p>
-							<p className='text-xs text-muted-foreground'>
-								Applied: {formatDate(applicant.appliedDate, DATE_FORMAT.DISPLAY_DATE)}
-							</p>
+							{applicant.createdOn && (
+								<p className='text-xs text-muted-foreground'>
+									Applied: {formatDate(applicant.createdOn, DATE_FORMAT.DISPLAY_DATE)}
+								</p>
+							)}
 							<div className='mt-2 flex flex-col items-start gap-1'>
 								<Badge variant={getStatusVariant(applicant.status)} className='text-xs'>
 									{applicant.statusDTO.nameEn}

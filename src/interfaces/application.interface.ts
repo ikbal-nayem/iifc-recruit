@@ -17,7 +17,13 @@ export type Application = {
 	id: string;
 	status: APPLICATION_STATUS;
 	statusDTO: EnumDTO;
-	appliedDate: string;
+	firstName: string;
+	lastName: string;
+	fullName: string;
+	email: string;
+	phone: string;
+	profileImage?: string;
+	createdOn: string;
 	applicantId: string;
 	applicant?: JobseekerSearch;
 	requestedPostId: string;
