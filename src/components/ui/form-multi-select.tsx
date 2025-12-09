@@ -32,6 +32,7 @@ interface FormMultiSelectProps<TFieldValues extends FieldValues, TOption = { [ke
 	badgeVariant?: BadgeProps['variant'];
 	closeOnSelect?: boolean;
 	onValueChange?: (value: string[]) => void;
+	containerRef?: React.RefObject<HTMLElement>;
 }
 
 export function FormMultiSelect<TFieldValues extends FieldValues, TOption extends { [key: string]: any }>({
@@ -47,12 +48,12 @@ export function FormMultiSelect<TFieldValues extends FieldValues, TOption extend
 	badgeVariant = 'outline',
 	closeOnSelect = false,
 	onValueChange,
+	containerRef,
 }: FormMultiSelectProps<TFieldValues, TOption>) {
 	const [open, setOpen] = React.useState(false);
 	const [searchQuery, setSearchQuery] = React.useState('');
 	const [asyncOptions, setAsyncOptions] = React.useState<TOption[]>([]);
 	const [isLoading, setIsLoading] = React.useState(false);
-	const containerRef = React.useRef<HTMLDivElement>(null);
 
 	const debouncedSearchQuery = useDebounce(searchQuery, 300);
 	const allOptions = React.useMemo(() => staticOptions || asyncOptions, [staticOptions, asyncOptions]);
@@ -113,7 +114,7 @@ export function FormMultiSelect<TFieldValues extends FieldValues, TOption extend
 				}, [selectedValues, allOptions, getOptionValue]);
 
 				return (
-					<FormItem ref={containerRef}>
+					<FormItem>
 						{label && <FormLabel required={required}>{label}</FormLabel>}
 						<Popover open={open} onOpenChange={setOpen}>
 							<PopoverTrigger asChild>
@@ -158,7 +159,7 @@ export function FormMultiSelect<TFieldValues extends FieldValues, TOption extend
 							<PopoverContent
 								className='w-[--radix-popover-trigger-width] p-0'
 								align='start'
-								container={containerRef.current!}
+								container={containerRef?.current}
 							>
 								<Command shouldFilter={!loadOptions}>
 									<CommandInput placeholder='Search...' value={searchQuery} onValueChange={setSearchQuery} />
