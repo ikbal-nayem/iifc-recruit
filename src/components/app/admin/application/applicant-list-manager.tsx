@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormInput } from '@/components/ui/form-input';
 import { FormMultiSelect } from '@/components/ui/form-multi-select';
@@ -23,11 +22,7 @@ import { IEducationDegree } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
-import {
-	getOutsourcingCategoriesAsync,
-	getPostOutsourcingAsync,
-	getSkillsAsync,
-} from '@/services/async-api';
+import { getOutsourcingCategoriesAsync, getPostOutsourcingAsync, getSkillsAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
 	ColumnDef,
@@ -150,14 +145,15 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 
 	useEffect(() => {
 		async function loadMaster() {
-			const [genderRes, religionRes, maritalStatusRes, divisionRes, degreeLevelRes, degreesRes] = await Promise.allSettled([
-				MasterDataService.getEnum('gender'),
-				MasterDataService.getEnum('religion'),
-				MasterDataService.getEnum('marital-status'),
-				MasterDataService.country.getDivisions(),
-				MasterDataService.degreeLevel.get(),
-				MasterDataService.educationDegree.get(),
-			]);
+			const [genderRes, religionRes, maritalStatusRes, divisionRes, degreeLevelRes, degreesRes] =
+				await Promise.allSettled([
+					MasterDataService.getEnum('gender'),
+					MasterDataService.getEnum('religion'),
+					MasterDataService.getEnum('marital-status'),
+					MasterDataService.country.getDivisions(),
+					MasterDataService.degreeLevel.get(),
+					MasterDataService.educationDegree.get(),
+				]);
 
 			setMasterData({
 				genders: genderRes.status === 'fulfilled' ? genderRes.value.body : [],
@@ -178,12 +174,18 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 	const activeFilterCount = Object.values(watchedFilters).filter(
 		(v) => v !== '' && v !== undefined && (!Array.isArray(v) || v.length > 0)
 	).length;
-	
+
 	const filteredDegrees = React.useMemo(() => {
 		if (!watchedFilters.degreeLevelId) return [];
 		return masterData.degrees.filter((d: IEducationDegree) => d.degreeLevelId === watchedFilters.degreeLevelId);
 	}, [watchedFilters.degreeLevelId, masterData.degrees]);
 
+	const loadPostOptions = useCallback(
+		(search: string, callback: (options: any[]) => void) => {
+			getPostOutsourcingAsync(search, callback, watchedFilters.outsourcingCategoryId);
+		},
+		[watchedFilters.outsourcingCategoryId]
+	);
 
 	const columns: ColumnDef<JobseekerSearch>[] = [
 		{
@@ -322,9 +324,7 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 									label='Post'
 									placeholder='Select post...'
 									disabled={!watchedFilters.outsourcingCategoryId}
-									loadOptions={(search, callback) =>
-										getPostOutsourcingAsync(search, callback, watchedFilters.outsourcingCategoryId)
-									}
+									loadOptions={loadPostOptions}
 									getOptionValue={(option) => option.id}
 									getOptionLabel={(option) => option.nameBn}
 									allowClear
@@ -392,7 +392,7 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 									allowClear
 								/>
 							</div>
-							
+
 							<div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4'>
 								<div className='flex gap-2'>
 									<FormInput control={filterForm.control} name='minAge' label='Min Age' type='number' />
