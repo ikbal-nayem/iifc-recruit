@@ -159,7 +159,7 @@ export function FormMultiSelect<TFieldValues extends FieldValues, TOption extend
 							<PopoverContent
 								className='w-[--radix-popover-trigger-width] p-0'
 								align='start'
-								container={containerRef?.current}
+								container={containerRef?.current!}
 							>
 								<Command shouldFilter={!loadOptions}>
 									<CommandInput placeholder='Search...' value={searchQuery} onValueChange={setSearchQuery} />
