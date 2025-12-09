@@ -36,12 +36,12 @@ import {
 	useReactTable,
 } from '@tanstack/react-table';
 import { Loader2, Search, UserPlus, X } from 'lucide-react';
+import { useParams } from 'next/navigation';
 import React, { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
-import { useParams } from 'next/navigation';
-import { useRouter } from 'next/router';
+import useLoader from '@/hooks/use-loader';
 
 const filterSchema = z.object({
 	gender: z.string().optional(),
@@ -71,7 +71,7 @@ const initMeta: IMeta = { page: 0, limit: 50, totalRecords: 0, sort: [{ field: '
 
 export function AddCandidate({ onApply }: AddCandidateProps) {
 	const params = useParams();
-	const [isLoading, setIsLoading] = useState(false);
+	const [isLoading, setIsLoading] = useLoader(false);
 	const [jobseekers, setJobseekers] = useState<JobseekerSearch[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [selectedJobseeker, setSelectedJobseeker] = React.useState<JobseekerSearch | null>(null);
@@ -289,6 +289,10 @@ export function AddCandidate({ onApply }: AddCandidateProps) {
 		if (selectedRows.length > 0) {
 			onApply(selectedRows, () => {
 				table.resetRowSelection();
+				searchApplicants(0, {
+					searchKey: debouncedTextSearch,
+					...debouncedFilters,
+				});
 			});
 		}
 		setShowConfirmation(false);
@@ -421,8 +425,9 @@ export function AddCandidate({ onApply }: AddCandidateProps) {
 			<Card className='my-4'>
 				<CardHeader className='py-4'>
 					<div className='flex justify-between items-center'>
-						<div>
+						<div className='flex items-center gap-2'>
 							<CardTitle>Search Results</CardTitle>
+							{isLoading && <Loader2 className='animate-spin text-primary' />}
 						</div>
 						{table.getIsSomeRowsSelected() || table.getIsAllRowsSelected() ? (
 							<Button size='sm' onClick={() => setShowConfirmation(true)}>
@@ -460,13 +465,7 @@ export function AddCandidate({ onApply }: AddCandidateProps) {
 								))}
 							</TableHeader>
 							<TableBody>
-								{isLoading ? (
-									<TableRow>
-										<TableCell colSpan={columns.length} className='h-24 text-center'>
-											<Loader2 className='mx-auto h-6 w-6 animate-spin' />
-										</TableCell>
-									</TableRow>
-								) : table.getRowModel().rows?.length ? (
+								{table.getRowModel().rows?.length ? (
 									table.getRowModel().rows.map((row) => (
 										<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
 											{row.getVisibleCells().map((cell) => (
