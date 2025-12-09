@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -143,7 +144,8 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 			searchKey: debouncedTextSearch,
 			...debouncedFilters,
 		});
-	}, [debouncedTextSearch, debouncedFilters, searchApplicants]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [debouncedTextSearch, JSON.stringify(debouncedFilters), searchApplicants]);
 
 	useEffect(() => {
 		async function loadMaster() {
