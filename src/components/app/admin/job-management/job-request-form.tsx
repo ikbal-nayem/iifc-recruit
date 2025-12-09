@@ -213,7 +213,7 @@ export function JobRequestForm({
 	return (
 		<>
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onFormSubmit)} className='space-y-8'>
+				<form onSubmit={form.handleSubmit(onFormSubmit)} className='space-y-4'>
 					<Card className='glassmorphism'>
 						<CardHeader>
 							<CardTitle>Request Details</CardTitle>

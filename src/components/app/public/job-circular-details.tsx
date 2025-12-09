@@ -1,5 +1,6 @@
 'use client';
 
+import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,9 +8,11 @@ import { DATE_FORMAT } from '@/constants/common.constant';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from '@/hooks/use-toast';
 import { ICircular } from '@/interfaces/job.interface';
+import { IProfileCompletionStatus } from '@/interfaces/jobseeker.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
 import { convertEnToBn } from '@/lib/translator';
 import { CircularService } from '@/services/api/circular.service';
+import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { endOfDay, format, isPast, parseISO } from 'date-fns';
 import { ArrowLeft, Boxes, CheckCheck, Loader2, MapPin, Users } from 'lucide-react';
 import Link from 'next/link';
@@ -23,7 +26,18 @@ interface JobCircularDetailsProps {
 	isReadOnly?: boolean;
 }
 
-export function JobCircularDetails({ circularId, isReadOnly = false }: JobCircularDetailsProps) {
+async function getProfileCompletion(): Promise<IProfileCompletionStatus | null> {
+	try {
+		const res = await JobseekerProfileService.getProfileCompletion();
+		return res.body;
+	} catch (error) {
+		console.error('Failed to load profile completion status', error);
+		return null;
+	}
+}
+
+export async function JobCircularDetails({ circularId, isReadOnly = false }: JobCircularDetailsProps) {
+	const profileCompletion = await getProfileCompletion();
 	const { isAuthenticated } = useAuth();
 	const [job, setJob] = useState<ICircular | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
@@ -69,7 +83,7 @@ export function JobCircularDetails({ circularId, isReadOnly = false }: JobCircul
 	const isDeadlinePast = isPast(endOfDay(deadline));
 
 	const renderApplyButton = () => {
-		if (isReadOnly || isDeadlinePast) return null;
+		if (isReadOnly || isDeadlinePast || profileCompletion?.completionPercentage! < 75) return null;
 
 		if (job.applied) {
 			return (
@@ -83,7 +97,7 @@ export function JobCircularDetails({ circularId, isReadOnly = false }: JobCircul
 		return isAuthenticated ? (
 			<JobApplicationClient
 				jobTitle={job.postNameBn}
-				jobOrganizationName={job.clientOrganizationNameBn}
+				// jobOrganizationName={job.clientOrganizationNameBn}
 				jobId={job.id}
 			/>
 		) : (
@@ -102,6 +116,14 @@ export function JobCircularDetails({ circularId, isReadOnly = false }: JobCircul
 						</Link>
 					</Button>
 				</div>
+			)}
+			{profileCompletion?.completionPercentage! < 75 && (
+				<Alert
+					variant={profileCompletion?.completionPercentage! < 50 ? 'danger' : 'warning'}
+					className='animate-bounce hover:paused'
+				>
+					<strong>Please complete your profile at least 75% to apply for a job.</strong>
+				</Alert>
 			)}
 			<div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
 				<div className='lg:col-span-3'>

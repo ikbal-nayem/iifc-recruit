@@ -106,7 +106,7 @@ export default async function AdminDashboard() {
 	const dashboardData = await getDashboardData(user);
 
 	return (
-		<div className='space-y-8'>
+		<div className='space-y-4'>
 			<div>
 				<h1 className='text-3xl font-headline font-bold'>Dashboard</h1>
 				<p className='text-muted-foreground'>Welcome, {user.fullName}!</p>

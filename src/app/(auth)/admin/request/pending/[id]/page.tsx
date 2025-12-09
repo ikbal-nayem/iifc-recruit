@@ -18,7 +18,7 @@ export default async function JobRequestPendingDetailsPage({ params }: { params:
 	const jobRequest = await getJobRequest(reqParams.id);
 
 	return (
-		<div className='space-y-8'>
+		<div className='space-y-4'>
 			<JobRequestDetails initialJobRequest={jobRequest} />
 		</div>
 	);

@@ -38,7 +38,7 @@ async function getMasterData(): Promise<MasterData> {
 export default async function CreateJobRequestPage() {
 	const masterData = await getMasterData();
 	return (
-		<div className='space-y-8'>
+		<div className='space-y-4'>
 			<div>
 				<h1 className='text-3xl font-headline font-bold'>New Job Request</h1>
 				<p className='text-muted-foreground'>

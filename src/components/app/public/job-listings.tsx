@@ -79,7 +79,7 @@ export function JobListings({ isPaginated = true, showFilters = true, itemLimit 
 	);
 
 	return (
-		<div className='space-y-8'>
+		<div className='space-y-4'>
 			{showFilters && (
 				<Card className='p-4 glassmorphism'>
 					<div className='relative w-full'>

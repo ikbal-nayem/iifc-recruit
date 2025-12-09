@@ -20,11 +20,11 @@ import * as React from 'react';
 
 export function JobApplicationClient({
 	jobTitle,
-	jobOrganizationName,
+	// jobOrganizationName,
 	jobId,
 }: {
 	jobTitle: string;
-	jobOrganizationName: string;
+	// jobOrganizationName: string;
 	jobId: string;
 }) {
 	const { currectUser } = useAuth();
@@ -82,8 +82,8 @@ export function JobApplicationClient({
 						submitted.
 						<div className='my-3 text-info font-normal'>
 							<strong>Position:</strong> {jobTitle}
-							<br />
-							<strong>Organization:</strong> {jobOrganizationName}
+							{/* <br />
+							<strong>Organization:</strong> {jobOrganizationName} */}
 						</div>
 						Are you sure you want to proceed?
 					</AlertDialogDescription>

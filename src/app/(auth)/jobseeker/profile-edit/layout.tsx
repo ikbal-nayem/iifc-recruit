@@ -18,7 +18,7 @@ export default async function JobseekerProfileLayout({ children }: { children: R
 	const profileCompletion = await getProfileCompletion();
 
 	return (
-		<div className='space-y-8'>
+		<div className='space-y-4'>
 			<h1 className='text-3xl font-headline font-bold'>Edit Your Profile</h1>
 
 			{profileCompletion && (

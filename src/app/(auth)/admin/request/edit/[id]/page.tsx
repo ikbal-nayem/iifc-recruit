@@ -54,7 +54,7 @@ export default async function EditJobRequestPage({ params }: { params: { id: str
 	const [jobRequest, masterData] = await Promise.all([getJobRequest(resolvedParams.id), getMasterData()]);
 
 	return (
-		<div className='space-y-8'>
+		<div className='space-y-4'>
 			<div>
 				<h1 className='text-3xl font-headline font-bold'>Edit Job Request</h1>
 				<p className='text-muted-foreground'>Modify the details below to update the job request.</p>

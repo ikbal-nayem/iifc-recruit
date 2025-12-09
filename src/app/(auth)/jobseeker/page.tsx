@@ -1,6 +1,7 @@
 'use client';
 
 import { ProfileCompletion } from '@/components/app/jobseeker/profile-completion';
+import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -73,21 +74,29 @@ export default function JobseekerDashboardPage() {
 	}, [currectUser?.id]);
 
 	return (
-		<div className='space-y-8'>
+		<div className='space-y-4'>
 			<div className='lg:col-span-2 space-y-2'>
 				<h1 className='text-3xl font-headline font-bold'>Welcome, {currectUser?.fullName}!</h1>
 				<p className='text-muted-foreground'>Here's an overview of your job search journey.</p>
 			</div>
+
+			{profileCompletion?.completionPercentage! < 75 && (
+				<Alert
+					variant={profileCompletion?.completionPercentage! < 50 ? 'danger' : 'warning'}
+					className='animate-bounce hover:paused'
+				>
+					<strong>Please complete your profile at least 75% to apply for a job.</strong>
+				</Alert>
+			)}
 
 			{isLoading || !profileCompletion ? (
 				<Skeleton className='h-48 w-full' />
 			) : (
 				<ProfileCompletion profileCompletion={profileCompletion} />
 			)}
-
 			<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
 				<Link href={ROUTES.JOB_SEEKER.APPLICATIONS}>
-					<Card className='glassmorphism card-hover h-full'>
+					<Card className='glassmorphism card-hover h-full animate-fade-in-up delay-0'>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 							<CardTitle className='text-sm font-medium'>Total Applied</CardTitle>
 							<FileText className='h-4 w-4 text-muted-foreground' />
@@ -104,7 +113,7 @@ export default function JobseekerDashboardPage() {
 				</Link>
 
 				<Link href={`${ROUTES.JOB_SEEKER.APPLICATIONS}?status=${APPLICATION_STATUS.ACCEPTED}`}>
-					<Card className='glassmorphism card-hover h-full'>
+					<Card className='glassmorphism card-hover h-full animate-fade-in-up delay-75'>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 							<CardTitle className='text-sm font-medium'>Accepted</CardTitle>
 							<Briefcase className='h-4 w-4 text-muted-foreground' />
@@ -121,7 +130,7 @@ export default function JobseekerDashboardPage() {
 				</Link>
 
 				<Link href={`${ROUTES.JOB_SEEKER.APPLICATIONS}?status=${APPLICATION_STATUS.INTERVIEW}`}>
-					<Card className='glassmorphism card-hover h-full'>
+					<Card className='glassmorphism card-hover h-full animate-fade-in-up delay-150'>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 							<CardTitle className='text-sm font-medium'>Interviews</CardTitle>
 							<Star className='h-4 w-4 text-muted-foreground' />
@@ -138,7 +147,7 @@ export default function JobseekerDashboardPage() {
 				</Link>
 
 				<Link href={`${ROUTES.JOB_SEEKER.APPLICATIONS}?status=${APPLICATION_STATUS.SHORTLISTED}`}>
-					<Card className='glassmorphism card-hover h-full'>
+					<Card className='glassmorphism card-hover h-full animate-fade-in-up delay-200'>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 							<CardTitle className='text-sm font-medium'>Shortlisted</CardTitle>
 							<Star className='h-4 w-4 text-muted-foreground' />
@@ -154,8 +163,7 @@ export default function JobseekerDashboardPage() {
 					</Card>
 				</Link>
 			</div>
-
-			<Card className='glassmorphism'>
+			<Card className='glassmorphism animate-fade-in-up delay-300'>
 				<CardHeader>
 					<CardTitle>Recent Applications</CardTitle>
 					<CardDescription>Track the status of your latest job applications.</CardDescription>

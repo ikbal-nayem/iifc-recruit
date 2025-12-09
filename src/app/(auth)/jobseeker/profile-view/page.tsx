@@ -23,7 +23,7 @@ export default async function JobseekerPublicProfilePage() {
 	}
 
 	return (
-		<div className='space-y-8'>
+		<div className='space-y-4'>
 			<div>
 				<h1 className='text-3xl font-headline font-bold'>My Profile</h1>
 				<p className='text-muted-foreground'>This is how your profile appears to recruiters.</p>
