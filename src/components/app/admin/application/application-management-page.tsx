@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -16,7 +15,7 @@ import {
 import { ROUTES } from '@/constants/routes.constant';
 import { toast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
-import { IApiRequest, IMeta, IObject } from '@/interfaces/common.interface';
+import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { RequestedPost } from '@/interfaces/job.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO } from '@/interfaces/master-data.interface';
@@ -29,7 +28,6 @@ import { ApplicantListManager } from './applicant-list-manager';
 import { ApplicantsTable } from './applicants-table';
 import { ApplicationManagementHeader } from './application-management-header';
 import { ApplicationStats } from './application-stats';
-import { ApplicantFilters, FilterFormValues } from './applicant-filters';
 
 interface ApplicationManagementPageProps {
 	requestedPost: RequestedPost;
@@ -54,38 +52,30 @@ export function ApplicationManagementPage({
 	const [isLoadingApplicants, setIsLoadingApplicants] = useState(true);
 	const [isAddCandidateOpen, setIsAddCandidateOpen] = useState(false);
 	const [statusFilter, setStatusFilter] = useState<string | null>(null);
-	const [activeFilters, setActiveFilters] = useState<Partial<FilterFormValues>>({});
 	const [isProceedConfirmationOpen, setIsProceedConfirmationOpen] = useState(false);
 
 	const loadApplicants = useCallback(
-		async (page: number, status?: string | null, filters?: Partial<FilterFormValues>) => {
+		async (page: number, status?: string | null) => {
 			setIsLoadingApplicants(true);
 			try {
-				const body = {
-					...filters,
+				const body: { requestedPostId: string; status?: string } = {
 					requestedPostId: requestedPost.id,
-					...(status && { status: status }),
 				};
+				if (status) {
+					body.status = status;
+				}
 
-				// Remove empty or nullish values from filters
-				Object.keys(body).forEach((key) => {
-					const value = (body as any)[key];
-					if (value === null || value === undefined || value === '' || (Array.isArray(value) && value.length === 0)) {
-						delete (body as any)[key];
-					}
-				});
-				
 				const payload: IApiRequest = {
 					body,
 					meta: { page, limit: applicantsMeta?.limit || initMeta.limit },
 				};
-				
+
 				const response = await ApplicationService.search(payload);
 
 				setApplicants(response.body);
 				setApplicantsMeta(response.meta);
 			} catch (error: any) {
-				console.log(error)
+				console.log(error);
 				toast.error({
 					description: error.message || 'Failed to load applicants.',
 				});
@@ -93,17 +83,12 @@ export function ApplicationManagementPage({
 				setIsLoadingApplicants(false);
 			}
 		},
-		[requestedPost.id, isProcessing, isShortlisted]
+		[requestedPost.id, applicantsMeta.limit]
 	);
 
 	useEffect(() => {
-		loadApplicants(0, statusFilter, activeFilters);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [statusFilter, JSON.stringify(activeFilters), loadApplicants]);
-	
-	const handleFilterChange = (filters: Partial<FilterFormValues>) => {
-		setActiveFilters(filters);
-	}
+		loadApplicants(0, statusFilter);
+	}, [statusFilter, loadApplicants]);
 
 	const handleApplyApplicants = (newApplicants: JobseekerSearch[], onSuccess?: () => void) => {
 		const payload = newApplicants.map((js) => ({
@@ -134,7 +119,7 @@ export function ApplicationManagementPage({
 				title: 'Application Updated',
 				description: resp?.message,
 			});
-			loadApplicants(applicantsMeta.page, statusFilter, activeFilters);
+			loadApplicants(applicantsMeta.page, statusFilter);
 			return resp;
 		} catch (error: any) {
 			toast.error({
@@ -144,7 +129,7 @@ export function ApplicationManagementPage({
 	};
 
 	const handlePageChange = (newPage: number) => {
-		loadApplicants(newPage, statusFilter, activeFilters);
+		loadApplicants(newPage, statusFilter);
 	};
 
 	const handleProceed = async () => {
@@ -251,8 +236,6 @@ export function ApplicationManagementPage({
 				setRequestedPost={setRequestedPost}
 				isProcessing={isProcessing || isShortlisted}
 			/>
-			
-			<ApplicantFilters onFilterChange={handleFilterChange} />
 
 			<ApplicationStats
 				statuses={statuses}
