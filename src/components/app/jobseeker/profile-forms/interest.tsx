@@ -88,7 +88,7 @@ export function ProfileFormInterest({ categories }: ProfileFormInterestProps) {
 	};
 
 	return (
-		<div className='space-y-6'>
+		<div className='space-y-4'>
 			<Card className='glassmorphism'>
 				<CardHeader>
 					<CardTitle>Interested Outsourcing Positions</CardTitle>

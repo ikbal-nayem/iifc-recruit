@@ -47,7 +47,7 @@ export function ApplicationStats({
 			<div className='flex w-max space-x-4'>
 				<Card
 					className={cn(
-						'p-4 rounded-lg cursor-pointer transition-all text-center hover:bg-muted min-w-[160px]',
+						'p-2 rounded-lg cursor-pointer transition-all text-center hover:bg-muted min-w-[160px]',
 						statusFilter === null && 'bg-primary/10 border-2 border-primary'
 					)}
 					onClick={() => onFilterChange(null)}
@@ -61,7 +61,7 @@ export function ApplicationStats({
 						key={item.label}
 						onClick={() => onFilterChange(item.status)}
 						className={cn(
-							'p-4 rounded-lg cursor-pointer transition-all text-center hover:bg-muted min-w-[160px]',
+							'p-2 rounded-lg cursor-pointer transition-all text-center hover:bg-muted min-w-[160px]',
 							statusFilter === item.status && 'bg-primary/10 border-2 border-primary'
 						)}
 					>

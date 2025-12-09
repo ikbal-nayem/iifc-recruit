@@ -208,7 +208,7 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
 	};
 
 	return (
-		<div className='space-y-6'>
+		<div className='space-y-4'>
 			<ProfileImageCard
 				profileImage={user.profileImage}
 				firstName={form.getValues('firstName')}
@@ -220,7 +220,7 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
 						<CardHeader>
 							<CardTitle>Personal Details</CardTitle>
 						</CardHeader>
-						<CardContent className='space-y-6'>
+						<CardContent className='space-y-4'>
 							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 								<FormInput control={form.control} name='firstName' label='First Name' required />
 								<FormInput control={form.control} name='lastName' label='Last Name' required />

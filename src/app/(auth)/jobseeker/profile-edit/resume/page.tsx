@@ -127,7 +127,7 @@ export default function JobseekerProfileResumePage() {
 	const historyResumes = resumes.filter((r) => !r.isActive);
 
 	return (
-		<div className='space-y-6'>
+		<div className='space-y-4'>
 			<Card className='glassmorphism'>
 				<CardHeader>
 					<CardTitle>Upload New Resume</CardTitle>

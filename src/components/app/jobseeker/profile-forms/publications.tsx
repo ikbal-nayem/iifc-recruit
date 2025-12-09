@@ -214,7 +214,7 @@ export function ProfileFormPublications() {
 	};
 
 	return (
-		<div className='space-y-6'>
+		<div className='space-y-4'>
 			<Card className='glassmorphism'>
 				<CardHeader>
 					<div className='flex justify-between items-center'>

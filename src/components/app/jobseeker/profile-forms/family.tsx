@@ -238,9 +238,9 @@ export function ProfileFormFamily({
 	};
 
 	return (
-		<div className='space-y-6'>
+		<div className='space-y-4'>
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSpouseSubmit)} className='space-y-6'>
+				<form onSubmit={form.handleSubmit(onSpouseSubmit)} className='space-y-4'>
 					<Card className='glassmorphism'>
 						<CardHeader>
 							<CardTitle>Spouse Information</CardTitle>

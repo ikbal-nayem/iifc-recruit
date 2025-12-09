@@ -65,7 +65,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 				<main className='flex-1 overflow-y-auto p-4 md:p-6 lg:p-8'>
 					<Suspense
 						fallback={
-							<div className='space-y-6'>
+							<div className='space-y-4'>
 								<Skeleton className='mx-auto h-4 w-1/2 mb-4' />
 								<Skeleton className='mx-auto h-8 w-1/4' />
 							</div>

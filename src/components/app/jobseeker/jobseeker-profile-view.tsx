@@ -164,7 +164,7 @@ export function JobseekerProfileView({
 	);
 
 	return (
-		<div className='p-2 sm:p-4 md:p-6 space-y-6'>
+		<div className='p-2 sm:p-4 md:p-6 space-y-4'>
 			{/* Header */}
 			<div className='flex flex-col sm:flex-row items-start gap-6'>
 				<Avatar className='h-28 w-28 border-4 border-background shadow-md'>
@@ -258,7 +258,7 @@ export function JobseekerProfileView({
 						Personal Information
 					</CardTitle>
 				</CardHeader>
-				<CardContent className='space-y-6 text-sm'>
+				<CardContent className='space-y-4 text-sm'>
 					<div className='grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-6'>
 						<DetailItem label="Father's Name" value={personalInfo.fatherName} />
 						<DetailItem label="Mother's Name" value={personalInfo.motherName} />
@@ -324,7 +324,7 @@ export function JobseekerProfileView({
 			)}
 
 			<div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
-				<div className='lg:col-span-2 space-y-6'>
+				<div className='lg:col-span-2 space-y-4'>
 					{experiences?.length > 0 && (
 						<Card className='border'>
 							<CardHeader>
@@ -382,7 +382,7 @@ export function JobseekerProfileView({
 					)}
 				</div>
 
-				<div className='lg:col-span-1 space-y-6'>
+				<div className='lg:col-span-1 space-y-4'>
 					{skills?.length > 0 && (
 						<Card className='border'>
 							<CardHeader>

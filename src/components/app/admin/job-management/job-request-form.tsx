@@ -219,7 +219,7 @@ export function JobRequestForm({
 							<CardTitle>Request Details</CardTitle>
 							<CardDescription>Fill in the main details for the job request.</CardDescription>
 						</CardHeader>
-						<CardContent className='space-y-6'>
+						<CardContent className='space-y-4'>
 							{/* <FormRadioGroup
 							control={form.control}
 							name='type'

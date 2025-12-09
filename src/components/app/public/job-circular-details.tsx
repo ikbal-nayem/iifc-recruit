@@ -161,7 +161,7 @@ export async function JobCircularDetails({ circularId, isReadOnly = false }: Job
 								<div className='flex-shrink-0'>{renderApplyButton()}</div>
 							</div>
 						</CardHeader>
-						<CardContent className='space-y-6'>
+						<CardContent className='space-y-4'>
 							<div className='flex items-center gap-4 text-sm'>
 								<Badge variant='secondary'>
 									Posted: {format(parseISO(job.circularPublishDate), DATE_FORMAT.CASUAL)}

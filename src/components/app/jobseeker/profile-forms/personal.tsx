@@ -352,7 +352,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 	const isMasterDataMissing = !masterData.divisions || masterData.divisions.length === 0;
 
 	return (
-		<div className='space-y-6'>
+		<div className='space-y-4'>
 			<ProfileImageCard
 				profileImage={personalInfo?.profileImage}
 				firstName={personalInfo?.firstName}
@@ -361,7 +361,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} noValidate>
-					<div className='space-y-6'>
+					<div className='space-y-4'>
 						{isMasterDataMissing && (
 							<Alert variant='warning'>
 								<AlertTitle>Master Data Unavailable</AlertTitle>
@@ -377,7 +377,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 								<CardTitle>Basic Information</CardTitle>
 								<CardDescription>This is your public-facing information.</CardDescription>
 							</CardHeader>
-							<CardContent className='space-y-6'>
+							<CardContent className='space-y-4'>
 								<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
 									<FormInput
 										control={form.control}
@@ -460,7 +460,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 							<CardHeader>
 								<CardTitle>Contact Information</CardTitle>
 							</CardHeader>
-							<CardContent className='space-y-6'>
+							<CardContent className='space-y-4'>
 								<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 									<FormInput
 										control={form.control}
@@ -614,7 +614,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 							<CardHeader>
 								<CardTitle>Identity & Profiles</CardTitle>
 							</CardHeader>
-							<CardContent className='space-y-6'>
+							<CardContent className='space-y-4'>
 								<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
 									<FormInput control={form.control} name='nid' label='NID' required />
 									<FormInput control={form.control} name='passportNo' label='Passport No.' />
