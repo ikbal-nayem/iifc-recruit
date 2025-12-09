@@ -24,7 +24,7 @@ import { JobRequestService } from '@/services/api/job-request.service';
 import { ArrowLeft, ChevronsRight, Loader2, UserPlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import { ApplicantListManager } from './applicant-list-manager';
+import { AddCandidate } from './add-candidate';
 import { ApplicantsTable } from './applicants-table';
 import { ApplicationManagementHeader } from './application-management-header';
 import { ApplicationStats } from './application-stats';
@@ -59,7 +59,7 @@ export function ApplicationManagementPage({
 			setIsLoadingApplicants(true);
 			try {
 				const body: { requestedPostId: string; status?: string } = {
-					requestedPostId: requestedPost.id,
+					requestedPostId: requestedPost.id!,
 				};
 				if (status) {
 					body.status = status;
@@ -73,7 +73,7 @@ export function ApplicationManagementPage({
 				const response = await ApplicationService.search(payload);
 
 				setApplicants(response.body);
-				setApplicantsMeta(response.meta);
+				setApplicantsMeta(response.meta || initMeta);
 			} catch (error: any) {
 				console.log(error);
 				toast.error({
@@ -266,7 +266,7 @@ export function ApplicationManagementPage({
 									<DialogTitle>Add Applicants to Primary List</DialogTitle>
 								</DialogHeader>
 								<div className='flex-1 overflow-y-auto px-6'>
-									<ApplicantListManager onApply={handleApplyApplicants} />
+									<AddCandidate onApply={handleApplyApplicants} />
 								</div>
 							</DialogContent>
 						</Dialog>

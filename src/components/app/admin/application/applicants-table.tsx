@@ -388,7 +388,6 @@ export function ApplicantsTable({
 	};
 
 	const renderMobileCard = (applicant: Application) => {
-		console.log(applicant);
 		const { fullName, profileImage, firstName, lastName } = applicant;
 		const row = table.getRow(applicant.id);
 		return (

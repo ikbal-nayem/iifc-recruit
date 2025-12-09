@@ -1,4 +1,3 @@
-
 export interface IObject {
 	[key: string]: any;
 }
@@ -18,6 +17,10 @@ export interface IMeta {
 	resultCount?: number;
 	totalPageCount?: number;
 	totalRecords?: number;
+	sort?: {
+		field: string;
+		order: 'asc' | 'desc';
+	}[];
 }
 
 export interface IApiResponse<T = any> {

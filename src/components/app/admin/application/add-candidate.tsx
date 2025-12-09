@@ -1,9 +1,8 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -16,9 +15,9 @@ import { Pagination } from '@/components/ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
 import { toast } from '@/hooks/use-toast';
-import { IMeta } from '@/interfaces/common.interface';
+import { IMeta, IObject } from '@/interfaces/common.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
-import { IEducationDegree } from '@/interfaces/master-data.interface';
+import { EnumDTO, IEducationDegree } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
@@ -41,6 +40,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
+import { useParams } from 'next/navigation';
+import { useRouter } from 'next/router';
 
 const filterSchema = z.object({
 	gender: z.string().optional(),
@@ -62,18 +63,18 @@ const filterSchema = z.object({
 
 type FilterFormValues = z.infer<typeof filterSchema>;
 
-interface ApplicantListManagerProps {
+interface AddCandidateProps {
 	onApply: (applicants: JobseekerSearch[], onSuccess?: () => void) => void;
 }
 
-const initMeta: IMeta = { page: 0, limit: 50, totalRecords: 0 };
+const initMeta: IMeta = { page: 0, limit: 50, totalRecords: 0, sort: [{ field: 'createdOn', order: 'asc' }] };
 
-export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
+export function AddCandidate({ onApply }: AddCandidateProps) {
+	const params = useParams();
 	const [isLoading, setIsLoading] = useState(false);
 	const [jobseekers, setJobseekers] = useState<JobseekerSearch[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [selectedJobseeker, setSelectedJobseeker] = React.useState<JobseekerSearch | null>(null);
-
 	const [textSearch, setTextSearch] = useState('');
 	const debouncedTextSearch = useDebounce(textSearch, 500);
 
@@ -81,7 +82,7 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 	const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 	const [showConfirmation, setShowConfirmation] = useState(false);
-	const [masterData, setMasterData] = useState({
+	const [masterData, setMasterData] = useState<IObject>({
 		genders: [],
 		religions: [],
 		maritalStatuses: [],
@@ -119,11 +120,11 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 			setIsLoading(true);
 			try {
 				const response = await JobseekerProfileService.search({
-					body: searchCriteria,
+					body: { ...searchCriteria, requestedPostId: params?.id },
 					meta: { page: page, limit: meta.limit },
 				});
 				setJobseekers(response.body);
-				setMeta(response.meta);
+				setMeta(response.meta || initMeta);
 			} catch (error: any) {
 				toast.error({
 					description: error.message || 'Could not fetch jobseekers.',
@@ -177,7 +178,9 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 
 	const filteredDegrees = React.useMemo(() => {
 		if (!watchedFilters.degreeLevelId) return [];
-		return masterData.degrees.filter((d: IEducationDegree) => d.degreeLevelId === watchedFilters.degreeLevelId);
+		return masterData.degrees.filter(
+			(d: IEducationDegree) => d.degreeLevelId === watchedFilters.degreeLevelId
+		);
 	}, [watchedFilters.degreeLevelId, masterData.degrees]);
 
 	const loadPostOptions = useCallback(
@@ -305,8 +308,8 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 						)}
 					</CardHeader>
 					<CardContent className='p-0'>
-						<form className='space-y-6'>
-							<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+						<form className='space-y-4'>
+							<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4'>
 								<FormAutocomplete
 									name='outsourcingCategoryId'
 									control={filterForm.control}
@@ -351,24 +354,14 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 									getOptionLabel={(option) => option.nameEn}
 									allowClear
 								/>
-								<FormInput
-									control={filterForm.control}
-									name='minExp'
-									label='Minimum Experience (Yrs)'
-									type='number'
-									placeholder='e.g., 5'
-								/>
-							</div>
-
-							<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
 								<FormSelect
 									name='gender'
 									control={filterForm.control}
 									label='Gender'
 									placeholder='Filter by gender'
-									options={masterData.genders}
-									getOptionValue={(o) => o.value}
-									getOptionLabel={(o) => o.nameEn}
+									options={masterData.genders as EnumDTO[]}
+									getOptionValue={(op) => op.value}
+									getOptionLabel={(op) => op.nameEn}
 									allowClear
 								/>
 								<FormSelect
@@ -376,7 +369,7 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 									control={filterForm.control}
 									label='Religion'
 									placeholder='Filter by religion'
-									options={masterData.religions}
+									options={masterData.religions as EnumDTO[]}
 									getOptionValue={(o) => o.value}
 									getOptionLabel={(o) => o.nameEn}
 									allowClear
@@ -386,14 +379,11 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 									control={filterForm.control}
 									label='Marital Status'
 									placeholder='Filter by marital status'
-									options={masterData.maritalStatuses}
+									options={masterData.maritalStatuses as EnumDTO[]}
 									getOptionValue={(o) => o.value}
 									getOptionLabel={(o) => o.nameEn}
 									allowClear
 								/>
-							</div>
-
-							<div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4'>
 								<div className='flex gap-2'>
 									<FormInput control={filterForm.control} name='minAge' label='Min Age' type='number' />
 									<FormInput control={filterForm.control} name='maxAge' label='Max Age' type='number' />
@@ -404,6 +394,13 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 									label='Profile Completion >'
 									type='number'
 									placeholder='e.g., 75'
+								/>
+								<FormInput
+									control={filterForm.control}
+									name='minExp'
+									label='Minimum Experience (Yrs)'
+									type='number'
+									placeholder='e.g., 5'
 								/>
 							</div>
 
@@ -435,7 +432,7 @@ export function ApplicantListManager({ onApply }: ApplicantListManagerProps) {
 						) : null}
 					</div>
 				</CardHeader>
-				<CardContent className='pt-1overflow-y-auto space-y-2'>
+				<CardContent className='space-y-2'>
 					<div className='relative w-full mb-4'>
 						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 						<Input
