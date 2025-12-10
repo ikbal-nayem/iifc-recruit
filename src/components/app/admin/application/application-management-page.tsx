@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -238,6 +237,13 @@ export function ApplicationManagementPage({
 				isProcessing={isProcessing || isShortlisted}
 			/>
 
+			<ApplicationStats
+				statuses={statuses}
+				applicants={applicants}
+				statusFilter={statusFilter}
+				onFilterChange={setStatusFilter}
+			/>
+
 			<Card>
 				<CardHeader className='flex-row items-center justify-between'>
 					<div>
@@ -268,16 +274,7 @@ export function ApplicationManagementPage({
 				</CardHeader>
 				<CardContent>
 					<div className='space-y-4'>
-						<ApplicationStats
-							statuses={statuses}
-							applicants={applicants}
-							statusFilter={statusFilter}
-							onFilterChange={setStatusFilter}
-						/>
-						<ApplicantFilterBar
-							onFilterChange={setOtherFilters}
-							isProcessing={isProcessing}
-						/>
+						<ApplicantFilterBar onFilterChange={setOtherFilters} isProcessing={isProcessing} />
 					</div>
 					<div className='mt-4'>
 						<ApplicantsTable
