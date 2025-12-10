@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -23,8 +24,8 @@ import { JobRequestService } from '@/services/api/job-request.service';
 import { ArrowLeft, ChevronsRight, Loader2, UserPlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import { AddCandidate } from './add-candidate';
 import { ApplicantFilterBar, ApplicantFilterValues } from './applicant-filter-bar';
+import { ApplicantListManager } from './applicant-list-manager';
 import { ApplicantsTable } from './applicants-table';
 import { ApplicationManagementHeader } from './application-management-header';
 import { ApplicationStats } from './application-stats';
@@ -88,7 +89,7 @@ export function ApplicationManagementPage({
 
 	useEffect(() => {
 		loadApplicants(0, otherFilters, statusFilter);
-	}, [otherFilters, statusFilter, loadApplicants]);
+	}, [JSON.stringify(otherFilters), statusFilter, loadApplicants]);
 
 	const handleApplyApplicants = (newApplicants: JobseekerSearch[], onSuccess?: () => void) => {
 		const payload = newApplicants.map((js) => ({
@@ -266,7 +267,7 @@ export function ApplicationManagementPage({
 									<DialogTitle>Add Applicants to Primary List</DialogTitle>
 								</DialogHeader>
 								<div className='flex-1 overflow-y-auto px-6'>
-									<AddCandidate onApply={handleApplyApplicants} />
+									<ApplicantListManager onApply={handleApplyApplicants} />
 								</div>
 							</DialogContent>
 						</Dialog>
