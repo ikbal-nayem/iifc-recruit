@@ -25,9 +25,10 @@ import { ArrowLeft, ChevronsRight, Loader2, UserPlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { AddCandidate } from './add-candidate';
-import { ApplicantsTable } from './applicants-table';
 import { ApplicantFilterBar, ApplicantFilterValues } from './applicant-filter-bar';
+import { ApplicantsTable } from './applicants-table';
 import { ApplicationManagementHeader } from './application-management-header';
+import { ApplicationStats } from './application-stats';
 
 interface ApplicationManagementPageProps {
 	requestedPost: RequestedPost;
@@ -51,21 +52,19 @@ export function ApplicationManagementPage({
 	const [applicantsMeta, setApplicantsMeta] = useState<IMeta>(initMeta);
 	const [isLoadingApplicants, setIsLoadingApplicants] = useState(true);
 	const [isAddCandidateOpen, setIsAddCandidateOpen] = useState(false);
-	const [filters, setFilters] = useState<ApplicantFilterValues>({});
+	const [otherFilters, setOtherFilters] = useState<ApplicantFilterValues>({});
+	const [statusFilter, setStatusFilter] = useState<string | null>(null);
 	const [isProceedConfirmationOpen, setIsProceedConfirmationOpen] = useState(false);
 
 	const loadApplicants = useCallback(
-		async (page: number, currentFilters: ApplicantFilterValues) => {
+		async (page: number, currentFilters: ApplicantFilterValues, currentStatus: string | null) => {
 			setIsLoadingApplicants(true);
 			try {
 				const body: IApiRequest['body'] = {
 					requestedPostId: requestedPost.id!,
 					...currentFilters,
+					...(currentStatus && { status: currentStatus }),
 				};
-
-				// Clean up empty/all filters
-				if (body.status === 'all') delete body.status;
-				if (body.gender === 'all') delete body.gender;
 
 				const payload: IApiRequest = {
 					body,
@@ -89,8 +88,8 @@ export function ApplicationManagementPage({
 	);
 
 	useEffect(() => {
-		loadApplicants(0, filters);
-	}, [filters, loadApplicants]);
+		loadApplicants(0, otherFilters, statusFilter);
+	}, [otherFilters, statusFilter, loadApplicants]);
 
 	const handleApplyApplicants = (newApplicants: JobseekerSearch[], onSuccess?: () => void) => {
 		const payload = newApplicants.map((js) => ({
@@ -105,7 +104,7 @@ export function ApplicationManagementPage({
 					description: `${newApplicants.length} candidate(s) have been added to the application list.`,
 				});
 				onSuccess && onSuccess();
-				loadApplicants(0, filters);
+				loadApplicants(0, otherFilters, statusFilter);
 			})
 			.catch((err) => {
 				toast.error({
@@ -121,7 +120,7 @@ export function ApplicationManagementPage({
 				title: 'Application Updated',
 				description: resp?.message,
 			});
-			loadApplicants(applicantsMeta.page, filters);
+			loadApplicants(applicantsMeta.page, otherFilters, statusFilter);
 			return resp;
 		} catch (error: any) {
 			toast.error({
@@ -131,7 +130,7 @@ export function ApplicationManagementPage({
 	};
 
 	const handlePageChange = (newPage: number) => {
-		loadApplicants(newPage, filters);
+		loadApplicants(newPage, otherFilters, statusFilter);
 	};
 
 	const handleProceed = async () => {
@@ -268,11 +267,18 @@ export function ApplicationManagementPage({
 					)}
 				</CardHeader>
 				<CardContent>
-					<ApplicantFilterBar
-						onFilterChange={setFilters}
-						isProcessing={isProcessing}
-						statuses={statuses}
-					/>
+					<div className='space-y-4'>
+						<ApplicationStats
+							statuses={statuses}
+							applicants={applicants}
+							statusFilter={statusFilter}
+							onFilterChange={setStatusFilter}
+						/>
+						<ApplicantFilterBar
+							onFilterChange={setOtherFilters}
+							isProcessing={isProcessing}
+						/>
+					</div>
 					<div className='mt-4'>
 						<ApplicantsTable
 							applicants={applicants}
