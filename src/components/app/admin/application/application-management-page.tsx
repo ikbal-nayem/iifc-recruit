@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -12,7 +11,9 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { ROUTES } from '@/constants/routes.constant';
+import { useDebounce } from '@/hooks/use-debounce';
 import { toast } from '@/hooks/use-toast';
 import { Application, APPLICATION_STATUS } from '@/interfaces/application.interface';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
@@ -29,8 +30,6 @@ import { ApplicantListManager } from './applicant-list-manager';
 import { ApplicantsTable } from './applicants-table';
 import { ApplicationManagementHeader } from './application-management-header';
 import { ApplicationStats } from './application-stats';
-import { Input } from '@/components/ui/input';
-import { useDebounce } from '@/hooks/use-debounce';
 
 interface ApplicationManagementPageProps {
 	requestedPost: RequestedPost;
@@ -62,7 +61,10 @@ export function ApplicationManagementPage({
 	const debouncedSearch = useDebounce(searchQuery, 500);
 
 	const loadApplicants = useCallback(
-		async (page: number, filters: { status: string | null; search: string; other: ApplicantFilterValues }) => {
+		async (
+			page: number,
+			filters: { status: string | null; search: string; other: ApplicantFilterValues }
+		) => {
 			setIsLoadingApplicants(true);
 			try {
 				const body: IApiRequest['body'] = {
@@ -259,7 +261,6 @@ export function ApplicationManagementPage({
 				<CardHeader className='flex-row items-center justify-between'>
 					<div>
 						<CardTitle>{cardTexts.title}</CardTitle>
-						<CardDescription>{cardTexts.description}</CardDescription>
 					</div>
 					<div className='flex items-center gap-2'>
 						{!isProcessing && !isShortlisted && (
@@ -285,7 +286,7 @@ export function ApplicationManagementPage({
 						)}
 					</div>
 				</CardHeader>
-				<CardContent>
+				<CardContent className='space-y-0'>
 					<div className='flex flex-col md:flex-row gap-4'>
 						<div className='relative flex-1'>
 							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
@@ -293,7 +294,7 @@ export function ApplicationManagementPage({
 								placeholder='Search by name, email or phone...'
 								value={searchQuery}
 								onChange={(e) => setSearchQuery(e.target.value)}
-								className='pl-10 h-11'
+								className='pl-10 h-10'
 							/>
 						</div>
 						<Button variant='outline' onClick={() => setIsFilterOpen(true)}>
