@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -24,7 +25,6 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Form } from '@/components/ui/form';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
-import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ROLES } from '@/constants/auth.constant';
@@ -440,12 +440,6 @@ export function ApplicantsTable({
 	return (
 		<div className='space-y-4'>
 			<div className='flex flex-col sm:flex-row items-center justify-start gap-4'>
-				<Input
-					placeholder='Filter by applicant name...'
-					value={(table.getColumn('applicant')?.getFilterValue() as string) ?? ''}
-					onChange={(event) => table.getColumn('applicant')?.setFilterValue(event.target.value)}
-					className='w-full md:max-w-sm'
-				/>
 				{selectedRowCount > 0 && (
 					<div className='flex items-center gap-2'>
 						{requestedPostStatus === JobRequestedPostStatus.PENDING && (

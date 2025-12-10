@@ -1,6 +1,6 @@
+
 'use client';
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -26,8 +26,8 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { AddCandidate } from './add-candidate';
 import { ApplicantsTable } from './applicants-table';
+import { ApplicantFilterBar, ApplicantFilterValues } from './applicant-filter-bar';
 import { ApplicationManagementHeader } from './application-management-header';
-import { ApplicationStats } from './application-stats';
 
 interface ApplicationManagementPageProps {
 	requestedPost: RequestedPost;
@@ -51,19 +51,21 @@ export function ApplicationManagementPage({
 	const [applicantsMeta, setApplicantsMeta] = useState<IMeta>(initMeta);
 	const [isLoadingApplicants, setIsLoadingApplicants] = useState(true);
 	const [isAddCandidateOpen, setIsAddCandidateOpen] = useState(false);
-	const [statusFilter, setStatusFilter] = useState<string | null>(null);
+	const [filters, setFilters] = useState<ApplicantFilterValues>({});
 	const [isProceedConfirmationOpen, setIsProceedConfirmationOpen] = useState(false);
 
 	const loadApplicants = useCallback(
-		async (page: number, status?: string | null) => {
+		async (page: number, currentFilters: ApplicantFilterValues) => {
 			setIsLoadingApplicants(true);
 			try {
-				const body: { requestedPostId: string; status?: string } = {
+				const body: IApiRequest['body'] = {
 					requestedPostId: requestedPost.id!,
+					...currentFilters,
 				};
-				if (status) {
-					body.status = status;
-				}
+
+				// Clean up empty/all filters
+				if (body.status === 'all') delete body.status;
+				if (body.gender === 'all') delete body.gender;
 
 				const payload: IApiRequest = {
 					body,
@@ -87,8 +89,8 @@ export function ApplicationManagementPage({
 	);
 
 	useEffect(() => {
-		loadApplicants(0, statusFilter);
-	}, [statusFilter, loadApplicants]);
+		loadApplicants(0, filters);
+	}, [filters, loadApplicants]);
 
 	const handleApplyApplicants = (newApplicants: JobseekerSearch[], onSuccess?: () => void) => {
 		const payload = newApplicants.map((js) => ({
@@ -103,7 +105,7 @@ export function ApplicationManagementPage({
 					description: `${newApplicants.length} candidate(s) have been added to the application list.`,
 				});
 				onSuccess && onSuccess();
-				loadApplicants(0);
+				loadApplicants(0, filters);
 			})
 			.catch((err) => {
 				toast.error({
@@ -119,7 +121,7 @@ export function ApplicationManagementPage({
 				title: 'Application Updated',
 				description: resp?.message,
 			});
-			loadApplicants(applicantsMeta.page, statusFilter);
+			loadApplicants(applicantsMeta.page, filters);
 			return resp;
 		} catch (error: any) {
 			toast.error({
@@ -129,7 +131,7 @@ export function ApplicationManagementPage({
 	};
 
 	const handlePageChange = (newPage: number) => {
-		loadApplicants(newPage, statusFilter);
+		loadApplicants(newPage, filters);
 	};
 
 	const handleProceed = async () => {
@@ -237,13 +239,6 @@ export function ApplicationManagementPage({
 				isProcessing={isProcessing || isShortlisted}
 			/>
 
-			<ApplicationStats
-				statuses={statuses}
-				applicants={applicants}
-				statusFilter={statusFilter}
-				onFilterChange={setStatusFilter}
-			/>
-
 			<Card>
 				<CardHeader className='flex-row items-center justify-between'>
 					<div>
@@ -273,16 +268,23 @@ export function ApplicationManagementPage({
 					)}
 				</CardHeader>
 				<CardContent>
-					<ApplicantsTable
-						applicants={applicants}
-						isLoading={isLoadingApplicants}
-						meta={applicantsMeta}
-						onPageChange={handlePageChange}
-						updateApplication={handleUpdateApplication}
-						requestedPostStatus={requestedPost.status}
+					<ApplicantFilterBar
+						onFilterChange={setFilters}
 						isProcessing={isProcessing}
-						isShortlisted={isShortlisted}
+						statuses={statuses}
 					/>
+					<div className='mt-4'>
+						<ApplicantsTable
+							applicants={applicants}
+							isLoading={isLoadingApplicants}
+							meta={applicantsMeta}
+							onPageChange={handlePageChange}
+							updateApplication={handleUpdateApplication}
+							requestedPostStatus={requestedPost.status}
+							isProcessing={isProcessing}
+							isShortlisted={isShortlisted}
+						/>
+					</div>
 				</CardContent>
 			</Card>
 
@@ -301,31 +303,6 @@ export function ApplicationManagementPage({
 						<DialogTitle>{isProcessing ? 'Proceed to Shortlist?' : 'Proceed to Next Stage?'}</DialogTitle>
 						<DialogDescription>{getDialogDescription()}</DialogDescription>
 					</DialogHeader>
-					<div className='space-y-4 py-4'>
-						{!isProcessing && !isShortlisted && (
-							<>
-								<div className='rounded-md border p-4 text-sm'>
-									<p className='text-muted-foreground'>Assigned Examiner</p>
-									<p className='font-semibold'>{requestedPost.examiner?.nameEn || 'Not Assigned'}</p>
-								</div>
-								<Alert variant='warning'>
-									<AlertTitle>Important</AlertTitle>
-									<AlertDescription>
-										Only applicants with the &quot;Accepted&quot; status will be moved to the next stage.
-										Ensure all desired candidates are marked as accepted before proceeding.
-									</AlertDescription>
-								</Alert>
-							</>
-						)}
-						{isProcessing && !isShortlisted && (
-							<Alert variant='warning'>
-								<AlertTitle>Important</AlertTitle>
-								<AlertDescription>
-									Only applicants with the &quot;Shortlisted&quot; status will be moved to the next stage.
-								</AlertDescription>
-							</Alert>
-						)}
-					</div>
 					<DialogFooter>
 						<Button variant='ghost' onClick={() => setIsProceedConfirmationOpen(false)}>
 							Cancel
