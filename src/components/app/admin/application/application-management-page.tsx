@@ -21,7 +21,7 @@ import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO } from '@/interfaces/master-data.interface';
 import { ApplicationService } from '@/services/api/application.service';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { ArrowLeft, ChevronsRight, Filter, Loader2, UserPlus } from 'lucide-react';
+import { ArrowLeft, ChevronsRight, Filter, Loader2, Search, UserPlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { ApplicantFilterBar, ApplicantFilterValues } from './applicant-filter-bar';
@@ -29,6 +29,8 @@ import { ApplicantListManager } from './applicant-list-manager';
 import { ApplicantsTable } from './applicants-table';
 import { ApplicationManagementHeader } from './application-management-header';
 import { ApplicationStats } from './application-stats';
+import { Input } from '@/components/ui/input';
+import { useDebounce } from '@/hooks/use-debounce';
 
 interface ApplicationManagementPageProps {
 	requestedPost: RequestedPost;
@@ -56,15 +58,18 @@ export function ApplicationManagementPage({
 	const [statusFilter, setStatusFilter] = useState<string | null>(null);
 	const [isProceedConfirmationOpen, setIsProceedConfirmationOpen] = useState(false);
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
+	const [searchQuery, setSearchQuery] = useState('');
+	const debouncedSearch = useDebounce(searchQuery, 500);
 
 	const loadApplicants = useCallback(
-		async (page: number, currentFilters: ApplicantFilterValues, currentStatus: string | null) => {
+		async (page: number, filters: { status: string | null; search: string; other: ApplicantFilterValues }) => {
 			setIsLoadingApplicants(true);
 			try {
 				const body: IApiRequest['body'] = {
 					requestedPostId: requestedPost.id!,
-					...currentFilters,
-					...(currentStatus && { status: currentStatus }),
+					...filters.other,
+					...(filters.status && { status: filters.status }),
+					...(filters.search && { searchKey: filters.search }),
 				};
 
 				const payload: IApiRequest = {
@@ -89,8 +94,8 @@ export function ApplicationManagementPage({
 	);
 
 	useEffect(() => {
-		loadApplicants(0, otherFilters, statusFilter);
-	}, [JSON.stringify(otherFilters), statusFilter, loadApplicants]);
+		loadApplicants(0, { status: statusFilter, search: debouncedSearch, other: otherFilters });
+	}, [JSON.stringify(otherFilters), statusFilter, debouncedSearch, loadApplicants]);
 
 	const handleApplyApplicants = (newApplicants: JobseekerSearch[], onSuccess?: () => void) => {
 		const payload = newApplicants.map((js) => ({
@@ -105,7 +110,7 @@ export function ApplicationManagementPage({
 					description: `${newApplicants.length} candidate(s) have been added to the application list.`,
 				});
 				onSuccess && onSuccess();
-				loadApplicants(0, otherFilters, statusFilter);
+				loadApplicants(0, { status: statusFilter, search: debouncedSearch, other: otherFilters });
 			})
 			.catch((err) => {
 				toast.error({
@@ -121,7 +126,11 @@ export function ApplicationManagementPage({
 				title: 'Application Updated',
 				description: resp?.message,
 			});
-			loadApplicants(applicantsMeta.page, otherFilters, statusFilter);
+			loadApplicants(applicantsMeta.page, {
+				status: statusFilter,
+				search: debouncedSearch,
+				other: otherFilters,
+			});
 			return resp;
 		} catch (error: any) {
 			toast.error({
@@ -131,7 +140,7 @@ export function ApplicationManagementPage({
 	};
 
 	const handlePageChange = (newPage: number) => {
-		loadApplicants(newPage, otherFilters, statusFilter);
+		loadApplicants(newPage, { status: statusFilter, search: debouncedSearch, other: otherFilters });
 	};
 
 	const handleProceed = async () => {
@@ -274,12 +283,24 @@ export function ApplicationManagementPage({
 								</DialogContent>
 							</Dialog>
 						)}
+					</div>
+				</CardHeader>
+				<CardContent>
+					<div className='flex flex-col md:flex-row gap-4'>
+						<div className='relative flex-1'>
+							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+							<Input
+								placeholder='Search by name, email or phone...'
+								value={searchQuery}
+								onChange={(e) => setSearchQuery(e.target.value)}
+								className='pl-10 h-11'
+							/>
+						</div>
 						<Button variant='outline' onClick={() => setIsFilterOpen(true)}>
 							<Filter className='mr-2 h-4 w-4' /> Filters
 						</Button>
 					</div>
-				</CardHeader>
-				<CardContent>
+
 					<ApplicantFilterBar
 						onFilterChange={setOtherFilters}
 						isProcessing={isProcessing}
