@@ -3,14 +3,15 @@
 
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
+import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
-import { EnumDTO } from '@/interfaces/master-data.interface';
+import { EnumDTO, ICommonMasterData, IEducationDegree } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Search, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -21,6 +22,8 @@ const filterSchema = z.object({
 	minMarks: z.coerce.number().optional(),
 	maxMarks: z.coerce.number().optional(),
 	interviewDate: z.string().optional(),
+	degreeLevelId: z.string().optional(),
+	degreeId: z.string().optional(),
 });
 
 export type ApplicantFilterValues = z.infer<typeof filterSchema>;
@@ -32,6 +35,8 @@ interface ApplicantFilterBarProps {
 
 export function ApplicantFilterBar({ onFilterChange, isProcessing }: ApplicantFilterBarProps) {
 	const [genders, setGenders] = useState<EnumDTO[]>([]);
+	const [degreeLevels, setDegreeLevels] = useState<ICommonMasterData[]>([]);
+	const [degrees, setDegrees] = useState<IEducationDegree[]>([]);
 
 	const form = useForm<ApplicantFilterValues>({
 		resolver: zodResolver(filterSchema),
@@ -42,15 +47,38 @@ export function ApplicantFilterBar({ onFilterChange, isProcessing }: ApplicantFi
 			minMarks: undefined,
 			maxMarks: undefined,
 			interviewDate: '',
+			degreeLevelId: '',
+			degreeId: '',
 		},
 	});
 
 	useEffect(() => {
-		MasterDataService.getEnum('gender').then((res) => setGenders(res.body as EnumDTO[]));
+		async function loadMasterData() {
+			try {
+				const [genderRes, levelRes, degreeRes] = await Promise.allSettled([
+					MasterDataService.getEnum('gender'),
+					MasterDataService.degreeLevel.get(),
+					MasterDataService.educationDegree.get(),
+				]);
+
+				if (genderRes.status === 'fulfilled') setGenders(genderRes.value.body as EnumDTO[]);
+				if (levelRes.status === 'fulfilled') setDegreeLevels(levelRes.value.body);
+				if (degreeRes.status === 'fulfilled') setDegrees(degreeRes.value.body);
+			} catch (error) {
+				console.error('Failed to load filter master data:', error);
+			}
+		}
+		loadMasterData();
 	}, []);
 
 	const { watch, handleSubmit, reset } = form;
 	const watchedFilters = watch();
+	const watchDegreeLevelId = watch('degreeLevelId');
+
+	const filteredDegrees = React.useMemo(() => {
+		if (!watchDegreeLevelId) return [];
+		return degrees.filter((d) => d.degreeLevelId === watchDegreeLevelId);
+	}, [watchDegreeLevelId, degrees]);
 
 	const handleReset = () => {
 		reset();
@@ -93,6 +121,28 @@ export function ApplicantFilterBar({ onFilterChange, isProcessing }: ApplicantFi
 							placeholder='e.g. 90'
 						/>
 					</div>
+					<FormAutocomplete
+						name='degreeLevelId'
+						control={form.control}
+						label='Degree Level'
+						placeholder='Filter by level'
+						options={degreeLevels}
+						getOptionLabel={(opt) => opt.nameEn}
+						getOptionValue={(opt) => opt.id}
+						allowClear
+						onValueChange={() => form.setValue('degreeId', '')}
+					/>
+					<FormAutocomplete
+						name='degreeId'
+						control={form.control}
+						label='Degree'
+						placeholder='Filter by degree'
+						options={filteredDegrees}
+						getOptionLabel={(opt) => opt.nameEn}
+						getOptionValue={(opt) => opt.id}
+						disabled={!watchDegreeLevelId}
+						allowClear
+					/>
 					{isProcessing && (
 						<FormDatePicker control={form.control} name='interviewDate' label='Interview Date' />
 					)}
