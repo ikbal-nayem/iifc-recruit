@@ -14,15 +14,6 @@ import { FormMultiSelect } from '@/components/ui/form-multi-select';
 import { FormSelect } from '@/components/ui/form-select';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
-import {
-	Sheet,
-	SheetContent,
-	SheetDescription,
-	SheetFooter,
-	SheetHeader,
-	SheetTitle,
-	SheetTrigger,
-} from '@/components/ui/sheet';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
 import useLoader from '@/hooks/use-loader';
@@ -47,7 +38,7 @@ import {
 	SortingState,
 	useReactTable,
 } from '@tanstack/react-table';
-import { Filter, Loader2, Search, UserPlus, X } from 'lucide-react';
+import { Loader2, Search, UserPlus, X } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import React, { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -94,7 +85,6 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 	const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 	const [showConfirmation, setShowConfirmation] = useState(false);
-	const [isSheetOpen, setIsSheetOpen] = useState(false);
 	const [masterData, setMasterData] = useState<IObject>({
 		genders: [],
 		religions: [],
@@ -313,160 +303,128 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 
 	return (
 		<>
-			<div className='flex items-center gap-2 mb-4'>
-				<div className='relative flex-1'>
-					<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-					<Input
-						placeholder='Search by name, email, phone...'
-						value={textSearch}
-						onChange={(e) => setTextSearch(e.target.value)}
-						className='pl-10 h-11'
-					/>
-				</div>
-				<Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-					<SheetTrigger asChild>
-						<Button variant='outline' className='h-11 relative'>
-							<Filter className='mr-2 h-4 w-4' />
-							Filters
-							{activeFilterCount > 0 && (
-								<span className='absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground'>
-									{activeFilterCount}
-								</span>
-							)}
-						</Button>
-					</SheetTrigger>
-					<SheetContent className='p-0 flex flex-col'>
-						<SheetHeader className='p-6 pb-2'>
-							<SheetTitle>Filter Jobseekers</SheetTitle>
-							<SheetDescription>
-								Refine the list of jobseekers using the filters below.
-							</SheetDescription>
-						</SheetHeader>
-						<FormProvider {...filterForm}>
-							<form
-								className='flex-1 overflow-y-auto px-6'
-								onSubmit={(e) => {
-									e.preventDefault();
-									setIsSheetOpen(false);
-								}}
-							>
-								<div className='space-y-4'>
-									<FormAutocomplete
-										name='outsourcingCategoryId'
-										control={filterForm.control}
-										label='Outsourcing Category'
-										placeholder='Select category...'
-										loadOptions={getOutsourcingCategoriesAsync}
-										getOptionValue={(option) => option.id}
-										getOptionLabel={(option) => option.nameBn}
-										allowClear
-										onValueChange={() => filterForm.setValue('postId', '')}
-									/>
-									<FormAutocomplete
-										name='postId'
-										control={filterForm.control}
-										label='Post'
-										placeholder='Select post...'
-										disabled={!watchedFilters.outsourcingCategoryId}
-										loadOptions={loadPostOptions}
-										getOptionValue={(option) => option.id}
-										getOptionLabel={(option) => option.nameBn}
-										allowClear
-									/>
-									<FormAutocomplete
-										name='degreeLevelId'
-										control={filterForm.control}
-										label='Degree Level'
-										placeholder='Select degree level...'
-										options={masterData.degreeLevels}
-										getOptionValue={(option) => option.id}
-										getOptionLabel={(option) => option.nameEn}
-										allowClear
-										onValueChange={() => filterForm.setValue('degreeId', '')}
-									/>
-									<FormAutocomplete
-										name='degreeId'
-										control={filterForm.control}
-										label='Degree'
-										placeholder='Select degree...'
-										disabled={!watchedFilters.degreeLevelId}
-										options={filteredDegrees}
-										getOptionValue={(option) => option.id}
-										getOptionLabel={(option) => option.nameEn}
-										allowClear
-									/>
-									<FormSelect
-										name='gender'
-										control={filterForm.control}
-										label='Gender'
-										placeholder='Filter by gender'
-										options={masterData.genders as EnumDTO[]}
-										getOptionValue={(op) => op.value}
-										getOptionLabel={(op) => op.nameEn}
-										allowClear
-									/>
-									<FormSelect
-										name='religion'
-										control={filterForm.control}
-										label='Religion'
-										placeholder='Filter by religion'
-										options={masterData.religions as EnumDTO[]}
-										getOptionValue={(o) => o.value}
-										getOptionLabel={(o) => o.nameEn}
-										allowClear
-									/>
-									<FormSelect
-										name='maritalStatus'
-										control={filterForm.control}
-										label='Marital Status'
-										placeholder='Filter by marital status'
-										options={masterData.maritalStatuses as EnumDTO[]}
-										getOptionValue={(o) => o.value}
-										getOptionLabel={(o) => o.nameEn}
-										allowClear
-									/>
-									<div className='flex gap-2'>
-										<FormInput control={filterForm.control} name='minAge' label='Min Age' type='number' />
-										<FormInput control={filterForm.control} name='maxAge' label='Max Age' type='number' />
-									</div>
-									<FormInput
-										control={filterForm.control}
-										name='profileCompletion'
-										label='Profile Completion >'
-										type='number'
-										placeholder='e.g., 75'
-									/>
-									<FormInput
-										control={filterForm.control}
-										name='minExp'
-										label='Minimum Experience (Yrs)'
-										type='number'
-										placeholder='e.g., 5'
-									/>
-									<FormMultiSelect
-										name='skillIds'
-										control={filterForm.control}
-										label='Required Skills'
-										placeholder='Filter by skills...'
-										loadOptions={getSkillsAsync}
-										getOptionValue={(option) => option.id}
-										getOptionLabel={(option) => option.nameEn}
-										containerRef={cardContainerRef}
-									/>
+			<FormProvider {...filterForm}>
+				<Card className='p-4 border-2 border-dashed glassmorphism mb-4'>
+					<CardHeader className='p-0 mb-4 flex-row items-center justify-between'>
+						<CardTitle>Filters</CardTitle>
+						{activeFilterCount > 0 && (
+							<Button variant='ghost' onClick={handleReset}>
+								<X className='mr-2 h-4 w-4' />
+								Reset Filters
+							</Button>
+						)}
+					</CardHeader>
+					<CardContent className='p-0'>
+						<form className='space-y-4'>
+							<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4'>
+								<FormAutocomplete
+									name='outsourcingCategoryId'
+									control={filterForm.control}
+									label='Outsourcing Category'
+									placeholder='Select category...'
+									loadOptions={getOutsourcingCategoriesAsync}
+									getOptionValue={(option) => option.id}
+									getOptionLabel={(option) => option.nameBn}
+									allowClear
+									onValueChange={() => filterForm.setValue('postId', '')}
+								/>
+								<FormAutocomplete
+									name='postId'
+									control={filterForm.control}
+									label='Post'
+									placeholder='Select post...'
+									disabled={!watchedFilters.outsourcingCategoryId}
+									loadOptions={loadPostOptions}
+									getOptionValue={(option) => option.id}
+									getOptionLabel={(option) => option.nameBn}
+									allowClear
+								/>
+								<FormAutocomplete
+									name='degreeLevelId'
+									control={filterForm.control}
+									label='Degree Level'
+									placeholder='Select degree level...'
+									options={masterData.degreeLevels}
+									getOptionValue={(option) => option.id}
+									getOptionLabel={(option) => option.nameEn}
+									allowClear
+									onValueChange={() => filterForm.setValue('degreeId', '')}
+								/>
+								<FormAutocomplete
+									name='degreeId'
+									control={filterForm.control}
+									label='Degree'
+									placeholder='Select degree...'
+									disabled={!watchedFilters.degreeLevelId}
+									options={filteredDegrees}
+									getOptionValue={(option) => option.id}
+									getOptionLabel={(option) => option.nameEn}
+									allowClear
+								/>
+								<FormSelect
+									name='gender'
+									control={filterForm.control}
+									label='Gender'
+									placeholder='Filter by gender'
+									options={masterData.genders as EnumDTO[]}
+									getOptionValue={(op) => op.value}
+									getOptionLabel={(op) => op.nameEn}
+									allowClear
+								/>
+								<FormSelect
+									name='religion'
+									control={filterForm.control}
+									label='Religion'
+									placeholder='Filter by religion'
+									options={masterData.religions as EnumDTO[]}
+									getOptionValue={(o) => o.value}
+									getOptionLabel={(o) => o.nameEn}
+									allowClear
+								/>
+								<FormSelect
+									name='maritalStatus'
+									control={filterForm.control}
+									label='Marital Status'
+									placeholder='Filter by marital status'
+									options={masterData.maritalStatuses as EnumDTO[]}
+									getOptionValue={(o) => o.value}
+									getOptionLabel={(o) => o.nameEn}
+									allowClear
+								/>
+								<div className='flex gap-2'>
+									<FormInput control={filterForm.control} name='minAge' label='Min Age' type='number' />
+									<FormInput control={filterForm.control} name='maxAge' label='Max Age' type='number' />
 								</div>
-								<SheetFooter className='pt-6 sticky bottom-0 bg-white -mx-6 px-6 pb-6'>
-									<Button type='button' variant='outline' onClick={handleReset}>
-										Clear Filters
-									</Button>
-									<Button type='submit' onClick={() => setIsSheetOpen(false)}>
-										Apply
-									</Button>
-								</SheetFooter>
-							</form>
-						</FormProvider>
-					</SheetContent>
-				</Sheet>
-			</div>
+								<FormInput
+									control={filterForm.control}
+									name='profileCompletion'
+									label='Profile Completion >'
+									type='number'
+									placeholder='e.g., 75'
+								/>
+								<FormInput
+									control={filterForm.control}
+									name='minExp'
+									label='Minimum Experience (Yrs)'
+									type='number'
+									placeholder='e.g., 5'
+								/>
+							</div>
+
+							<FormMultiSelect
+								name='skillIds'
+								control={filterForm.control}
+								label='Required Skills'
+								placeholder='Filter by skills...'
+								loadOptions={getSkillsAsync}
+								getOptionValue={(option) => option.id}
+								getOptionLabel={(option) => option.nameEn}
+								containerRef={cardContainerRef}
+							/>
+						</form>
+					</CardContent>
+				</Card>
+			</FormProvider>
 
 			<Card className='my-4' ref={cardContainerRef}>
 				<CardHeader className='py-4'>
@@ -484,6 +442,15 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 					</div>
 				</CardHeader>
 				<CardContent className='space-y-2'>
+					<div className='relative w-full mb-4'>
+						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+						<Input
+							placeholder='Filter results by name, email, or phone...'
+							value={textSearch}
+							onChange={(e) => setTextSearch(e.target.value)}
+							className='pl-10 h-11'
+						/>
+					</div>
 					<div className='rounded-md border'>
 						<Table>
 							<TableHeader>

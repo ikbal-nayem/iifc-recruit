@@ -2,6 +2,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
@@ -10,7 +11,6 @@ import { FormSelect } from '@/components/ui/form-select';
 import { EnumDTO, ICommonMasterData, IEducationDegree } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Search, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -31,9 +31,16 @@ export type ApplicantFilterValues = z.infer<typeof filterSchema>;
 interface ApplicantFilterBarProps {
 	onFilterChange: (filters: ApplicantFilterValues) => void;
 	isProcessing?: boolean;
+	isOpen: boolean;
+	onOpenChange: (isOpen: boolean) => void;
 }
 
-export function ApplicantFilterBar({ onFilterChange, isProcessing }: ApplicantFilterBarProps) {
+export function ApplicantFilterBar({
+	onFilterChange,
+	isProcessing,
+	isOpen,
+	onOpenChange,
+}: ApplicantFilterBarProps) {
 	const [genders, setGenders] = useState<EnumDTO[]>([]);
 	const [degreeLevels, setDegreeLevels] = useState<ICommonMasterData[]>([]);
 	const [degrees, setDegrees] = useState<IEducationDegree[]>([]);
@@ -71,9 +78,8 @@ export function ApplicantFilterBar({ onFilterChange, isProcessing }: ApplicantFi
 		loadMasterData();
 	}, []);
 
-	const { watch, handleSubmit, reset } = form;
-	const watchedFilters = watch();
-	const watchDegreeLevelId = watch('degreeLevelId');
+	const { handleSubmit, reset } = form;
+	const watchDegreeLevelId = form.watch('degreeLevelId');
 
 	const filteredDegrees = React.useMemo(() => {
 		if (!watchDegreeLevelId) return [];
@@ -85,81 +91,86 @@ export function ApplicantFilterBar({ onFilterChange, isProcessing }: ApplicantFi
 		onFilterChange({});
 	};
 
-	const hasActiveFilters = Object.values(watchedFilters).some((v) => v);
+	const handleFormSubmit = (data: ApplicantFilterValues) => {
+		onFilterChange(data);
+		onOpenChange(false);
+	};
 
 	return (
-		<Form {...form}>
-			<form onSubmit={handleSubmit(onFilterChange)} className='space-y-4 p-4 border rounded-lg glassmorphism'>
-				<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 items-end'>
-					<FormSelect
-						name='gender'
-						control={form.control}
-						label='Gender'
-						placeholder='Filter by gender'
-						options={genders}
-						getOptionValue={(op) => op.value}
-						getOptionLabel={(op) => op.nameEn}
-						allowClear
-					/>
-					<div className='flex gap-2'>
-						<FormInput control={form.control} name='minAge' label='Min Age' type='number' placeholder='e.g. 25' />
-						<FormInput control={form.control} name='maxAge' label='Max Age' type='number' placeholder='e.g. 35' />
-					</div>
-					<div className='flex gap-2'>
-						<FormInput
-							control={form.control}
-							name='minMarks'
-							label='Min Marks'
-							type='number'
-							placeholder='e.g. 60'
-						/>
-						<FormInput
-							control={form.control}
-							name='maxMarks'
-							label='Max Marks'
-							type='number'
-							placeholder='e.g. 90'
-						/>
-					</div>
-					<FormAutocomplete
-						name='degreeLevelId'
-						control={form.control}
-						label='Degree Level'
-						placeholder='Filter by level'
-						options={degreeLevels}
-						getOptionLabel={(opt) => opt.nameEn}
-						getOptionValue={(opt) => opt.id}
-						allowClear
-						onValueChange={() => form.setValue('degreeId', '')}
-					/>
-					<FormAutocomplete
-						name='degreeId'
-						control={form.control}
-						label='Degree'
-						placeholder='Filter by degree'
-						options={filteredDegrees}
-						getOptionLabel={(opt) => opt.nameEn}
-						getOptionValue={(opt) => opt.id}
-						disabled={!watchDegreeLevelId}
-						allowClear
-					/>
-					{isProcessing && (
-						<FormDatePicker control={form.control} name='interviewDate' label='Interview Date' />
-					)}
-				</div>
-				<div className='flex items-center justify-end gap-2'>
-					{hasActiveFilters && (
-						<Button type='button' variant='ghost' onClick={handleReset}>
-							<X className='mr-2 h-4 w-4' />
-							Reset
-						</Button>
-					)}
-					<Button type='submit'>
-						<Search className='mr-2 h-4 w-4' />
-						Apply Filters
-					</Button>
-				</div>
-			</form>
-		</Form>
+		<Sheet open={isOpen} onOpenChange={onOpenChange}>
+			<SheetContent className='p-0 flex flex-col'>
+				<SheetHeader className='p-6 pb-2'>
+					<SheetTitle>Filter Applicants</SheetTitle>
+					<SheetDescription>Refine the list of applicants using the filters below.</SheetDescription>
+				</SheetHeader>
+				<Form {...form}>
+					<form onSubmit={handleSubmit(handleFormSubmit)} className='flex-1 overflow-y-auto px-6'>
+						<div className='space-y-4'>
+							<FormSelect
+								name='gender'
+								control={form.control}
+								label='Gender'
+								placeholder='Filter by gender'
+								options={genders}
+								getOptionValue={(op) => op.value}
+								getOptionLabel={(op) => op.nameEn}
+								allowClear
+							/>
+							<div className='flex gap-2'>
+								<FormInput control={form.control} name='minAge' label='Min Age' type='number' placeholder='e.g. 25' />
+								<FormInput control={form.control} name='maxAge' label='Max Age' type='number' placeholder='e.g. 35' />
+							</div>
+							<div className='flex gap-2'>
+								<FormInput
+									control={form.control}
+									name='minMarks'
+									label='Min Marks'
+									type='number'
+									placeholder='e.g. 60'
+								/>
+								<FormInput
+									control={form.control}
+									name='maxMarks'
+									label='Max Marks'
+									type='number'
+									placeholder='e.g. 90'
+								/>
+							</div>
+							<FormAutocomplete
+								name='degreeLevelId'
+								control={form.control}
+								label='Degree Level'
+								placeholder='Filter by level'
+								options={degreeLevels}
+								getOptionLabel={(opt) => opt.nameEn}
+								getOptionValue={(opt) => opt.id}
+								allowClear
+								onValueChange={() => form.setValue('degreeId', '')}
+							/>
+							<FormAutocomplete
+								name='degreeId'
+								control={form.control}
+								label='Degree'
+								placeholder='Filter by degree'
+								options={filteredDegrees}
+								getOptionLabel={(opt) => opt.nameEn}
+								getOptionValue={(opt) => opt.id}
+								disabled={!watchDegreeLevelId}
+								allowClear
+							/>
+							{isProcessing && (
+								<FormDatePicker control={form.control} name='interviewDate' label='Interview Date' />
+							)}
+						</div>
+						<SheetFooter className='pt-6 sticky bottom-0 bg-white -mx-6 px-6 pb-6'>
+							<Button type='button' variant='outline' onClick={handleReset}>
+								Clear All Filters
+							</Button>
+							<Button type='submit'>Apply Filters</Button>
+						</SheetFooter>
+					</form>
+				</Form>
+			</SheetContent>
+		</Sheet>
 	);
 }

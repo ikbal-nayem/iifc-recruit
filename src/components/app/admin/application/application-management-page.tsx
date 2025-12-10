@@ -21,7 +21,7 @@ import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO } from '@/interfaces/master-data.interface';
 import { ApplicationService } from '@/services/api/application.service';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { ArrowLeft, ChevronsRight, Loader2, UserPlus } from 'lucide-react';
+import { ArrowLeft, ChevronsRight, Filter, Loader2, UserPlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { ApplicantFilterBar, ApplicantFilterValues } from './applicant-filter-bar';
@@ -55,6 +55,7 @@ export function ApplicationManagementPage({
 	const [otherFilters, setOtherFilters] = useState<ApplicantFilterValues>({});
 	const [statusFilter, setStatusFilter] = useState<string | null>(null);
 	const [isProceedConfirmationOpen, setIsProceedConfirmationOpen] = useState(false);
+	const [isFilterOpen, setIsFilterOpen] = useState(false);
 
 	const loadApplicants = useCallback(
 		async (page: number, currentFilters: ApplicantFilterValues, currentStatus: string | null) => {
@@ -251,32 +252,40 @@ export function ApplicationManagementPage({
 						<CardTitle>{cardTexts.title}</CardTitle>
 						<CardDescription>{cardTexts.description}</CardDescription>
 					</div>
-					{!isProcessing && !isShortlisted && (
-						<Dialog open={isAddCandidateOpen} onOpenChange={setIsAddCandidateOpen}>
-							<DialogTrigger asChild>
-								<Button variant='outline'>
-									<UserPlus className='mr-2 h-4 w-4' />
-									Add Candidate
-								</Button>
-							</DialogTrigger>
-							<DialogContent
-								className='max-w-7xl flex flex-col p-0'
-								onPointerDownOutside={(e) => e.preventDefault()}
-							>
-								<DialogHeader className='p-6 pb-0'>
-									<DialogTitle>Add Applicants to Primary List</DialogTitle>
-								</DialogHeader>
-								<div className='flex-1 overflow-y-auto px-6'>
-									<ApplicantListManager onApply={handleApplyApplicants} />
-								</div>
-							</DialogContent>
-						</Dialog>
-					)}
+					<div className='flex items-center gap-2'>
+						{!isProcessing && !isShortlisted && (
+							<Dialog open={isAddCandidateOpen} onOpenChange={setIsAddCandidateOpen}>
+								<DialogTrigger asChild>
+									<Button variant='outline'>
+										<UserPlus className='mr-2 h-4 w-4' />
+										Add Candidate
+									</Button>
+								</DialogTrigger>
+								<DialogContent
+									className='max-w-7xl flex flex-col p-0'
+									onPointerDownOutside={(e) => e.preventDefault()}
+								>
+									<DialogHeader className='p-6 pb-0'>
+										<DialogTitle>Add Applicants to Primary List</DialogTitle>
+									</DialogHeader>
+									<div className='flex-1 overflow-y-auto px-6'>
+										<ApplicantListManager onApply={handleApplyApplicants} />
+									</div>
+								</DialogContent>
+							</Dialog>
+						)}
+						<Button variant='outline' onClick={() => setIsFilterOpen(true)}>
+							<Filter className='mr-2 h-4 w-4' /> Filters
+						</Button>
+					</div>
 				</CardHeader>
 				<CardContent>
-					<div className='space-y-4'>
-						<ApplicantFilterBar onFilterChange={setOtherFilters} isProcessing={isProcessing} />
-					</div>
+					<ApplicantFilterBar
+						onFilterChange={setOtherFilters}
+						isProcessing={isProcessing}
+						isOpen={isFilterOpen}
+						onOpenChange={setIsFilterOpen}
+					/>
 					<div className='mt-4'>
 						<ApplicantsTable
 							applicants={applicants}
