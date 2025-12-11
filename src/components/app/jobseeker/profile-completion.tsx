@@ -93,7 +93,7 @@ export function ProfileCompletion({ profileCompletion, isCompact = false }: Prof
 						</svg>
 						<span
 							className={cn(
-								'absolute inset-0 flex items-center justify-center text-3xl font-bold font-headline',
+								'absolute inset-0 flex items-center justify-center text-3xl font-bold font-headline text-red-800',
 								`text-${color}`
 							)}
 						>
