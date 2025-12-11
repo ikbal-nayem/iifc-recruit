@@ -535,7 +535,7 @@ export function ApplicantsTable({
 
 			{/* Desktop View */}
 			<Card className='hidden md:block rounded-md border glassmorphism relative'>
-				{isLoading && (
+				{isLoading && applicants.length > 0 && (
 					<div className='absolute inset-0 bg-white/50 backdrop-blur-[2px] flex items-center justify-center z-10'>
 						<Loader2 className='h-8 w-8 animate-spin text-primary' />
 					</div>
@@ -558,7 +558,13 @@ export function ApplicantsTable({
 							))}
 						</TableHeader>
 						<TableBody>
-							{table.getRowModel().rows?.length ? (
+							{isLoading && applicants.length === 0 ? (
+								[...Array(5)].map((_, i) => (
+									<TableRow key={i}>
+										<TableCell colSpan={columns.length} className='h-16 text-center'></TableCell>
+									</TableRow>
+								))
+							) : table.getRowModel().rows?.length ? (
 								table.getRowModel().rows.map((row) => (
 									<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
 										{row.getVisibleCells().map((cell) => (
