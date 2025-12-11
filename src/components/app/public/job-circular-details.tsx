@@ -34,10 +34,11 @@ export function JobCircularDetails({ circularId, isReadOnly = false }: JobCircul
 	const searchParams = useSearchParams();
 
 	useEffect(() => {
-		JobseekerProfileService.getProfileCompletion()
-			.then((res) => setProfileCompletion(res.body))
-			.catch((err) => console.log(err));
-	}, []);
+		isAuthenticated &&
+			JobseekerProfileService.getProfileCompletion()
+				.then((res) => setProfileCompletion(res.body))
+				.catch((err) => console.log(err));
+	}, [isAuthenticated]);
 
 	useEffect(() => {
 		async function getJobDetails(id: string) {
