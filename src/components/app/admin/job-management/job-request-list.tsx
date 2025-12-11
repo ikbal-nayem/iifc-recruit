@@ -191,7 +191,7 @@ export function JobRequestList({ status }: JobRequestListProps) {
 	return (
 		<Card className='glassmorphism'>
 			<CardContent className='pt-6 relative'>
-				<div className='relative w-full'>
+				<div className='relative w-full mb-4'>
 					<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 					<Input
 						placeholder='Filter by subject or memo no...'
