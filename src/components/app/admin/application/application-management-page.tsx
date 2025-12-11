@@ -1,7 +1,8 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
 	Dialog,
 	DialogContent,
@@ -9,7 +10,6 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { ROUTES } from '@/constants/routes.constant';
@@ -318,6 +318,9 @@ export function ApplicationManagementPage({
 							requestedPostStatus={requestedPost.status}
 							isProcessing={isProcessing}
 							isShortlisted={isShortlisted}
+							onListRefresh={() =>
+								loadApplicants(0, { status: statusFilter, search: debouncedSearch, other: otherFilters })
+							}
 						/>
 					</div>
 				</CardContent>

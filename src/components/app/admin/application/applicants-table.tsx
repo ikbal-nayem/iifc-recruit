@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -54,6 +55,7 @@ import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 interface ApplicantsTableProps {
 	applicants: Application[];
 	updateApplication: (updatedApplicants: Application[]) => Promise<any>;
+	onListRefresh: () => void;
 	isLoading: boolean;
 	meta: IMeta;
 	onPageChange: (page: number) => void;
@@ -75,6 +77,7 @@ type MarksFormValues = z.infer<typeof marksSchema>;
 export function ApplicantsTable({
 	applicants,
 	updateApplication,
+	onListRefresh,
 	isLoading,
 	meta,
 	onPageChange,
@@ -95,6 +98,7 @@ export function ApplicantsTable({
 	const [interviewApplicants, setInterviewApplicants] = React.useState<Application[]>([]);
 	const [isMarksModalOpen, setIsMarksModalOpen] = React.useState(false);
 	const [marksApplicant, setMarksApplicant] = React.useState<Application | null>(null);
+	const [applicantToHire, setApplicantToHire] = React.useState<Application | null>(null);
 
 	const canDirectShortlist =
 		!!currectUser?.roles.includes(ROLES.IIFC_ADMIN) || !!currectUser?.roles.includes(ROLES.IIFC_OPERATOR);
@@ -131,8 +135,10 @@ export function ApplicantsTable({
 		}
 	};
 
-	const applicantMarkAsHired = (applicantId: string, applicationId: string) => {
-		const payload = { userId: applicantId, applicationId };
+	const applicantMarkAsHired = () => {
+		if (!applicantToHire) return;
+
+		const payload = { userId: applicantToHire.applicantId, applicationId: applicantToHire.id };
 		ApplicationService.applicantMarkAsHired(payload)
 			.then((res) => {
 				toast({
@@ -140,11 +146,15 @@ export function ApplicantsTable({
 					variant: res.body ? 'success' : 'warning',
 				});
 				table.resetRowSelection();
+				onListRefresh(); // Reload the list
 			})
 			.catch((err) => {
 				toast.error({
 					description: err.message || 'There was an error marking the applicant as hired. Please try again.',
 				});
+			})
+			.finally(() => {
+				setApplicantToHire(null);
 			});
 	};
 
@@ -277,7 +287,7 @@ export function ApplicantsTable({
 				items.push({
 					label: 'Mark as Hired',
 					icon: <UserPlus className='mr-2 h-4 w-4' />,
-					onClick: () => applicantMarkAsHired(application.applicantId, application.id),
+					onClick: () => setApplicantToHire(application),
 				});
 			}
 		} else if (
@@ -493,13 +503,6 @@ export function ApplicantsTable({
 							) : null)}
 						{isShortlisted && (
 							<div className='flex gap-2'>
-								{/* <Button
-									size='sm'
-									variant='lite-success'
-									onClick={() => setBulkAction({ type: APPLICATION_STATUS.HIRED, count: selectedRowCount })}
-								>
-									<UserCheck className='mr-2 h-4 w-4' /> Hire ({selectedRowCount})
-								</Button> */}
 								<Button
 									size='sm'
 									variant='lite-info'
@@ -602,6 +605,18 @@ export function ApplicantsTable({
 				}?`}
 				onConfirm={handleBulkActionConfirm}
 			/>
+
+			{applicantToHire && (
+				<ConfirmationDialog
+					open={!!applicantToHire}
+					onOpenChange={() => setApplicantToHire(null)}
+					title='Confirm Hire'
+					description={`Are you sure you want to mark ${applicantToHire.fullName} as Hired?`}
+					onConfirm={applicantMarkAsHired}
+					confirmText='Yes, Hire'
+				/>
+			)}
+
 			<Dialog open={isInterviewModalOpen} onOpenChange={setIsInterviewModalOpen}>
 				<DialogContent>
 					<DialogHeader>
