@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -35,6 +34,8 @@ import { Application, APPLICATION_STATUS } from '@/interfaces/application.interf
 import { IMeta } from '@/interfaces/common.interface';
 import { JobRequestedPostStatus } from '@/interfaces/job.interface';
 import { getStatusVariant } from '@/lib/color-mapping';
+import { makePreviewURL } from '@/lib/file-oparations';
+import { ApplicationService } from '@/services/api/application.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, formatDate } from 'date-fns';
 import {
@@ -49,7 +50,6 @@ import {
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
-import { makePreviewURL } from '@/lib/file-oparations';
 
 interface ApplicantsTableProps {
 	applicants: Application[];
@@ -129,6 +129,23 @@ export function ApplicantsTable({
 			setMarksApplicant(null);
 			marksForm.reset();
 		}
+	};
+
+	const applicantMarkAsHired = (applicantId: string, applicationId: string) => {
+		const payload = { userId: applicantId, applicationId };
+		ApplicationService.applicantMarkAsHired(payload)
+			.then((res) => {
+				toast({
+					description: res.message,
+					variant: res.body ? 'success' : 'warning',
+				});
+				table.resetRowSelection();
+			})
+			.catch((err) => {
+				toast.error({
+					description: err.message || 'There was an error marking the applicant as hired. Please try again.',
+				});
+			});
 	};
 
 	const handleBulkActionConfirm = () => {
@@ -260,7 +277,7 @@ export function ApplicantsTable({
 				items.push({
 					label: 'Mark as Hired',
 					icon: <UserPlus className='mr-2 h-4 w-4' />,
-					onClick: () => handleStatusChange([application], APPLICATION_STATUS.HIRED),
+					onClick: () => applicantMarkAsHired(application.applicantId, application.id),
 				});
 			}
 		} else if (
@@ -476,13 +493,13 @@ export function ApplicantsTable({
 							) : null)}
 						{isShortlisted && (
 							<div className='flex gap-2'>
-								<Button
+								{/* <Button
 									size='sm'
 									variant='lite-success'
 									onClick={() => setBulkAction({ type: APPLICATION_STATUS.HIRED, count: selectedRowCount })}
 								>
 									<UserCheck className='mr-2 h-4 w-4' /> Hire ({selectedRowCount})
-								</Button>
+								</Button> */}
 								<Button
 									size='sm'
 									variant='lite-info'
@@ -576,21 +593,14 @@ export function ApplicantsTable({
 				title={`Confirm Bulk Action: ${
 					bulkAction?.type === APPLICATION_STATUS.ACCEPTED
 						? 'Accept'
-						: bulkAction?.type === APPLICATION_STATUS.HIRED
-						? 'Hire'
 						: bulkAction?.type === APPLICATION_STATUS.SHORTLISTED
 						? 'Shortlist'
 						: 'Revert'
 				}`}
 				description={`Are you sure you want to mark ${bulkAction?.count} applicant(s) as ${
-					bulkAction?.type === APPLICATION_STATUS.ACCEPTED
-						? 'Accepted'
-						: bulkAction?.type === APPLICATION_STATUS.HIRED
-						? 'Hired'
-						: 'Shortlisted'
+					bulkAction?.type === APPLICATION_STATUS.ACCEPTED ? 'Accepted' : 'Shortlisted'
 				}?`}
 				onConfirm={handleBulkActionConfirm}
-				variant={bulkAction?.type === APPLICATION_STATUS.HIRED ? 'warning' : 'default'}
 			/>
 			<Dialog open={isInterviewModalOpen} onOpenChange={setIsInterviewModalOpen}>
 				<DialogContent>

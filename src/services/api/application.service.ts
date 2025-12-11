@@ -30,4 +30,7 @@ export const ApplicationService = {
 	
 	getStatistics: async (applicantId: string): Promise<IApiResponse<any>> =>
 		await axiosIns.get(`/application/statistics/${applicantId}`),
+
+	applicantMarkAsHired: async (payload: IObject): Promise<IApiResponse<any>> =>
+		await axiosIns.post('/application/mark-as-hired', payload),
 };
