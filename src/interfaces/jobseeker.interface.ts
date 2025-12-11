@@ -171,6 +171,12 @@ export type PersonalInfo = {
 	religionDTO?: EnumDTO;
 	professionalStatus?: string;
 	professionalStatusDTO?: EnumDTO;
+	physicallyChallenged: boolean;
+
+	// Emergency Contact
+	emergencyContactPerson?: string;
+	emergencyContactPhone?: string;
+	emergencyContactRelation?: string;
 
 	// Address
 	presentDivisionId?: string;

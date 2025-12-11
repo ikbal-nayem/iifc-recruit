@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { FormCheckbox } from '@/components/ui/form-checkbox';
 import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
@@ -207,6 +208,10 @@ const personalInfoSchema = z.object({
 		.max(150, 'Maximum 150 digits')
 		.optional()
 		.or(z.literal('')),
+	physicallyChallenged: z.boolean().default(false),
+	emergencyContactPerson: z.string().max(100, 'Maximum 100 characters').optional(),
+	emergencyContactPhone: z.string().max(14, 'Maximum 14 characters').optional(),
+	emergencyContactRelation: z.string().max(50, 'Maximum 50 characters').optional(),
 });
 
 type PersonalInfoFormValues = z.infer<typeof personalInfoSchema>;
@@ -453,6 +458,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 									/>
 									{isMarried && <FormInput control={form.control} name='spouseName' label='Spouse Name' />}
 								</div>
+								<FormCheckbox control={form.control} name='physicallyChallenged' label='Physically Challenged' />
 							</CardContent>
 						</Card>
 
@@ -606,6 +612,27 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 											</div>
 										</div>
 									)}
+								</div>
+							</CardContent>
+						</Card>
+
+						<Card className='glassmorphism'>
+							<CardHeader>
+								<CardTitle>Emergency Contact</CardTitle>
+							</CardHeader>
+							<CardContent className='space-y-4'>
+								<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+									<FormInput
+										control={form.control}
+										name='emergencyContactPerson'
+										label='Contact Person Name'
+									/>
+									<FormInput control={form.control} name='emergencyContactRelation' label='Relation' />
+									<FormInput
+										control={form.control}
+										name='emergencyContactPhone'
+										label='Contact Phone'
+									/>
 								</div>
 							</CardContent>
 						</Card>

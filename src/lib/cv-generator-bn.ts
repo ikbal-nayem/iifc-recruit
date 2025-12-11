@@ -1,3 +1,4 @@
+
 import { COMMON_URL } from '@/constants/common.constant';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
 import { generatePDF } from '@/services/pdf/pdf.service';
@@ -147,10 +148,14 @@ const generatePersonalInfo = (jobseeker: Jobseeker): Content => {
 		['ধর্ম', personalInfo.religionDTO?.nameBn],
 		['জাতীয় পরিচয়পত্র নম্বর', convertEnToBn(personalInfo.nid)],
 		['বৈবাহিক অবস্থা', personalInfo.maritalStatusDTO?.nameBn],
+		['শারীরিকভাবে অক্ষম', personalInfo.physicallyChallenged ? 'হ্যাঁ' : 'না'],
 		['মোবাইল নম্বর', convertEnToBn(personalInfo.phone)],
 		['বর্তমান পেশাগত অবস্থা', personalInfo.organization?.nameBn],
 		['স্থায়ী ঠিকানা', permanentAddress],
 		['বর্তমান ঠিকানা/বাসস্থান', presentAddress],
+		['জরুরী যোগাযোগ (নাম)', personalInfo.emergencyContactPerson],
+		['জরুরী যোগাযোগ (ফোন)', personalInfo.emergencyContactPhone],
+		['জরুরী যোগাযোগ (সম্পর্ক)', personalInfo.emergencyContactRelation],
 	];
 
 	return generateSectionTable('ক. সাধারণ তথ্য:', data);

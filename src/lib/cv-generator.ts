@@ -141,9 +141,16 @@ const generatePersonalInfo = (jobseeker: Jobseeker): Content => {
 		{ label: 'Marital Status', value: personalInfo.maritalStatusDTO?.nameEn },
 		{ label: 'Nationality', value: personalInfo.nationality },
 		{ label: 'NID', value: personalInfo.nid },
+		{ label: 'Physically Challenged', value: personalInfo.physicallyChallenged ? 'Yes' : 'No' },
 	].filter((item) => item.value);
 
-	return generateSection('Personal Details', {
+	const emergencyContactDetails = [
+		{ label: 'Emergency Contact Person', value: personalInfo.emergencyContactPerson },
+		{ label: 'Emergency Contact Phone', value: personalInfo.emergencyContactPhone },
+		{ label: 'Emergency Contact Relation', value: personalInfo.emergencyContactRelation },
+	].filter((item) => item.value);
+
+	const mainDetailsColumns: Content = {
 		columns: [
 			{
 				stack: details.slice(0, Math.ceil(details.length / 2)).map((item) => ({
@@ -166,7 +173,34 @@ const generatePersonalInfo = (jobseeker: Jobseeker): Content => {
 				})),
 			},
 		],
-	});
+	};
+
+	if (emergencyContactDetails.length === 0) {
+		return generateSection('Personal Details', mainDetailsColumns);
+	}
+
+	const emergencyDetailsContent: Content = {
+		stack: [
+			mainDetailsColumns,
+			{ text: 'Emergency Contact', style: 'subheader', margin: [0, 10, 0, 5] },
+			{
+				columns: emergencyContactDetails.map((item) => ({
+					stack: [
+						{
+							columns: [
+								{ text: `${item.label}:`, bold: true, width: 'auto', font: 'Roboto' },
+								createText(item.value, { width: '*', margin: [4, 0, 0, 0] }),
+							],
+							columnGap: 5,
+							margin: [0, 0, 0, 3],
+						},
+					],
+				})),
+			},
+		],
+	};
+
+	return generateSection('Personal Details', emergencyDetailsContent);
 };
 
 const generateInterests = (jobseeker: Jobseeker): Content => {

@@ -278,6 +278,10 @@ export function JobseekerProfileView({
 						<DetailItem label='NID' value={personalInfo.nid} />
 						<DetailItem label='Passport No.' value={personalInfo.passportNo} />
 						<DetailItem label='Birth Certificate No.' value={personalInfo.birthCertificate} />
+						<DetailItem
+							label='Physically Challenged'
+							value={personalInfo.physicallyChallenged ? 'Yes' : 'No'}
+						/>
 					</div>
 					<Separator />
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6'>
@@ -299,6 +303,21 @@ export function JobseekerProfileView({
 							</div>
 						)}
 					</div>
+					{(personalInfo.emergencyContactPerson ||
+						personalInfo.emergencyContactPhone ||
+						personalInfo.emergencyContactRelation) && (
+						<>
+							<Separator />
+							<div>
+								<h4 className='font-semibold text-muted-foreground mb-2'>Emergency Contact</h4>
+								<div className='grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-4'>
+									<DetailItem label='Contact Person' value={personalInfo.emergencyContactPerson} />
+									<DetailItem label='Contact Phone' value={personalInfo.emergencyContactPhone} />
+									<DetailItem label='Relation' value={personalInfo.emergencyContactRelation} />
+								</div>
+							</div>
+						</>
+					)}
 				</CardContent>
 			</Card>
 
