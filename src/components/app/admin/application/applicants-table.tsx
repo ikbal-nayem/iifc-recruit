@@ -49,6 +49,7 @@ import {
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
+import { makePreviewURL } from '@/lib/file-oparations';
 
 interface ApplicantsTableProps {
 	applicants: Application[];
@@ -311,7 +312,7 @@ export function ApplicantsTable({
 				return (
 					<div className='flex items-center gap-3'>
 						<Avatar>
-							<AvatarImage src={profileImage} />
+							<AvatarImage src={makePreviewURL(profileImage)} />
 							<AvatarFallback>
 								{firstName?.[0]}
 								{lastName?.[0]}
@@ -401,7 +402,7 @@ export function ApplicantsTable({
 					/>
 					<div className='flex-1 flex items-start gap-3'>
 						<Avatar>
-							<AvatarImage src={profileImage} alt={fullName} data-ai-hint='avatar' />
+							<AvatarImage src={makePreviewURL(profileImage)} alt={fullName} data-ai-hint='avatar' />
 							<AvatarFallback>
 								{firstName?.[0]}
 								{lastName?.[0]}
