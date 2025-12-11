@@ -23,11 +23,12 @@ export type Application = {
 	email: string;
 	phone: string;
 	profileImage?: string;
-	createdOn: string;
+	appliedDate: string;
 	applicantId: string;
 	applicant?: JobseekerSearch;
 	requestedPostId: string;
 	requestedPost?: RequestedPost;
 	interviewTime?: string;
 	marks?: number;
+	createdOn: string;
 };

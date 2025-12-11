@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -20,6 +19,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { FormSelect } from '@/components/ui/form-select';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
+import { DATE_FORMAT } from '@/constants/common.constant';
 import { ROUTES } from '@/constants/routes.constant';
 import { toast } from '@/hooks/use-toast';
 import { Application } from '@/interfaces/application.interface';
@@ -90,29 +90,31 @@ export function MyApplications({ initialStatusFilter = 'all' }: MyApplicationsPr
 
 	const columns: ColumnDef<Application>[] = [
 		{
-			accessorKey: 'requestedPost.post.nameEn',
+			accessorKey: 'requestedPost.post.nameBn',
 			header: 'Job Title',
 			cell: ({ row }) => {
 				const application = row.original;
-				return (
+				return application.requestedPost?.circularPublishDate ? (
 					<Link
 						href={ROUTES.JOB_SEEKER.JOB_DETAILS(application.requestedPostId)}
-						className='font-medium text-primary hover:underline'
+						className='font-semibold text-primary hover:underline'
 					>
-						{application.requestedPost?.post?.nameEn}
+						{application.requestedPost?.post?.nameBn}
 					</Link>
+				) : (
+					<span className='font-semibold'>{application.requestedPost?.post?.nameBn}</span>
 				);
 			},
 		},
 		{
-			accessorKey: 'requestedPost.jobRequest.clientOrganization.nameEn',
+			accessorKey: 'requestedPost.jobRequest.clientOrganization.nameBn',
 			header: 'Organization',
 		},
 		{
 			accessorKey: 'appliedDate',
 			header: 'Date Applied',
 			cell: ({ row }) => {
-				return format(new Date(row.original.appliedDate), 'dd MMM, yyyy');
+				return format(new Date(row.original.appliedDate), DATE_FORMAT.CASUAL);
 			},
 		},
 		{
@@ -127,7 +129,7 @@ export function MyApplications({ initialStatusFilter = 'all' }: MyApplicationsPr
 			id: 'actions',
 			size: 50,
 			cell: ({ row }) => {
-				return (
+				return row.original.requestedPost?.circularPublishDate ? (
 					<Button
 						size='icon'
 						variant='outline'
@@ -136,7 +138,7 @@ export function MyApplications({ initialStatusFilter = 'all' }: MyApplicationsPr
 					>
 						<Eye className='h-4 w-4' />
 					</Button>
-				);
+				) : null;
 			},
 		},
 	];
@@ -157,15 +159,17 @@ export function MyApplications({ initialStatusFilter = 'all' }: MyApplicationsPr
 					href={ROUTES.JOB_SEEKER.JOB_DETAILS(application.requestedPostId)}
 					className='font-semibold text-lg text-primary hover:underline'
 				>
-					{application.requestedPost?.post?.nameEn}
+					{application.requestedPost?.post?.nameBn}
 				</Link>
 				<p className='text-sm text-muted-foreground'>
-					{application.requestedPost?.jobRequest?.clientOrganization?.nameEn}
+					{application.requestedPost?.jobRequest?.clientOrganization?.nameBn}
 				</p>
 				<div className='flex justify-between items-center pt-2'>
 					<div>
 						<p className='text-xs text-muted-foreground'>Applied on</p>
-						<p className='text-sm font-medium'>{format(new Date(application.appliedDate), 'dd MMM, yyyy')}</p>
+						<p className='text-sm font-medium'>
+							{format(new Date(application.appliedDate), DATE_FORMAT.CASUAL)}
+						</p>
 					</div>
 					<Badge variant={getStatusVariant(application.status)}>{application.statusDTO.nameEn}</Badge>
 				</div>

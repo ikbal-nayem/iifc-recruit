@@ -3,6 +3,7 @@ import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { DATE_FORMAT } from '@/constants/common.constant';
 import { ROUTES } from '@/constants/routes.constant';
 import { IObject } from '@/interfaces/common.interface';
 import { ICircular } from '@/interfaces/job.interface';
@@ -52,10 +53,12 @@ export default async function JobDetailsPage({
 		notFound();
 	}
 
+	console.log(job)
+
 	const queryParams = new URLSearchParams(aSearchParams);
 	const backUrl = ROUTES.JOB_SEEKER.FIND_JOBS + `?${queryParams.toString()}`;
 
-	const deadline = parseISO(job.circularEndDate);
+	const deadline = parseISO(job?.circularEndDate);
 	const isExpired = isPast(endOfDay(deadline));
 	const daysUntilDeadline = differenceInDays(endOfDay(deadline), new Date());
 
@@ -138,10 +141,10 @@ export default async function JobDetailsPage({
 						<CardContent className='space-y-4'>
 							<div className='flex items-center gap-4 text-sm'>
 								<Badge variant='secondary'>
-									Posted: {format(parseISO(job.circularPublishDate), 'dd MMM, yyyy')}
+									Posted: {format(parseISO(job.circularPublishDate), DATE_FORMAT.CASUAL)}
 								</Badge>
 								<Badge variant={isExpired ? 'danger' : daysUntilDeadline <= 7 ? 'warning' : 'secondary'}>
-									Deadline: {format(deadline, 'dd MMM, yyyy')}
+									Deadline: {format(deadline, DATE_FORMAT.CASUAL)}
 								</Badge>
 							</div>
 							<div>

@@ -26,22 +26,18 @@ interface JobCircularDetailsProps {
 	isReadOnly?: boolean;
 }
 
-async function getProfileCompletion(): Promise<IProfileCompletionStatus | null> {
-	try {
-		const res = await JobseekerProfileService.getProfileCompletion();
-		return res.body;
-	} catch (error) {
-		console.error('Failed to load profile completion status', error);
-		return null;
-	}
-}
-
-export async function JobCircularDetails({ circularId, isReadOnly = false }: JobCircularDetailsProps) {
-	const profileCompletion = await getProfileCompletion();
+export function JobCircularDetails({ circularId, isReadOnly = false }: JobCircularDetailsProps) {
 	const { isAuthenticated } = useAuth();
 	const [job, setJob] = useState<ICircular | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
+	const [profileCompletion, setProfileCompletion] = useState<IProfileCompletionStatus | null>(null);
 	const searchParams = useSearchParams();
+
+	useEffect(() => {
+		JobseekerProfileService.getProfileCompletion()
+			.then((res) => setProfileCompletion(res.body))
+			.catch((err) => console.log(err));
+	}, []);
 
 	useEffect(() => {
 		async function getJobDetails(id: string) {
