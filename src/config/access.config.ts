@@ -31,14 +31,15 @@ export type NavPermission =
 	| 'MASTER_DATA_OUTSOURCING'
 	| 'MASTER_DATA_OUTSOURCING_CATEGORY'
 	| 'MASTER_DATA_OUTSOURCING_ZONE'
-	| 'MASTER_DATA_OUTSOURCING_CHARGE';
+	| 'MASTER_DATA_OUTSOURCING_CHARGE'
+	| 'MASTER_DATA_ATTACHMENTS';
 
 export const rolePermissions: Record<ROLES, { allow?: NavPermission[]; notAllow?: NavPermission[] }> = {
 	[ROLES.SUPER_ADMIN]: {
 		allow: ['*'], // Wildcard for all permissions
 	},
 	[ROLES.IIFC_ADMIN]: {
-		allow: ['MASTER_DATA_POSTS'],
+		allow: ['MASTER_DATA_POSTS', 'MASTER_DATA_ATTACHMENTS'],
 		notAllow: [
 			'REQUESTS_LIST',
 			'MASTER_DATA_ORG_TYPES',

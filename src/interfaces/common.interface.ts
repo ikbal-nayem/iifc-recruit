@@ -49,3 +49,10 @@ export interface IFile {
 	filePath: string;
 	fileSize: string;
 }
+
+export interface IAttachment {
+	id: string;
+	type: string;
+	file: IFile;
+	isDefault: boolean;
+}

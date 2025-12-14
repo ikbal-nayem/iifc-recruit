@@ -32,6 +32,7 @@ import {
 	Users2,
 	CalendarCheck,
 	List,
+    Paperclip,
 } from 'lucide-react';
 import type { NavPermission } from '@/config/access.config';
 
@@ -167,6 +168,7 @@ export const adminNavLinks: NavLink[] = [
 				icon: Building2,
 			},
 			{ key: 'MASTER_DATA_POSTS', href: '/admin/master-data/posts', label: 'Posts', icon: UserCog },
+            { key: 'MASTER_DATA_ATTACHMENTS', href: '/admin/master-data/attachments', label: 'Attachments', icon: Paperclip },
 			{ key: 'MASTER_DATA_SKILLS', href: '/admin/master-data/skills', label: 'Skills', icon: Award },
 			{ key: 'MASTER_DATA_LANGUAGES', href: '/admin/master-data/languages', label: 'Languages', icon: Globe },
 			{
