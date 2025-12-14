@@ -202,10 +202,10 @@ export function AttachmentCrud({
 										<div>
 											<FilePreviewer file={item.file}>
 												<p className='font-semibold cursor-pointer hover:underline'>
-													{item.file.originalFileName}
+													{getTypeName(item.type)}
 												</p>
 											</FilePreviewer>
-											<p className='text-sm text-muted-foreground'>{getTypeName(item.type)}</p>
+											<p className='text-sm text-muted-foreground'>{item.file.originalFileName}</p>
 											<p className='text-xs text-muted-foreground'>
 												Uploaded: {format(new Date(item.createdOn), 'dd MMM, yyyy')}
 											</p>
