@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -24,7 +25,8 @@ import { IAttachment, IMeta } from '@/interfaces/common.interface';
 import { EnumDTO } from '@/interfaces/master-data.interface';
 import { makeFormData } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, PlusCircle, Star, Trash } from 'lucide-react';
+import { format } from 'date-fns';
+import { FileText, Loader2, PlusCircle, Star, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -176,57 +178,73 @@ export function AttachmentCrud({
 				</Button>
 			</div>
 			<Card className='glassmorphism'>
-				<CardContent className='space-y-4 pt-6'>
+				<CardContent className='space-y-4 pt-6 relative'>
+					{isLoading && items.length > 0 && (
+						<div className='absolute inset-0 bg-white/50 backdrop-blur-[2px] flex items-center justify-center z-10'>
+							<Loader2 className='h-8 w-8 animate-spin text-primary' />
+						</div>
+					)}
 					<div className='space-y-2'>
-						{isLoading
-							? [...Array(3)].map((_, i) => <Skeleton key={i} className='h-16 w-full' />)
-							: items.map((item) => (
-									<Card
-										key={item.id}
-										className='p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-background/50'
-									>
-										<div className='flex-1 mb-4 sm:mb-0'>
-											<p className='font-semibold'>{getTypeName(item.type)}</p>
-											<FilePreviewer file={item.file}>
-												<span className='text-sm text-primary underline cursor-pointer'>
-													{item.file.originalFileName}
-												</span>
-											</FilePreviewer>
-										</div>
-										<div className='flex items-center gap-4 w-full sm:w-auto justify-between'>
-											<div className='flex items-center gap-2'>
-												<Switch
-													id={`default-switch-${item.id}`}
-													checked={item.isDefault}
-													onCheckedChange={() => onSetDefault(item)}
-												/>
-												<Label
-													htmlFor={`default-switch-${item.id}`}
-													className='text-sm flex items-center gap-1'
-												>
-													<Star
-														className={`h-4 w-4 transition-colors ${
-															item.isDefault ? 'text-amber-500 fill-amber-400' : 'text-muted-foreground'
-														}`}
-													/>
-													Default
-												</Label>
+						{isLoading && items.length === 0 ? (
+							[...Array(3)].map((_, i) => <Skeleton key={i} className='h-24 w-full' />)
+						) : items.length > 0 ? (
+							items.map((item) => (
+								<Card
+									key={item.id}
+									className='p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-background/50'
+								>
+									<div className='flex-1 flex items-center gap-4 mb-4 sm:mb-0'>
+										<FilePreviewer file={item.file}>
+											<div className='bg-primary/10 text-primary p-3 rounded-lg cursor-pointer'>
+												<FileText className='h-6 w-6' />
 											</div>
-											<ConfirmationDialog
-												trigger={
-													<Button variant='ghost' size='icon' className='h-8 w-8'>
-														<Trash className='h-4 w-4 text-danger' />
-													</Button>
-												}
-												title='Are you sure?'
-												description={`This will permanently delete the attachment "${item.file.originalFileName}".`}
-												onConfirm={() => handleRemove(item.id)}
-												confirmText='Delete'
-											/>
+										</FilePreviewer>
+										<div>
+											<FilePreviewer file={item.file}>
+												<p className='font-semibold cursor-pointer hover:underline'>
+													{item.file.originalFileName}
+												</p>
+											</FilePreviewer>
+											<p className='text-sm text-muted-foreground'>{getTypeName(item.type)}</p>
+											<p className='text-xs text-muted-foreground'>
+												Uploaded: {format(new Date(item.createdOn), 'dd MMM, yyyy')}
+											</p>
 										</div>
-									</Card>
-							  ))}
-						{!isLoading && items.length === 0 && (
+									</div>
+									<div className='flex items-center gap-4 w-full sm:w-auto justify-between'>
+										<div className='flex items-center gap-2'>
+											<Switch
+												id={`default-switch-${item.id}`}
+												checked={item.isDefault}
+												onCheckedChange={() => onSetDefault(item)}
+											/>
+											<Label
+												htmlFor={`default-switch-${item.id}`}
+												className='text-sm flex items-center gap-1 cursor-pointer'
+											>
+												<Star
+													className={`h-4 w-4 transition-colors ${
+														item.isDefault ? 'text-amber-500 fill-amber-400' : 'text-muted-foreground'
+													}`}
+												/>
+												Default
+											</Label>
+										</div>
+										<ConfirmationDialog
+											trigger={
+												<Button variant='ghost' size='icon' className='h-8 w-8'>
+													<Trash className='h-4 w-4 text-danger' />
+												</Button>
+											}
+											title='Are you sure?'
+											description={`This will permanently delete the attachment "${item.file.originalFileName}".`}
+											onConfirm={() => handleRemove(item.id)}
+											confirmText='Delete'
+										/>
+									</div>
+								</Card>
+							))
+						) : (
 							<p className='text-center text-sm text-muted-foreground py-4'>No attachments found.</p>
 						)}
 					</div>
