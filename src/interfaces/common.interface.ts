@@ -54,5 +54,6 @@ export interface IAttachment {
 	id: string;
 	type: string;
 	file: IFile;
+	createdOn: string;
 	isDefault: boolean;
 }

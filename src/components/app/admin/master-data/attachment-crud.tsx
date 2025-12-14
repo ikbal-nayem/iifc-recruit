@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -17,19 +16,18 @@ import { Form } from '@/components/ui/form';
 import { FormFileUpload } from '@/components/ui/form-file-upload';
 import { FormSelect } from '@/components/ui/form-select';
 import { FormSwitch } from '@/components/ui/form-switch';
+import { Label } from '@/components/ui/label';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
 import { IAttachment, IMeta } from '@/interfaces/common.interface';
 import { EnumDTO } from '@/interfaces/master-data.interface';
 import { makeFormData } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FileText, Loader2, PlusCircle, Trash, Star } from 'lucide-react';
+import { Loader2, PlusCircle, Star, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { Label } from '@/components/ui/label';
 
 const formSchema = z.object({
 	type: z.string().min(1, 'Attachment type is required.'),
@@ -93,6 +91,8 @@ function AttachmentForm({ isOpen, onClose, onSubmit, attachmentTypes, noun }: At
 							name='file'
 							label='File'
 							required
+							accept='.pdf'
+							maxSize={10 * 1024 * 1024}
 							disabled={isSubmitting}
 						/>
 						<FormSwitch
@@ -144,9 +144,7 @@ export function AttachmentCrud({
 	onSetDefault,
 	onPageChange,
 }: AttachmentCrudProps) {
-	const { toast } = useToast();
 	const [isFormOpen, setIsFormOpen] = useState(false);
-	const [itemToDelete, setItemToDelete] = useState<IAttachment | null>(null);
 
 	const handleOpenForm = () => {
 		setIsFormOpen(true);
@@ -156,10 +154,9 @@ export function AttachmentCrud({
 		setIsFormOpen(false);
 	};
 
-	const handleRemove = async () => {
-		if (!itemToDelete) return;
-		await onDelete(itemToDelete.id);
-		setItemToDelete(null);
+	const handleRemove = async (id: string) => {
+		if (!id) return;
+		await onDelete(id);
 	};
 
 	const getTypeName = (type: string) => {
@@ -203,7 +200,10 @@ export function AttachmentCrud({
 													checked={item.isDefault}
 													onCheckedChange={() => onSetDefault(item)}
 												/>
-												<Label htmlFor={`default-switch-${item.id}`} className='text-sm flex items-center gap-1'>
+												<Label
+													htmlFor={`default-switch-${item.id}`}
+													className='text-sm flex items-center gap-1'
+												>
 													<Star
 														className={`h-4 w-4 transition-colors ${
 															item.isDefault ? 'text-amber-500 fill-amber-400' : 'text-muted-foreground'
@@ -219,9 +219,7 @@ export function AttachmentCrud({
 													</Button>
 												}
 												title='Are you sure?'
-												description={`This will permanently delete the attachment "${
-													item.file.originalFileName
-												}".`}
+												description={`This will permanently delete the attachment "${item.file.originalFileName}".`}
 												onConfirm={() => handleRemove(item.id)}
 												confirmText='Delete'
 											/>

@@ -39,7 +39,6 @@ export const rolePermissions: Record<ROLES, { allow?: NavPermission[]; notAllow?
 		allow: ['*'], // Wildcard for all permissions
 	},
 	[ROLES.IIFC_ADMIN]: {
-		allow: ['MASTER_DATA_POSTS', 'MASTER_DATA_ATTACHMENTS'],
 		notAllow: [
 			'REQUESTS_LIST',
 			'MASTER_DATA_ORG_TYPES',
