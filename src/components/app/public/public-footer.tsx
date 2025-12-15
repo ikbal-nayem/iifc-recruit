@@ -135,12 +135,12 @@ export default function PublicFooter() {
 								<Linkedin className='h-6 w-6' />
 							</Link>
 						</div>
-						<div className='mt-4 text-center md:text-left'>
+						{/* <div className='mt-4 text-center md:text-left'>
 							<h4 className='text-sm font-semibold'>{t.language}</h4>
 							<Button onClick={toggleLocale} variant='link' className='p-0 text-muted-foreground'>
 								{locale === 'en' ? 'বাংলা' : 'English'}
 							</Button>
-						</div>
+						</div> */}
 					</div>
 				</div>
 
