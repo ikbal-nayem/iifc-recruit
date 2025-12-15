@@ -1,166 +1,151 @@
+
 'use client';
 
 import { useLocale } from '@/contexts/locale-context';
 import { COMMON_URL } from '@/constants/common.constant';
 import { useTranslations } from '@/hooks/use-translations';
-import { Facebook, Linkedin, Youtube, Languages, FileText } from 'lucide-react';
+import { adminNavLinks } from '@/lib/nav-links';
+import { Facebook, Linkedin, Twitter } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { FilePreviewer } from '@/components/ui/file-previewer';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useEffect, useState } from 'react';
 import { AttachmentService } from '@/services/api/attachment.service';
 import { IAttachment } from '@/interfaces/common.interface';
-import { makeDownloadURL } from '@/lib/file-oparations';
-import { Skeleton } from '@/components/ui/skeleton';
 
-const translations = {
+const footerTranslations = {
 	en: {
 		quickLinks: 'Quick Links',
-		documents: 'Documents',
+		forCandidates: 'For Candidates',
 		connectWithUs: 'Connect With Us',
 		jobsLink: 'All Jobs',
+		aboutLink: 'About Us',
 		contactLink: 'Contact Us',
-		privacyPolicyLink: 'Privacy Policy',
-		termsOfServiceLink: 'Terms of Service',
+		companyTagline: 'IIFC',
 		language: 'Language',
 		policy: 'Policy',
 		approvalOfMf: 'Approval of MF',
 	},
 	bn: {
 		quickLinks: 'দ্রুত লিঙ্ক',
-		documents: 'নথিপত্র',
+		forCandidates: 'প্রার্থীদের জন্য',
 		connectWithUs: 'আমাদের সাথে সংযুক্ত হন',
 		jobsLink: 'সকল চাকরি',
+		aboutLink: 'আমাদের সম্পর্কে',
 		contactLink: 'যোগাযোগ',
-		privacyPolicyLink: 'গোপনীয়তা নীতি',
-		termsOfServiceLink: 'সেবার শর্তাবলী',
+		companyTagline: 'আইআইএফসি',
 		language: 'ভাষা',
-		policy: 'নীতি',
-		approvalOfMf: 'এমএফ এর অনুমোদন',
+		policy: 'নীতিমালা',
+		approvalOfMf: 'এমএফ অনুমোদন',
 	},
 };
 
 export default function PublicFooter() {
 	const { locale, setLocale } = useLocale();
-	const t = useTranslations(translations);
-	const [attachments, setAttachments] = useState<IAttachment[]>([]);
+	const t = useTranslations(footerTranslations);
+	const [documents, setDocuments] = useState<IAttachment[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 
-	useEffect(() => {
-		AttachmentService.getPublicAttachments(['POLICY', 'APPROVAL_OF_MF'])
-			.then((res) => {
-				setAttachments(res.body || []);
-			})
-			.catch(() => {})
-			.finally(() => setIsLoading(false));
-	}, []);
-
-	const otherLocale = locale === 'en' ? 'bn' : 'en';
-
-	const getAttachmentByType = (type: string) => {
-		return attachments.find((att) => att.type === type && att.isDefault);
+	const toggleLocale = () => {
+		setLocale(locale === 'en' ? 'bn' : 'en');
 	};
 
-	const policyDoc = getAttachmentByType('POLICY');
-	const approvalDoc = getAttachmentByType('APPROVAL_OF_MF');
+	useEffect(() => {
+		const fetchDocuments = async () => {
+			try {
+				const res = await AttachmentService.getPublicAttachments(['POLICY', 'APPROVAL_OF_MF']);
+				setDocuments(res.body || []);
+			} catch (error) {
+				console.error('Failed to fetch footer documents:', error);
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		fetchDocuments();
+	}, []);
 
 	return (
-		<footer className='bg-primary/5'>
-			<div className='container mx-auto px-4 md:px-6 py-12'>
-				<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
-					<div className='space-y-4'>
+		<footer className='bg-primary/5 text-secondary-foreground'>
+			<div className='container mx-auto px-4 py-8 sm:px-6 lg:px-8'>
+				<div className='grid grid-cols-1 gap-8 md:grid-cols-4'>
+					<div className='flex flex-col items-center md:items-start'>
 						<Link href='/' className='flex items-center gap-3'>
-							<Image src={COMMON_URL.SITE_LOGO} alt='IIFC Logo' width={40} height={40} />
-							<span className='font-bold text-lg font-headline'>Outsourcing Jobs</span>
+							<Image
+								src={COMMON_URL.SITE_LOGO}
+								alt='IIFC Logo'
+								width={40}
+								height={40}
+								className='h-10 w-auto'
+							/>
+							<span className='font-headline text-2xl font-bold'>{t.companyTagline}</span>
 						</Link>
-						<p className='text-sm text-muted-foreground'>
+						<p className='mt-4 text-center md:text-left text-sm text-muted-foreground'>
 							Facilitating private sector investment in the infrastructure of Bangladesh.
 						</p>
 					</div>
 
-					<div className='space-y-4'>
-						<h4 className='font-semibold'>{t.quickLinks}</h4>
-						<ul className='space-y-2 text-sm'>
-							<li>
-								<Link href='/jobs' className='text-muted-foreground hover:text-primary'>
-									{t.jobsLink}
-								</Link>
-							</li>
-							<li>
-								<Link href='/contact' className='text-muted-foreground hover:text-primary'>
-									{t.contactLink}
-								</Link>
-							</li>
-						</ul>
+					<div>
+						<h3 className='font-bold uppercase text-primary'>{t.quickLinks}</h3>
+						<nav className='mt-4 flex flex-col items-center md:items-start space-y-2 text-sm'>
+							<Link href='/jobs' className='hover:text-primary transition-colors'>
+								{t.jobsLink}
+							</Link>
+							<Link href='/about' className='hover:text-primary transition-colors'>
+								{t.aboutLink}
+							</Link>
+							<Link href='/contact' className='hover:text-primary transition-colors'>
+								{t.contactLink}
+							</Link>
+						</nav>
 					</div>
 
-					<div className='space-y-4'>
-						<h4 className='font-semibold'>{t.documents}</h4>
-						<ul className='space-y-2 text-sm'>
+					<div>
+						<h3 className='font-bold uppercase text-primary'>Documents</h3>
+						<nav className='mt-4 flex flex-col items-center md:items-start space-y-2 text-sm'>
 							{isLoading ? (
 								<>
 									<Skeleton className='h-5 w-24' />
 									<Skeleton className='h-5 w-32' />
 								</>
 							) : (
-								<>
-									{policyDoc && (
-										<li>
-											<a
-												href={makeDownloadURL(policyDoc.file)}
-												target='_blank'
-												rel='noopener noreferrer'
-												className='flex items-center text-muted-foreground hover:text-primary'
-											>
-												<FileText className='mr-2 h-4 w-4' />
-												{policyDoc.typeDTO?.nameEn}
-											</a>
-										</li>
-									)}
-									{approvalDoc && (
-										<li>
-											<a
-												href={makeDownloadURL(approvalDoc.file)}
-												target='_blank'
-												rel='noopener noreferrer'
-												className='flex items-center text-muted-foreground hover:text-primary'
-											>
-												<FileText className='mr-2 h-4 w-4' />
-												{approvalDoc.typeDTO?.nameEn}
-											</a>
-										</li>
-									)}
-								</>
+								documents.map((doc) => (
+									<FilePreviewer key={doc.id} file={doc.file}>
+										<button className='hover:text-primary transition-colors'>
+											{doc.type === 'POLICY' ? t.policy : t.approvalOfMf}
+										</button>
+									</FilePreviewer>
+								))
 							)}
-						</ul>
+						</nav>
 					</div>
 
-					<div className='space-y-4'>
-						<h4 className='font-semibold'>{t.connectWithUs}</h4>
-						<div className='flex space-x-4'>
-							<Link href='https://facebook.com' target='_blank' rel='noopener noreferrer' aria-label='Facebook'>
-								<Facebook className='h-6 w-6 text-muted-foreground hover:text-primary' />
+					<div>
+						<h3 className='font-bold uppercase text-primary text-center md:text-left'>{t.connectWithUs}</h3>
+						<div className='mt-4 flex justify-center md:justify-start gap-4'>
+							<Link href='#' className='text-muted-foreground hover:text-primary transition-colors'>
+								<Facebook className='h-6 w-6' />
 							</Link>
-							<Link href='https://linkedin.com' target='_blank' rel='noopener noreferrer' aria-label='LinkedIn'>
-								<Linkedin className='h-6 w-6 text-muted-foreground hover:text-primary' />
+							<Link href='#' className='text-muted-foreground hover:text-primary transition-colors'>
+								<Twitter className='h-6 w-6' />
 							</Link>
-							<Link href='https://youtube.com' target='_blank' rel='noopener noreferrer' aria-label='YouTube'>
-								<Youtube className='h-6 w-6 text-muted-foreground hover:text-primary' />
+							<Link href='#' className='text-muted-foreground hover:text-primary transition-colors'>
+								<Linkedin className='h-6 w-6' />
 							</Link>
 						</div>
-						<div className='pt-2'>
-							<h4 className='font-semibold mb-2 text-sm'>{t.language}</h4>
-							<Button variant='outline' size='sm' onClick={() => setLocale(otherLocale)}>
-								<Languages className='mr-2 h-4 w-4' />
-								{otherLocale === 'en' ? 'English' : 'বাংলা'}
+						<div className='mt-4 text-center md:text-left'>
+							<h4 className='text-sm font-semibold'>{t.language}</h4>
+							<Button onClick={toggleLocale} variant='link' className='p-0 text-muted-foreground'>
+								{locale === 'en' ? 'বাংলা' : 'English'}
 							</Button>
 						</div>
 					</div>
 				</div>
-			</div>
-			<div className='border-t'>
-				<div className='container mx-auto px-4 md:px-6 py-4 text-center text-sm text-muted-foreground'>
-					© {new Date().getFullYear()} IIFC Outsourcing Jobs. All rights reserved.
+
+				<div className='mt-8 border-t pt-8 text-center text-sm text-muted-foreground'>
+					&copy; {new Date().getFullYear()} {t.companyTagline}. All rights reserved.
 				</div>
 			</div>
 		</footer>
