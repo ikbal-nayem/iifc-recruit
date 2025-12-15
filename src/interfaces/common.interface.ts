@@ -1,3 +1,5 @@
+import { EnumDTO } from "./master-data.interface";
+
 export interface IObject {
 	[key: string]: any;
 }
@@ -53,6 +55,7 @@ export interface IFile {
 export interface IAttachment {
 	id: string;
 	type: string;
+	typeDTO: EnumDTO;
 	file: IFile;
 	createdOn: string;
 	isDefault: boolean;

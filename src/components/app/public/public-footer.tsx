@@ -19,7 +19,6 @@ const translations = {
 		documents: 'Documents',
 		connectWithUs: 'Connect With Us',
 		jobsLink: 'All Jobs',
-		aboutLink: 'About Us',
 		contactLink: 'Contact Us',
 		privacyPolicyLink: 'Privacy Policy',
 		termsOfServiceLink: 'Terms of Service',
@@ -32,7 +31,6 @@ const translations = {
 		documents: 'নথিপত্র',
 		connectWithUs: 'আমাদের সাথে সংযুক্ত হন',
 		jobsLink: 'সকল চাকরি',
-		aboutLink: 'আমাদের সম্পর্কে',
 		contactLink: 'যোগাযোগ',
 		privacyPolicyLink: 'গোপনীয়তা নীতি',
 		termsOfServiceLink: 'সেবার শর্তাবলী',
@@ -53,9 +51,7 @@ export default function PublicFooter() {
 			.then((res) => {
 				setAttachments(res.body || []);
 			})
-			.catch(() => {
-				// Silently fail, don't show error toast
-			})
+			.catch(() => {})
 			.finally(() => setIsLoading(false));
 	}, []);
 
@@ -85,11 +81,6 @@ export default function PublicFooter() {
 					<div className='space-y-4'>
 						<h4 className='font-semibold'>{t.quickLinks}</h4>
 						<ul className='space-y-2 text-sm'>
-							<li>
-								<Link href='/' className='text-muted-foreground hover:text-primary'>
-									{t.navigation.home}
-								</Link>
-							</li>
 							<li>
 								<Link href='/jobs' className='text-muted-foreground hover:text-primary'>
 									{t.jobsLink}
@@ -122,7 +113,7 @@ export default function PublicFooter() {
 												className='flex items-center text-muted-foreground hover:text-primary'
 											>
 												<FileText className='mr-2 h-4 w-4' />
-												{t.policy}
+												{policyDoc.typeDTO?.nameEn}
 											</a>
 										</li>
 									)}
@@ -135,22 +126,12 @@ export default function PublicFooter() {
 												className='flex items-center text-muted-foreground hover:text-primary'
 											>
 												<FileText className='mr-2 h-4 w-4' />
-												{t.approvalOfMf}
+												{approvalDoc.typeDTO?.nameEn}
 											</a>
 										</li>
 									)}
 								</>
 							)}
-							<li>
-								<Link href='/#' className='text-muted-foreground hover:text-primary'>
-									{t.privacyPolicyLink}
-								</Link>
-							</li>
-							<li>
-								<Link href='/#' className='text-muted-foreground hover:text-primary'>
-									{t.termsOfServiceLink}
-								</Link>
-							</li>
 						</ul>
 					</div>
 

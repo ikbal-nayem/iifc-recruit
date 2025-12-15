@@ -21,6 +21,6 @@ export const AttachmentService = {
 		return axiosIns.delete(`/attachment/delete/${id}`);
 	},
 	getPublicAttachments: async (types: string[]): Promise<IApiResponse<IAttachment[]>> => {
-		return axiosIns.post('/public/documents-by-type', types);
+		return axiosIns.post('/attachment/public/documents-by-type', types);
 	},
 };
