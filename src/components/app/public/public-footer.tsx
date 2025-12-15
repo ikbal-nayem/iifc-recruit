@@ -1,44 +1,33 @@
-
 'use client';
 
-import { useLocale } from '@/contexts/locale-context';
+import { FilePreviewer } from '@/components/ui/file-previewer';
+import { Skeleton } from '@/components/ui/skeleton';
 import { COMMON_URL } from '@/constants/common.constant';
+import { useLocale } from '@/contexts/locale-context';
 import { useTranslations } from '@/hooks/use-translations';
-import { adminNavLinks } from '@/lib/nav-links';
+import { IAttachment } from '@/interfaces/common.interface';
+import { AttachmentService } from '@/services/api/attachment.service';
 import { Facebook, Linkedin, Twitter } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { FilePreviewer } from '@/components/ui/file-previewer';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useEffect, useState } from 'react';
-import { AttachmentService } from '@/services/api/attachment.service';
-import { IAttachment } from '@/interfaces/common.interface';
 
 const footerTranslations = {
 	en: {
 		quickLinks: 'Quick Links',
-		forCandidates: 'For Candidates',
 		connectWithUs: 'Connect With Us',
 		jobsLink: 'All Jobs',
-		aboutLink: 'About Us',
 		contactLink: 'Contact Us',
 		companyTagline: 'Outsourcing Jobs',
 		language: 'Language',
-		policy: 'Policy',
-		approvalOfMf: 'Approval of MF',
 	},
 	bn: {
 		quickLinks: 'দ্রুত লিঙ্ক',
-		forCandidates: 'প্রার্থীদের জন্য',
 		connectWithUs: 'আমাদের সাথে সংযুক্ত হন',
 		jobsLink: 'সকল চাকরি',
-		aboutLink: 'আমাদের সম্পর্কে',
 		contactLink: 'যোগাযোগ',
 		companyTagline: 'আউটসোর্সিং চাকরি',
 		language: 'ভাষা',
-		policy: 'নীতিমালা',
-		approvalOfMf: 'এমএফ অনুমোদন',
 	},
 };
 
@@ -93,9 +82,6 @@ export default function PublicFooter() {
 							<Link href='/jobs' className='hover:text-primary transition-colors'>
 								{t.jobsLink}
 							</Link>
-							<Link href='/about' className='hover:text-primary transition-colors'>
-								{t.aboutLink}
-							</Link>
 							<Link href='/contact' className='hover:text-primary transition-colors'>
 								{t.contactLink}
 							</Link>
@@ -114,7 +100,7 @@ export default function PublicFooter() {
 								documents.map((doc) => (
 									<FilePreviewer key={doc.id} file={doc.file}>
 										<button className='hover:text-primary transition-colors'>
-											{doc.type === 'POLICY' ? t.policy : t.approvalOfMf}
+											{locale === 'en' ? doc.typeDTO.nameEn : doc.typeDTO.nameBn}
 										</button>
 									</FilePreviewer>
 								))
