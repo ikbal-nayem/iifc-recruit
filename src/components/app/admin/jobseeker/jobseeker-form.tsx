@@ -162,6 +162,7 @@ export function JobseekerForm({
 				});
 				const modJson = json.map((item: any) => ({
 					...item,
+					firstName: item.name,
 					phone: item.mobile ? String(item.mobile) : '',
 				}));
 				replace(modJson as any);
