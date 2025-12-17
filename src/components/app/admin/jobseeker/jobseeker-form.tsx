@@ -70,8 +70,8 @@ const editableUserSchema = z.object({
 	users: z.array(
 		z.object({
 			firstName: z.string().min(1, 'First name is required'),
-			email: z.string().email('Invalid email'),
-			phone: z.string().optional(),
+			email: z.string().email('Invalid email').optional().or(z.literal('')),
+			phone: z.string(),
 			status: z.string().optional(),
 		})
 	),
