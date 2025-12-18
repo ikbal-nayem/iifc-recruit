@@ -165,7 +165,7 @@ const personalInfoSchema = z.object({
 	lastName: z.string().min(1, 'Last name is required'),
 	fatherName: z.string().min(1, "Father's name is required"),
 	motherName: z.string().min(1, "Mother's name is required"),
-	email: z.string().email(),
+	email: z.string().email().optional().or(z.literal('')),
 	phone: z
 		.string()
 		.min(1, 'Phone number is required')
@@ -474,7 +474,6 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 										label='Email'
 										type='email'
 										placeholder='you@example.com'
-										required
 										startIcon={<Mail className='h-4 w-4 text-muted-foreground' />}
 									/>
 									<FormInput
