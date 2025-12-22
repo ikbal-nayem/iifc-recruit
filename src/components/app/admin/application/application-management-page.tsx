@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -211,21 +210,18 @@ export function ApplicationManagementPage({
 		if (isProcessing) {
 			return {
 				title: 'Processing Candidates',
-				description: 'Manage candidates who have been accepted for processing.',
-				reportTitle: 'প্রসেসিং তালিকা',
+				reportTitle: 'Processing Candidates',
 			};
 		}
 		if (isShortlisted) {
 			return {
 				title: 'Shortlisted Candidates',
-				description: 'Final candidates who have been shortlisted for the role.',
-				reportTitle: 'সংক্ষিপ্ত তালিকা',
+				reportTitle: 'Shortlisted Candidates',
 			};
 		}
 		return {
 			title: 'Applied Candidates',
-			description: 'These candidates have applied for the circular post.',
-			reportTitle: 'আবেদনকারীদের তালিকা',
+			reportTitle: 'Applied Candidates',
 		};
 	};
 
@@ -263,11 +259,19 @@ export function ApplicationManagementPage({
 			/>
 
 			<Card>
-				<CardHeader className='flex-row items-center justify-between'>
+				<CardHeader className='flex-row items-center justify-between pb-3'>
 					<div>
 						<CardTitle>{cardTexts.title}</CardTitle>
 					</div>
 					<div className='flex items-center gap-2'>
+						<Button
+							variant='outline-info'
+							onClick={() => generateApplicantReport(requestedPost, applicants, cardTexts.reportTitle)}
+							disabled={applicants.length === 0}
+						>
+							<FileDown className='mr-2 h-4 w-4' />
+							Generate Report
+						</Button>
 						{!isProcessing && !isShortlisted && (
 							<Dialog open={isAddCandidateOpen} onOpenChange={setIsAddCandidateOpen}>
 								<DialogTrigger asChild>
@@ -289,14 +293,6 @@ export function ApplicationManagementPage({
 								</DialogContent>
 							</Dialog>
 						)}
-						<Button
-							variant='outline-info'
-							onClick={() => generateApplicantReport(requestedPost, applicants, cardTexts.reportTitle)}
-							disabled={applicants.length === 0}
-						>
-							<FileDown className='mr-2 h-4 w-4' />
-							Generate Report
-						</Button>
 					</div>
 				</CardHeader>
 				<CardContent className='space-y-0'>

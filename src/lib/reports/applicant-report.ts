@@ -1,12 +1,11 @@
-
-import { generatePDF } from '@/services/pdf/pdf.service';
 import { Application } from '@/interfaces/application.interface';
 import { RequestedPost } from '@/interfaces/job.interface';
-import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
+import { generatePDF } from '@/services/pdf/pdf.service';
 import { format, parseISO } from 'date-fns';
+import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
 import { convertEnToBn } from '../translator';
 
-const generateReportHeader = (requestedPost: RequestedPost, reportTitle: string, applicantCount: number): Content => {
+const generateReportHeader = (requestedPost: RequestedPost): Content => {
 	const postDetails: string[] = [];
 	if (requestedPost.post?.nameBn) {
 		postDetails.push(`পদ: ${requestedPost.post.nameBn}`);
@@ -14,13 +13,10 @@ const generateReportHeader = (requestedPost: RequestedPost, reportTitle: string,
 	if (requestedPost.post?.outsourcingCategory?.nameBn) {
 		postDetails.push(`ক্যাটাগরি: ${requestedPost.post.outsourcingCategory.nameBn}`);
 	}
-	if (requestedPost.outsourcingZone?.nameBn) {
-		postDetails.push(`জোন: ${requestedPost.outsourcingZone.nameBn}`);
-	}
 
 	return {
 		stack: [
-			{ text: reportTitle, style: 'title', alignment: 'center' },
+			{ text: 'IIFC Outsourcing Jobs', font: 'Roboto', style: 'title', alignment: 'center' },
 			{ text: requestedPost.jobRequest?.subject || ' ', style: 'subtitle', alignment: 'center' },
 			{
 				columns: [
@@ -34,25 +30,23 @@ const generateReportHeader = (requestedPost: RequestedPost, reportTitle: string,
 						alignment: 'right',
 					},
 				],
-				margin: [0, 10, 0, 5],
+				marginTop: 10,
 			},
 			{
 				columns: [
 					{
-						text: `পদ সংখ্যা: ${convertEnToBn(requestedPost.vacancy)} | মোট আবেদনকারী: ${convertEnToBn(
-							applicantCount
-						)}`,
+						text: `পদ সংখ্যা: ${convertEnToBn(requestedPost.vacancy)}`,
 						style: 'info',
 					},
 					{
-						text: `রিপোর্টের তারিখ: ${convertEnToBn(format(new Date(), 'dd/MM/yyyy'))}`,
+						text: `জোন: ${requestedPost?.outsourcingZone?.nameBn || '-'}`,
 						style: 'info',
 						alignment: 'right',
 					},
 				],
 			},
 		],
-		marginBottom: 20,
+		marginBottom: 10,
 	};
 };
 
@@ -60,22 +54,22 @@ const generateApplicantTable = (applicants: Application[]): Content => {
 	const body: any[][] = [
 		// Table Header
 		[
-			{ text: 'ক্রমিক নং', style: 'tableHeader' },
+			{ text: 'ক্রমিক', style: 'tableHeader', alignment: 'center' },
 			{ text: 'আবেদনকারীর নাম', style: 'tableHeader' },
 			{ text: 'যোগাযোগ', style: 'tableHeader' },
 			{ text: 'আবেদনের তারিখ', style: 'tableHeader' },
-			{ text: 'Status', style: 'tableHeader' },
+			{ text: 'অবস্থা', style: 'tableHeader', alignment: 'center' },
 		],
 	];
 
 	// Table Rows
 	applicants.forEach((app, index) => {
 		body.push([
-			convertEnToBn(index + 1),
+			{ text: convertEnToBn(index + 1), alignment: 'center' },
 			app.fullName,
 			{ stack: [{ text: app.email }, { text: convertEnToBn(app.phone) }] },
 			convertEnToBn(format(parseISO(app.createdOn), 'dd-MM-yyyy')),
-			app.statusDTO.nameEn,
+			{text: app.statusDTO.nameEn, alignment: 'center', font: 'Roboto' },
 		]);
 	});
 
@@ -95,7 +89,17 @@ export const generateApplicantReport = (
 	reportTitle: string
 ) => {
 	const docDefinition: TDocumentDefinitions = {
-		content: [generateReportHeader(requestedPost, reportTitle, applicants.length), generateApplicantTable(applicants)],
+		content: [
+			generateReportHeader(requestedPost),
+			{ text: `মোট: ${convertEnToBn(applicants.length)} জন`, alignment: 'center', marginBottom: 5, fontSize: 11 },
+			generateApplicantTable(applicants),
+		],
+		header: {
+			text: `[${reportTitle}]`,
+			alignment: 'right',
+			font: 'Roboto',
+			margin: [0, 20, 40, 0],
+		},
 		styles: {
 			title: {
 				fontSize: 18,
@@ -114,12 +118,7 @@ export const generateApplicantReport = (
 				fontSize: 10,
 				color: 'black',
 				fillColor: '#eeeeee',
-				alignment: 'center',
 			},
-		},
-		defaultStyle: {
-			font: 'Kalpurush',
-			fontSize: 9,
 		},
 	};
 
