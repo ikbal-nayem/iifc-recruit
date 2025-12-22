@@ -21,7 +21,7 @@ import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { RequestedPost } from '@/interfaces/job.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO } from '@/interfaces/master-data.interface';
-import { generateApplicantReport } from '@/lib/report-generator';
+import { generateApplicantReport } from '@/lib/reports/applicant-report';
 import { ApplicationService } from '@/services/api/application.service';
 import { JobRequestService } from '@/services/api/job-request.service';
 import { ArrowLeft, ChevronsRight, FileDown, Filter, Loader2, Search, UserPlus } from 'lucide-react';
