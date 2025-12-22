@@ -149,16 +149,6 @@ export function JobseekerProfileView({
 
 	return (
 		<div className='p-2 sm:p-4 md:p-6 space-y-4'>
-			<div className='flex justify-end mb-4'>
-				<Button onClick={handleGenerateCvBn} disabled={isGeneratingCvBn} size='sm'>
-					{isGeneratingCvBn ? (
-						<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-					) : (
-						<Printer className='mr-2 h-4 w-4' />
-					)}
-					Generate CV
-				</Button>
-			</div>
 			{/* Header */}
 			<div className='flex flex-col sm:flex-row items-start gap-6'>
 				<Avatar className='h-28 w-28 border-4 border-background shadow-md'>
@@ -172,7 +162,17 @@ export function JobseekerProfileView({
 					</AvatarFallback>
 				</Avatar>
 				<div className='flex-1 space-y-2'>
-					<h1 className='text-3xl font-bold font-headline'>{personalInfo.fullName}</h1>
+					<div className='flex flex-wrap items-center justify-between gap-2'>
+						<h1 className='text-3xl font-bold font-headline'>{personalInfo.fullName}</h1>
+						<Button onClick={handleGenerateCvBn} disabled={isGeneratingCvBn} size='sm'>
+							{isGeneratingCvBn ? (
+								<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+							) : (
+								<Printer className='mr-2 h-4 w-4' />
+							)}
+							Generate CV
+						</Button>
+					</div>
 					{personalInfo?.organization && (
 						<span className='font-semibold text-muted-foreground'>{personalInfo?.organization?.nameEn}</span>
 					)}

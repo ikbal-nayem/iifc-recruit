@@ -289,6 +289,14 @@ export function ApplicationManagementPage({
 								</DialogContent>
 							</Dialog>
 						)}
+						<Button
+							variant='outline-info'
+							onClick={() => generateApplicantReport(requestedPost, applicants, cardTexts.reportTitle)}
+							disabled={applicants.length === 0}
+						>
+							<FileDown className='mr-2 h-4 w-4' />
+							Generate Report
+						</Button>
 					</div>
 				</CardHeader>
 				<CardContent className='space-y-0'>
@@ -305,14 +313,6 @@ export function ApplicationManagementPage({
 						<div className='flex items-center gap-2'>
 							<Button variant='outline' onClick={() => setIsFilterOpen(true)}>
 								<Filter className='mr-2 h-4 w-4' /> Filters
-							</Button>
-							<Button
-								variant='outline-info'
-								onClick={() => generateApplicantReport(requestedPost, applicants, cardTexts.reportTitle)}
-								disabled={applicants.length === 0}
-							>
-								<FileDown className='mr-2 h-4 w-4' />
-								Generate Report
 							</Button>
 						</div>
 					</div>
