@@ -4,8 +4,17 @@ import { generatePDF } from '@/services/pdf/pdf.service';
 import { format, parseISO } from 'date-fns';
 import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
 import { convertEnToBn } from '../translator';
+import { COMMON_URL } from '@/constants/common.constant';
+import { toDataURL } from '../pdf-utils';
 
-const generateReportHeader = (requestedPost: RequestedPost): Content => {
+const generateReportHeader = async (requestedPost: RequestedPost): Promise<Content> => {
+	let logoDataUrl: string | undefined;
+	try {
+		logoDataUrl = (await toDataURL(COMMON_URL.SITE_LOGO)) as string;
+	} catch (error) {
+		console.error('Could not fetch logo for report header:', error);
+	}
+
 	const postDetails: string[] = [];
 	if (requestedPost.post?.nameBn) {
 		postDetails.push(`পদ: ${requestedPost.post.nameBn}`);
@@ -16,26 +25,51 @@ const generateReportHeader = (requestedPost: RequestedPost): Content => {
 
 	return {
 		stack: [
-			{ text: 'IIFC Outsourcing Jobs', font: 'Roboto', style: 'title', alignment: 'center' },
-			{ text: requestedPost.jobRequest?.subject || ' ', style: 'subtitle', alignment: 'center' },
 			{
 				columns: [
 					{
-						text: postDetails.join(' | '),
-						style: 'info',
+						image: logoDataUrl,
+						width: 60,
+						alignment: 'left',
 					},
 					{
-						text: `প্রতিষ্ঠান: ${requestedPost.jobRequest?.clientOrganization?.nameBn}`,
+						stack: [
+							{ text: 'IIFC Outsourcing Jobs', style: 'title', alignment: 'center' },
+							{ text: requestedPost.jobRequest?.subject || ' ', style: 'subtitle', alignment: 'center' },
+						],
+						alignment: 'center',
+					},
+					{
+						text: `তারিখ: ${convertEnToBn(format(new Date(), 'dd/MM/yyyy'))}`,
 						style: 'info',
 						alignment: 'right',
+						width: 'auto',
 					},
 				],
-				marginTop: 10,
+				columnGap: 10,
+				marginBottom: 10,
+			},
+			{
+				canvas: [{ type: 'line', x1: 0, y1: 5, x2: 515, y2: 5, lineWidth: 0.5, lineColor: '#cccccc' }],
+				marginBottom: 10,
 			},
 			{
 				columns: [
 					{
+						text: `প্রতিষ্ঠান: ${requestedPost.jobRequest?.clientOrganization?.nameBn}`,
+						style: 'info',
+					},
+					{
 						text: `পদ সংখ্যা: ${convertEnToBn(requestedPost.vacancy)}`,
+						style: 'info',
+						alignment: 'right',
+					},
+				],
+			},
+			{
+				columns: [
+					{
+						text: postDetails.join(' | '),
 						style: 'info',
 					},
 					{
@@ -69,7 +103,7 @@ const generateApplicantTable = (applicants: Application[]): Content => {
 			app.fullName,
 			{ stack: [{ text: app.email }, { text: convertEnToBn(app.phone) }] },
 			convertEnToBn(format(parseISO(app.createdOn), 'dd-MM-yyyy')),
-			{text: app.statusDTO.nameEn, alignment: 'center', font: 'Roboto' },
+			{ text: app.statusDTO.nameEn, alignment: 'center', font: 'Roboto' },
 		]);
 	});
 
@@ -83,14 +117,14 @@ const generateApplicantTable = (applicants: Application[]): Content => {
 	};
 };
 
-export const generateApplicantReport = (
+export const generateApplicantReport = async (
 	requestedPost: RequestedPost,
 	applicants: Application[],
 	reportTitle: string
 ) => {
 	const docDefinition: TDocumentDefinitions = {
 		content: [
-			generateReportHeader(requestedPost),
+			await generateReportHeader(requestedPost),
 			{ text: `মোট: ${convertEnToBn(applicants.length)} জন`, alignment: 'center', marginBottom: 5, fontSize: 11 },
 			generateApplicantTable(applicants),
 		],
@@ -102,11 +136,11 @@ export const generateApplicantReport = (
 		},
 		styles: {
 			title: {
-				fontSize: 18,
+				fontSize: 16,
 				bold: true,
 			},
 			subtitle: {
-				fontSize: 14,
+				fontSize: 12,
 				color: '#444444',
 			},
 			info: {

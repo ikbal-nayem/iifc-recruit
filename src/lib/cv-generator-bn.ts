@@ -1,24 +1,11 @@
-
 import { COMMON_URL } from '@/constants/common.constant';
 import { Jobseeker } from '@/interfaces/jobseeker.interface';
 import { generatePDF } from '@/services/pdf/pdf.service';
 import { format, parseISO } from 'date-fns';
 import { Content, TableLayout, TDocumentDefinitions } from 'pdfmake/interfaces';
 import { makePreviewURL } from './file-oparations';
+import { toDataURL } from './pdf-utils';
 import { convertEnToBn } from './translator';
-
-const toDataURL = (url: string) =>
-	fetch(url)
-		.then((response) => response.blob())
-		.then(
-			(blob) =>
-				new Promise((resolve, reject) => {
-					const reader = new FileReader();
-					reader.onloadend = () => resolve(reader.result);
-					reader.onerror = reject;
-					reader.readAsDataURL(blob);
-				})
-		);
 
 const defautlTableLayout: TableLayout = {
 	hLineWidth: () => 0.5,
