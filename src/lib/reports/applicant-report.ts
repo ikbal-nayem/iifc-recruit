@@ -6,7 +6,18 @@ import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
 import { format, parseISO } from 'date-fns';
 import { convertEnToBn } from '../translator';
 
-const generateReportHeader = (requestedPost: RequestedPost, reportTitle: string): Content => {
+const generateReportHeader = (requestedPost: RequestedPost, reportTitle: string, applicantCount: number): Content => {
+	const postDetails: string[] = [];
+	if (requestedPost.post?.nameBn) {
+		postDetails.push(`পদ: ${requestedPost.post.nameBn}`);
+	}
+	if (requestedPost.post?.outsourcingCategory?.nameBn) {
+		postDetails.push(`ক্যাটাগরি: ${requestedPost.post.outsourcingCategory.nameBn}`);
+	}
+	if (requestedPost.outsourcingZone?.nameBn) {
+		postDetails.push(`জোন: ${requestedPost.outsourcingZone.nameBn}`);
+	}
+
 	return {
 		stack: [
 			{ text: reportTitle, style: 'title', alignment: 'center' },
@@ -14,7 +25,7 @@ const generateReportHeader = (requestedPost: RequestedPost, reportTitle: string)
 			{
 				columns: [
 					{
-						text: `পদ: ${requestedPost.post?.nameBn}`,
+						text: postDetails.join(' | '),
 						style: 'info',
 					},
 					{
@@ -28,7 +39,9 @@ const generateReportHeader = (requestedPost: RequestedPost, reportTitle: string)
 			{
 				columns: [
 					{
-						text: `পদ সংখ্যা: ${convertEnToBn(requestedPost.vacancy)}`,
+						text: `পদ সংখ্যা: ${convertEnToBn(requestedPost.vacancy)} | মোট আবেদনকারী: ${convertEnToBn(
+							applicantCount
+						)}`,
 						style: 'info',
 					},
 					{
@@ -51,8 +64,7 @@ const generateApplicantTable = (applicants: Application[]): Content => {
 			{ text: 'আবেদনকারীর নাম', style: 'tableHeader' },
 			{ text: 'যোগাযোগ', style: 'tableHeader' },
 			{ text: 'আবেদনের তারিখ', style: 'tableHeader' },
-			{ text: 'অবস্থা', style: 'tableHeader' },
-			{ text: 'নম্বর', style: 'tableHeader' },
+			{ text: 'Status', style: 'tableHeader' },
 		],
 	];
 
@@ -63,15 +75,14 @@ const generateApplicantTable = (applicants: Application[]): Content => {
 			app.fullName,
 			{ stack: [{ text: app.email }, { text: convertEnToBn(app.phone) }] },
 			convertEnToBn(format(parseISO(app.createdOn), 'dd-MM-yyyy')),
-			app.statusDTO.nameBn,
-			app.marks ? convertEnToBn(app.marks) : '-',
+			app.statusDTO.nameEn,
 		]);
 	});
 
 	return {
 		table: {
 			headerRows: 1,
-			widths: ['auto', '*', 'auto', 'auto', 'auto', 'auto'],
+			widths: ['auto', '*', 'auto', 'auto', 'auto'],
 			body: body,
 		},
 		layout: 'lightHorizontalLines',
@@ -84,7 +95,7 @@ export const generateApplicantReport = (
 	reportTitle: string
 ) => {
 	const docDefinition: TDocumentDefinitions = {
-		content: [generateReportHeader(requestedPost, reportTitle), generateApplicantTable(applicants)],
+		content: [generateReportHeader(requestedPost, reportTitle, applicants.length), generateApplicantTable(applicants)],
 		styles: {
 			title: {
 				fontSize: 18,
