@@ -21,9 +21,10 @@ import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { RequestedPost } from '@/interfaces/job.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { EnumDTO } from '@/interfaces/master-data.interface';
+import { generateApplicantReport } from '@/lib/report-generator';
 import { ApplicationService } from '@/services/api/application.service';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { ArrowLeft, ChevronsRight, Filter, Loader2, Search, UserPlus } from 'lucide-react';
+import { ArrowLeft, ChevronsRight, FileDown, Filter, Loader2, Search, UserPlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { ApplicantFilterBar, ApplicantFilterValues } from './applicant-filter-bar';
@@ -298,9 +299,19 @@ export function ApplicationManagementPage({
 								className='pl-10 h-10'
 							/>
 						</div>
-						<Button variant='outline' onClick={() => setIsFilterOpen(true)}>
-							<Filter className='mr-2 h-4 w-4' /> Filters
-						</Button>
+						<div className='flex items-center gap-2'>
+							<Button variant='outline' onClick={() => setIsFilterOpen(true)}>
+								<Filter className='mr-2 h-4 w-4' /> Filters
+							</Button>
+							<Button
+								variant='outline-info'
+								onClick={() => generateApplicantReport(requestedPost, applicants)}
+								disabled={applicants.length === 0}
+							>
+								<FileDown className='mr-2 h-4 w-4' />
+								Generate Report
+							</Button>
+						</div>
 					</div>
 
 					<ApplicantFilterBar
