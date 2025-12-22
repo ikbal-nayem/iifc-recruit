@@ -44,7 +44,7 @@ const generateReportHeader = async (requestedPost: RequestedPost): Promise<Conte
 					},
 				],
 				columnGap: 10,
-				marginBottom: 10,
+				marginBottom: 5,
 			},
 			{
 				canvas: [{ type: 'line', x1: 0, y1: 5, x2: 515, y2: 5, lineWidth: 0.5, lineColor: '#cccccc' }],
