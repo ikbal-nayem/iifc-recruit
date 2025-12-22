@@ -212,17 +212,20 @@ export function ApplicationManagementPage({
 			return {
 				title: 'Processing Candidates',
 				description: 'Manage candidates who have been accepted for processing.',
+				reportTitle: 'প্রসেসিং তালিকা',
 			};
 		}
 		if (isShortlisted) {
 			return {
 				title: 'Shortlisted Candidates',
 				description: 'Final candidates who have been shortlisted for the role.',
+				reportTitle: 'সংক্ষিপ্ত তালিকা',
 			};
 		}
 		return {
 			title: 'Applied Candidates',
 			description: 'These candidates have applied for the circular post.',
+			reportTitle: 'আবেদনকারীদের তালিকা',
 		};
 	};
 
@@ -305,7 +308,7 @@ export function ApplicationManagementPage({
 							</Button>
 							<Button
 								variant='outline-info'
-								onClick={() => generateApplicantReport(requestedPost, applicants)}
+								onClick={() => generateApplicantReport(requestedPost, applicants, cardTexts.reportTitle)}
 								disabled={applicants.length === 0}
 							>
 								<FileDown className='mr-2 h-4 w-4' />

@@ -6,19 +6,19 @@ import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
 import { format, parseISO } from 'date-fns';
 import { convertEnToBn } from '../translator';
 
-const generateReportHeader = (requestedPost: RequestedPost): Content => {
+const generateReportHeader = (requestedPost: RequestedPost, reportTitle: string): Content => {
 	return {
 		stack: [
-			{ text: 'Applicant Report', style: 'title', alignment: 'center' },
-			{ text: requestedPost.jobRequest?.subject || 'Job Request', style: 'subtitle', alignment: 'center' },
+			{ text: reportTitle, style: 'title', alignment: 'center' },
+			{ text: requestedPost.jobRequest?.subject || ' ', style: 'subtitle', alignment: 'center' },
 			{
 				columns: [
 					{
-						text: `Post: ${requestedPost.post?.nameBn}`,
+						text: `পদ: ${requestedPost.post?.nameBn}`,
 						style: 'info',
 					},
 					{
-						text: `Organization: ${requestedPost.jobRequest?.clientOrganization?.nameBn}`,
+						text: `প্রতিষ্ঠান: ${requestedPost.jobRequest?.clientOrganization?.nameBn}`,
 						style: 'info',
 						alignment: 'right',
 					},
@@ -28,11 +28,11 @@ const generateReportHeader = (requestedPost: RequestedPost): Content => {
 			{
 				columns: [
 					{
-						text: `Vacancies: ${convertEnToBn(requestedPost.vacancy)}`,
+						text: `পদ সংখ্যা: ${convertEnToBn(requestedPost.vacancy)}`,
 						style: 'info',
 					},
 					{
-						text: `Report Date: ${format(new Date(), 'dd MMM, yyyy')}`,
+						text: `রিপোর্টের তারিখ: ${convertEnToBn(format(new Date(), 'dd/MM/yyyy'))}`,
 						style: 'info',
 						alignment: 'right',
 					},
@@ -47,12 +47,12 @@ const generateApplicantTable = (applicants: Application[]): Content => {
 	const body: any[][] = [
 		// Table Header
 		[
-			{ text: 'SL', style: 'tableHeader' },
-			{ text: 'Applicant Name', style: 'tableHeader' },
-			{ text: 'Contact', style: 'tableHeader' },
-			{ text: 'Applied On', style: 'tableHeader' },
-			{ text: 'Status', style: 'tableHeader' },
-			{ text: 'Marks', style: 'tableHeader' },
+			{ text: 'ক্রমিক নং', style: 'tableHeader' },
+			{ text: 'আবেদনকারীর নাম', style: 'tableHeader' },
+			{ text: 'যোগাযোগ', style: 'tableHeader' },
+			{ text: 'আবেদনের তারিখ', style: 'tableHeader' },
+			{ text: 'অবস্থা', style: 'tableHeader' },
+			{ text: 'নম্বর', style: 'tableHeader' },
 		],
 	];
 
@@ -61,9 +61,9 @@ const generateApplicantTable = (applicants: Application[]): Content => {
 		body.push([
 			convertEnToBn(index + 1),
 			app.fullName,
-			{ stack: [{ text: app.email }, { text: app.phone }] },
-			format(parseISO(app.createdOn), 'dd-MM-yyyy'),
-			app.statusDTO.nameEn,
+			{ stack: [{ text: app.email }, { text: convertEnToBn(app.phone) }] },
+			convertEnToBn(format(parseISO(app.createdOn), 'dd-MM-yyyy')),
+			app.statusDTO.nameBn,
 			app.marks ? convertEnToBn(app.marks) : '-',
 		]);
 	});
@@ -78,9 +78,13 @@ const generateApplicantTable = (applicants: Application[]): Content => {
 	};
 };
 
-export const generateApplicantReport = (requestedPost: RequestedPost, applicants: Application[]) => {
+export const generateApplicantReport = (
+	requestedPost: RequestedPost,
+	applicants: Application[],
+	reportTitle: string
+) => {
 	const docDefinition: TDocumentDefinitions = {
-		content: [generateReportHeader(requestedPost), generateApplicantTable(applicants)],
+		content: [generateReportHeader(requestedPost, reportTitle), generateApplicantTable(applicants)],
 		styles: {
 			title: {
 				fontSize: 18,
