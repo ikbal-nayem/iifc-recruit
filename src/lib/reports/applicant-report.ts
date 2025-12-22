@@ -1,11 +1,11 @@
+import { COMMON_URL } from '@/constants/common.constant';
 import { Application } from '@/interfaces/application.interface';
 import { RequestedPost } from '@/interfaces/job.interface';
 import { generatePDF } from '@/services/pdf/pdf.service';
 import { format, parseISO } from 'date-fns';
 import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
-import { convertEnToBn } from '../translator';
-import { COMMON_URL } from '@/constants/common.constant';
 import { toDataURL } from '../pdf-utils';
+import { convertEnToBn } from '../translator';
 
 const generateReportHeader = async (requestedPost: RequestedPost): Promise<Content> => {
 	let logoDataUrl: string | undefined;
@@ -34,16 +34,13 @@ const generateReportHeader = async (requestedPost: RequestedPost): Promise<Conte
 					},
 					{
 						stack: [
-							{ text: 'IIFC Outsourcing Jobs', style: 'title', alignment: 'center' },
-							{ text: requestedPost.jobRequest?.subject || ' ', style: 'subtitle', alignment: 'center' },
+							{ text: 'IIFC Outsourcing Jobs', style: 'title' },
+							{
+								text: 'JDPC Bhaban (3rd floor), 145, Monipurpara, Tejgaon, Dhaka-1215, Bangladesh.',
+								style: 'subtitle',
+							},
+							{ text: '+88 02 223 34093-96  |  info@iifc.gov.bd', style: 'subtitle',}
 						],
-						alignment: 'center',
-					},
-					{
-						text: `তারিখ: ${convertEnToBn(format(new Date(), 'dd/MM/yyyy'))}`,
-						style: 'info',
-						alignment: 'right',
-						width: 'auto',
 					},
 				],
 				columnGap: 10,
@@ -125,7 +122,12 @@ export const generateApplicantReport = async (
 	const docDefinition: TDocumentDefinitions = {
 		content: [
 			await generateReportHeader(requestedPost),
-			{ text: `মোট: ${convertEnToBn(applicants.length)} জন`, alignment: 'center', marginBottom: 5, fontSize: 11 },
+			{
+				text: `মোট: ${convertEnToBn(applicants.length)} জন`,
+				alignment: 'center',
+				marginBottom: 5,
+				fontSize: 11,
+			},
 			generateApplicantTable(applicants),
 		],
 		header: {
@@ -136,11 +138,14 @@ export const generateApplicantReport = async (
 		},
 		styles: {
 			title: {
+				font: 'Roboto',
 				fontSize: 16,
 				bold: true,
+				margin: [0, 5, 0, 5]
 			},
 			subtitle: {
-				fontSize: 12,
+				font: 'Roboto',
+				fontSize: 10,
 				color: '#444444',
 			},
 			info: {
