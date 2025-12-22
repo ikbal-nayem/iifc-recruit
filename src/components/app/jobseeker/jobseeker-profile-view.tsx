@@ -211,7 +211,7 @@ export function JobseekerProfileView({
 							</a>
 						)}
 					</div>
-					{resume && (
+					{/* {resume && (
 						<div className='pt-2'>
 							<Button asChild variant='outline' size='sm'>
 								<Link href={makeDownloadURL(resume.file)} target='_blank' download>
@@ -219,7 +219,7 @@ export function JobseekerProfileView({
 								</Link>
 							</Button>
 						</div>
-					)}
+					)} */}
 				</div>
 			</div>
 
