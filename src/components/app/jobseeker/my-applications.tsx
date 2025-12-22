@@ -112,10 +112,10 @@ export function MyApplications({ initialStatusFilter = 'all' }: MyApplicationsPr
 			header: 'Organization',
 		},
 		{
-			accessorKey: 'appliedDate',
+			accessorKey: 'createdOn',
 			header: 'Date Applied',
 			cell: ({ row }) => {
-				return format(new Date(row.original.appliedDate), DATE_FORMAT.CASUAL);
+				return format(new Date(row.original.createdOn), DATE_FORMAT.CASUAL);
 			},
 		},
 		{
@@ -169,7 +169,7 @@ export function MyApplications({ initialStatusFilter = 'all' }: MyApplicationsPr
 					<div>
 						<p className='text-xs text-muted-foreground'>Applied on</p>
 						<p className='text-sm font-medium'>
-							{format(new Date(application.appliedDate), DATE_FORMAT.CASUAL)}
+							{format(new Date(application.createdOn), DATE_FORMAT.CASUAL)}
 						</p>
 					</div>
 					<Badge variant={getStatusVariant(application.status)}>{application.statusDTO.nameEn}</Badge>

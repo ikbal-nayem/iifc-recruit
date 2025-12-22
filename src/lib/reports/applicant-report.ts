@@ -62,7 +62,7 @@ const generateApplicantTable = (applicants: Application[]): Content => {
 			convertEnToBn(index + 1),
 			app.fullName,
 			{ stack: [{ text: app.email }, { text: app.phone }] },
-			format(parseISO(app.appliedDate), 'dd-MM-yyyy'),
+			format(parseISO(app.createdOn), 'dd-MM-yyyy'),
 			app.statusDTO.nameEn,
 			app.marks ? convertEnToBn(app.marks) : '-',
 		]);

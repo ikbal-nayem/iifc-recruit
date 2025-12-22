@@ -23,7 +23,6 @@ export type Application = {
 	email: string;
 	phone: string;
 	profileImage?: string;
-	appliedDate: string;
 	applicantId: string;
 	applicant?: JobseekerSearch;
 	requestedPostId: string;

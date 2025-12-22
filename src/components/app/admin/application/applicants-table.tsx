@@ -355,7 +355,7 @@ export function ApplicantsTable({
 			},
 		},
 		{
-			accessorKey: isProcessing ? 'interviewTime' : 'appliedDate',
+			accessorKey: isProcessing ? 'interviewTime' : 'createdOn',
 			header: isProcessing ? 'Interview Date & Time' : 'Date Applied',
 			cell: ({ row }) => {
 				if (isProcessing) {
