@@ -149,6 +149,16 @@ export function JobseekerProfileView({
 
 	return (
 		<div className='p-2 sm:p-4 md:p-6 space-y-4'>
+			<div className='flex justify-end mb-4'>
+				<Button onClick={handleGenerateCvBn} disabled={isGeneratingCvBn} size='sm'>
+					{isGeneratingCvBn ? (
+						<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+					) : (
+						<Printer className='mr-2 h-4 w-4' />
+					)}
+					Generate CV
+				</Button>
+			</div>
 			{/* Header */}
 			<div className='flex flex-col sm:flex-row items-start gap-6'>
 				<Avatar className='h-28 w-28 border-4 border-background shadow-md'>
@@ -210,24 +220,6 @@ export function JobseekerProfileView({
 							</Button>
 						</div>
 					)}
-				</div>
-				<div className='flex flex-col gap-2'>
-					{/* <Button onClick={handleGenerateCv} disabled={isGeneratingCv} size='sm'>
-						{isGeneratingCv ? (
-							<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-						) : (
-							<Printer className='mr-2 h-4 w-4' />
-						)}
-						Generate CV
-					</Button> */}
-					<Button onClick={handleGenerateCvBn} disabled={isGeneratingCvBn} size='sm'>
-						{isGeneratingCvBn ? (
-							<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-						) : (
-							<Printer className='mr-2 h-4 w-4' />
-						)}
-						Generate CV
-					</Button>
 				</div>
 			</div>
 
