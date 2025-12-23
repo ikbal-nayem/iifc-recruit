@@ -250,49 +250,70 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 
 	// Effect to load initial dependent data
 	React.useEffect(() => {
-		const loadInitial = async () => {
+		const loadInitialData = async () => {
+			const promises: Promise<any>[] = [];
 			if (personalInfo.permanentDivisionId) {
-				setIsLoadingPermanentDistricts(true);
-				const res = await MasterDataService.country.getDistricts(personalInfo.permanentDivisionId);
-				setPermanentDistricts(res.body);
-				setIsLoadingPermanentDistricts(false);
+				promises.push(MasterDataService.country.getDistricts(personalInfo.permanentDivisionId));
+			} else {
+				promises.push(Promise.resolve({ body: [] }));
 			}
 			if (personalInfo.permanentDistrictId) {
-				setIsLoadingPermanentUpazilas(true);
-				const res = await MasterDataService.country.getUpazilas(personalInfo.permanentDistrictId);
-				setPermanentUpazilas(res.body);
-				setIsLoadingPermanentUpazilas(false);
+				promises.push(MasterDataService.country.getUpazilas(personalInfo.permanentDistrictId));
+			} else {
+				promises.push(Promise.resolve({ body: [] }));
 			}
+
 			if (!personalInfo.sameAsPermanentAddress) {
 				if (personalInfo.presentDivisionId) {
-					setIsLoadingPresentDistricts(true);
-					const res = await MasterDataService.country.getDistricts(personalInfo.presentDivisionId);
-					setPresentDistricts(res.body);
-					setIsLoadingPresentDistricts(false);
+					promises.push(MasterDataService.country.getDistricts(personalInfo.presentDivisionId));
+				} else {
+					promises.push(Promise.resolve({ body: [] }));
 				}
 				if (personalInfo.presentDistrictId) {
-					setIsLoadingPresentUpazilas(true);
-					const res = await MasterDataService.country.getUpazilas(personalInfo.presentDistrictId);
-					setPresentUpazilas(res.body);
-					setIsLoadingPresentUpazilas(false);
+					promises.push(MasterDataService.country.getUpazilas(personalInfo.presentDistrictId));
+				} else {
+					promises.push(Promise.resolve({ body: [] }));
 				}
+			} else {
+				promises.push(Promise.resolve({ body: [] }), Promise.resolve({ body: [] }));
 			}
+
+			const [permDistrictsRes, permUpazilasRes, presDistrictsRes, presUpazilasRes] =
+				await Promise.all(promises);
+
+			setPermanentDistricts(permDistrictsRes.body);
+			setPermanentUpazilas(permUpazilasRes.body);
+
+			if (!personalInfo.sameAsPermanentAddress) {
+				setPresentDistricts(presDistrictsRes.body);
+				setPresentUpazilas(presUpazilasRes.body);
+			} else {
+				setPresentDistricts(permDistrictsRes.body);
+				setPresentUpazilas(permUpazilasRes.body);
+			}
+
+			// Reset form with all data *after* dependent dropdowns are populated
 			form.reset({
 				...personalInfo,
 				sameAsPermanentAddress: personalInfo?.sameAsPermanentAddress ?? true,
 			});
 		};
-		loadInitial();
-	}, [personalInfo, form]);
+
+		loadInitialData();
+		// We only want this to run once on mount with the initial `personalInfo`
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [personalInfo]);
 
 	const useFetchDependentData = (
 		watchId: string | undefined,
 		fetcher: (id: string) => Promise<IApiResponse<ICommonMasterData[]>>,
 		setData: React.Dispatch<React.SetStateAction<ICommonMasterData[]>>,
 		setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
-		resetFields: () => void
+		resetFields: () => void,
+		isInitialLoad: React.MutableRefObject<boolean>
 	) => {
 		React.useEffect(() => {
+			if (isInitialLoad.current) return;
 			if (!watchId) {
 				setData([]);
 				resetFields();
@@ -306,7 +327,10 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 			resetFields();
 		}, [watchId]);
 	};
-
+	
+	const initialLoadPresent = React.useRef(true);
+	const initialLoadPermanent = React.useRef(true);
+	
 	// For Present Address
 	useFetchDependentData(
 		!watchSameAsPermanent ? watchPresentDivisionId : undefined,
@@ -316,7 +340,8 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 		() => {
 			form.setValue('presentDistrictId', undefined);
 			form.setValue('presentUpazilaId', undefined);
-		}
+		},
+		initialLoadPresent
 	);
 
 	useFetchDependentData(
@@ -324,7 +349,8 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 		MasterDataService.country.getUpazilas,
 		setPresentUpazilas,
 		setIsLoadingPresentUpazilas,
-		() => form.setValue('presentUpazilaId', undefined)
+		() => form.setValue('presentUpazilaId', undefined),
+		initialLoadPresent
 	);
 
 	// For Permanent Address
@@ -336,7 +362,8 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 		() => {
 			form.setValue('permanentDistrictId', '');
 			form.setValue('permanentUpazilaId', '');
-		}
+		},
+		initialLoadPermanent
 	);
 
 	useFetchDependentData(
@@ -344,8 +371,16 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 		MasterDataService.country.getUpazilas,
 		setPermanentUpazilas,
 		setIsLoadingPermanentUpazilas,
-		() => form.setValue('permanentUpazilaId', '')
+		() => form.setValue('permanentUpazilaId', ''),
+		initialLoadPermanent
 	);
+	
+	// This useEffect helps to switch off the initialLoad refs after the first render cycle completes.
+	React.useEffect(() => {
+		initialLoadPermanent.current = false;
+		initialLoadPresent.current = false;
+	}, []);
+
 
 	const handleSameAsPermanentChange = (checked: boolean) => {
 		if (checked) {
@@ -715,3 +750,4 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 		</div>
 	);
 }
+
