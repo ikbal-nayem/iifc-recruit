@@ -1,13 +1,12 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
 import { FormInput } from '@/components/ui/form-input';
 import { FormMultiSelect } from '@/components/ui/form-multi-select';
@@ -24,7 +23,11 @@ import { EnumDTO, IEducationDegree } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
-import { getOutsourcingCategoriesAsync, getPostOutsourcingByCategoryAsync, getSkillsAsync } from '@/services/async-api';
+import {
+	getOutsourcingCategoriesAsync,
+	getPostOutsourcingByCategoryAsync,
+	getSkillsAsync,
+} from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
 	ColumnDef,
@@ -44,7 +47,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
-import { Badge } from '@/components/ui/badge';
 
 const filterSchema = z.object({
 	gender: z.string().optional(),
@@ -218,10 +220,7 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 			accessorKey: 'fullName',
 			header: 'Applicant',
 			cell: ({ row }) => {
-				const { fullName, email, phone, profileImage, firstName, lastName, profileCompletion } = row.original;
-				const percentage = profileCompletion || 0;
-				const variant = percentage >= 75 ? 'lite-success' : percentage >= 50 ? 'lite-warning' : 'lite-danger';
-
+				const { fullName, email, phone, profileImage, firstName, lastName } = row.original;
 				return (
 					<div className='flex items-center gap-3'>
 						<Avatar>
@@ -242,9 +241,6 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 								<p>{email}</p>
 								<p>{phone}</p>
 							</div>
-							<Badge variant={variant} className='mt-1 text-xs'>
-								{percentage}% Complete
-							</Badge>
 						</div>
 					</div>
 				);
@@ -259,6 +255,15 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 					<p className='text-sm text-muted-foreground'>{row.original.organizationNameBn}</p>
 				</div>
 			),
+		},
+		{
+			accessorKey: 'profileCompletion',
+			header: 'Profile Complete',
+			cell: ({ row }) => {
+				const percentage = row.original.profileCompletion || 0;
+				const variant = percentage >= 75 ? 'lite-success' : percentage >= 50 ? 'lite-warning' : 'lite-danger';
+				return <Badge variant={variant}>{percentage}%</Badge>;
+			},
 		},
 	];
 
