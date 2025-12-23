@@ -233,7 +233,6 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 	const [isLoadingPermanentDistricts, setIsLoadingPermanentDistricts] = React.useState(false);
 	const [isLoadingPermanentUpazilas, setIsLoadingPermanentUpazilas] = React.useState(false);
 
-	
 	const form = useForm<PersonalInfoFormValues>({
 		resolver: zodResolver(personalInfoSchema),
 		defaultValues: {
@@ -241,7 +240,6 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 			sameAsPermanentAddress: personalInfo?.sameAsPermanentAddress ?? true,
 		},
 	});
-	console.log(form.getValues())
 
 	const watchPresentDivisionId = form.watch('presentDivisionId');
 	const watchPresentDistrictId = form.watch('presentDistrictId');
@@ -249,6 +247,43 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 	const watchPermanentDistrictId = form.watch('permanentDistrictId');
 	const watchSameAsPermanent = form.watch('sameAsPermanentAddress');
 	const isMarried = form.watch('maritalStatus') === 'MARRIED';
+
+	// Effect to load initial dependent data
+	React.useEffect(() => {
+		const loadInitial = async () => {
+			if (personalInfo.permanentDivisionId) {
+				setIsLoadingPermanentDistricts(true);
+				const res = await MasterDataService.country.getDistricts(personalInfo.permanentDivisionId);
+				setPermanentDistricts(res.body);
+				setIsLoadingPermanentDistricts(false);
+			}
+			if (personalInfo.permanentDistrictId) {
+				setIsLoadingPermanentUpazilas(true);
+				const res = await MasterDataService.country.getUpazilas(personalInfo.permanentDistrictId);
+				setPermanentUpazilas(res.body);
+				setIsLoadingPermanentUpazilas(false);
+			}
+			if (!personalInfo.sameAsPermanentAddress) {
+				if (personalInfo.presentDivisionId) {
+					setIsLoadingPresentDistricts(true);
+					const res = await MasterDataService.country.getDistricts(personalInfo.presentDivisionId);
+					setPresentDistricts(res.body);
+					setIsLoadingPresentDistricts(false);
+				}
+				if (personalInfo.presentDistrictId) {
+					setIsLoadingPresentUpazilas(true);
+					const res = await MasterDataService.country.getUpazilas(personalInfo.presentDistrictId);
+					setPresentUpazilas(res.body);
+					setIsLoadingPresentUpazilas(false);
+				}
+			}
+			form.reset({
+				...personalInfo,
+				sameAsPermanentAddress: personalInfo?.sameAsPermanentAddress ?? true,
+			});
+		};
+		loadInitial();
+	}, [personalInfo, form]);
 
 	const useFetchDependentData = (
 		watchId: string | undefined,
