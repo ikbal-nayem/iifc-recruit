@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -148,6 +149,7 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 			searchKey: debouncedTextSearch,
 			...debouncedFilters,
 		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [debouncedTextSearch, JSON.stringify(debouncedFilters), searchApplicants]);
 
 	useEffect(() => {
@@ -196,76 +198,85 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 		[watchedFilters.outsourcingCategoryId]
 	);
 
-	const columns: ColumnDef<JobseekerSearch>[] = [
-		{
-			id: 'select',
-			header: ({ table }) => (
-				<Checkbox
-					checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
-					onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-					aria-label='Select all'
-				/>
-			),
-			cell: ({ row }) => (
-				<Checkbox
-					checked={row.getIsSelected()}
-					onCheckedChange={(value) => row.toggleSelected(!!value)}
-					aria-label='Select row'
-				/>
-			),
-			enableSorting: false,
-			enableHiding: false,
-		},
-		{
-			accessorKey: 'fullName',
-			header: 'Applicant',
-			cell: ({ row }) => {
-				const { fullName, email, phone, profileImage, firstName, lastName } = row.original;
-				return (
-					<div className='flex items-center gap-3'>
-						<Avatar>
-							<AvatarImage src={makePreviewURL(profileImage)} />
-							<AvatarFallback>
-								{firstName?.[0]}
-								{lastName?.[0]}
-							</AvatarFallback>
-						</Avatar>
-						<div>
-							<button
-								className='font-semibold text-left hover:underline'
-								onClick={() => setSelectedJobseeker(row.original)}
-							>
-								{fullName}
-							</button>
-							<div className='text-xs text-muted-foreground'>
-								<p>{email}</p>
-								<p>{phone}</p>
+	const columns: ColumnDef<JobseekerSearch>[] = React.useMemo(
+		() => [
+			{
+				id: 'select',
+				header: ({ table }) => (
+					<Checkbox
+						checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
+						onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+						aria-label='Select all'
+					/>
+				),
+				cell: ({ row }) => (
+					<Checkbox
+						checked={row.getIsSelected()}
+						onCheckedChange={(value) => row.toggleSelected(!!value)}
+						aria-label='Select row'
+					/>
+				),
+				enableSorting: false,
+				enableHiding: false,
+			},
+			{
+				accessorKey: 'fullName',
+				header: 'Applicant',
+				cell: ({ row }) => {
+					const { fullName, email, phone, profileImage, firstName, lastName, profileCompletion } =
+						row.original;
+					return (
+						<div className='flex items-center gap-3'>
+							<Avatar>
+								<AvatarImage src={makePreviewURL(profileImage)} />
+								<AvatarFallback>
+									{firstName?.[0]}
+									{lastName?.[0]}
+								</AvatarFallback>
+							</Avatar>
+							<div>
+								<button
+									className='font-semibold text-left hover:underline'
+									onClick={() => setSelectedJobseeker(row.original)}
+								>
+									{fullName}
+								</button>
+								<div className='text-xs text-muted-foreground'>
+									<p>{email}</p>
+									<p>{phone}</p>
+								</div>
+								{profileCompletion !== undefined && (
+									<Badge
+										variant={
+											profileCompletion >= 75
+												? 'lite-success'
+												: profileCompletion >= 50
+												? 'lite-warning'
+												: 'lite-danger'
+										}
+										className='mt-1'
+									>
+										{profileCompletion}% Complete
+									</Badge>
+								)}
 							</div>
 						</div>
+					);
+				},
+			},
+			{
+				accessorKey: 'organizationNameEn',
+				header: 'Organization',
+				cell: ({ row }) => (
+					<div>
+						<p>{row.original.organizationNameEn}</p>
+						<p className='text-sm text-muted-foreground'>{row.original.organizationNameBn}</p>
 					</div>
-				);
+				),
 			},
-		},
-		{
-			accessorKey: 'organizationNameEn',
-			header: 'Organization',
-			cell: ({ row }) => (
-				<div>
-					<p>{row.original.organizationNameEn}</p>
-					<p className='text-sm text-muted-foreground'>{row.original.organizationNameBn}</p>
-				</div>
-			),
-		},
-		{
-			accessorKey: 'profileCompletion',
-			header: 'Profile Complete',
-			cell: ({ row }) => {
-				const percentage = row.original.profileCompletion || 0;
-				const variant = percentage >= 75 ? 'lite-success' : percentage >= 50 ? 'lite-warning' : 'lite-danger';
-				return <Badge variant={variant}>{percentage}%</Badge>;
-			},
-		},
-	];
+		],
+		[]
+	);
 
 	const table = useReactTable({
 		data: jobseekers,
