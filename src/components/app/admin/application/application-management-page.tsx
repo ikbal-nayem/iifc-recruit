@@ -1,5 +1,6 @@
 'use client';
 
+import { StatusCountProps } from '@/app/(auth)/admin/application/page';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -19,11 +20,10 @@ import { Application, APPLICATION_STATUS } from '@/interfaces/application.interf
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { RequestedPost } from '@/interfaces/job.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
-import { EnumDTO } from '@/interfaces/master-data.interface';
 import { generateApplicantReport } from '@/lib/reports/applicant-report';
 import { ApplicationService } from '@/services/api/application.service';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { ArrowLeft, ChevronsRight, FileDown, Filter, Loader2, Search, UserPlus } from 'lucide-react';
+import { ArrowLeft, ChevronsRight, Filter, Loader2, Printer, Search, UserPlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { ApplicantFilterBar, ApplicantFilterValues } from './applicant-filter-bar';
@@ -34,7 +34,7 @@ import { ApplicationStats } from './application-stats';
 
 interface ApplicationManagementPageProps {
 	requestedPost: RequestedPost;
-	statuses: EnumDTO[];
+	statuses: StatusCountProps[];
 	isProcessing?: boolean;
 	isShortlisted?: boolean;
 }
@@ -55,7 +55,7 @@ export function ApplicationManagementPage({
 	const [isLoadingApplicants, setIsLoadingApplicants] = useState(true);
 	const [isAddCandidateOpen, setIsAddCandidateOpen] = useState(false);
 	const [otherFilters, setOtherFilters] = useState<ApplicantFilterValues>({});
-	const [statusFilter, setStatusFilter] = useState<string | null>(null);
+	const [statusFilter, setStatusFilter] = useState<string[] | null>(null);
 	const [isProceedConfirmationOpen, setIsProceedConfirmationOpen] = useState(false);
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
@@ -64,14 +64,14 @@ export function ApplicationManagementPage({
 	const loadApplicants = useCallback(
 		async (
 			page: number,
-			filters: { status: string | null; search: string; other: ApplicantFilterValues }
+			filters: { statusIn: string[] | null; search: string; other: ApplicantFilterValues }
 		) => {
 			setIsLoadingApplicants(true);
 			try {
 				const body: IApiRequest['body'] = {
 					requestedPostId: requestedPost.id!,
+					statusIn: filters?.statusIn?.length ? filters.statusIn : statuses.map((s) => s.status),
 					...filters.other,
-					...(filters.status && { status: filters.status }),
 					...(filters.search && { searchKey: filters.search }),
 				};
 
@@ -97,7 +97,7 @@ export function ApplicationManagementPage({
 	);
 
 	useEffect(() => {
-		loadApplicants(0, { status: statusFilter, search: debouncedSearch, other: otherFilters });
+		loadApplicants(0, { statusIn: statusFilter, search: debouncedSearch, other: otherFilters });
 	}, [JSON.stringify(otherFilters), statusFilter, debouncedSearch, loadApplicants]);
 
 	const handleApplyApplicants = (newApplicants: JobseekerSearch[], onSuccess?: () => void) => {
@@ -113,7 +113,7 @@ export function ApplicationManagementPage({
 					description: `${newApplicants.length} candidate(s) have been added to the application list.`,
 				});
 				onSuccess && onSuccess();
-				loadApplicants(0, { status: statusFilter, search: debouncedSearch, other: otherFilters });
+				loadApplicants(0, { statusIn: statusFilter, search: debouncedSearch, other: otherFilters });
 			})
 			.catch((err) => {
 				toast.error({
@@ -130,7 +130,7 @@ export function ApplicationManagementPage({
 				description: resp?.message,
 			});
 			loadApplicants(applicantsMeta.page, {
-				status: statusFilter,
+				statusIn: statusFilter,
 				search: debouncedSearch,
 				other: otherFilters,
 			});
@@ -143,7 +143,7 @@ export function ApplicationManagementPage({
 	};
 
 	const handlePageChange = (newPage: number) => {
-		loadApplicants(newPage, { status: statusFilter, search: debouncedSearch, other: otherFilters });
+		loadApplicants(newPage, { statusIn: statusFilter, search: debouncedSearch, other: otherFilters });
 	};
 
 	const handleProceed = async () => {
@@ -173,7 +173,7 @@ export function ApplicationManagementPage({
 
 	const getProceedButtonText = () => {
 		if (isProcessing) return 'Proceed to Shortlist';
-		return 'Proceed to Next Stage';
+		return 'Proceed to Processing';
 	};
 
 	const acceptedApplicantsCount = applicants.filter(
@@ -237,12 +237,22 @@ export function ApplicationManagementPage({
 					<ArrowLeft className='mr-2 h-4 w-4' />
 					Back
 				</Button>
-				{!isShortlisted && (
-					<Button onClick={() => setIsProceedConfirmationOpen(true)} size='lg' disabled={isProceedDisabled}>
-						<ChevronsRight className='mr-2 h-4 w-4' />
-						{getProceedButtonText()}
+				<div className='flex items-center gap-2'>
+					<Button
+						variant='outline-info'
+						onClick={() => generateApplicantReport(requestedPost, applicants, cardTexts.reportTitle)}
+						disabled={applicants.length === 0}
+					>
+						<Printer className='mr-2 h-4 w-4' />
+						Print
 					</Button>
-				)}
+					{!isShortlisted && (
+						<Button onClick={() => setIsProceedConfirmationOpen(true)} disabled={isProceedDisabled}>
+							<ChevronsRight className='mr-2 h-4 w-4' />
+							{getProceedButtonText()}
+						</Button>
+					)}
+				</div>
 			</div>
 
 			<ApplicationManagementHeader
@@ -251,12 +261,7 @@ export function ApplicationManagementPage({
 				isProcessing={isProcessing || isShortlisted}
 			/>
 
-			<ApplicationStats
-				statuses={statuses}
-				applicants={applicants}
-				statusFilter={statusFilter}
-				onFilterChange={setStatusFilter}
-			/>
+			<ApplicationStats statuses={statuses} statusFilter={statusFilter} onFilterChange={setStatusFilter} />
 
 			<Card>
 				<CardHeader className='flex-row items-center justify-between pb-3'>
@@ -264,14 +269,6 @@ export function ApplicationManagementPage({
 						<CardTitle>{cardTexts.title}</CardTitle>
 					</div>
 					<div className='flex items-center gap-2'>
-						<Button
-							variant='outline-info'
-							onClick={() => generateApplicantReport(requestedPost, applicants, cardTexts.reportTitle)}
-							disabled={applicants.length === 0}
-						>
-							<FileDown className='mr-2 h-4 w-4' />
-							Generate Report
-						</Button>
 						{!isProcessing && !isShortlisted && (
 							<Dialog open={isAddCandidateOpen} onOpenChange={setIsAddCandidateOpen}>
 								<DialogTrigger asChild>
@@ -330,7 +327,7 @@ export function ApplicationManagementPage({
 							isProcessing={isProcessing}
 							isShortlisted={isShortlisted}
 							onListRefresh={() =>
-								loadApplicants(0, { status: statusFilter, search: debouncedSearch, other: otherFilters })
+								loadApplicants(0, { statusIn: statusFilter, search: debouncedSearch, other: otherFilters })
 							}
 						/>
 					</div>

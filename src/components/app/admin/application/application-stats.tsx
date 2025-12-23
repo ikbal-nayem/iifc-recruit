@@ -1,46 +1,18 @@
-
 'use client';
 
+import { StatusCountProps } from '@/app/(auth)/admin/application/page';
 import { Card } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { EnumDTO } from '@/interfaces/master-data.interface';
 import { cn } from '@/lib/utils';
-import { useMemo } from 'react';
 
 interface ApplicationStatsProps {
-	statuses: EnumDTO[];
-	applicants: any[];
-	statusFilter: string | null;
-	onFilterChange: (status: string | null) => void;
+	statuses: StatusCountProps[];
+	statusFilter: string[] | null;
+	onFilterChange: (status: string[] | null) => void;
 }
 
-export function ApplicationStats({
-	statuses,
-	applicants,
-	statusFilter,
-	onFilterChange,
-}: ApplicationStatsProps) {
-	const applicantStats = useMemo(() => {
-		const stats: Record<string, number> = {};
-		statuses.forEach((status) => {
-			stats[status.value] = 0;
-		});
-		stats.total = 0;
-
-		applicants.forEach((applicant) => {
-			if (stats.hasOwnProperty(applicant.status)) {
-				stats[applicant.status]++;
-			}
-		});
-		stats.total = applicants.length;
-		return stats;
-	}, [applicants, statuses]);
-
-	const mainStatItems = statuses.map((status) => ({
-		label: status.nameEn,
-		value: applicantStats[status.value] || 0,
-		status: status.value,
-	}));
+export function ApplicationStats({ statuses, statusFilter, onFilterChange }: ApplicationStatsProps) {
+	const totalApplicants = statuses.reduce((sum, status) => sum + status.count, 0);
 
 	return (
 		<ScrollArea className='w-full whitespace-nowrap'>
@@ -52,21 +24,21 @@ export function ApplicationStats({
 					)}
 					onClick={() => onFilterChange(null)}
 				>
-					<p className='text-3xl font-bold'>{applicantStats.total || 0}</p>
+					<p className='text-3xl font-bold'>{totalApplicants || 0}</p>
 					<p className='text-sm text-muted-foreground'>Total Applicants</p>
 				</Card>
 
-				{mainStatItems.map((item) => (
+				{statuses.map((item) => (
 					<Card
-						key={item.label}
-						onClick={() => onFilterChange(item.status)}
+						key={item.status}
+						onClick={() => onFilterChange([item.status])}
 						className={cn(
 							'p-2 rounded-lg cursor-pointer transition-all text-center hover:bg-muted min-w-[160px]',
-							statusFilter === item.status && 'bg-primary/10 border-2 border-primary'
+							statusFilter?.includes(item.status) && 'bg-primary/10 border-2 border-primary'
 						)}
 					>
-						<p className='text-3xl font-bold'>{item.value}</p>
-						<p className='text-sm text-muted-foreground'>{item.label}</p>
+						<p className='text-3xl font-bold'>{item.count}</p>
+						<p className='text-sm text-muted-foreground'>{item.statusDTO.nameEn}</p>
 					</Card>
 				))}
 			</div>

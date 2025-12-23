@@ -1,27 +1,26 @@
-
 import { ApplicationManagementPage } from '@/components/app/admin/application/application-management-page';
 import { APPLICATION_STATUS } from '@/interfaces/application.interface';
-import { EnumDTO } from '@/interfaces/master-data.interface';
+import { ApplicationService } from '@/services/api/application.service';
 import { JobRequestService } from '@/services/api/job-request.service';
-import { MasterDataService } from '@/services/api/master-data.service';
 import { notFound } from 'next/navigation';
+import { StatusCountProps } from '../../page';
 
 async function getData(requestedPostId: string) {
 	try {
 		const [postRes, statusRes] = await Promise.all([
 			JobRequestService.getRequestedPostById(requestedPostId),
-			MasterDataService.getEnum('application-status'),
+			ApplicationService.applicantStatusCount(requestedPostId),
 		]);
 
 		const post = postRes.body;
-		const allStatuses = statusRes.body as EnumDTO[];
+		const allStatuses = statusRes.body as StatusCountProps[];
 
 		const desiredStatuses = [
 			APPLICATION_STATUS.SHORTLISTED.toString(),
 			APPLICATION_STATUS.HIRED.toString(),
 			APPLICATION_STATUS.REJECTED.toString(),
 		];
-		const filteredStatuses = allStatuses.filter((s) => desiredStatuses.includes(s.value));
+		const filteredStatuses = allStatuses.filter((s) => desiredStatuses.includes(s.status));
 
 		return {
 			post,
@@ -38,11 +37,5 @@ export default async function ManageShortlistedApplicationPage({ params }: { par
 
 	const { post, statuses } = await getData(requestedParams.id);
 
-	return (
-		<ApplicationManagementPage
-			requestedPost={post}
-			statuses={statuses}
-			isShortlisted={true}
-		/>
-	);
+	return <ApplicationManagementPage requestedPost={post} statuses={statuses} isShortlisted={true} />;
 }
