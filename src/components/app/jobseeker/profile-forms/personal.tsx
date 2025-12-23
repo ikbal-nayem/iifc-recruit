@@ -162,7 +162,7 @@ function ProfileImageCard({
 const personalInfoSchema = z.object({
 	id: z.string().optional(),
 	firstName: z.string().min(1, 'First name is required'),
-	lastName: z.string().min(1, 'Last name is required'),
+	// lastName: z.string().min(1, 'Last name is required'),
 	fatherName: z.string().min(1, "Father's name is required"),
 	motherName: z.string().min(1, "Mother's name is required"),
 	email: z.string().email().optional().or(z.literal('')),
@@ -383,21 +383,21 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 								<CardDescription>This is your public-facing information.</CardDescription>
 							</CardHeader>
 							<CardContent className='space-y-4'>
-								<div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+								<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 									<FormInput
 										control={form.control}
 										name='firstName'
-										label='First Name'
-										placeholder='e.g. John'
+										label='Name'
+										placeholder='e.g. সাইফুল ইসলাম'
 										required
 									/>
-									<FormInput
+									{/* <FormInput
 										control={form.control}
 										name='lastName'
 										label='Last Name'
 										placeholder='e.g. Doe'
 										required
-									/>
+									/> */}
 								</div>
 								<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 									<FormInput control={form.control} name='fatherName' label="Father's Name" required />

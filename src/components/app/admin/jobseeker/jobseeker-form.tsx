@@ -21,6 +21,7 @@ import { COMMON_URL } from '@/constants/common.constant';
 import useLoader from '@/hooks/use-loader';
 import { toast } from '@/hooks/use-toast';
 import { IClientOrganization } from '@/interfaces/master-data.interface';
+import { convertBnToEn } from '@/lib/translator';
 import { cn } from '@/lib/utils';
 import { UserService } from '@/services/api/user.service';
 import { getOutsourcingCategoriesAsync, getPostOutsourcingByCategoryAsync } from '@/services/async-api';
@@ -163,7 +164,7 @@ export function JobseekerForm({
 				const modJson = json.map((item: any) => ({
 					...item,
 					firstName: item.name,
-					phone: item.mobile ? String(item.mobile) : '',
+					phone: !!item.mobile ? convertBnToEn(String(item.mobile)) : '',
 				}));
 				replace(modJson as any);
 				setStep('preview');
@@ -206,7 +207,7 @@ export function JobseekerForm({
 		const baseColumns: ColumnDef<any>[] = [
 			{
 				accessorKey: 'firstName',
-				header: 'First Name',
+				header: 'Name',
 				cell: ({ row }) => (
 					<FormInput
 						control={editableForm.control}
