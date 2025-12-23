@@ -292,7 +292,6 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 				setPresentUpazilas(permUpazilasRes.body);
 			}
 
-			// Reset form with all data *after* dependent dropdowns are populated
 			form.reset({
 				...personalInfo,
 				sameAsPermanentAddress: personalInfo?.sameAsPermanentAddress ?? true,
@@ -300,7 +299,6 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 		};
 
 		loadInitialData();
-		// We only want this to run once on mount with the initial `personalInfo`
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [personalInfo]);
 
