@@ -44,6 +44,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
+import { Badge } from '@/components/ui/badge';
 
 const filterSchema = z.object({
 	gender: z.string().optional(),
@@ -188,7 +189,7 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 
 	const loadPostOptions = useCallback(
 		(search: string, callback: (options: any[]) => void) => {
-			getPostOutsourcingAsync(search, callback, watchedFilters.outsourcingCategoryId);
+			getPostOutsourcingByCategoryAsync(search, callback, watchedFilters.outsourcingCategoryId);
 		},
 		[watchedFilters.outsourcingCategoryId]
 	);
@@ -258,6 +259,15 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 					<p className='text-sm text-muted-foreground'>{row.original.organizationNameBn}</p>
 				</div>
 			),
+		},
+		{
+			accessorKey: 'profileCompletion',
+			header: 'Profile Complete',
+			cell: ({ row }) => {
+				const percentage = row.original.profileCompletion || 0;
+				const variant = percentage >= 75 ? 'lite-success' : percentage >= 50 ? 'lite-warning' : 'lite-danger';
+				return <Badge variant={variant}>{percentage}%</Badge>;
+			},
 		},
 	];
 
