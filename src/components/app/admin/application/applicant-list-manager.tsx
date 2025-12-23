@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -20,7 +19,7 @@ import useLoader from '@/hooks/use-loader';
 import { toast } from '@/hooks/use-toast';
 import { IMeta, IObject } from '@/interfaces/common.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
-import { EnumDTO, IEducationDegree } from '@/interfaces/master-data.interface';
+import { EnumDTO, IEducationDegree, IPost } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
@@ -192,8 +191,8 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 	}, [watchedFilters.degreeLevelId, masterData.degrees]);
 
 	const loadPostOptions = useCallback(
-		(search: string, callback: (options: any[]) => void) => {
-			getPostOutsourcingByCategoryAsync(search, callback, watchedFilters.outsourcingCategoryId);
+		(search: string, callback: (options: IPost[]) => void) => {
+			getPostOutsourcingByCategoryAsync(search, watchedFilters.outsourcingCategoryId, callback);
 		},
 		[watchedFilters.outsourcingCategoryId]
 	);
@@ -204,7 +203,9 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 				id: 'select',
 				header: ({ table }) => (
 					<Checkbox
-						checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
+						checked={
+							table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')
+						}
 						onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
 						aria-label='Select all'
 					/>
@@ -273,6 +274,16 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 						<p className='text-sm text-muted-foreground'>{row.original.organizationNameBn}</p>
 					</div>
 				),
+			},
+			{
+				accessorKey: 'profileCompletion',
+				header: 'Profile Complete',
+				cell: ({ row }) => {
+					const percentage = row.original.profileCompletion || 0;
+					const variant =
+						percentage >= 75 ? 'lite-success' : percentage >= 50 ? 'lite-warning' : 'lite-danger';
+					return <Badge variant={variant}>{percentage}%</Badge>;
+				},
 			},
 		],
 		[]
