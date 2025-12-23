@@ -64,6 +64,7 @@ const emptyPersonalInfo: PersonalInfo = {
 	permanentAddress: '',
 	linkedInProfile: '',
 	videoProfile: '',
+	physicallyChallenged: false,
 };
 
 async function getJobseekerData(): Promise<PersonalInfo> {

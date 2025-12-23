@@ -233,6 +233,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 	const [isLoadingPermanentDistricts, setIsLoadingPermanentDistricts] = React.useState(false);
 	const [isLoadingPermanentUpazilas, setIsLoadingPermanentUpazilas] = React.useState(false);
 
+	
 	const form = useForm<PersonalInfoFormValues>({
 		resolver: zodResolver(personalInfoSchema),
 		defaultValues: {
@@ -240,6 +241,7 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 			sameAsPermanentAddress: personalInfo?.sameAsPermanentAddress ?? true,
 		},
 	});
+	console.log(form.getValues())
 
 	const watchPresentDivisionId = form.watch('presentDivisionId');
 	const watchPresentDistrictId = form.watch('presentDistrictId');
@@ -309,28 +311,6 @@ export function ProfileFormPersonal({ personalInfo, masterData }: ProfileFormPro
 		setIsLoadingPermanentUpazilas,
 		() => form.setValue('permanentUpazilaId', '')
 	);
-
-	React.useEffect(() => {
-		const init = async () => {
-			if (personalInfo?.permanentDistrictId) {
-				const res = await MasterDataService.country.getDistricts(personalInfo.permanentDivisionId);
-				setPermanentDistricts(res.body);
-			}
-			if (personalInfo?.permanentUpazilaId) {
-				const res = await MasterDataService.country.getUpazilas(personalInfo.permanentDistrictId!);
-				setPermanentUpazilas(res.body);
-			}
-			if (personalInfo?.presentDistrictId && !personalInfo.sameAsPermanentAddress) {
-				const res = await MasterDataService.country.getDistricts(personalInfo.presentDivisionId!);
-				setPresentDistricts(res.body);
-			}
-			if (personalInfo?.presentUpazilaId && !personalInfo.sameAsPermanentAddress) {
-				const res = await MasterDataService.country.getUpazilas(personalInfo.presentDistrictId!);
-				setPresentUpazilas(res.body);
-			}
-		};
-		init();
-	}, [personalInfo]);
 
 	const handleSameAsPermanentChange = (checked: boolean) => {
 		if (checked) {
