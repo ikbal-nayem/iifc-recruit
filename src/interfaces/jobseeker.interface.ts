@@ -248,4 +248,5 @@ export type JobseekerSearch = {
 	organizationId?: string;
 	organizationNameEn?: string;
 	organizationNameBn?: string;
+	profileCompletion?: number;
 };

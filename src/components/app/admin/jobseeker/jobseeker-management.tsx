@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
@@ -25,6 +26,8 @@ import { Building, FileText, Loader2, Search, Trash } from 'lucide-react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 import { JobseekerForm } from './jobseeker-form';
 import { UserService } from '@/services/api/user.service';
+import { Badge } from '@/components/ui/badge';
+import { getStatusVariant } from '@/lib/color-mapping';
 
 const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
 
@@ -145,6 +148,16 @@ export function JobseekerManagement({
 			),
 		},
 		{
+			accessorKey: 'profileCompletion',
+			header: 'Profile Completion',
+			cell: ({ row }) => {
+				const percentage = row.original.profileCompletion || 0;
+				const variant =
+					percentage >= 75 ? 'lite-success' : percentage >= 50 ? 'lite-warning' : 'lite-danger';
+				return <Badge variant={variant}>{percentage}%</Badge>;
+			},
+		},
+		{
 			id: 'actions',
 			cell: ({ row }) => <ActionMenu items={getActionItems(row.original)} />,
 		},
@@ -187,6 +200,21 @@ export function JobseekerManagement({
 				</div>
 				<ActionMenu items={getActionItems(jobseeker)} />
 			</div>
+			{jobseeker.profileCompletion !== undefined && (
+				<div className='border-t p-2 flex justify-end'>
+					<Badge
+						variant={
+							jobseeker.profileCompletion >= 75
+								? 'lite-success'
+								: jobseeker.profileCompletion >= 50
+								? 'lite-warning'
+								: 'lite-danger'
+						}
+					>
+						{jobseeker.profileCompletion}% Complete
+					</Badge>
+				</div>
+			)}
 		</Card>
 	);
 
