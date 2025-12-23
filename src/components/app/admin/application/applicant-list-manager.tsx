@@ -24,7 +24,7 @@ import { EnumDTO, IEducationDegree } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
-import { getOutsourcingCategoriesAsync, getPostOutsourcingAsync, getSkillsAsync } from '@/services/async-api';
+import { getOutsourcingCategoriesAsync, getPostOutsourcingByCategoryAsync, getSkillsAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
 	ColumnDef,
@@ -218,7 +218,10 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 			accessorKey: 'fullName',
 			header: 'Applicant',
 			cell: ({ row }) => {
-				const { fullName, profileImage, firstName, lastName } = row.original;
+				const { fullName, email, phone, profileImage, firstName, lastName, profileCompletion } = row.original;
+				const percentage = profileCompletion || 0;
+				const variant = percentage >= 75 ? 'lite-success' : percentage >= 50 ? 'lite-warning' : 'lite-danger';
+
 				return (
 					<div className='flex items-center gap-3'>
 						<Avatar>
@@ -228,24 +231,21 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 								{lastName?.[0]}
 							</AvatarFallback>
 						</Avatar>
-						<button
-							className='font-semibold text-left hover:underline'
-							onClick={() => setSelectedJobseeker(row.original)}
-						>
-							{fullName}
-						</button>
-					</div>
-				);
-			},
-		},
-		{
-			header: 'Contact Info',
-			cell: ({ row }) => {
-				const { email, phone } = row.original;
-				return (
-					<div>
-						<p>{email}</p>
-						<p className='text-sm text-muted-foreground'>{phone}</p>
+						<div>
+							<button
+								className='font-semibold text-left hover:underline'
+								onClick={() => setSelectedJobseeker(row.original)}
+							>
+								{fullName}
+							</button>
+							<div className='text-xs text-muted-foreground'>
+								<p>{email}</p>
+								<p>{phone}</p>
+							</div>
+							<Badge variant={variant} className='mt-1 text-xs'>
+								{percentage}% Complete
+							</Badge>
+						</div>
 					</div>
 				);
 			},
@@ -259,15 +259,6 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 					<p className='text-sm text-muted-foreground'>{row.original.organizationNameBn}</p>
 				</div>
 			),
-		},
-		{
-			accessorKey: 'profileCompletion',
-			header: 'Profile Complete',
-			cell: ({ row }) => {
-				const percentage = row.original.profileCompletion || 0;
-				const variant = percentage >= 75 ? 'lite-success' : percentage >= 50 ? 'lite-warning' : 'lite-danger';
-				return <Badge variant={variant}>{percentage}%</Badge>;
-			},
 		},
 	];
 
