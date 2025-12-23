@@ -1,3 +1,4 @@
+
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -270,28 +271,28 @@ export function JobRequestDetails({ initialJobRequest }: { initialJobRequest: Jo
 											<p className='font-medium'>{post.experienceRequired} years</p>
 										</div>
 									)}
-									{request.type === JobRequestType.OUTSOURCING ? (
-										<>
-											{post.post?.outsourcingCategory?.nameBn && (
-												<div>
-													<p className='text-muted-foreground'>Category</p>
-													<p className='font-medium'>{post.post.outsourcingCategory.nameBn}</p>
-												</div>
-											)}
-											{post.outsourcingZone?.nameBn && (
-												<div>
-													<p className='text-muted-foreground'>Zone</p>
-													<p className='font-medium'>{post.outsourcingZone?.nameBn}</p>
-												</div>
-											)}
-											{post.yearsOfContract && post.yearsOfContract > 0 ? (
-												<div>
-													<p className='text-muted-foreground'>Contract Period</p>
-													<p className='font-medium'>{post.yearsOfContract} years</p>
-												</div>
-											) : null}
-										</>
-									) : (
+									{request.type === JobRequestType.OUTSOURCING &&
+										post.post?.outsourcingCategory?.nameBn && (
+											<div>
+												<p className='text-muted-foreground'>Category</p>
+												<p className='font-medium'>{post.post.outsourcingCategory.nameBn}</p>
+											</div>
+										)}
+									{request.type === JobRequestType.OUTSOURCING && post.outsourcingZone?.nameBn && (
+										<div>
+											<p className='text-muted-foreground'>Zone</p>
+											<p className='font-medium'>{post.outsourcingZone?.nameBn}</p>
+										</div>
+									)}
+									{request.type === JobRequestType.OUTSOURCING &&
+										post.yearsOfContract &&
+										post.yearsOfContract > 0 && (
+											<div>
+												<p className='text-muted-foreground'>Contract Period</p>
+												<p className='font-medium'>{post.yearsOfContract} years</p>
+											</div>
+										)}
+									{request.type !== JobRequestType.OUTSOURCING && (
 										<>
 											{post.salaryFrom && post.salaryTo && (
 												<div>
