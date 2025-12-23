@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
@@ -9,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 
 import { ActionItem, ActionMenu } from '@/components/ui/action-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { FormAutocomplete } from '@/components/ui/form-autocomplete';
@@ -16,18 +16,16 @@ import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDebounce } from '@/hooks/use-debounce';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
-import { IClientOrganization, IOutsourcingCategory } from '@/interfaces/master-data.interface';
+import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
+import { UserService } from '@/services/api/user.service';
 import { Building, FileText, Loader2, Search, Trash } from 'lucide-react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 import { JobseekerForm } from './jobseeker-form';
-import { UserService } from '@/services/api/user.service';
-import { Badge } from '@/components/ui/badge';
-import { getStatusVariant } from '@/lib/color-mapping';
 
 const initMeta: IMeta = { page: 0, limit: 20, totalRecords: 0 };
 
@@ -43,39 +41,34 @@ export function JobseekerManagement({
 	const [data, setData] = React.useState<JobseekerSearch[]>([]);
 	const [meta, setMeta] = React.useState<IMeta>(initMeta);
 	const [selectedJobseeker, setSelectedJobseeker] = React.useState<JobseekerSearch | null>(null);
-	const { toast } = useToast();
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [searchQuery, setSearchQuery] = React.useState('');
 	const [userToDelete, setUserToDelete] = React.useState<JobseekerSearch | null>(null);
 	const debouncedSearch = useDebounce(searchQuery, 500);
 	const [organizationFilter, setOrganizationFilter] = React.useState('all');
 
-	const loadJobseekers = React.useCallback(
-		async (page: number, search: string, orgId: string) => {
-			setIsLoading(true);
-			try {
-				const payload: IApiRequest = {
-					body: {
-						searchKey: search,
-						...(orgId !== 'all' && { organizationId: orgId }),
-					},
-					meta: { page, limit: initMeta.limit },
-				};
-				const response = await JobseekerProfileService.search(payload);
-				setData(response.body);
-				setMeta(response.meta);
-			} catch (error: any) {
-				toast({
-					title: 'Error',
-					description: error.message || 'Failed to load jobseekers.',
-					variant: 'danger',
-				});
-			} finally {
-				setIsLoading(false);
-			}
-		},
-		[toast]
-	);
+	const loadJobseekers = React.useCallback(async (page: number, search: string, orgId: string) => {
+		setIsLoading(true);
+		try {
+			const payload: IApiRequest = {
+				body: {
+					searchKey: search,
+					...(orgId !== 'all' && { organizationId: orgId }),
+				},
+				meta: { page, limit: initMeta.limit },
+			};
+			const response = await JobseekerProfileService.search(payload);
+			setData(response.body);
+			setMeta(response.meta);
+		} catch (error: any) {
+			toast.error({
+				description: error.message || 'Failed to load jobseekers.',
+				variant: 'danger',
+			});
+		} finally {
+			setIsLoading(false);
+		}
+	}, []);
 
 	React.useEffect(() => {
 		loadJobseekers(0, debouncedSearch, organizationFilter);
@@ -149,11 +142,10 @@ export function JobseekerManagement({
 		},
 		{
 			accessorKey: 'profileCompletion',
-			header: 'Profile Completion',
+			header: 'Profile Complete',
 			cell: ({ row }) => {
 				const percentage = row.original.profileCompletion || 0;
-				const variant =
-					percentage >= 75 ? 'lite-success' : percentage >= 50 ? 'lite-warning' : 'lite-danger';
+				const variant = percentage >= 75 ? 'lite-success' : percentage >= 50 ? 'lite-warning' : 'lite-danger';
 				return <Badge variant={variant}>{percentage}%</Badge>;
 			},
 		},
