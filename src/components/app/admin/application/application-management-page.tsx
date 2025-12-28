@@ -27,7 +27,7 @@ import { ArrowLeft, ChevronsRight, Filter, Loader2, Printer, Search, UserPlus } 
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { ApplicantFilterBar, ApplicantFilterValues } from './applicant-filter-bar';
-import { ApplicantListManager } from './applicant-list-manager';
+import { ApplicantListManager } from './add-candidate';
 import { ApplicantsTable } from './applicants-table';
 import { ApplicationManagementHeader } from './application-management-header';
 import { ApplicationStats } from './application-stats';

@@ -1,6 +1,7 @@
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -14,14 +15,19 @@ import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
+import useLoader from '@/hooks/use-loader';
 import { toast } from '@/hooks/use-toast';
 import { IMeta, IObject } from '@/interfaces/common.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
-import { EnumDTO, IEducationDegree } from '@/interfaces/master-data.interface';
+import { EnumDTO, IEducationDegree, IPost } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { MasterDataService } from '@/services/api/master-data.service';
-import { getOutsourcingCategoriesAsync, getPostOutsourcingAsync, getSkillsAsync } from '@/services/async-api';
+import {
+	getOutsourcingCategoriesAsync,
+	getPostOutsourcingByCategoryAsync,
+	getSkillsAsync,
+} from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
 	ColumnDef,
@@ -41,7 +47,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
-import useLoader from '@/hooks/use-loader';
 
 const filterSchema = z.object({
 	gender: z.string().optional(),
@@ -69,7 +74,7 @@ interface AddCandidateProps {
 
 const initMeta: IMeta = { page: 0, limit: 50, totalRecords: 0, sort: [{ field: 'createdOn', order: 'asc' }] };
 
-export function AddCandidate({ onApply }: AddCandidateProps) {
+export function ApplicantListManager({ onApply }: AddCandidateProps) {
 	const params = useParams();
 	const [isLoading, setIsLoading] = useLoader(false);
 	const [jobseekers, setJobseekers] = useState<JobseekerSearch[]>([]);
@@ -77,6 +82,7 @@ export function AddCandidate({ onApply }: AddCandidateProps) {
 	const [selectedJobseeker, setSelectedJobseeker] = React.useState<JobseekerSearch | null>(null);
 	const [textSearch, setTextSearch] = useState('');
 	const debouncedTextSearch = useDebounce(textSearch, 500);
+	const cardContainerRef = React.useRef<HTMLDivElement>(null);
 
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -134,7 +140,7 @@ export function AddCandidate({ onApply }: AddCandidateProps) {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit]
+		[meta.limit, params?.id]
 	);
 
 	useEffect(() => {
@@ -142,6 +148,7 @@ export function AddCandidate({ onApply }: AddCandidateProps) {
 			searchKey: debouncedTextSearch,
 			...debouncedFilters,
 		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [debouncedTextSearch, JSON.stringify(debouncedFilters), searchApplicants]);
 
 	useEffect(() => {
@@ -184,79 +191,89 @@ export function AddCandidate({ onApply }: AddCandidateProps) {
 	}, [watchedFilters.degreeLevelId, masterData.degrees]);
 
 	const loadPostOptions = useCallback(
-		(search: string, callback: (options: any[]) => void) => {
-			getPostOutsourcingAsync(search, callback, watchedFilters.outsourcingCategoryId);
+		(search: string, callback: (options: IPost[]) => void) => {
+			getPostOutsourcingByCategoryAsync(search, watchedFilters.outsourcingCategoryId, callback);
 		},
 		[watchedFilters.outsourcingCategoryId]
 	);
 
-	const columns: ColumnDef<JobseekerSearch>[] = [
-		{
-			id: 'select',
-			header: ({ table }) => (
-				<Checkbox
-					checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
-					onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-					aria-label='Select all'
-				/>
-			),
-			cell: ({ row }) => (
-				<Checkbox
-					checked={row.getIsSelected()}
-					onCheckedChange={(value) => row.toggleSelected(!!value)}
-					aria-label='Select row'
-				/>
-			),
-			enableSorting: false,
-			enableHiding: false,
-		},
-		{
-			accessorKey: 'fullName',
-			header: 'Applicant',
-			cell: ({ row }) => {
-				const { fullName, profileImage, firstName, lastName } = row.original;
-				return (
-					<div className='flex items-center gap-3'>
-						<Avatar>
-							<AvatarImage src={makePreviewURL(profileImage)} />
-							<AvatarFallback>
-								{firstName?.[0]}
-								{lastName?.[0]}
-							</AvatarFallback>
-						</Avatar>
-						<button
-							className='font-semibold text-left hover:underline'
-							onClick={() => setSelectedJobseeker(row.original)}
-						>
-							{fullName}
-						</button>
-					</div>
-				);
+	const columns: ColumnDef<JobseekerSearch>[] = React.useMemo(
+		() => [
+			{
+				id: 'select',
+				header: ({ table }) => (
+					<Checkbox
+						checked={
+							table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')
+						}
+						onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+						aria-label='Select all'
+					/>
+				),
+				cell: ({ row }) => (
+					<Checkbox
+						checked={row.getIsSelected()}
+						onCheckedChange={(value) => row.toggleSelected(!!value)}
+						aria-label='Select row'
+					/>
+				),
+				enableSorting: false,
+				enableHiding: false,
 			},
-		},
-		{
-			header: 'Contact Info',
-			cell: ({ row }) => {
-				const { email, phone } = row.original;
-				return (
+			{
+				accessorKey: 'fullName',
+				header: 'Applicant',
+				cell: ({ row }) => {
+					const { fullName, email, phone, profileImage, firstName, lastName, profileCompletion } =
+						row.original;
+					return (
+						<div className='flex items-center gap-3'>
+							<Avatar>
+								<AvatarImage src={makePreviewURL(profileImage)} />
+								<AvatarFallback>
+									{firstName?.[0]}
+									{lastName?.[0]}
+								</AvatarFallback>
+							</Avatar>
+							<div>
+								<button
+									className='font-semibold text-left hover:underline'
+									onClick={() => setSelectedJobseeker(row.original)}
+								>
+									{fullName}
+								</button>
+								<div className='text-xs text-muted-foreground'>
+									<p>{email}</p>
+									<p>{phone}</p>
+								</div>
+							</div>
+						</div>
+					);
+				},
+			},
+			{
+				accessorKey: 'organizationNameEn',
+				header: 'Organization',
+				cell: ({ row }) => (
 					<div>
-						<p>{email}</p>
-						<p className='text-sm text-muted-foreground'>{phone}</p>
+						<p>{row.original.organizationNameEn}</p>
+						<p className='text-sm text-muted-foreground'>{row.original.organizationNameBn}</p>
 					</div>
-				);
+				),
 			},
-		},
-		{
-			accessorKey: 'organizationNameEn',
-			header: 'Organization',
-			cell: ({ row }) => (
-				<div>
-					<p>{row.original.organizationNameEn}</p>
-					<p className='text-sm text-muted-foreground'>{row.original.organizationNameBn}</p>
-				</div>
-			),
-		},
-	];
+			{
+				accessorKey: 'profileCompletion',
+				header: 'Profile Complete',
+				cell: ({ row }) => {
+					const percentage = row.original.profileCompletion || 0;
+					const variant =
+						percentage >= 75 ? 'lite-success' : percentage >= 50 ? 'lite-warning' : 'lite-danger';
+					return <Badge variant={variant}>{percentage}%</Badge>;
+				},
+			},
+		],
+		[]
+	);
 
 	const table = useReactTable({
 		data: jobseekers,
@@ -416,13 +433,14 @@ export function AddCandidate({ onApply }: AddCandidateProps) {
 								loadOptions={getSkillsAsync}
 								getOptionValue={(option) => option.id}
 								getOptionLabel={(option) => option.nameEn}
+								containerRef={cardContainerRef}
 							/>
 						</form>
 					</CardContent>
 				</Card>
 			</FormProvider>
 
-			<Card className='my-4'>
+			<Card className='my-4' ref={cardContainerRef}>
 				<CardHeader className='py-4'>
 					<div className='flex justify-between items-center'>
 						<div className='flex items-center gap-2'>
@@ -447,6 +465,7 @@ export function AddCandidate({ onApply }: AddCandidateProps) {
 							className='pl-10 h-11'
 						/>
 					</div>
+					<Pagination meta={meta} onPageChange={handlePageChange} noun={'Jobseeker'} />
 					<div className='rounded-md border'>
 						<Table>
 							<TableHeader>

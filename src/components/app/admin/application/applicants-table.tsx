@@ -540,6 +540,7 @@ export function ApplicantsTable({
 						<Loader2 className='h-8 w-8 animate-spin text-primary' />
 					</div>
 				)}
+				<Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} noun={'Applicant'} />
 				<CardContent className='p-0'>
 					<Table>
 						<TableHeader>
