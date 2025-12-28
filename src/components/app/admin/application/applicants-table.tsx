@@ -540,7 +540,11 @@ export function ApplicantsTable({
 						<Loader2 className='h-8 w-8 animate-spin text-primary' />
 					</div>
 				)}
-				<Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} noun={'Applicant'} />
+				{meta?.totalRecords && meta?.totalRecords > 0 ? (
+					<CardFooter className='py-4'>
+						<Pagination meta={meta} isLoading={isLoading} onPageChange={onPageChange} noun={'Applicant'} />
+					</CardFooter>
+				) : null}
 				<CardContent className='p-0'>
 					<Table>
 						<TableHeader>
