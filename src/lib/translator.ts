@@ -1,4 +1,4 @@
-export const convertEnToBn = (num: any) => {
+export const convertEnToBn = (num: string): string => {
 	return num
 		?.toString()
 		.replaceAll('0', '০')
@@ -44,7 +44,7 @@ export const convertEnToBn = (num: any) => {
 		.replaceAll('Friday', 'শুক্রবার');
 };
 
-export const convertBnToEn = (num: any) => {
+export const convertBnToEn = (num: string): string => {
 	return num
 		?.toString()
 		.replaceAll('০', '0')
@@ -88,4 +88,4 @@ export const convertBnToEn = (num: any) => {
 		.replaceAll('বুধবার', 'Wednesday')
 		.replaceAll('বৃহস্পতিবার', 'Thursday')
 		.replaceAll('শুক্রবার', 'Friday');
-}
+};

@@ -164,7 +164,9 @@ export function JobseekerForm({
 				const modJson = json.map((item: any) => ({
 					...item,
 					firstName: item.name,
-					phone: !!item.mobile ? convertBnToEn(String(item.mobile)) : '',
+					phone: !!item.mobile
+						? convertBnToEn(String(item.mobile)).replaceAll(' ', '').replaceAll('-', '')
+						: '',
 				}));
 				replace(modJson as any);
 				setStep('preview');
