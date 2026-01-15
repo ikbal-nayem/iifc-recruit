@@ -20,7 +20,7 @@ import { useState } from 'react';
 const signupSchema = z
 	.object({
 		firstName: z.string().min(1, 'First name is required.'),
-		lastName: z.string().min(1, 'Last name is required.'),
+		// lastName: z.string().min(1, 'Last name is required.'),
 		email: z.string().email('Please enter a valid email.').optional().or(z.literal('')),
 		phone: z
 			.string()
@@ -52,7 +52,7 @@ export default function SignupForm() {
 		resolver: zodResolver(signupSchema),
 		defaultValues: {
 			firstName: '',
-			lastName: '',
+			// lastName: '',
 			email: '',
 			phone: '',
 			password: '',
@@ -86,22 +86,22 @@ export default function SignupForm() {
 							<AlertDescription className='flex items-center gap-2'>{error}</AlertDescription>
 						</Alert>
 					)}
-					<div className='grid grid-cols-2 gap-4'>
+					{/* <div className='grid grid-cols-2 gap-4'> */}
 						<FormInput
 							control={form.control}
 							name='firstName'
-							label='First Name'
+							label='Name'
 							required
 							disabled={isLoading}
 						/>
-						<FormInput
+						{/* <FormInput
 							control={form.control}
 							name='lastName'
 							label='Last Name'
 							required
 							disabled={isLoading}
-						/>
-					</div>
+						/> */}
+					{/* </div> */}
 					<FormInput
 						control={form.control}
 						name='phone'
