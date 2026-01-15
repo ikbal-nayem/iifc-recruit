@@ -8,7 +8,7 @@ import { FormInput } from '@/components/ui/form-input';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/auth-context';
 import useLoader from '@/hooks/use-loader';
-import { toast, useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { IFile } from '@/interfaces/common.interface';
 import { compressImage } from '@/lib/compresser';
 import { makePreviewURL } from '@/lib/file-oparations';
@@ -41,7 +41,6 @@ function ProfileImageCard({
 	firstName?: string;
 	lastName?: string;
 }) {
-	const { toast } = useToast();
 	const [avatarPreview, setAvatarPreview] = React.useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useLoader(false);
 	const { updateUserInfo } = useAuth();
@@ -72,18 +71,16 @@ function ProfileImageCard({
 			formData.append('file', compressedFile);
 
 			const res = await UserService.saveProfileImage(formData);
-			toast({
+			toast.success({
 				title: 'Photo Updated',
 				description: res.message || 'Your new profile photo has been saved.',
-				variant: 'success',
 			});
 			updateUserInfo({ profileImage: res.body });
 			form.reset();
 		} catch (err: any) {
-			toast({
+			toast.error({
 				title: 'Upload Failed',
 				description: err.message || 'There was a problem uploading your photo.',
-				variant: 'danger',
 			});
 		} finally {
 			setIsSubmitting(false);
@@ -152,7 +149,7 @@ interface AdminProfileFormProps {
 	user: {
 		fullName: string;
 		firstName: string;
-		lastName: string;
+		// lastName: string;
 		email: string;
 		phone: string;
 		avatar: string;
@@ -162,7 +159,7 @@ interface AdminProfileFormProps {
 
 const profileSchema = z.object({
 	firstName: z.string().min(1, 'First name is required'),
-	lastName: z.string().min(1, 'Last name is required'),
+	// lastName: z.string().min(1, 'Last name is required'),
 	email: z.string().email().optional(),
 	phone: z.string().min(1, 'Phone number is required'),
 });
@@ -177,7 +174,7 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
 		resolver: zodResolver(profileSchema),
 		defaultValues: {
 			firstName: user.firstName,
-			lastName: user.lastName,
+			// lastName: user.lastName,
 			email: user.email,
 			phone: user.phone,
 		},
@@ -212,7 +209,7 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
 			<ProfileImageCard
 				profileImage={user.profileImage}
 				firstName={form.getValues('firstName')}
-				lastName={form.getValues('lastName')}
+				// lastName={form.getValues('lastName')}
 			/>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)}>
@@ -222,8 +219,8 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
 						</CardHeader>
 						<CardContent className='space-y-4'>
 							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-								<FormInput control={form.control} name='firstName' label='First Name' required />
-								<FormInput control={form.control} name='lastName' label='Last Name' required />
+								<FormInput control={form.control} name='firstName' label='Name' required />
+								{/* <FormInput control={form.control} name='lastName' label='Last Name' required /> */}
 							</div>
 
 							<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -232,7 +229,6 @@ export function AdminProfileForm({ user }: AdminProfileFormProps) {
 									name='email'
 									label='Email'
 									type='email'
-									// required
 									startIcon={<Mail className='h-4 w-4 text-muted-foreground' />}
 								/>
 								<FormInput
