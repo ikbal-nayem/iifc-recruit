@@ -162,6 +162,7 @@ export type PersonalInfo = {
 	birthCertificate?: string;
 
 	organization?: IClientOrganization;
+	post?: IPost;
 
 	// Status
 	maritalStatus: string;
@@ -248,5 +249,11 @@ export type JobseekerSearch = {
 	organizationId?: string;
 	organizationNameEn?: string;
 	organizationNameBn?: string;
+	postId?: string;
+	postNameEn?: string;
+	postNameBn?: string;
+	outsourcingCategoryId?: string;
+	outsourcingCategoryNameEn?: string;
+	outsourcingCategoryNameBn?: string;
 	profileCompletion?: number;
 };

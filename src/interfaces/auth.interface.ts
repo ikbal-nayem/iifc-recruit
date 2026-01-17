@@ -1,6 +1,6 @@
 import { ROLES } from '@/constants/auth.constant';
 import { IFile } from './common.interface';
-import { EnumDTO, IClientOrganization } from './master-data.interface';
+import { EnumDTO, IClientOrganization, IPost } from './master-data.interface';
 
 export interface IAuthInfo {
 	access_token: string;
@@ -25,4 +25,6 @@ export interface IUser {
 	genderDTO?: EnumDTO;
 	organizationId?: string;
 	organization?: IClientOrganization;
+	postId?: string;
+	post?: IPost;
 }

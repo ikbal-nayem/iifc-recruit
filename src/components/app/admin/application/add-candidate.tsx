@@ -252,12 +252,15 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 				},
 			},
 			{
-				accessorKey: 'organizationNameEn',
+				accessorKey: 'organizationNameBn',
 				header: 'Organization',
 				cell: ({ row }) => (
 					<div>
-						<p>{row.original.organizationNameEn}</p>
-						<p className='text-sm text-muted-foreground'>{row.original.organizationNameBn}</p>
+						<p className='text-muted-foreground'>
+							{row.original.postNameBn}{' '}
+							{row.original.outsourcingCategoryNameBn ? `(${row.original.outsourcingCategoryNameBn})` : null}
+						</p>
+						<p className='text-muted-foreground'>{row.original.organizationNameBn}</p>
 					</div>
 				),
 			},
