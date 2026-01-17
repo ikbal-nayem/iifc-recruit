@@ -25,6 +25,4 @@ export interface IUser {
 	genderDTO?: EnumDTO;
 	organizationId?: string;
 	organization?: IClientOrganization;
-	postId?: string;
-	post?: IPost;
 }
