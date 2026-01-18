@@ -140,7 +140,7 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit, params?.id]
+		[meta.limit, params?.id],
 	);
 
 	useEffect(() => {
@@ -180,13 +180,13 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 	};
 
 	const activeFilterCount = Object.values(watchedFilters).filter(
-		(v) => v !== '' && v !== undefined && (!Array.isArray(v) || v.length > 0)
+		(v) => v !== '' && v !== undefined && (!Array.isArray(v) || v.length > 0),
 	).length;
 
 	const filteredDegrees = React.useMemo(() => {
 		if (!watchedFilters.degreeLevelId) return [];
 		return masterData.degrees.filter(
-			(d: IEducationDegree) => d.degreeLevelId === watchedFilters.degreeLevelId
+			(d: IEducationDegree) => d.degreeLevelId === watchedFilters.degreeLevelId,
 		);
 	}, [watchedFilters.degreeLevelId, masterData.degrees]);
 
@@ -194,7 +194,7 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 		(search: string, callback: (options: IPost[]) => void) => {
 			getPostOutsourcingByCategoryAsync(search, watchedFilters.outsourcingCategoryId, callback);
 		},
-		[watchedFilters.outsourcingCategoryId]
+		[watchedFilters.outsourcingCategoryId],
 	);
 
 	const columns: ColumnDef<JobseekerSearch>[] = React.useMemo(
@@ -224,8 +224,7 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 				accessorKey: 'fullName',
 				header: 'Applicant',
 				cell: ({ row }) => {
-					const { fullName, email, phone, profileImage, firstName, lastName, profileCompletion } =
-						row.original;
+					const { fullName, email, phone, profileImage, firstName, lastName } = row.original;
 					return (
 						<div className='flex items-center gap-3'>
 							<Avatar>
@@ -275,7 +274,7 @@ export function ApplicantListManager({ onApply }: AddCandidateProps) {
 				},
 			},
 		],
-		[]
+		[],
 	);
 
 	const table = useReactTable({

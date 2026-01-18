@@ -74,7 +74,7 @@ export function JobseekerManagement({
 				setIsLoading(false);
 			}
 		},
-		[]
+		[],
 	);
 
 	React.useEffect(() => {
@@ -212,8 +212,8 @@ export function JobseekerManagement({
 							jobseeker.profileCompletion >= 75
 								? 'lite-success'
 								: jobseeker.profileCompletion >= 50
-								? 'lite-warning'
-								: 'lite-danger'
+									? 'lite-warning'
+									: 'lite-danger'
 						}
 					>
 						{jobseeker.profileCompletion}% Complete
