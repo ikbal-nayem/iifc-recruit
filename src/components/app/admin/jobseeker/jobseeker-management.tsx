@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
@@ -67,10 +66,9 @@ export function JobseekerManagement({
 				const response = await JobseekerProfileService.search(payload);
 				setData(response.body);
 				setMeta(response.meta);
-			} catch (error: any) => {
+			} catch (error: any) {
 				toast.error({
 					description: error.message || 'Failed to load jobseekers.',
-					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
