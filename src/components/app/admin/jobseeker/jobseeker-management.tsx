@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
@@ -19,10 +20,11 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { toast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
-import { IClientOrganization } from '@/interfaces/master-data.interface';
+import { IClientOrganization, IPost } from '@/interfaces/master-data.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { UserService } from '@/services/api/user.service';
+import { getOutsourcingCategoriesAsync, getPostOutsourcingByCategoryAsync } from '@/services/async-api';
 import { Building, FileText, Loader2, Search, Trash } from 'lucide-react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 import { JobseekerForm } from './jobseeker-form';
@@ -46,36 +48,43 @@ export function JobseekerManagement({
 	const [userToDelete, setUserToDelete] = React.useState<JobseekerSearch | null>(null);
 	const debouncedSearch = useDebounce(searchQuery, 500);
 	const [organizationFilter, setOrganizationFilter] = React.useState('all');
+	const [categoryFilter, setCategoryFilter] = React.useState('all');
+	const [postFilter, setPostFilter] = React.useState('all');
 
-	const loadJobseekers = React.useCallback(async (page: number, search: string, orgId: string) => {
-		setIsLoading(true);
-		try {
-			const payload: IApiRequest = {
-				body: {
-					searchKey: search,
-					...(orgId !== 'all' && { organizationId: orgId }),
-				},
-				meta: { page, limit: initMeta.limit },
-			};
-			const response = await JobseekerProfileService.search(payload);
-			setData(response.body);
-			setMeta(response.meta);
-		} catch (error: any) {
-			toast.error({
-				description: error.message || 'Failed to load jobseekers.',
-				variant: 'danger',
-			});
-		} finally {
-			setIsLoading(false);
-		}
-	}, []);
+	const loadJobseekers = React.useCallback(
+		async (page: number, search: string, orgId: string, categoryId: string, postId: string) => {
+			setIsLoading(true);
+			try {
+				const payload: IApiRequest = {
+					body: {
+						searchKey: search,
+						...(orgId !== 'all' && { organizationId: orgId }),
+						...(categoryId !== 'all' && { outsourcingCategoryId: categoryId }),
+						...(postId !== 'all' && { postId: postId }),
+					},
+					meta: { page, limit: initMeta.limit },
+				};
+				const response = await JobseekerProfileService.search(payload);
+				setData(response.body);
+				setMeta(response.meta);
+			} catch (error: any) => {
+				toast.error({
+					description: error.message || 'Failed to load jobseekers.',
+					variant: 'danger',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[]
+	);
 
 	React.useEffect(() => {
-		loadJobseekers(0, debouncedSearch, organizationFilter);
-	}, [debouncedSearch, loadJobseekers, organizationFilter]);
+		loadJobseekers(0, debouncedSearch, organizationFilter, categoryFilter, postFilter);
+	}, [debouncedSearch, loadJobseekers, organizationFilter, categoryFilter, postFilter]);
 
 	const handlePageChange = (newPage: number) => {
-		loadJobseekers(newPage, debouncedSearch, organizationFilter);
+		loadJobseekers(newPage, debouncedSearch, organizationFilter, categoryFilter, postFilter);
 	};
 
 	const handleDelete = async () => {
@@ -83,7 +92,7 @@ export function JobseekerManagement({
 		try {
 			await UserService.deleteUser(userToDelete.userId);
 			toast.success({ description: `Jobseeker ${userToDelete.fullName} has been deleted.` });
-			loadJobseekers(meta.page, debouncedSearch, organizationFilter);
+			loadJobseekers(meta.page, debouncedSearch, organizationFilter, categoryFilter, postFilter);
 		} catch (error: any) {
 			toast.error({ description: error.message || 'Failed to delete user.' });
 		} finally {
@@ -111,7 +120,7 @@ export function JobseekerManagement({
 			accessorKey: 'fullName',
 			header: 'Applicant',
 			cell: ({ row }) => {
-				const { fullName, email, profileImage, firstName, lastName, phone } = row.original;
+				const { fullName, email, profileImage, firstName, lastName, phone, profileCompletion } = row.original;
 				return (
 					<div className='flex items-center gap-3'>
 						<Avatar>
@@ -123,8 +132,11 @@ export function JobseekerManagement({
 						</Avatar>
 						<div>
 							<p className='font-semibold'>{fullName}</p>
-							<p className='text-sm text-muted-foreground'>{email}</p>
-							<p className='text-sm text-muted-foreground'>{phone}</p>
+							<div className='text-xs text-muted-foreground'>
+								<p>{email}</p>
+								<p>{phone}</p>
+								{profileCompletion && <p className='font-medium'>Profile: {profileCompletion}%</p>}
+							</div>
 						</div>
 					</div>
 				);
@@ -135,12 +147,12 @@ export function JobseekerManagement({
 			header: 'Organization',
 			cell: ({ row }) => (
 				<div>
-						<p className='text-muted-foreground'>
-							{row.original.postNameBn}{' '}
-							{row.original.outsourcingCategoryBn ? `(${row.original.outsourcingCategoryBn})` : null}
-						</p>
-						<p className='text-muted-foreground'>{row.original.organizationNameBn}</p>
-					</div>
+					<p className='text-muted-foreground'>
+						{row.original.postNameBn}{' '}
+						{row.original.outsourcingCategoryBn ? `(${row.original.outsourcingCategoryBn})` : null}
+					</p>
+					<p className='text-muted-foreground'>{row.original.organizationNameBn}</p>
+				</div>
 			),
 		},
 		{
@@ -218,8 +230,8 @@ export function JobseekerManagement({
 			<Card className='glassmorphism'>
 				<CardHeader>
 					<CardTitle>Jobseeker List</CardTitle>
-					<div className='flex flex-col md:flex-row gap-4 pt-4'>
-						<div className='relative w-full md:max-w-sm'>
+					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4'>
+						<div className='relative w-full'>
 							<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 							<Input
 								placeholder='Search by name, email, or phone...'
@@ -228,7 +240,7 @@ export function JobseekerManagement({
 								className='pl-10 h-10'
 							/>
 						</div>
-						<div className='w-full md:max-w-sm'>
+						<div className='w-full'>
 							<FormAutocomplete
 								name='organizationFilter'
 								placeholder='Filter by organization...'
@@ -237,6 +249,37 @@ export function JobseekerManagement({
 								getOptionLabel={(option) => option.nameEn}
 								value={organizationFilter}
 								onValueChange={(value) => setOrganizationFilter(value || 'all')}
+								allowClear
+							/>
+						</div>
+						<div className='w-full'>
+							<FormAutocomplete
+								name='categoryFilter'
+								placeholder='Filter by Category...'
+								loadOptions={getOutsourcingCategoriesAsync}
+								getOptionValue={(option) => option.id!}
+								getOptionLabel={(option) => option.nameEn}
+								onValueChange={(value) => {
+									setCategoryFilter(value || 'all');
+									setPostFilter('all'); // Reset post filter when category changes
+								}}
+								value={categoryFilter}
+								allowClear
+							/>
+						</div>
+						<div className='w-full'>
+							<FormAutocomplete
+								name='postFilter'
+								placeholder='Filter by Post...'
+								disabled={categoryFilter === 'all'}
+								loadOptions={(search, callback) =>
+									getPostOutsourcingByCategoryAsync(search, categoryFilter, callback)
+								}
+								getOptionValue={(option) => option.id!}
+								getOptionLabel={(option: IPost) => option.nameBn}
+								onValueChange={(value) => setPostFilter(value || 'all')}
+								value={postFilter}
+								allowClear
 							/>
 						</div>
 					</div>
@@ -336,7 +379,7 @@ export function JobseekerManagement({
 			<JobseekerForm
 				isOpen={isFormOpen}
 				onClose={() => setIsFormOpen(false)}
-				onSuccess={() => loadJobseekers(0, '', 'all')}
+				onSuccess={() => loadJobseekers(0, '', 'all', 'all', 'all')}
 				organizations={organizations}
 			/>
 			{userToDelete && (
