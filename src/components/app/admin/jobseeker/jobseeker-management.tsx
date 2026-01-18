@@ -137,7 +137,7 @@ export function JobseekerManagement({
 				<div>
 						<p className='text-muted-foreground'>
 							{row.original.postNameBn}{' '}
-							{row.original.outsourcingCategoryNameBn ? `(${row.original.outsourcingCategoryNameBn})` : null}
+							{row.original.outsourcingCategoryBn ? `(${row.original.outsourcingCategoryBn})` : null}
 						</p>
 						<p className='text-muted-foreground'>{row.original.organizationNameBn}</p>
 					</div>

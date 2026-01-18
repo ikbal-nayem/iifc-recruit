@@ -253,7 +253,7 @@ export type JobseekerSearch = {
 	postNameEn?: string;
 	postNameBn?: string;
 	outsourcingCategoryId?: string;
-	outsourcingCategoryNameEn?: string;
-	outsourcingCategoryNameBn?: string;
+	outsourcingCategoryEn?: string;
+	outsourcingCategoryBn?: string;
 	profileCompletion?: number;
 };
