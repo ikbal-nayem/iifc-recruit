@@ -118,7 +118,7 @@ export function JobseekerManagement({
 			accessorKey: 'fullName',
 			header: 'Applicant',
 			cell: ({ row }) => {
-				const { fullName, email, profileImage, firstName, lastName, phone, profileCompletion } = row.original;
+				const { fullName, email, profileImage, firstName, lastName, phone } = row.original;
 				return (
 					<div className='flex items-center gap-3'>
 						<Avatar>
@@ -133,7 +133,6 @@ export function JobseekerManagement({
 							<div className='text-xs text-muted-foreground'>
 								<p>{email}</p>
 								<p>{phone}</p>
-								{profileCompletion && <p className='font-medium'>Profile: {profileCompletion}%</p>}
 							</div>
 						</div>
 					</div>
