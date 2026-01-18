@@ -61,6 +61,7 @@ export interface IClientOrganization {
 	clientId?: string;
 	address?: string;
 	contactPersonName?: string;
+	contactPersonDesignation?: string;
 	contactNumber?: string;
 	email?: string;
 	website?: string;

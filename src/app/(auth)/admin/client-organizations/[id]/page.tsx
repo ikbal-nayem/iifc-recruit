@@ -1,13 +1,12 @@
-
+import { OrganizationJobseekerList } from '@/components/app/admin/client-organizations/organization-jobseeker-list';
 import { OrganizationUserManagement } from '@/components/app/admin/client-organizations/organization-user-management';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AuthService } from '@/services/api/auth.service';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { Building, Globe, Mail, MapPin, Phone, UserCheck } from 'lucide-react';
 import { notFound } from 'next/navigation';
-import { OrganizationJobseekerList } from '@/components/app/admin/client-organizations/organization-jobseeker-list';
 
 async function getData(id: string) {
 	try {
@@ -103,10 +102,11 @@ export default async function ClientOrganizationDetailsPage({ params }: { params
 								<Phone className='h-5 w-5 text-muted-foreground' />
 								<div>
 									<p className='font-medium'>Contact Person</p>
-									<p className='text-muted-foreground'>
+									<p className='text-muted-foreground mb-0'>
 										{organization.contactPersonName}{' '}
-										{organization?.contactNumber && <>({organization.contactNumber})</>}
+										{organization?.contactPersonDesignation && <>({organization.contactPersonDesignation})</>}
 									</p>
+									<small className='text-muted-foreground'>{organization.contactNumber}</small>
 								</div>
 							</div>
 						)}

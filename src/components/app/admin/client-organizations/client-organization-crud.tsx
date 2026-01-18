@@ -1,4 +1,3 @@
-
 'use client';
 
 import { FormMasterData } from '@/app/(auth)/admin/client-organizations/page';
@@ -22,7 +21,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ROUTES } from '@/constants/routes.constant';
 import { useDebounce } from '@/hooks/use-debounce';
 import useLoader from '@/hooks/use-loader';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { isBangla, isEnglish } from '@/lib/utils';
@@ -60,6 +59,7 @@ const formSchema = z
 		organizationTypeId: z.coerce.string().min(1, 'Organization Type is required.'),
 		address: z.string().max(200, 'Address is too long.').optional(),
 		contactPersonName: z.string().optional(),
+		contactPersonDesignation: z.string().optional(),
 		contactNumber: z
 			.string()
 			.max(11, 'Contact number must be 11 digits.')
@@ -107,9 +107,10 @@ function ClientOrganizationForm({
 			nameEn: initialData?.nameEn || '',
 			nameBn: initialData?.nameBn || '',
 			organizationTypeId: initialData?.organizationTypeId!,
-			clientId: initialData?.clientId	|| '',
+			clientId: initialData?.clientId || '',
 			address: initialData?.address || '',
 			contactPersonName: initialData?.contactPersonName || '',
+			contactPersonDesignation: initialData?.contactPersonDesignation || '',
 			contactNumber: initialData?.contactNumber || '',
 			email: initialData?.email || '',
 			website: initialData?.website || '',
@@ -148,7 +149,7 @@ function ClientOrganizationForm({
 							<FormInput
 								control={form.control}
 								name='nameBn'
-								label='Name (Bangla)'
+								label='Name (বাংলা)'
 								placeholder='ক্লায়েন্টের নাম'
 								required
 								disabled={isSubmitting}
@@ -195,14 +196,21 @@ function ClientOrganizationForm({
 							/>
 							<FormInput
 								control={form.control}
+								name='contactPersonDesignation'
+								label='Designation'
+								placeholder='Name'
+								disabled={isSubmitting}
+							/>
+						</div>
+						<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+							<FormInput
+								control={form.control}
 								name='contactNumber'
 								label='Contact Number'
 								placeholder='01xxxxxxxxx'
 								disabled={isSubmitting}
 								startIcon={<Phone className='h-4 w-4 text-muted-foreground' />}
 							/>
-						</div>
-						<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
 							<FormInput
 								control={form.control}
 								name='email'
@@ -212,16 +220,16 @@ function ClientOrganizationForm({
 								disabled={isSubmitting}
 								startIcon={<Mail className='h-4 w-4 text-muted-foreground' />}
 							/>
-							<FormInput
-								control={form.control}
-								name='website'
-								label='Website'
-								type='url'
-								placeholder='https://example.com'
-								disabled={isSubmitting}
-								startIcon={<Globe className='h-4 w-4 text-muted-foreground' />}
-							/>
 						</div>
+						<FormInput
+							control={form.control}
+							name='website'
+							label='Website'
+							type='url'
+							placeholder='https://example.com'
+							disabled={isSubmitting}
+							startIcon={<Globe className='h-4 w-4 text-muted-foreground' />}
+						/>
 
 						<DialogFooter className='pt-4'>
 							<Button type='button' variant='ghost' onClick={onClose} disabled={isSubmitting}>
@@ -254,7 +262,6 @@ export function ClientOrganizationCrud({
 	noun,
 	masterData,
 }: ClientOrganizationCrudProps) {
-	const { toast } = useToast();
 	const searchParams = useSearchParams();
 	const [items, setItems] = useState<IClientOrganization[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
@@ -286,15 +293,14 @@ export function ClientOrganizationCrud({
 				setMeta(response.meta);
 			} catch (error) {
 				console.error('Failed to load items', error);
-				toast({
+				toast.error({
 					description: 'Failed to load client organizations.',
-					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit, toast]
+		[meta.limit],
 	);
 
 	useEffect(() => {
@@ -327,11 +333,11 @@ export function ClientOrganizationCrud({
 				? await MasterDataService.clientOrganization.update(payload as IClientOrganization)
 				: await MasterDataService.clientOrganization.add(payload);
 
-			toast({ description: response.message, variant: 'success' });
+			toast.success({ description: response.message });
 			loadItems(meta.page, debouncedSearch, isClientFilter, isExaminerFilter);
 		} catch (error: any) {
 			console.error('Failed to save item', error);
-			toast({ title: 'Error', description: error.message || `Failed to save ${noun}.`, variant: 'danger' });
+			toast.error({ title: 'Error', description: error.message || `Failed to save ${noun}.` });
 		}
 	};
 
@@ -339,18 +345,16 @@ export function ClientOrganizationCrud({
 		if (!itemToDelete) return;
 		try {
 			await MasterDataService.clientOrganization.delete(itemToDelete.id!.toString());
-			toast({
+			toast.success({
 				title: 'Success',
 				description: 'Client organization deleted successfully.',
-				variant: 'success',
 			});
 			loadItems(meta.page, debouncedSearch, isClientFilter, isExaminerFilter);
 		} catch (error: any) {
 			console.error('Failed to delete item', error);
-			toast({
+			toast.error({
 				title: 'Error',
 				description: error?.message || 'Failed to delete client organization.',
-				variant: 'danger',
 			});
 		} finally {
 			setItemToDelete(null);
@@ -400,6 +404,7 @@ export function ClientOrganizationCrud({
 				return (
 					<div>
 						<div>{item.contactPersonName}</div>
+						<small className='text-xs text-muted-foreground'>{item.contactPersonDesignation}</small>
 						<div className='text-sm text-muted-foreground'>{item.contactNumber}</div>
 					</div>
 				);
