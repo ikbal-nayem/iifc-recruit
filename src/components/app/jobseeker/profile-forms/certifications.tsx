@@ -13,7 +13,7 @@ import { FormFileUpload } from '@/components/ui/form-file-upload';
 import { FormInput } from '@/components/ui/form-input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTES } from '@/constants/routes.constant';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { Certification } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makeFormData } from '@/lib/utils';
@@ -86,7 +86,6 @@ interface CertificationFormProps {
 }
 
 function CertificationForm({ isOpen, onClose, onSubmit, initialData, noun }: CertificationFormProps) {
-	const { toast } = useToast();
 	const form = useForm<CertificationFormValues>({
 		resolver: zodResolver(certificationSchema),
 		defaultValues: defaultData,
@@ -122,15 +121,13 @@ function CertificationForm({ isOpen, onClose, onSubmit, initialData, noun }: Cer
 				nameBn: name,
 				active: true,
 			});
-			toast({
+			toast.success({
 				description: `Certification "${name}" created.`,
-				variant: 'success',
 			});
 			return response.body;
 		} catch (error: any) {
-			toast({
+			toast.error({
 				description: error.message || 'Failed to create certification.',
-				variant: 'danger',
 			});
 			return null;
 		}
@@ -214,7 +211,6 @@ function CertificationForm({ isOpen, onClose, onSubmit, initialData, noun }: Cer
 
 export default function ProfileFormCertifications() {
 	const router = useRouter();
-	const { toast } = useToast();
 	const [history, setHistory] = useState<Certification[]>([]);
 	const [editingItem, setEditingItem] = useState<Certification | undefined>(undefined);
 	const [itemToDelete, setItemToDelete] = useState<Certification | null>(null);
@@ -227,14 +223,13 @@ export default function ProfileFormCertifications() {
 			const [certRes] = await Promise.all([JobseekerProfileService.certification.get()]);
 			setHistory(certRes.body as Certification[]);
 		} catch (error) {
-			toast({
+			toast.error({
 				description: 'Failed to load certifications.',
-				variant: 'danger',
 			});
 		} finally {
 			setIsLoading(false);
 		}
-	}, [toast]);
+	}, []);
 
 	useEffect(() => {
 		loadData();

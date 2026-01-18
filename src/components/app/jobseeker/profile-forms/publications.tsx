@@ -10,7 +10,7 @@ import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTES } from '@/constants/routes.constant';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { Publication } from '@/interfaces/jobseeker.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -113,7 +113,6 @@ function PublicationForm({ isOpen, onClose, onSubmit, initialData, noun }: Publi
 
 export function ProfileFormPublications() {
 	const router = useRouter();
-	const { toast } = useToast();
 	const [history, setHistory] = React.useState<Publication[]>([]);
 	const [editingItem, setEditingItem] = React.useState<Publication | undefined>(undefined);
 	const [itemToDelete, setItemToDelete] = React.useState<Publication | null>(null);
@@ -126,14 +125,13 @@ export function ProfileFormPublications() {
 			const response = await JobseekerProfileService.publication.get();
 			setHistory(response.body);
 		} catch (error) {
-			toast({
+			toast.error({
 				description: 'Failed to load publications.',
-				variant: 'danger',
 			});
 		} finally {
 			setIsLoading(false);
 		}
-	}, [toast]);
+	}, []);
 
 	React.useEffect(() => {
 		loadPublications();
@@ -155,12 +153,12 @@ export function ProfileFormPublications() {
 			const response = id
 				? await JobseekerProfileService.publication.update({ ...payload, id })
 				: await JobseekerProfileService.publication.add(payload);
-			toast({ description: response.message, variant: 'success' });
+			toast.success({ description: response.message });
 			router.refresh();
 			loadPublications();
 			return true;
 		} catch (error: any) {
-			toast({ title: 'Error', description: error.message || 'An error occurred.', variant: 'danger' });
+			toast.error({ title: 'Error', description: error.message || 'An error occurred.' });
 			return false;
 		}
 	};
@@ -169,14 +167,13 @@ export function ProfileFormPublications() {
 		if (!itemToDelete?.id) return;
 		try {
 			const response = await JobseekerProfileService.publication.delete(itemToDelete.id);
-			toast({ description: response.message || 'Publication deleted successfully.', variant: 'success' });
+			toast.success({ description: response.message || 'Publication deleted successfully.' });
 			router.refresh();
 			loadPublications();
 		} catch (error: any) {
-			toast({
+			toast.error({
 				title: 'Error',
 				description: error.message || 'Failed to delete publication.',
-				variant: 'danger',
 			});
 		} finally {
 			setItemToDelete(null);

@@ -2,7 +2,7 @@
 'use client';
 
 import { useDebounce } from '@/hooks/use-debounce';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { useCallback, useEffect, useState } from 'react';
@@ -12,7 +12,6 @@ import { MasterDataCrud } from '@/components/app/admin/master-data/master-data-c
 const initMeta: IMeta = { page: 0, limit: 20 };
 
 export default function MasterOutsourcingZonePage() {
-	const { toast } = useToast();
 	const [items, setItems] = useState<ICommonMasterData[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = useState(true);
@@ -32,16 +31,15 @@ export default function MasterOutsourcingZonePage() {
 				setMeta(response.meta);
 			} catch (error) {
 				console.error('Failed to load items', error);
-				toast({
+				toast.error({
 					title: 'Error',
 					description: 'Failed to load outsourcing zones.',
-					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit, toast]
+		[meta.limit]
 	);
 
 	useEffect(() => {
@@ -55,12 +53,12 @@ export default function MasterOutsourcingZonePage() {
 	const handleAdd = async (data: { nameEn: string; nameBn: string }): Promise<boolean | null> => {
 		try {
 			const resp = await MasterDataService.outsourcingZone.add({ ...data, active: true });
-			toast({ description: resp.message, variant: 'success' });
+			toast.success({ description: resp.message });
 			loadItems(meta.page, debouncedSearch);
 			return true;
 		} catch (error) {
 			console.error('Failed to add item', error);
-			toast({ title: 'Error', description: 'Failed to add outsourcing zone.', variant: 'danger' });
+			toast.error({ title: 'Error', description: 'Failed to add outsourcing zone.' });
 			return null;
 		}
 	};
@@ -69,11 +67,11 @@ export default function MasterOutsourcingZonePage() {
 		try {
 			const updatedItem = await MasterDataService.outsourcingZone.update(item);
 			setItems(items.map((i) => (i?.id === item?.id ? updatedItem?.body : i)));
-			toast({ description: updatedItem?.message, variant: 'success' });
+			toast.success({ description: updatedItem?.message });
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update outsourcing zone.', variant: 'danger' });
+			toast.error({ title: 'Error', description: 'Failed to update outsourcing zone.' });
 			return null;
 		}
 	};
@@ -81,12 +79,12 @@ export default function MasterOutsourcingZonePage() {
 	const handleDelete = async (id: string): Promise<boolean> => {
 		try {
 			await MasterDataService.outsourcingZone.delete(id);
-			toast({ title: 'Success', description: 'Outsourcing zone deleted successfully.', variant: 'success' });
+			toast.success({ title: 'Success', description: 'Outsourcing zone deleted successfully.' });
 			loadItems(meta.page, debouncedSearch);
 			return true;
 		} catch (error) {
 			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: 'Failed to delete outsourcing zone.', variant: 'danger' });
+			toast.error({ title: 'Error', description: 'Failed to delete outsourcing zone.' });
 			return false;
 		}
 	};

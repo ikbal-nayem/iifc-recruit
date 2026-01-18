@@ -10,7 +10,7 @@ import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROUTES } from '@/constants/routes.constant';
-import { toast, useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { JobseekerSkill } from '@/interfaces/jobseeker.interface';
 import { EnumDTO, ICommonMasterData } from '@/interfaces/master-data.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
@@ -140,7 +140,6 @@ interface ProfileFormSkillsProps {
 
 export function ProfileFormSkills({ proficiencyOptions }: ProfileFormSkillsProps) {
 	const router = useRouter();
-	const { toast } = useToast();
 	const [skills, setSkills] = React.useState<JobseekerSkill[]>([]);
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [editingItem, setEditingItem] = React.useState<JobseekerSkill | undefined>(undefined);
@@ -179,12 +178,12 @@ export function ProfileFormSkills({ proficiencyOptions }: ProfileFormSkillsProps
 			const response = id
 				? await JobseekerProfileService.skill.update(payload as JobseekerSkill)
 				: await JobseekerProfileService.skill.add(payload);
-			toast({ description: response.message, variant: 'success' });
+			toast.success({ description: response.message });
 			router.refresh();
 			loadSkills();
 			return true;
 		} catch (error: any) {
-			toast({ title: 'Error', description: error.message || 'An error occurred.', variant: 'danger' });
+			toast.error({ title: 'Error', description: error.message || 'An error occurred.' });
 			return false;
 		}
 	};
@@ -193,11 +192,11 @@ export function ProfileFormSkills({ proficiencyOptions }: ProfileFormSkillsProps
 		if (!itemToDelete?.id) return;
 		try {
 			await JobseekerProfileService.skill.delete(itemToDelete.id);
-			toast({ description: 'Skill deleted successfully.', variant: 'success' });
+			toast.success({ description: 'Skill deleted successfully.' });
 			router.refresh();
 			loadSkills();
 		} catch (error: any) {
-			toast({ title: 'Error', description: error.message || 'Failed to delete skill.', variant: 'danger' });
+			toast.error({ title: 'Error', description: error.message || 'Failed to delete skill.' });
 		} finally {
 			setItemToDelete(null);
 		}

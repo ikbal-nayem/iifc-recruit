@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { AuthService } from '@/services/api/auth.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
@@ -43,11 +43,10 @@ const translations = {
 		otpSent: 'OTP পাঠানো হয়েছে',
 		otpSentDesc: 'আপনার ইমেল ঠিকানায় একটি OTP পাঠানো হয়েছে।',
 		errorDefault: 'OTP পাঠাতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।',
-	}
+	},
 };
 
 export default function ForgotPasswordPage() {
-	const { toast } = useToast();
 	const router = useRouter();
 	const [error, setError] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
@@ -80,10 +79,9 @@ export default function ForgotPasswordPage() {
 		setError(null);
 		try {
 			await AuthService.forgotPassword(data.email);
-			toast({
+			toast.success({
 				title: t.otpSent,
 				description: t.otpSentDesc,
-				variant: 'success',
 			});
 			router.push(`/reset-password?email=${encodeURIComponent(data.email)}`);
 		} catch (err: any) {

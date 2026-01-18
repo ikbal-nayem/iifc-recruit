@@ -2,7 +2,7 @@
 
 import { MasterDataCrud } from '@/components/app/admin/master-data/master-data-crud';
 import { useDebounce } from '@/hooks/use-debounce';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
@@ -11,7 +11,6 @@ import { useCallback, useEffect, useState } from 'react';
 const initMeta: IMeta = { page: 0, limit: 20 };
 
 export default function MasterSkillsPage() {
-	const { toast } = useToast();
 	const [skills, setSkills] = useState<ICommonMasterData[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = useState(true);
@@ -31,16 +30,15 @@ export default function MasterSkillsPage() {
 				setMeta(response.meta);
 			} catch (error) {
 				console.error('Failed to load skills', error);
-				toast({
+				toast.error({
 					title: 'Error',
 					description: 'Failed to load skills.',
-					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit, toast]
+		[meta.limit]
 	);
 
 	useEffect(() => {
@@ -54,13 +52,13 @@ export default function MasterSkillsPage() {
 	const handleAdd = async (data: { nameEn: string, nameBn: string }): Promise<boolean | null> => {
 		try {
 			const resp = await MasterDataService.skill.add({ ...data, active: true });
-			toast({ description: resp.message || "Skill added succesfully.", variant: 'success' });
+			toast.success({ description: resp.message || "Skill added succesfully." });
 			// Refresh list to show the new item
 			loadSkills(meta.page, debouncedSearch);
 			return true;
 		} catch (error) {
 			console.error('Failed to add skill', error);
-			toast({ title: 'Error', description: 'Failed to add skill.', variant: 'danger' });
+			toast.error({ title: 'Error', description: 'Failed to add skill.' });
 			return null;
 		}
 	};
@@ -69,11 +67,11 @@ export default function MasterSkillsPage() {
 		try {
 			const updatedSkill = await MasterDataService.skill.update(item);
 			setSkills(skills.map((s) => (s?.id === item?.id ? updatedSkill?.body : s)));
-			toast({ description: updatedSkill?.message || "Skill updated succesfully", variant: 'success' });
+			toast.success({ description: updatedSkill?.message || "Skill updated succesfully" });
 			return true;
 		} catch (error) {
 			console.error('Failed to update skill', error);
-			toast({ title: 'Error', description: 'Failed to update skill.', variant: 'danger' });
+			toast.error({ title: 'Error', description: 'Failed to update skill.' });
 			return null;
 		}
 	};
@@ -81,12 +79,12 @@ export default function MasterSkillsPage() {
 	const handleDelete = async (id: string): Promise<boolean> => {
 		try {
 			await MasterDataService.skill.delete(id);
-			toast({ title: 'Success', description: 'Skill deleted successfully.', variant: 'success' });
+			toast.success({ title: 'Success', description: 'Skill deleted successfully.' });
 			loadSkills(meta.page, debouncedSearch);
 			return true;
 		} catch (error) {
 			console.error('Failed to delete skill', error);
-			toast({ title: 'Error', description: 'Failed to delete skill.', variant: 'danger' });
+			toast.error({ title: 'Error', description: 'Failed to delete skill.' });
 			return false;
 		}
 	};

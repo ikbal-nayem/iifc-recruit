@@ -2,7 +2,7 @@
 'use client';
 
 import { useDebounce } from '@/hooks/use-debounce';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { useCallback, useEffect, useState } from 'react';
@@ -12,7 +12,6 @@ import { MasterDataCrud } from '@/components/app/admin/master-data/master-data-c
 const initMeta: IMeta = { page: 0, limit: 20 };
 
 export default function MasterOutsourcingCategoryPage() {
-	const { toast } = useToast();
 	const [items, setItems] = useState<ICommonMasterData[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = useState(true);
@@ -32,15 +31,14 @@ export default function MasterOutsourcingCategoryPage() {
 				setMeta(response.meta);
 			} catch (error) {
 				console.error('Failed to load items', error);
-				toast({
+				toast.error({
 					description: 'Failed to load outsourcing categories.',
-					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
 			}
 		},
-		[meta.limit, toast]
+		[meta.limit]
 	);
 
 	useEffect(() => {
@@ -54,12 +52,12 @@ export default function MasterOutsourcingCategoryPage() {
 	const handleAdd = async (data: { nameEn: string; nameBn: string }): Promise<boolean | null> => {
 		try {
 			const resp = await MasterDataService.outsourcingCategory.add({ ...data, active: true });
-			toast({ description: resp.message, variant: 'success' });
+			toast.success({ description: resp.message });
 			loadItems(meta.page, debouncedSearch);
 			return true;
 		} catch (error) {
 			console.error('Failed to add item', error);
-			toast({ title: 'Error', description: 'Failed to add outsourcing category.', variant: 'danger' });
+			toast.error({ title: 'Error', description: 'Failed to add outsourcing category.' });
 			return null;
 		}
 	};
@@ -68,11 +66,11 @@ export default function MasterOutsourcingCategoryPage() {
 		try {
 			const updatedItem = await MasterDataService.outsourcingCategory.update(item);
 			setItems(items.map((i) => (i?.id === item?.id ? updatedItem?.body : i)));
-			toast({ description: updatedItem?.message, variant: 'success' });
+			toast.success({ description: updatedItem?.message });
 			return true;
 		} catch (error) {
 			console.error('Failed to update item', error);
-			toast({ title: 'Error', description: 'Failed to update outsourcing category.', variant: 'danger' });
+			toast.error({ title: 'Error', description: 'Failed to update outsourcing category.' });
 			return null;
 		}
 	};
@@ -80,12 +78,12 @@ export default function MasterOutsourcingCategoryPage() {
 	const handleDelete = async (id: string): Promise<boolean> => {
 		try {
 			await MasterDataService.outsourcingCategory.delete(id);
-			toast({ title: 'Success', description: 'Outsourcing category deleted successfully.', variant: 'success' });
+			toast.success({ title: 'Success', description: 'Outsourcing category deleted successfully.' });
 			loadItems(meta.page, debouncedSearch);
 			return true;
 		} catch (error) {
 			console.error('Failed to delete item', error);
-			toast({ title: 'Error', description: 'Failed to delete outsourcing category.', variant: 'danger' });
+			toast.error({ title: 'Error', description: 'Failed to delete outsourcing category.' });
 			return false;
 		}
 	};

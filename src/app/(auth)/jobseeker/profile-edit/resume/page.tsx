@@ -8,7 +8,7 @@ import { FilePreviewer } from '@/components/ui/file-previewer';
 import { Form } from '@/components/ui/form';
 import { FormFileUpload } from '@/components/ui/form-file-upload';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { Resume } from '@/interfaces/jobseeker.interface';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,7 +28,6 @@ const resumeSchema = z.object({
 type ResumeFormValues = z.infer<typeof resumeSchema>;
 
 export default function JobseekerProfileResumePage() {
-	const { toast } = useToast();
 	const [resumes, setResumes] = React.useState<Resume[]>([]);
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [isUploading, setIsUploading] = React.useState(false);
@@ -44,15 +43,14 @@ export default function JobseekerProfileResumePage() {
 			const response = await JobseekerProfileService.resume.get();
 			setResumes(response.body || []);
 		} catch (error) {
-			toast({
+			toast.error({
 				title: 'Error',
 				description: 'Failed to load resumes.',
-				variant: 'danger',
 			});
 		} finally {
 			setIsLoading(false);
 		}
-	}, [toast]);
+	}, []);
 
 	React.useEffect(() => {
 		loadResumes();
@@ -64,18 +62,16 @@ export default function JobseekerProfileResumePage() {
 			const formData = new FormData();
 			formData.append('file', data.resumeFile);
 			const response = await JobseekerProfileService.resume.add(formData);
-			toast({
+			toast.success({
 				title: 'Resume Uploaded',
 				description: response.message,
-				variant: 'success',
 			});
 			form.reset();
 			loadResumes();
 		} catch (error: any) {
-			toast({
+			toast.error({
 				title: 'Upload Failed',
 				description: error.message || 'There was a problem uploading your resume.',
-				variant: 'danger',
 			});
 		} finally {
 			setIsUploading(false);
@@ -86,16 +82,14 @@ export default function JobseekerProfileResumePage() {
 		setIsSubmitting(id);
 		try {
 			const response = await JobseekerProfileService.resume.setActive(id);
-			toast({
+			toast.success({
 				description: response.message,
-				variant: 'success',
 			});
 			loadResumes();
 		} catch (error: any) {
-			toast({
+			toast.error({
 				title: 'Update Failed',
 				description: error.message || 'Could not set active resume.',
-				variant: 'danger',
 			});
 		} finally {
 			setIsSubmitting(null);
@@ -107,17 +101,15 @@ export default function JobseekerProfileResumePage() {
 		JobseekerProfileService.resume
 			.delete(id)
 			.then(() => {
-				toast({
+				toast.success({
 					title: 'Resume Deleted',
-					variant: 'success',
 				});
 				loadResumes();
 			})
 			.catch((error: any) => {
-				toast({
+				toast.error({
 					title: 'Delete Failed',
 					description: error.message || 'Could not delete resume.',
-					variant: 'danger',
 				});
 			})
 			.finally(() => setIsSubmitting(null));

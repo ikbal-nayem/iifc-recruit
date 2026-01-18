@@ -12,7 +12,7 @@ import { FormDatePicker } from '@/components/ui/form-datepicker';
 import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { ChildInfo, FamilyInfo } from '@/interfaces/jobseeker.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { makeReqDateFormat } from '@/lib/utils';
@@ -140,7 +140,6 @@ export function ProfileFormFamily({
 	spouseStatuses,
 	genders,
 }: ProfileFormFamilyProps) {
-	const { toast } = useToast();
 	const [isSavingSpouse, setIsSavingSpouse] = useState(false);
 	const [children, setChildren] = useState<ChildInfo[]>(initialData?.children || []);
 	const [isChildFormOpen, setIsChildFormOpen] = useState(false);
@@ -165,11 +164,11 @@ export function ProfileFormFamily({
 			setChildren(res.body || []);
 		} catch (error) {
 			console.error('Failed to load children:', error);
-			toast({ title: 'Error', description: "Could not load children's information." });
+			toast.error({ title: 'Error', description: "Could not load children's information." });
 		} finally {
 			setIsLoadingChildren(false);
 		}
-	}, [toast]);
+	}, []);
 
 	useEffect(() => {
 		loadChildren();
@@ -189,13 +188,12 @@ export function ProfileFormFamily({
 		setIsSavingSpouse(true);
 		try {
 			const spouseResponse = await JobseekerProfileService.spouse.save(data as FamilyInfo);
-			toast({ description: spouseResponse.message || 'Spouse information saved.', variant: 'success' });
+			toast.success({ description: spouseResponse.message || 'Spouse information saved.' });
 			form.reset({ ...form.getValues(), id: spouseResponse.body.id });
 		} catch (error: any) {
-			toast({
+			toast.error({
 				title: 'Error',
 				description: error?.message || 'Failed to save spouse information.',
-				variant: 'danger',
 			});
 		} finally {
 			setIsSavingSpouse(false);
@@ -218,11 +216,11 @@ export function ProfileFormFamily({
 			const response = isUpdate
 				? await JobseekerProfileService.children.update(data as ChildInfo)
 				: await JobseekerProfileService.children.add(data);
-			toast({ description: response.message, variant: 'success' });
+			toast.success({ description: response.message });
 			loadChildren(); // Reload children list
 			return true;
 		} catch (error: any) {
-			toast({ title: 'Error', description: error.message, variant: 'danger' });
+			toast.error({ title: 'Error', description: error.message });
 			return false;
 		}
 	};
@@ -230,10 +228,10 @@ export function ProfileFormFamily({
 	const handleChildDelete = async (id: string) => {
 		try {
 			await JobseekerProfileService.children.delete(id);
-			toast({ description: 'Child successfully deleted.', variant: 'success' });
+			toast.success({ description: 'Child successfully deleted.' });
 			loadChildren();
 		} catch (error: any) {
-			toast({ title: 'Error', description: error.message, variant: 'danger' });
+			toast.error({ title: 'Error', description: error.message });
 		}
 	};
 

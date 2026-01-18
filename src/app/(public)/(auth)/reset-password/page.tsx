@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { AuthService } from '@/services/api/auth.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
@@ -60,11 +60,10 @@ const translations = {
 		resetSuccess: 'পাসওয়ার্ড রিসেট সফল',
 		resetSuccessDesc: 'এখন আপনি আপনার নতুন পাসওয়ার্ড দিয়ে লগইন করতে পারেন।',
 		resetError: 'পাসওয়ার্ড রিসেট করতে ব্যর্থ। আপনার OTP পরীক্ষা করুন এবং আবার চেষ্টা করুন।',
-	}
+	},
 };
 
 export default function ResetPasswordPage() {
-	const { toast } = useToast();
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const email = searchParams.get('email');
@@ -116,10 +115,9 @@ export default function ResetPasswordPage() {
 				otp: data.otp,
 				password: data.newPassword,
 			});
-			toast({
+			toast.success({
 				title: t.resetSuccess,
 				description: t.resetSuccessDesc,
-				variant: 'success',
 			});
 			router.push('/login');
 		} catch (err: any) {
@@ -145,12 +143,12 @@ export default function ResetPasswordPage() {
 								<AlertDescription>{error}</AlertDescription>
 							</Alert>
 						)}
-						<FormInput 
-							control={form.control} 
-							name='otp' 
-							label={t.otpLabel} 
-							placeholder={t.otpPlaceholder} 
-							required 
+						<FormInput
+							control={form.control}
+							name='otp'
+							label={t.otpLabel}
+							placeholder={t.otpPlaceholder}
+							required
 						/>
 						<FormInput
 							control={form.control}

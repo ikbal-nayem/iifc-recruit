@@ -2,7 +2,7 @@
 'use client';
 
 import { AttachmentCrud } from '@/components/app/admin/master-data/attachment-crud';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { IApiRequest, IAttachment, IMeta } from '@/interfaces/common.interface';
 import { EnumDTO } from '@/interfaces/master-data.interface';
 import { AttachmentService } from '@/services/api/attachment.service';
@@ -12,7 +12,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 const initMeta: IMeta = { page: 0, limit: 10, totalRecords: 0 };
 
 export default function MasterAttachmentsPage() {
-	const { toast } = useToast();
 	const [items, setItems] = useState<IAttachment[]>([]);
 	const [meta, setMeta] = useState<IMeta>(initMeta);
 	const [isLoading, setIsLoading] = useState(true);
@@ -30,7 +29,7 @@ export default function MasterAttachmentsPage() {
 		} finally {
 			setIsLoading(false);
 		}
-	}, [meta.limit, toast]);
+	}, [meta.limit]);
 
 	useEffect(() => {
 		loadItems(0);
@@ -40,7 +39,7 @@ export default function MasterAttachmentsPage() {
 		MasterDataService.getEnum('attachemnt-type')
 			.then((res) => setAttachmentTypes(res.body as EnumDTO[]))
 			.catch(() => toast.error({ description: 'Failed to load attachment types.' }));
-	}, [toast]);
+	}, []);
 
 	const handlePageChange = (newPage: number) => {
 		loadItems(newPage);
@@ -101,4 +100,3 @@ export default function MasterAttachmentsPage() {
 		/>
 	);
 }
-

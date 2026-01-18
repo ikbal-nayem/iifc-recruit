@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Save } from 'lucide-react';
 import * as React from 'react';
@@ -27,7 +27,6 @@ const changePasswordSchema = z
 type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
 
 export function ChangePasswordForm() {
-	const { toast } = useToast();
 	const [isLoading, setIsLoading] = React.useState(false);
 
 	const form = useForm<ChangePasswordFormValues>({
@@ -43,18 +42,16 @@ export function ChangePasswordForm() {
 		setIsLoading(true);
 		AuthService.changePassword({ currentPassword: data.currentPassword, newPassword: data.newPassword })
 			.then(() => {
-				toast({
+				toast.success({
 					title: 'Password Updated',
 					description: 'Your password has been changed successfully.',
-					variant: 'success',
 				});
 				form.reset();
 			})
 			.catch((err: any) => {
-				toast({
+				toast.error({
 					title: 'Update Failed',
 					description: err.message || 'There was a problem changing your password.',
-					variant: 'danger',
 				});
 			})
 			.finally(() => {

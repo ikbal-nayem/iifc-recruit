@@ -1,7 +1,7 @@
 'use client';
 
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { IFile } from '@/interfaces/common.interface';
 import { isFileImage, isFilePdf, makeDownloadURL, makePreviewURL } from '@/lib/file-oparations';
 import { cn } from '@/lib/utils';
@@ -20,7 +20,6 @@ export function FilePreviewer({ file, children, className }: FilePreviewerProps)
 	const [isLoading, setIsLoading] = useState(false);
 	const [isMaximized, setIsMaximized] = useState(false);
 	const [previewUrl, setPreviewUrl] = useState('');
-	const { toast } = useToast();
 
 	const isFileObject = file instanceof File;
 	const fileType = isFileObject ? file.type : file.fileType;
@@ -68,10 +67,9 @@ export function FilePreviewer({ file, children, className }: FilePreviewerProps)
 			}
 		} catch (error) {
 			console.error('Failed to load file for preview:', error);
-			toast({
+			toast.error({
 				title: 'Error',
 				description: 'Could not load file for preview.',
-				variant: 'danger',
 			});
 			setIsOpen(false);
 		} finally {

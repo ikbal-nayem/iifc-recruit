@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDebounce } from '@/hooks/use-debounce';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { makePreviewURL } from '@/lib/file-oparations';
@@ -28,7 +28,6 @@ export function OrganizationJobseekerList({ organizationId }: { organizationId: 
 	const [data, setData] = React.useState<JobseekerSearch[]>([]);
 	const [meta, setMeta] = React.useState<IMeta>(initMeta);
 	const [selectedJobseeker, setSelectedJobseeker] = React.useState<JobseekerSearch | null>(null);
-	const { toast } = useToast();
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [searchQuery, setSearchQuery] = React.useState('');
 	const debouncedSearch = useDebounce(searchQuery, 500);
@@ -48,16 +47,15 @@ export function OrganizationJobseekerList({ organizationId }: { organizationId: 
 				setData(response.body);
 				setMeta(response.meta);
 			} catch (error: any) {
-				toast({
+				toast.error({
 					title: 'Error',
 					description: error.message || 'Failed to load jobseekers.',
-					variant: 'danger',
 				});
 			} finally {
 				setIsLoading(false);
 			}
 		},
-		[toast, organizationId]
+		[organizationId]
 	);
 
 	React.useEffect(() => {
