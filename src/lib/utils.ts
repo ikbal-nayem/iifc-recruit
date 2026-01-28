@@ -1,4 +1,3 @@
-
 import { IObject } from '@/interfaces/common.interface';
 import { clsx, type ClassValue } from 'clsx';
 import { format } from 'date-fns';
@@ -47,4 +46,12 @@ export const isEnglish = (value: string) => {
 
 export const isBangla = (value: string) => {
 	return /^[\u0980-\u09FF0-9 /.,_()-\s]*$/.test(value);
+};
+
+export const regenerateBDPhoneNumber = (phone: string) => {
+	if (!phone) return '';
+	let newPhone = phone.replace(/\D/g, '');
+	if (newPhone.startsWith('880')) newPhone = '0' + newPhone.slice(3);
+	else if (!newPhone.startsWith('0')) newPhone = '0' + newPhone;
+	return newPhone;
 };

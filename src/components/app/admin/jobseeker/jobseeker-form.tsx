@@ -22,7 +22,7 @@ import useLoader from '@/hooks/use-loader';
 import { toast } from '@/hooks/use-toast';
 import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { convertBnToEn } from '@/lib/translator';
-import { cn } from '@/lib/utils';
+import { cn, regenerateBDPhoneNumber } from '@/lib/utils';
 import { UserService } from '@/services/api/user.service';
 import { getOutsourcingCategoriesAsync, getPostOutsourcingByCategoryAsync } from '@/services/async-api';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -41,7 +41,7 @@ const userSchema = z.object({
 		.string()
 		.min(1, 'Phone number is required')
 		.max(11, 'Phone number too long')
-		.regex(/^01[0-9]{9}$/, 'Invalid phone number'),
+		.regex(/^01[0-9]{9}$/, 'Number must starts with 01...'),
 	organizationId: z.string().optional(),
 	interestedInPostIds: z.array(z.string()).optional(),
 	categoryFilter: z.string().optional(),
@@ -62,7 +62,7 @@ const bulkUserSchema = z.object({
 					'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 					'text/csv',
 				].includes(file?.type),
-			'Only .xls, .xlsx, and .csv files are accepted.'
+			'Only .xls, .xlsx, and .csv files are accepted.',
 		),
 });
 type BulkUserFormValues = z.infer<typeof bulkUserSchema>;
@@ -74,7 +74,7 @@ const editableUserSchema = z.object({
 			email: z.string().email('Invalid email').optional().or(z.literal('')),
 			phone: z.string(),
 			status: z.string().optional(),
-		})
+		}),
 	),
 });
 type EditableUserFormValues = z.infer<typeof editableUserSchema>;
@@ -135,7 +135,12 @@ export function JobseekerForm({
 			const response = await UserService.bulkCreateJobseeker([
 				{ organizationId, interestedInPostIds, ...userData },
 			]);
-			toast.success({ description: response.message || 'Jobseeker created successfully.' });
+			toast({
+				description: response.body?.[0]?.alreadyExists
+					? 'Jobseeker already exists.'
+					: response.message || 'Jobseeker created successfully.',
+				variant: response.body?.[0]?.alreadyExists ? 'warning' : 'success',
+			});
 			onSuccess();
 			onClose();
 		} catch (error: any) {
@@ -164,9 +169,7 @@ export function JobseekerForm({
 				const modJson = json.map((item: any) => ({
 					...item,
 					firstName: item.name,
-					phone: !!item.mobile
-						? convertBnToEn(String(item.mobile)).replaceAll(' ', '').replaceAll('-', '')
-						: '',
+					phone: !!item.mobile ? regenerateBDPhoneNumber(convertBnToEn(String(item.mobile))) : '',
 				}));
 				replace(modJson as any);
 				setStep('preview');
@@ -181,7 +184,7 @@ export function JobseekerForm({
 		const { organizationId, interestedInPostIds } = bulkForm.getValues();
 		try {
 			const response = await UserService.bulkCreateJobseeker(
-				data.users.map((user) => ({ organizationId, interestedInPostIds, ...user }))
+				data.users.map((user) => ({ organizationId, interestedInPostIds, ...user })),
 			);
 			const results = response.body;
 			replace(results);
@@ -253,7 +256,7 @@ export function JobseekerForm({
 					<span
 						className={cn(
 							'flex justify-center text-xs font-semibold px-4',
-							row.original.alreadyExists ? 'text-warning' : 'text-success'
+							row.original.alreadyExists ? 'text-warning' : 'text-success',
 						)}
 					>
 						{row.original.alreadyExists ? 'Exists' : <Check className='inline-block' />}
