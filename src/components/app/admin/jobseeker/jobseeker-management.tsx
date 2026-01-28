@@ -161,7 +161,7 @@ export function JobseekerManagement({
 				return (
 					<div className='flex flex-wrap gap-1'>
 						{interests.map((interestId) => (
-							<Badge key={interestId} variant='outline' className='text-xs'>
+							<Badge key={interestId} variant='outline' className='text-xs text-muted-foreground'>
 								{interestId}
 							</Badge>
 						))}
