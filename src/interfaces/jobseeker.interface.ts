@@ -256,4 +256,5 @@ export type JobseekerSearch = {
 	outsourcingCategoryEn?: string;
 	outsourcingCategoryBn?: string;
 	profileCompletion?: number;
+	interestedIn?: string[];
 };

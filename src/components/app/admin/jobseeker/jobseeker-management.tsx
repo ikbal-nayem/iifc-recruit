@@ -153,6 +153,23 @@ export function JobseekerManagement({
 			),
 		},
 		{
+			accessorKey: "interestedIn",
+			header: 'Interested In',
+			cell: ({ row }) => {
+				const interests = row.original.interestedIn;
+				if (!interests || interests.length === 0) return <span className='text-muted-foreground'>-</span>;
+				return (
+					<div className='flex flex-wrap gap-1'>
+						{interests.map((interestId) => (
+							<Badge key={interestId} variant='outline' className='text-xs'>
+								{interestId}
+							</Badge>
+						))}
+					</div>
+				);
+			}
+		},
+		{
 			accessorKey: 'profileCompletion',
 			header: 'Profile Complete',
 			cell: ({ row }) => {
