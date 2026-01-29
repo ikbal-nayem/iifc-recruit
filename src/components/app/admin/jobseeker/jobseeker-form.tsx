@@ -20,6 +20,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { COMMON_URL } from '@/constants/common.constant';
 import useLoader from '@/hooks/use-loader';
 import { toast } from '@/hooks/use-toast';
+import { JobseekerSearch } from '@/interfaces/jobseeker.interface';
 import { IClientOrganization } from '@/interfaces/master-data.interface';
 import { convertBnToEn } from '@/lib/translator';
 import { cn, regenerateBDPhoneNumber } from '@/lib/utils';
@@ -84,26 +85,38 @@ export function JobseekerForm({
 	onClose,
 	onSuccess,
 	organizations,
+	initialData,
 }: {
 	isOpen: boolean;
 	onClose: () => void;
 	onSuccess: () => void;
 	organizations: IClientOrganization[];
+	initialData?: JobseekerSearch;
 }) {
 	const [activeTab, setActiveTab] = React.useState('single');
 	const [isSubmitting, setIsSubmitting] = useLoader(false);
 	const [step, setStep] = React.useState<'upload' | 'preview' | 'result'>('upload');
+	const isEditing = !!initialData;
 
 	const singleForm = useForm<UserFormValues>({
 		resolver: zodResolver(userSchema),
-		defaultValues: {
-			firstName: '',
-			email: '',
-			phone: '',
-			organizationId: '',
-			interestedInPostIds: [],
-			categoryFilter: '',
-		},
+		defaultValues: initialData
+			? {
+					firstName: initialData.fullName,
+					email: initialData.email,
+					phone: initialData.phone,
+					organizationId: initialData.organizationId,
+					interestedInPostIds: initialData.interestedIn,
+					categoryFilter: initialData.outsourcingCategoryId,
+			  }
+			: {
+					firstName: '',
+					email: '',
+					phone: '',
+					organizationId: '',
+					interestedInPostIds: [],
+					categoryFilter: '',
+			  },
 	});
 
 	const bulkForm = useForm<BulkUserFormValues>({
@@ -131,21 +144,27 @@ export function JobseekerForm({
 	const handleSingleSubmit = async (data: UserFormValues) => {
 		setIsSubmitting(true);
 		try {
-			const { organizationId, interestedInPostIds, ...userData } = data;
-			const response = await UserService.bulkCreateJobseeker([
-				{ organizationId, interestedInPostIds, ...userData },
-			]);
-			toast({
-				description: response.body?.[0]?.alreadyExists
-					? 'Jobseeker already exists.'
-					: response.message || 'Jobseeker created successfully.',
-				variant: response.body?.[0]?.alreadyExists ? 'warning' : 'success',
-			});
+			const { categoryFilter, ...payloadData } = data; // remove categoryFilter
+			if (isEditing) {
+				const payload = { ...payloadData, id: initialData.userId };
+				await UserService.updateUser(payload);
+				toast.success({
+					description: 'Jobseeker updated successfully.',
+				});
+			} else {
+				const response = await UserService.bulkCreateJobseeker([payloadData]);
+				toast({
+					description: response.body?.[0]?.alreadyExists
+						? 'Jobseeker already exists.'
+						: response.message || 'Jobseeker created successfully.',
+					variant: response.body?.[0]?.alreadyExists ? 'warning' : 'success',
+				});
+			}
 			onSuccess();
 			onClose();
 		} catch (error: any) {
 			toast.error({
-				description: error.message || 'Failed to create jobseeker.',
+				description: error.message || 'Failed to save jobseeker.',
 			});
 		} finally {
 			setIsSubmitting(false);
@@ -184,7 +203,7 @@ export function JobseekerForm({
 		const { organizationId, interestedInPostIds } = bulkForm.getValues();
 		try {
 			const response = await UserService.bulkCreateJobseeker(
-				data.users.map((user) => ({ organizationId, interestedInPostIds, ...user })),
+				data.users.map((user) => ({ organizationId, interestedInPostIds, ...user }))
 			);
 			const results = response.body;
 			replace(results);
@@ -256,7 +275,7 @@ export function JobseekerForm({
 					<span
 						className={cn(
 							'flex justify-center text-xs font-semibold px-4',
-							row.original.alreadyExists ? 'text-warning' : 'text-success',
+							row.original.alreadyExists ? 'text-warning' : 'text-success'
 						)}
 					>
 						{row.original.alreadyExists ? 'Exists' : <Check className='inline-block' />}
@@ -278,16 +297,22 @@ export function JobseekerForm({
 		<Sheet open={isOpen} onOpenChange={(open) => !open && resetState()}>
 			<SheetContent className='sm:max-w-[800px] w-full p-0 flex flex-col' side='right'>
 				<SheetHeader className='p-6 pb-2'>
-					<SheetTitle>Create New Jobseeker(s)</SheetTitle>
-					<SheetDescription>Add a single jobseeker or upload a file for bulk import.</SheetDescription>
+					<SheetTitle>{isEditing ? 'Edit Jobseeker' : 'Create New Jobseeker(s)'}</SheetTitle>
+					<SheetDescription>
+						{isEditing
+							? "Update the jobseeker's basic information."
+							: 'Add a single jobseeker or upload a file for bulk import.'}
+					</SheetDescription>
 				</SheetHeader>
-				<Tabs value={activeTab} onValueChange={setActiveTab} className='w-full px-6'>
-					<TabsList className='grid w-full grid-cols-2'>
-						<TabsTrigger value='single'>Single Entry</TabsTrigger>
-						<TabsTrigger value='bulk'>Bulk Upload</TabsTrigger>
-					</TabsList>
-				</Tabs>
-				{activeTab === 'single' ? (
+				{!isEditing && (
+					<Tabs value={activeTab} onValueChange={setActiveTab} className='w-full px-6'>
+						<TabsList className='grid w-full grid-cols-2'>
+							<TabsTrigger value='single'>Single Entry</TabsTrigger>
+							<TabsTrigger value='bulk'>Bulk Upload</TabsTrigger>
+						</TabsList>
+					</Tabs>
+				)}
+				{activeTab === 'single' || isEditing ? (
 					<Form {...singleForm}>
 						<form onSubmit={singleForm.handleSubmit(handleSingleSubmit)} className='space-y-4 px-6 py-4'>
 							<FormAutocomplete
@@ -339,7 +364,7 @@ export function JobseekerForm({
 								</Button>
 								<Button type='submit' disabled={isSubmitting}>
 									{isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-									Create Jobseeker
+									{isEditing ? 'Save Changes' : 'Create Jobseeker'}
 								</Button>
 							</SheetFooter>
 						</form>

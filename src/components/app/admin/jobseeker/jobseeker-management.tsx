@@ -24,7 +24,7 @@ import { makePreviewURL } from '@/lib/file-oparations';
 import { JobseekerProfileService } from '@/services/api/jobseeker-profile.service';
 import { UserService } from '@/services/api/user.service';
 import { getOutsourcingCategoriesAsync, getPostOutsourcingByCategoryAsync } from '@/services/async-api';
-import { Building, FileText, Loader2, Search, Trash } from 'lucide-react';
+import { Building, Edit, FileText, Loader2, Search, Trash } from 'lucide-react';
 import { JobseekerProfileView } from '../../jobseeker/jobseeker-profile-view';
 import { JobseekerForm } from './jobseeker-form';
 
@@ -49,6 +49,7 @@ export function JobseekerManagement({
 	const [organizationFilter, setOrganizationFilter] = React.useState('all');
 	const [categoryFilter, setCategoryFilter] = React.useState('all');
 	const [postFilter, setPostFilter] = React.useState('all');
+	const [editingJobseeker, setEditingJobseeker] = React.useState<JobseekerSearch | undefined>(undefined);
 
 	const loadJobseekers = React.useCallback(
 		async (page: number, search: string, orgId: string, categoryId: string, postId: string) => {
@@ -74,7 +75,7 @@ export function JobseekerManagement({
 				setIsLoading(false);
 			}
 		},
-		[],
+		[]
 	);
 
 	React.useEffect(() => {
@@ -98,11 +99,26 @@ export function JobseekerManagement({
 		}
 	};
 
+	const handleOpenForm = (jobseeker?: JobseekerSearch) => {
+		setEditingJobseeker(jobseeker);
+		setIsFormOpen(true);
+	};
+
+	const handleCloseForm = () => {
+		setEditingJobseeker(undefined);
+		setIsFormOpen(false);
+	};
+
 	const getActionItems = (jobseeker: JobseekerSearch): ActionItem[] => [
 		{
 			label: 'View Full Profile',
 			icon: <FileText className='mr-2 h-4 w-4' />,
 			onClick: () => setSelectedJobseeker(jobseeker),
+		},
+		{
+			label: 'Edit',
+			icon: <Edit className='mr-2 h-4 w-4' />,
+			onClick: () => handleOpenForm(jobseeker),
 		},
 		{ isSeparator: true },
 		{
@@ -153,7 +169,7 @@ export function JobseekerManagement({
 			),
 		},
 		{
-			accessorKey: "interestedIn",
+			accessorKey: 'interestedIn',
 			header: 'Interested In',
 			cell: ({ row }) => {
 				const interests = row.original.interestedIn;
@@ -167,7 +183,7 @@ export function JobseekerManagement({
 						))}
 					</div>
 				);
-			}
+			},
 		},
 		{
 			accessorKey: 'profileCompletion',
@@ -228,8 +244,8 @@ export function JobseekerManagement({
 							jobseeker.profileCompletion >= 75
 								? 'lite-success'
 								: jobseeker.profileCompletion >= 50
-									? 'lite-warning'
-									: 'lite-danger'
+								? 'lite-warning'
+								: 'lite-danger'
 						}
 					>
 						{jobseeker.profileCompletion}% Complete
@@ -392,9 +408,13 @@ export function JobseekerManagement({
 			</Dialog>
 			<JobseekerForm
 				isOpen={isFormOpen}
-				onClose={() => setIsFormOpen(false)}
-				onSuccess={() => loadJobseekers(0, '', 'all', 'all', 'all')}
+				onClose={handleCloseForm}
+				onSuccess={() => {
+					handleCloseForm();
+					loadJobseekers(0, '', 'all', 'all', 'all');
+				}}
 				organizations={organizations}
+				initialData={editingJobseeker}
 			/>
 			{userToDelete && (
 				<ConfirmationDialog
