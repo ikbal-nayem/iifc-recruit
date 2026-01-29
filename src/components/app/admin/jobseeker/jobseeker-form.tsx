@@ -80,6 +80,15 @@ const editableUserSchema = z.object({
 });
 type EditableUserFormValues = z.infer<typeof editableUserSchema>;
 
+const defaultValues: UserFormValues = {
+	firstName: '',
+	email: '',
+	phone: '',
+	organizationId: '',
+	interestedInPostIds: [],
+	categoryFilter: '',
+};
+
 export function JobseekerForm({
 	isOpen,
 	onClose,
@@ -100,24 +109,22 @@ export function JobseekerForm({
 
 	const singleForm = useForm<UserFormValues>({
 		resolver: zodResolver(userSchema),
-		defaultValues: initialData
-			? {
-					firstName: initialData.fullName,
-					email: initialData.email,
-					phone: initialData.phone,
-					organizationId: initialData.organizationId,
-					interestedInPostIds: initialData.interestedIn,
-					categoryFilter: initialData.outsourcingCategoryId,
-			  }
-			: {
-					firstName: '',
-					email: '',
-					phone: '',
-					organizationId: '',
-					interestedInPostIds: [],
-					categoryFilter: '',
-			  },
+		defaultValues,
 	});
+
+	React.useEffect(() => {
+		if (isOpen && !initialData) singleForm.reset(defaultValues);
+		if (isOpen && !!initialData) {
+			singleForm.reset({
+				firstName: initialData?.fullName || '',
+				email: initialData?.email || '',
+				phone: initialData?.phone || '',
+				organizationId: initialData?.organizationId || '',
+				interestedInPostIds: initialData?.interestedIn || [],
+				categoryFilter: initialData?.outsourcingCategoryId || '',
+			});
+		}
+	}, [isOpen, initialData]);
 
 	const bulkForm = useForm<BulkUserFormValues>({
 		resolver: zodResolver(bulkUserSchema),
@@ -144,7 +151,7 @@ export function JobseekerForm({
 	const handleSingleSubmit = async (data: UserFormValues) => {
 		setIsSubmitting(true);
 		try {
-			const { categoryFilter, ...payloadData } = data; // remove categoryFilter
+			const { categoryFilter, ...payloadData } = data;
 			if (isEditing) {
 				const payload = { ...payloadData, id: initialData.userId };
 				await UserService.updateUser(payload);
@@ -203,7 +210,7 @@ export function JobseekerForm({
 		const { organizationId, interestedInPostIds } = bulkForm.getValues();
 		try {
 			const response = await UserService.bulkCreateJobseeker(
-				data.users.map((user) => ({ organizationId, interestedInPostIds, ...user }))
+				data.users.map((user) => ({ organizationId, interestedInPostIds, ...user })),
 			);
 			const results = response.body;
 			replace(results);
@@ -275,7 +282,7 @@ export function JobseekerForm({
 					<span
 						className={cn(
 							'flex justify-center text-xs font-semibold px-4',
-							row.original.alreadyExists ? 'text-warning' : 'text-success'
+							row.original.alreadyExists ? 'text-warning' : 'text-success',
 						)}
 					>
 						{row.original.alreadyExists ? 'Exists' : <Check className='inline-block' />}
@@ -292,6 +299,8 @@ export function JobseekerForm({
 		columns,
 		getCoreRowModel: getCoreRowModel(),
 	});
+
+	console.log(initialData, singleForm.getValues());
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && resetState()}>
@@ -329,35 +338,37 @@ export function JobseekerForm({
 								<FormInput control={singleForm.control} name='phone' label='Phone' required />
 							</div>
 							<FormInput control={singleForm.control} name='email' label='Email' type='email' />
-							<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-								<FormAutocomplete
-									control={singleForm.control}
-									name='categoryFilter'
-									label='Posts Category'
-									placeholder='Select a category'
-									loadOptions={getOutsourcingCategoriesAsync}
-									getOptionValue={(option) => option.id!}
-									getOptionLabel={(option) => option.nameBn}
-									allowClear
-									onValueChange={() => singleForm.setValue('interestedInPostIds', [])}
-								/>
-								<FormMultiSelect
-									control={singleForm.control}
-									name='interestedInPostIds'
-									label='Interested in (Outsourcing Post)'
-									placeholder='Select posts...'
-									loadOptions={(search, callback) =>
-										getPostOutsourcingByCategoryAsync(search, singleCategoryFilter, callback)
-									}
-									getOptionValue={(option) => option.id!}
-									getOptionLabel={(option) => (
-										<div className='flex flex-col text-sm'>
-											{option.nameBn}
-											<span className='text-muted-foreground'>{option.outsourcingCategory?.nameBn}</span>
-										</div>
-									)}
-								/>
-							</div>
+							{!isEditing && (
+								<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+									<FormAutocomplete
+										control={singleForm.control}
+										name='categoryFilter'
+										label='Posts Category'
+										placeholder='Select a category'
+										loadOptions={getOutsourcingCategoriesAsync}
+										getOptionValue={(option) => option.id!}
+										getOptionLabel={(option) => option.nameBn}
+										allowClear
+										onValueChange={() => singleForm.setValue('interestedInPostIds', [])}
+									/>
+									<FormMultiSelect
+										control={singleForm.control}
+										name='interestedInPostIds'
+										label='Interested in (Outsourcing Post)'
+										placeholder='Select posts...'
+										loadOptions={(search, callback) =>
+											getPostOutsourcingByCategoryAsync(search, singleCategoryFilter, callback)
+										}
+										getOptionValue={(option) => option.id!}
+										getOptionLabel={(option) => (
+											<div className='flex flex-col text-sm'>
+												{option.nameBn}
+												<span className='text-muted-foreground'>{option.outsourcingCategory?.nameBn}</span>
+											</div>
+										)}
+									/>
+								</div>
+							)}
 							<SheetFooter className='pt-4'>
 								<Button type='button' variant='outline' onClick={resetState} disabled={isSubmitting}>
 									Cancel
