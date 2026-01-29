@@ -300,8 +300,6 @@ export function JobseekerForm({
 		getCoreRowModel: getCoreRowModel(),
 	});
 
-	console.log(initialData, singleForm.getValues());
-
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && resetState()}>
 			<SheetContent className='sm:max-w-[800px] w-full p-0 flex flex-col' side='right'>
